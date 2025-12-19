@@ -106,7 +106,7 @@ export default function DesktopTrading() {
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [marginType] = useState("Cross");
   const [leverage] = useState("10x");
-  const [orderType, setOrderType] = useState<"Limit" | "Market" | "Conditional">("Market");
+  const [orderType, setOrderType] = useState<"Limit" | "Market">("Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
   const [reduceOnly, setReduceOnly] = useState(false);
@@ -188,10 +188,6 @@ export default function DesktopTrading() {
             <div className="text-muted-foreground">Next Funding</div>
             <div className="font-mono font-medium">28min</div>
           </div>
-          <div>
-            <div className="text-muted-foreground">Open Interest</div>
-            <div className="font-mono font-medium">$1.2M</div>
-          </div>
         </div>
 
       </header>
@@ -249,11 +245,6 @@ export default function DesktopTrading() {
                         {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
                       </span>
                       <span className="text-xs text-muted-foreground">Mark: {selectedOptionData.price}</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>Standard</span>
-                      <span className="text-trading-purple font-medium">TradingView</span>
-                      <span>Depth</span>
                     </div>
                   </div>
                   <div className="flex-1 min-h-0">
@@ -533,7 +524,7 @@ export default function DesktopTrading() {
 
             {/* Order Type Tabs */}
             <div className="flex border-b border-border/30">
-              {(["Limit", "Market", "Conditional"] as const).map((type) => (
+              {(["Limit", "Market"] as const).map((type) => (
                 <button
                   key={type}
                   onClick={() => setOrderType(type)}
