@@ -54,7 +54,7 @@ export default {
         trading: {
           green: "hsl(var(--trading-green))",
           "green-muted": "hsl(var(--trading-green-muted))",
-          "green-foreground": "hsl(var(--background))",
+          "green-foreground": "hsl(var(--foreground))",
           red: "hsl(var(--trading-red))",
           "red-muted": "hsl(var(--trading-red-muted))",
           purple: "hsl(var(--trading-purple))",
