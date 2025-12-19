@@ -7,9 +7,33 @@ import Index from "./pages/Index";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import OrderPreview from "./pages/OrderPreview";
+import DesktopTrading from "./pages/DesktopTrading";
 import NotFound from "./pages/NotFound";
+import { useIsMobile } from "./hooks/use-mobile";
 
 const queryClient = new QueryClient();
+
+// Responsive layout wrapper
+const ResponsiveLayout = ({ children }: { children: React.ReactNode }) => {
+  const isMobile = useIsMobile();
+  
+  if (isMobile) {
+    return <div className="max-w-md mx-auto min-h-screen bg-background">{children}</div>;
+  }
+  
+  return <div className="min-h-screen bg-background">{children}</div>;
+};
+
+// Route component that shows different pages based on device
+const TradingPage = () => {
+  const isMobile = useIsMobile();
+  return isMobile ? <TradingCharts /> : <DesktopTrading />;
+};
+
+const TradeOrderPage = () => {
+  const isMobile = useIsMobile();
+  return isMobile ? <TradeOrder /> : <DesktopTrading />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -17,15 +41,15 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="max-w-md mx-auto min-h-screen bg-background">
+        <ResponsiveLayout>
           <Routes>
-            <Route path="/" element={<TradingCharts />} />
-            <Route path="/trade" element={<TradingCharts />} />
-            <Route path="/trade/order" element={<TradeOrder />} />
+            <Route path="/" element={<TradingPage />} />
+            <Route path="/trade" element={<TradingPage />} />
+            <Route path="/trade/order" element={<TradeOrderPage />} />
             <Route path="/order-preview" element={<OrderPreview />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </div>
+        </ResponsiveLayout>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
