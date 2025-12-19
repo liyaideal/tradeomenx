@@ -13,7 +13,6 @@ const options = [
   { id: "5", label: "240-259", price: "0.1942" },
 ];
 
-// Generate order book data based on base price
 const generateOrderBookData = (basePrice: number) => {
   const asks = [];
   const bids = [];
@@ -51,7 +50,6 @@ const mockOrders = [
     orderType: "Limit" as const,
     event: "Elon Musk # tweets December 12 - December 19, 2025?",
     option: "200-219",
-    probability: "35%",
     price: "$0.3456",
     amount: "1,500",
     total: "$518",
@@ -63,7 +61,6 @@ const mockOrders = [
     orderType: "Limit" as const,
     event: "Elon Musk # tweets December 12 - December 19, 2025?",
     option: "160-179",
-    probability: "12%",
     price: "$0.1150",
     amount: "2,300",
     total: "$265",
@@ -106,8 +103,8 @@ export default function DesktopTrading() {
   
   // Trade form state
   const [side, setSide] = useState<"buy" | "sell">("buy");
-  const [marginType, setMarginType] = useState("Cross");
-  const [leverage, setLeverage] = useState("10x");
+  const [marginType] = useState("Cross");
+  const [leverage] = useState("10x");
   const [orderType, setOrderType] = useState<"Limit" | "Market" | "Conditional">("Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
@@ -117,7 +114,6 @@ export default function DesktopTrading() {
   
   const available = 2453.42;
 
-  // Get selected option data
   const selectedOptionData = useMemo(() => {
     return options.find(opt => opt.id === selectedOption) || options[1];
   }, [selectedOption]);
@@ -127,7 +123,6 @@ export default function DesktopTrading() {
     return generateOrderBookData(basePrice);
   }, [selectedOptionData.price]);
 
-  // Calculate price change (mock data)
   const priceChange = useMemo(() => {
     const change = (Math.random() * 0.02 - 0.01).toFixed(4);
     const percentage = ((parseFloat(change) / parseFloat(selectedOptionData.price)) * 100).toFixed(2);
@@ -152,7 +147,6 @@ export default function DesktopTrading() {
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top Header */}
       <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
-        {/* Event Info */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <button onClick={() => navigate(-1)} className="p-1 text-muted-foreground hover:text-foreground">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,7 +174,6 @@ export default function DesktopTrading() {
           <Star className="w-4 h-4 text-muted-foreground hover:text-trading-yellow cursor-pointer flex-shrink-0" />
         </div>
 
-        {/* Stats */}
         <div className="flex items-center gap-6 text-xs">
           <div>
             <div className="text-muted-foreground">24h Volume</div>
@@ -200,7 +193,6 @@ export default function DesktopTrading() {
           </div>
         </div>
 
-        {/* External Link */}
         <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ExternalLink className="w-4 h-4" />
           Event Info
@@ -230,45 +222,180 @@ export default function DesktopTrading() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Chart Area */}
-        <div className="flex-1 flex flex-col min-w-0 border-r border-border/30">
-          {/* Price Header */}
-          <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
-            <div className="flex items-baseline gap-3">
-              <span className="text-2xl font-bold font-mono">{selectedOptionData.price}</span>
-              <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
-                {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
-              </span>
-              <span className="text-xs text-muted-foreground">
-                Mark: {selectedOptionData.price}
-              </span>
+        {/* Left Section: Chart + Order Book + Positions */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top: Chart + Order Book */}
+          <div className="flex flex-1 min-h-0">
+            {/* Chart Area */}
+            <div className="flex-1 flex flex-col min-w-0 border-r border-border/30">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-2xl font-bold font-mono">{selectedOptionData.price}</span>
+                  <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
+                    {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
+                  </span>
+                  <span className="text-xs text-muted-foreground">Mark: {selectedOptionData.price}</span>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <span>Standard</span>
+                  <span className="text-trading-purple font-medium">TradingView</span>
+                  <span>Depth</span>
+                </div>
+              </div>
+
+              <div className="flex-1 px-2 py-2 overflow-hidden">
+                <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} />
+              </div>
             </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span>Standard</span>
-              <span className="text-trading-purple font-medium">TradingView</span>
-              <span>Depth</span>
+
+            {/* Order Book */}
+            <div className="w-[260px] flex-shrink-0">
+              <DesktopOrderBook 
+                asks={orderBookData.asks}
+                bids={orderBookData.bids}
+                currentPrice={selectedOptionData.price}
+                priceChange={selectedOptionData.price}
+                isPositive={priceChange.isPositive}
+              />
             </div>
           </div>
 
-          {/* Chart */}
-          <div className="flex-1 px-2 py-2 overflow-hidden">
-            <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} />
+          {/* Bottom: Positions Panel */}
+          <div className="border-t border-border/30">
+            <div className="flex items-center gap-1 px-4 border-b border-border/30">
+              {(["Positions", "P&L", "Current Orders", "Order History", "Trade History"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setBottomTab(tab === "Current Orders" ? "Orders" : tab === "Positions" ? "Positions" : tab as any)}
+                  className={`px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
+                    (bottomTab === "Orders" && tab === "Current Orders") || 
+                    (bottomTab === "Positions" && tab === "Positions") ||
+                    bottomTab === tab
+                      ? "text-trading-purple border-b-2 border-trading-purple"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab}
+                  {(tab === "Positions" || tab === "Current Orders") && (
+                    <span className="ml-1 text-muted-foreground">
+                      ({tab === "Current Orders" ? mockOrders.length : mockPositions.length})
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <div className="max-h-[160px] overflow-auto">
+              {bottomTab === "Orders" && (
+                <table className="w-full">
+                  <thead className="sticky top-0 bg-background">
+                    <tr className="border-b border-border/30">
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Contracts</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Side</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Type</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Price</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Qty</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Value</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Status</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Time</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mockOrders.length === 0 ? (
+                      <tr>
+                        <td colSpan={9} className="px-4 py-6 text-center text-sm text-muted-foreground">No open orders</td>
+                      </tr>
+                    ) : (
+                      mockOrders.map((order, index) => (
+                        <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
+                          <td className="px-4 py-2">
+                            <div className="text-sm font-medium">{order.option}</div>
+                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">{order.event}</div>
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
+                              {order.type === "buy" ? "Buy" : "Sell"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-sm">{order.orderType}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{order.price}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{order.amount}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{order.total}</td>
+                          <td className="px-4 py-2">
+                            <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground">{order.status}</span>
+                          </td>
+                          <td className="px-4 py-2 text-xs text-muted-foreground">{order.time}</td>
+                          <td className="px-4 py-2 text-center">
+                            <button className="px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10">Cancel</button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {bottomTab === "Positions" && (
+                <table className="w-full">
+                  <thead className="sticky top-0 bg-background">
+                    <tr className="border-b border-border/30">
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Contracts</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Side</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Size</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Entry Price</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Mark Price</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Liq. Price</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Margin</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Unrealized P&L</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Leverage</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">TP/SL</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mockPositions.length === 0 ? (
+                      <tr>
+                        <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">No open positions</td>
+                      </tr>
+                    ) : (
+                      mockPositions.map((position, index) => (
+                        <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
+                          <td className="px-4 py-2">
+                            <div className="text-sm font-medium">{position.option}</div>
+                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">{position.event}</div>
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${position.type === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
+                              {position.type === "long" ? "Long" : "Short"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{position.size}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{position.entryPrice}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{position.markPrice}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{position.margin}</td>
+                          <td className="px-4 py-2 text-right">
+                            <span className={`text-sm font-mono ${position.pnl.startsWith("+") ? "text-trading-green" : "text-trading-red"}`}>{position.pnl}</span>
+                            <span className={`text-xs ml-1 ${position.pnlPercent.startsWith("+") ? "text-trading-green" : "text-trading-red"}`}>({position.pnlPercent})</span>
+                          </td>
+                          <td className="px-4 py-2 text-sm">{position.leverage}</td>
+                          <td className="px-4 py-2 text-center text-sm text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-center">
+                            <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">Close</button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Order Book */}
-        <div className="w-[260px] flex-shrink-0 border-r border-border/30">
-          <DesktopOrderBook 
-            asks={orderBookData.asks}
-            bids={orderBookData.bids}
-            currentPrice={selectedOptionData.price}
-            priceChange={selectedOptionData.price}
-            isPositive={priceChange.isPositive}
-          />
-        </div>
-
-        {/* Trade Form */}
-        <div className="w-[280px] flex-shrink-0 flex flex-col bg-background">
+        {/* Right Section: Trade Form (full height) */}
+        <div className="w-[280px] flex-shrink-0 flex flex-col bg-background border-l border-border/30">
           <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
             <span className="text-sm font-medium">Trade</span>
             <button className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -282,9 +409,7 @@ export default function DesktopTrading() {
               <button
                 onClick={() => setSide("buy")}
                 className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
-                  side === "buy"
-                    ? "bg-trading-green text-trading-green-foreground"
-                    : "text-muted-foreground"
+                  side === "buy" ? "bg-trading-green text-trading-green-foreground" : "text-muted-foreground"
                 }`}
               >
                 Buy | Long
@@ -292,9 +417,7 @@ export default function DesktopTrading() {
               <button
                 onClick={() => setSide("sell")}
                 className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
-                  side === "sell"
-                    ? "bg-trading-red text-foreground"
-                    : "text-muted-foreground"
+                  side === "sell" ? "bg-trading-red text-foreground" : "text-muted-foreground"
                 }`}
               >
                 Sell | Short
@@ -332,9 +455,7 @@ export default function DesktopTrading() {
                   key={type}
                   onClick={() => setOrderType(type)}
                   className={`px-2 py-1.5 text-xs font-medium transition-all ${
-                    orderType === type
-                      ? "text-foreground border-b-2 border-trading-purple"
-                      : "text-muted-foreground hover:text-foreground"
+                    orderType === type ? "text-foreground border-b-2 border-trading-purple" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {type}
@@ -361,9 +482,7 @@ export default function DesktopTrading() {
             {/* Amount/Qty Input */}
             <div className="space-y-1">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground">
-                  {inputMode === "amount" ? "Amount" : "Qty"}
-                </span>
+                <span className="text-xs text-muted-foreground">{inputMode === "amount" ? "Amount" : "Qty"}</span>
                 <button 
                   onClick={() => setInputMode(inputMode === "amount" ? "qty" : "amount")}
                   className="text-muted-foreground hover:text-foreground transition-colors"
@@ -379,9 +498,7 @@ export default function DesktopTrading() {
                   className="flex-1 bg-transparent outline-none font-mono text-sm"
                   placeholder="0.00"
                 />
-                {inputMode === "amount" && (
-                  <span className="text-muted-foreground text-xs font-medium">USDC</span>
-                )}
+                {inputMode === "amount" && <span className="text-muted-foreground text-xs font-medium">USDC</span>}
               </div>
             </div>
 
@@ -410,12 +527,7 @@ export default function DesktopTrading() {
                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${reduceOnly ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
                   {reduceOnly && <span className="text-[10px] text-foreground">✓</span>}
                 </div>
-                <input
-                  type="checkbox"
-                  checked={reduceOnly}
-                  onChange={(e) => setReduceOnly(e.target.checked)}
-                  className="hidden"
-                />
+                <input type="checkbox" checked={reduceOnly} onChange={(e) => setReduceOnly(e.target.checked)} className="hidden" />
                 <span className="text-xs text-muted-foreground">Reduce only</span>
               </label>
               
@@ -423,12 +535,7 @@ export default function DesktopTrading() {
                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
                   {tpsl && <span className="text-[10px] text-foreground">✓</span>}
                 </div>
-                <input
-                  type="checkbox"
-                  checked={tpsl}
-                  onChange={(e) => setTpsl(e.target.checked)}
-                  className="hidden"
-                />
+                <input type="checkbox" checked={tpsl} onChange={(e) => setTpsl(e.target.checked)} className="hidden" />
                 <span className="text-xs text-muted-foreground">TP/SL</span>
               </label>
             </div>
@@ -457,175 +564,12 @@ export default function DesktopTrading() {
             <button
               onClick={handlePreview}
               className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
-                side === "buy"
-                  ? "bg-trading-green text-trading-green-foreground"
-                  : "bg-trading-red text-foreground"
+                side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
               }`}
             >
               Preview {side === "buy" ? "Buy | Long" : "Sell | Short"}
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Bottom Positions Panel - Table Layout */}
-      <div className="border-t border-border/30">
-        {/* Tabs */}
-        <div className="flex items-center gap-1 px-4 border-b border-border/30">
-          {(["Positions", "P&L", "Current Orders", "Order History", "Trade History"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setBottomTab(tab === "Current Orders" ? "Orders" : tab === "Positions" ? "Positions" : tab as any)}
-              className={`px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
-                (bottomTab === "Orders" && tab === "Current Orders") || 
-                (bottomTab === "Positions" && tab === "Positions") ||
-                bottomTab === tab
-                  ? "text-trading-purple border-b-2 border-trading-purple"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab}
-              {(tab === "Positions" || tab === "Current Orders") && (
-                <span className="ml-1 text-muted-foreground">
-                  ({tab === "Current Orders" ? mockOrders.length : mockPositions.length})
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Table Content */}
-        <div className="max-h-[180px] overflow-auto">
-          {bottomTab === "Orders" && (
-            <table className="w-full">
-              <thead className="sticky top-0 bg-background">
-                <tr className="border-b border-border/30">
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Contracts</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Side</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Type</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Price</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Qty</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Value</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Status</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Time</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                      No open orders
-                    </td>
-                  </tr>
-                ) : (
-                  mockOrders.map((order, index) => (
-                    <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
-                      <td className="px-4 py-2">
-                        <div className="text-sm font-medium">{order.option}</div>
-                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">{order.event}</div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          order.type === "buy" 
-                            ? "bg-trading-green/20 text-trading-green" 
-                            : "bg-trading-red/20 text-trading-red"
-                        }`}>
-                          {order.type === "buy" ? "Buy" : "Sell"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-sm">{order.orderType}</td>
-                      <td className="px-4 py-2 text-sm font-mono text-right">{order.price}</td>
-                      <td className="px-4 py-2 text-sm font-mono text-right">{order.amount}</td>
-                      <td className="px-4 py-2 text-sm font-mono text-right">{order.total}</td>
-                      <td className="px-4 py-2">
-                        <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground">
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-xs text-muted-foreground">{order.time}</td>
-                      <td className="px-4 py-2 text-center">
-                        <button className="px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10">
-                          Cancel
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
-
-          {bottomTab === "Positions" && (
-            <table className="w-full">
-              <thead className="sticky top-0 bg-background">
-                <tr className="border-b border-border/30">
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Contracts</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Side</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Size</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Entry Price</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Mark Price</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Liq. Price</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Margin</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Unrealized P&L</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Leverage</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">TP/SL</th>
-                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockPositions.length === 0 ? (
-                  <tr>
-                    <td colSpan={11} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                      No open positions
-                    </td>
-                  </tr>
-                ) : (
-                  mockPositions.map((position, index) => (
-                    <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
-                      <td className="px-4 py-2">
-                        <div className="text-sm font-medium">{position.option}</div>
-                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">{position.event}</div>
-                      </td>
-                      <td className="px-4 py-2">
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          position.type === "long" 
-                            ? "bg-trading-green/20 text-trading-green" 
-                            : "bg-trading-red/20 text-trading-red"
-                        }`}>
-                          {position.type === "long" ? "Long" : "Short"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-sm font-mono text-right">{position.size}</td>
-                      <td className="px-4 py-2 text-sm font-mono text-right">{position.entryPrice}</td>
-                      <td className="px-4 py-2 text-sm font-mono text-right">{position.markPrice}</td>
-                      <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
-                      <td className="px-4 py-2 text-sm font-mono text-right">{position.margin}</td>
-                      <td className="px-4 py-2 text-right">
-                        <span className={`text-sm font-mono ${
-                          position.pnl.startsWith("+") ? "text-trading-green" : "text-trading-red"
-                        }`}>
-                          {position.pnl}
-                        </span>
-                        <span className={`text-xs ml-1 ${
-                          position.pnlPercent.startsWith("+") ? "text-trading-green" : "text-trading-red"
-                        }`}>
-                          ({position.pnlPercent})
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-sm">{position.leverage}</td>
-                      <td className="px-4 py-2 text-center text-sm text-muted-foreground">--</td>
-                      <td className="px-4 py-2 text-center">
-                        <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted mr-1">
-                          Close
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
         </div>
       </div>
     </div>
