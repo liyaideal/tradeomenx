@@ -131,7 +131,7 @@ export default function DesktopTrading() {
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [eventSearchQuery, setEventSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(activeEvents[0]);
-  
+  const potentialWin = 1428;
   const available = 2453.42;
 
   const selectedOptionData = useMemo(() => {
@@ -777,7 +777,7 @@ export default function DesktopTrading() {
                 side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
               }`}
             >
-              Preview {side === "buy" ? "Buy | Long" : "Sell | Short"}
+              {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {potentialWin.toLocaleString()}
             </button>
           </div>
         </div>
