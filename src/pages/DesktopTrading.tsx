@@ -104,7 +104,8 @@ export default function DesktopTrading() {
   
   // Trade form state
   const [side, setSide] = useState<"buy" | "sell">("buy");
-  const [marginType] = useState("Cross");
+  const [marginType, setMarginType] = useState<"Cross" | "Isolated">("Cross");
+  const [marginDropdownOpen, setMarginDropdownOpen] = useState(false);
   const [leverage] = useState("10x");
   const [orderType, setOrderType] = useState<"Limit" | "Market">("Market");
   const [amount, setAmount] = useState("0.00");
@@ -499,12 +500,36 @@ export default function DesktopTrading() {
             </div>
 
             {/* Margin Mode */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative">
               <span className="text-xs text-muted-foreground">Margin Mode</span>
-              <button className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs">
+              <button 
+                onClick={() => setMarginDropdownOpen(!marginDropdownOpen)}
+                className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs"
+              >
                 {marginType}
                 <ChevronDown className="w-3 h-3" />
               </button>
+              
+              {/* Margin Mode Dropdown */}
+              {marginDropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 z-50 bg-background border border-border rounded-lg shadow-lg min-w-[140px]">
+                  <button
+                    onClick={() => {
+                      setMarginType("Cross");
+                      setMarginDropdownOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left text-xs hover:bg-muted transition-colors ${
+                      marginType === "Cross" ? "text-trading-purple" : "text-foreground"
+                    }`}
+                  >
+                    Cross
+                  </button>
+                  <div className="px-3 py-2 text-xs text-muted-foreground cursor-not-allowed flex items-center justify-between">
+                    <span>Isolated</span>
+                    <span className="text-[10px] px-1.5 py-0.5 bg-muted rounded">Not Supported</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Leverage */}
