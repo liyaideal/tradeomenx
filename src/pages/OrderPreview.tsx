@@ -70,10 +70,10 @@ export default function OrderPreview() {
       </div>
 
       {/* Confirm Button */}
-      <div className="fixed bottom-20 left-0 right-0 bg-background px-4 py-4">
+      <div className="fixed bottom-20 left-0 right-0 bg-background px-4 py-3">
         <button
           onClick={handleConfirm}
-          className="w-full py-4 rounded-xl font-semibold text-base transition-all duration-200 active:scale-[0.98] bg-trading-green text-trading-green-foreground animate-slide-up"
+          className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] bg-trading-green text-trading-green-foreground animate-slide-up"
         >
           Buy Long - to win $ {potentialWin.toLocaleString()}
         </button>
