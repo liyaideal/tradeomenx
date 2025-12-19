@@ -498,14 +498,19 @@ export default function DesktopTrading() {
               </button>
             </div>
 
-            {/* Margin & Leverage */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Margin / LVG</span>
-              <button className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs">
+            {/* Margin Mode */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Margin Mode</span>
+              <button className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs">
                 {marginType}
                 <ChevronDown className="w-3 h-3" />
               </button>
-              <button className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs">
+            </div>
+
+            {/* Leverage */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Leverage</span>
+              <button className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs">
                 {leverage}
                 <ChevronDown className="w-3 h-3" />
               </button>
