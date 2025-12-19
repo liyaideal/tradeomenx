@@ -261,7 +261,7 @@ export default function DesktopTrading() {
           </div>
 
           {/* Bottom: Positions Panel */}
-          <div className="border-t border-border/30">
+          <div className="border-t border-border/30 h-[200px] flex-shrink-0">
             <div className="flex items-center gap-1 px-4 border-b border-border/30">
               {(["Positions", "P&L", "Current Orders", "Order History", "Trade History"] as const).map((tab) => (
                 <button
@@ -285,7 +285,7 @@ export default function DesktopTrading() {
               ))}
             </div>
 
-            <div className="max-h-[160px] overflow-auto">
+            <div className="h-[calc(200px-40px)] overflow-auto">
               {bottomTab === "Orders" && (
                 <table className="w-full">
                   <thead className="sticky top-0 bg-background">
