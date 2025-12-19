@@ -407,7 +407,7 @@ export default function DesktopTrading() {
             </div>
 
             {/* Order Book */}
-            <div className="w-[260px] flex-shrink-0">
+            <div className="w-[260px] flex-shrink-0 h-full">
               <DesktopOrderBook 
                 asks={orderBookData.asks}
                 bids={orderBookData.bids}
