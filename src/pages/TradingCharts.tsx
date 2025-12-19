@@ -131,20 +131,20 @@ export default function TradingCharts() {
       <OrderBook asks={asks} bids={bids} currentPrice="0.7234" />
 
       {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/50 p-4 pb-6">
-        <div className="text-center text-sm text-muted-foreground mb-3">
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 px-4 py-3">
+        <div className="text-center text-xs text-muted-foreground mb-2">
           Available 2,453.42 USDC
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/trade/order")}
-            className="flex-1 btn-trading-green"
+            className="flex-1 bg-trading-green text-trading-green-foreground font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98]"
           >
             Buy | Long
           </button>
           <button
             onClick={() => navigate("/trade/order")}
-            className="flex-1 btn-trading-red"
+            className="flex-1 bg-trading-red text-foreground font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98]"
           >
             Sell | Short
           </button>
