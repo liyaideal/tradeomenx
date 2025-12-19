@@ -34,13 +34,15 @@ export const MobileHeader = ({ title, subtitle, showBack = true, showActions = f
             {subtitle && (
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
+                <span className="text-[10px] text-muted-foreground mr-1">Ends in</span>
                 <span className="text-xs text-trading-red font-mono">{subtitle}</span>
               </div>
             )}
             {tweetCount !== undefined && (
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                <span className="text-xs text-orange-500 font-mono">{tweetCount} tweets</span>
+                <span className="text-[10px] text-muted-foreground mr-1">Tweets</span>
+                <span className="text-xs text-orange-500 font-mono">{tweetCount}</span>
               </div>
             )}
           </div>
