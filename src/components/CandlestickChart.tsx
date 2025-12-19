@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { BarChart2, Copy } from "lucide-react";
+import { BarChart2 } from "lucide-react";
 
 interface Candle {
   time: string;
@@ -176,9 +176,6 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
             className={`p-1.5 transition-colors ${chartMode === "candle" ? "text-foreground" : "text-muted-foreground"}`}
           >
             <BarChart2 className="w-4 h-4" />
-          </button>
-          <button className="p-1.5 text-muted-foreground hover:text-foreground">
-            <Copy className="w-4 h-4" />
           </button>
         </div>
       </div>
