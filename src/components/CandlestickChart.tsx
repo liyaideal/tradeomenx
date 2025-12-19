@@ -166,8 +166,8 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
   const highestCandleIndex = candles.findIndex(c => c.high === maxPrice);
   const lowestCandleIndex = candles.findIndex(c => c.low === minPrice);
   
-  const chartHeight = 260;
-  const volumeChartHeight = 60;
+  const chartHeight = 220;
+  const volumeChartHeight = 80;
   const drawHeight = chartHeight - 15; // Leave space for padding
   
   // ViewBox dimensions - use simple 100% width approach
@@ -254,7 +254,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
 
       {/* Price Chart */}
       <div className="relative">
-        <div className="flex h-[240px]">
+        <div className="flex h-[200px]">
           {/* Chart area */}
           <div className="flex-1 relative">
             <svg 
@@ -497,7 +497,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
           </span>
         </div>
 
-        <div className="h-[50px]">
+        <div className="h-[70px]">
           {/* Volume bars */}
           <div className="w-full h-full relative">
             <svg 
