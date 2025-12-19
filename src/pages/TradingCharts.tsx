@@ -84,25 +84,28 @@ export default function TradingCharts() {
         ))}
       </div>
 
-      {/* Stats Row */}
-      <div className="flex px-4 py-2 gap-8 overflow-x-auto scrollbar-hide border-b border-border/20">
-        {stats.map((stat) => (
-          <div key={stat.label} className="flex-shrink-0">
-            <div className="text-[11px] text-muted-foreground">{stat.label}</div>
-            <div className={`font-mono text-sm font-semibold ${
-              stat.isPositive ? "text-trading-green" : "text-foreground"
-            }`}>
-              {stat.value}
-            </div>
+      {/* Price + Stats Row - Horizontal Layout */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
+        {/* Left: Price Display */}
+        <div>
+          <div className="text-3xl font-bold font-mono tracking-tight">0.7234</div>
+          <div className="text-sm text-trading-green font-mono">
+            +$0.0234 (+3.34%)
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Current Price Display */}
-      <div className="px-4 py-3 text-center">
-        <div className="text-4xl font-bold font-mono tracking-tight">0.7234</div>
-        <div className="text-sm text-trading-green font-mono mt-0.5">
-          +$0.0234 (+3.34%)
+        {/* Right: Stats */}
+        <div className="flex gap-5">
+          {stats.map((stat) => (
+            <div key={stat.label} className="text-right">
+              <div className="text-[10px] text-muted-foreground">{stat.label}</div>
+              <div className={`font-mono text-xs font-semibold ${
+                stat.isPositive ? "text-trading-green" : "text-foreground"
+              }`}>
+                {stat.value}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
