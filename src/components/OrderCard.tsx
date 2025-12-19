@@ -1,5 +1,3 @@
-import { Trash2 } from "lucide-react";
-
 interface OrderCardProps {
   type: "buy" | "sell";
   orderType: "Limit" | "Market";
@@ -48,9 +46,9 @@ export const OrderCard = ({
           </span>
           <span className="text-sm text-muted-foreground">{orderType}</span>
         </div>
-        <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${statusColors[status]}`}>
+          {status}
+        </span>
       </div>
 
       {/* Event Info */}
@@ -79,12 +77,12 @@ export const OrderCard = ({
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer with time and action */}
       <div className="flex items-center justify-between pt-2 border-t border-border/30">
         <span className="text-[10px] text-muted-foreground">{time}</span>
-        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${statusColors[status]}`}>
-          {status}
-        </span>
+        <button className="px-3 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors">
+          Cancel
+        </button>
       </div>
     </div>
   );
