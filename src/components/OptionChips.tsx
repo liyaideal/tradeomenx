@@ -12,21 +12,21 @@ interface OptionChipsProps {
 
 export const OptionChips = ({ options, selectedId, onSelect }: OptionChipsProps) => {
   return (
-    <div className="flex gap-3 px-4 py-3 overflow-x-auto scrollbar-hide">
+    <div className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
       {options.map((option) => (
         <button
           key={option.id}
           onClick={() => onSelect(option.id)}
-          className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-center transition-all duration-200 active:scale-95 ${
+          className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-center transition-all duration-200 active:scale-95 ${
             selectedId === option.id
               ? "bg-trading-purple/15 border border-trading-purple"
               : "bg-muted/50 border border-transparent"
           }`}
         >
-          <div className={`font-medium text-sm ${selectedId === option.id ? "text-foreground" : "text-muted-foreground"}`}>
+          <div className={`font-medium text-xs ${selectedId === option.id ? "text-foreground" : "text-muted-foreground"}`}>
             {option.label}
           </div>
-          <div className={`font-mono text-sm mt-0.5 ${
+          <div className={`font-mono text-xs ${
             selectedId === option.id ? "text-trading-purple" : "text-muted-foreground"
           }`}>
             ${option.price}
