@@ -224,7 +224,9 @@ export default function TradingCharts() {
       </div>
 
       {/* Candlestick Chart */}
-      <CandlestickChart basePrice={parseFloat(selectedOptionData.price)} />
+      <div className="h-[340px]">
+        <CandlestickChart basePrice={parseFloat(selectedOptionData.price)} />
+      </div>
 
       {/* Bottom Tabs */}
       <div className="flex px-4 mt-2 border-b border-border/30">
