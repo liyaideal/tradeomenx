@@ -320,7 +320,7 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
       {/* Volume Chart */}
       <div className="relative mt-1">
         {/* Volume indicator header */}
-        <div className="flex items-center gap-3 text-[10px] font-mono mb-1 pl-11">
+        <div className="flex items-center gap-3 text-[10px] font-mono mb-1">
           <span className="text-muted-foreground">
             VOL: <span className="text-foreground">{formatVolume(currentVolume)}</span>
           </span>
@@ -332,12 +332,9 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
           </span>
         </div>
 
-        <div className="flex h-[50px]">
-          {/* Y-axis placeholder for alignment */}
-          <div className="w-11 pr-2" />
-
+        <div className="h-[50px]">
           {/* Volume bars */}
-          <div className="flex-1 relative">
+          <div className="w-full h-full relative">
             <svg 
               width="100%"
               height="100%"
@@ -395,7 +392,7 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
       </div>
 
       {/* X-axis labels */}
-      <div className="flex justify-between pl-11 mt-1 text-[9px] text-muted-foreground font-mono">
+      <div className="flex justify-between mt-1 text-[9px] text-muted-foreground font-mono">
         {timeLabels.slice(0, 8).map((candle, i) => (
           <span key={i}>{candle.time}</span>
         ))}
