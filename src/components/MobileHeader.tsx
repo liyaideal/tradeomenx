@@ -30,7 +30,7 @@ export const MobileHeader = ({ title, subtitle, showBack = true, showActions = f
         {/* Center: Title and countdown */}
         <div className="flex-1 text-center px-2">
           <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-          <div className="flex items-center justify-center gap-3 mt-0.5">
+          <div className="flex flex-col items-center mt-0.5 gap-0.5">
             {subtitle && (
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
