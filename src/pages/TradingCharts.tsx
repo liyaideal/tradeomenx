@@ -191,7 +191,7 @@ export default function TradingCharts() {
       </div>
 
       {/* Price + Stats Row - Horizontal Layout */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border/20">
         {/* Left: Price Display */}
         <div>
           <div className="text-3xl font-bold font-mono tracking-tight">{selectedOptionData.price}</div>
