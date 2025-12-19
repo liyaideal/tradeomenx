@@ -110,9 +110,9 @@ export const TradeForm = () => {
             className="flex-1 bg-transparent outline-none font-mono text-xs"
             placeholder="0.00"
           />
-          <span className="text-muted-foreground text-[10px] font-medium">
-            {inputMode === "amount" ? "USDC" : "Contracts"}
-          </span>
+          {inputMode === "amount" && (
+            <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
+          )}
         </div>
       </div>
 
