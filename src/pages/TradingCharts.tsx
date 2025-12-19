@@ -1,0 +1,155 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { MobileHeader } from "@/components/MobileHeader";
+import { BottomNav } from "@/components/BottomNav";
+import { OptionChips } from "@/components/OptionChips";
+import { CandlestickChart } from "@/components/CandlestickChart";
+import { OrderBook } from "@/components/OrderBook";
+
+const options = [
+  { id: "1", label: "50+ bps decrease", price: "0.0234" },
+  { id: "2", label: "25 bps decrease", price: "0.7234" },
+];
+
+const stats = [
+  { label: "24h Volume", value: "$2.45M" },
+  { label: "Open Interest", value: "$18.2M" },
+  { label: "Liquidity", value: "$5.8M" },
+  { label: "Funding Rate", value: "+0.05%", isPositive: true },
+];
+
+const asks = [
+  { price: "0.7456", amount: "2,150", total: "1,603" },
+  { price: "0.7445", amount: "1,890", total: "1,407" },
+  { price: "0.7432", amount: "3,200", total: "2,378" },
+  { price: "0.7445", amount: "1,890", total: "1,407" },
+  { price: "0.7432", amount: "3,200", total: "2,378" },
+  { price: "0.7456", amount: "2,150", total: "1,603" },
+  { price: "0.7445", amount: "1,890", total: "1,407" },
+  { price: "0.7432", amount: "3,200", total: "2,378" },
+];
+
+const bids = [
+  { price: "0.7230", amount: "1,450", total: "1,048" },
+  { price: "0.7224", amount: "2,180", total: "1,575" },
+  { price: "0.7210", amount: "1,750", total: "1,262" },
+  { price: "0.7230", amount: "1,450", total: "1,048" },
+  { price: "0.7224", amount: "2,180", total: "1,575" },
+  { price: "0.7210", amount: "1,750", total: "1,262" },
+  { price: "0.7224", amount: "2,180", total: "1,575" },
+  { price: "0.7210", amount: "1,750", total: "1,262" },
+];
+
+const tabs = ["Order Book", "Trades history", "Orders", "Positions"];
+
+export default function TradingCharts() {
+  const navigate = useNavigate();
+  const [selectedOption, setSelectedOption] = useState("2");
+  const [activeTab, setActiveTab] = useState("Charts");
+  const [bottomTab, setBottomTab] = useState("Order Book");
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      <MobileHeader 
+        title="Fed decision in December?" 
+        subtitle="23:47:15"
+        showActions 
+      />
+
+      {/* Option Chips */}
+      <OptionChips
+        options={options}
+        selectedId={selectedOption}
+        onSelect={setSelectedOption}
+      />
+
+      {/* Charts/Trade Tabs */}
+      <div className="flex border-b border-border/30">
+        {["Charts", "Trade"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => {
+              setActiveTab(tab);
+              if (tab === "Trade") navigate("/trade/order");
+            }}
+            className={`flex-1 py-3 text-sm font-medium transition-all ${
+              activeTab === tab
+                ? "text-trading-purple border-b-2 border-trading-purple"
+                : "text-muted-foreground"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {/* Stats Row */}
+      <div className="flex px-4 py-3 gap-4 overflow-x-auto scrollbar-hide border-b border-border/30">
+        {stats.map((stat) => (
+          <div key={stat.label} className="flex-shrink-0">
+            <div className="text-xs text-muted-foreground">{stat.label}</div>
+            <div className={`font-mono text-sm font-medium ${
+              stat.isPositive ? "text-trading-green" : "text-foreground"
+            }`}>
+              {stat.value}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Current Price */}
+      <div className="px-4 py-4 text-center border-b border-border/30">
+        <div className="text-3xl font-bold font-mono">0.7234</div>
+        <div className="text-sm text-trading-green font-mono mt-1">
+          +$0.0234 (+3.34%)
+        </div>
+      </div>
+
+      {/* Candlestick Chart */}
+      <CandlestickChart />
+
+      {/* Bottom Tabs */}
+      <div className="flex border-b border-border/30 px-4 mt-4 overflow-x-auto scrollbar-hide">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setBottomTab(tab)}
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-all ${
+              bottomTab === tab
+                ? "text-foreground border-b-2 border-foreground"
+                : "text-muted-foreground"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {/* Order Book */}
+      <OrderBook asks={asks} bids={bids} currentPrice="0.7234" />
+
+      {/* Bottom Action Bar */}
+      <div className="fixed bottom-20 left-0 right-0 bg-background border-t border-border/50 p-4">
+        <div className="text-center text-sm text-muted-foreground mb-3">
+          Available 2,453.42 USDC
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate("/trade/order")}
+            className="flex-1 btn-trading-green"
+          >
+            Buy | Long
+          </button>
+          <button
+            onClick={() => navigate("/trade/order")}
+            className="flex-1 btn-trading-red"
+          >
+            Sell | Short
+          </button>
+        </div>
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+}
