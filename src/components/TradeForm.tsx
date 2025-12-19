@@ -30,7 +30,7 @@ export const TradeForm = () => {
   };
 
   return (
-    <div className="px-4 pb-4 space-y-3">
+    <div className="px-3 pb-3 space-y-2.5">
       {/* Buy/Sell Toggle */}
       <div className="flex bg-muted rounded-lg p-1">
         <button

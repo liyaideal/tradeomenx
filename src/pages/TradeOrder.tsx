@@ -72,7 +72,7 @@ export default function TradeOrder() {
   const [bottomTab, setBottomTab] = useState("Orders");
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className="min-h-screen bg-background pb-8 overflow-x-hidden">
       <MobileHeader
         title="Fed decision in December?"
         subtitle="23:47:15"
@@ -107,20 +107,20 @@ export default function TradeOrder() {
       </div>
 
       {/* Main Content Area - Two Column Layout */}
-      <div className="flex">
+      <div className="flex w-full">
         {/* Left: Trade Form + Price Info */}
-        <div className="flex-1 border-r border-border/30">
+        <div className="flex-1 min-w-0 border-r border-border/30">
           {/* Price Header */}
-          <div className="px-4 py-3">
+          <div className="px-3 py-2">
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-xs text-muted-foreground">Price</div>
-                <div className="text-2xl font-bold font-mono">0.7234</div>
-                <div className="text-[11px] text-muted-foreground">
+                <div className="text-[10px] text-muted-foreground">Price</div>
+                <div className="text-xl font-bold font-mono">0.7234</div>
+                <div className="text-[10px] text-muted-foreground">
                   Funding: -0.0001% / Next: in 28min
                 </div>
               </div>
-              <button className="flex items-center gap-1 text-xs text-muted-foreground">
+              <button className="flex items-center gap-1 text-[10px] text-muted-foreground">
                 <ExternalLink className="w-3 h-3" />
                 Event Info
               </button>
@@ -132,20 +132,20 @@ export default function TradeOrder() {
         </div>
 
         {/* Right: Order Book */}
-        <div className="w-[140px] flex-shrink-0">
-          <div className="px-2 py-2">
-            <div className="grid grid-cols-2 text-[10px] text-muted-foreground mb-1">
-              <span>Price (USDC)</span>
+        <div className="w-[120px] flex-shrink-0">
+          <div className="px-1.5 py-1.5">
+            <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
+              <span>Price</span>
               <span className="text-right">Amount</span>
             </div>
           </div>
           
           {/* Asks */}
-          <div className="overflow-y-auto scrollbar-hide">
-            {orderBookData.asks.map((ask, index) => (
+          <div className="overflow-y-auto scrollbar-hide max-h-[180px]">
+            {orderBookData.asks.slice(0, 8).map((ask, index) => (
               <div
                 key={`ask-${index}`}
-                className="flex justify-between px-2 py-0.5 text-[11px]"
+                className="flex justify-between px-1.5 py-0.5 text-[10px]"
               >
                 <span className="price-red">{ask.price}</span>
                 <span className="text-muted-foreground font-mono">{ask.amount}</span>
@@ -154,16 +154,16 @@ export default function TradeOrder() {
           </div>
 
           {/* Current Price */}
-          <div className="px-2 py-2 text-center">
-            <span className="text-base font-bold font-mono">0.7531</span>
+          <div className="px-1.5 py-1.5 text-center">
+            <span className="text-sm font-bold font-mono">0.7531</span>
           </div>
 
           {/* Bids */}
-          <div className="overflow-y-auto scrollbar-hide">
-            {orderBookData.bids.map((bid, index) => (
+          <div className="overflow-y-auto scrollbar-hide max-h-[180px]">
+            {orderBookData.bids.slice(0, 8).map((bid, index) => (
               <div
                 key={`bid-${index}`}
-                className="flex justify-between px-2 py-0.5 text-[11px]"
+                className="flex justify-between px-1.5 py-0.5 text-[10px]"
               >
                 <span className="price-green">{bid.price}</span>
                 <span className="text-muted-foreground font-mono">{bid.amount}</span>
@@ -172,11 +172,11 @@ export default function TradeOrder() {
           </div>
 
           {/* Depth Selector */}
-          <div className="flex items-center justify-between px-2 py-2 border-t border-border/30 mt-2">
-            <span className="text-[10px] text-muted-foreground">Depth</span>
-            <button className="flex items-center gap-0.5 text-[11px]">
+          <div className="flex items-center justify-between px-1.5 py-1.5 border-t border-border/30 mt-1">
+            <span className="text-[9px] text-muted-foreground">Depth</span>
+            <button className="flex items-center gap-0.5 text-[10px]">
               0.1
-              <ChevronDown className="w-3 h-3" />
+              <ChevronDown className="w-2.5 h-2.5" />
             </button>
           </div>
         </div>
