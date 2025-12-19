@@ -222,9 +222,9 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
   };
 
   return (
-    <div className="px-4 py-2">
+    <div className="h-full flex flex-col">
       {/* Timeframe selector */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between px-4 py-2 flex-shrink-0">
         <div className="flex items-center">
           <div className="flex bg-muted/50 rounded-md p-0.5 overflow-x-auto scrollbar-hide">
             {TIMEFRAMES.map((tf) => (
@@ -253,8 +253,8 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
       </div>
 
       {/* Price Chart */}
-      <div className="relative">
-        <div className="flex h-[200px]">
+      <div className="relative flex-1 min-h-0">
+        <div className="flex h-full">
           {/* Chart area */}
           <div className="flex-1 relative">
             <svg 
