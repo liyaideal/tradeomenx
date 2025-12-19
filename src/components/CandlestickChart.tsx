@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { ChevronDown, BarChart2, Copy } from "lucide-react";
+import { BarChart2, Copy } from "lucide-react";
 
 interface Candle {
   time: string;
@@ -157,12 +157,8 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
     <div className="px-4 py-2">
       {/* Timeframe selector */}
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1 text-sm text-muted-foreground">
-            Price
-            <ChevronDown className="w-3 h-3" />
-          </button>
-          <div className="flex bg-muted/50 rounded-md p-0.5 ml-2 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center">
+          <div className="flex bg-muted/50 rounded-md p-0.5 overflow-x-auto scrollbar-hide">
             {TIMEFRAMES.map((tf) => (
               <button
                 key={tf}
