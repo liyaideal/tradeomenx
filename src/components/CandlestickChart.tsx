@@ -106,7 +106,7 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
     }
   }, [selectedTimeframe]);
 
-  const candleCount = selectedTimeframe === "ALL" ? 120 : 80;
+  const candleCount = selectedTimeframe === "ALL" ? 60 : 60;
   const candles = useMemo(
     () => generateMockCandles(selectedTimeframe, candleCount), 
     [selectedTimeframe, candleCount]
@@ -122,18 +122,16 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
   const adjustedMax = maxPrice + padding;
   const adjustedRange = adjustedMax - adjustedMin;
   
-  const chartHeight = 200;
-  const chartPadding = { top: 10, bottom: 25, left: 45, right: 10 };
-  const drawHeight = chartHeight - chartPadding.top - chartPadding.bottom;
+  const chartHeight = 180;
+  const drawHeight = chartHeight - 15; // Leave space for padding
   
-  // Calculate candle dimensions - fill 4/5 of width, leave 1/5 for future
-  const visibleWidth = 320;
-  const candleAreaWidth = visibleWidth * 0.85;
-  const candleWidth = selectedTimeframe === "ALL" ? 2 : Math.max(4, candleAreaWidth / candleCount - 2);
-  const candleGap = selectedTimeframe === "ALL" ? 1 : 2;
+  // ViewBox dimensions - use simple 100% width approach
+  const viewBoxWidth = 1000;
+  const candleSpacing = viewBoxWidth / candleCount;
+  const candleBodyWidth = candleSpacing * 0.65;
 
   const priceToY = (price: number) => {
-    return chartPadding.top + drawHeight - ((price - adjustedMin) / adjustedRange) * drawHeight;
+    return 10 + drawHeight - ((price - adjustedMin) / adjustedRange) * drawHeight;
   };
 
   // Generate price labels (5 labels evenly distributed)
@@ -145,13 +143,11 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
     return labels;
   }, [adjustedMax, adjustedRange]);
 
-  // Get time labels to display (every ~10 candles)
+  // Get time labels to display
   const timeLabels = useMemo(() => {
     const step = Math.max(1, Math.floor(candles.length / 8));
     return candles.filter((_, i) => i % step === 0);
   }, [candles]);
-
-  const svgWidth = candles.length * (candleWidth + candleGap) + chartPadding.left + chartPadding.right;
 
   return (
     <div className="px-4 py-2">
@@ -189,32 +185,33 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
 
       {/* Chart */}
       <div className="relative">
-        <div className="flex h-[180px]">
+        <div className="flex h-[160px]">
           {/* Y-axis labels */}
-          <div className="flex flex-col justify-between text-[10px] text-muted-foreground font-mono pr-1 py-2 w-10">
+          <div className="flex flex-col justify-between text-[10px] text-muted-foreground font-mono pr-2 w-11">
             {priceLabels.map((label, i) => (
               <span key={i}>{label.toFixed(4)}</span>
             ))}
           </div>
 
           {/* Chart area */}
-          <div className="flex-1 relative overflow-x-auto scrollbar-hide">
+          <div className="flex-1 relative">
             <svg 
-              width={svgWidth} 
-              height={chartHeight}
-              className="min-w-full"
+              width="100%"
+              height="100%"
+              viewBox={`0 0 ${viewBoxWidth} ${chartHeight}`}
+              preserveAspectRatio="none"
             >
               {/* Grid lines */}
               {priceLabels.map((price, i) => (
                 <line
                   key={`grid-${i}`}
-                  x1={chartPadding.left}
+                  x1={0}
                   y1={priceToY(price)}
-                  x2={svgWidth - chartPadding.right}
+                  x2={viewBoxWidth}
                   y2={priceToY(price)}
                   stroke="hsl(222 30% 18%)"
-                  strokeWidth="0.5"
-                  strokeDasharray="2,2"
+                  strokeWidth="1"
+                  strokeDasharray="4,4"
                 />
               ))}
               
@@ -222,42 +219,42 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
                 // Line chart for ALL or when line mode selected
                 <path
                   d={candles.map((candle, index) => {
-                    const x = chartPadding.left + index * (candleWidth + candleGap) + candleWidth / 2;
+                    const x = index * candleSpacing + candleSpacing / 2;
                     const y = priceToY(candle.close);
                     return `${index === 0 ? "M" : "L"} ${x} ${y}`;
                   }).join(" ")}
                   fill="none"
                   stroke="hsl(142 71% 45%)"
-                  strokeWidth="1.5"
+                  strokeWidth="2"
                 />
               ) : (
                 // Candlestick chart
                 candles.map((candle, index) => {
-                  const x = chartPadding.left + index * (candleWidth + candleGap);
+                  const x = index * candleSpacing + (candleSpacing - candleBodyWidth) / 2;
+                  const centerX = index * candleSpacing + candleSpacing / 2;
                   const isGreen = candle.close >= candle.open;
                   const bodyTop = priceToY(Math.max(candle.open, candle.close));
                   const bodyBottom = priceToY(Math.min(candle.open, candle.close));
-                  const bodyHeight = Math.max(bodyBottom - bodyTop, 1);
+                  const bodyHeight = Math.max(bodyBottom - bodyTop, 2);
                   
                   return (
                     <g key={index}>
                       {/* Wick */}
                       <line
-                        x1={x + candleWidth / 2}
+                        x1={centerX}
                         y1={priceToY(candle.high)}
-                        x2={x + candleWidth / 2}
+                        x2={centerX}
                         y2={priceToY(candle.low)}
                         stroke={isGreen ? "hsl(142 71% 45%)" : "hsl(0 72% 51%)"}
-                        strokeWidth="1"
+                        strokeWidth="2"
                       />
                       {/* Body */}
                       <rect
                         x={x}
                         y={bodyTop}
-                        width={candleWidth}
+                        width={candleBodyWidth}
                         height={bodyHeight}
                         fill={isGreen ? "hsl(142 71% 45%)" : "hsl(0 72% 51%)"}
-                        rx="0.5"
                       />
                     </g>
                   );
@@ -266,36 +263,23 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
 
               {/* Current price line */}
               {candles.length > 0 && (
-                <>
-                  <line
-                    x1={chartPadding.left}
-                    y1={priceToY(candles[candles.length - 1].close)}
-                    x2={svgWidth - chartPadding.right}
-                    y2={priceToY(candles[candles.length - 1].close)}
-                    stroke="hsl(142 71% 45%)"
-                    strokeWidth="0.5"
-                    strokeDasharray="3,3"
-                    opacity="0.6"
-                  />
-                  <text
-                    x={svgWidth - chartPadding.right - 2}
-                    y={priceToY(candles[candles.length - 1].close) - 4}
-                    fill="hsl(142 71% 45%)"
-                    fontSize="9"
-                    textAnchor="end"
-                    fontFamily="monospace"
-                  >
-                    {candles[candles.length - 1].close.toFixed(4)}
-                  </text>
-                </>
+                <line
+                  x1={0}
+                  y1={priceToY(candles[candles.length - 1].close)}
+                  x2={viewBoxWidth}
+                  y2={priceToY(candles[candles.length - 1].close)}
+                  stroke="hsl(142 71% 45%)"
+                  strokeWidth="1"
+                  strokeDasharray="6,4"
+                  opacity="0.5"
+                />
               )}
             </svg>
-            
           </div>
         </div>
 
-        {/* X-axis labels - fixed at bottom */}
-        <div className="flex justify-between px-10 mt-1 text-[9px] text-muted-foreground font-mono">
+        {/* X-axis labels */}
+        <div className="flex justify-between pl-11 mt-1 text-[9px] text-muted-foreground font-mono">
           {timeLabels.slice(0, 8).map((candle, i) => (
             <span key={i}>{candle.time}</span>
           ))}
