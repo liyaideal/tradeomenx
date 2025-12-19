@@ -310,68 +310,84 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
                 />
               )}
 
-              {/* Highest price annotation */}
+              {/* Highest price annotation line */}
               {highestCandleIndex >= 0 && (() => {
                 const candleX = highestCandleIndex * candleSpacing + candleSpacing / 2;
                 const isRightSide = candleX > viewBoxWidth / 2;
                 const lineLength = 60;
-                const textOffset = 10;
                 
                 return (
-                  <g>
-                    <line
-                      x1={isRightSide ? candleX - lineLength : candleX}
-                      y1={priceToY(maxPrice)}
-                      x2={isRightSide ? candleX : candleX + lineLength}
-                      y2={priceToY(maxPrice)}
-                      stroke="hsl(0 0% 50%)"
-                      strokeWidth="1"
-                    />
-                    <text
-                      x={isRightSide ? candleX - lineLength - textOffset : candleX + lineLength + textOffset}
-                      y={priceToY(maxPrice) + 5}
-                      fill="hsl(0 0% 70%)"
-                      fontSize="22"
-                      fontFamily="monospace"
-                      textAnchor={isRightSide ? "end" : "start"}
-                    >
-                      {maxPrice.toFixed(4)}
-                    </text>
-                  </g>
+                  <line
+                    x1={isRightSide ? candleX - lineLength : candleX}
+                    y1={priceToY(maxPrice)}
+                    x2={isRightSide ? candleX : candleX + lineLength}
+                    y2={priceToY(maxPrice)}
+                    stroke="hsl(0 0% 50%)"
+                    strokeWidth="1"
+                  />
                 );
               })()}
 
-              {/* Lowest price annotation */}
+              {/* Lowest price annotation line */}
               {lowestCandleIndex >= 0 && (() => {
                 const candleX = lowestCandleIndex * candleSpacing + candleSpacing / 2;
                 const isRightSide = candleX > viewBoxWidth / 2;
                 const lineLength = 60;
-                const textOffset = 10;
                 
                 return (
-                  <g>
-                    <line
-                      x1={isRightSide ? candleX - lineLength : candleX}
-                      y1={priceToY(minPrice)}
-                      x2={isRightSide ? candleX : candleX + lineLength}
-                      y2={priceToY(minPrice)}
-                      stroke="hsl(0 0% 50%)"
-                      strokeWidth="1"
-                    />
-                    <text
-                      x={isRightSide ? candleX - lineLength - textOffset : candleX + lineLength + textOffset}
-                      y={priceToY(minPrice) + 5}
-                      fill="hsl(0 0% 70%)"
-                      fontSize="22"
-                      fontFamily="monospace"
-                      textAnchor={isRightSide ? "end" : "start"}
-                    >
-                      {minPrice.toFixed(4)}
-                    </text>
-                  </g>
+                  <line
+                    x1={isRightSide ? candleX - lineLength : candleX}
+                    y1={priceToY(minPrice)}
+                    x2={isRightSide ? candleX : candleX + lineLength}
+                    y2={priceToY(minPrice)}
+                    stroke="hsl(0 0% 50%)"
+                    strokeWidth="1"
+                  />
                 );
               })()}
             </svg>
+
+            {/* Highest price label (HTML overlay) */}
+            {highestCandleIndex >= 0 && (() => {
+              const xPercent = (highestCandleIndex * candleSpacing + candleSpacing / 2) / viewBoxWidth * 100;
+              const yPercent = priceToY(maxPrice) / chartHeight * 100;
+              const isRightSide = xPercent > 50;
+              const lineWidthPercent = 60 / viewBoxWidth * 100;
+              
+              return (
+                <span
+                  className="absolute text-[10px] font-mono text-muted-foreground whitespace-nowrap"
+                  style={{
+                    left: isRightSide ? `${xPercent - lineWidthPercent - 1}%` : `${xPercent + lineWidthPercent + 1}%`,
+                    top: `${yPercent}%`,
+                    transform: `translateY(-50%) ${isRightSide ? 'translateX(-100%)' : ''}`,
+                  }}
+                >
+                  {maxPrice.toFixed(4)}
+                </span>
+              );
+            })()}
+
+            {/* Lowest price label (HTML overlay) */}
+            {lowestCandleIndex >= 0 && (() => {
+              const xPercent = (lowestCandleIndex * candleSpacing + candleSpacing / 2) / viewBoxWidth * 100;
+              const yPercent = priceToY(minPrice) / chartHeight * 100;
+              const isRightSide = xPercent > 50;
+              const lineWidthPercent = 60 / viewBoxWidth * 100;
+              
+              return (
+                <span
+                  className="absolute text-[10px] font-mono text-muted-foreground whitespace-nowrap"
+                  style={{
+                    left: isRightSide ? `${xPercent - lineWidthPercent - 1}%` : `${xPercent + lineWidthPercent + 1}%`,
+                    top: `${yPercent}%`,
+                    transform: `translateY(-50%) ${isRightSide ? 'translateX(-100%)' : ''}`,
+                  }}
+                >
+                  {minPrice.toFixed(4)}
+                </span>
+              );
+            })()}
           </div>
 
           {/* Y-axis labels (right side) */}
