@@ -476,14 +476,8 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
           </div>
         </div>
 
-        {/* X-axis labels for price chart */}
-        <div className="flex justify-between pr-12 mt-1 text-[9px] text-muted-foreground font-mono">
-          {timeLabels.slice(0, 8).map((candle, i) => (
-            <span key={i}>{candle.time}</span>
-          ))}
-        </div>
       </div>
-      <div className="relative mt-1">
+      <div className="relative mt-1 px-2">
         {/* Volume indicator header */}
         <div className="flex items-center gap-3 text-[10px] font-mono mb-1">
           <span className="text-muted-foreground">
