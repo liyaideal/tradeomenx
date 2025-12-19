@@ -174,7 +174,7 @@ export default function TradingCharts() {
       />
 
       {/* Charts/Trade Tabs */}
-      <div className="flex px-4 border-b border-border/30">
+      <div className="flex px-4 border-b border-border/30 mt-1">
         {["Charts", "Trade"].map((tab) => (
           <button
             key={tab}
