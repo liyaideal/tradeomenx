@@ -166,7 +166,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
   const highestCandleIndex = candles.findIndex(c => c.high === maxPrice);
   const lowestCandleIndex = candles.findIndex(c => c.low === minPrice);
   
-  const chartHeight = 220;
+  const chartHeight = 260;
   const volumeChartHeight = 60;
   const drawHeight = chartHeight - 15; // Leave space for padding
   
@@ -254,7 +254,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
 
       {/* Price Chart */}
       <div className="relative">
-        <div className="flex h-[200px]">
+        <div className="flex h-[240px]">
           {/* Chart area */}
           <div className="flex-1 relative">
             <svg 
