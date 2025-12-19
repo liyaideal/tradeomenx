@@ -203,11 +203,8 @@ export default function TradingCharts() {
               ({priceChange.isPositive ? "+" : ""}{priceChange.percentage}%)
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] text-muted-foreground">Mark Price</span>
-            <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
-              {priceChange.isPositive ? "+" : ""}{priceChange.change}
-            </span>
+          <div className="text-xs text-muted-foreground font-mono mt-0.5">
+            Mark Price {selectedOptionData.price}
           </div>
         </div>
 
