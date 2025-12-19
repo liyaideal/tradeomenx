@@ -100,7 +100,7 @@ export default function DesktopTrading() {
   const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState("2");
   const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">("Orders");
-  const [chartTab, setChartTab] = useState<"Chart" | "Overview" | "Data" | "Feed">("Chart");
+  const [chartTab, setChartTab] = useState<"Chart" | "Event Info">("Chart");
   
   // Trade form state
   const [side, setSide] = useState<"buy" | "sell">("buy");
@@ -217,9 +217,9 @@ export default function DesktopTrading() {
         ))}
       </div>
 
-      {/* Chart/Overview/Data/Feed Tabs */}
+      {/* Chart / Event Info Tabs */}
       <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
-        {(["Chart", "Overview", "Data", "Feed"] as const).map((tab) => (
+        {(["Chart", "Event Info"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setChartTab(tab)}
@@ -238,26 +238,97 @@ export default function DesktopTrading() {
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
           {/* Top: Chart + Order Book */}
           <div className="flex min-h-[600px]">
-            {/* Chart Area */}
+            {/* Chart Area or Event Info */}
             <div className="flex-1 flex flex-col min-w-0 border-r border-border/30">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-2xl font-bold font-mono">{selectedOptionData.price}</span>
-                  <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
-                    {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
-                  </span>
-                  <span className="text-xs text-muted-foreground">Mark: {selectedOptionData.price}</span>
-                </div>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>Standard</span>
-                  <span className="text-trading-purple font-medium">TradingView</span>
-                  <span>Depth</span>
-                </div>
-              </div>
+              {chartTab === "Chart" ? (
+                <>
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-2xl font-bold font-mono">{selectedOptionData.price}</span>
+                      <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
+                        {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
+                      </span>
+                      <span className="text-xs text-muted-foreground">Mark: {selectedOptionData.price}</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>Standard</span>
+                      <span className="text-trading-purple font-medium">TradingView</span>
+                      <span>Depth</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-h-0">
+                    <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} />
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 p-6 overflow-auto">
+                  <div className="space-y-6">
+                    {/* Event Header */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <span className="text-3xl">🐦</span>
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold">Elon Musk # tweets December 12 - December 19, 2025?</h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Predict how many tweets Elon Musk will post during the specified period.
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="flex-1 min-h-0">
-                <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} />
-              </div>
+                    {/* Event Details */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-muted/30 rounded-lg p-4">
+                        <div className="text-xs text-muted-foreground mb-1">Event End Date</div>
+                        <div className="font-medium">Dec 19, 2025 23:59:59 UTC</div>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-4">
+                        <div className="text-xs text-muted-foreground mb-1">Current Tweet Count</div>
+                        <div className="font-medium">254 tweets</div>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-4">
+                        <div className="text-xs text-muted-foreground mb-1">Total Volume</div>
+                        <div className="font-medium">$2.45M</div>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-4">
+                        <div className="text-xs text-muted-foreground mb-1">Open Interest</div>
+                        <div className="font-medium">$1.2M</div>
+                      </div>
+                    </div>
+
+                    {/* Resolution Source */}
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <div className="text-xs text-muted-foreground mb-2">Resolution Source</div>
+                      <p className="text-sm">
+                        This market will be resolved based on the official tweet count from Elon Musk's verified X (Twitter) account (@elonmusk) as of the end date. Only original tweets count, excluding retweets and replies.
+                      </p>
+                    </div>
+
+                    {/* Rules */}
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <div className="text-xs text-muted-foreground mb-2">Market Rules</div>
+                      <ul className="text-sm space-y-2">
+                        <li className="flex items-start gap-2">
+                          <span className="text-trading-purple">•</span>
+                          <span>Counting period: December 12, 2025 00:00:00 UTC to December 19, 2025 23:59:59 UTC</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-trading-purple">•</span>
+                          <span>Only original tweets from @elonmusk are counted</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-trading-purple">•</span>
+                          <span>Deleted tweets that were posted during the period still count</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-trading-purple">•</span>
+                          <span>Market settles within 24 hours after the end date</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Order Book */}
