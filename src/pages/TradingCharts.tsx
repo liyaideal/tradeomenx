@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart2, Copy } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -15,31 +15,27 @@ const options = [
   { id: "5", label: "240-259", price: "0.1942" },
 ];
 
+// Generate order book data based on base price
+const generateOrderBookData = (basePrice: number) => {
+  const asks = [];
+  const bids = [];
+  
+  for (let i = 0; i < 8; i++) {
+    const askPrice = (basePrice + 0.001 * (i + 1)).toFixed(4);
+    const bidPrice = (basePrice - 0.001 * (i + 1)).toFixed(4);
+    const amount = Math.floor(Math.random() * 5000 + 500).toLocaleString();
+    const total = Math.floor(Math.random() * 3000 + 300).toLocaleString();
+    
+    asks.push({ price: askPrice, amount, total });
+    bids.push({ price: bidPrice, amount, total });
+  }
+  
+  return { asks, bids };
+};
+
 const stats = [
   { label: "24h Volume", value: "$2.45M" },
   { label: "Funding Rate", value: "+0.05%", isPositive: true },
-];
-
-const asks = [
-  { price: "0.7456", amount: "2,150", total: "1,603" },
-  { price: "0.7445", amount: "1,890", total: "1,407" },
-  { price: "0.7432", amount: "3,200", total: "2,378" },
-  { price: "0.7445", amount: "1,890", total: "1,407" },
-  { price: "0.7432", amount: "3,200", total: "2,378" },
-  { price: "0.7456", amount: "2,150", total: "1,603" },
-  { price: "0.7445", amount: "1,890", total: "1,407" },
-  { price: "0.7432", amount: "3,200", total: "2,378" },
-];
-
-const bids = [
-  { price: "0.7230", amount: "1,450", total: "1,048" },
-  { price: "0.7224", amount: "2,180", total: "1,575" },
-  { price: "0.7210", amount: "1,750", total: "1,262" },
-  { price: "0.7230", amount: "1,450", total: "1,048" },
-  { price: "0.7224", amount: "2,180", total: "1,575" },
-  { price: "0.7210", amount: "1,750", total: "1,262" },
-  { price: "0.7224", amount: "2,180", total: "1,575" },
-  { price: "0.7210", amount: "1,750", total: "1,262" },
 ];
 
 const tabs = ["Order Book", "Trades history", "Orders", "Positions"];
@@ -49,6 +45,25 @@ export default function TradingCharts() {
   const [selectedOption, setSelectedOption] = useState("2");
   const [activeTab, setActiveTab] = useState("Charts");
   const [bottomTab, setBottomTab] = useState("Order Book");
+
+  // Get selected option data
+  const selectedOptionData = useMemo(() => {
+    return options.find(opt => opt.id === selectedOption) || options[1];
+  }, [selectedOption]);
+
+  // Generate order book data based on selected option's price
+  const orderBookData = useMemo(() => {
+    const basePrice = parseFloat(selectedOptionData.price);
+    return generateOrderBookData(basePrice);
+  }, [selectedOptionData.price]);
+
+  // Calculate price change (mock data)
+  const priceChange = useMemo(() => {
+    const change = (Math.random() * 0.02 - 0.01).toFixed(4);
+    const percentage = ((parseFloat(change) / parseFloat(selectedOptionData.price)) * 100).toFixed(2);
+    const isPositive = parseFloat(change) >= 0;
+    return { change, percentage, isPositive };
+  }, [selectedOptionData.price]);
 
   return (
     <div className="min-h-screen bg-background pb-40">
@@ -89,9 +104,9 @@ export default function TradingCharts() {
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
         {/* Left: Price Display */}
         <div>
-          <div className="text-3xl font-bold font-mono tracking-tight">0.7234</div>
-          <div className="text-sm text-trading-green font-mono">
-            +$0.0234 (+3.34%)
+          <div className="text-3xl font-bold font-mono tracking-tight">{selectedOptionData.price}</div>
+          <div className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
+            {priceChange.isPositive ? "+" : ""}{priceChange.change} ({priceChange.isPositive ? "+" : ""}{priceChange.percentage}%)
           </div>
         </div>
 
@@ -131,7 +146,11 @@ export default function TradingCharts() {
       </div>
 
       {/* Order Book */}
-      <OrderBook asks={asks} bids={bids} currentPrice="0.7234" />
+      <OrderBook 
+        asks={orderBookData.asks} 
+        bids={orderBookData.bids} 
+        currentPrice={selectedOptionData.price} 
+      />
 
       {/* Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 px-4 py-3">
