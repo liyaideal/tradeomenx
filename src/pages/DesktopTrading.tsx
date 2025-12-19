@@ -1,9 +1,19 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronDown, Plus, ArrowLeftRight, ExternalLink, Star, Info } from "lucide-react";
 import { CandlestickChart } from "@/components/CandlestickChart";
-import { DesktopHeader } from "@/components/DesktopHeader";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
-import { DesktopTradeForm } from "@/components/DesktopTradeForm";
-import { DesktopPositionsPanel } from "@/components/DesktopPositionsPanel";
+import { OrderCard } from "@/components/OrderCard";
+import { PositionCard } from "@/components/PositionCard";
+import { Slider } from "@/components/ui/slider";
+
+const options = [
+  { id: "1", label: "140-159", price: "0.0534" },
+  { id: "2", label: "160-179", price: "0.1234" },
+  { id: "3", label: "200-219", price: "0.3456" },
+  { id: "4", label: "220-239", price: "0.2834" },
+  { id: "5", label: "240-259", price: "0.1942" },
+];
 
 // Generate order book data based on base price
 const generateOrderBookData = (basePrice: number) => {
@@ -13,118 +23,493 @@ const generateOrderBookData = (basePrice: number) => {
   let cumulativeAsk = 0;
   let cumulativeBid = 0;
   
-  for (let i = 0; i < 15; i++) {
-    const askPrice = (basePrice * 1000 + (i + 1) * 0.1).toFixed(2);
-    const bidPrice = (basePrice * 1000 - (i + 1) * 0.1).toFixed(2);
-    const askAmount = (Math.random() * 0.5 + 0.001).toFixed(3);
-    const bidAmount = (Math.random() * 0.5 + 0.001).toFixed(3);
+  for (let i = 0; i < 12; i++) {
+    const askPrice = (basePrice + 0.0005 * (i + 1)).toFixed(4);
+    const bidPrice = (basePrice - 0.0005 * (i + 1)).toFixed(4);
+    const askAmount = Math.floor(Math.random() * 50000 + 500).toString();
+    const bidAmount = Math.floor(Math.random() * 50000 + 500).toString();
     
-    cumulativeAsk += parseFloat(askAmount);
-    cumulativeBid += parseFloat(bidAmount);
+    cumulativeAsk += parseInt(askAmount);
+    cumulativeBid += parseInt(bidAmount);
     
     asks.push({ 
-      price: parseFloat(askPrice).toLocaleString(), 
-      amount: askAmount,
-      total: cumulativeAsk.toFixed(3)
+      price: askPrice, 
+      amount: parseInt(askAmount).toLocaleString(),
+      total: cumulativeAsk.toLocaleString()
     });
     bids.push({ 
-      price: parseFloat(bidPrice).toLocaleString(), 
-      amount: bidAmount,
-      total: cumulativeBid.toFixed(3)
+      price: bidPrice, 
+      amount: parseInt(bidAmount).toLocaleString(),
+      total: cumulativeBid.toLocaleString()
     });
   }
   
   return { asks, bids };
 };
 
+const mockOrders = [
+  {
+    type: "buy" as const,
+    orderType: "Limit" as const,
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "200-219",
+    probability: "35%",
+    price: "$0.3456",
+    amount: "1,500",
+    total: "$518",
+    time: "2 mins ago",
+    status: "Pending" as const,
+  },
+  {
+    type: "sell" as const,
+    orderType: "Limit" as const,
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "160-179",
+    probability: "12%",
+    price: "$0.1150",
+    amount: "2,300",
+    total: "$265",
+    time: "5 mins ago",
+    status: "Pending" as const,
+  },
+];
+
+const mockPositions = [
+  {
+    type: "long" as const,
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "200-219",
+    entryPrice: "$0.3200",
+    markPrice: "$0.3456",
+    size: "2,500",
+    margin: "$80.00",
+    pnl: "+$64.00",
+    pnlPercent: "+8.0%",
+    leverage: "10x",
+  },
+  {
+    type: "short" as const,
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "140-159",
+    entryPrice: "$0.0600",
+    markPrice: "$0.0534",
+    size: "5,000",
+    margin: "$30.00",
+    pnl: "+$33.00",
+    pnlPercent: "+11.0%",
+    leverage: "10x",
+  },
+];
+
 export default function DesktopTrading() {
-  const [selectedSymbol] = useState("BTCUSDT");
-  const basePrice = 88.131;
+  const navigate = useNavigate();
+  const [selectedOption, setSelectedOption] = useState("2");
+  const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">("Orders");
+  
+  // Trade form state
+  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const [marginType, setMarginType] = useState("Cross");
+  const [leverage, setLeverage] = useState("10x");
+  const [orderType, setOrderType] = useState<"Limit" | "Market" | "Conditional">("Market");
+  const [amount, setAmount] = useState("0.00");
+  const [sliderValue, setSliderValue] = useState([0]);
+  const [reduceOnly, setReduceOnly] = useState(false);
+  const [tpsl, setTpsl] = useState(false);
+  const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
+  
+  const available = 2453.42;
+
+  // Get selected option data
+  const selectedOptionData = useMemo(() => {
+    return options.find(opt => opt.id === selectedOption) || options[1];
+  }, [selectedOption]);
   
   const orderBookData = useMemo(() => {
+    const basePrice = parseFloat(selectedOptionData.price);
     return generateOrderBookData(basePrice);
-  }, [basePrice]);
+  }, [selectedOptionData.price]);
 
-  const currentPrice = "88,131.30";
+  // Calculate price change (mock data)
+  const priceChange = useMemo(() => {
+    const change = (Math.random() * 0.02 - 0.01).toFixed(4);
+    const percentage = ((parseFloat(change) / parseFloat(selectedOptionData.price)) * 100).toFixed(2);
+    const isPositive = parseFloat(change) >= 0;
+    return { change, percentage, isPositive };
+  }, [selectedOptionData.price]);
+
+  const handlePreview = () => {
+    navigate("/order-preview", {
+      state: {
+        side,
+        marginType,
+        leverage,
+        orderType,
+        amount,
+        price: selectedOptionData.price,
+      },
+    });
+  };
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
-      {/* Top Header with Stats */}
-      <DesktopHeader 
-        symbol={selectedSymbol}
-        price={currentPrice}
-        markPrice="88,132.18"
-        indexPrice="88,155.51"
-        change24h="+1,065.30"
-        changePercent="+1.22%"
-        high24h="89,483.50"
-        low24h="84,408.10"
-        volume24h="11,641,546,452.24"
-        openInterest="48,516.803"
-        fundingRate="0.0100%"
-        countdown="06:26:01"
-        isPositive={true}
-      />
+      {/* Top Header */}
+      <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
+        {/* Event Info */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <button onClick={() => navigate(-1)} className="p-1 text-muted-foreground hover:text-foreground">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+              <span className="text-sm">🐦</span>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-foreground truncate">
+                  Elon Musk # tweets December 12 - December 19, 2025?
+                </span>
+                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </div>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span>Ends: Dec 19, 2025 23:59:59</span>
+                <span>•</span>
+                <span>Current: 254 tweets</span>
+              </div>
+            </div>
+          </div>
+          <Star className="w-4 h-4 text-muted-foreground hover:text-trading-yellow cursor-pointer flex-shrink-0" />
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-6 text-xs">
+          <div>
+            <div className="text-muted-foreground">24h Volume</div>
+            <div className="font-mono font-medium">$2.45M</div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">Funding Rate</div>
+            <div className="font-mono font-medium text-trading-green">+0.05%</div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">Next Funding</div>
+            <div className="font-mono font-medium">28min</div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">Open Interest</div>
+            <div className="font-mono font-medium">$1.2M</div>
+          </div>
+        </div>
+
+        {/* External Link */}
+        <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+          <ExternalLink className="w-4 h-4" />
+          Event Info
+        </button>
+      </header>
+
+      {/* Option Chips Row */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 overflow-x-auto scrollbar-hide">
+        <span className="text-xs text-muted-foreground flex-shrink-0">Select Option:</span>
+        {options.map((option) => (
+          <button
+            key={option.id}
+            onClick={() => setSelectedOption(option.id)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              selectedOption === option.id
+                ? "bg-trading-purple/20 border border-trading-purple text-foreground"
+                : "bg-muted border border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span>{option.label}</span>
+            <span className={`ml-2 font-mono ${selectedOption === option.id ? "text-trading-purple" : ""}`}>
+              ${option.price}
+            </span>
+          </button>
+        ))}
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Tools (optional, just placeholder) */}
-        <div className="w-10 flex-shrink-0 bg-background border-r border-border/30 flex flex-col items-center py-2 gap-2">
-          {[...Array(12)].map((_, i) => (
-            <button 
-              key={i}
-              className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded"
-            >
-              <div className="w-4 h-4 border border-current rounded-sm" />
-            </button>
-          ))}
-        </div>
-
         {/* Chart Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Chart Tabs */}
-          <div className="flex items-center justify-between px-4 py-1 border-b border-border/30">
-            <div className="flex items-center gap-6">
-              <button className="text-sm font-medium text-foreground">Chart</button>
-              <button className="text-sm text-muted-foreground hover:text-foreground">Overview</button>
-              <button className="text-sm text-muted-foreground hover:text-foreground">Data</button>
-              <button className="text-sm text-muted-foreground hover:text-foreground">Feed</button>
+        <div className="flex-1 flex flex-col min-w-0 border-r border-border/30">
+          {/* Price Header */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
+            <div className="flex items-baseline gap-3">
+              <span className="text-2xl font-bold font-mono">{selectedOptionData.price}</span>
+              <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
+                {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Mark: {selectedOptionData.price}
+              </span>
             </div>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span>Standard</span>
-              <span className="text-trading-yellow">TradingView</span>
+              <span className="text-trading-purple font-medium">TradingView</span>
               <span>Depth</span>
             </div>
           </div>
 
           {/* Chart */}
-          <div className="flex-1 px-4 py-2 overflow-hidden">
-            <CandlestickChart remainingDays={7} basePrice={basePrice} />
+          <div className="flex-1 px-2 py-2 overflow-hidden">
+            <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} />
           </div>
         </div>
 
         {/* Order Book */}
-        <div className="w-[280px] flex-shrink-0">
+        <div className="w-[260px] flex-shrink-0 border-r border-border/30">
           <DesktopOrderBook 
             asks={orderBookData.asks}
             bids={orderBookData.bids}
-            currentPrice={currentPrice}
-            priceChange="88,132.18"
-            isPositive={false}
+            currentPrice={selectedOptionData.price}
+            priceChange={selectedOptionData.price}
+            isPositive={priceChange.isPositive}
           />
         </div>
 
         {/* Trade Form */}
-        <div className="w-[260px] flex-shrink-0">
-          <DesktopTradeForm 
-            selectedPrice={currentPrice}
-            symbol="BTC"
-          />
+        <div className="w-[280px] flex-shrink-0 flex flex-col bg-background">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
+            <span className="text-sm font-medium">Trade</span>
+            <button className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Info className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            {/* Buy/Sell Toggle */}
+            <div className="flex bg-muted rounded-lg p-0.5">
+              <button
+                onClick={() => setSide("buy")}
+                className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
+                  side === "buy"
+                    ? "bg-trading-green text-trading-green-foreground"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Buy | Long
+              </button>
+              <button
+                onClick={() => setSide("sell")}
+                className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
+                  side === "sell"
+                    ? "bg-trading-red text-foreground"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Sell | Short
+              </button>
+            </div>
+
+            {/* Margin & Leverage */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Margin / LVG</span>
+              <button className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs">
+                {marginType}
+                <ChevronDown className="w-3 h-3" />
+              </button>
+              <button className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs">
+                {leverage}
+                <ChevronDown className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Available Balance */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Available (USDC)</span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs">{available.toLocaleString()}</span>
+                <button className="w-5 h-5 bg-muted rounded-full flex items-center justify-center">
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+
+            {/* Order Type Tabs */}
+            <div className="flex border-b border-border/30">
+              {(["Limit", "Market", "Conditional"] as const).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setOrderType(type)}
+                  className={`px-2 py-1.5 text-xs font-medium transition-all ${
+                    orderType === type
+                      ? "text-foreground border-b-2 border-trading-purple"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+
+            {/* Price Input (for Limit orders) */}
+            {orderType === "Limit" && (
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground">Price</span>
+                <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+                  <input
+                    type="text"
+                    defaultValue={selectedOptionData.price}
+                    className="flex-1 bg-transparent outline-none font-mono text-sm"
+                    placeholder="0.0000"
+                  />
+                  <span className="text-muted-foreground text-xs">USDC</span>
+                </div>
+              </div>
+            )}
+
+            {/* Amount/Qty Input */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground">
+                  {inputMode === "amount" ? "Amount" : "Qty"}
+                </span>
+                <button 
+                  onClick={() => setInputMode(inputMode === "amount" ? "qty" : "amount")}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ArrowLeftRight className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+                <input
+                  type="text"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="flex-1 bg-transparent outline-none font-mono text-sm"
+                  placeholder="0.00"
+                />
+                {inputMode === "amount" && (
+                  <span className="text-muted-foreground text-xs font-medium">USDC</span>
+                )}
+              </div>
+            </div>
+
+            {/* Slider */}
+            <div className="space-y-1">
+              <Slider
+                value={sliderValue}
+                onValueChange={(val) => {
+                  setSliderValue(val);
+                  setAmount((available * val[0] / 100).toFixed(2));
+                }}
+                max={100}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground">
+                {["0%", "25%", "50%", "75%", "100%"].map((label) => (
+                  <span key={label}>{label}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Options */}
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${reduceOnly ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
+                  {reduceOnly && <span className="text-[10px] text-foreground">✓</span>}
+                </div>
+                <input
+                  type="checkbox"
+                  checked={reduceOnly}
+                  onChange={(e) => setReduceOnly(e.target.checked)}
+                  className="hidden"
+                />
+                <span className="text-xs text-muted-foreground">Reduce only</span>
+              </label>
+              
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
+                  {tpsl && <span className="text-[10px] text-foreground">✓</span>}
+                </div>
+                <input
+                  type="checkbox"
+                  checked={tpsl}
+                  onChange={(e) => setTpsl(e.target.checked)}
+                  className="hidden"
+                />
+                <span className="text-xs text-muted-foreground">TP/SL</span>
+              </label>
+            </div>
+
+            {/* Order Summary */}
+            <div className="space-y-1 text-xs pt-2 border-t border-border/30">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Notional val.</span>
+                <span className="text-muted-foreground">--</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Margin req.</span>
+                <span className="text-muted-foreground">--</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Fee (est.)</span>
+                <span className="text-muted-foreground">--</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-border/30">
+                <span className="font-medium text-foreground">Total</span>
+                <span className="text-muted-foreground">--</span>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handlePreview}
+              className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
+                side === "buy"
+                  ? "bg-trading-green text-trading-green-foreground"
+                  : "bg-trading-red text-foreground"
+              }`}
+            >
+              Preview {side === "buy" ? "Buy | Long" : "Sell | Short"}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Bottom Positions Panel */}
-      <DesktopPositionsPanel />
+      <div className="border-t border-border/30">
+        {/* Tabs */}
+        <div className="flex items-center gap-1 px-4 border-b border-border/30">
+          {(["Orders", "Positions"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setBottomTab(tab)}
+              className={`px-4 py-2 text-sm font-medium transition-all ${
+                bottomTab === tab
+                  ? "text-foreground border-b-2 border-trading-purple"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab}
+              <span className="ml-1 text-muted-foreground">
+                ({tab === "Orders" ? mockOrders.length : mockPositions.length})
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="max-h-[200px] overflow-y-auto">
+          {bottomTab === "Orders" && (
+            <div className="grid grid-cols-2 gap-3 p-4">
+              {mockOrders.map((order, index) => (
+                <OrderCard key={index} {...order} />
+              ))}
+            </div>
+          )}
+          {bottomTab === "Positions" && (
+            <div className="grid grid-cols-2 gap-3 p-4">
+              {mockPositions.map((position, index) => (
+                <PositionCard key={index} {...position} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
