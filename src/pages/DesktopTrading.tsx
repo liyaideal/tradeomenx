@@ -223,9 +223,9 @@ export default function DesktopTrading() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Section: Chart + Order Book + Positions */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
           {/* Top: Chart + Order Book */}
-          <div className="flex flex-1 min-h-0">
+          <div className="flex min-h-[600px]">
             {/* Chart Area */}
             <div className="flex-1 flex flex-col min-w-0 border-r border-border/30">
               <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
@@ -261,7 +261,7 @@ export default function DesktopTrading() {
           </div>
 
           {/* Bottom: Positions Panel */}
-          <div className="border-t border-border/30 h-[200px] flex-shrink-0">
+          <div className="border-t border-border/30 flex-shrink-0">
             <div className="flex items-center gap-1 px-4 border-b border-border/30">
               {(["Positions", "P&L", "Current Orders", "Order History", "Trade History"] as const).map((tab) => (
                 <button
@@ -285,7 +285,7 @@ export default function DesktopTrading() {
               ))}
             </div>
 
-            <div className="h-[calc(200px-40px)] overflow-auto">
+            <div>
               {bottomTab === "Orders" && (
                 <table className="w-full">
                   <thead className="sticky top-0 bg-background">
