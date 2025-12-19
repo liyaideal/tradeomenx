@@ -14,8 +14,6 @@ const options = [
 
 const stats = [
   { label: "24h Volume", value: "$2.45M" },
-  { label: "Open Interest", value: "$18.2M" },
-  { label: "Liquidity", value: "$5.8M" },
   { label: "Funding Rate", value: "+0.05%", isPositive: true },
 ];
 
@@ -94,16 +92,16 @@ export default function TradingCharts() {
           </div>
         </div>
 
-        {/* Right: Stats */}
-        <div className="flex gap-5">
+        {/* Right: Stats - Vertical Layout */}
+        <div className="flex flex-col gap-1">
           {stats.map((stat) => (
-            <div key={stat.label} className="text-right">
-              <div className="text-[10px] text-muted-foreground">{stat.label}</div>
-              <div className={`font-mono text-xs font-semibold ${
+            <div key={stat.label} className="flex items-center gap-2 text-right justify-end">
+              <span className="text-[10px] text-muted-foreground">{stat.label}</span>
+              <span className={`font-mono text-xs font-semibold ${
                 stat.isPositive ? "text-trading-green" : "text-foreground"
               }`}>
                 {stat.value}
-              </div>
+              </span>
             </div>
           ))}
         </div>
