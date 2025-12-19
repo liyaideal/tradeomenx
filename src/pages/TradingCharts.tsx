@@ -174,7 +174,7 @@ export default function TradingCharts() {
       />
 
       {/* Charts/Trade Tabs */}
-      <div className="flex px-4 border-b border-border/30 mt-1">
+      <div className="flex px-4 border-b border-border/30">
         {["Charts", "Trade"].map((tab) => (
           <button
             key={tab}
@@ -182,7 +182,7 @@ export default function TradingCharts() {
               setActiveTab(tab);
               if (tab === "Trade") navigate("/trade/order");
             }}
-            className={`py-3 mr-6 text-sm font-medium transition-all ${
+            className={`py-2 mr-6 text-sm font-medium transition-all ${
               activeTab === tab
                 ? "text-trading-purple border-b-2 border-trading-purple"
                 : "text-muted-foreground"

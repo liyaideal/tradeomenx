@@ -12,7 +12,7 @@ interface OptionChipsProps {
 
 export const OptionChips = ({ options, selectedId, onSelect }: OptionChipsProps) => {
   return (
-    <div className="flex gap-2 px-4 py-1.5 overflow-x-auto scrollbar-hide">
+    <div className="flex gap-2 px-4 py-1 overflow-x-auto scrollbar-hide">
       {options.map((option) => (
         <button
           key={option.id}

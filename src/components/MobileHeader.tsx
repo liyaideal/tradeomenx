@@ -56,7 +56,7 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack = true, showAc
   const displayTime = endTime ? countdown : subtitle;
 
   return (
-    <header className="sticky top-0 bg-background z-40 px-4 py-2">
+    <header className="sticky top-0 bg-background z-40 px-4 py-1.5">
       <div className="flex items-center">
         {/* Left: Back button */}
         {showBack ? (
