@@ -157,6 +157,10 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
   const adjustedMin = minPrice - padding;
   const adjustedMax = maxPrice + padding;
   const adjustedRange = adjustedMax - adjustedMin;
+
+  // Find indices of highest and lowest candles
+  const highestCandleIndex = candles.findIndex(c => c.high === maxPrice);
+  const lowestCandleIndex = candles.findIndex(c => c.low === minPrice);
   
   const chartHeight = 180;
   const volumeChartHeight = 60;
@@ -312,6 +316,68 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
                   opacity="0.5"
                 />
               )}
+
+              {/* Highest price annotation */}
+              {highestCandleIndex >= 0 && (() => {
+                const candleX = highestCandleIndex * candleSpacing + candleSpacing / 2;
+                const isRightSide = candleX > viewBoxWidth / 2;
+                const lineLength = 60;
+                const textOffset = 10;
+                
+                return (
+                  <g>
+                    <line
+                      x1={isRightSide ? candleX - lineLength : candleX}
+                      y1={priceToY(maxPrice)}
+                      x2={isRightSide ? candleX : candleX + lineLength}
+                      y2={priceToY(maxPrice)}
+                      stroke="hsl(0 0% 50%)"
+                      strokeWidth="1"
+                    />
+                    <text
+                      x={isRightSide ? candleX - lineLength - textOffset : candleX + lineLength + textOffset}
+                      y={priceToY(maxPrice) + 5}
+                      fill="hsl(0 0% 70%)"
+                      fontSize="22"
+                      fontFamily="monospace"
+                      textAnchor={isRightSide ? "end" : "start"}
+                    >
+                      {maxPrice.toFixed(4)}
+                    </text>
+                  </g>
+                );
+              })()}
+
+              {/* Lowest price annotation */}
+              {lowestCandleIndex >= 0 && (() => {
+                const candleX = lowestCandleIndex * candleSpacing + candleSpacing / 2;
+                const isRightSide = candleX > viewBoxWidth / 2;
+                const lineLength = 60;
+                const textOffset = 10;
+                
+                return (
+                  <g>
+                    <line
+                      x1={isRightSide ? candleX - lineLength : candleX}
+                      y1={priceToY(minPrice)}
+                      x2={isRightSide ? candleX : candleX + lineLength}
+                      y2={priceToY(minPrice)}
+                      stroke="hsl(0 0% 50%)"
+                      strokeWidth="1"
+                    />
+                    <text
+                      x={isRightSide ? candleX - lineLength - textOffset : candleX + lineLength + textOffset}
+                      y={priceToY(minPrice) + 5}
+                      fill="hsl(0 0% 70%)"
+                      fontSize="22"
+                      fontFamily="monospace"
+                      textAnchor={isRightSide ? "end" : "start"}
+                    >
+                      {minPrice.toFixed(4)}
+                    </text>
+                  </g>
+                );
+              })()}
             </svg>
           </div>
         </div>
