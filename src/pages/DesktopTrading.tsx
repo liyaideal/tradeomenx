@@ -1,6 +1,12 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Plus, ArrowLeftRight, Star, Info } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, Star, Info, Flag } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { Slider } from "@/components/ui/slider";
@@ -239,13 +245,27 @@ export default function DesktopTrading() {
             <div className="flex-1 flex flex-col min-w-0 border-r border-border/30">
               {chartTab === "Chart" ? (
                 <>
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
+                  <div className="px-4 py-2 border-b border-border/30">
                     <div className="flex items-baseline gap-3">
                       <span className="text-2xl font-bold font-mono">{selectedOptionData.price}</span>
                       <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
                         {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
                       </span>
-                      <span className="text-xs text-muted-foreground">Mark: {selectedOptionData.price}</span>
+                    </div>
+                    <div className="mt-1">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-xs text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow w-fit">
+                              <Flag className="w-3 h-3" /> {selectedOptionData.price}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[280px] p-3">
+                            <p className="text-sm">Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.</p>
+                            <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
                   <div className="flex-1 min-h-0">
