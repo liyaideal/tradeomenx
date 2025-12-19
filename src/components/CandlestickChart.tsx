@@ -12,6 +12,7 @@ interface Candle {
 
 interface CandlestickChartProps {
   remainingDays?: number; // T_remain in days
+  basePrice?: number; // Base price from selected option
 }
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1H", "4H", "1D", "ALL"] as const;
@@ -26,9 +27,10 @@ const getDefaultTimeframe = (remainingDays: number): Timeframe => {
 };
 
 // Generate mock candles - in production this would come from API
-const generateMockCandles = (timeframe: Timeframe, count: number = 80): Candle[] => {
+const generateMockCandles = (timeframe: Timeframe, basePrice: number = 0.12, count: number = 80): Candle[] => {
   const candles: Candle[] = [];
-  let price = 0.68 + Math.random() * 0.08;
+  // Start from a price slightly below the base price and trend upward to it
+  let price = basePrice * (0.85 + Math.random() * 0.1);
   
   const getTimeLabel = (index: number): string => {
     if (timeframe === "ALL") {
@@ -65,13 +67,14 @@ const generateMockCandles = (timeframe: Timeframe, count: number = 80): Candle[]
     return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
   };
 
-  // Volatility based on timeframe
-  const volatility = timeframe === "ALL" ? 0.015 : 
-                     timeframe === "1D" ? 0.012 : 
-                     timeframe === "4H" ? 0.008 : 
-                     timeframe === "1H" ? 0.006 : 
-                     timeframe === "15m" ? 0.004 : 
-                     timeframe === "5m" ? 0.003 : 0.002;
+  // Volatility based on timeframe - relative to base price
+  const volatilityPercent = timeframe === "ALL" ? 0.03 : 
+                     timeframe === "1D" ? 0.025 : 
+                     timeframe === "4H" ? 0.018 : 
+                     timeframe === "1H" ? 0.012 : 
+                     timeframe === "15m" ? 0.008 : 
+                     timeframe === "5m" ? 0.006 : 0.004;
+  const volatility = basePrice * volatilityPercent;
 
   for (let i = 0; i < count; i++) {
     const change = (Math.random() - 0.45) * volatility; // Slight upward bias
@@ -119,7 +122,7 @@ const calculateMA = (data: number[], period: number): number[] => {
   return result;
 };
 
-export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) => {
+export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: CandlestickChartProps) => {
   const defaultTimeframe = getDefaultTimeframe(remainingDays);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [chartMode, setChartMode] = useState<"candle" | "line">("candle");
@@ -135,8 +138,8 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
 
   const candleCount = selectedTimeframe === "ALL" ? 60 : 60;
   const candles = useMemo(
-    () => generateMockCandles(selectedTimeframe, candleCount), 
-    [selectedTimeframe, candleCount]
+    () => generateMockCandles(selectedTimeframe, basePrice, candleCount), 
+    [selectedTimeframe, basePrice, candleCount]
   );
   
   // Calculate volume data
