@@ -19,7 +19,7 @@ const App = () => (
       <BrowserRouter>
         <div className="max-w-md mx-auto min-h-screen bg-background">
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<TradingCharts />} />
             <Route path="/trade" element={<TradingCharts />} />
             <Route path="/trade/order" element={<TradeOrder />} />
             <Route path="/order-preview" element={<OrderPreview />} />
