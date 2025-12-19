@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronDown, Plus, ArrowLeftRight, ExternalLink, Star, Info } from "lucide-react";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
-import { OrderCard } from "@/components/OrderCard";
-import { PositionCard } from "@/components/PositionCard";
 import { Slider } from "@/components/ui/slider";
 
 const options = [
@@ -470,43 +468,163 @@ export default function DesktopTrading() {
         </div>
       </div>
 
-      {/* Bottom Positions Panel */}
+      {/* Bottom Positions Panel - Table Layout */}
       <div className="border-t border-border/30">
         {/* Tabs */}
         <div className="flex items-center gap-1 px-4 border-b border-border/30">
-          {(["Orders", "Positions"] as const).map((tab) => (
+          {(["Positions", "P&L", "Current Orders", "Order History", "Trade History"] as const).map((tab) => (
             <button
               key={tab}
-              onClick={() => setBottomTab(tab)}
-              className={`px-4 py-2 text-sm font-medium transition-all ${
+              onClick={() => setBottomTab(tab === "Current Orders" ? "Orders" : tab === "Positions" ? "Positions" : tab as any)}
+              className={`px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
+                (bottomTab === "Orders" && tab === "Current Orders") || 
+                (bottomTab === "Positions" && tab === "Positions") ||
                 bottomTab === tab
-                  ? "text-foreground border-b-2 border-trading-purple"
+                  ? "text-trading-yellow border-b-2 border-trading-yellow"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {tab}
-              <span className="ml-1 text-muted-foreground">
-                ({tab === "Orders" ? mockOrders.length : mockPositions.length})
-              </span>
+              {(tab === "Positions" || tab === "Current Orders") && (
+                <span className="ml-1 text-muted-foreground">
+                  ({tab === "Current Orders" ? mockOrders.length : mockPositions.length})
+                </span>
+              )}
             </button>
           ))}
         </div>
 
-        {/* Content */}
-        <div className="max-h-[200px] overflow-y-auto">
+        {/* Table Content */}
+        <div className="max-h-[180px] overflow-auto">
           {bottomTab === "Orders" && (
-            <div className="grid grid-cols-2 gap-3 p-4">
-              {mockOrders.map((order, index) => (
-                <OrderCard key={index} {...order} />
-              ))}
-            </div>
+            <table className="w-full">
+              <thead className="sticky top-0 bg-background">
+                <tr className="border-b border-border/30">
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Contracts</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Side</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Type</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Price</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Qty</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Value</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Status</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Time</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mockOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      No open orders
+                    </td>
+                  </tr>
+                ) : (
+                  mockOrders.map((order, index) => (
+                    <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
+                      <td className="px-4 py-2">
+                        <div className="text-sm font-medium">{order.option}</div>
+                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">{order.event}</div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          order.type === "buy" 
+                            ? "bg-trading-green/20 text-trading-green" 
+                            : "bg-trading-red/20 text-trading-red"
+                        }`}>
+                          {order.type === "buy" ? "Buy" : "Sell"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-sm">{order.orderType}</td>
+                      <td className="px-4 py-2 text-sm font-mono text-right">{order.price}</td>
+                      <td className="px-4 py-2 text-sm font-mono text-right">{order.amount}</td>
+                      <td className="px-4 py-2 text-sm font-mono text-right">{order.total}</td>
+                      <td className="px-4 py-2">
+                        <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground">
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-xs text-muted-foreground">{order.time}</td>
+                      <td className="px-4 py-2 text-center">
+                        <button className="px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10">
+                          Cancel
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           )}
+
           {bottomTab === "Positions" && (
-            <div className="grid grid-cols-2 gap-3 p-4">
-              {mockPositions.map((position, index) => (
-                <PositionCard key={index} {...position} />
-              ))}
-            </div>
+            <table className="w-full">
+              <thead className="sticky top-0 bg-background">
+                <tr className="border-b border-border/30">
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Contracts</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Side</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Size</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Entry Price</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Mark Price</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Liq. Price</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Margin</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Unrealized P&L</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Leverage</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">TP/SL</th>
+                  <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mockPositions.length === 0 ? (
+                  <tr>
+                    <td colSpan={11} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      No open positions
+                    </td>
+                  </tr>
+                ) : (
+                  mockPositions.map((position, index) => (
+                    <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
+                      <td className="px-4 py-2">
+                        <div className="text-sm font-medium">{position.option}</div>
+                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">{position.event}</div>
+                      </td>
+                      <td className="px-4 py-2">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          position.type === "long" 
+                            ? "bg-trading-green/20 text-trading-green" 
+                            : "bg-trading-red/20 text-trading-red"
+                        }`}>
+                          {position.type === "long" ? "Long" : "Short"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-sm font-mono text-right">{position.size}</td>
+                      <td className="px-4 py-2 text-sm font-mono text-right">{position.entryPrice}</td>
+                      <td className="px-4 py-2 text-sm font-mono text-right">{position.markPrice}</td>
+                      <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
+                      <td className="px-4 py-2 text-sm font-mono text-right">{position.margin}</td>
+                      <td className="px-4 py-2 text-right">
+                        <span className={`text-sm font-mono ${
+                          position.pnl.startsWith("+") ? "text-trading-green" : "text-trading-red"
+                        }`}>
+                          {position.pnl}
+                        </span>
+                        <span className={`text-xs ml-1 ${
+                          position.pnlPercent.startsWith("+") ? "text-trading-green" : "text-trading-red"
+                        }`}>
+                          ({position.pnlPercent})
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-sm">{position.leverage}</td>
+                      <td className="px-4 py-2 text-center text-sm text-muted-foreground">--</td>
+                      <td className="px-4 py-2 text-center">
+                        <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted mr-1">
+                          Close
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           )}
         </div>
       </div>
