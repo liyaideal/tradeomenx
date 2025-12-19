@@ -32,10 +32,10 @@ export const TradeForm = () => {
   return (
     <div className="px-3 pb-2 space-y-2">
       {/* Buy/Sell Toggle */}
-      <div className="flex bg-muted rounded-lg p-1">
+      <div className="flex bg-muted rounded-lg p-0.5">
         <button
           onClick={() => setSide("buy")}
-          className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
+          className={`flex-1 py-1.5 rounded-md font-semibold text-xs transition-all duration-200 ${
             side === "buy"
               ? "bg-trading-green text-trading-green-foreground"
               : "text-muted-foreground"
@@ -45,7 +45,7 @@ export const TradeForm = () => {
         </button>
         <button
           onClick={() => setSide("sell")}
-          className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
+          className={`flex-1 py-1.5 rounded-md font-semibold text-xs transition-all duration-200 ${
             side === "sell"
               ? "bg-trading-red text-foreground"
               : "text-muted-foreground"
@@ -80,29 +80,29 @@ export const TradeForm = () => {
       </div>
 
       {/* Order Type */}
-      <div className="space-y-1">
-        <span className="text-xs text-muted-foreground">Order type</span>
-        <button className="w-full flex items-center justify-between px-3 py-2.5 bg-muted rounded-lg text-sm">
+      <div className="space-y-0.5">
+        <span className="text-[10px] text-muted-foreground">Order type</span>
+        <button className="w-full flex items-center justify-between px-2.5 py-2 bg-muted rounded-lg text-xs">
           <span>{orderType}</span>
-          <ChevronDown className="w-4 h-4" />
+          <ChevronDown className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {/* Amount Input */}
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Amount</span>
-          <button className="text-muted-foreground text-xs">⇄</button>
+          <span className="text-[10px] text-muted-foreground">Amount</span>
+          <button className="text-muted-foreground text-[10px]">⇄</button>
         </div>
-        <div className="flex items-center bg-muted rounded-lg px-3 py-2.5">
+        <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
           <input
             type="text"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="flex-1 bg-transparent outline-none font-mono text-sm"
+            className="flex-1 bg-transparent outline-none font-mono text-xs"
             placeholder="0.00"
           />
-          <span className="text-muted-foreground text-xs font-medium">USDC</span>
+          <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
         </div>
       </div>
 
@@ -178,7 +178,7 @@ export const TradeForm = () => {
       {/* Submit Button */}
       <button
         onClick={handlePreview}
-        className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
+        className={`w-full py-2 rounded-lg font-semibold text-xs transition-all duration-200 active:scale-[0.98] ${
           side === "buy"
             ? "bg-trading-green text-trading-green-foreground"
             : "bg-trading-red text-foreground"
