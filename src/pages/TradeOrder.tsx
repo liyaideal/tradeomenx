@@ -5,6 +5,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
+import { PositionCard } from "@/components/PositionCard";
 
 const options = [
   { id: "1", label: "140-159", price: "0.0534" },
@@ -46,15 +47,42 @@ const mockOrders = [
   },
   {
     type: "sell" as const,
-    orderType: "Market" as const,
+    orderType: "Limit" as const,
     event: "Elon Musk # tweets December 12 - December 19, 2025?",
     option: "160-179",
     probability: "12%",
-    price: "Market",
+    price: "$0.1150",
     amount: "2,300",
-    total: "$284",
+    total: "$265",
     time: "5 mins ago",
-    status: "Partially Filled" as const,
+    status: "Pending" as const,
+  },
+];
+
+const mockPositions = [
+  {
+    type: "long" as const,
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "200-219",
+    entryPrice: "$0.3200",
+    markPrice: "$0.3456",
+    size: "2,500",
+    margin: "$80.00",
+    pnl: "+$64.00",
+    pnlPercent: "+8.0%",
+    leverage: "10x",
+  },
+  {
+    type: "short" as const,
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "140-159",
+    entryPrice: "$0.0600",
+    markPrice: "$0.0534",
+    size: "5,000",
+    margin: "$30.00",
+    pnl: "+$33.00",
+    pnlPercent: "+11.0%",
+    leverage: "10x",
   },
 ];
 
@@ -203,10 +231,13 @@ export default function TradeOrder() {
         ))}
       </div>
 
-      {/* Orders List */}
+      {/* Orders/Positions Content */}
       <div className="px-4 py-3 space-y-3">
-        {mockOrders.map((order, index) => (
+        {bottomTab === "Orders" && mockOrders.map((order, index) => (
           <OrderCard key={index} {...order} />
+        ))}
+        {bottomTab === "Positions" && mockPositions.map((position, index) => (
+          <PositionCard key={index} {...position} />
         ))}
       </div>
     </div>
