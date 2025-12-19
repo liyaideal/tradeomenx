@@ -106,7 +106,8 @@ export default function DesktopTrading() {
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [marginType, setMarginType] = useState<"Cross" | "Isolated">("Cross");
   const [marginDropdownOpen, setMarginDropdownOpen] = useState(false);
-  const [leverage] = useState("10x");
+  const [leverage, setLeverage] = useState(10);
+  const [leveragePopupOpen, setLeveragePopupOpen] = useState(false);
   const [orderType, setOrderType] = useState<"Limit" | "Market">("Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
@@ -137,7 +138,7 @@ export default function DesktopTrading() {
       state: {
         side,
         marginType,
-        leverage,
+        leverage: `${leverage}x`,
         orderType,
         amount,
         price: selectedOptionData.price,
@@ -533,12 +534,77 @@ export default function DesktopTrading() {
             </div>
 
             {/* Leverage */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative">
               <span className="text-xs text-muted-foreground">Leverage</span>
-              <button className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs">
-                {leverage}
+              <button 
+                onClick={() => setLeveragePopupOpen(!leveragePopupOpen)}
+                className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs"
+              >
+                {leverage}x
                 <ChevronDown className="w-3 h-3" />
               </button>
+              
+              {/* Leverage Popup */}
+              {leveragePopupOpen && (
+                <div className="absolute right-0 top-full mt-1 z-50 bg-background border border-border rounded-lg shadow-lg p-4 w-[280px]">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-medium">Adjust Leverage</span>
+                    <button 
+                      onClick={() => setLeveragePopupOpen(false)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  
+                  {/* Current Leverage Display */}
+                  <div className="text-center mb-4">
+                    <span className="text-3xl font-bold text-trading-purple">{leverage}x</span>
+                  </div>
+                  
+                  {/* Slider */}
+                  <div className="mb-4">
+                    <Slider
+                      value={[leverage]}
+                      onValueChange={(value) => setLeverage(value[0])}
+                      min={1}
+                      max={50}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>1x</span>
+                      <span>25x</span>
+                      <span>50x</span>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Select Buttons */}
+                  <div className="flex gap-2 mb-4">
+                    {[1, 5, 10, 20, 50].map((lev) => (
+                      <button
+                        key={lev}
+                        onClick={() => setLeverage(lev)}
+                        className={`flex-1 py-1.5 text-xs rounded transition-colors ${
+                          leverage === lev 
+                            ? "bg-trading-purple text-foreground" 
+                            : "bg-muted text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {lev}x
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Confirm Button */}
+                  <button
+                    onClick={() => setLeveragePopupOpen(false)}
+                    className="w-full py-2 bg-trading-purple text-foreground rounded-lg text-sm font-medium hover:bg-trading-purple/80 transition-colors"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Available Balance */}
