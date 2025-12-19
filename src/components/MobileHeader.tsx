@@ -1,5 +1,10 @@
-import { ChevronLeft, Heart, Share2 } from "lucide-react";
+import { ChevronLeft, Heart, Share2, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface MobileHeaderProps {
   title: string;
@@ -40,11 +45,42 @@ export const MobileHeader = ({ title, subtitle, showBack = true, showActions = f
                 </div>
               )}
               {tweetCount !== undefined && (
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Tweets</span>
-                  <span className="text-xs text-orange-500 font-mono font-medium">{tweetCount}</span>
-                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+                      <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                      <span className="text-xs text-muted-foreground">Tweets</span>
+                      <span className="text-xs text-orange-500 font-mono font-medium">{tweetCount}</span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-3" align="center">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Tweet Count</span>
+                        <span className="text-lg font-bold text-orange-500">{tweetCount}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div className="flex justify-between">
+                          <span>Period</span>
+                          <span>Dec 12 - Dec 19, 2025</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Last updated</span>
+                          <span>Just now</span>
+                        </div>
+                      </div>
+                      <a
+                        href="https://x.com/elonmusk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        View on X (Twitter)
+                      </a>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
           )}
