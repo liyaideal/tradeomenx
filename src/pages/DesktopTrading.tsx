@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Plus, ArrowLeftRight, Star, Info, Flag } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, Star, Info, Flag, Search } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -10,6 +10,15 @@ import {
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { Slider } from "@/components/ui/slider";
+
+// Mock active events data
+const activeEvents = [
+  { id: "1", name: "Elon Musk # tweets December 12 - December 19, 2025?", icon: "🐦", ends: "Dec 19, 2025", volume: "$2.45M" },
+  { id: "2", name: "Bitcoin price on December 31, 2025?", icon: "₿", ends: "Dec 31, 2025", volume: "$5.12M" },
+  { id: "3", name: "ETH/BTC ratio end of Q4 2025?", icon: "⟠", ends: "Dec 31, 2025", volume: "$1.89M" },
+  { id: "4", name: "Fed interest rate decision January 2026?", icon: "🏦", ends: "Jan 29, 2026", volume: "$3.21M" },
+  { id: "5", name: "S&P 500 closing price December 2025?", icon: "📈", ends: "Dec 31, 2025", volume: "$4.56M" },
+];
 
 const options = [
   { id: "1", label: "140-159", price: "0.0534" },
@@ -119,6 +128,9 @@ export default function DesktopTrading() {
   const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
+  const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
+  const [eventSearchQuery, setEventSearchQuery] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState(activeEvents[0]);
   
   const available = 2453.42;
 
@@ -155,31 +167,86 @@ export default function DesktopTrading() {
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top Header */}
       <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <button onClick={() => navigate(-1)} className="p-1 text-muted-foreground hover:text-foreground">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-3 flex-1 min-w-0 relative">
+          {/* Event Dropdown Trigger */}
+          <button 
+            onClick={() => setEventDropdownOpen(!eventDropdownOpen)}
+            className="flex items-center gap-2 min-w-0 hover:bg-muted/30 rounded-lg p-1 transition-colors"
+          >
             <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-              <span className="text-sm">🐦</span>
+              <span className="text-sm">{selectedEvent.icon}</span>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground truncate">
-                  Elon Musk # tweets December 12 - December 19, 2025?
+                  {selectedEvent.name}
                 </span>
-                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${eventDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>Ends: Dec 19, 2025 23:59:59</span>
+                <span>Ends: {selectedEvent.ends}</span>
                 <span>•</span>
-                <span>Current: 254 tweets</span>
+                <span>Volume: {selectedEvent.volume}</span>
               </div>
             </div>
-          </div>
+          </button>
           <Star className="w-4 h-4 text-muted-foreground hover:text-trading-yellow cursor-pointer flex-shrink-0" />
+
+          {/* Event Dropdown */}
+          {eventDropdownOpen && (
+            <div className="absolute left-0 top-full mt-2 z-50 bg-background border border-border rounded-lg shadow-xl w-[500px]">
+              {/* Search Input */}
+              <div className="p-3 border-b border-border/30">
+                <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+                  <Search className="w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={eventSearchQuery}
+                    onChange={(e) => setEventSearchQuery(e.target.value)}
+                    placeholder="Search events..."
+                    className="flex-1 bg-transparent outline-none text-sm"
+                  />
+                  <Star className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </div>
+
+              {/* Events List Header */}
+              <div className="grid grid-cols-3 text-xs text-muted-foreground px-4 py-2 border-b border-border/30">
+                <span>Event</span>
+                <span className="text-right">End Date</span>
+                <span className="text-right">Volume</span>
+              </div>
+
+              {/* Events List */}
+              <div className="max-h-[300px] overflow-y-auto">
+                {activeEvents
+                  .filter(event => event.name.toLowerCase().includes(eventSearchQuery.toLowerCase()))
+                  .map((event) => (
+                    <button
+                      key={event.id}
+                      onClick={() => {
+                        setSelectedEvent(event);
+                        setEventDropdownOpen(false);
+                        setEventSearchQuery("");
+                      }}
+                      className={`w-full grid grid-cols-3 items-center px-4 py-3 text-left hover:bg-muted/50 transition-colors ${
+                        selectedEvent.id === event.id ? "bg-muted/30" : ""
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Star className="w-3 h-3 text-muted-foreground hover:text-trading-yellow" />
+                        <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">
+                          {event.icon}
+                        </span>
+                        <span className="text-sm font-medium truncate">{event.name}</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground text-right">{event.ends}</span>
+                      <span className="text-xs font-mono text-right">{event.volume}</span>
+                    </button>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-6 text-xs">
