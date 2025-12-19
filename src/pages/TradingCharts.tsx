@@ -154,11 +154,14 @@ export default function TradingCharts() {
     return { change, percentage, isPositive };
   }, [selectedOptionData.price]);
 
+  // Set end time to December 19, 2025 23:59:59
+  const endTime = new Date("2025-12-19T23:59:59");
+
   return (
     <div className="min-h-screen bg-background pb-40">
       <MobileHeader 
         title="Elon Musk # tweets December 12 - December 19, 2025?" 
-        subtitle="23:47:15"
+        endTime={endTime}
         showActions
         tweetCount={254}
       />

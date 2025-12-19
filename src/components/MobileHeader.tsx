@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { ChevronLeft, Heart, Share2, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -9,13 +10,50 @@ import {
 interface MobileHeaderProps {
   title: string;
   subtitle?: string;
+  endTime?: Date; // New prop for countdown
   showBack?: boolean;
   showActions?: boolean;
   tweetCount?: number;
 }
 
-export const MobileHeader = ({ title, subtitle, showBack = true, showActions = false, tweetCount }: MobileHeaderProps) => {
+// Countdown hook
+const useCountdown = (endTime: Date | undefined) => {
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    if (!endTime) return;
+
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const end = endTime.getTime();
+      const difference = end - now;
+
+      if (difference <= 0) {
+        return "00:00:00";
+      }
+
+      const hours = Math.floor(difference / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [endTime]);
+
+  return timeLeft;
+};
+
+export const MobileHeader = ({ title, subtitle, endTime, showBack = true, showActions = false, tweetCount }: MobileHeaderProps) => {
   const navigate = useNavigate();
+  const countdown = useCountdown(endTime);
+  const displayTime = endTime ? countdown : subtitle;
 
   return (
     <header className="sticky top-0 bg-background z-40 px-4 py-2">
@@ -35,13 +73,13 @@ export const MobileHeader = ({ title, subtitle, showBack = true, showActions = f
         {/* Center: Title and countdown */}
         <div className="flex-1 text-center px-2">
           <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-          {(subtitle || tweetCount !== undefined) && (
+          {(displayTime || tweetCount !== undefined) && (
             <div className="flex items-center justify-center gap-4 mt-0.5">
-              {subtitle && (
+              {displayTime && (
                 <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
+                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
                   <span className="text-xs text-muted-foreground">Ends in</span>
-                  <span className="text-xs text-trading-red font-mono font-medium">{subtitle}</span>
+                  <span className="text-xs text-trading-red font-mono font-medium">{displayTime}</span>
                 </div>
               )}
               {tweetCount !== undefined && (
