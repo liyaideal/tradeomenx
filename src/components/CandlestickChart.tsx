@@ -228,13 +228,6 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
       {/* Price Chart */}
       <div className="relative">
         <div className="flex h-[160px]">
-          {/* Y-axis labels */}
-          <div className="flex flex-col justify-between text-[10px] text-muted-foreground font-mono pr-2 w-11">
-            {priceLabels.map((label, i) => (
-              <span key={i}>{label.toFixed(4)}</span>
-            ))}
-          </div>
-
           {/* Chart area */}
           <div className="flex-1 relative">
             <svg 
@@ -380,10 +373,22 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
               })()}
             </svg>
           </div>
+
+          {/* Y-axis labels (right side) */}
+          <div className="flex flex-col justify-between text-[10px] text-muted-foreground font-mono pl-2 w-12 text-right">
+            {priceLabels.map((label, i) => (
+              <span key={i}>{label.toFixed(4)}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* X-axis labels for price chart */}
+        <div className="flex justify-between pr-12 mt-1 text-[9px] text-muted-foreground font-mono">
+          {timeLabels.slice(0, 8).map((candle, i) => (
+            <span key={i}>{candle.time}</span>
+          ))}
         </div>
       </div>
-
-      {/* Volume Chart */}
       <div className="relative mt-1">
         {/* Volume indicator header */}
         <div className="flex items-center gap-3 text-[10px] font-mono mb-1">
@@ -457,12 +462,6 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
         </div>
       </div>
 
-      {/* X-axis labels */}
-      <div className="flex justify-between mt-1 text-[9px] text-muted-foreground font-mono">
-        {timeLabels.slice(0, 8).map((candle, i) => (
-          <span key={i}>{candle.time}</span>
-        ))}
-      </div>
 
       {/* Timeframe info */}
       {selectedTimeframe === "ALL" && (
