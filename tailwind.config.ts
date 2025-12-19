@@ -59,6 +59,8 @@ export default {
           "red-muted": "hsl(var(--trading-red-muted))",
           purple: "hsl(var(--trading-purple))",
           "purple-muted": "hsl(var(--trading-purple-muted))",
+          yellow: "hsl(var(--trading-yellow))",
+          "yellow-foreground": "hsl(var(--background))",
         },
       },
       borderRadius: {
