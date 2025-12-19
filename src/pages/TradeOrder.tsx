@@ -7,8 +7,11 @@ import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 
 const options = [
-  { id: "1", label: "50+ bps decrease", price: "0.0234" },
-  { id: "2", label: "25 bps decrease", price: "0.7234" },
+  { id: "1", label: "140-159", price: "0.0534" },
+  { id: "2", label: "160-179", price: "0.1234" },
+  { id: "3", label: "200-219", price: "0.3456" },
+  { id: "4", label: "220-239", price: "0.2834" },
+  { id: "5", label: "240-259", price: "0.1942" },
 ];
 
 const orderBookData = {
@@ -42,24 +45,24 @@ const mockOrders = [
   {
     type: "buy" as const,
     orderType: "Limit" as const,
-    event: "Fed decision in December?",
-    option: "25 bps decrease",
-    probability: "72%",
-    price: "$0.7234",
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "200-219",
+    probability: "35%",
+    price: "$0.3456",
     amount: "1,500",
-    total: "$1,085",
+    total: "$518",
     time: "2 mins ago",
     status: "Pending" as const,
   },
   {
     type: "sell" as const,
     orderType: "Market" as const,
-    event: "Fed decision in December?",
-    option: "No change",
-    probability: "18%",
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "160-179",
+    probability: "12%",
     price: "Market",
     amount: "2,300",
-    total: "$412",
+    total: "$284",
     time: "5 mins ago",
     status: "Partially Filled" as const,
   },
@@ -74,7 +77,7 @@ export default function TradeOrder() {
   return (
     <div className="min-h-screen bg-background pb-8 overflow-x-hidden">
       <MobileHeader
-        title="Fed decision in December?"
+        title="Elon Musk # tweets December 12 - December 19, 2025?"
         subtitle="23:47:15"
         showActions
       />
