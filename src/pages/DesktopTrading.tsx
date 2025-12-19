@@ -287,29 +287,29 @@ export default function DesktopTrading() {
         ))}
       </div>
 
-      {/* Chart / Event Info Tabs */}
-      <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
-        {(["Chart", "Event Info"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setChartTab(tab)}
-            className={`text-sm font-medium transition-all ${
-              chartTab === tab
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
       <div className="flex-1 flex overflow-hidden">
         {/* Left Section: Chart + Order Book + Positions */}
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-          {/* Top: Chart + Order Book */}
-          <div className="flex min-h-[600px]">
-            {/* Chart Area or Event Info */}
-            <div className="flex-1 flex flex-col min-w-0 border-r border-border/30">
+          {/* Top: Chart + Order Book (separate containers, tops aligned) */}
+          <div className="flex min-h-[600px] gap-1 p-1">
+            {/* Chart Area or Event Info - separate container */}
+            <div className="flex-1 flex flex-col min-w-0 bg-background rounded border border-border/30">
+              {/* Chart / Event Info Tabs */}
+              <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
+                {(["Chart", "Event Info"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setChartTab(tab)}
+                    className={`text-sm font-medium transition-all ${
+                      chartTab === tab
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
               {chartTab === "Chart" ? (
                 <>
                   <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
@@ -406,8 +406,8 @@ export default function DesktopTrading() {
               )}
             </div>
 
-            {/* Order Book */}
-            <div className="w-[260px] flex-shrink-0 h-full">
+            {/* Order Book - separate container */}
+            <div className="w-[280px] flex-shrink-0 bg-background rounded border border-border/30">
               <DesktopOrderBook 
                 asks={orderBookData.asks}
                 bids={orderBookData.bids}
@@ -552,8 +552,8 @@ export default function DesktopTrading() {
           </div>
         </div>
 
-        {/* Right Section: Trade Form (full height) */}
-        <div className="w-[280px] flex-shrink-0 flex flex-col bg-background border-l border-border/30">
+        {/* Right Section: Trade Form - separate container */}
+        <div className="w-[280px] flex-shrink-0 flex flex-col m-1 bg-background rounded border border-border/30">
           <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
             <span className="text-sm font-medium">Trade</span>
             <button className="flex items-center gap-1 text-xs text-muted-foreground">
