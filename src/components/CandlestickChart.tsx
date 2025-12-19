@@ -7,6 +7,7 @@ interface Candle {
   high: number;
   low: number;
   close: number;
+  volume: number;
 }
 
 interface CandlestickChartProps {
@@ -78,18 +79,44 @@ const generateMockCandles = (timeframe: Timeframe, count: number = 80): Candle[]
     const close = price + change;
     const high = Math.max(open, close) + Math.random() * volatility * 0.5;
     const low = Math.min(open, close) - Math.random() * volatility * 0.5;
+    // Generate random volume with some variation
+    const baseVolume = 1000 + Math.random() * 5000;
+    const volumeSpike = Math.random() > 0.85 ? 2 + Math.random() * 3 : 1;
+    const volume = baseVolume * volumeSpike;
     
     candles.push({ 
       time: getTimeLabel(i), 
       open, 
       high, 
       low, 
-      close 
+      close,
+      volume
     });
     price = close;
   }
   
   return candles;
+};
+
+// Format volume number
+const formatVolume = (vol: number): string => {
+  if (vol >= 1000000) return (vol / 1000000).toFixed(2) + "M";
+  if (vol >= 1000) return (vol / 1000).toFixed(2) + "K";
+  return vol.toFixed(0);
+};
+
+// Calculate moving average
+const calculateMA = (data: number[], period: number): number[] => {
+  const result: number[] = [];
+  for (let i = 0; i < data.length; i++) {
+    if (i < period - 1) {
+      result.push(0);
+    } else {
+      const sum = data.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
+      result.push(sum / period);
+    }
+  }
+  return result;
 };
 
 export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) => {
@@ -112,6 +139,15 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
     [selectedTimeframe, candleCount]
   );
   
+  // Calculate volume data
+  const volumes = candles.map(c => c.volume);
+  const maxVolume = Math.max(...volumes);
+  const currentVolume = volumes[volumes.length - 1] || 0;
+  const volumeMA5 = calculateMA(volumes, 5);
+  const volumeMA10 = calculateMA(volumes, 10);
+  const currentMA5 = volumeMA5[volumeMA5.length - 1] || 0;
+  const currentMA10 = volumeMA10[volumeMA10.length - 1] || 0;
+  
   // Calculate price range with symmetric padding (10% on each side)
   const allPrices = candles.flatMap(c => [c.high, c.low]);
   const minPrice = Math.min(...allPrices);
@@ -123,6 +159,7 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
   const adjustedRange = adjustedMax - adjustedMin;
   
   const chartHeight = 180;
+  const volumeChartHeight = 60;
   const drawHeight = chartHeight - 15; // Leave space for padding
   
   // ViewBox dimensions - use simple 100% width approach
@@ -132,6 +169,10 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
 
   const priceToY = (price: number) => {
     return 10 + drawHeight - ((price - adjustedMin) / adjustedRange) * drawHeight;
+  };
+
+  const volumeToY = (volume: number) => {
+    return volumeChartHeight - (volume / maxVolume) * (volumeChartHeight - 5);
   };
 
   // Generate price labels (5 labels evenly distributed)
@@ -180,7 +221,7 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
         </div>
       </div>
 
-      {/* Chart */}
+      {/* Price Chart */}
       <div className="relative">
         <div className="flex h-[160px]">
           {/* Y-axis labels */}
@@ -274,13 +315,90 @@ export const CandlestickChart = ({ remainingDays = 25 }: CandlestickChartProps) 
             </svg>
           </div>
         </div>
+      </div>
 
-        {/* X-axis labels */}
-        <div className="flex justify-between pl-11 mt-1 text-[9px] text-muted-foreground font-mono">
-          {timeLabels.slice(0, 8).map((candle, i) => (
-            <span key={i}>{candle.time}</span>
-          ))}
+      {/* Volume Chart */}
+      <div className="relative mt-1">
+        {/* Volume indicator header */}
+        <div className="flex items-center gap-3 text-[10px] font-mono mb-1 pl-11">
+          <span className="text-muted-foreground">
+            VOL: <span className="text-foreground">{formatVolume(currentVolume)}</span>
+          </span>
+          <span className="text-yellow-500">
+            MA5: {formatVolume(currentMA5)}
+          </span>
+          <span className="text-purple-400">
+            MA10: {formatVolume(currentMA10)}
+          </span>
         </div>
+
+        <div className="flex h-[50px]">
+          {/* Y-axis placeholder for alignment */}
+          <div className="w-11 pr-2" />
+
+          {/* Volume bars */}
+          <div className="flex-1 relative">
+            <svg 
+              width="100%"
+              height="100%"
+              viewBox={`0 0 ${viewBoxWidth} ${volumeChartHeight}`}
+              preserveAspectRatio="none"
+            >
+              {/* Volume bars */}
+              {candles.map((candle, index) => {
+                const x = index * candleSpacing + (candleSpacing - candleBodyWidth) / 2;
+                const isGreen = candle.close >= candle.open;
+                const barHeight = (candle.volume / maxVolume) * (volumeChartHeight - 5);
+                
+                return (
+                  <rect
+                    key={index}
+                    x={x}
+                    y={volumeChartHeight - barHeight}
+                    width={candleBodyWidth}
+                    height={barHeight}
+                    fill={isGreen ? "hsl(142 71% 45% / 0.6)" : "hsl(0 72% 51% / 0.6)"}
+                  />
+                );
+              })}
+
+              {/* MA5 line */}
+              <path
+                d={volumeMA5.map((vol, index) => {
+                  if (vol === 0) return "";
+                  const x = index * candleSpacing + candleSpacing / 2;
+                  const y = volumeToY(vol);
+                  const prevVol = index > 0 ? volumeMA5[index - 1] : 0;
+                  return prevVol === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
+                }).filter(Boolean).join(" ")}
+                fill="none"
+                stroke="hsl(45 93% 47%)"
+                strokeWidth="2"
+              />
+
+              {/* MA10 line */}
+              <path
+                d={volumeMA10.map((vol, index) => {
+                  if (vol === 0) return "";
+                  const x = index * candleSpacing + candleSpacing / 2;
+                  const y = volumeToY(vol);
+                  const prevVol = index > 0 ? volumeMA10[index - 1] : 0;
+                  return prevVol === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
+                }).filter(Boolean).join(" ")}
+                fill="none"
+                stroke="hsl(270 70% 60%)"
+                strokeWidth="2"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* X-axis labels */}
+      <div className="flex justify-between pl-11 mt-1 text-[9px] text-muted-foreground font-mono">
+        {timeLabels.slice(0, 8).map((candle, i) => (
+          <span key={i}>{candle.time}</span>
+        ))}
       </div>
 
       {/* Timeframe info */}
