@@ -197,9 +197,17 @@ export default function TradingCharts() {
       <div className="flex items-center justify-between px-4 py-1.5 border-b border-border/20">
         {/* Left: Price Display */}
         <div>
-          <div className="text-3xl font-bold font-mono tracking-tight">{selectedOptionData.price}</div>
-          <div className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
-            {priceChange.isPositive ? "+" : ""}{priceChange.change} ({priceChange.isPositive ? "+" : ""}{priceChange.percentage}%)
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold font-mono tracking-tight">{selectedOptionData.price}</span>
+            <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
+              ({priceChange.isPositive ? "+" : ""}{priceChange.percentage}%)
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[10px] text-muted-foreground">Mark Price</span>
+            <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
+              {priceChange.isPositive ? "+" : ""}{priceChange.change}
+            </span>
           </div>
         </div>
 
