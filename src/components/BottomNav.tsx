@@ -2,10 +2,10 @@ import { Home, BarChart3, TrendingUp, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
-  { icon: Home, label: "Home", path: "/" },
-  { icon: BarChart3, label: "Events", path: "/events" },
-  { icon: TrendingUp, label: "Trade", path: "/trade" },
-  { icon: User, label: "Portfolio", path: "/portfolio" },
+  { icon: Home, label: "Home", path: "/", disabled: true },
+  { icon: BarChart3, label: "Events", path: "/events", disabled: true },
+  { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
+  { icon: User, label: "Portfolio", path: "/portfolio", disabled: true },
 ];
 
 export const BottomNav = () => {
@@ -27,7 +27,7 @@ export const BottomNav = () => {
           return (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => !item.disabled && navigate(item.path)}
               className={`flex flex-col items-center gap-1 py-2 px-4 transition-all duration-200 ${
                 active ? "text-trading-purple" : "text-muted-foreground"
               }`}
