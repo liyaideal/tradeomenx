@@ -126,6 +126,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
   const defaultTimeframe = getDefaultTimeframe(remainingDays);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [chartMode, setChartMode] = useState<"candle" | "line">("candle");
+  const [selectedCandleIndex, setSelectedCandleIndex] = useState<number | null>(null);
   
   // Auto-switch to line for ALL timeframe
   useEffect(() => {
@@ -228,6 +229,26 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
         </div>
       </div>
 
+      {/* OHLC Data Display */}
+      {selectedCandleIndex !== null && candles[selectedCandleIndex] && (() => {
+        const c = candles[selectedCandleIndex];
+        const isGreen = c.close >= c.open;
+        const priceChange = c.close - c.open;
+        const priceChangePercent = ((priceChange / c.open) * 100).toFixed(2);
+        return (
+          <div className="flex items-center gap-3 mb-2 text-[11px] font-mono flex-wrap">
+            <span className="text-muted-foreground">T: <span className="text-foreground">{c.time}</span></span>
+            <span className="text-muted-foreground">O: <span className="text-foreground">{c.open.toFixed(4)}</span></span>
+            <span className="text-muted-foreground">H: <span className="text-foreground">{c.high.toFixed(4)}</span></span>
+            <span className="text-muted-foreground">L: <span className="text-foreground">{c.low.toFixed(4)}</span></span>
+            <span className="text-muted-foreground">C: <span className={isGreen ? "text-trading-green" : "text-trading-red"}>{c.close.toFixed(4)}</span></span>
+            <span className={isGreen ? "text-trading-green" : "text-trading-red"}>
+              {isGreen ? "+" : ""}{priceChangePercent}%
+            </span>
+          </div>
+        );
+      })()}
+
       {/* Price Chart */}
       <div className="relative">
         <div className="flex h-[160px]">
@@ -275,8 +296,24 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
                   const bodyBottom = priceToY(Math.min(candle.open, candle.close));
                   const bodyHeight = Math.max(bodyBottom - bodyTop, 2);
                   
+                  const isSelected = selectedCandleIndex === index;
                   return (
-                    <g key={index}>
+                    <g 
+                      key={index} 
+                      onClick={() => setSelectedCandleIndex(index)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {/* Selection highlight */}
+                      {isSelected && (
+                        <rect
+                          x={x - 2}
+                          y={5}
+                          width={candleBodyWidth + 4}
+                          height={chartHeight - 10}
+                          fill="hsl(var(--primary) / 0.15)"
+                          rx="2"
+                        />
+                      )}
                       {/* Wick */}
                       <line
                         x1={centerX}
@@ -293,6 +330,14 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
                         width={candleBodyWidth}
                         height={bodyHeight}
                         fill={isGreen ? "hsl(142 71% 45%)" : "hsl(0 72% 51%)"}
+                      />
+                      {/* Invisible hit area for easier touch */}
+                      <rect
+                        x={x - candleSpacing * 0.2}
+                        y={0}
+                        width={candleSpacing}
+                        height={chartHeight}
+                        fill="transparent"
                       />
                     </g>
                   );
