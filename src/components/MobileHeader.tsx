@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { toast } from "sonner";
 
 interface MobileHeaderProps {
   title: string;
@@ -54,6 +55,37 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack = true, showAc
   const navigate = useNavigate();
   const countdown = useCountdown(endTime);
   const displayTime = endTime ? countdown : subtitle;
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const handleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    toast(isFavorite ? "Removed from favorites" : "Added to favorites", {
+      duration: 2000,
+    });
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: title,
+      text: `Check out this prediction market: ${title}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast("Link copied to clipboard", { duration: 2000 });
+      }
+    } catch (err) {
+      // User cancelled or error
+      if ((err as Error).name !== "AbortError") {
+        await navigator.clipboard.writeText(window.location.href);
+        toast("Link copied to clipboard", { duration: 2000 });
+      }
+    }
+  };
 
   return (
     <header className="sticky top-0 bg-background z-40 px-4 py-1.5">
@@ -127,10 +159,19 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack = true, showAc
         {/* Right: Action buttons */}
         {showActions ? (
           <div className="flex items-center gap-1">
-            <button className="w-9 h-9 flex items-center justify-center transition-all duration-200 active:scale-95">
-              <Heart className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+            <button 
+              onClick={handleFavorite}
+              className="w-9 h-9 flex items-center justify-center transition-all duration-200 active:scale-95"
+            >
+              <Heart 
+                className={`w-5 h-5 transition-colors ${isFavorite ? "text-trading-red fill-trading-red" : "text-muted-foreground"}`} 
+                strokeWidth={1.5} 
+              />
             </button>
-            <button className="w-9 h-9 flex items-center justify-center transition-all duration-200 active:scale-95">
+            <button 
+              onClick={handleShare}
+              className="w-9 h-9 flex items-center justify-center transition-all duration-200 active:scale-95"
+            >
               <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
             </button>
           </div>
