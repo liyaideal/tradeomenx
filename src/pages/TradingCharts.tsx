@@ -7,6 +7,7 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
+import { TweetCount } from "@/components/TweetCount";
 
 const options = [
   { id: "1", label: "140-159", price: "0.0534" },
@@ -212,6 +213,11 @@ export default function TradingCharts() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Tweet Count */}
+      <div className="px-4 py-3">
+        <TweetCount count={254} />
       </div>
 
       {/* Candlestick Chart */}
