@@ -480,7 +480,7 @@ export default function DesktopTrading() {
                 (bottomTab === "Orders" && tab === "Current Orders") || 
                 (bottomTab === "Positions" && tab === "Positions") ||
                 bottomTab === tab
-                  ? "text-trading-yellow border-b-2 border-trading-yellow"
+                  ? "text-trading-purple border-b-2 border-trading-purple"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
