@@ -30,7 +30,7 @@ export const TradeForm = () => {
   };
 
   return (
-    <div className="px-3 pb-3 space-y-2.5">
+    <div className="px-3 pb-2 space-y-2">
       {/* Buy/Sell Toggle */}
       <div className="flex bg-muted rounded-lg p-1">
         <button
@@ -107,7 +107,7 @@ export const TradeForm = () => {
       </div>
 
       {/* Slider */}
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Slider
           value={sliderValue}
           onValueChange={(val) => {
@@ -156,7 +156,7 @@ export const TradeForm = () => {
       </label>
 
       {/* Order Summary */}
-      <div className="space-y-1.5 text-xs">
+      <div className="space-y-1 text-xs">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Notional val.</span>
           <span className="text-muted-foreground">--</span>
@@ -178,7 +178,7 @@ export const TradeForm = () => {
       {/* Submit Button */}
       <button
         onClick={handlePreview}
-        className={`w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
+        className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
           side === "buy"
             ? "bg-trading-green text-trading-green-foreground"
             : "bg-trading-red text-foreground"

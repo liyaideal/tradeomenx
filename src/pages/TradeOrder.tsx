@@ -141,8 +141,8 @@ export default function TradeOrder() {
           </div>
           
           {/* Asks */}
-          <div className="overflow-y-auto scrollbar-hide max-h-[180px]">
-            {orderBookData.asks.slice(0, 8).map((ask, index) => (
+          <div className="overflow-y-auto scrollbar-hide">
+            {orderBookData.asks.slice(0, 10).map((ask, index) => (
               <div
                 key={`ask-${index}`}
                 className="flex justify-between px-1.5 py-0.5 text-[10px]"
@@ -159,8 +159,8 @@ export default function TradeOrder() {
           </div>
 
           {/* Bids */}
-          <div className="overflow-y-auto scrollbar-hide max-h-[180px]">
-            {orderBookData.bids.slice(0, 8).map((bid, index) => (
+          <div className="overflow-y-auto scrollbar-hide">
+            {orderBookData.bids.slice(0, 10).map((bid, index) => (
               <div
                 key={`bid-${index}`}
                 className="flex justify-between px-1.5 py-0.5 text-[10px]"
