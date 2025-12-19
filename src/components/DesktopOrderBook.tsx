@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Flag } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface OrderBookEntry {
   price: string;
@@ -164,9 +170,21 @@ export const DesktopOrderBook = ({
               <div className="px-3 py-2 border-y border-border/30">
                 <div className="flex items-center gap-2">
                   <span className={`text-lg font-bold font-mono ${isPositive ? 'text-trading-green' : 'text-trading-red'}`}>
-                    ↓ {currentPrice}
+                    {isPositive ? '↑' : '↓'} {currentPrice}
                   </span>
-                  <span className="text-sm text-muted-foreground font-mono">≈ {priceChange}</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                          <Flag className="w-3 h-3" /> {currentPrice}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[280px] p-3">
+                        <p className="text-sm">Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.</p>
+                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
 
@@ -228,9 +246,19 @@ export const DesktopOrderBook = ({
                   <span className="text-lg font-bold font-mono text-trading-green">
                     ↑ {currentPrice}
                   </span>
-                  <span className="text-sm text-trading-yellow font-mono flex items-center gap-1">
-                    <span>🏳</span> {priceChange}
-                  </span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                          <Flag className="w-3 h-3" /> {currentPrice}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[280px] p-3">
+                        <p className="text-sm">Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.</p>
+                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </>
@@ -268,7 +296,19 @@ export const DesktopOrderBook = ({
                   <span className="text-lg font-bold font-mono text-trading-red">
                     ↓ {currentPrice}
                   </span>
-                  <span className="text-sm text-muted-foreground font-mono">≈ {priceChange}</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                          <Flag className="w-3 h-3" /> {currentPrice}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[280px] p-3">
+                        <p className="text-sm">Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.</p>
+                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </>
