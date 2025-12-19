@@ -126,6 +126,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
   const defaultTimeframe = getDefaultTimeframe(remainingDays);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [chartMode, setChartMode] = useState<"candle" | "line">("candle");
+  const [crosshair, setCrosshair] = useState<{ x: number; y: number; candleIndex: number } | null>(null);
   
   // Auto-switch to line for ALL timeframe
   useEffect(() => {
@@ -197,6 +198,29 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
     return candles.filter((_, i) => i % step === 0);
   }, [candles]);
 
+  // Handle chart click for crosshair
+  const handleChartClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget;
+    const rect = svg.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * viewBoxWidth;
+    const y = ((e.clientY - rect.top) / rect.height) * chartHeight;
+    const candleIndex = Math.floor(x / candleSpacing);
+    
+    if (candleIndex >= 0 && candleIndex < candles.length) {
+      // Toggle off if clicking same candle
+      if (crosshair && crosshair.candleIndex === candleIndex) {
+        setCrosshair(null);
+      } else {
+        setCrosshair({ x, y, candleIndex });
+      }
+    }
+  };
+
+  // Get crosshair price from Y position
+  const yToPrice = (y: number) => {
+    return adjustedMax - ((y - 10) / drawHeight) * adjustedRange;
+  };
+
   return (
     <div className="px-4 py-2">
       {/* Timeframe selector */}
@@ -238,6 +262,8 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
               height="100%"
               viewBox={`0 0 ${viewBoxWidth} ${chartHeight}`}
               preserveAspectRatio="none"
+              onClick={handleChartClick}
+              className="cursor-crosshair"
             >
               {/* Grid lines */}
               {priceLabels.map((price, i) => (
@@ -348,6 +374,37 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
                   />
                 );
               })()}
+              {/* Crosshair */}
+              {crosshair && crosshair.candleIndex < candles.length && (() => {
+                const candle = candles[crosshair.candleIndex];
+                const centerX = crosshair.candleIndex * candleSpacing + candleSpacing / 2;
+                const priceY = priceToY(candle.close);
+                
+                return (
+                  <g>
+                    {/* Vertical line */}
+                    <line
+                      x1={centerX}
+                      y1={0}
+                      x2={centerX}
+                      y2={chartHeight}
+                      stroke="hsl(var(--foreground) / 0.5)"
+                      strokeWidth="1"
+                      strokeDasharray="4,4"
+                    />
+                    {/* Horizontal line at candle close price */}
+                    <line
+                      x1={0}
+                      y1={priceY}
+                      x2={viewBoxWidth}
+                      y2={priceY}
+                      stroke="hsl(var(--foreground) / 0.5)"
+                      strokeWidth="1"
+                      strokeDasharray="4,4"
+                    />
+                  </g>
+                );
+              })()}
             </svg>
 
             {/* Highest price label (HTML overlay) */}
@@ -389,6 +446,24 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
                 >
                   {minPrice.toFixed(4)}
                 </span>
+              );
+            })()}
+
+            {/* Crosshair info tooltip */}
+            {crosshair && crosshair.candleIndex < candles.length && (() => {
+              const candle = candles[crosshair.candleIndex];
+              const isGreen = candle.close >= candle.open;
+              
+              return (
+                <div className="absolute top-1 left-1 bg-background/90 border border-border rounded px-2 py-1 text-[10px] font-mono z-10">
+                  <div className="flex gap-3">
+                    <span className="text-muted-foreground">{candle.time}</span>
+                    <span>O: <span className={isGreen ? "text-trading-green" : "text-trading-red"}>{candle.open.toFixed(4)}</span></span>
+                    <span>H: <span className="text-foreground">{candle.high.toFixed(4)}</span></span>
+                    <span>L: <span className="text-foreground">{candle.low.toFixed(4)}</span></span>
+                    <span>C: <span className={isGreen ? "text-trading-green" : "text-trading-red"}>{candle.close.toFixed(4)}</span></span>
+                  </div>
+                </div>
               );
             })()}
           </div>
