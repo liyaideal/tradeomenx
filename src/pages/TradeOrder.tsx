@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -14,31 +14,21 @@ const options = [
   { id: "5", label: "240-259", price: "0.1942" },
 ];
 
-const orderBookData = {
-  asks: [
-    { price: "0.7473", amount: "843" },
-    { price: "0.7474", amount: "743" },
-    { price: "0.7472", amount: "7476" },
-    { price: "0.7477", amount: "775" },
-    { price: "0.7479", amount: "2332" },
-    { price: "0.747", amount: "23325" },
-    { price: "0.746", amount: "54" },
-    { price: "0.7475", amount: "45656" },
-    { price: "0.7476", amount: "6776" },
-    { price: "0.7478", amount: "76" },
-  ],
-  bids: [
-    { price: "0.7543", amount: "4543" },
-    { price: "0.75435", amount: "767" },
-    { price: "0.7546", amount: "7878" },
-    { price: "0.75436", amount: "7967" },
-    { price: "0.75437", amount: "67565" },
-    { price: "0.75438", amount: "67" },
-    { price: "0.75439", amount: "568" },
-    { price: "0.75430", amount: "56775" },
-    { price: "0.75431", amount: "56778" },
-    { price: "0.754", amount: "877656" },
-  ],
+// Generate order book data based on base price
+const generateOrderBookData = (basePrice: number) => {
+  const asks = [];
+  const bids = [];
+  
+  for (let i = 0; i < 10; i++) {
+    const askPrice = (basePrice + 0.0005 * (i + 1)).toFixed(4);
+    const bidPrice = (basePrice - 0.0005 * (i + 1)).toFixed(4);
+    const amount = Math.floor(Math.random() * 50000 + 500).toString();
+    
+    asks.push({ price: askPrice, amount });
+    bids.push({ price: bidPrice, amount });
+  }
+  
+  return { asks, bids };
 };
 
 const mockOrders = [
@@ -73,6 +63,17 @@ export default function TradeOrder() {
   const [selectedOption, setSelectedOption] = useState("2");
   const [activeTab, setActiveTab] = useState("Trade");
   const [bottomTab, setBottomTab] = useState("Orders");
+
+  // Get selected option data
+  const selectedOptionData = useMemo(() => {
+    return options.find(opt => opt.id === selectedOption) || options[1];
+  }, [selectedOption]);
+
+  // Generate order book data based on selected option's price
+  const orderBookData = useMemo(() => {
+    const basePrice = parseFloat(selectedOptionData.price);
+    return generateOrderBookData(basePrice);
+  }, [selectedOptionData.price]);
 
   return (
     <div className="min-h-screen bg-background pb-8 overflow-x-hidden">
@@ -118,7 +119,7 @@ export default function TradeOrder() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-[10px] text-muted-foreground">Price</div>
-                <div className="text-xl font-bold font-mono">0.7234</div>
+                <div className="text-xl font-bold font-mono">{selectedOptionData.price}</div>
                 <div className="text-[10px] text-muted-foreground">
                   Funding: -0.0001% / Next: in 28min
                 </div>
@@ -131,7 +132,7 @@ export default function TradeOrder() {
           </div>
 
           {/* Trade Form */}
-          <TradeForm />
+          <TradeForm selectedPrice={selectedOptionData.price} />
         </div>
 
         {/* Right: Order Book */}
@@ -158,7 +159,7 @@ export default function TradeOrder() {
 
           {/* Current Price */}
           <div className="px-1.5 py-1.5 text-center">
-            <span className="text-sm font-bold font-mono">0.7531</span>
+            <span className="text-sm font-bold font-mono">{selectedOptionData.price}</span>
           </div>
 
           {/* Bids */}

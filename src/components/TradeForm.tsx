@@ -3,7 +3,11 @@ import { ChevronDown, Plus, ArrowLeftRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 
-export const TradeForm = () => {
+interface TradeFormProps {
+  selectedPrice?: string;
+}
+
+export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
   const navigate = useNavigate();
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [marginType, setMarginType] = useState("Cross");
@@ -25,7 +29,7 @@ export const TradeForm = () => {
         leverage,
         orderType,
         amount,
-        price: "0.7234",
+        price: selectedPrice,
       },
     });
   };
