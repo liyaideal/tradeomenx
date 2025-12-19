@@ -421,24 +421,21 @@ export default function DesktopTrading() {
           {/* Bottom: Positions Panel */}
           <div className="border-t border-border/30 flex-shrink-0">
             <div className="flex items-center gap-1 px-4 border-b border-border/30">
-              {(["Positions", "P&L", "Current Orders", "Order History", "Trade History"] as const).map((tab) => (
+              {(["Positions", "Current Orders"] as const).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setBottomTab(tab === "Current Orders" ? "Orders" : tab === "Positions" ? "Positions" : tab as any)}
+                  onClick={() => setBottomTab(tab === "Current Orders" ? "Orders" : "Positions")}
                   className={`px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
                     (bottomTab === "Orders" && tab === "Current Orders") || 
-                    (bottomTab === "Positions" && tab === "Positions") ||
-                    bottomTab === tab
+                    (bottomTab === "Positions" && tab === "Positions")
                       ? "text-trading-purple border-b-2 border-trading-purple"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {tab}
-                  {(tab === "Positions" || tab === "Current Orders") && (
-                    <span className="ml-1 text-muted-foreground">
-                      ({tab === "Current Orders" ? mockOrders.length : mockPositions.length})
-                    </span>
-                  )}
+                  <span className="ml-1 text-muted-foreground">
+                    ({tab === "Current Orders" ? mockOrders.length : mockPositions.length})
+                  </span>
                 </button>
               ))}
             </div>
