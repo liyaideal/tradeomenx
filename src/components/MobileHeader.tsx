@@ -6,9 +6,10 @@ interface MobileHeaderProps {
   subtitle?: string;
   showBack?: boolean;
   showActions?: boolean;
+  tweetCount?: number;
 }
 
-export const MobileHeader = ({ title, subtitle, showBack = true, showActions = false }: MobileHeaderProps) => {
+export const MobileHeader = ({ title, subtitle, showBack = true, showActions = false, tweetCount }: MobileHeaderProps) => {
   const navigate = useNavigate();
 
   return (
@@ -29,12 +30,20 @@ export const MobileHeader = ({ title, subtitle, showBack = true, showActions = f
         {/* Center: Title and countdown */}
         <div className="flex-1 text-center px-2">
           <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-          {subtitle && (
-            <div className="flex items-center justify-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
-              <span className="text-xs text-trading-red font-mono">{subtitle}</span>
-            </div>
-          )}
+          <div className="flex items-center justify-center gap-3 mt-0.5">
+            {subtitle && (
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
+                <span className="text-xs text-trading-red font-mono">{subtitle}</span>
+              </div>
+            )}
+            {tweetCount !== undefined && (
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                <span className="text-xs text-orange-500 font-mono">{tweetCount} tweets</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right: Action buttons */}

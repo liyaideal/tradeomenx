@@ -6,7 +6,6 @@ import { OptionChips } from "@/components/OptionChips";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
-import { TweetCount } from "@/components/TweetCount";
 
 const options = [
   { id: "1", label: "140-159", price: "0.0534" },
@@ -110,6 +109,7 @@ export default function TradeOrder() {
         title="Elon Musk # tweets December 12 - December 19, 2025?"
         subtitle="23:47:15"
         showActions
+        tweetCount={254}
       />
 
       {/* Option Chips */}
@@ -137,11 +137,6 @@ export default function TradeOrder() {
             {tab}
           </button>
         ))}
-      </div>
-
-      {/* Tweet Count */}
-      <div className="px-4 py-3">
-        <TweetCount count={254} />
       </div>
 
       {/* Main Content Area - Two Column Layout */}
