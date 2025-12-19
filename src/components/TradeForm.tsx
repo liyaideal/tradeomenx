@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 
@@ -13,6 +13,7 @@ export const TradeForm = () => {
   const [sliderValue, setSliderValue] = useState([0]);
   const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
+  const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
 
   const available = 2453.42;
 
@@ -88,11 +89,18 @@ export const TradeForm = () => {
         </button>
       </div>
 
-      {/* Amount Input */}
+      {/* Amount/Qty Input */}
       <div className="space-y-0.5">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-muted-foreground">Amount</span>
-          <button className="text-muted-foreground text-[10px]">⇄</button>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-muted-foreground">
+            {inputMode === "amount" ? "Amount" : "Qty"}
+          </span>
+          <button 
+            onClick={() => setInputMode(inputMode === "amount" ? "qty" : "amount")}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeftRight className="w-3 h-3" />
+          </button>
         </div>
         <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
           <input
@@ -102,7 +110,9 @@ export const TradeForm = () => {
             className="flex-1 bg-transparent outline-none font-mono text-xs"
             placeholder="0.00"
           />
-          <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
+          <span className="text-muted-foreground text-[10px] font-medium">
+            {inputMode === "amount" ? "USDC" : "Contracts"}
+          </span>
         </div>
       </div>
 
