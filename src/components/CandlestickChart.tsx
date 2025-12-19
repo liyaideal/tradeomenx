@@ -548,6 +548,13 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
             </svg>
           </div>
         </div>
+
+        {/* X-axis time labels */}
+        <div className="flex justify-between pr-12 mt-1 text-[9px] text-muted-foreground font-mono">
+          {timeLabels.slice(0, 8).map((candle, i) => (
+            <span key={i}>{candle.time}</span>
+          ))}
+        </div>
       </div>
 
 
