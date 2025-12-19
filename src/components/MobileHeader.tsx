@@ -30,22 +30,24 @@ export const MobileHeader = ({ title, subtitle, showBack = true, showActions = f
         {/* Center: Title and countdown */}
         <div className="flex-1 text-center px-2">
           <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-          <div className="flex flex-col items-center mt-0.5 gap-0.5">
-            {subtitle && (
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
-                <span className="text-[10px] text-muted-foreground mr-1">Ends in</span>
-                <span className="text-xs text-trading-red font-mono">{subtitle}</span>
-              </div>
-            )}
-            {tweetCount !== undefined && (
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                <span className="text-[10px] text-muted-foreground mr-1">Tweets</span>
-                <span className="text-xs text-orange-500 font-mono">{tweetCount}</span>
-              </div>
-            )}
-          </div>
+          {(subtitle || tweetCount !== undefined) && (
+            <div className="flex items-center justify-center gap-4 mt-0.5">
+              {subtitle && (
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
+                  <span className="text-xs text-muted-foreground">Ends in</span>
+                  <span className="text-xs text-trading-red font-mono font-medium">{subtitle}</span>
+                </div>
+              )}
+              {tweetCount !== undefined && (
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                  <span className="text-xs text-muted-foreground">Tweets</span>
+                  <span className="text-xs text-orange-500 font-mono font-medium">{tweetCount}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right: Action buttons */}
