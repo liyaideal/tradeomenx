@@ -243,7 +243,7 @@ export default function DesktopTrading() {
                 </div>
               </div>
 
-              <div className="flex-1 px-2 py-2 overflow-hidden">
+              <div className="flex-1 min-h-0">
                 <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} />
               </div>
             </div>
