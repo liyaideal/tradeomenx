@@ -128,7 +128,7 @@ export default function TradeOrder() {
               setActiveTab(tab);
               if (tab === "Charts") navigate("/trade");
             }}
-            className={`py-3 mr-6 text-sm font-medium transition-all ${
+            className={`py-2 mr-6 text-sm font-medium transition-all ${
               activeTab === tab
                 ? "text-trading-purple border-b-2 border-trading-purple"
                 : "text-muted-foreground"
