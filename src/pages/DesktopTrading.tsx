@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Plus, ArrowLeftRight, ExternalLink, Star, Info } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, Star, Info } from "lucide-react";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { Slider } from "@/components/ui/slider";
@@ -100,6 +100,7 @@ export default function DesktopTrading() {
   const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState("2");
   const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">("Orders");
+  const [chartTab, setChartTab] = useState<"Chart" | "Overview" | "Data" | "Feed">("Chart");
   
   // Trade form state
   const [side, setSide] = useState<"buy" | "sell">("buy");
@@ -193,10 +194,6 @@ export default function DesktopTrading() {
           </div>
         </div>
 
-        <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-          <ExternalLink className="w-4 h-4" />
-          Event Info
-        </button>
       </header>
 
       {/* Option Chips Row */}
@@ -220,7 +217,22 @@ export default function DesktopTrading() {
         ))}
       </div>
 
-      {/* Main Content */}
+      {/* Chart/Overview/Data/Feed Tabs */}
+      <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
+        {(["Chart", "Overview", "Data", "Feed"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setChartTab(tab)}
+            className={`text-sm font-medium transition-all ${
+              chartTab === tab
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
       <div className="flex-1 flex overflow-hidden">
         {/* Left Section: Chart + Order Book + Positions */}
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
