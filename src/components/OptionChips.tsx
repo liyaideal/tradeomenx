@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface Option {
   id: string;
   label: string;
@@ -19,14 +17,16 @@ export const OptionChips = ({ options, selectedId, onSelect }: OptionChipsProps)
         <button
           key={option.id}
           onClick={() => onSelect(option.id)}
-          className={`option-chip flex-shrink-0 min-w-[140px] text-center transition-all duration-200 active:scale-95 ${
+          className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-center transition-all duration-200 active:scale-95 ${
             selectedId === option.id
-              ? "option-chip-active"
-              : "option-chip-inactive"
+              ? "bg-trading-purple/15 border border-trading-purple"
+              : "bg-muted/50 border border-transparent"
           }`}
         >
-          <div className="font-medium text-sm">{option.label}</div>
-          <div className={`font-mono text-base mt-1 ${
+          <div className={`font-medium text-sm ${selectedId === option.id ? "text-foreground" : "text-muted-foreground"}`}>
+            {option.label}
+          </div>
+          <div className={`font-mono text-sm mt-0.5 ${
             selectedId === option.id ? "text-trading-purple" : "text-muted-foreground"
           }`}>
             ${option.price}

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
-import { BottomNav } from "@/components/BottomNav";
 import { OptionChips } from "@/components/OptionChips";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
@@ -73,7 +72,7 @@ export default function TradeOrder() {
   const [bottomTab, setBottomTab] = useState("Orders");
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-8">
       <MobileHeader
         title="Fed decision in December?"
         subtitle="23:47:15"
@@ -88,7 +87,7 @@ export default function TradeOrder() {
       />
 
       {/* Charts/Trade Tabs */}
-      <div className="flex border-b border-border/30">
+      <div className="flex px-4 border-b border-border/30">
         {["Charts", "Trade"].map((tab) => (
           <button
             key={tab}
@@ -96,7 +95,7 @@ export default function TradeOrder() {
               setActiveTab(tab);
               if (tab === "Charts") navigate("/trade");
             }}
-            className={`flex-1 py-3 text-sm font-medium transition-all ${
+            className={`py-3 mr-6 text-sm font-medium transition-all ${
               activeTab === tab
                 ? "text-trading-purple border-b-2 border-trading-purple"
                 : "text-muted-foreground"
@@ -107,22 +106,22 @@ export default function TradeOrder() {
         ))}
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex flex-col lg:flex-row">
+      {/* Main Content Area - Two Column Layout */}
+      <div className="flex">
         {/* Left: Trade Form + Price Info */}
-        <div className="flex-1">
+        <div className="flex-1 border-r border-border/30">
           {/* Price Header */}
-          <div className="px-4 py-3 border-b border-border/30">
-            <div className="flex items-center justify-between">
+          <div className="px-4 py-3">
+            <div className="flex items-start justify-between">
               <div>
                 <div className="text-xs text-muted-foreground">Price</div>
                 <div className="text-2xl font-bold font-mono">0.7234</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-[11px] text-muted-foreground">
                   Funding: -0.0001% / Next: in 28min
                 </div>
               </div>
-              <button className="flex items-center gap-1 text-sm text-muted-foreground">
-                <ExternalLink className="w-4 h-4" />
+              <button className="flex items-center gap-1 text-xs text-muted-foreground">
+                <ExternalLink className="w-3 h-3" />
                 Event Info
               </button>
             </div>
@@ -133,60 +132,65 @@ export default function TradeOrder() {
         </div>
 
         {/* Right: Order Book */}
-        <div className="border-t lg:border-t-0 lg:border-l border-border/30 lg:w-[180px]">
-          <div className="max-h-[400px] overflow-y-auto scrollbar-hide">
-            {/* Asks */}
-            <div className="divide-y divide-border/10">
-              {orderBookData.asks.map((ask, index) => (
-                <div
-                  key={`ask-${index}`}
-                  className="flex justify-between px-3 py-1 text-xs"
-                >
-                  <span className="price-red">{ask.price}</span>
-                  <span className="text-muted-foreground font-mono">{ask.amount}</span>
-                </div>
-              ))}
+        <div className="w-[140px] flex-shrink-0">
+          <div className="px-2 py-2">
+            <div className="grid grid-cols-2 text-[10px] text-muted-foreground mb-1">
+              <span>Price (USDC)</span>
+              <span className="text-right">Amount</span>
             </div>
+          </div>
+          
+          {/* Asks */}
+          <div className="overflow-y-auto scrollbar-hide">
+            {orderBookData.asks.map((ask, index) => (
+              <div
+                key={`ask-${index}`}
+                className="flex justify-between px-2 py-0.5 text-[11px]"
+              >
+                <span className="price-red">{ask.price}</span>
+                <span className="text-muted-foreground font-mono">{ask.amount}</span>
+              </div>
+            ))}
+          </div>
 
-            {/* Current Price */}
-            <div className="px-3 py-2 bg-muted/20 text-center">
-              <span className="text-lg font-bold font-mono">0.7531</span>
-            </div>
+          {/* Current Price */}
+          <div className="px-2 py-2 text-center">
+            <span className="text-base font-bold font-mono">0.7531</span>
+          </div>
 
-            {/* Bids */}
-            <div className="divide-y divide-border/10">
-              {orderBookData.bids.map((bid, index) => (
-                <div
-                  key={`bid-${index}`}
-                  className="flex justify-between px-3 py-1 text-xs"
-                >
-                  <span className="price-green">{bid.price}</span>
-                  <span className="text-muted-foreground font-mono">{bid.amount}</span>
-                </div>
-              ))}
-            </div>
+          {/* Bids */}
+          <div className="overflow-y-auto scrollbar-hide">
+            {orderBookData.bids.map((bid, index) => (
+              <div
+                key={`bid-${index}`}
+                className="flex justify-between px-2 py-0.5 text-[11px]"
+              >
+                <span className="price-green">{bid.price}</span>
+                <span className="text-muted-foreground font-mono">{bid.amount}</span>
+              </div>
+            ))}
+          </div>
 
-            {/* Depth Selector */}
-            <div className="flex items-center justify-between px-3 py-2 border-t border-border/30">
-              <span className="text-xs text-muted-foreground">Depth</span>
-              <button className="flex items-center gap-1 text-xs">
-                0.1
-                <ChevronDown className="w-3 h-3" />
-              </button>
-            </div>
+          {/* Depth Selector */}
+          <div className="flex items-center justify-between px-2 py-2 border-t border-border/30 mt-2">
+            <span className="text-[10px] text-muted-foreground">Depth</span>
+            <button className="flex items-center gap-0.5 text-[11px]">
+              0.1
+              <ChevronDown className="w-3 h-3" />
+            </button>
           </div>
         </div>
       </div>
 
       {/* Orders/Positions Tabs */}
-      <div className="flex border-b border-border/30 px-4 mt-4">
+      <div className="flex px-4 mt-4 border-b border-border/30">
         {["Orders", "Positions"].map((tab) => (
           <button
             key={tab}
             onClick={() => setBottomTab(tab)}
-            className={`px-4 py-3 text-sm font-medium transition-all ${
+            className={`py-3 mr-6 text-sm font-medium transition-all ${
               bottomTab === tab
-                ? "text-foreground border-b-2 border-foreground"
+                ? "text-trading-purple border-b-2 border-trading-purple"
                 : "text-muted-foreground"
             }`}
           >
@@ -201,8 +205,6 @@ export default function TradeOrder() {
           <OrderCard key={index} {...order} />
         ))}
       </div>
-
-      <BottomNav />
     </div>
   );
 }

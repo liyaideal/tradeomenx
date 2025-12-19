@@ -26,14 +26,14 @@ export const OrderCard = ({
   status,
 }: OrderCardProps) => {
   const statusColors = {
-    Pending: "bg-yellow-500/20 text-yellow-500",
-    "Partially Filled": "bg-blue-500/20 text-blue-500",
+    Pending: "bg-amber-500/20 text-amber-400",
+    "Partially Filled": "bg-cyan-500/20 text-cyan-400",
     Filled: "bg-trading-green/20 text-trading-green",
     Cancelled: "bg-trading-red/20 text-trading-red",
   };
 
   return (
-    <div className="trading-card p-4 animate-slide-up">
+    <div className="bg-card rounded-xl p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BarChart2, Copy } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { OptionChips } from "@/components/OptionChips";
@@ -49,7 +50,7 @@ export default function TradingCharts() {
   const [bottomTab, setBottomTab] = useState("Order Book");
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-40">
       <MobileHeader 
         title="Fed decision in December?" 
         subtitle="23:47:15"
@@ -64,7 +65,7 @@ export default function TradingCharts() {
       />
 
       {/* Charts/Trade Tabs */}
-      <div className="flex border-b border-border/30">
+      <div className="flex px-4 border-b border-border/30">
         {["Charts", "Trade"].map((tab) => (
           <button
             key={tab}
@@ -72,7 +73,7 @@ export default function TradingCharts() {
               setActiveTab(tab);
               if (tab === "Trade") navigate("/trade/order");
             }}
-            className={`flex-1 py-3 text-sm font-medium transition-all ${
+            className={`py-3 mr-6 text-sm font-medium transition-all ${
               activeTab === tab
                 ? "text-trading-purple border-b-2 border-trading-purple"
                 : "text-muted-foreground"
@@ -84,7 +85,7 @@ export default function TradingCharts() {
       </div>
 
       {/* Stats Row */}
-      <div className="flex px-4 py-3 gap-4 overflow-x-auto scrollbar-hide border-b border-border/30">
+      <div className="flex px-4 py-3 gap-6 overflow-x-auto scrollbar-hide">
         {stats.map((stat) => (
           <div key={stat.label} className="flex-shrink-0">
             <div className="text-xs text-muted-foreground">{stat.label}</div>
@@ -97,9 +98,9 @@ export default function TradingCharts() {
         ))}
       </div>
 
-      {/* Current Price */}
-      <div className="px-4 py-4 text-center border-b border-border/30">
-        <div className="text-3xl font-bold font-mono">0.7234</div>
+      {/* Current Price Display */}
+      <div className="px-4 py-4 text-center">
+        <div className="text-4xl font-bold font-mono tracking-tight">0.7234</div>
         <div className="text-sm text-trading-green font-mono mt-1">
           +$0.0234 (+3.34%)
         </div>
@@ -109,12 +110,12 @@ export default function TradingCharts() {
       <CandlestickChart />
 
       {/* Bottom Tabs */}
-      <div className="flex border-b border-border/30 px-4 mt-4 overflow-x-auto scrollbar-hide">
+      <div className="flex px-4 mt-2 border-b border-border/30">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setBottomTab(tab)}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-all ${
+            className={`py-3 mr-4 text-sm font-medium whitespace-nowrap transition-all ${
               bottomTab === tab
                 ? "text-foreground border-b-2 border-foreground"
                 : "text-muted-foreground"
@@ -129,7 +130,7 @@ export default function TradingCharts() {
       <OrderBook asks={asks} bids={bids} currentPrice="0.7234" />
 
       {/* Bottom Action Bar */}
-      <div className="fixed bottom-20 left-0 right-0 bg-background border-t border-border/50 p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/50 p-4 pb-6">
         <div className="text-center text-sm text-muted-foreground mb-3">
           Available 2,453.42 USDC
         </div>
@@ -148,8 +149,6 @@ export default function TradingCharts() {
           </button>
         </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 }
