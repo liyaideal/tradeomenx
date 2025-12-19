@@ -33,9 +33,9 @@ export const OrderCard = ({
   };
 
   return (
-    <div className="bg-card rounded-xl p-4">
+    <div className="bg-card rounded-xl p-3">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span
             className={`px-2 py-0.5 rounded text-xs font-semibold ${
@@ -54,35 +54,35 @@ export const OrderCard = ({
       </div>
 
       {/* Event Info */}
-      <div className="mb-3">
-        <h3 className="font-medium text-foreground">{event}</h3>
-        <p className="text-sm text-muted-foreground">
+      <div className="mb-2">
+        <h3 className="font-medium text-foreground text-sm">{event}</h3>
+        <p className="text-xs text-muted-foreground">
           {option} · {probability}
         </p>
       </div>
 
       {/* Order Details */}
-      <div className="grid grid-cols-3 gap-4 mb-3">
+      <div className="grid grid-cols-3 gap-3 mb-2">
         <div>
-          <span className="text-xs text-muted-foreground block">Price</span>
-          <span className="font-mono text-sm">{price}</span>
+          <span className="text-[10px] text-muted-foreground block">Price</span>
+          <span className="font-mono text-xs">{price}</span>
         </div>
         <div>
-          <span className="text-xs text-muted-foreground block">Amount</span>
-          <span className="font-mono text-sm">{amount}</span>
+          <span className="text-[10px] text-muted-foreground block">Amount</span>
+          <span className="font-mono text-xs">{amount}</span>
         </div>
         <div>
-          <span className="text-xs text-muted-foreground block">
+          <span className="text-[10px] text-muted-foreground block">
             {orderType === "Market" ? "Est. Total" : "Total"}
           </span>
-          <span className="font-mono text-sm">{total}</span>
+          <span className="font-mono text-xs">{total}</span>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-border/30">
-        <span className="text-xs text-muted-foreground">{time}</span>
-        <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusColors[status]}`}>
+      <div className="flex items-center justify-between pt-2 border-t border-border/30">
+        <span className="text-[10px] text-muted-foreground">{time}</span>
+        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${statusColors[status]}`}>
           {status}
         </span>
       </div>
