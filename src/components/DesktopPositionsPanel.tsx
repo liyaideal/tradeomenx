@@ -43,11 +43,7 @@ export const DesktopPositionsPanel = () => {
   
   const tabs = [
     { id: "Positions", label: "Positions", count: 0 },
-    { id: "PnL", label: "P&L", count: null },
     { id: "Orders", label: "Current Orders", count: 0 },
-    { id: "OrderHistory", label: "Order History", count: null },
-    { id: "TradeHistory", label: "Trade History", count: null },
-    { id: "Tools", label: "Tools", count: 0 },
   ];
 
   const positionColumns = [
@@ -144,29 +140,6 @@ export const DesktopPositionsPanel = () => {
           </div>
         )}
 
-        {activeTab === "PnL" && (
-          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-            No P&L data available
-          </div>
-        )}
-
-        {activeTab === "OrderHistory" && (
-          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-            No order history
-          </div>
-        )}
-
-        {activeTab === "TradeHistory" && (
-          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-            No trade history
-          </div>
-        )}
-
-        {activeTab === "Tools" && (
-          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-            No tools available
-          </div>
-        )}
       </div>
 
       {/* Bottom Ticker Bar */}
