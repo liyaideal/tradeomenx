@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronDown, BarChart2, Copy } from "lucide-react";
 
 interface Candle {
   time: string;
@@ -37,10 +38,9 @@ export const CandlestickChart = () => {
   const maxPrice = Math.max(...candles.map(c => c.high)) + 0.005;
   const priceRange = maxPrice - minPrice;
   
-  const chartHeight = 200;
-  const chartWidth = 100; // percentage
-  const candleWidth = 8;
-  const candleGap = 4;
+  const chartHeight = 180;
+  const candleWidth = 10;
+  const candleGap = 6;
 
   const priceToY = (price: number) => {
     return chartHeight - ((price - minPrice) / priceRange) * chartHeight;
@@ -49,45 +49,58 @@ export const CandlestickChart = () => {
   const priceLabels = [0.735, 0.73, 0.725, 0.72, 0.715, 0.71, 0.705];
 
   return (
-    <div className="px-4 py-4">
+    <div className="px-4 py-2">
       {/* Timeframe selector */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-sm text-muted-foreground">Price</span>
-        <div className="flex gap-1 ml-2">
-          {timeframes.map((tf) => (
-            <button
-              key={tf}
-              onClick={() => setSelectedTimeframe(tf)}
-              className={`px-2 py-1 text-xs rounded transition-all ${
-                selectedTimeframe === tf
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tf}
-            </button>
-          ))}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-1 text-sm text-muted-foreground">
+            Price
+            <ChevronDown className="w-3 h-3" />
+          </button>
+          <div className="flex bg-muted/50 rounded-md p-0.5 ml-2">
+            {timeframes.map((tf) => (
+              <button
+                key={tf}
+                onClick={() => setSelectedTimeframe(tf)}
+                className={`px-2 py-1 text-xs rounded transition-all ${
+                  selectedTimeframe === tf
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tf}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="p-1.5 text-muted-foreground hover:text-foreground">
+            <BarChart2 className="w-4 h-4" />
+          </button>
+          <button className="p-1.5 text-muted-foreground hover:text-foreground">
+            <Copy className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
       {/* Chart */}
-      <div className="relative h-[200px] flex">
+      <div className="relative h-[180px] flex">
         {/* Y-axis labels */}
-        <div className="flex flex-col justify-between text-xs text-muted-foreground font-mono pr-2 py-1">
+        <div className="flex flex-col justify-between text-[10px] text-muted-foreground font-mono pr-2 py-1">
           {priceLabels.map((label) => (
             <span key={label}>{label.toFixed(3)}</span>
           ))}
         </div>
 
         {/* Chart area */}
-        <div className="flex-1 relative border-l border-b border-border/30">
-          <svg className="w-full h-full" viewBox={`0 0 ${candles.length * (candleWidth + candleGap) + 20} ${chartHeight}`}>
+        <div className="flex-1 relative">
+          <svg className="w-full h-full" viewBox={`0 0 ${candles.length * (candleWidth + candleGap) + 20} ${chartHeight}`} preserveAspectRatio="none">
             {candles.map((candle, index) => {
               const x = index * (candleWidth + candleGap) + 10;
               const isGreen = candle.close >= candle.open;
               const bodyTop = priceToY(Math.max(candle.open, candle.close));
               const bodyBottom = priceToY(Math.min(candle.open, candle.close));
-              const bodyHeight = Math.max(bodyBottom - bodyTop, 1);
+              const bodyHeight = Math.max(bodyBottom - bodyTop, 2);
               
               return (
                 <g key={index}>
@@ -98,7 +111,7 @@ export const CandlestickChart = () => {
                     x2={x + candleWidth / 2}
                     y2={priceToY(candle.low)}
                     stroke={isGreen ? "hsl(142 71% 45%)" : "hsl(0 72% 51%)"}
-                    strokeWidth="1"
+                    strokeWidth="1.5"
                   />
                   {/* Body */}
                   <rect
@@ -108,8 +121,6 @@ export const CandlestickChart = () => {
                     height={bodyHeight}
                     fill={isGreen ? "hsl(142 71% 45%)" : "hsl(0 72% 51%)"}
                     rx="1"
-                    className="animate-fade-in"
-                    style={{ animationDelay: `${index * 50}ms` }}
                   />
                 </g>
               );
@@ -117,7 +128,7 @@ export const CandlestickChart = () => {
           </svg>
           
           {/* X-axis labels */}
-          <div className="absolute bottom-[-20px] left-0 right-0 flex justify-between px-2 text-xs text-muted-foreground font-mono">
+          <div className="flex justify-between px-2 mt-2 text-[10px] text-muted-foreground font-mono">
             {candles.map((candle, i) => (
               <span key={i}>{candle.time}</span>
             ))}
