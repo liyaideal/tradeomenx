@@ -183,12 +183,12 @@ export default function TradeOrder() {
       </div>
 
       {/* Orders/Positions Tabs */}
-      <div className="flex px-4 mt-4 border-b border-border/30">
+      <div className="flex px-4 mt-2 border-b border-border/30">
         {["Orders", "Positions"].map((tab) => (
           <button
             key={tab}
             onClick={() => setBottomTab(tab)}
-            className={`py-3 mr-6 text-sm font-medium transition-all ${
+            className={`py-2 mr-6 text-sm font-medium transition-all ${
               bottomTab === tab
                 ? "text-trading-purple border-b-2 border-trading-purple"
                 : "text-muted-foreground"
@@ -200,7 +200,7 @@ export default function TradeOrder() {
       </div>
 
       {/* Orders List */}
-      <div className="px-4 py-4 space-y-4">
+      <div className="px-4 py-3 space-y-3">
         {mockOrders.map((order, index) => (
           <OrderCard key={index} {...order} />
         ))}
