@@ -33,6 +33,34 @@ const generateOrderBookData = (basePrice: number) => {
   return { asks, bids };
 };
 
+// Generate trades history data based on base price
+const generateTradesHistory = (basePrice: number) => {
+  const trades = [];
+  const now = Date.now();
+  
+  for (let i = 0; i < 20; i++) {
+    const isBuy = Math.random() > 0.5;
+    const priceVariation = (Math.random() - 0.5) * 0.01;
+    const price = (basePrice + priceVariation).toFixed(4);
+    const amount = Math.floor(Math.random() * 5000 + 100).toLocaleString();
+    const timeAgo = Math.floor(Math.random() * 300);
+    
+    trades.push({
+      price,
+      amount,
+      time: new Date(now - timeAgo * 1000).toLocaleTimeString('en-US', { 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+      }),
+      isBuy,
+    });
+  }
+  
+  return trades;
+};
+
 const stats = [
   { label: "24h Volume", value: "$2.45M" },
   { label: "Funding Rate", value: "+0.05%", isPositive: true },
@@ -55,6 +83,12 @@ export default function TradingCharts() {
   const orderBookData = useMemo(() => {
     const basePrice = parseFloat(selectedOptionData.price);
     return generateOrderBookData(basePrice);
+  }, [selectedOptionData.price]);
+
+  // Generate trades history data
+  const tradesHistory = useMemo(() => {
+    const basePrice = parseFloat(selectedOptionData.price);
+    return generateTradesHistory(basePrice);
   }, [selectedOptionData.price]);
 
   // Calculate price change (mock data)
@@ -145,12 +179,49 @@ export default function TradingCharts() {
         ))}
       </div>
 
-      {/* Order Book */}
-      <OrderBook 
-        asks={orderBookData.asks} 
-        bids={orderBookData.bids} 
-        currentPrice={selectedOptionData.price} 
-      />
+      {/* Tab Content */}
+      {bottomTab === "Order Book" && (
+        <OrderBook 
+          asks={orderBookData.asks} 
+          bids={orderBookData.bids} 
+          currentPrice={selectedOptionData.price} 
+        />
+      )}
+
+      {bottomTab === "Trades history" && (
+        <div className="px-4">
+          {/* Header */}
+          <div className="grid grid-cols-3 text-xs text-muted-foreground py-2">
+            <span>Price (USDT)</span>
+            <span className="text-center">Amount</span>
+            <span className="text-right">Time</span>
+          </div>
+          {/* Trades List */}
+          <div className="space-y-0">
+            {tradesHistory.map((trade, index) => (
+              <div key={index} className="grid grid-cols-3 text-xs py-1.5">
+                <span className={`font-mono ${trade.isBuy ? "text-trading-green" : "text-trading-red"}`}>
+                  {trade.price}
+                </span>
+                <span className="text-center text-muted-foreground font-mono">{trade.amount}</span>
+                <span className="text-right text-muted-foreground font-mono">{trade.time}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {bottomTab === "Orders" && (
+        <div className="px-4 py-8 text-center text-muted-foreground text-sm">
+          No open orders
+        </div>
+      )}
+
+      {bottomTab === "Positions" && (
+        <div className="px-4 py-8 text-center text-muted-foreground text-sm">
+          No open positions
+        </div>
+      )}
 
       {/* Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 px-4 py-3">
