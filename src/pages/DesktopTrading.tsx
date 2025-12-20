@@ -245,7 +245,7 @@ export default function DesktopTrading() {
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                    <span className="text-xs text-muted-foreground">当前推文</span>
+                    <span className="text-xs text-muted-foreground">Current Tweets</span>
                   </div>
                   <span className="text-sm text-orange-500 font-mono font-bold">{selectedEvent.tweetCount}</span>
                 </button>
