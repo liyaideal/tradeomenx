@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -12,9 +12,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { Slider } from "@/components/ui/slider";
+import { toast } from "sonner";
 
 // Mock active events data
 const activeEvents = [
@@ -174,6 +181,7 @@ export default function DesktopTrading() {
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [eventSearchQuery, setEventSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(activeEvents[0]);
+  const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
   const countdown = useCountdown(selectedEvent.endTime);
   const potentialWin = 1428;
   const available = 2453.42;
@@ -194,17 +202,28 @@ export default function DesktopTrading() {
     return { change, percentage, isPositive };
   }, [selectedOptionData.price]);
 
+  const orderDetails = useMemo(() => [
+    { label: "Event", value: selectedEvent.name },
+    { label: "Option", value: selectedOptionData.label },
+    { label: "Side", value: side === "buy" ? "Buy | Long" : "Sell | Short", highlight: side === "buy" ? "green" : "red" as const },
+    { label: "Margin type", value: marginType },
+    { label: "Type", value: orderType },
+    { label: "Order Price", value: `${selectedOptionData.price} USDC` },
+    { label: "Order Cost", value: `${amount} USDC` },
+    { label: "Notional value", value: "1000.52 USDC" },
+    { label: "Leverage", value: `${leverage}X` },
+    { label: "Margin required", value: "3.48 USDC" },
+    { label: "TP/SL", value: tpsl ? "Set" : "--" },
+    { label: "Estimated Liq. Price", value: "0.01 USDC" },
+  ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl]);
+
   const handlePreview = () => {
-    navigate("/order-preview", {
-      state: {
-        side,
-        marginType,
-        leverage: `${leverage}x`,
-        orderType,
-        amount,
-        price: selectedOptionData.price,
-      },
-    });
+    setOrderPreviewOpen(true);
+  };
+
+  const handleConfirmOrder = () => {
+    setOrderPreviewOpen(false);
+    toast.success("Order placed successfully!");
   };
 
   return (
@@ -870,6 +889,48 @@ export default function DesktopTrading() {
           </div>
         </div>
       </div>
+
+      {/* Order Preview Dialog */}
+      <Dialog open={orderPreviewOpen} onOpenChange={setOrderPreviewOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Order Preview</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-0">
+            {orderDetails.map((detail, index) => (
+              <div
+                key={detail.label}
+                className={`flex justify-between py-3 ${
+                  index !== orderDetails.length - 1 ? "border-b border-border/20" : ""
+                }`}
+              >
+                <span className="text-muted-foreground text-sm">{detail.label}</span>
+                <span
+                  className={`font-medium text-sm ${
+                    detail.highlight === "green"
+                      ? "text-trading-green"
+                      : detail.highlight === "red"
+                      ? "text-trading-red"
+                      : "text-foreground"
+                  }`}
+                >
+                  {detail.value}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={handleConfirmOrder}
+            className={`w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] mt-4 ${
+              side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
+            }`}
+          >
+            {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {potentialWin.toLocaleString()}
+          </button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
