@@ -191,10 +191,10 @@ export default function DesktopTrading() {
       const newFavorites = new Set(prev);
       if (newFavorites.has(eventId)) {
         newFavorites.delete(eventId);
-        toast.success("已取消收藏");
+        toast.success("Removed from favorites");
       } else {
         newFavorites.add(eventId);
-        toast.success("已添加收藏");
+        toast.success("Added to favorites");
       }
       return newFavorites;
     });
