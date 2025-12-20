@@ -129,4 +129,32 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Order book animation */
+  @keyframes flash-green {
+    0% { background-color: hsl(var(--trading-green) / 0.3); }
+    100% { background-color: transparent; }
+  }
+
+  @keyframes flash-red {
+    0% { background-color: hsl(var(--trading-red) / 0.3); }
+    100% { background-color: transparent; }
+  }
+
+  @keyframes flash-new {
+    0% { background-color: hsl(var(--trading-yellow) / 0.3); }
+    100% { background-color: transparent; }
+  }
+
+  .flash-update-green {
+    animation: flash-green 0.5s ease-out;
+  }
+
+  .flash-update-red {
+    animation: flash-red 0.5s ease-out;
+  }
+
+  .flash-new-trade {
+    animation: flash-new 0.8s ease-out;
+  }
 }
