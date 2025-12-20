@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, Plus, ArrowLeftRight, Star, Info, Flag, Search } from "lucide-react";
 import {
@@ -13,12 +13,50 @@ import { Slider } from "@/components/ui/slider";
 
 // Mock active events data
 const activeEvents = [
-  { id: "1", name: "Elon Musk # tweets December 12 - December 19, 2025?", icon: "🐦", ends: "Dec 19, 2025", volume: "$2.45M" },
-  { id: "2", name: "Bitcoin price on December 31, 2025?", icon: "₿", ends: "Dec 31, 2025", volume: "$5.12M" },
-  { id: "3", name: "ETH/BTC ratio end of Q4 2025?", icon: "⟠", ends: "Dec 31, 2025", volume: "$1.89M" },
-  { id: "4", name: "Fed interest rate decision January 2026?", icon: "🏦", ends: "Jan 29, 2026", volume: "$3.21M" },
-  { id: "5", name: "S&P 500 closing price December 2025?", icon: "📈", ends: "Dec 31, 2025", volume: "$4.56M" },
+  { id: "1", name: "Elon Musk # tweets December 12 - December 19, 2025?", icon: "🐦", ends: "Dec 19, 2025", endTime: new Date("2025-12-19T23:59:59"), volume: "$2.45M", tweetCount: 156 },
+  { id: "2", name: "Bitcoin price on December 31, 2025?", icon: "₿", ends: "Dec 31, 2025", endTime: new Date("2025-12-31T23:59:59"), volume: "$5.12M" },
+  { id: "3", name: "ETH/BTC ratio end of Q4 2025?", icon: "⟠", ends: "Dec 31, 2025", endTime: new Date("2025-12-31T23:59:59"), volume: "$1.89M" },
+  { id: "4", name: "Fed interest rate decision January 2026?", icon: "🏦", ends: "Jan 29, 2026", endTime: new Date("2026-01-29T23:59:59"), volume: "$3.21M" },
+  { id: "5", name: "S&P 500 closing price December 2025?", icon: "📈", ends: "Dec 31, 2025", endTime: new Date("2025-12-31T23:59:59"), volume: "$4.56M" },
 ];
+
+// Countdown hook
+const useCountdown = (endTime: Date | undefined) => {
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    if (!endTime) return;
+
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const end = endTime.getTime();
+      const difference = end - now;
+
+      if (difference <= 0) {
+        return "00:00:00";
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      if (days > 0) {
+        return `${days}d ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [endTime]);
+
+  return timeLeft;
+};
 
 const options = [
   { id: "1", label: "140-159", price: "0.0534" },
@@ -131,6 +169,7 @@ export default function DesktopTrading() {
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [eventSearchQuery, setEventSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(activeEvents[0]);
+  const countdown = useCountdown(selectedEvent.endTime);
   const potentialWin = 1428;
   const available = 2453.42;
 
@@ -183,8 +222,19 @@ export default function DesktopTrading() {
                 </span>
                 <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${eventDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>Ends: {selectedEvent.ends}</span>
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+                  <span>Ends in</span>
+                  <span className="text-trading-red font-mono font-medium">{countdown}</span>
+                </div>
+                {selectedEvent.tweetCount !== undefined && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                    <span>Tweets</span>
+                    <span className="text-orange-500 font-mono font-medium">{selectedEvent.tweetCount}</span>
+                  </div>
+                )}
                 <span>•</span>
                 <span>Volume: {selectedEvent.volume}</span>
               </div>
