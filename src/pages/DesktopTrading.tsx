@@ -374,8 +374,16 @@ export default function DesktopTrading() {
                         selectedEvent.id === event.id ? "bg-muted/30" : ""
                       }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <Star className="w-3 h-3 text-muted-foreground hover:text-trading-yellow" />
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Toggle favorite logic here
+                          }}
+                          className="p-1.5 rounded-md hover:bg-muted/50 transition-colors"
+                        >
+                          <Star className="w-4 h-4 text-muted-foreground hover:text-trading-yellow transition-colors" />
+                        </button>
                         <span className="text-sm font-medium truncate">{event.name}</span>
                       </div>
                       <span className="text-xs text-muted-foreground text-right">{event.ends}</span>
