@@ -154,8 +154,8 @@ export default function TradingCharts() {
     return { change, percentage, isPositive };
   }, [selectedOptionData.price]);
 
-  // Set end time to December 19, 2025 23:59:59
-  const endTime = new Date("2025-12-19T23:59:59");
+  // Set end time to December 25, 2025 23:59:59 (future date for demo)
+  const endTime = new Date("2025-12-25T23:59:59");
 
   return (
     <div className="min-h-screen bg-background pb-40">
