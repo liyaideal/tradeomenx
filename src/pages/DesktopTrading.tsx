@@ -279,8 +279,6 @@ export default function DesktopTrading() {
               </PopoverContent>
             </Popover>
           )}
-          
-          <Star className="w-4 h-4 text-muted-foreground hover:text-trading-yellow cursor-pointer flex-shrink-0" />
 
           {/* Event Dropdown */}
           {eventDropdownOpen && (
@@ -338,6 +336,9 @@ export default function DesktopTrading() {
             </div>
           )}
         </div>
+        
+        {/* Favorite Star - Far right */}
+        <Star className="w-5 h-5 text-muted-foreground hover:text-trading-yellow cursor-pointer flex-shrink-0" />
 
         <div className="flex items-center gap-6 text-xs">
           <div>
