@@ -217,9 +217,6 @@ export default function DesktopTrading() {
             onClick={() => setEventDropdownOpen(!eventDropdownOpen)}
             className="flex items-center gap-2 min-w-0 hover:bg-muted/30 rounded-lg p-1 transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-              <span className="text-sm">{selectedEvent.icon}</span>
-            </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground truncate">
