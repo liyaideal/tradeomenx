@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronDown, Plus, ArrowLeftRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
@@ -11,7 +11,7 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
   const navigate = useNavigate();
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [marginType, setMarginType] = useState("Cross");
-  const [leverage, setLeverage] = useState("10x");
+  const [leverage, setLeverage] = useState(10);
   const [orderType, setOrderType] = useState("Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
@@ -20,16 +20,55 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
 
   const available = 2453.42;
+  const feeRate = 0.0005; // 0.05% trading fee
+
+  // Calculate order values based on amount and leverage
+  const orderCalculations = useMemo(() => {
+    const amountValue = parseFloat(amount) || 0;
+    const price = parseFloat(selectedPrice);
+    
+    // Notional value = amount * leverage
+    const notionalValue = amountValue * leverage;
+    
+    // Margin required = amount (same as input)
+    const marginRequired = amountValue;
+    
+    // Estimated fee = notional value * fee rate
+    const estimatedFee = notionalValue * feeRate;
+    
+    // Total = margin required + fee
+    const total = marginRequired + estimatedFee;
+    
+    // Quantity = notional value / price
+    const quantity = price > 0 ? notionalValue / price : 0;
+    
+    // Potential win = (1 - price) * quantity (if price goes to 1)
+    const potentialWin = (1 - price) * quantity;
+    
+    // Estimated liquidation price
+    const liqPrice = price > 0 ? (price * (1 - 1 / leverage * 0.9)).toFixed(4) : "0.0000";
+    
+    return {
+      notionalValue: notionalValue.toFixed(2),
+      marginRequired: marginRequired.toFixed(2),
+      estimatedFee: estimatedFee.toFixed(2),
+      total: total.toFixed(2),
+      quantity: quantity.toFixed(0),
+      potentialWin: potentialWin.toFixed(0),
+      liqPrice,
+    };
+  }, [amount, leverage, selectedPrice]);
 
   const handlePreview = () => {
     navigate("/order-preview", {
       state: {
         side,
         marginType,
-        leverage,
+        leverage: `${leverage}x`,
         orderType,
         amount,
         price: selectedPrice,
+        orderCalculations,
       },
     });
   };
@@ -68,7 +107,7 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
           <ChevronDown className="w-3 h-3" />
         </button>
         <button className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs">
-          {leverage}
+          {leverage}x
           <ChevronDown className="w-3 h-3" />
         </button>
       </div>
@@ -173,19 +212,27 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
       <div className="space-y-1 text-xs">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Notional val.</span>
-          <span className="text-muted-foreground">--</span>
+          <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+            {parseFloat(amount) > 0 ? `${orderCalculations.notionalValue} USDC` : "--"}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Margin req.</span>
-          <span className="text-muted-foreground">--</span>
+          <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+            {parseFloat(amount) > 0 ? `${orderCalculations.marginRequired} USDC` : "--"}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Fee (est.)</span>
-          <span className="text-muted-foreground">--</span>
+          <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+            {parseFloat(amount) > 0 ? `${orderCalculations.estimatedFee} USDC` : "--"}
+          </span>
         </div>
         <div className="flex justify-between pt-2 border-t border-border/30">
           <span className="font-medium text-foreground">Total</span>
-          <span className="text-muted-foreground">--</span>
+          <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
+            {parseFloat(amount) > 0 ? `${orderCalculations.total} USDC` : "--"}
+          </span>
         </div>
       </div>
 
@@ -198,7 +245,7 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
             : "bg-trading-red text-foreground"
         }`}
       >
-        Preview {side} order
+        {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
       </button>
     </div>
   );
