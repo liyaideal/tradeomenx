@@ -68,14 +68,14 @@ export default function OrderPreview() {
             {orderDetails.map((detail, index) => (
               <div
                 key={detail.label}
-                className={`flex justify-between py-3 ${
+                className={`flex justify-between gap-4 py-3 ${
                   index !== orderDetails.length - 1 ? "border-b border-border/20" : ""
                 }`}
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <span className="text-muted-foreground text-sm">{detail.label}</span>
+                <span className="text-muted-foreground text-sm flex-shrink-0">{detail.label}</span>
                 <span
-                  className={`font-medium text-sm ${
+                  className={`font-medium text-sm text-right ${
                     detail.highlight === "green"
                       ? "text-trading-green"
                       : detail.highlight === "red"
