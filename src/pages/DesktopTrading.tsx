@@ -183,8 +183,8 @@ export default function DesktopTrading() {
   const [selectedEvent, setSelectedEvent] = useState(activeEvents[0]);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
   const countdown = useCountdown(selectedEvent.endTime);
-  const potentialWin = 1428;
   const available = 2453.42;
+  const feeRate = 0.0005; // 0.05% trading fee
 
   const selectedOptionData = useMemo(() => {
     return options.find(opt => opt.id === selectedOption) || options[1];
@@ -202,6 +202,43 @@ export default function DesktopTrading() {
     return { change, percentage, isPositive };
   }, [selectedOptionData.price]);
 
+  // Calculate order values based on amount and leverage
+  const orderCalculations = useMemo(() => {
+    const amountValue = parseFloat(amount) || 0;
+    const price = parseFloat(selectedOptionData.price);
+    
+    // Notional value = amount * leverage
+    const notionalValue = amountValue * leverage;
+    
+    // Margin required = notional value / leverage = amount (same as input)
+    const marginRequired = amountValue;
+    
+    // Estimated fee = notional value * fee rate
+    const estimatedFee = notionalValue * feeRate;
+    
+    // Total = margin required + fee
+    const total = marginRequired + estimatedFee;
+    
+    // Quantity = notional value / price
+    const quantity = price > 0 ? notionalValue / price : 0;
+    
+    // Potential win = (1 - price) * quantity (if price goes to 1)
+    const potentialWin = (1 - price) * quantity;
+    
+    // Estimated liquidation price
+    const liqPrice = price > 0 ? (price * (1 - 1 / leverage * 0.9)).toFixed(4) : "0.0000";
+    
+    return {
+      notionalValue: notionalValue.toFixed(2),
+      marginRequired: marginRequired.toFixed(2),
+      estimatedFee: estimatedFee.toFixed(2),
+      total: total.toFixed(2),
+      quantity: quantity.toFixed(0),
+      potentialWin: potentialWin.toFixed(0),
+      liqPrice,
+    };
+  }, [amount, leverage, selectedOptionData.price]);
+
   const orderDetails = useMemo(() => [
     { label: "Event", value: selectedEvent.name },
     { label: "Option", value: selectedOptionData.label },
@@ -210,12 +247,12 @@ export default function DesktopTrading() {
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${selectedOptionData.price} USDC` },
     { label: "Order Cost", value: `${amount} USDC` },
-    { label: "Notional value", value: "1000.52 USDC" },
+    { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: `${leverage}X` },
-    { label: "Margin required", value: "3.48 USDC" },
+    { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? "Set" : "--" },
-    { label: "Estimated Liq. Price", value: "0.01 USDC" },
-  ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl]);
+    { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
+  ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl, orderCalculations]);
 
   const handlePreview = () => {
     setOrderPreviewOpen(true);
@@ -861,19 +898,27 @@ export default function DesktopTrading() {
             <div className="space-y-1 text-xs pt-2 border-t border-border/30">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Notional val.</span>
-                <span className="text-muted-foreground">--</span>
+                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+                  {parseFloat(amount) > 0 ? `${orderCalculations.notionalValue} USDC` : "--"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Margin req.</span>
-                <span className="text-muted-foreground">--</span>
+                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+                  {parseFloat(amount) > 0 ? `${orderCalculations.marginRequired} USDC` : "--"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Fee (est.)</span>
-                <span className="text-muted-foreground">--</span>
+                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+                  {parseFloat(amount) > 0 ? `${orderCalculations.estimatedFee} USDC` : "--"}
+                </span>
               </div>
               <div className="flex justify-between pt-2 border-t border-border/30">
                 <span className="font-medium text-foreground">Total</span>
-                <span className="text-muted-foreground">--</span>
+                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
+                  {parseFloat(amount) > 0 ? `${orderCalculations.total} USDC` : "--"}
+                </span>
               </div>
             </div>
 
@@ -884,7 +929,7 @@ export default function DesktopTrading() {
                 side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
               }`}
             >
-              {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {potentialWin.toLocaleString()}
+              {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             </button>
           </div>
         </div>
@@ -927,7 +972,7 @@ export default function DesktopTrading() {
               side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
             }`}
           >
-            {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {potentialWin.toLocaleString()}
+            {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
           </button>
         </DialogContent>
       </Dialog>
