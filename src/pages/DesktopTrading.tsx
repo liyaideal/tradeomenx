@@ -725,11 +725,8 @@ export default function DesktopTrading() {
 
         {/* Right Section: Trade Form - separate container */}
         <div className="w-[280px] flex-shrink-0 flex flex-col m-1 bg-background rounded border border-border/30">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
+          <div className="flex items-center px-4 py-2 border-b border-border/30">
             <span className="text-sm font-medium">Trade</span>
-            <button className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Info className="w-3.5 h-3.5" />
-            </button>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
