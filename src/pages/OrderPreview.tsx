@@ -1,37 +1,59 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { MobileHeader } from "@/components/MobileHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { toast } from "sonner";
 
 interface OrderDetail {
   label: string;
   value: string;
-  highlight?: "green" | "purple";
+  highlight?: "green" | "red" | "purple";
+}
+
+interface OrderCalculations {
+  notionalValue: string;
+  marginRequired: string;
+  estimatedFee: string;
+  total: string;
+  quantity: string;
+  potentialWin: string;
+  liqPrice: string;
 }
 
 export default function OrderPreview() {
   const navigate = useNavigate();
   const location = useLocation();
   const orderData = location.state || {};
+  const orderCalculations: OrderCalculations = orderData.orderCalculations || {
+    notionalValue: "0.00",
+    marginRequired: "0.00",
+    estimatedFee: "0.00",
+    total: "0.00",
+    quantity: "0",
+    potentialWin: "0",
+    liqPrice: "0.0000",
+  };
+
+  const isBuy = orderData.side === "buy";
 
   const orderDetails: OrderDetail[] = [
-    { label: "Event", value: "Fed decision in December?" },
-    { label: "Option", value: "25 bps decrease" },
-    { label: "Side", value: "Buy | Long", highlight: "green" },
+    { label: "Event", value: "Elon Musk # tweets December 12 - December 19, 2025?" },
+    { label: "Option", value: "200-219" },
+    { label: "Side", value: isBuy ? "Buy | Long" : "Sell | Short", highlight: isBuy ? "green" : "red" },
     { label: "Margin type", value: orderData.marginType || "Cross" },
     { label: "Type", value: orderData.orderType || "Market" },
-    { label: "Order Price", value: "0.7234 USDC" },
-    { label: "Order Cost", value: "100 USDC" },
-    { label: "Notional value", value: "1000.52 USDC" },
-    { label: "Leverage", value: orderData.leverage || "10X" },
-    { label: "Margin required", value: "3.48 USDC" },
+    { label: "Order Price", value: `${orderData.price || "0.0000"} USDC` },
+    { label: "Order Cost", value: `${orderData.amount || "0.00"} USDC` },
+    { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
+    { label: "Leverage", value: orderData.leverage || "10x" },
+    { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: "--" },
-    { label: "Estimated Liq. Price", value: "0.01 USDC" },
+    { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
   ];
 
-  const potentialWin = 1428;
+  const potentialWin = parseInt(orderCalculations.potentialWin) || 0;
 
   const handleConfirm = () => {
-    // In a real app, this would submit the order
+    toast.success("Order placed successfully!");
     navigate("/trade");
   };
 
@@ -56,6 +78,8 @@ export default function OrderPreview() {
                   className={`font-medium text-sm ${
                     detail.highlight === "green"
                       ? "text-trading-green"
+                      : detail.highlight === "red"
+                      ? "text-trading-red"
                       : detail.highlight === "purple"
                       ? "text-trading-purple"
                       : "text-foreground"
@@ -73,9 +97,11 @@ export default function OrderPreview() {
       <div className="fixed bottom-20 left-0 right-0 bg-background px-4 py-3">
         <button
           onClick={handleConfirm}
-          className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] bg-trading-green text-trading-green-foreground animate-slide-up"
+          className={`w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] animate-slide-up ${
+            isBuy ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
+          }`}
         >
-          Buy Long - to win $ {potentialWin.toLocaleString()}
+          {isBuy ? "Buy Long" : "Sell Short"} - to win $ {potentialWin.toLocaleString()}
         </button>
       </div>
 
