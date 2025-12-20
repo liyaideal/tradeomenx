@@ -430,7 +430,18 @@ export default function DesktopTrading() {
         </div>
         
         {/* Favorite Star - Far right */}
-        <Star className="w-5 h-5 text-muted-foreground hover:text-trading-yellow cursor-pointer flex-shrink-0" />
+        <button 
+          onClick={(e) => toggleFavorite(selectedEvent.id, e)}
+          className="p-2 rounded-md hover:bg-muted/50 transition-colors flex-shrink-0"
+        >
+          <Star 
+            className={`w-5 h-5 transition-colors cursor-pointer ${
+              favorites.has(selectedEvent.id) 
+                ? "text-trading-yellow fill-trading-yellow" 
+                : "text-muted-foreground hover:text-trading-yellow"
+            }`} 
+          />
+        </button>
 
       </header>
 
