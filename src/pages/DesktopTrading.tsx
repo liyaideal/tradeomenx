@@ -235,17 +235,19 @@ export default function DesktopTrading() {
             </div>
           </button>
           
-          {/* Tweet Count - Separate from dropdown trigger */}
+          {/* Tweet Count Badge - Separate from dropdown trigger */}
           {selectedEvent.tweetCount !== undefined && (
             <Popover>
               <PopoverTrigger asChild>
                 <button 
-                  className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 border border-orange-500/30 rounded-lg hover:bg-orange-500/20 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                  <span className="text-muted-foreground">Tweets</span>
-                  <span className="text-orange-500 font-mono font-medium">{selectedEvent.tweetCount}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                    <span className="text-xs text-muted-foreground">当前推文</span>
+                  </div>
+                  <span className="text-sm text-orange-500 font-mono font-bold">{selectedEvent.tweetCount}</span>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-64 p-3" align="start">
