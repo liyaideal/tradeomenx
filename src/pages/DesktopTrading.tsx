@@ -182,7 +182,23 @@ export default function DesktopTrading() {
   const [eventSearchQuery, setEventSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(activeEvents[0]);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const countdown = useCountdown(selectedEvent.endTime);
+
+  const toggleFavorite = (eventId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(eventId)) {
+        newFavorites.delete(eventId);
+        toast.success("已取消收藏");
+      } else {
+        newFavorites.add(eventId);
+        toast.success("已添加收藏");
+      }
+      return newFavorites;
+    });
+  };
   const available = 2453.42;
   const feeRate = 0.0005; // 0.05% trading fee
 
@@ -376,13 +392,16 @@ export default function DesktopTrading() {
                     >
                       <div className="flex items-center gap-3">
                         <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Toggle favorite logic here
-                          }}
+                          onClick={(e) => toggleFavorite(event.id, e)}
                           className="p-1.5 rounded-md hover:bg-muted/50 transition-colors"
                         >
-                          <Star className="w-4 h-4 text-muted-foreground hover:text-trading-yellow transition-colors" />
+                          <Star 
+                            className={`w-4 h-4 transition-colors ${
+                              favorites.has(event.id) 
+                                ? "text-trading-yellow fill-trading-yellow" 
+                                : "text-muted-foreground hover:text-trading-yellow"
+                            }`} 
+                          />
                         </button>
                         <span className="text-sm font-medium truncate">{event.name}</span>
                       </div>
