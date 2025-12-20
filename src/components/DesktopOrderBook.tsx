@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChevronDown, Flag } from "lucide-react";
 import {
   Tooltip,
@@ -11,6 +11,8 @@ interface OrderBookEntry {
   price: string;
   amount: string;
   total?: string;
+  isNew?: boolean;
+  isUpdated?: boolean;
 }
 
 interface RecentTrade {
@@ -18,6 +20,7 @@ interface RecentTrade {
   amount: string;
   time: string;
   side: "buy" | "sell";
+  isNew?: boolean;
 }
 
 interface DesktopOrderBookProps {
@@ -50,16 +53,125 @@ const generateMockTrades = (basePrice: number): RecentTrade[] => {
   return trades;
 };
 
+// Simulate order book updates
+const simulateOrderBookUpdate = (entries: OrderBookEntry[], isBid: boolean): OrderBookEntry[] => {
+  return entries.map((entry, index) => {
+    // Randomly update some entries
+    if (Math.random() < 0.3) {
+      const currentAmount = parseInt(entry.amount.replace(/,/g, ''));
+      const change = Math.floor((Math.random() - 0.4) * 5000);
+      const newAmount = Math.max(100, currentAmount + change);
+      
+      return {
+        ...entry,
+        amount: newAmount.toLocaleString(),
+        isUpdated: true,
+        isNew: false
+      };
+    }
+    return { ...entry, isUpdated: false, isNew: false };
+  });
+};
+
+// Recalculate totals for order book
+const recalculateTotals = (entries: OrderBookEntry[]): OrderBookEntry[] => {
+  let cumulative = 0;
+  return entries.map(entry => {
+    cumulative += parseInt(entry.amount.replace(/,/g, ''));
+    return { ...entry, total: cumulative.toLocaleString() };
+  });
+};
+
 export const DesktopOrderBook = ({ 
-  asks, 
-  bids, 
-  currentPrice, 
+  asks: initialAsks, 
+  bids: initialBids, 
+  currentPrice: initialPrice, 
   priceChange = "88,132.18",
-  isPositive = false 
+  isPositive: initialIsPositive = false 
 }: DesktopOrderBookProps) => {
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
-  const recentTrades = generateMockTrades(parseFloat(currentPrice));
+  const [asks, setAsks] = useState<OrderBookEntry[]>(initialAsks);
+  const [bids, setBids] = useState<OrderBookEntry[]>(initialBids);
+  const [currentPrice, setCurrentPrice] = useState(initialPrice);
+  const [isPositive, setIsPositive] = useState(initialIsPositive);
+  const [recentTrades, setRecentTrades] = useState<RecentTrade[]>(() => 
+    generateMockTrades(parseFloat(initialPrice))
+  );
+  const [buyRatio, setBuyRatio] = useState(40);
+
+  // Update order book dynamically
+  const updateOrderBook = useCallback(() => {
+    // Update asks
+    setAsks(prev => {
+      const updated = simulateOrderBookUpdate(prev, false);
+      return recalculateTotals(updated);
+    });
+
+    // Update bids
+    setBids(prev => {
+      const updated = simulateOrderBookUpdate(prev, true);
+      return recalculateTotals(updated);
+    });
+
+    // Randomly adjust current price slightly
+    setCurrentPrice(prev => {
+      const price = parseFloat(prev);
+      const change = (Math.random() - 0.5) * 0.002;
+      const newPrice = (price + change).toFixed(4);
+      setIsPositive(change >= 0);
+      return newPrice;
+    });
+
+    // Update buy/sell ratio
+    setBuyRatio(prev => {
+      const change = (Math.random() - 0.5) * 5;
+      return Math.min(90, Math.max(10, prev + change));
+    });
+  }, []);
+
+  // Add new trades periodically
+  const addNewTrade = useCallback(() => {
+    setRecentTrades(prev => {
+      const price = parseFloat(currentPrice);
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+      
+      const newTrade: RecentTrade = {
+        price: (price + (Math.random() - 0.5) * 0.005).toFixed(4),
+        amount: Math.floor(Math.random() * 5000 + 100).toLocaleString(),
+        time: timeStr,
+        side: Math.random() > 0.5 ? "buy" : "sell",
+        isNew: true
+      };
+
+      const updated = [newTrade, ...prev.slice(0, 19)].map((t, i) => ({
+        ...t,
+        isNew: i === 0
+      }));
+
+      return updated;
+    });
+  }, [currentPrice]);
+
+  // Set up intervals for dynamic updates
+  useEffect(() => {
+    const orderBookInterval = setInterval(updateOrderBook, 500);
+    const tradesInterval = setInterval(addNewTrade, 1500);
+
+    return () => {
+      clearInterval(orderBookInterval);
+      clearInterval(tradesInterval);
+    };
+  }, [updateOrderBook, addNewTrade]);
+
+  // Reset when initial props change
+  useEffect(() => {
+    setAsks(initialAsks);
+    setBids(initialBids);
+    setCurrentPrice(initialPrice);
+    setIsPositive(initialIsPositive);
+  }, [initialAsks, initialBids, initialPrice, initialIsPositive]);
 
   // Extended data for single-view modes
   const extendedBids = [...bids, ...bids.slice(0, 8)];
@@ -151,8 +263,8 @@ export const DesktopOrderBook = ({
                   
                   return (
                     <div
-                      key={`ask-${index}`}
-                      className="relative grid grid-cols-3 text-xs px-3 py-0.5 hover:bg-muted/30 cursor-pointer"
+                      key={`ask-${ask.price}-${index}`}
+                      className={`relative grid grid-cols-3 text-xs px-3 py-0.5 hover:bg-muted/30 cursor-pointer transition-all ${ask.isUpdated ? 'flash-update-red' : ''}`}
                     >
                       <div 
                         className="absolute right-0 top-0 bottom-0 bg-trading-red/10"
@@ -197,8 +309,8 @@ export const DesktopOrderBook = ({
                   
                   return (
                     <div
-                      key={`bid-${index}`}
-                      className="relative grid grid-cols-3 text-xs px-3 py-0.5 hover:bg-muted/30 cursor-pointer"
+                      key={`bid-${bid.price}-${index}`}
+                      className={`relative grid grid-cols-3 text-xs px-3 py-0.5 hover:bg-muted/30 cursor-pointer transition-all ${bid.isUpdated ? 'flash-update-green' : ''}`}
                     >
                       <div 
                         className="absolute right-0 top-0 bottom-0 bg-trading-green/10"
@@ -319,14 +431,14 @@ export const DesktopOrderBook = ({
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <span className="text-xs px-1 border border-trading-green text-trading-green">B</span>
-                <span className="text-xs text-trading-green font-medium">{viewMode === "bids" ? "94%" : viewMode === "asks" ? "60%" : "40%"}</span>
+                <span className="text-xs text-trading-green font-medium transition-all duration-300">{Math.round(buyRatio)}%</span>
               </div>
               <div className="flex-1 h-1.5 bg-muted rounded overflow-hidden flex">
-                <div className="bg-trading-green" style={{ width: viewMode === "bids" ? '94%' : viewMode === "asks" ? '60%' : '40%' }} />
-                <div className="bg-trading-red" style={{ width: viewMode === "bids" ? '6%' : viewMode === "asks" ? '40%' : '60%' }} />
+                <div className="bg-trading-green transition-all duration-300" style={{ width: `${buyRatio}%` }} />
+                <div className="bg-trading-red transition-all duration-300" style={{ width: `${100 - buyRatio}%` }} />
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-xs text-trading-red font-medium">{viewMode === "bids" ? "6%" : viewMode === "asks" ? "40%" : "60%"}</span>
+                <span className="text-xs text-trading-red font-medium transition-all duration-300">{Math.round(100 - buyRatio)}%</span>
                 <span className="text-xs px-1 border border-trading-red text-trading-red">S</span>
               </div>
             </div>
@@ -345,8 +457,8 @@ export const DesktopOrderBook = ({
           <div className="flex-1 overflow-y-auto scrollbar-hide">
             {recentTrades.map((trade, index) => (
               <div
-                key={`trade-${index}`}
-                className="grid grid-cols-3 text-xs px-3 py-1 hover:bg-muted/30 cursor-pointer"
+                key={`trade-${trade.time}-${index}`}
+                className={`grid grid-cols-3 text-xs px-3 py-1 hover:bg-muted/30 cursor-pointer ${trade.isNew ? 'flash-new-trade' : ''}`}
               >
                 <span className={trade.side === "buy" ? "price-green" : "price-red"}>
                   {trade.price}
