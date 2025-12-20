@@ -376,9 +376,6 @@ export default function DesktopTrading() {
                     >
                       <div className="flex items-center gap-2">
                         <Star className="w-3 h-3 text-muted-foreground hover:text-trading-yellow" />
-                        <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">
-                          {event.icon}
-                        </span>
                         <span className="text-sm font-medium truncate">{event.name}</span>
                       </div>
                       <span className="text-xs text-muted-foreground text-right">{event.ends}</span>
@@ -483,16 +480,11 @@ export default function DesktopTrading() {
                 <div className="flex-1 p-6 overflow-auto">
                   <div className="space-y-6">
                     {/* Event Header */}
-                    <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <span className="text-3xl">🐦</span>
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold">Elon Musk # tweets December 12 - December 19, 2025?</h2>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Predict how many tweets Elon Musk will post during the specified period.
-                        </p>
-                      </div>
+                    <div>
+                      <h2 className="text-xl font-bold">Elon Musk # tweets December 12 - December 19, 2025?</h2>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Predict how many tweets Elon Musk will post during the specified period.
+                      </p>
                     </div>
 
                     {/* Event Details */}
