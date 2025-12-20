@@ -25,7 +25,7 @@ import { toast } from "sonner";
 
 // Mock active events data
 const activeEvents = [
-  { id: "1", name: "Elon Musk # tweets December 12 - December 19, 2025?", icon: "🐦", ends: "Dec 19, 2025", endTime: new Date("2025-12-19T23:59:59"), volume: "$2.45M", tweetCount: 156 },
+  { id: "1", name: "Elon Musk # tweets December 12 - December 19, 2025?", icon: "🐦", ends: "Dec 25, 2025", endTime: new Date("2025-12-25T23:59:59"), volume: "$2.45M", tweetCount: 156 },
   { id: "2", name: "Bitcoin price on December 31, 2025?", icon: "₿", ends: "Dec 31, 2025", endTime: new Date("2025-12-31T23:59:59"), volume: "$5.12M" },
   { id: "3", name: "ETH/BTC ratio end of Q4 2025?", icon: "⟠", ends: "Dec 31, 2025", endTime: new Date("2025-12-31T23:59:59"), volume: "$1.89M" },
   { id: "4", name: "Fed interest rate decision January 2026?", icon: "🏦", ends: "Jan 29, 2026", endTime: new Date("2026-01-29T23:59:59"), volume: "$3.21M" },
