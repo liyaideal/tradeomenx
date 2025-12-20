@@ -227,60 +227,56 @@ export default function DesktopTrading() {
                 </span>
                 <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${eventDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+                <span>Ends in</span>
+                <span className="text-trading-red font-mono font-medium">{countdown}</span>
+              </div>
             </div>
           </button>
           
-          {/* Event Info - Separate from dropdown trigger */}
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-              <span>Ends in</span>
-              <span className="text-trading-red font-mono font-medium">{countdown}</span>
-            </div>
-            {selectedEvent.tweetCount !== undefined && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button 
-                    className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                    <span>Tweets</span>
-                    <span className="text-orange-500 font-mono font-medium">{selectedEvent.tweetCount}</span>
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-3" align="start">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Tweet Count</span>
-                      <span className="text-lg font-bold text-orange-500">{selectedEvent.tweetCount}</span>
-                    </div>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div className="flex justify-between">
-                        <span>Period</span>
-                        <span>Dec 12 - Dec 19, 2025</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Last updated</span>
-                        <span>Just now</span>
-                      </div>
-                    </div>
-                    <a
-                      href="https://x.com/elonmusk"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs text-primary hover:underline"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      View on X (Twitter)
-                    </a>
+          {/* Tweet Count - Separate from dropdown trigger */}
+          {selectedEvent.tweetCount !== undefined && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button 
+                  className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                  <span className="text-muted-foreground">Tweets</span>
+                  <span className="text-orange-500 font-mono font-medium">{selectedEvent.tweetCount}</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-3" align="start">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Tweet Count</span>
+                    <span className="text-lg font-bold text-orange-500">{selectedEvent.tweetCount}</span>
                   </div>
-                </PopoverContent>
-              </Popover>
-            )}
-            <span>•</span>
-            <span>Volume: {selectedEvent.volume}</span>
-          </div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div className="flex justify-between">
+                      <span>Period</span>
+                      <span>Dec 12 - Dec 19, 2025</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Last updated</span>
+                      <span>Just now</span>
+                    </div>
+                  </div>
+                  <a
+                    href="https://x.com/elonmusk"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    View on X (Twitter)
+                  </a>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
           
           <Star className="w-4 h-4 text-muted-foreground hover:text-trading-yellow cursor-pointer flex-shrink-0" />
 
