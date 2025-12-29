@@ -62,6 +62,10 @@ export default {
           yellow: "hsl(var(--trading-yellow))",
           "yellow-foreground": "hsl(var(--background))",
         },
+        indicator: {
+          DEFAULT: "hsl(var(--indicator))",
+          muted: "hsl(var(--indicator-muted))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

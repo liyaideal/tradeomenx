@@ -441,16 +441,16 @@ export default function DesktopTrading() {
             <Popover>
               <PopoverTrigger asChild>
                 <button 
-                  className="flex items-center gap-2 px-3 py-1.5 bg-trading-yellow/10 border border-trading-yellow/30 rounded-lg hover:bg-trading-yellow/20 transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-indicator/10 border border-indicator/30 rounded-lg hover:bg-indicator/20 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 bg-trading-yellow rounded-full animate-pulse" />
+                    <span className="w-1.5 h-1.5 bg-indicator rounded-full animate-pulse" />
                     <span className="text-xs text-muted-foreground">
                       {selectedEvent.currentPrice ? "Current Price" : "Current Tweets"}
                     </span>
                   </div>
-                  <span className="text-sm text-trading-yellow font-mono font-bold">
+                  <span className="text-sm text-indicator font-mono font-bold">
                     {selectedEvent.currentPrice || selectedEvent.tweetCount}
                   </span>
                 </button>
@@ -462,7 +462,7 @@ export default function DesktopTrading() {
                       {selectedEvent.currentPrice ? "BTC/USD" : "Tweet Count"}
                     </span>
                     <div className="text-right">
-                      <div className="text-lg font-bold text-trading-yellow">
+                      <div className="text-lg font-bold text-indicator">
                         {selectedEvent.currentPrice || selectedEvent.tweetCount}
                       </div>
                       {selectedEvent.priceChange24h && (
@@ -702,12 +702,12 @@ export default function DesktopTrading() {
 
                     {/* Real-time Indicator Card - Universal for all event types */}
                     {(selectedEvent.currentPrice || selectedEvent.tweetCount !== undefined) && (
-                      <div className="bg-gradient-to-r from-trading-yellow/20 to-trading-yellow/5 rounded-lg p-4 border border-trading-yellow/30">
+                      <div className="bg-gradient-to-r from-indicator/20 to-indicator/5 rounded-lg p-4 border border-indicator/30">
                         <div>
                           <div className="text-xs text-muted-foreground mb-1">
                             {selectedEvent.currentPrice ? "Current Price" : "Current Count"}
                           </div>
-                          <div className="text-2xl font-bold text-trading-yellow">
+                          <div className="text-2xl font-bold text-indicator">
                             {selectedEvent.currentPrice || `${selectedEvent.tweetCount} tweets`}
                           </div>
                           {selectedEvent.priceChange24h && (
@@ -717,7 +717,7 @@ export default function DesktopTrading() {
                           )}
                         </div>
                         {selectedEvent.stats && (
-                          <div className="grid grid-cols-4 gap-4 mt-4 pt-4 border-t border-trading-yellow/20">
+                          <div className="grid grid-cols-4 gap-4 mt-4 pt-4 border-t border-indicator/20">
                             <div>
                               <div className="text-[10px] text-muted-foreground">24h High</div>
                               <div className="text-sm font-medium">{selectedEvent.stats.high24h}</div>
