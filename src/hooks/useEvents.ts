@@ -98,6 +98,9 @@ interface UseEventsReturn {
   favorites: Set<string>;
   toggleFavorite: (eventId: string, e?: React.MouseEvent) => void;
   isFavorite: (eventId: string) => boolean;
+  showFavoritesOnly: boolean;
+  setShowFavoritesOnly: (show: boolean) => void;
+  toggleShowFavoritesOnly: () => void;
   
   // Search/filter
   searchQuery: string;
@@ -148,6 +151,12 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
   const [selectedOption, setSelectedOptionState] = useState<string>(() => computedInitialOption);
   const [favorites, setFavorites] = useState<Set<string>>(getStoredFavorites);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
+
+  // Toggle show favorites only
+  const toggleShowFavoritesOnly = useCallback(() => {
+    setShowFavoritesOnly(prev => !prev);
+  }, []);
 
   // Persist favorites to localStorage
   useEffect(() => {
@@ -174,14 +183,25 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
     return options.find(opt => opt.id === selectedOption) || options[0] || { id: "1", label: "", price: "0" };
   }, [options, selectedOption]);
 
-  // Filter events by search query
+  // Filter events by search query and favorites
   const filteredEvents = useMemo(() => {
-    if (!searchQuery.trim()) return activeEvents;
-    const query = searchQuery.toLowerCase();
-    return activeEvents.filter(event => 
-      event.name.toLowerCase().includes(query)
-    );
-  }, [searchQuery]);
+    let result = activeEvents;
+    
+    // Filter by favorites first if enabled
+    if (showFavoritesOnly) {
+      result = result.filter(event => favorites.has(event.id));
+    }
+    
+    // Then filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(event => 
+        event.name.toLowerCase().includes(query)
+      );
+    }
+    
+    return result;
+  }, [searchQuery, showFavoritesOnly, favorites]);
 
   // Select event by ID
   const selectEventById = useCallback((eventId: string) => {
@@ -248,6 +268,9 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
     favorites,
     toggleFavorite,
     isFavorite,
+    showFavoritesOnly,
+    setShowFavoritesOnly,
+    toggleShowFavoritesOnly,
     searchQuery,
     setSearchQuery,
     filteredEvents,
