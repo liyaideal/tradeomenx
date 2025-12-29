@@ -455,7 +455,34 @@ export default function DesktopTrading() {
 
               {/* Events List */}
               <div className="max-h-[300px] overflow-y-auto">
-                {filteredEvents.map((event) => (
+                {filteredEvents.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+                    {showFavoritesOnly ? (
+                      <>
+                        <Star className="w-10 h-10 text-muted-foreground/30 mb-3" />
+                        <p className="text-sm text-muted-foreground mb-1">No favorites yet</p>
+                        <p className="text-xs text-muted-foreground/70">
+                          Click the star icon next to events to add them to your favorites
+                        </p>
+                        <button
+                          onClick={toggleShowFavoritesOnly}
+                          className="mt-3 text-xs text-primary hover:underline"
+                        >
+                          View all events
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-10 h-10 text-muted-foreground/30 mb-3" />
+                        <p className="text-sm text-muted-foreground">No events found</p>
+                        <p className="text-xs text-muted-foreground/70">
+                          Try a different search term
+                        </p>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  filteredEvents.map((event) => (
                     <button
                       key={event.id}
                       onClick={() => {
@@ -485,7 +512,8 @@ export default function DesktopTrading() {
                       <span className="text-xs text-muted-foreground text-right">{event.ends}</span>
                       <span className="text-xs font-mono text-right">{event.volume}</span>
                     </button>
-                  ))}
+                  ))
+                )}
               </div>
             </div>
           )}
