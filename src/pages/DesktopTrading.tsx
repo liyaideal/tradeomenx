@@ -73,6 +73,7 @@ const activeEvents = [
     icon: "🐦", 
     ends: "Dec 25, 2025", 
     endTime: new Date("2025-12-25T23:59:59"), 
+    period: "Dec 12 - Dec 19, 2025",
     volume: "$2.45M", 
     tweetCount: 156,
     description: "Predict the number of tweets from @elonmusk during the specified period.",
@@ -92,6 +93,7 @@ const activeEvents = [
     icon: "₿", 
     ends: "Dec 31, 2025", 
     endTime: new Date("2025-12-31T23:59:59"), 
+    period: "Dec 1 - Dec 31, 2025",
     volume: "$5.12M",
     currentPrice: "$94,532.18",
     priceChange24h: "+2.34%",
@@ -118,6 +120,7 @@ const activeEvents = [
     icon: "⟠", 
     ends: "Dec 31, 2025", 
     endTime: new Date("2025-12-31T23:59:59"), 
+    period: "Oct 1 - Dec 31, 2025",
     volume: "$1.89M",
     description: "Predict the ETH/BTC trading ratio at the end of Q4 2025.",
     rules: [
@@ -134,6 +137,7 @@ const activeEvents = [
     icon: "🏦", 
     ends: "Jan 29, 2026", 
     endTime: new Date("2026-01-29T23:59:59"), 
+    period: "Jan 28 - Jan 29, 2026",
     volume: "$3.21M",
     description: "Predict the Federal Reserve interest rate decision for January 2026.",
     rules: [
@@ -150,6 +154,7 @@ const activeEvents = [
     icon: "📈", 
     ends: "Dec 31, 2025", 
     endTime: new Date("2025-12-31T23:59:59"), 
+    period: "Dec 1 - Dec 31, 2025",
     volume: "$4.56M",
     description: "Predict the S&P 500 index closing price on December 31, 2025.",
     rules: [
@@ -494,7 +499,7 @@ export default function DesktopTrading() {
                     {/* Period - always show */}
                     <div className="flex justify-between">
                       <span>Period</span>
-                      <span>{selectedEvent.ends}</span>
+                      <span>{selectedEvent.period}</span>
                     </div>
                     
                     {/* 24h stats - show if available */}
