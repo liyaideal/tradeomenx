@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
+import { TopUpDialog } from "@/components/TopUpDialog";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
@@ -184,6 +185,7 @@ export default function DesktopTrading() {
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
+  const [topUpOpen, setTopUpOpen] = useState(false);
   
   // Use events hook
   const {
@@ -1015,7 +1017,10 @@ export default function DesktopTrading() {
               <span className="text-xs text-muted-foreground">Available (USDC)</span>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs">{available.toLocaleString()}</span>
-                <button className="w-5 h-5 bg-muted rounded-full flex items-center justify-center">
+                <button 
+                  onClick={() => setTopUpOpen(true)}
+                  className="w-5 h-5 bg-muted rounded-full flex items-center justify-center hover:bg-muted-foreground/30 transition-colors"
+                >
                   <Plus className="w-3 h-3" />
                 </button>
               </div>
@@ -1353,6 +1358,16 @@ export default function DesktopTrading() {
           </button>
         </DialogContent>
       </Dialog>
+
+      {/* Top Up Dialog */}
+      <TopUpDialog
+        open={topUpOpen}
+        onOpenChange={setTopUpOpen}
+        currentBalance={available}
+        onTopUp={(amount, method) => {
+          toast.success(`Top up of $${amount} via ${method} initiated`);
+        }}
+      />
     </div>
   );
 }
