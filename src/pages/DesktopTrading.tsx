@@ -132,6 +132,19 @@ const mockOrders = [
     time: "5 mins ago",
     status: "Pending" as const,
   },
+  {
+    type: "buy" as const,
+    orderType: "Limit" as const,
+    event: "Elon Musk # tweets December 12 - December 19, 2025?",
+    option: "220-239",
+    price: "$0.2834",
+    amount: "3,000",
+    filledAmount: "1,800",
+    remainingAmount: "1,200",
+    total: "$850",
+    time: "8 mins ago",
+    status: "Partial Filled" as const,
+  },
 ];
 
 const mockPositions = [
@@ -663,7 +676,39 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-sm font-mono text-right">{order.amount}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{order.total}</td>
                           <td className="px-4 py-2">
-                            <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground">{order.status}</span>
+                            {order.status === "Partial Filled" ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="px-2 py-0.5 rounded text-xs bg-trading-yellow/20 text-trading-yellow cursor-help">
+                                      {order.status}
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="p-2">
+                                    <div className="space-y-1 text-xs">
+                                      <div className="flex justify-between gap-4">
+                                        <span className="text-muted-foreground">Filled:</span>
+                                        <span className="font-mono text-trading-green">{order.filledAmount}</span>
+                                      </div>
+                                      <div className="flex justify-between gap-4">
+                                        <span className="text-muted-foreground">Remaining:</span>
+                                        <span className="font-mono text-trading-yellow">{order.remainingAmount}</span>
+                                      </div>
+                                      <div className="w-full h-1.5 bg-muted rounded overflow-hidden mt-1">
+                                        <div 
+                                          className="h-full bg-trading-green" 
+                                          style={{ 
+                                            width: `${(parseInt(order.filledAmount?.replace(/,/g, '') || '0') / parseInt(order.amount.replace(/,/g, '')) * 100)}%` 
+                                          }} 
+                                        />
+                                      </div>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-xs bg-muted text-muted-foreground">{order.status}</span>
+                            )}
                           </td>
                           <td className="px-4 py-2 text-xs text-muted-foreground">{order.time}</td>
                           <td className="px-4 py-2 text-center">
