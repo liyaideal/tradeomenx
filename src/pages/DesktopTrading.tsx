@@ -200,6 +200,8 @@ export default function DesktopTrading() {
     setSearchQuery: setEventSearchQuery,
     filteredEvents,
     getEventById,
+    showFavoritesOnly,
+    toggleShowFavoritesOnly,
   } = useEvents();
   
   const countdown = useCountdown(selectedEvent.endTime);
@@ -421,11 +423,27 @@ export default function DesktopTrading() {
                     type="text"
                     value={eventSearchQuery}
                     onChange={(e) => setEventSearchQuery(e.target.value)}
-                    placeholder="Search events..."
+                    placeholder={showFavoritesOnly ? "Search favorites..." : "Search events..."}
                     className="flex-1 bg-transparent outline-none text-sm"
                   />
-                  <Star className="w-4 h-4 text-muted-foreground" />
+                  <button
+                    onClick={toggleShowFavoritesOnly}
+                    className="p-1 rounded hover:bg-muted/50 transition-colors"
+                    title={showFavoritesOnly ? "Show all events" : "Show favorites only"}
+                  >
+                    <Star className={`w-4 h-4 transition-colors ${
+                      showFavoritesOnly 
+                        ? "text-trading-yellow fill-trading-yellow" 
+                        : "text-muted-foreground hover:text-trading-yellow"
+                    }`} />
+                  </button>
                 </div>
+                {showFavoritesOnly && (
+                  <div className="mt-2 text-xs text-trading-yellow flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-trading-yellow" />
+                    Showing favorites only ({filteredEvents.length})
+                  </div>
+                )}
               </div>
 
               {/* Events List Header */}
