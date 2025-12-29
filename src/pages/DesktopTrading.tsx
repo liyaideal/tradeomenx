@@ -23,13 +23,128 @@ import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 
-// Mock active events data
+// Mock active events data with event-specific options
+const eventOptionsMap: Record<string, { id: string; label: string; price: string }[]> = {
+  "1": [ // Elon Musk tweets
+    { id: "1", label: "140-159", price: "0.0534" },
+    { id: "2", label: "160-179", price: "0.1234" },
+    { id: "3", label: "200-219", price: "0.3456" },
+    { id: "4", label: "220-239", price: "0.2834" },
+    { id: "5", label: "240-259", price: "0.1942" },
+  ],
+  "2": [ // Bitcoin price
+    { id: "1", label: "$80,000 - $90,000", price: "0.0823" },
+    { id: "2", label: "$90,000 - $100,000", price: "0.1567" },
+    { id: "3", label: "$100,000 - $110,000", price: "0.2891" },
+    { id: "4", label: "$110,000 - $120,000", price: "0.2234" },
+    { id: "5", label: "$120,000 - $130,000", price: "0.1456" },
+    { id: "6", label: "$130,000 - $150,000", price: "0.0678" },
+    { id: "7", label: "Above $150,000", price: "0.0251" },
+    { id: "8", label: "Below $80,000", price: "0.0100" },
+  ],
+  "3": [ // ETH/BTC ratio
+    { id: "1", label: "0.030 - 0.035", price: "0.1234" },
+    { id: "2", label: "0.035 - 0.040", price: "0.2567" },
+    { id: "3", label: "0.040 - 0.045", price: "0.3123" },
+    { id: "4", label: "0.045 - 0.050", price: "0.1890" },
+    { id: "5", label: "Above 0.050", price: "0.1186" },
+  ],
+  "4": [ // Fed interest rate
+    { id: "1", label: "No Change", price: "0.4523" },
+    { id: "2", label: "25bp Cut", price: "0.3567" },
+    { id: "3", label: "50bp Cut", price: "0.1234" },
+    { id: "4", label: "25bp Hike", price: "0.0456" },
+    { id: "5", label: "50bp+ Cut", price: "0.0220" },
+  ],
+  "5": [ // S&P 500
+    { id: "1", label: "5,800 - 6,000", price: "0.0912" },
+    { id: "2", label: "6,000 - 6,200", price: "0.1823" },
+    { id: "3", label: "6,200 - 6,400", price: "0.2567" },
+    { id: "4", label: "6,400 - 6,600", price: "0.2345" },
+    { id: "5", label: "6,600 - 6,800", price: "0.1453" },
+    { id: "6", label: "Above 6,800", price: "0.0900" },
+  ],
+};
+
 const activeEvents = [
-  { id: "1", name: "Elon Musk # tweets December 12 - December 19, 2025?", icon: "🐦", ends: "Dec 25, 2025", endTime: new Date("2025-12-25T23:59:59"), volume: "$2.45M", tweetCount: 156 },
-  { id: "2", name: "Bitcoin price on December 31, 2025?", icon: "₿", ends: "Dec 31, 2025", endTime: new Date("2025-12-31T23:59:59"), volume: "$5.12M" },
-  { id: "3", name: "ETH/BTC ratio end of Q4 2025?", icon: "⟠", ends: "Dec 31, 2025", endTime: new Date("2025-12-31T23:59:59"), volume: "$1.89M" },
-  { id: "4", name: "Fed interest rate decision January 2026?", icon: "🏦", ends: "Jan 29, 2026", endTime: new Date("2026-01-29T23:59:59"), volume: "$3.21M" },
-  { id: "5", name: "S&P 500 closing price December 2025?", icon: "📈", ends: "Dec 31, 2025", endTime: new Date("2025-12-31T23:59:59"), volume: "$4.56M" },
+  { 
+    id: "1", 
+    name: "Elon Musk # tweets December 12 - December 19, 2025?", 
+    icon: "🐦", 
+    ends: "Dec 25, 2025", 
+    endTime: new Date("2025-12-25T23:59:59"), 
+    volume: "$2.45M", 
+    tweetCount: 156,
+    description: "Predict the number of tweets from @elonmusk during the specified period.",
+    rules: [
+      "Counting period: December 12, 2025 00:00:00 UTC to December 19, 2025 23:59:59 UTC",
+      "Only original tweets from @elonmusk are counted",
+      "Deleted tweets that were posted during the period still count",
+      "Market settles within 24 hours after the end date",
+    ],
+  },
+  { 
+    id: "2", 
+    name: "Bitcoin price on December 31, 2025?", 
+    icon: "₿", 
+    ends: "Dec 31, 2025", 
+    endTime: new Date("2025-12-31T23:59:59"), 
+    volume: "$5.12M",
+    currentPrice: "$94,532.18",
+    priceChange24h: "+2.34%",
+    description: "Predict the closing price of Bitcoin (BTC/USD) on December 31, 2025 at 23:59:59 UTC.",
+    rules: [
+      "Settlement price is based on the CoinGecko BTC/USD price at exactly 23:59:59 UTC on December 31, 2025",
+      "The price must be within the selected range at the exact settlement time",
+      "In case of exchange downtime, the last available price will be used",
+      "Market settles within 1 hour after the settlement time",
+    ],
+    stats: {
+      high24h: "$95,234.00",
+      low24h: "$92,156.00",
+      volume24h: "$28.5B",
+      marketCap: "$1.87T",
+    },
+  },
+  { 
+    id: "3", 
+    name: "ETH/BTC ratio end of Q4 2025?", 
+    icon: "⟠", 
+    ends: "Dec 31, 2025", 
+    endTime: new Date("2025-12-31T23:59:59"), 
+    volume: "$1.89M",
+    description: "Predict the ETH/BTC trading ratio at the end of Q4 2025.",
+    rules: [
+      "Based on Binance ETH/BTC spot price",
+      "Settlement at 23:59:59 UTC on December 31, 2025",
+    ],
+  },
+  { 
+    id: "4", 
+    name: "Fed interest rate decision January 2026?", 
+    icon: "🏦", 
+    ends: "Jan 29, 2026", 
+    endTime: new Date("2026-01-29T23:59:59"), 
+    volume: "$3.21M",
+    description: "Predict the Federal Reserve interest rate decision for January 2026.",
+    rules: [
+      "Based on the official FOMC announcement",
+      "Settlement immediately after the official press release",
+    ],
+  },
+  { 
+    id: "5", 
+    name: "S&P 500 closing price December 2025?", 
+    icon: "📈", 
+    ends: "Dec 31, 2025", 
+    endTime: new Date("2025-12-31T23:59:59"), 
+    volume: "$4.56M",
+    description: "Predict the S&P 500 index closing price on December 31, 2025.",
+    rules: [
+      "Based on the official NYSE closing price",
+      "Settlement after market close on the last trading day of 2025",
+    ],
+  },
 ];
 
 // Countdown hook
@@ -69,14 +184,6 @@ const useCountdown = (endTime: Date | undefined) => {
 
   return timeLeft;
 };
-
-const options = [
-  { id: "1", label: "140-159", price: "0.0534" },
-  { id: "2", label: "160-179", price: "0.1234" },
-  { id: "3", label: "200-219", price: "0.3456" },
-  { id: "4", label: "220-239", price: "0.2834" },
-  { id: "5", label: "240-259", price: "0.1942" },
-];
 
 const generateOrderBookData = (basePrice: number) => {
   const asks = [];
@@ -222,9 +329,14 @@ export default function DesktopTrading() {
   const available = 2453.42;
   const feeRate = 0.0005; // 0.05% trading fee
 
+  // Get options based on selected event
+  const options = useMemo(() => {
+    return eventOptionsMap[selectedEvent.id] || eventOptionsMap["1"];
+  }, [selectedEvent.id]);
+
   const selectedOptionData = useMemo(() => {
-    return options.find(opt => opt.id === selectedOption) || options[1];
-  }, [selectedOption]);
+    return options.find(opt => opt.id === selectedOption) || options[0];
+  }, [selectedOption, options]);
   
   const orderBookData = useMemo(() => {
     const basePrice = parseFloat(selectedOptionData.price);
@@ -403,6 +515,7 @@ export default function DesktopTrading() {
                       key={event.id}
                       onClick={() => {
                         setSelectedEvent(event);
+                        setSelectedOption("1"); // Reset to first option when switching events
                         setEventDropdownOpen(false);
                         setEventSearchQuery("");
                       }}
@@ -539,25 +652,63 @@ export default function DesktopTrading() {
                   <div className="space-y-6">
                     {/* Event Header */}
                     <div>
-                      <h2 className="text-xl font-bold">Elon Musk # tweets December 12 - December 19, 2025?</h2>
+                      <h2 className="text-xl font-bold">{selectedEvent.name}</h2>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Predict how many tweets Elon Musk will post during the specified period.
+                        {selectedEvent.description || "Predict the outcome of this event."}
                       </p>
                     </div>
+
+                    {/* Bitcoin-specific Current Price Banner */}
+                    {selectedEvent.id === "2" && selectedEvent.currentPrice && (
+                      <div className="bg-gradient-to-r from-trading-yellow/20 to-trading-yellow/5 rounded-lg p-4 border border-trading-yellow/30">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">Current BTC Price</div>
+                            <div className="text-2xl font-bold text-trading-yellow">{selectedEvent.currentPrice}</div>
+                            <div className={`text-sm mt-1 ${selectedEvent.priceChange24h?.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
+                              {selectedEvent.priceChange24h} (24h)
+                            </div>
+                          </div>
+                          <div className="text-4xl">₿</div>
+                        </div>
+                        {selectedEvent.stats && (
+                          <div className="grid grid-cols-4 gap-4 mt-4 pt-4 border-t border-trading-yellow/20">
+                            <div>
+                              <div className="text-[10px] text-muted-foreground">24h High</div>
+                              <div className="text-sm font-medium">{selectedEvent.stats.high24h}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-muted-foreground">24h Low</div>
+                              <div className="text-sm font-medium">{selectedEvent.stats.low24h}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-muted-foreground">24h Volume</div>
+                              <div className="text-sm font-medium">{selectedEvent.stats.volume24h}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-muted-foreground">Market Cap</div>
+                              <div className="text-sm font-medium">{selectedEvent.stats.marketCap}</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Event Details */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-muted/30 rounded-lg p-4">
                         <div className="text-xs text-muted-foreground mb-1">Event End Date</div>
-                        <div className="font-medium">Dec 19, 2025 23:59:59 UTC</div>
+                        <div className="font-medium">{selectedEvent.ends}</div>
                       </div>
-                      <div className="bg-muted/30 rounded-lg p-4">
-                        <div className="text-xs text-muted-foreground mb-1">Current Tweet Count</div>
-                        <div className="font-medium">254 tweets</div>
-                      </div>
+                      {selectedEvent.tweetCount && (
+                        <div className="bg-muted/30 rounded-lg p-4">
+                          <div className="text-xs text-muted-foreground mb-1">Current Tweet Count</div>
+                          <div className="font-medium">{selectedEvent.tweetCount} tweets</div>
+                        </div>
+                      )}
                       <div className="bg-muted/30 rounded-lg p-4">
                         <div className="text-xs text-muted-foreground mb-1">Total Volume</div>
-                        <div className="font-medium">$2.45M</div>
+                        <div className="font-medium">{selectedEvent.volume}</div>
                       </div>
                       <div className="bg-muted/30 rounded-lg p-4">
                         <div className="text-xs text-muted-foreground mb-1">Open Interest</div>
@@ -569,7 +720,12 @@ export default function DesktopTrading() {
                     <div className="bg-muted/30 rounded-lg p-4">
                       <div className="text-xs text-muted-foreground mb-2">Resolution Source</div>
                       <p className="text-sm">
-                        This market will be resolved based on the official tweet count from Elon Musk's verified X (Twitter) account (@elonmusk) as of the end date. Only original tweets count, excluding retweets and replies.
+                        {selectedEvent.id === "2" 
+                          ? "This market will be resolved based on the CoinGecko BTC/USD price at the exact settlement time. The closing price must fall within the selected range for that option to settle at $1.00."
+                          : selectedEvent.id === "1"
+                          ? "This market will be resolved based on the official tweet count from Elon Musk's verified X (Twitter) account (@elonmusk) as of the end date. Only original tweets count, excluding retweets and replies."
+                          : "This market will be resolved based on official data sources as specified in the market rules."
+                        }
                       </p>
                     </div>
 
@@ -577,22 +733,12 @@ export default function DesktopTrading() {
                     <div className="bg-muted/30 rounded-lg p-4">
                       <div className="text-xs text-muted-foreground mb-2">Market Rules</div>
                       <ul className="text-sm space-y-2">
-                        <li className="flex items-start gap-2">
-                          <span className="text-trading-purple">•</span>
-                          <span>Counting period: December 12, 2025 00:00:00 UTC to December 19, 2025 23:59:59 UTC</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-trading-purple">•</span>
-                          <span>Only original tweets from @elonmusk are counted</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-trading-purple">•</span>
-                          <span>Deleted tweets that were posted during the period still count</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-trading-purple">•</span>
-                          <span>Market settles within 24 hours after the end date</span>
-                        </li>
+                        {(selectedEvent.rules || []).map((rule, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="text-trading-purple">•</span>
+                            <span>{rule}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   </div>
