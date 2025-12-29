@@ -457,6 +457,7 @@ export default function DesktopTrading() {
               </PopoverTrigger>
               <PopoverContent className="w-72 p-3" align="start">
                 <div className="space-y-3">
+                  {/* Header with title and value */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
                       {selectedEvent.currentPrice ? "BTC/USD" : "Tweet Count"}
@@ -473,42 +474,48 @@ export default function DesktopTrading() {
                     </div>
                   </div>
                   
-                  {/* Stats section for price events */}
-                  {selectedEvent.stats && (
-                    <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
+                  {/* Unified stats section - shows available fields */}
+                  <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
+                    {/* Period - always show */}
+                    <div className="flex justify-between">
+                      <span>Period</span>
+                      <span>{selectedEvent.ends}</span>
+                    </div>
+                    
+                    {/* 24h stats - show if available */}
+                    {selectedEvent.stats?.high24h && (
                       <div className="flex justify-between">
                         <span>24h High</span>
                         <span className="text-trading-green font-mono">{selectedEvent.stats.high24h}</span>
                       </div>
+                    )}
+                    {selectedEvent.stats?.low24h && (
                       <div className="flex justify-between">
                         <span>24h Low</span>
                         <span className="text-trading-red font-mono">{selectedEvent.stats.low24h}</span>
                       </div>
+                    )}
+                    {selectedEvent.stats?.volume24h && (
                       <div className="flex justify-between">
                         <span>24h Volume</span>
                         <span className="font-mono">{selectedEvent.stats.volume24h}</span>
                       </div>
+                    )}
+                    {selectedEvent.stats?.marketCap && (
                       <div className="flex justify-between">
                         <span>Market Cap</span>
                         <span className="font-mono">{selectedEvent.stats.marketCap}</span>
                       </div>
+                    )}
+                    
+                    {/* Last updated - always show */}
+                    <div className="flex justify-between">
+                      <span>Last updated</span>
+                      <span>Just now</span>
                     </div>
-                  )}
+                  </div>
                   
-                  {/* Period info for tweet events */}
-                  {selectedEvent.tweetCount !== undefined && !selectedEvent.currentPrice && (
-                    <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
-                      <div className="flex justify-between">
-                        <span>Period</span>
-                        <span>Dec 12 - Dec 19, 2025</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Last updated</span>
-                        <span>Just now</span>
-                      </div>
-                    </div>
-                  )}
-                  
+                  {/* Source link */}
                   <a
                     href={selectedEvent.currentPrice ? "https://www.coingecko.com/en/coins/bitcoin" : "https://x.com/elonmusk"}
                     target="_blank"
