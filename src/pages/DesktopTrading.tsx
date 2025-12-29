@@ -176,12 +176,13 @@ export default function DesktopTrading() {
   const [sliderValue, setSliderValue] = useState([0]);
   const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
-  const [tpPrice, setTpPrice] = useState("");
-  const [slPrice, setSlPrice] = useState("");
-  const [tpCustomMode, setTpCustomMode] = useState(false);
-  const [slCustomMode, setSlCustomMode] = useState(false);
-  const [tpCustomPct, setTpCustomPct] = useState("");
-  const [slCustomPct, setSlCustomPct] = useState("");
+  // TP/SL unified states (matching mobile)
+  const [tpEnabled, setTpEnabled] = useState(true);
+  const [slEnabled, setSlEnabled] = useState(true);
+  const [tpMode, setTpMode] = useState<"pct" | "price">("pct");
+  const [slMode, setSlMode] = useState<"pct" | "price">("pct");
+  const [tpValue, setTpValue] = useState("");
+  const [slValue, setSlValue] = useState("");
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
@@ -269,6 +270,54 @@ export default function DesktopTrading() {
     };
   }, [amount, leverage, selectedOptionData.price]);
 
+  // TP/SL unified calculations (matching mobile)
+  const currentPrice = parseFloat(selectedOptionData.price);
+  const TP_PRESETS = [25, 50, 100, 200];
+  const SL_PRESETS = [10, 25, 50, 75];
+
+  const tpslCalculations = useMemo(() => {
+    const tpPct = parseFloat(tpValue) || 0;
+    const slPct = parseFloat(slValue) || 0;
+    
+    let tpPrice = 0;
+    let slPrice = 0;
+    
+    if (tpMode === "pct") {
+      tpPrice = side === "buy" 
+        ? currentPrice * (1 + tpPct / 100)
+        : currentPrice * (1 - tpPct / 100);
+    } else {
+      tpPrice = parseFloat(tpValue) || 0;
+    }
+    
+    if (slMode === "pct") {
+      slPrice = side === "buy"
+        ? currentPrice * (1 - slPct / 100)
+        : currentPrice * (1 + slPct / 100);
+    } else {
+      slPrice = parseFloat(slValue) || 0;
+    }
+    
+    const amountValue = parseFloat(amount) || 0;
+    const notionalValue = amountValue * leverage;
+    const quantity = currentPrice > 0 ? notionalValue / currentPrice : 0;
+    
+    const tpPnL = side === "buy"
+      ? (tpPrice - currentPrice) * quantity
+      : (currentPrice - tpPrice) * quantity;
+    
+    const slPnL = side === "buy"
+      ? (slPrice - currentPrice) * quantity
+      : (currentPrice - slPrice) * quantity;
+    
+    return {
+      tpPrice: tpPrice.toFixed(4),
+      slPrice: slPrice.toFixed(4),
+      tpPnL: tpPnL.toFixed(2),
+      slPnL: slPnL.toFixed(2),
+    };
+  }, [tpValue, slValue, tpMode, slMode, side, currentPrice, amount, leverage]);
+
   const orderDetails = useMemo(() => [
     { label: "Event", value: selectedEvent.name },
     { label: "Option", value: selectedOptionData.label },
@@ -280,9 +329,9 @@ export default function DesktopTrading() {
     { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: `${leverage}X` },
     { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
-    { label: "TP/SL", value: tpsl ? `TP: ${tpPrice || '--'} / SL: ${slPrice || '--'}` : "--" },
+    { label: "TP/SL", value: tpsl ? `TP: ${tpEnabled ? tpslCalculations.tpPrice : '--'} / SL: ${slEnabled ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl, orderCalculations]);
+  ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl, tpEnabled, slEnabled, tpslCalculations, orderCalculations]);
 
   const handlePreview = () => {
     setOrderPreviewOpen(true);
@@ -1118,158 +1167,164 @@ export default function DesktopTrading() {
                 <span className="text-xs text-muted-foreground">TP/SL</span>
               </label>
               
-              {/* TP/SL Expanded Panel */}
+              {/* TP/SL Expanded Panel - Unified with Mobile */}
               {tpsl && (
-                <div className="space-y-3 pl-6 animate-fade-in">
+                <div className="bg-muted/30 rounded-xl p-3 space-y-3 animate-fade-in">
                   {/* Take Profit */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Take Profit</span>
-                      <span className="text-[10px] text-trading-green">
-                        {tpPrice && parseFloat(tpPrice) > 0 ? `+${((parseFloat(tpPrice) - parseFloat(selectedOptionData.price)) / parseFloat(selectedOptionData.price) * 100).toFixed(1)}%` : '--'}
-                      </span>
-                    </div>
-                    <div className="flex items-center bg-muted rounded-lg px-2.5 py-1.5">
-                      <input
-                        type="text"
-                        value={tpPrice}
-                        onChange={(e) => setTpPrice(e.target.value)}
-                        placeholder="TP Price"
-                        className="flex-1 bg-transparent outline-none font-mono text-xs"
-                      />
-                      <span className="text-muted-foreground text-[10px]">USDC</span>
-                    </div>
-                    {/* TP Quick Buttons */}
-                    <div className="flex gap-1">
-                      {[5, 10, 25].map((pct) => (
+                      <div className="flex items-center gap-2">
                         <button
-                          key={pct}
-                          onClick={() => {
-                            const basePrice = parseFloat(selectedOptionData.price);
-                            const newPrice = (basePrice * (1 + pct / 100)).toFixed(4);
-                            setTpPrice(newPrice);
-                            setTpCustomMode(false);
-                          }}
-                          className="flex-1 py-1 text-[10px] rounded bg-trading-green/10 text-trading-green hover:bg-trading-green/20 transition-colors"
+                          onClick={() => setTpEnabled(!tpEnabled)}
+                          className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpEnabled ? 'bg-trading-green border-trading-green' : 'border-muted-foreground'}`}
                         >
-                          +{pct}%
+                          {tpEnabled && <span className="text-[10px] text-background">✓</span>}
                         </button>
-                      ))}
-                      <button
-                        onClick={() => setTpCustomMode(!tpCustomMode)}
-                        className={`flex-1 py-1 text-[10px] rounded transition-colors ${
-                          tpCustomMode 
-                            ? 'bg-trading-green text-background' 
-                            : 'bg-trading-green/10 text-trading-green hover:bg-trading-green/20'
-                        }`}
-                      >
-                        Custom
-                      </button>
-                    </div>
-                    {/* TP Custom Input */}
-                    {tpCustomMode && (
-                      <div className="flex items-center gap-1 animate-fade-in">
-                        <div className="flex items-center bg-muted rounded-lg px-2 py-1 flex-1">
-                          <span className="text-trading-green text-[10px] mr-1">+</span>
-                          <input
-                            type="text"
-                            value={tpCustomPct}
-                            onChange={(e) => setTpCustomPct(e.target.value)}
-                            placeholder="0"
-                            className="flex-1 bg-transparent outline-none font-mono text-xs w-8"
-                          />
-                          <span className="text-muted-foreground text-[10px]">%</span>
-                        </div>
+                        <span className="text-xs font-medium text-trading-green">Take Profit</span>
+                      </div>
+                      <div className="flex bg-muted rounded-lg p-0.5">
                         <button
-                          onClick={() => {
-                            const pct = parseFloat(tpCustomPct);
-                            if (!isNaN(pct) && pct > 0) {
-                              const basePrice = parseFloat(selectedOptionData.price);
-                              const newPrice = (basePrice * (1 + pct / 100)).toFixed(4);
-                              setTpPrice(newPrice);
-                            }
-                          }}
-                          className="px-2 py-1 text-[10px] rounded bg-trading-green text-background hover:bg-trading-green/90 transition-colors"
+                          onClick={() => setTpMode("pct")}
+                          className={`px-2 py-0.5 rounded text-[10px] transition-colors ${tpMode === "pct" ? "bg-background text-foreground" : "text-muted-foreground"}`}
                         >
-                          Apply
+                          %
+                        </button>
+                        <button
+                          onClick={() => setTpMode("price")}
+                          className={`px-2 py-0.5 rounded text-[10px] transition-colors ${tpMode === "price" ? "bg-background text-foreground" : "text-muted-foreground"}`}
+                        >
+                          Price
                         </button>
                       </div>
+                    </div>
+                    
+                    {tpEnabled && (
+                      <>
+                        {/* TP Input */}
+                        <div className="flex items-center bg-muted rounded-lg px-2.5 py-1.5">
+                          <input
+                            type="text"
+                            value={tpValue}
+                            onChange={(e) => setTpValue(e.target.value)}
+                            className="flex-1 bg-transparent outline-none font-mono text-xs"
+                            placeholder={tpMode === "pct" ? "0" : "0.0000"}
+                          />
+                          <span className="text-muted-foreground text-[10px] font-medium">
+                            {tpMode === "pct" ? "%" : "USDC"}
+                          </span>
+                        </div>
+                        
+                        {/* TP Presets */}
+                        {tpMode === "pct" && (
+                          <div className="flex gap-1">
+                            {TP_PRESETS.map((pct) => (
+                              <button
+                                key={pct}
+                                onClick={() => setTpValue(pct.toString())}
+                                className={`flex-1 py-1 text-[10px] font-medium rounded-lg border transition-all ${
+                                  tpValue === pct.toString()
+                                    ? "border-trading-green bg-trading-green/10 text-trading-green"
+                                    : "border-border/50 text-muted-foreground hover:border-trading-green/50"
+                                }`}
+                              >
+                                +{pct}%
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* TP Summary */}
+                        {tpValue && (
+                          <div className="flex justify-between text-[10px]">
+                            <span className="text-muted-foreground">
+                              {tpMode === "pct" ? `TP @ ${tpslCalculations.tpPrice}` : `+${((parseFloat(tpValue) / currentPrice - 1) * 100).toFixed(1)}%`}
+                            </span>
+                            <span className="text-trading-green font-mono">
+                              Est. PnL: +${tpslCalculations.tpPnL}
+                            </span>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
-                  
+
+                  <div className="border-t border-border/30" />
+
                   {/* Stop Loss */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Stop Loss</span>
-                      <span className="text-[10px] text-trading-red">
-                        {slPrice && parseFloat(slPrice) > 0 ? `${((parseFloat(slPrice) - parseFloat(selectedOptionData.price)) / parseFloat(selectedOptionData.price) * 100).toFixed(1)}%` : '--'}
-                      </span>
-                    </div>
-                    <div className="flex items-center bg-muted rounded-lg px-2.5 py-1.5">
-                      <input
-                        type="text"
-                        value={slPrice}
-                        onChange={(e) => setSlPrice(e.target.value)}
-                        placeholder="SL Price"
-                        className="flex-1 bg-transparent outline-none font-mono text-xs"
-                      />
-                      <span className="text-muted-foreground text-[10px]">USDC</span>
-                    </div>
-                    {/* SL Quick Buttons */}
-                    <div className="flex gap-1">
-                      {[5, 10, 25].map((pct) => (
+                      <div className="flex items-center gap-2">
                         <button
-                          key={pct}
-                          onClick={() => {
-                            const basePrice = parseFloat(selectedOptionData.price);
-                            const newPrice = (basePrice * (1 - pct / 100)).toFixed(4);
-                            setSlPrice(newPrice);
-                            setSlCustomMode(false);
-                          }}
-                          className="flex-1 py-1 text-[10px] rounded bg-trading-red/10 text-trading-red hover:bg-trading-red/20 transition-colors"
+                          onClick={() => setSlEnabled(!slEnabled)}
+                          className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${slEnabled ? 'bg-trading-red border-trading-red' : 'border-muted-foreground'}`}
                         >
-                          -{pct}%
+                          {slEnabled && <span className="text-[10px] text-foreground">✓</span>}
                         </button>
-                      ))}
-                      <button
-                        onClick={() => setSlCustomMode(!slCustomMode)}
-                        className={`flex-1 py-1 text-[10px] rounded transition-colors ${
-                          slCustomMode 
-                            ? 'bg-trading-red text-foreground' 
-                            : 'bg-trading-red/10 text-trading-red hover:bg-trading-red/20'
-                        }`}
-                      >
-                        Custom
-                      </button>
-                    </div>
-                    {/* SL Custom Input */}
-                    {slCustomMode && (
-                      <div className="flex items-center gap-1 animate-fade-in">
-                        <div className="flex items-center bg-muted rounded-lg px-2 py-1 flex-1">
-                          <span className="text-trading-red text-[10px] mr-1">-</span>
-                          <input
-                            type="text"
-                            value={slCustomPct}
-                            onChange={(e) => setSlCustomPct(e.target.value)}
-                            placeholder="0"
-                            className="flex-1 bg-transparent outline-none font-mono text-xs w-8"
-                          />
-                          <span className="text-muted-foreground text-[10px]">%</span>
-                        </div>
+                        <span className="text-xs font-medium text-trading-red">Stop Loss</span>
+                      </div>
+                      <div className="flex bg-muted rounded-lg p-0.5">
                         <button
-                          onClick={() => {
-                            const pct = parseFloat(slCustomPct);
-                            if (!isNaN(pct) && pct > 0) {
-                              const basePrice = parseFloat(selectedOptionData.price);
-                              const newPrice = (basePrice * (1 - pct / 100)).toFixed(4);
-                              setSlPrice(newPrice);
-                            }
-                          }}
-                          className="px-2 py-1 text-[10px] rounded bg-trading-red text-foreground hover:bg-trading-red/90 transition-colors"
+                          onClick={() => setSlMode("pct")}
+                          className={`px-2 py-0.5 rounded text-[10px] transition-colors ${slMode === "pct" ? "bg-background text-foreground" : "text-muted-foreground"}`}
                         >
-                          Apply
+                          %
+                        </button>
+                        <button
+                          onClick={() => setSlMode("price")}
+                          className={`px-2 py-0.5 rounded text-[10px] transition-colors ${slMode === "price" ? "bg-background text-foreground" : "text-muted-foreground"}`}
+                        >
+                          Price
                         </button>
                       </div>
+                    </div>
+                    
+                    {slEnabled && (
+                      <>
+                        {/* SL Input */}
+                        <div className="flex items-center bg-muted rounded-lg px-2.5 py-1.5">
+                          <input
+                            type="text"
+                            value={slValue}
+                            onChange={(e) => setSlValue(e.target.value)}
+                            className="flex-1 bg-transparent outline-none font-mono text-xs"
+                            placeholder={slMode === "pct" ? "0" : "0.0000"}
+                          />
+                          <span className="text-muted-foreground text-[10px] font-medium">
+                            {slMode === "pct" ? "%" : "USDC"}
+                          </span>
+                        </div>
+                        
+                        {/* SL Presets */}
+                        {slMode === "pct" && (
+                          <div className="flex gap-1">
+                            {SL_PRESETS.map((pct) => (
+                              <button
+                                key={pct}
+                                onClick={() => setSlValue(pct.toString())}
+                                className={`flex-1 py-1 text-[10px] font-medium rounded-lg border transition-all ${
+                                  slValue === pct.toString()
+                                    ? "border-trading-red bg-trading-red/10 text-trading-red"
+                                    : "border-border/50 text-muted-foreground hover:border-trading-red/50"
+                                }`}
+                              >
+                                -{pct}%
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* SL Summary */}
+                        {slValue && (
+                          <div className="flex justify-between text-[10px]">
+                            <span className="text-muted-foreground">
+                              {slMode === "pct" ? `SL @ ${tpslCalculations.slPrice}` : `-${((1 - parseFloat(slValue) / currentPrice) * 100).toFixed(1)}%`}
+                            </span>
+                            <span className="text-trading-red font-mono">
+                              Est. PnL: {tpslCalculations.slPnL}
+                            </span>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
