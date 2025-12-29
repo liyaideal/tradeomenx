@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { ChevronDown, Plus, ArrowLeftRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
+import { TopUpDialog } from "@/components/TopUpDialog";
+import { toast } from "sonner";
 
 interface TradeFormProps {
   selectedPrice?: string;
@@ -18,6 +20,7 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
   const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
+  const [topUpOpen, setTopUpOpen] = useState(false);
 
   const available = 2453.42;
   const feeRate = 0.0005; // 0.05% trading fee
@@ -117,7 +120,10 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
         <span className="text-xs text-muted-foreground">Available (USDC)</span>
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs">{available.toLocaleString()}</span>
-          <button className="w-5 h-5 bg-muted rounded-full flex items-center justify-center">
+          <button 
+            onClick={() => setTopUpOpen(true)}
+            className="w-5 h-5 bg-muted rounded-full flex items-center justify-center hover:bg-muted-foreground/30 transition-colors"
+          >
             <Plus className="w-3 h-3" />
           </button>
         </div>
@@ -247,6 +253,16 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
       >
         {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
       </button>
+
+      {/* Top Up Dialog */}
+      <TopUpDialog
+        open={topUpOpen}
+        onOpenChange={setTopUpOpen}
+        currentBalance={available}
+        onTopUp={(amount, method) => {
+          toast.success(`Top up of $${amount} via ${method} initiated`);
+        }}
+      />
     </div>
   );
 };
