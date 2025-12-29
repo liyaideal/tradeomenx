@@ -924,9 +924,9 @@ export default function DesktopTrading() {
               
               {/* TP/SL Expanded Panel */}
               {tpsl && (
-                <div className="space-y-2 pl-6 animate-fade-in">
+                <div className="space-y-3 pl-6 animate-fade-in">
                   {/* Take Profit */}
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">Take Profit</span>
                       <span className="text-[10px] text-trading-green">
@@ -943,10 +943,26 @@ export default function DesktopTrading() {
                       />
                       <span className="text-muted-foreground text-[10px]">USDC</span>
                     </div>
+                    {/* TP Quick Buttons */}
+                    <div className="flex gap-1">
+                      {[5, 10, 25, 50].map((pct) => (
+                        <button
+                          key={pct}
+                          onClick={() => {
+                            const basePrice = parseFloat(selectedOptionData.price);
+                            const newPrice = (basePrice * (1 + pct / 100)).toFixed(4);
+                            setTpPrice(newPrice);
+                          }}
+                          className="flex-1 py-1 text-[10px] rounded bg-trading-green/10 text-trading-green hover:bg-trading-green/20 transition-colors"
+                        >
+                          +{pct}%
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   
                   {/* Stop Loss */}
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">Stop Loss</span>
                       <span className="text-[10px] text-trading-red">
@@ -962,6 +978,22 @@ export default function DesktopTrading() {
                         className="flex-1 bg-transparent outline-none font-mono text-xs"
                       />
                       <span className="text-muted-foreground text-[10px]">USDC</span>
+                    </div>
+                    {/* SL Quick Buttons */}
+                    <div className="flex gap-1">
+                      {[5, 10, 25, 50].map((pct) => (
+                        <button
+                          key={pct}
+                          onClick={() => {
+                            const basePrice = parseFloat(selectedOptionData.price);
+                            const newPrice = (basePrice * (1 - pct / 100)).toFixed(4);
+                            setSlPrice(newPrice);
+                          }}
+                          className="flex-1 py-1 text-[10px] rounded bg-trading-red/10 text-trading-red hover:bg-trading-red/20 transition-colors"
+                        >
+                          -{pct}%
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
