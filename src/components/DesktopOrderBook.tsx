@@ -91,6 +91,8 @@ export const DesktopOrderBook = ({
 }: DesktopOrderBookProps) => {
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
+  const [priceStep, setPriceStep] = useState("0.1");
+  const [showStepDropdown, setShowStepDropdown] = useState(false);
   const [asks, setAsks] = useState<OrderBookEntry[]>(initialAsks);
   const [bids, setBids] = useState<OrderBookEntry[]>(initialBids);
   const [currentPrice, setCurrentPrice] = useState(initialPrice);
@@ -99,6 +101,8 @@ export const DesktopOrderBook = ({
     generateMockTrades(parseFloat(initialPrice))
   );
   const [buyRatio, setBuyRatio] = useState(40);
+  
+  const priceStepOptions = ["0.01", "0.1", "1", "10", "50", "100"];
 
   // Update order book dynamically
   const updateOrderBook = useCallback(() => {
@@ -239,10 +243,33 @@ export const DesktopOrderBook = ({
                 </div>
               </button>
             </div>
-            <button className="flex items-center gap-1 px-2 py-1 text-xs bg-muted rounded">
-              0.1
-              <ChevronDown className="w-3 h-3" />
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowStepDropdown(!showStepDropdown)}
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-muted rounded hover:bg-muted/80 transition-colors"
+              >
+                {priceStep}
+                <ChevronDown className={`w-3 h-3 transition-transform ${showStepDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              {showStepDropdown && (
+                <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded shadow-lg z-50 py-1 min-w-[60px]">
+                  {priceStepOptions.map((step) => (
+                    <button
+                      key={step}
+                      onClick={() => {
+                        setPriceStep(step);
+                        setShowStepDropdown(false);
+                      }}
+                      className={`w-full px-3 py-1.5 text-xs text-left hover:bg-muted transition-colors ${
+                        priceStep === step ? 'text-primary bg-muted/50' : 'text-foreground'
+                      }`}
+                    >
+                      {step}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Column Headers */}
