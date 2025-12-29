@@ -795,14 +795,14 @@ export default function DesktopTrading() {
                 value={[leverage]}
                 onValueChange={(value) => setLeverage(value[0])}
                 min={1}
-                max={50}
+                max={10}
                 step={1}
                 className="w-full"
               />
               
               {/* Quick Select Buttons */}
               <div className="flex gap-1.5">
-                {[1, 5, 10, 20, 50].map((lev) => (
+                {[1, 2, 5, 7, 10].map((lev) => (
                   <button
                     key={lev}
                     onClick={() => setLeverage(lev)}
