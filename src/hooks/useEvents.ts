@@ -109,33 +109,43 @@ interface UseEventsReturn {
   getOptionsForEvent: (eventId: string) => EventOption[];
 }
 
-export const useEvents = (initialEventId?: string): UseEventsReturn => {
-  // Initialize from localStorage or use defaults
-  const getInitialEvent = (): TradingEvent => {
-    if (initialEventId) {
-      const event = activeEvents.find(e => e.id === initialEventId);
-      if (event) return event;
-    }
-    
+// Calculate initial values at module level to avoid hook issues
+const getInitialEventValue = (initialEventId?: string): TradingEvent => {
+  if (initialEventId) {
+    const event = activeEvents.find(e => e.id === initialEventId);
+    if (event) return event;
+  }
+  
+  try {
     const storedEventId = getStoredLastEvent();
     if (storedEventId) {
       const event = activeEvents.find(e => e.id === storedEventId);
       if (event) return event;
     }
-    
-    return activeEvents[0];
-  };
+  } catch {
+    // localStorage might not be available
+  }
+  
+  return activeEvents[0];
+};
 
-  const getInitialOption = (eventId: string): string => {
+const getInitialOptionValue = (eventId: string): string => {
+  try {
     const stored = getStoredLastOption(eventId);
     return stored || "1";
-  };
+  } catch {
+    return "1";
+  }
+};
 
-  // State
-  const [selectedEvent, setSelectedEventState] = useState<TradingEvent>(getInitialEvent);
-  const [selectedOption, setSelectedOptionState] = useState<string>(() => 
-    getInitialOption(getInitialEvent().id)
-  );
+export const useEvents = (initialEventId?: string): UseEventsReturn => {
+  // Calculate initial values before hooks
+  const computedInitialEvent = getInitialEventValue(initialEventId);
+  const computedInitialOption = getInitialOptionValue(computedInitialEvent.id);
+
+  // State - use lazy initialization properly
+  const [selectedEvent, setSelectedEventState] = useState<TradingEvent>(() => computedInitialEvent);
+  const [selectedOption, setSelectedOptionState] = useState<string>(() => computedInitialOption);
   const [favorites, setFavorites] = useState<Set<string>>(getStoredFavorites);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
