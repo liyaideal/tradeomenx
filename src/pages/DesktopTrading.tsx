@@ -82,6 +82,9 @@ const activeEvents = [
       "Deleted tweets that were posted during the period still count",
       "Market settles within 24 hours after the end date",
     ],
+    sourceUrl: "https://x.com/elonmusk",
+    sourceName: "View on X (Twitter)",
+    resolutionSource: "This market will be resolved based on the official tweet count from Elon Musk's verified X (Twitter) account (@elonmusk) as of the end date. Only original tweets count, excluding retweets and replies.",
   },
   { 
     id: "2", 
@@ -105,6 +108,9 @@ const activeEvents = [
       volume24h: "$28.5B",
       marketCap: "$1.87T",
     },
+    sourceUrl: "https://www.coingecko.com/en/coins/bitcoin",
+    sourceName: "View on CoinGecko",
+    resolutionSource: "This market will be resolved based on the CoinGecko BTC/USD price at the exact settlement time. The closing price must fall within the selected range for that option to settle at $1.00.",
   },
   { 
     id: "3", 
@@ -118,6 +124,9 @@ const activeEvents = [
       "Based on Binance ETH/BTC spot price",
       "Settlement at 23:59:59 UTC on December 31, 2025",
     ],
+    sourceUrl: "https://www.binance.com/en/trade/ETH_BTC",
+    sourceName: "View on Binance",
+    resolutionSource: "This market will be resolved based on the Binance ETH/BTC spot price at the exact settlement time.",
   },
   { 
     id: "4", 
@@ -131,6 +140,9 @@ const activeEvents = [
       "Based on the official FOMC announcement",
       "Settlement immediately after the official press release",
     ],
+    sourceUrl: "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+    sourceName: "View on Federal Reserve",
+    resolutionSource: "This market will be resolved based on the official FOMC announcement and press release.",
   },
   { 
     id: "5", 
@@ -144,6 +156,9 @@ const activeEvents = [
       "Based on the official NYSE closing price",
       "Settlement after market close on the last trading day of 2025",
     ],
+    sourceUrl: "https://www.nyse.com/quote/index/SPX",
+    sourceName: "View on NYSE",
+    resolutionSource: "This market will be resolved based on the official NYSE S&P 500 closing price on the last trading day of 2025.",
   },
 ];
 
@@ -516,15 +531,17 @@ export default function DesktopTrading() {
                   </div>
                   
                   {/* Source link */}
-                  <a
-                    href={selectedEvent.currentPrice ? "https://www.coingecko.com/en/coins/bitcoin" : "https://x.com/elonmusk"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                    {selectedEvent.currentPrice ? "View on CoinGecko" : "View on X (Twitter)"}
-                  </a>
+                  {selectedEvent.sourceUrl && (
+                    <a
+                      href={selectedEvent.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      {selectedEvent.sourceName || "View Source"}
+                    </a>
+                  )}
                 </div>
               </PopoverContent>
             </Popover>
@@ -766,12 +783,7 @@ export default function DesktopTrading() {
                     <div className="bg-muted/30 rounded-lg p-4">
                       <div className="text-xs text-muted-foreground mb-2">Resolution Source</div>
                       <p className="text-sm">
-                        {selectedEvent.id === "2" 
-                          ? "This market will be resolved based on the CoinGecko BTC/USD price at the exact settlement time. The closing price must fall within the selected range for that option to settle at $1.00."
-                          : selectedEvent.id === "1"
-                          ? "This market will be resolved based on the official tweet count from Elon Musk's verified X (Twitter) account (@elonmusk) as of the end date. Only original tweets count, excluding retweets and replies."
-                          : "This market will be resolved based on official data sources as specified in the market rules."
-                        }
+                        {selectedEvent.resolutionSource || "This market will be resolved based on official data sources as specified in the market rules."}
                       </p>
                     </div>
 
