@@ -177,6 +177,8 @@ export default function DesktopTrading() {
   const [sliderValue, setSliderValue] = useState([0]);
   const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
+  const [tpPrice, setTpPrice] = useState("");
+  const [slPrice, setSlPrice] = useState("");
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [eventSearchQuery, setEventSearchQuery] = useState("");
@@ -266,7 +268,7 @@ export default function DesktopTrading() {
     { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: `${leverage}X` },
     { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
-    { label: "TP/SL", value: tpsl ? "Set" : "--" },
+    { label: "TP/SL", value: tpsl ? `TP: ${tpPrice || '--'} / SL: ${slPrice || '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
   ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl, orderCalculations]);
 
@@ -919,6 +921,51 @@ export default function DesktopTrading() {
                 <input type="checkbox" checked={tpsl} onChange={(e) => setTpsl(e.target.checked)} className="hidden" />
                 <span className="text-xs text-muted-foreground">TP/SL</span>
               </label>
+              
+              {/* TP/SL Expanded Panel */}
+              {tpsl && (
+                <div className="space-y-2 pl-6 animate-fade-in">
+                  {/* Take Profit */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Take Profit</span>
+                      <span className="text-[10px] text-trading-green">
+                        {tpPrice && parseFloat(tpPrice) > 0 ? `+${((parseFloat(tpPrice) - parseFloat(selectedOptionData.price)) / parseFloat(selectedOptionData.price) * 100).toFixed(1)}%` : '--'}
+                      </span>
+                    </div>
+                    <div className="flex items-center bg-muted rounded-lg px-2.5 py-1.5">
+                      <input
+                        type="text"
+                        value={tpPrice}
+                        onChange={(e) => setTpPrice(e.target.value)}
+                        placeholder="TP Price"
+                        className="flex-1 bg-transparent outline-none font-mono text-xs"
+                      />
+                      <span className="text-muted-foreground text-[10px]">USDC</span>
+                    </div>
+                  </div>
+                  
+                  {/* Stop Loss */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Stop Loss</span>
+                      <span className="text-[10px] text-trading-red">
+                        {slPrice && parseFloat(slPrice) > 0 ? `${((parseFloat(slPrice) - parseFloat(selectedOptionData.price)) / parseFloat(selectedOptionData.price) * 100).toFixed(1)}%` : '--'}
+                      </span>
+                    </div>
+                    <div className="flex items-center bg-muted rounded-lg px-2.5 py-1.5">
+                      <input
+                        type="text"
+                        value={slPrice}
+                        onChange={(e) => setSlPrice(e.target.value)}
+                        placeholder="SL Price"
+                        className="flex-1 bg-transparent outline-none font-mono text-xs"
+                      />
+                      <span className="text-muted-foreground text-[10px]">USDC</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Order Summary */}
