@@ -82,6 +82,53 @@ const recalculateTotals = (entries: OrderBookEntry[]): OrderBookEntry[] => {
   });
 };
 
+// Aggregate orders by price step
+const aggregateByPriceStep = (
+  entries: OrderBookEntry[], 
+  step: number, 
+  isBid: boolean
+): OrderBookEntry[] => {
+  const aggregated: Map<string, number> = new Map();
+  
+  entries.forEach(entry => {
+    const price = parseFloat(entry.price);
+    const amount = parseInt(entry.amount.replace(/,/g, ''));
+    
+    // Round price to step - bids round down, asks round up
+    const roundedPrice = isBid 
+      ? Math.floor(price / step) * step 
+      : Math.ceil(price / step) * step;
+    
+    // Determine decimal places based on step
+    const decimals = step < 1 ? Math.abs(Math.floor(Math.log10(step))) : 0;
+    const priceKey = roundedPrice.toFixed(decimals);
+    
+    aggregated.set(priceKey, (aggregated.get(priceKey) || 0) + amount);
+  });
+  
+  // Convert back to OrderBookEntry array
+  const result: OrderBookEntry[] = Array.from(aggregated.entries())
+    .map(([price, amount]) => ({
+      price,
+      amount: amount.toLocaleString(),
+      isUpdated: entries.some(e => {
+        const p = parseFloat(e.price);
+        const step_val = step;
+        const rounded = isBid 
+          ? Math.floor(p / step_val) * step_val 
+          : Math.ceil(p / step_val) * step_val;
+        const decimals = step < 1 ? Math.abs(Math.floor(Math.log10(step))) : 0;
+        return rounded.toFixed(decimals) === price && e.isUpdated;
+      })
+    }))
+    .sort((a, b) => isBid 
+      ? parseFloat(b.price) - parseFloat(a.price) 
+      : parseFloat(a.price) - parseFloat(b.price)
+    );
+  
+  return recalculateTotals(result);
+};
+
 export const DesktopOrderBook = ({ 
   asks: initialAsks, 
   bids: initialBids, 
@@ -91,7 +138,7 @@ export const DesktopOrderBook = ({
 }: DesktopOrderBookProps) => {
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
-  const [priceStep, setPriceStep] = useState("0.1");
+  const [priceStep, setPriceStep] = useState("0.0001");
   const [showStepDropdown, setShowStepDropdown] = useState(false);
   const [asks, setAsks] = useState<OrderBookEntry[]>(initialAsks);
   const [bids, setBids] = useState<OrderBookEntry[]>(initialBids);
@@ -102,7 +149,15 @@ export const DesktopOrderBook = ({
   );
   const [buyRatio, setBuyRatio] = useState(40);
   
-  const priceStepOptions = ["0.01", "0.1", "1", "10", "50", "100"];
+  const priceStepOptions = ["0.0001", "0.001", "0.01", "0.1", "1"];
+  
+  // Aggregate asks and bids based on selected price step
+  const aggregatedAsks = aggregateByPriceStep(asks, parseFloat(priceStep), false);
+  const aggregatedBids = aggregateByPriceStep(bids, parseFloat(priceStep), true);
+  
+  // Extended data for single-view modes (moved here to use aggregated data)
+  const extendedBidsAggregated = [...aggregatedBids, ...aggregatedBids.slice(0, 8)];
+  const extendedAsksAggregated = [...aggregatedAsks, ...aggregatedAsks.slice(0, 8)];
 
   // Update order book dynamically
   const updateOrderBook = useCallback(() => {
@@ -177,9 +232,6 @@ export const DesktopOrderBook = ({
     setIsPositive(initialIsPositive);
   }, [initialAsks, initialBids, initialPrice, initialIsPositive]);
 
-  // Extended data for single-view modes
-  const extendedBids = [...bids, ...bids.slice(0, 8)];
-  const extendedAsks = [...asks, ...asks.slice(0, 8)];
 
   return (
     <div className="flex flex-col h-full bg-background border-l border-border/30">
@@ -283,9 +335,9 @@ export const DesktopOrderBook = ({
             <>
               {/* Asks (Sell orders) - reversed to show lowest ask at bottom */}
               <div className="flex-1 overflow-y-auto scrollbar-hide">
-                {[...asks].reverse().map((ask, index) => {
-                  const maxTotal = Math.max(...asks.map(a => parseFloat(a.total || a.amount)));
-                  const total = parseFloat(ask.total || ask.amount);
+                {[...aggregatedAsks].reverse().map((ask, index) => {
+                  const maxTotal = Math.max(...aggregatedAsks.map(a => parseInt((a.total || a.amount).replace(/,/g, ''))));
+                  const total = parseInt((ask.total || ask.amount).replace(/,/g, ''));
                   const widthPercent = (total / maxTotal) * 100;
                   
                   return (
@@ -329,9 +381,9 @@ export const DesktopOrderBook = ({
 
               {/* Bids (Buy orders) */}
               <div className="flex-1 overflow-y-auto scrollbar-hide">
-                {bids.map((bid, index) => {
-                  const maxTotal = Math.max(...bids.map(b => parseFloat(b.total || b.amount)));
-                  const total = parseFloat(bid.total || bid.amount);
+                {aggregatedBids.map((bid, index) => {
+                  const maxTotal = Math.max(...aggregatedBids.map(b => parseInt((b.total || b.amount).replace(/,/g, ''))));
+                  const total = parseInt((bid.total || bid.amount).replace(/,/g, ''));
                   const widthPercent = (total / maxTotal) * 100;
                   
                   return (
@@ -357,9 +409,9 @@ export const DesktopOrderBook = ({
             <>
               {/* Bids Only View */}
               <div className="flex-1 overflow-y-auto scrollbar-hide">
-                {extendedBids.map((bid, index) => {
-                  const maxTotal = Math.max(...extendedBids.map(b => parseFloat(b.total || b.amount)));
-                  const total = parseFloat(bid.total || bid.amount);
+                {extendedBidsAggregated.map((bid, index) => {
+                  const maxTotal = Math.max(...extendedBidsAggregated.map(b => parseInt((b.total || b.amount).replace(/,/g, ''))));
+                  const total = parseInt((bid.total || bid.amount).replace(/,/g, ''));
                   const widthPercent = (total / maxTotal) * 100;
                   
                   return (
@@ -407,9 +459,9 @@ export const DesktopOrderBook = ({
             <>
               {/* Asks Only View */}
               <div className="flex-1 overflow-y-auto scrollbar-hide">
-                {extendedAsks.map((ask, index) => {
-                  const maxTotal = Math.max(...extendedAsks.map(a => parseFloat(a.total || a.amount)));
-                  const total = parseFloat(ask.total || ask.amount);
+                {extendedAsksAggregated.map((ask, index) => {
+                  const maxTotal = Math.max(...extendedAsksAggregated.map(a => parseInt((a.total || a.amount).replace(/,/g, ''))));
+                  const total = parseInt((ask.total || ask.amount).replace(/,/g, ''));
                   const widthPercent = (total / maxTotal) * 100;
                   
                   return (
