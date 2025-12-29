@@ -173,6 +173,7 @@ export default function DesktopTrading() {
   const [marginDropdownOpen, setMarginDropdownOpen] = useState(false);
   const [leverage, setLeverage] = useState(10);
   const [orderType, setOrderType] = useState<"Limit" | "Market">("Market");
+  const [limitPrice, setLimitPrice] = useState("");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
   const [reduceOnly, setReduceOnly] = useState(false);
@@ -594,6 +595,10 @@ export default function DesktopTrading() {
                 currentPrice={selectedOptionData.price}
                 priceChange={selectedOptionData.price}
                 isPositive={priceChange.isPositive}
+                onPriceClick={(price) => {
+                  setLimitPrice(price);
+                  setOrderType("Limit");
+                }}
               />
             </div>
           </div>
@@ -857,7 +862,8 @@ export default function DesktopTrading() {
                 <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
                   <input
                     type="text"
-                    defaultValue={selectedOptionData.price}
+                    value={limitPrice || selectedOptionData.price}
+                    onChange={(e) => setLimitPrice(e.target.value)}
                     className="flex-1 bg-transparent outline-none font-mono text-sm"
                     placeholder="0.0000"
                   />
