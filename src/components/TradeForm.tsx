@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ChevronDown, Plus, ArrowLeftRight } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { TopUpDialog } from "@/components/TopUpDialog";
@@ -8,6 +8,9 @@ import { toast } from "sonner";
 interface TradeFormProps {
   selectedPrice?: string;
 }
+
+const TP_PRESETS = [25, 50, 100, 200];
+const SL_PRESETS = [10, 25, 50, 75];
 
 export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
   const navigate = useNavigate();
@@ -21,9 +24,67 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
   const [tpsl, setTpsl] = useState(false);
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   const [topUpOpen, setTopUpOpen] = useState(false);
+  
+  // TP/SL states
+  const [tpEnabled, setTpEnabled] = useState(true);
+  const [slEnabled, setSlEnabled] = useState(true);
+  const [tpMode, setTpMode] = useState<"pct" | "price">("pct");
+  const [slMode, setSlMode] = useState<"pct" | "price">("pct");
+  const [tpValue, setTpValue] = useState("");
+  const [slValue, setSlValue] = useState("");
 
   const available = 2453.42;
   const feeRate = 0.0005; // 0.05% trading fee
+  const currentPrice = parseFloat(selectedPrice);
+
+  // Calculate TP/SL prices based on percentage
+  const tpslCalculations = useMemo(() => {
+    const tpPct = parseFloat(tpValue) || 0;
+    const slPct = parseFloat(slValue) || 0;
+    
+    let tpPrice = 0;
+    let slPrice = 0;
+    
+    if (tpMode === "pct") {
+      // For buy: TP is above current price
+      // For sell: TP is below current price
+      tpPrice = side === "buy" 
+        ? currentPrice * (1 + tpPct / 100)
+        : currentPrice * (1 - tpPct / 100);
+    } else {
+      tpPrice = parseFloat(tpValue) || 0;
+    }
+    
+    if (slMode === "pct") {
+      // For buy: SL is below current price
+      // For sell: SL is above current price
+      slPrice = side === "buy"
+        ? currentPrice * (1 - slPct / 100)
+        : currentPrice * (1 + slPct / 100);
+    } else {
+      slPrice = parseFloat(slValue) || 0;
+    }
+    
+    // Calculate estimated PnL
+    const amountValue = parseFloat(amount) || 0;
+    const notionalValue = amountValue * leverage;
+    const quantity = currentPrice > 0 ? notionalValue / currentPrice : 0;
+    
+    const tpPnL = side === "buy"
+      ? (tpPrice - currentPrice) * quantity
+      : (currentPrice - tpPrice) * quantity;
+    
+    const slPnL = side === "buy"
+      ? (slPrice - currentPrice) * quantity
+      : (currentPrice - slPrice) * quantity;
+    
+    return {
+      tpPrice: tpPrice.toFixed(4),
+      slPrice: slPrice.toFixed(4),
+      tpPnL: tpPnL.toFixed(2),
+      slPnL: slPnL.toFixed(2),
+    };
+  }, [tpValue, slValue, tpMode, slMode, side, currentPrice, amount, leverage]);
 
   // Calculate order values based on amount and leverage
   const orderCalculations = useMemo(() => {
@@ -72,6 +133,10 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
         amount,
         price: selectedPrice,
         orderCalculations,
+        tpsl: tpsl ? {
+          tp: tpEnabled ? { value: tpValue, mode: tpMode, price: tpslCalculations.tpPrice } : null,
+          sl: slEnabled ? { value: slValue, mode: slMode, price: tpslCalculations.slPrice } : null,
+        } : null,
       },
     });
   };
@@ -201,18 +266,182 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
         </label>
       </div>
       
-      <label className="flex items-center gap-2">
-        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
-          {tpsl && <span className="text-[10px] text-foreground">✓</span>}
+      {/* TP/SL Toggle */}
+      <button 
+        onClick={() => setTpsl(!tpsl)}
+        className="flex items-center justify-between w-full"
+      >
+        <div className="flex items-center gap-2">
+          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
+            {tpsl && <span className="text-[10px] text-foreground">✓</span>}
+          </div>
+          <span className="text-xs text-muted-foreground">TP/SL</span>
         </div>
-        <input
-          type="checkbox"
-          checked={tpsl}
-          onChange={(e) => setTpsl(e.target.checked)}
-          className="hidden"
-        />
-        <span className="text-xs text-muted-foreground">TP/SL</span>
-      </label>
+        {tpsl ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+      </button>
+
+      {/* TP/SL Panel */}
+      {tpsl && (
+        <div className="bg-muted/30 rounded-xl p-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+          {/* Take Profit */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setTpEnabled(!tpEnabled)}
+                  className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpEnabled ? 'bg-trading-green border-trading-green' : 'border-muted-foreground'}`}
+                >
+                  {tpEnabled && <span className="text-[10px] text-background">✓</span>}
+                </button>
+                <span className="text-xs font-medium text-trading-green">Take Profit</span>
+              </div>
+              <div className="flex bg-muted rounded-lg p-0.5">
+                <button
+                  onClick={() => setTpMode("pct")}
+                  className={`px-2 py-0.5 rounded text-[10px] transition-colors ${tpMode === "pct" ? "bg-background text-foreground" : "text-muted-foreground"}`}
+                >
+                  %
+                </button>
+                <button
+                  onClick={() => setTpMode("price")}
+                  className={`px-2 py-0.5 rounded text-[10px] transition-colors ${tpMode === "price" ? "bg-background text-foreground" : "text-muted-foreground"}`}
+                >
+                  Price
+                </button>
+              </div>
+            </div>
+            
+            {tpEnabled && (
+              <>
+                {/* TP Input */}
+                <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+                  <input
+                    type="text"
+                    value={tpValue}
+                    onChange={(e) => setTpValue(e.target.value)}
+                    className="flex-1 bg-transparent outline-none font-mono text-xs"
+                    placeholder={tpMode === "pct" ? "0" : "0.0000"}
+                  />
+                  <span className="text-muted-foreground text-[10px] font-medium">
+                    {tpMode === "pct" ? "%" : "USDC"}
+                  </span>
+                </div>
+                
+                {/* TP Presets */}
+                {tpMode === "pct" && (
+                  <div className="flex gap-1.5">
+                    {TP_PRESETS.map((pct) => (
+                      <button
+                        key={pct}
+                        onClick={() => setTpValue(pct.toString())}
+                        className={`flex-1 py-1.5 text-[10px] font-medium rounded-lg border transition-all active:scale-95 ${
+                          tpValue === pct.toString()
+                            ? "border-trading-green bg-trading-green/10 text-trading-green"
+                            : "border-border/50 text-muted-foreground"
+                        }`}
+                      >
+                        +{pct}%
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                {/* TP Summary */}
+                {tpValue && (
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-muted-foreground">
+                      {tpMode === "pct" ? `TP @ ${tpslCalculations.tpPrice}` : `+${((parseFloat(tpValue) / currentPrice - 1) * 100).toFixed(1)}%`}
+                    </span>
+                    <span className="text-trading-green font-mono">
+                      Est. PnL: +${tpslCalculations.tpPnL}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="border-t border-border/30" />
+
+          {/* Stop Loss */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSlEnabled(!slEnabled)}
+                  className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${slEnabled ? 'bg-trading-red border-trading-red' : 'border-muted-foreground'}`}
+                >
+                  {slEnabled && <span className="text-[10px] text-foreground">✓</span>}
+                </button>
+                <span className="text-xs font-medium text-trading-red">Stop Loss</span>
+              </div>
+              <div className="flex bg-muted rounded-lg p-0.5">
+                <button
+                  onClick={() => setSlMode("pct")}
+                  className={`px-2 py-0.5 rounded text-[10px] transition-colors ${slMode === "pct" ? "bg-background text-foreground" : "text-muted-foreground"}`}
+                >
+                  %
+                </button>
+                <button
+                  onClick={() => setSlMode("price")}
+                  className={`px-2 py-0.5 rounded text-[10px] transition-colors ${slMode === "price" ? "bg-background text-foreground" : "text-muted-foreground"}`}
+                >
+                  Price
+                </button>
+              </div>
+            </div>
+            
+            {slEnabled && (
+              <>
+                {/* SL Input */}
+                <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+                  <input
+                    type="text"
+                    value={slValue}
+                    onChange={(e) => setSlValue(e.target.value)}
+                    className="flex-1 bg-transparent outline-none font-mono text-xs"
+                    placeholder={slMode === "pct" ? "0" : "0.0000"}
+                  />
+                  <span className="text-muted-foreground text-[10px] font-medium">
+                    {slMode === "pct" ? "%" : "USDC"}
+                  </span>
+                </div>
+                
+                {/* SL Presets */}
+                {slMode === "pct" && (
+                  <div className="flex gap-1.5">
+                    {SL_PRESETS.map((pct) => (
+                      <button
+                        key={pct}
+                        onClick={() => setSlValue(pct.toString())}
+                        className={`flex-1 py-1.5 text-[10px] font-medium rounded-lg border transition-all active:scale-95 ${
+                          slValue === pct.toString()
+                            ? "border-trading-red bg-trading-red/10 text-trading-red"
+                            : "border-border/50 text-muted-foreground"
+                        }`}
+                      >
+                        -{pct}%
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                {/* SL Summary */}
+                {slValue && (
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-muted-foreground">
+                      {slMode === "pct" ? `SL @ ${tpslCalculations.slPrice}` : `-${((1 - parseFloat(slValue) / currentPrice) * 100).toFixed(1)}%`}
+                    </span>
+                    <span className="text-trading-red font-mono">
+                      Est. PnL: {tpslCalculations.slPnL}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Order Summary */}
       <div className="space-y-1 text-xs">
