@@ -1175,18 +1175,18 @@ export default function DesktopTrading() {
                     {/* Take Profit */}
                     <div className="space-y-1">
                       <span className="text-xs text-trading-green">Take Profit</span>
-                      <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+                      <div className="flex items-center bg-muted rounded-lg px-2.5 py-2 gap-1">
                         <input
                           type="text"
                           value={tpValue}
                           onChange={(e) => setTpValue(e.target.value)}
-                          className="flex-1 bg-transparent outline-none font-mono text-sm"
+                          className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
                           placeholder={tpMode === "pct" ? "0" : "0.0000"}
                         />
-                        <div className="flex bg-background/50 rounded p-0.5">
+                        <div className="flex bg-background/50 rounded p-0.5 shrink-0">
                           <button
                             onClick={() => setTpMode("pct")}
-                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                            className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
                               tpMode === "pct" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"
                             }`}
                           >
@@ -1194,11 +1194,11 @@ export default function DesktopTrading() {
                           </button>
                           <button
                             onClick={() => setTpMode("price")}
-                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                            className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
                               tpMode === "price" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"
                             }`}
                           >
-                            USDC
+                            $
                           </button>
                         </div>
                       </div>
@@ -1213,18 +1213,18 @@ export default function DesktopTrading() {
                     {/* Stop Loss */}
                     <div className="space-y-1">
                       <span className="text-xs text-trading-red">Stop Loss</span>
-                      <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+                      <div className="flex items-center bg-muted rounded-lg px-2.5 py-2 gap-1">
                         <input
                           type="text"
                           value={slValue}
                           onChange={(e) => setSlValue(e.target.value)}
-                          className="flex-1 bg-transparent outline-none font-mono text-sm"
+                          className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
                           placeholder={slMode === "pct" ? "0" : "0.0000"}
                         />
-                        <div className="flex bg-background/50 rounded p-0.5">
+                        <div className="flex bg-background/50 rounded p-0.5 shrink-0">
                           <button
                             onClick={() => setSlMode("pct")}
-                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                            className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
                               slMode === "pct" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"
                             }`}
                           >
@@ -1232,11 +1232,11 @@ export default function DesktopTrading() {
                           </button>
                           <button
                             onClick={() => setSlMode("price")}
-                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                            className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
                               slMode === "price" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"
                             }`}
                           >
-                            USDC
+                            $
                           </button>
                         </div>
                       </div>
