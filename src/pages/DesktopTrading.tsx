@@ -22,7 +22,7 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { activeEvents, eventOptionsMap, type TradingEvent } from "@/data/events";
+import { useEvents } from "@/hooks/useEvents";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
@@ -160,7 +160,7 @@ const mockPositions = [
 
 export default function DesktopTrading() {
   const navigate = useNavigate();
-  const [selectedOption, setSelectedOption] = useState("2");
+  // selectedOption is now managed by useEvents hook
   const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">("Orders");
   const [chartTab, setChartTab] = useState<"Chart" | "Event Info">("Chart");
   
@@ -183,37 +183,38 @@ export default function DesktopTrading() {
   const [slCustomPct, setSlCustomPct] = useState("");
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
-  const [eventSearchQuery, setEventSearchQuery] = useState("");
-  const [selectedEvent, setSelectedEvent] = useState(activeEvents[0]);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  
+  // Use events hook
+  const {
+    events,
+    selectedEvent,
+    setSelectedEvent,
+    selectedOption,
+    setSelectedOption,
+    options,
+    selectedOptionData,
+    favorites,
+    toggleFavorite: toggleFavoriteBase,
+    searchQuery: eventSearchQuery,
+    setSearchQuery: setEventSearchQuery,
+    filteredEvents,
+    getEventById,
+  } = useEvents();
+  
   const countdown = useCountdown(selectedEvent.endTime);
 
   const toggleFavorite = (eventId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(eventId)) {
-        newFavorites.delete(eventId);
-        toast.success("Removed from favorites");
-      } else {
-        newFavorites.add(eventId);
-        toast.success("Added to favorites");
-      }
-      return newFavorites;
-    });
+    toggleFavoriteBase(eventId, e);
+    if (favorites.has(eventId)) {
+      toast.success("Removed from favorites");
+    } else {
+      toast.success("Added to favorites");
+    }
   };
+  
   const available = 2453.42;
   const feeRate = 0.0005; // 0.05% trading fee
-
-  // Get options based on selected event
-  const options = useMemo(() => {
-    return eventOptionsMap[selectedEvent.id] || eventOptionsMap["1"];
-  }, [selectedEvent.id]);
-
-  const selectedOptionData = useMemo(() => {
-    return options.find(opt => opt.id === selectedOption) || options[0];
-  }, [selectedOption, options]);
   
   const orderBookData = useMemo(() => {
     const basePrice = parseFloat(selectedOptionData.price);
@@ -436,14 +437,11 @@ export default function DesktopTrading() {
 
               {/* Events List */}
               <div className="max-h-[300px] overflow-y-auto">
-                {activeEvents
-                  .filter(event => event.name.toLowerCase().includes(eventSearchQuery.toLowerCase()))
-                  .map((event) => (
+                {filteredEvents.map((event) => (
                     <button
                       key={event.id}
                       onClick={() => {
                         setSelectedEvent(event);
-                        setSelectedOption("1"); // Reset to first option when switching events
                         setEventDropdownOpen(false);
                         setEventSearchQuery("");
                       }}
@@ -742,7 +740,7 @@ export default function DesktopTrading() {
                                     <p className="text-sm leading-relaxed">{order.event}</p>
                                     <button 
                                       onClick={() => {
-                                        const event = activeEvents.find(e => e.name === order.event);
+                                        const event = events.find(e => e.name === order.event);
                                         if (event) {
                                           setSelectedEvent(event);
                                           setEventDropdownOpen(false);
