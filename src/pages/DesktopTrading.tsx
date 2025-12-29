@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -176,9 +176,7 @@ export default function DesktopTrading() {
   const [sliderValue, setSliderValue] = useState([0]);
   const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
-  // TP/SL unified states (matching mobile)
-  const [tpEnabled, setTpEnabled] = useState(true);
-  const [slEnabled, setSlEnabled] = useState(true);
+  // TP/SL states
   const [tpMode, setTpMode] = useState<"pct" | "price">("pct");
   const [slMode, setSlMode] = useState<"pct" | "price">("pct");
   const [tpValue, setTpValue] = useState("");
@@ -270,10 +268,8 @@ export default function DesktopTrading() {
     };
   }, [amount, leverage, selectedOptionData.price]);
 
-  // TP/SL unified calculations (matching mobile)
+  // TP/SL calculations
   const currentPrice = parseFloat(selectedOptionData.price);
-  const TP_PRESETS = [25, 50, 100, 200];
-  const SL_PRESETS = [10, 25, 50, 75];
 
   const tpslCalculations = useMemo(() => {
     const tpPct = parseFloat(tpValue) || 0;
@@ -329,9 +325,9 @@ export default function DesktopTrading() {
     { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: `${leverage}X` },
     { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
-    { label: "TP/SL", value: tpsl ? `TP: ${tpEnabled ? tpslCalculations.tpPrice : '--'} / SL: ${slEnabled ? tpslCalculations.slPrice : '--'}` : "--" },
+    { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl, tpEnabled, slEnabled, tpslCalculations, orderCalculations]);
+  ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations]);
 
   const handlePreview = () => {
     setOrderPreviewOpen(true);
@@ -1159,164 +1155,101 @@ export default function DesktopTrading() {
                 <span className="text-xs text-muted-foreground">Reduce only</span>
               </label>
               
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
-                  {tpsl && <span className="text-[10px] text-foreground">✓</span>}
-                </div>
-                <input type="checkbox" checked={tpsl} onChange={(e) => setTpsl(e.target.checked)} className="hidden" />
-                <span className="text-xs text-muted-foreground">TP/SL</span>
-              </label>
-              
-              {/* TP/SL Expanded Panel - Clean Design */}
-              {tpsl && (
-                <div className="space-y-2 animate-fade-in">
-                  {/* Take Profit Row */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setTpEnabled(!tpEnabled)}
-                        className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center transition-all ${
-                          tpEnabled 
-                            ? 'bg-trading-green/20 border-trading-green' 
-                            : 'border-muted-foreground/50 hover:border-muted-foreground'
-                        }`}
-                      >
-                        {tpEnabled && <span className="text-[8px] text-trading-green font-bold">✓</span>}
-                      </button>
-                      <span className={`text-xs ${tpEnabled ? 'text-trading-green' : 'text-muted-foreground'}`}>TP</span>
-                      
-                      {tpEnabled && (
-                        <>
-                          <div className="flex-1 flex items-center bg-muted/50 rounded px-2 py-1">
-                            <input
-                              type="text"
-                              value={tpValue}
-                              onChange={(e) => setTpValue(e.target.value)}
-                              className="flex-1 bg-transparent outline-none font-mono text-xs w-12"
-                              placeholder="0"
-                            />
-                            <div className="flex bg-muted rounded p-0.5 ml-1">
-                              <button
-                                onClick={() => setTpMode("pct")}
-                                className={`px-1.5 py-0.5 rounded text-[9px] transition-colors ${
-                                  tpMode === "pct" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"
-                                }`}
-                              >
-                                %
-                              </button>
-                              <button
-                                onClick={() => setTpMode("price")}
-                                className={`px-1.5 py-0.5 rounded text-[9px] transition-colors ${
-                                  tpMode === "price" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"
-                                }`}
-                              >
-                                $
-                              </button>
-                            </div>
-                          </div>
-                          {tpValue && (
-                            <span className="text-[10px] text-trading-green font-mono whitespace-nowrap">
-                              +${tpslCalculations.tpPnL}
-                            </span>
-                          )}
-                        </>
-                      )}
+              {/* TP/SL Section - Simple Dropdown Style */}
+              <div className="space-y-2">
+                <button 
+                  onClick={() => setTpsl(!tpsl)}
+                  className="flex items-center justify-between w-full"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
+                      {tpsl && <span className="text-[10px] text-foreground">✓</span>}
                     </div>
-                    
-                    {/* TP Presets - Compact */}
-                    {tpEnabled && tpMode === "pct" && (
-                      <div className="flex gap-1 pl-5">
-                        {TP_PRESETS.map((pct) => (
+                    <span className="text-xs text-muted-foreground">TP/SL</span>
+                  </div>
+                  {tpsl ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                
+                {tpsl && (
+                  <div className="space-y-2 animate-fade-in">
+                    {/* Take Profit */}
+                    <div className="space-y-1">
+                      <span className="text-xs text-trading-green">Take Profit</span>
+                      <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+                        <input
+                          type="text"
+                          value={tpValue}
+                          onChange={(e) => setTpValue(e.target.value)}
+                          className="flex-1 bg-transparent outline-none font-mono text-sm"
+                          placeholder={tpMode === "pct" ? "0" : "0.0000"}
+                        />
+                        <div className="flex bg-background/50 rounded p-0.5">
                           <button
-                            key={pct}
-                            onClick={() => setTpValue(pct.toString())}
-                            className={`px-2 py-0.5 text-[9px] rounded transition-all ${
-                              tpValue === pct.toString()
-                                ? "bg-trading-green/20 text-trading-green"
-                                : "text-muted-foreground hover:text-trading-green"
+                            onClick={() => setTpMode("pct")}
+                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                              tpMode === "pct" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"
                             }`}
                           >
-                            +{pct}%
+                            %
                           </button>
-                        ))}
+                          <button
+                            onClick={() => setTpMode("price")}
+                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                              tpMode === "price" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"
+                            }`}
+                          >
+                            USDC
+                          </button>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                      {tpValue && tpMode === "pct" && (
+                        <div className="flex justify-between text-[10px] text-muted-foreground px-1">
+                          <span>Target: ${tpslCalculations.tpPrice}</span>
+                          <span className="text-trading-green">+${tpslCalculations.tpPnL}</span>
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Stop Loss Row */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setSlEnabled(!slEnabled)}
-                        className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center transition-all ${
-                          slEnabled 
-                            ? 'bg-trading-red/20 border-trading-red' 
-                            : 'border-muted-foreground/50 hover:border-muted-foreground'
-                        }`}
-                      >
-                        {slEnabled && <span className="text-[8px] text-trading-red font-bold">✓</span>}
-                      </button>
-                      <span className={`text-xs ${slEnabled ? 'text-trading-red' : 'text-muted-foreground'}`}>SL</span>
-                      
-                      {slEnabled && (
-                        <>
-                          <div className="flex-1 flex items-center bg-muted/50 rounded px-2 py-1">
-                            <input
-                              type="text"
-                              value={slValue}
-                              onChange={(e) => setSlValue(e.target.value)}
-                              className="flex-1 bg-transparent outline-none font-mono text-xs w-12"
-                              placeholder="0"
-                            />
-                            <div className="flex bg-muted rounded p-0.5 ml-1">
-                              <button
-                                onClick={() => setSlMode("pct")}
-                                className={`px-1.5 py-0.5 rounded text-[9px] transition-colors ${
-                                  slMode === "pct" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"
-                                }`}
-                              >
-                                %
-                              </button>
-                              <button
-                                onClick={() => setSlMode("price")}
-                                className={`px-1.5 py-0.5 rounded text-[9px] transition-colors ${
-                                  slMode === "price" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"
-                                }`}
-                              >
-                                $
-                              </button>
-                            </div>
-                          </div>
-                          {slValue && (
-                            <span className="text-[10px] text-trading-red font-mono whitespace-nowrap">
-                              {tpslCalculations.slPnL}
-                            </span>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    
-                    {/* SL Presets - Compact */}
-                    {slEnabled && slMode === "pct" && (
-                      <div className="flex gap-1 pl-5">
-                        {SL_PRESETS.map((pct) => (
+                    {/* Stop Loss */}
+                    <div className="space-y-1">
+                      <span className="text-xs text-trading-red">Stop Loss</span>
+                      <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+                        <input
+                          type="text"
+                          value={slValue}
+                          onChange={(e) => setSlValue(e.target.value)}
+                          className="flex-1 bg-transparent outline-none font-mono text-sm"
+                          placeholder={slMode === "pct" ? "0" : "0.0000"}
+                        />
+                        <div className="flex bg-background/50 rounded p-0.5">
                           <button
-                            key={pct}
-                            onClick={() => setSlValue(pct.toString())}
-                            className={`px-2 py-0.5 text-[9px] rounded transition-all ${
-                              slValue === pct.toString()
-                                ? "bg-trading-red/20 text-trading-red"
-                                : "text-muted-foreground hover:text-trading-red"
+                            onClick={() => setSlMode("pct")}
+                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                              slMode === "pct" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"
                             }`}
                           >
-                            -{pct}%
+                            %
                           </button>
-                        ))}
+                          <button
+                            onClick={() => setSlMode("price")}
+                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                              slMode === "price" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"
+                            }`}
+                          >
+                            USDC
+                          </button>
+                        </div>
                       </div>
-                    )}
+                      {slValue && slMode === "pct" && (
+                        <div className="flex justify-between text-[10px] text-muted-foreground px-1">
+                          <span>Target: ${tpslCalculations.slPrice}</span>
+                          <span className="text-trading-red">{tpslCalculations.slPnL}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Order Summary */}
