@@ -481,6 +481,68 @@ export default function DesktopTrading() {
             </Popover>
           )}
 
+          {/* Current Price Badge for Bitcoin events */}
+          {selectedEvent.currentPrice !== undefined && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button 
+                  className="flex items-center gap-2 px-3 py-1.5 bg-trading-yellow/10 border border-trading-yellow/30 rounded-lg hover:bg-trading-yellow/20 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-trading-yellow rounded-full animate-pulse" />
+                    <span className="text-xs text-muted-foreground">Current Price</span>
+                  </div>
+                  <span className="text-sm text-trading-yellow font-mono font-bold">{selectedEvent.currentPrice}</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-3" align="start">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">BTC/USD</span>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-trading-yellow">{selectedEvent.currentPrice}</div>
+                      {selectedEvent.priceChange24h && (
+                        <div className={`text-xs font-mono ${selectedEvent.priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
+                          {selectedEvent.priceChange24h} (24h)
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {selectedEvent.stats && (
+                    <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
+                      <div className="flex justify-between">
+                        <span>24h High</span>
+                        <span className="text-trading-green font-mono">{selectedEvent.stats.high24h}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>24h Low</span>
+                        <span className="text-trading-red font-mono">{selectedEvent.stats.low24h}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>24h Volume</span>
+                        <span className="font-mono">{selectedEvent.stats.volume24h}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Market Cap</span>
+                        <span className="font-mono">{selectedEvent.stats.marketCap}</span>
+                      </div>
+                    </div>
+                  )}
+                  <a
+                    href="https://www.coingecko.com/en/coins/bitcoin"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    View on CoinGecko
+                  </a>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+
           {/* Event Dropdown */}
           {eventDropdownOpen && (
             <div className="absolute left-0 top-full mt-2 z-50 bg-background border border-border rounded-lg shadow-xl w-[500px]">
