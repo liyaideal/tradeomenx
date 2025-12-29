@@ -179,6 +179,10 @@ export default function DesktopTrading() {
   const [tpsl, setTpsl] = useState(false);
   const [tpPrice, setTpPrice] = useState("");
   const [slPrice, setSlPrice] = useState("");
+  const [tpCustomMode, setTpCustomMode] = useState(false);
+  const [slCustomMode, setSlCustomMode] = useState(false);
+  const [tpCustomPct, setTpCustomPct] = useState("");
+  const [slCustomPct, setSlCustomPct] = useState("");
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [eventSearchQuery, setEventSearchQuery] = useState("");
@@ -945,20 +949,60 @@ export default function DesktopTrading() {
                     </div>
                     {/* TP Quick Buttons */}
                     <div className="flex gap-1">
-                      {[5, 10, 25, 50].map((pct) => (
+                      {[5, 10, 25].map((pct) => (
                         <button
                           key={pct}
                           onClick={() => {
                             const basePrice = parseFloat(selectedOptionData.price);
                             const newPrice = (basePrice * (1 + pct / 100)).toFixed(4);
                             setTpPrice(newPrice);
+                            setTpCustomMode(false);
                           }}
                           className="flex-1 py-1 text-[10px] rounded bg-trading-green/10 text-trading-green hover:bg-trading-green/20 transition-colors"
                         >
                           +{pct}%
                         </button>
                       ))}
+                      <button
+                        onClick={() => setTpCustomMode(!tpCustomMode)}
+                        className={`flex-1 py-1 text-[10px] rounded transition-colors ${
+                          tpCustomMode 
+                            ? 'bg-trading-green text-background' 
+                            : 'bg-trading-green/10 text-trading-green hover:bg-trading-green/20'
+                        }`}
+                      >
+                        Custom
+                      </button>
                     </div>
+                    {/* TP Custom Input */}
+                    {tpCustomMode && (
+                      <div className="flex items-center gap-1 animate-fade-in">
+                        <div className="flex items-center bg-muted rounded-lg px-2 py-1 flex-1">
+                          <span className="text-trading-green text-[10px] mr-1">+</span>
+                          <input
+                            type="text"
+                            value={tpCustomPct}
+                            onChange={(e) => setTpCustomPct(e.target.value)}
+                            placeholder="0"
+                            className="flex-1 bg-transparent outline-none font-mono text-xs w-8"
+                          />
+                          <span className="text-muted-foreground text-[10px]">%</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const pct = parseFloat(tpCustomPct);
+                            if (!isNaN(pct) && pct > 0) {
+                              const basePrice = parseFloat(selectedOptionData.price);
+                              const newPrice = (basePrice * (1 + pct / 100)).toFixed(4);
+                              setTpPrice(newPrice);
+                            }
+                          }}
+                          className="px-2 py-1 text-[10px] rounded bg-trading-green text-background hover:bg-trading-green/90 transition-colors"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Stop Loss */}
@@ -981,20 +1025,60 @@ export default function DesktopTrading() {
                     </div>
                     {/* SL Quick Buttons */}
                     <div className="flex gap-1">
-                      {[5, 10, 25, 50].map((pct) => (
+                      {[5, 10, 25].map((pct) => (
                         <button
                           key={pct}
                           onClick={() => {
                             const basePrice = parseFloat(selectedOptionData.price);
                             const newPrice = (basePrice * (1 - pct / 100)).toFixed(4);
                             setSlPrice(newPrice);
+                            setSlCustomMode(false);
                           }}
                           className="flex-1 py-1 text-[10px] rounded bg-trading-red/10 text-trading-red hover:bg-trading-red/20 transition-colors"
                         >
                           -{pct}%
                         </button>
                       ))}
+                      <button
+                        onClick={() => setSlCustomMode(!slCustomMode)}
+                        className={`flex-1 py-1 text-[10px] rounded transition-colors ${
+                          slCustomMode 
+                            ? 'bg-trading-red text-foreground' 
+                            : 'bg-trading-red/10 text-trading-red hover:bg-trading-red/20'
+                        }`}
+                      >
+                        Custom
+                      </button>
                     </div>
+                    {/* SL Custom Input */}
+                    {slCustomMode && (
+                      <div className="flex items-center gap-1 animate-fade-in">
+                        <div className="flex items-center bg-muted rounded-lg px-2 py-1 flex-1">
+                          <span className="text-trading-red text-[10px] mr-1">-</span>
+                          <input
+                            type="text"
+                            value={slCustomPct}
+                            onChange={(e) => setSlCustomPct(e.target.value)}
+                            placeholder="0"
+                            className="flex-1 bg-transparent outline-none font-mono text-xs w-8"
+                          />
+                          <span className="text-muted-foreground text-[10px]">%</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const pct = parseFloat(slCustomPct);
+                            if (!isNaN(pct) && pct > 0) {
+                              const basePrice = parseFloat(selectedOptionData.price);
+                              const newPrice = (basePrice * (1 - pct / 100)).toFixed(4);
+                              setSlPrice(newPrice);
+                            }
+                          }}
+                          className="px-2 py-1 text-[10px] rounded bg-trading-red text-foreground hover:bg-trading-red/90 transition-colors"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
