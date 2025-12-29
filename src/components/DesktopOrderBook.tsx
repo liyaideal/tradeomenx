@@ -29,6 +29,7 @@ interface DesktopOrderBookProps {
   currentPrice: string;
   priceChange?: string;
   isPositive?: boolean;
+  onPriceClick?: (price: string) => void;
 }
 
 // Generate mock recent trades
@@ -134,7 +135,8 @@ export const DesktopOrderBook = ({
   bids: initialBids, 
   currentPrice: initialPrice, 
   priceChange = "88,132.18",
-  isPositive: initialIsPositive = false 
+  isPositive: initialIsPositive = false,
+  onPriceClick
 }: DesktopOrderBookProps) => {
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
@@ -343,6 +345,7 @@ export const DesktopOrderBook = ({
                   return (
                     <div
                       key={`ask-${ask.price}-${index}`}
+                      onClick={() => onPriceClick?.(ask.price)}
                       className={`relative grid grid-cols-3 text-xs px-3 py-0.5 hover:bg-muted/30 cursor-pointer transition-all ${ask.isUpdated ? 'flash-update-red' : ''}`}
                     >
                       <div 
@@ -389,6 +392,7 @@ export const DesktopOrderBook = ({
                   return (
                     <div
                       key={`bid-${bid.price}-${index}`}
+                      onClick={() => onPriceClick?.(bid.price)}
                       className={`relative grid grid-cols-3 text-xs px-3 py-0.5 hover:bg-muted/30 cursor-pointer transition-all ${bid.isUpdated ? 'flash-update-green' : ''}`}
                     >
                       <div 
@@ -417,6 +421,7 @@ export const DesktopOrderBook = ({
                   return (
                     <div
                       key={`bid-${index}`}
+                      onClick={() => onPriceClick?.(bid.price)}
                       className="relative grid grid-cols-3 text-xs px-3 py-0.5 hover:bg-muted/30 cursor-pointer"
                     >
                       <div 
@@ -467,6 +472,7 @@ export const DesktopOrderBook = ({
                   return (
                     <div
                       key={`ask-${index}`}
+                      onClick={() => onPriceClick?.(ask.price)}
                       className="relative grid grid-cols-3 text-xs px-3 py-0.5 hover:bg-muted/30 cursor-pointer"
                     >
                       <div 
