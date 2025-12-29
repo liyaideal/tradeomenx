@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Wallet, CreditCard, Building, Copy, Check } from "lucide-react";
+import { Wallet, CreditCard, Copy, Check } from "lucide-react";
 
 interface TopUpDialogProps {
   open: boolean;
@@ -19,6 +19,11 @@ interface TopUpDialogProps {
 const QUICK_AMOUNTS = [100, 500, 1000, 5000];
 
 const DEPOSIT_ADDRESS = "0x1a2b3c4d5e6f7890abcdef1234567890abcdef12";
+
+// Generate QR code URL using Google Chart API
+const getQRCodeUrl = (text: string, size: number = 160) => {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&bgcolor=1a1a2e&color=ffffff`;
+};
 
 export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: TopUpDialogProps) {
   const [amount, setAmount] = useState<string>("");
@@ -45,9 +50,8 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
   };
 
   const methods = [
-    { id: "crypto", label: "Crypto", icon: Wallet, description: "Deposit USDC directly" },
-    { id: "card", label: "Card", icon: CreditCard, description: "Visa, Mastercard" },
-    { id: "bank", label: "Bank", icon: Building, description: "Wire transfer" },
+    { id: "crypto", label: "Crypto", icon: Wallet },
+    { id: "card", label: "Card", icon: CreditCard },
   ];
 
   return (
@@ -67,7 +71,7 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
           {/* Deposit Method */}
           <div className="space-y-2">
             <label className="text-xs text-muted-foreground">Deposit Method</label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {methods.map((method) => (
                 <button
                   key={method.id}
@@ -85,31 +89,47 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
             </div>
           </div>
 
-          {/* Crypto Deposit Address */}
+          {/* Crypto Deposit */}
           {selectedMethod === "crypto" && (
-            <div className="space-y-2">
-              <label className="text-xs text-muted-foreground">USDC Deposit Address (Ethereum)</label>
-              <div className="flex items-center gap-2 bg-muted rounded-lg p-3">
-                <code className="flex-1 text-xs font-mono truncate">{DEPOSIT_ADDRESS}</code>
-                <button
-                  onClick={handleCopyAddress}
-                  className="p-1.5 rounded hover:bg-muted-foreground/20 transition-colors"
-                >
-                  {copied ? (
-                    <Check className="w-4 h-4 text-trading-green" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </button>
+            <div className="space-y-4">
+              {/* QR Code */}
+              <div className="flex flex-col items-center">
+                <div className="bg-white p-3 rounded-xl">
+                  <img 
+                    src={getQRCodeUrl(DEPOSIT_ADDRESS, 160)} 
+                    alt="Deposit QR Code"
+                    className="w-40 h-40"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">Scan to deposit USDC (Ethereum)</p>
               </div>
-              <p className="text-xs text-muted-foreground">
+
+              {/* Address */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">Or copy address</label>
+                <div className="flex items-center gap-2 bg-muted rounded-lg p-3">
+                  <code className="flex-1 text-xs font-mono truncate">{DEPOSIT_ADDRESS}</code>
+                  <button
+                    onClick={handleCopyAddress}
+                    className="p-1.5 rounded hover:bg-muted-foreground/20 transition-colors"
+                  >
+                    {copied ? (
+                      <Check className="w-4 h-4 text-trading-green" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground text-center">
                 Send USDC to this address. Funds will appear after network confirmation.
               </p>
             </div>
           )}
 
-          {/* Amount Input (for Card/Bank) */}
-          {selectedMethod !== "crypto" && (
+          {/* Card Payment */}
+          {selectedMethod === "card" && (
             <>
               <div className="space-y-2">
                 <label className="text-xs text-muted-foreground">Amount (USDC)</label>
@@ -163,7 +183,7 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
                 disabled={!amount || parseFloat(amount) <= 0}
                 className="w-full h-11 bg-trading-green hover:bg-trading-green/90 text-background font-medium"
               >
-                {selectedMethod === "card" ? "Pay with Card" : "Continue to Bank Transfer"}
+                Pay with Card
               </Button>
             </>
           )}
