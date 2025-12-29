@@ -436,53 +436,8 @@ export default function DesktopTrading() {
             </div>
           </button>
           
-          {/* Tweet Count Badge - Separate from dropdown trigger */}
-          {selectedEvent.tweetCount !== undefined && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button 
-                  className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 border border-orange-500/30 rounded-lg hover:bg-orange-500/20 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                    <span className="text-xs text-muted-foreground">Current Tweets</span>
-                  </div>
-                  <span className="text-sm text-orange-500 font-mono font-bold">{selectedEvent.tweetCount}</span>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-3" align="start">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Tweet Count</span>
-                    <span className="text-lg font-bold text-orange-500">{selectedEvent.tweetCount}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <div className="flex justify-between">
-                      <span>Period</span>
-                      <span>Dec 12 - Dec 19, 2025</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Last updated</span>
-                      <span>Just now</span>
-                    </div>
-                  </div>
-                  <a
-                    href="https://x.com/elonmusk"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                    View on X (Twitter)
-                  </a>
-                </div>
-              </PopoverContent>
-            </Popover>
-          )}
-
-          {/* Current Price Badge for Bitcoin events */}
-          {selectedEvent.currentPrice !== undefined && (
+          {/* Real-time Indicator Badge - Unified for all event types */}
+          {(selectedEvent.tweetCount !== undefined || selectedEvent.currentPrice !== undefined) && (
             <Popover>
               <PopoverTrigger asChild>
                 <button 
@@ -491,17 +446,25 @@ export default function DesktopTrading() {
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-trading-yellow rounded-full animate-pulse" />
-                    <span className="text-xs text-muted-foreground">Current Price</span>
+                    <span className="text-xs text-muted-foreground">
+                      {selectedEvent.currentPrice ? "Current Price" : "Current Tweets"}
+                    </span>
                   </div>
-                  <span className="text-sm text-trading-yellow font-mono font-bold">{selectedEvent.currentPrice}</span>
+                  <span className="text-sm text-trading-yellow font-mono font-bold">
+                    {selectedEvent.currentPrice || selectedEvent.tweetCount}
+                  </span>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-72 p-3" align="start">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">BTC/USD</span>
+                    <span className="text-sm font-medium">
+                      {selectedEvent.currentPrice ? "BTC/USD" : "Tweet Count"}
+                    </span>
                     <div className="text-right">
-                      <div className="text-lg font-bold text-trading-yellow">{selectedEvent.currentPrice}</div>
+                      <div className="text-lg font-bold text-trading-yellow">
+                        {selectedEvent.currentPrice || selectedEvent.tweetCount}
+                      </div>
                       {selectedEvent.priceChange24h && (
                         <div className={`text-xs font-mono ${selectedEvent.priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
                           {selectedEvent.priceChange24h} (24h)
@@ -509,6 +472,8 @@ export default function DesktopTrading() {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Stats section for price events */}
                   {selectedEvent.stats && (
                     <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
                       <div className="flex justify-between">
@@ -529,14 +494,29 @@ export default function DesktopTrading() {
                       </div>
                     </div>
                   )}
+                  
+                  {/* Period info for tweet events */}
+                  {selectedEvent.tweetCount !== undefined && !selectedEvent.currentPrice && (
+                    <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
+                      <div className="flex justify-between">
+                        <span>Period</span>
+                        <span>Dec 12 - Dec 19, 2025</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Last updated</span>
+                        <span>Just now</span>
+                      </div>
+                    </div>
+                  )}
+                  
                   <a
-                    href="https://www.coingecko.com/en/coins/bitcoin"
+                    href={selectedEvent.currentPrice ? "https://www.coingecko.com/en/coins/bitcoin" : "https://x.com/elonmusk"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-xs text-primary hover:underline"
                   >
                     <ExternalLink className="w-3 h-3" />
-                    View on CoinGecko
+                    {selectedEvent.currentPrice ? "View on CoinGecko" : "View on X (Twitter)"}
                   </a>
                 </div>
               </PopoverContent>
