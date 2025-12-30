@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -144,6 +144,8 @@ const mockPositions = [
     pnl: "+$64.00",
     pnlPercent: "+8.0%",
     leverage: "10x",
+    tp: "",
+    sl: "",
   },
   {
     type: "short" as const,
@@ -156,6 +158,8 @@ const mockPositions = [
     pnl: "+$33.00",
     pnlPercent: "+11.0%",
     leverage: "10x",
+    tp: "",
+    sl: "",
   },
 ];
 
@@ -185,6 +189,37 @@ export default function DesktopTrading() {
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
+  
+  // Position TP/SL edit state
+  const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
+  const [editingPositionIndex, setEditingPositionIndex] = useState<number | null>(null);
+  const [positionTpValue, setPositionTpValue] = useState("");
+  const [positionSlValue, setPositionSlValue] = useState("");
+  const [positionTpMode, setPositionTpMode] = useState<"%" | "$">("$");
+  const [positionSlMode, setPositionSlMode] = useState<"%" | "$">("$");
+  
+  const handleEditPositionTpSl = (index: number) => {
+    const position = mockPositions[index];
+    setEditingPositionIndex(index);
+    setPositionTpValue(position.tp || "");
+    setPositionSlValue(position.sl || "");
+    setPositionTpSlOpen(true);
+  };
+  
+  const handleSavePositionTpSl = () => {
+    toast.success("TP/SL Updated", {
+      description: `Take Profit: ${positionTpValue || "Not set"}, Stop Loss: ${positionSlValue || "Not set"}`,
+    });
+    setPositionTpSlOpen(false);
+    setEditingPositionIndex(null);
+  };
+  
+  const handleCancelPositionTpSl = () => {
+    setPositionTpValue("");
+    setPositionSlValue("");
+    setPositionTpSlOpen(false);
+    setEditingPositionIndex(null);
+  };
   
   // Use events hook
   const {
@@ -948,7 +983,23 @@ export default function DesktopTrading() {
                             <span className={`text-xs ml-1 ${position.pnlPercent.startsWith("+") ? "text-trading-green" : "text-trading-red"}`}>({position.pnlPercent})</span>
                           </td>
                           <td className="px-4 py-2 text-sm">{position.leverage}</td>
-                          <td className="px-4 py-2 text-center text-sm text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-center">
+                            <button
+                              onClick={() => handleEditPositionTpSl(index)}
+                              className="flex items-center gap-1 px-2 py-1 rounded bg-muted hover:bg-muted/80 transition-colors group mx-auto"
+                            >
+                              {position.tp || position.sl ? (
+                                <span className="text-xs">
+                                  {position.tp && <span className="text-trading-green">TP: {position.tp}</span>}
+                                  {position.tp && position.sl && " / "}
+                                  {position.sl && <span className="text-trading-red">SL: {position.sl}</span>}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">Add</span>
+                              )}
+                              <Pencil className="w-3 h-3 text-muted-foreground group-hover:text-foreground" />
+                            </button>
+                          </td>
                           <td className="px-4 py-2 text-center">
                             <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">Close</button>
                           </td>
@@ -1344,6 +1395,125 @@ export default function DesktopTrading() {
           toast.success(`Top up of $${amount} via ${method} initiated`);
         }}
       />
+      
+      {/* Position TP/SL Edit Dialog */}
+      <Dialog open={positionTpSlOpen} onOpenChange={setPositionTpSlOpen}>
+        <DialogContent className="max-w-sm bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-base">Edit TP/SL</DialogTitle>
+          </DialogHeader>
+          
+          {editingPositionIndex !== null && mockPositions[editingPositionIndex] && (
+            <div className="space-y-4">
+              {/* Position Info */}
+              <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Position</span>
+                  <span className={mockPositions[editingPositionIndex].type === "long" ? "text-trading-green" : "text-trading-red"}>
+                    {mockPositions[editingPositionIndex].type === "long" ? "Long" : "Short"} {mockPositions[editingPositionIndex].leverage}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Contract</span>
+                  <span className="font-medium">{mockPositions[editingPositionIndex].option}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Entry Price</span>
+                  <span className="font-mono">{mockPositions[editingPositionIndex].entryPrice}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Mark Price</span>
+                  <span className="font-mono">{mockPositions[editingPositionIndex].markPrice}</span>
+                </div>
+              </div>
+
+              {/* Take Profit */}
+              <div className="space-y-2">
+                <label className="text-xs text-trading-green font-medium">Take Profit</label>
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <input
+                      type="number"
+                      value={positionTpValue}
+                      onChange={(e) => setPositionTpValue(e.target.value)}
+                      placeholder="0"
+                      className="w-full bg-muted border-0 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
+                    <button
+                      onClick={() => setPositionTpMode("%")}
+                      className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
+                        positionTpMode === "%" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      %
+                    </button>
+                    <button
+                      onClick={() => setPositionTpMode("$")}
+                      className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
+                        positionTpMode === "$" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      $
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stop Loss */}
+              <div className="space-y-2">
+                <label className="text-xs text-trading-red font-medium">Stop Loss</label>
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <input
+                      type="number"
+                      value={positionSlValue}
+                      onChange={(e) => setPositionSlValue(e.target.value)}
+                      placeholder="0"
+                      className="w-full bg-muted border-0 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
+                    <button
+                      onClick={() => setPositionSlMode("%")}
+                      className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
+                        positionSlMode === "%" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      %
+                    </button>
+                    <button
+                      onClick={() => setPositionSlMode("$")}
+                      className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
+                        positionSlMode === "$" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      $
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={handleCancelPositionTpSl}
+                  className="flex-1 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSavePositionTpSl}
+                  className="flex-1 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
