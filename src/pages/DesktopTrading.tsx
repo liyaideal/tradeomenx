@@ -888,33 +888,29 @@ export default function DesktopTrading() {
                         <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
                           <td className="px-4 py-2">
                             <div className="text-sm font-medium">{order.option}</div>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="text-xs text-muted-foreground truncate max-w-[180px] cursor-help hover:text-foreground transition-colors">
-                                    {order.event}
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom" align="start" className="max-w-[320px] p-3">
-                                  <div className="space-y-2">
-                                    <p className="text-sm leading-relaxed">{order.event}</p>
-                                    <button 
-                                      onClick={() => {
-                                        const event = events.find(e => e.name === order.event);
-                                        if (event) {
-                                          setSelectedEvent(event);
-                                          setEventDropdownOpen(false);
-                                        }
-                                      }}
-                                      className="flex items-center gap-1 text-xs text-trading-purple hover:underline"
-                                    >
-                                      <ExternalLink className="w-3 h-3" />
-                                      Go to this event
-                                    </button>
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <div className="text-xs text-muted-foreground truncate max-w-[180px] cursor-help border-b border-dashed border-transparent hover:border-muted-foreground inline-block">
+                                  {order.event}
+                                </div>
+                              </HoverCardTrigger>
+                              <HoverCardContent className="w-72 p-3" side="bottom" align="start">
+                                <p className="text-sm font-medium mb-2">{order.event}</p>
+                                <button 
+                                  onClick={() => {
+                                    const event = events.find(e => e.name === order.event);
+                                    if (event) {
+                                      setSelectedEvent(event);
+                                      setEventDropdownOpen(false);
+                                    }
+                                  }}
+                                  className="text-sm text-primary flex items-center gap-1.5 hover:underline"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                  Go to this event
+                                </button>
+                              </HoverCardContent>
+                            </HoverCard>
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
