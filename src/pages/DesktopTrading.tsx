@@ -18,6 +18,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { TopUpDialog } from "@/components/TopUpDialog";
@@ -992,8 +997,25 @@ export default function DesktopTrading() {
                       positions.map((position, index) => (
                         <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
                           <td className="px-4 py-2">
-                            <div className="text-sm font-medium">{position.option}</div>
-                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">{position.event}</div>
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <div className="cursor-help">
+                                  <div className="text-sm font-medium border-b border-dashed border-muted-foreground hover:border-foreground transition-colors inline-block">{position.option}</div>
+                                  <div className="text-xs text-muted-foreground truncate max-w-[180px]">{position.event}</div>
+                                </div>
+                              </HoverCardTrigger>
+                              <HoverCardContent className="w-72 p-3" side="bottom" align="start">
+                                <p className="text-sm font-medium mb-2">{position.event}</p>
+                                <a 
+                                  href="#" 
+                                  className="text-sm text-primary flex items-center gap-1.5 hover:underline"
+                                  onClick={(e) => e.preventDefault()}
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                  Go to this event
+                                </a>
+                              </HoverCardContent>
+                            </HoverCard>
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${position.type === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
