@@ -997,11 +997,11 @@ export default function DesktopTrading() {
                       positions.map((position, index) => (
                         <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
                           <td className="px-4 py-2">
+                            <div className="text-sm font-medium">{position.option}</div>
                             <HoverCard>
                               <HoverCardTrigger asChild>
-                                <div className="cursor-help">
-                                  <div className="text-sm font-medium border-b border-dashed border-muted-foreground hover:border-foreground transition-colors inline-block">{position.option}</div>
-                                  <div className="text-xs text-muted-foreground truncate max-w-[180px]">{position.event}</div>
+                                <div className="text-xs text-muted-foreground truncate max-w-[180px] cursor-help border-b border-dashed border-transparent hover:border-muted-foreground inline-block">
+                                  {position.event}
                                 </div>
                               </HoverCardTrigger>
                               <HoverCardContent className="w-72 p-3" side="bottom" align="start">
