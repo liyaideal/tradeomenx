@@ -43,6 +43,8 @@ export const PositionCard = ({
   // Use saved state to persist values after dialog closes
   const [savedTp, setSavedTp] = useState(initialTp);
   const [savedSl, setSavedSl] = useState(initialSl);
+  const [savedTpMode, setSavedTpMode] = useState<"%" | "$">("$");
+  const [savedSlMode, setSavedSlMode] = useState<"%" | "$">("$");
   const [tpValue, setTpValue] = useState(initialTp);
   const [slValue, setSlValue] = useState(initialSl);
   const [tpMode, setTpMode] = useState<"%" | "$">("$");
@@ -52,9 +54,11 @@ export const PositionCard = ({
   const handleSave = () => {
     setSavedTp(tpValue);
     setSavedSl(slValue);
+    setSavedTpMode(tpMode);
+    setSavedSlMode(slMode);
     toast({
       title: "TP/SL Updated",
-      description: `Take Profit: ${tpValue || "Not set"}, Stop Loss: ${slValue || "Not set"}`,
+      description: `Take Profit: ${tpValue ? (tpMode === "%" ? `+${tpValue}%` : `$${tpValue}`) : "Not set"}, Stop Loss: ${slValue ? (slMode === "%" ? `-${slValue}%` : `$${slValue}`) : "Not set"}`,
     });
     setTpSlOpen(false);
   };
@@ -62,16 +66,29 @@ export const PositionCard = ({
   const handleCancel = () => {
     setTpValue(savedTp);
     setSlValue(savedSl);
+    setTpMode(savedTpMode);
+    setSlMode(savedSlMode);
     setTpSlOpen(false);
   };
 
   const handleOpenDialog = () => {
     setTpValue(savedTp);
     setSlValue(savedSl);
+    setTpMode(savedTpMode);
+    setSlMode(savedSlMode);
     setTpSlOpen(true);
   };
 
   const hasTpSl = savedTp || savedSl;
+  
+  // Format display with unit
+  const formatTpSl = (value: string, mode: "%" | "$", isProfit: boolean) => {
+    if (!value) return "";
+    if (mode === "%") {
+      return isProfit ? `+${value}%` : `-${value}%`;
+    }
+    return `$${value}`;
+  };
 
   return (
     <>
@@ -133,9 +150,9 @@ export const PositionCard = ({
           >
             {hasTpSl ? (
               <>
-                {savedTp && <span className="text-trading-green font-mono">{savedTp}</span>}
+                {savedTp && <span className="text-trading-green font-mono">{formatTpSl(savedTp, savedTpMode, true)}</span>}
                 {savedTp && savedSl && <span className="text-muted-foreground">/</span>}
-                {savedSl && <span className="text-trading-red font-mono">{savedSl}</span>}
+                {savedSl && <span className="text-trading-red font-mono">{formatTpSl(savedSl, savedSlMode, false)}</span>}
               </>
             ) : (
               <span className="text-muted-foreground">--</span>
