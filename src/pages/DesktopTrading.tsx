@@ -146,6 +146,8 @@ const initialPositions = [
     leverage: "10x",
     tp: "",
     sl: "",
+    tpMode: "%" as "%" | "$",
+    slMode: "%" as "%" | "$",
   },
   {
     type: "short" as const,
@@ -160,8 +162,19 @@ const initialPositions = [
     leverage: "10x",
     tp: "",
     sl: "",
+    tpMode: "%" as "%" | "$",
+    slMode: "%" as "%" | "$",
   },
 ];
+
+// Format TP/SL display with unit
+const formatTpSlDisplay = (value: string, mode: "%" | "$", isProfit: boolean) => {
+  if (!value) return "";
+  if (mode === "%") {
+    return isProfit ? `+${value}%` : `-${value}%`;
+  }
+  return `$${value}`;
+};
 
 export default function DesktopTrading() {
   const navigate = useNavigate();
@@ -206,6 +219,8 @@ export default function DesktopTrading() {
     setEditingPositionIndex(index);
     setPositionTpValue(position.tp || "");
     setPositionSlValue(position.sl || "");
+    setPositionTpMode(position.tpMode || "%");
+    setPositionSlMode(position.slMode || "%");
     setPositionTpSlOpen(true);
   };
   
@@ -213,12 +228,14 @@ export default function DesktopTrading() {
     if (editingPositionIndex !== null) {
       setPositions(prev => prev.map((pos, idx) => 
         idx === editingPositionIndex 
-          ? { ...pos, tp: positionTpValue, sl: positionSlValue }
+          ? { ...pos, tp: positionTpValue, sl: positionSlValue, tpMode: positionTpMode, slMode: positionSlMode }
           : pos
       ));
     }
+    const tpDisplay = positionTpValue ? (positionTpMode === "%" ? `+${positionTpValue}%` : `$${positionTpValue}`) : "Not set";
+    const slDisplay = positionSlValue ? (positionSlMode === "%" ? `-${positionSlValue}%` : `$${positionSlValue}`) : "Not set";
     toast.success("TP/SL Updated", {
-      description: `Take Profit: ${positionTpValue || "Not set"}, Stop Loss: ${positionSlValue || "Not set"}`,
+      description: `Take Profit: ${tpDisplay}, Stop Loss: ${slDisplay}`,
     });
     setPositionTpSlOpen(false);
     setEditingPositionIndex(null);
@@ -1000,9 +1017,9 @@ export default function DesktopTrading() {
                             >
                               {position.tp || position.sl ? (
                                 <span className="text-xs">
-                                  {position.tp && <span className="text-trading-green">TP: {position.tp}</span>}
+                                  {position.tp && <span className="text-trading-green">{formatTpSlDisplay(position.tp, position.tpMode, true)}</span>}
                                   {position.tp && position.sl && " / "}
-                                  {position.sl && <span className="text-trading-red">SL: {position.sl}</span>}
+                                  {position.sl && <span className="text-trading-red">{formatTpSlDisplay(position.sl, position.slMode, false)}</span>}
                                 </span>
                               ) : (
                                 <span className="text-xs text-muted-foreground">Add</span>
