@@ -89,6 +89,47 @@ export const PositionCard = ({
     }
     return `$${value}`;
   };
+  
+  // Parse numeric values for calculation
+  const parsePrice = (price: string) => {
+    return parseFloat(price.replace(/[$,]/g, '')) || 0;
+  };
+  
+  const parsedEntryPrice = parsePrice(entryPrice);
+  const parsedMargin = parsePrice(margin);
+  const parsedSize = parseFloat(size.replace(/,/g, '')) || 0;
+  const leverageNum = parseFloat(leverage.replace('x', '')) || 1;
+  
+  // Calculate estimated P&L based on TP/SL
+  const calculateEstimatedPnl = (value: string, mode: "%" | "$", isProfit: boolean) => {
+    if (!value || !parsedMargin) return null;
+    const numValue = parseFloat(value) || 0;
+    if (numValue === 0) return null;
+    
+    if (mode === "%") {
+      // Percentage mode: PnL = margin * (percentage / 100)
+      const pnl = parsedMargin * (numValue / 100) * leverageNum;
+      return isProfit ? pnl : -pnl;
+    } else {
+      // Price mode: Calculate based on price difference
+      const targetPrice = numValue;
+      if (parsedEntryPrice === 0 || parsedSize === 0) return null;
+      const priceDiff = targetPrice - parsedEntryPrice;
+      const pnl = type === "long" 
+        ? priceDiff * parsedSize 
+        : -priceDiff * parsedSize;
+      return pnl;
+    }
+  };
+  
+  const tpEstimatedPnl = calculateEstimatedPnl(tpValue, tpMode, true);
+  const slEstimatedPnl = calculateEstimatedPnl(slValue, slMode, false);
+  
+  const formatPnl = (pnl: number | null) => {
+    if (pnl === null) return "";
+    const sign = pnl >= 0 ? "+" : "";
+    return `${sign}$${Math.abs(pnl).toFixed(2)}`;
+  };
 
   return (
     <>
@@ -203,7 +244,14 @@ export const PositionCard = ({
 
             {/* Take Profit */}
             <div className="space-y-2">
-              <label className="text-xs text-trading-green font-medium">Take Profit</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-trading-green font-medium">Take Profit</label>
+                {tpEstimatedPnl !== null && (
+                  <span className={`text-xs font-mono ${tpEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                    Est. P&L: {formatPnl(tpEstimatedPnl)}
+                  </span>
+                )}
+              </div>
               <div className="flex gap-2">
                 <div className="flex-1 relative">
                   <input
@@ -237,7 +285,14 @@ export const PositionCard = ({
 
             {/* Stop Loss */}
             <div className="space-y-2">
-              <label className="text-xs text-trading-red font-medium">Stop Loss</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-trading-red font-medium">Stop Loss</label>
+                {slEstimatedPnl !== null && (
+                  <span className={`text-xs font-mono ${slEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                    Est. P&L: {formatPnl(slEstimatedPnl)}
+                  </span>
+                )}
+              </div>
               <div className="flex gap-2">
                 <div className="flex-1 relative">
                   <input
