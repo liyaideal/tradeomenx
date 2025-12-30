@@ -1430,33 +1430,74 @@ export default function DesktopTrading() {
             <DialogTitle className="text-base">Edit TP/SL</DialogTitle>
           </DialogHeader>
           
-          {editingPositionIndex !== null && positions[editingPositionIndex] && (
+          {editingPositionIndex !== null && positions[editingPositionIndex] && (() => {
+            const pos = positions[editingPositionIndex];
+            const parsePrice = (price: string) => parseFloat(price.replace(/[$,]/g, '')) || 0;
+            const parsedEntryPrice = parsePrice(pos.entryPrice);
+            const parsedMargin = parsePrice(pos.margin);
+            const parsedSize = parseFloat(pos.size.replace(/,/g, '')) || 0;
+            const leverageNum = parseFloat(pos.leverage.replace('x', '')) || 1;
+            
+            const calculateEstimatedPnl = (value: string, mode: "%" | "$", isProfit: boolean) => {
+              if (!value || !parsedMargin) return null;
+              const numValue = parseFloat(value) || 0;
+              if (numValue === 0) return null;
+              
+              if (mode === "%") {
+                const pnl = parsedMargin * (numValue / 100) * leverageNum;
+                return isProfit ? pnl : -pnl;
+              } else {
+                const targetPrice = numValue;
+                if (parsedEntryPrice === 0 || parsedSize === 0) return null;
+                const priceDiff = targetPrice - parsedEntryPrice;
+                const pnl = pos.type === "long" ? priceDiff * parsedSize : -priceDiff * parsedSize;
+                return pnl;
+              }
+            };
+            
+            const tpEstimatedPnl = calculateEstimatedPnl(positionTpValue, positionTpMode, true);
+            const slEstimatedPnl = calculateEstimatedPnl(positionSlValue, positionSlMode, false);
+            
+            const formatPnl = (pnl: number | null) => {
+              if (pnl === null) return "";
+              const sign = pnl >= 0 ? "+" : "";
+              return `${sign}$${Math.abs(pnl).toFixed(2)}`;
+            };
+            
+            return (
             <div className="space-y-4">
               {/* Position Info */}
               <div className="bg-muted/50 rounded-lg p-3 space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Position</span>
-                  <span className={positions[editingPositionIndex].type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {positions[editingPositionIndex].type === "long" ? "Long" : "Short"} {positions[editingPositionIndex].leverage}
+                  <span className={pos.type === "long" ? "text-trading-green" : "text-trading-red"}>
+                    {pos.type === "long" ? "Long" : "Short"} {pos.leverage}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Contract</span>
-                  <span className="font-medium">{positions[editingPositionIndex].option}</span>
+                  <span className="font-medium">{pos.option}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Entry Price</span>
-                  <span className="font-mono">{positions[editingPositionIndex].entryPrice}</span>
+                  <span className="font-mono">{pos.entryPrice}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Mark Price</span>
-                  <span className="font-mono">{positions[editingPositionIndex].markPrice}</span>
+                  <span className="font-mono">{pos.markPrice}</span>
                 </div>
               </div>
 
               {/* Take Profit */}
               <div className="space-y-2">
-                <label className="text-xs text-trading-green font-medium">Take Profit</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-trading-green font-medium">Take Profit</label>
+                  {tpEstimatedPnl !== null && (
+                    <span className={`text-xs font-mono ${tpEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                      Est. P&L: {formatPnl(tpEstimatedPnl)}
+                    </span>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <input
@@ -1490,7 +1531,14 @@ export default function DesktopTrading() {
 
               {/* Stop Loss */}
               <div className="space-y-2">
-                <label className="text-xs text-trading-red font-medium">Stop Loss</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-trading-red font-medium">Stop Loss</label>
+                  {slEstimatedPnl !== null && (
+                    <span className={`text-xs font-mono ${slEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                      Est. P&L: {formatPnl(slEstimatedPnl)}
+                    </span>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <input
@@ -1538,7 +1586,8 @@ export default function DesktopTrading() {
                 </button>
               </div>
             </div>
-          )}
+          );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
