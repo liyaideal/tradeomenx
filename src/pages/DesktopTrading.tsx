@@ -132,7 +132,7 @@ const mockOrders = [
   },
 ];
 
-const mockPositions = [
+const initialPositions = [
   {
     type: "long" as const,
     event: "Elon Musk # tweets December 12 - December 19, 2025?",
@@ -190,6 +190,9 @@ export default function DesktopTrading() {
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   
+  // Positions state (using initialPositions as starting data)
+  const [positions, setPositions] = useState(initialPositions);
+  
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
   const [editingPositionIndex, setEditingPositionIndex] = useState<number | null>(null);
@@ -199,7 +202,7 @@ export default function DesktopTrading() {
   const [positionSlMode, setPositionSlMode] = useState<"%" | "$">("$");
   
   const handleEditPositionTpSl = (index: number) => {
-    const position = mockPositions[index];
+    const position = positions[index];
     setEditingPositionIndex(index);
     setPositionTpValue(position.tp || "");
     setPositionSlValue(position.sl || "");
@@ -207,6 +210,13 @@ export default function DesktopTrading() {
   };
   
   const handleSavePositionTpSl = () => {
+    if (editingPositionIndex !== null) {
+      setPositions(prev => prev.map((pos, idx) => 
+        idx === editingPositionIndex 
+          ? { ...pos, tp: positionTpValue, sl: positionSlValue }
+          : pos
+      ));
+    }
     toast.success("TP/SL Updated", {
       description: `Take Profit: ${positionTpValue || "Not set"}, Stop Loss: ${positionSlValue || "Not set"}`,
     });
@@ -824,7 +834,7 @@ export default function DesktopTrading() {
                 >
                   {tab}
                   <span className="ml-1 text-muted-foreground">
-                    ({tab === "Current Orders" ? mockOrders.length : mockPositions.length})
+                    ({tab === "Current Orders" ? mockOrders.length : positions.length})
                   </span>
                 </button>
               ))}
@@ -957,12 +967,12 @@ export default function DesktopTrading() {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockPositions.length === 0 ? (
+                    {positions.length === 0 ? (
                       <tr>
                         <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">No open positions</td>
                       </tr>
                     ) : (
-                      mockPositions.map((position, index) => (
+                      positions.map((position, index) => (
                         <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
                           <td className="px-4 py-2">
                             <div className="text-sm font-medium">{position.option}</div>
@@ -1403,27 +1413,27 @@ export default function DesktopTrading() {
             <DialogTitle className="text-base">Edit TP/SL</DialogTitle>
           </DialogHeader>
           
-          {editingPositionIndex !== null && mockPositions[editingPositionIndex] && (
+          {editingPositionIndex !== null && positions[editingPositionIndex] && (
             <div className="space-y-4">
               {/* Position Info */}
               <div className="bg-muted/50 rounded-lg p-3 space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Position</span>
-                  <span className={mockPositions[editingPositionIndex].type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {mockPositions[editingPositionIndex].type === "long" ? "Long" : "Short"} {mockPositions[editingPositionIndex].leverage}
+                  <span className={positions[editingPositionIndex].type === "long" ? "text-trading-green" : "text-trading-red"}>
+                    {positions[editingPositionIndex].type === "long" ? "Long" : "Short"} {positions[editingPositionIndex].leverage}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Contract</span>
-                  <span className="font-medium">{mockPositions[editingPositionIndex].option}</span>
+                  <span className="font-medium">{positions[editingPositionIndex].option}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Entry Price</span>
-                  <span className="font-mono">{mockPositions[editingPositionIndex].entryPrice}</span>
+                  <span className="font-mono">{positions[editingPositionIndex].entryPrice}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Mark Price</span>
-                  <span className="font-mono">{mockPositions[editingPositionIndex].markPrice}</span>
+                  <span className="font-mono">{positions[editingPositionIndex].markPrice}</span>
                 </div>
               </div>
 

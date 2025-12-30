@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,9 @@ export const PositionCard = ({
 }: PositionCardProps) => {
   const isProfitable = !pnl.startsWith("-");
   const [tpSlOpen, setTpSlOpen] = useState(false);
+  // Use saved state to persist values after dialog closes
+  const [savedTp, setSavedTp] = useState(initialTp);
+  const [savedSl, setSavedSl] = useState(initialSl);
   const [tpValue, setTpValue] = useState(initialTp);
   const [slValue, setSlValue] = useState(initialSl);
   const [tpMode, setTpMode] = useState<"%" | "$">("$");
@@ -47,6 +50,8 @@ export const PositionCard = ({
   const { toast } = useToast();
 
   const handleSave = () => {
+    setSavedTp(tpValue);
+    setSavedSl(slValue);
     toast({
       title: "TP/SL Updated",
       description: `Take Profit: ${tpValue || "Not set"}, Stop Loss: ${slValue || "Not set"}`,
@@ -55,12 +60,18 @@ export const PositionCard = ({
   };
 
   const handleCancel = () => {
-    setTpValue(initialTp);
-    setSlValue(initialSl);
+    setTpValue(savedTp);
+    setSlValue(savedSl);
     setTpSlOpen(false);
   };
 
-  const hasTpSl = initialTp || initialSl;
+  const handleOpenDialog = () => {
+    setTpValue(savedTp);
+    setSlValue(savedSl);
+    setTpSlOpen(true);
+  };
+
+  const hasTpSl = savedTp || savedSl;
 
   return (
     <>
@@ -113,29 +124,33 @@ export const PositionCard = ({
           </div>
         </div>
 
-        {/* TP/SL Display if set */}
-        {hasTpSl && (
-          <div className="flex gap-4 mb-2 text-[10px]">
-            {initialTp && (
-              <span className="text-trading-green">
-                TP: {initialTp}
-              </span>
+        {/* TP/SL Row - Always visible */}
+        <div className="flex items-center justify-between py-2 mb-2 border-y border-border/30">
+          <span className="text-[10px] text-muted-foreground">TP/SL</span>
+          <button 
+            onClick={handleOpenDialog}
+            className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity"
+          >
+            {hasTpSl ? (
+              <>
+                {savedTp && <span className="text-trading-green font-mono">{savedTp}</span>}
+                {savedTp && savedSl && <span className="text-muted-foreground">/</span>}
+                {savedSl && <span className="text-trading-red font-mono">{savedSl}</span>}
+              </>
+            ) : (
+              <span className="text-muted-foreground">--</span>
             )}
-            {initialSl && (
-              <span className="text-trading-red">
-                SL: {initialSl}
-              </span>
-            )}
-          </div>
-        )}
+            <Pencil className="w-3 h-3 text-muted-foreground" />
+          </button>
+        </div>
 
         {/* Actions at bottom */}
-        <div className="flex gap-2 pt-2 border-t border-border/30">
+        <div className="flex gap-2">
           <button 
-            onClick={() => setTpSlOpen(true)}
+            onClick={handleOpenDialog}
             className="flex-1 py-1.5 text-[10px] font-medium bg-muted rounded-lg hover:bg-muted/80 transition-colors"
           >
-            TP/SL
+            {hasTpSl ? "Edit TP/SL" : "Add TP/SL"}
           </button>
           <button className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors">
             Close
