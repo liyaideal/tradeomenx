@@ -7,7 +7,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil } from "lucide-react";
+import { Pencil, ExternalLink } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface Position {
   contracts: string;
@@ -184,7 +189,24 @@ export const DesktopPositionsPanel = () => {
                           }`}>
                             {position.type === "long" ? "Long" : "Short"}
                           </span>
-                          <span className="font-medium">{position.contracts}</span>
+                          <HoverCard>
+                            <HoverCardTrigger asChild>
+                              <span className="font-medium cursor-help border-b border-dashed border-muted-foreground hover:border-foreground transition-colors">
+                                {position.contracts}
+                              </span>
+                            </HoverCardTrigger>
+                            <HoverCardContent className="w-64 p-3" side="bottom" align="start">
+                              <p className="text-sm font-medium mb-2">{position.contracts}?</p>
+                              <a 
+                                href="#" 
+                                className="text-sm text-primary flex items-center gap-1.5 hover:underline"
+                                onClick={(e) => e.preventDefault()}
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                Go to this event
+                              </a>
+                            </HoverCardContent>
+                          </HoverCard>
                           <span className="text-xs text-muted-foreground">{position.leverage}</span>
                         </div>
                       </td>
