@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface Order {
   type: "buy" | "sell";
@@ -20,6 +21,7 @@ interface OrdersStore {
   addOrder: (order: Order) => void;
   cancelOrder: (index: number) => void;
   setOrders: (orders: Order[]) => void;
+  clearOrders: () => void;
 }
 
 const initialOrders: Order[] = [
@@ -96,11 +98,19 @@ const initialOrders: Order[] = [
   },
 ];
 
-export const useOrdersStore = create<OrdersStore>((set) => ({
-  orders: initialOrders,
-  addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
-  cancelOrder: (index) => set((state) => ({ 
-    orders: state.orders.filter((_, i) => i !== index) 
-  })),
-  setOrders: (orders) => set({ orders }),
-}));
+export const useOrdersStore = create<OrdersStore>()(
+  persist(
+    (set) => ({
+      orders: initialOrders,
+      addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
+      cancelOrder: (index) => set((state) => ({ 
+        orders: state.orders.filter((_, i) => i !== index) 
+      })),
+      setOrders: (orders) => set({ orders }),
+      clearOrders: () => set({ orders: [] }),
+    }),
+    {
+      name: 'orders-storage', // localStorage key
+    }
+  )
+);
