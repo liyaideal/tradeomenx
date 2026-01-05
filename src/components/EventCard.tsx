@@ -12,6 +12,8 @@ export interface EventOption {
   id: string;
   label: string;
   price: string;
+  color?: string; // Color for the chart line (auto-assigned if not provided)
+  priceHistory?: number[]; // Price history for this option
 }
 
 export interface EventData {
@@ -24,7 +26,6 @@ export interface EventData {
   totalVolume: string;
   volume24h: string;
   participants: number;
-  priceHistory?: number[];
 }
 
 interface EventCardProps {
@@ -33,31 +34,110 @@ interface EventCardProps {
   onTrade?: (eventId: string, optionId: string, side: "long" | "short", quantity: number) => void;
 }
 
-// Simple mini chart component
-const MiniChart = ({ data, color = "trading-green" }: { data: number[]; color?: string }) => {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const range = max - min || 1;
+// Chart colors for options
+const CHART_COLORS = [
+  "hsl(0, 70%, 55%)",    // Red
+  "hsl(45, 90%, 55%)",   // Yellow/Orange
+  "hsl(220, 70%, 55%)",  // Blue
+  "hsl(150, 60%, 50%)",  // Green
+  "hsl(280, 60%, 60%)",  // Purple
+];
+
+// X-axis date labels
+const generateDateLabels = () => {
+  const now = new Date();
+  const labels = [];
+  for (let i = 4; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i * 4);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    labels.push(`${month}/${day} ${hour}:00`);
+  }
+  return labels;
+};
+
+// Multi-line chart component matching the design reference
+const MiniChart = ({ options }: { options: EventOption[] }) => {
+  const dateLabels = generateDateLabels();
   
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * 100;
-    const y = 100 - ((value - min) / range) * 100;
-    return `${x},${y}`;
-  }).join(" ");
+  // Get all price histories and find global min/max for consistent scaling
+  const allPrices = options.flatMap(o => o.priceHistory || []);
+  const min = 0; // Always start from 0%
+  const max = 100; // Always end at 100%
+  
+  const chartWidth = 100;
+  const chartHeight = 100;
+  const paddingLeft = 0;
+  const paddingRight = 8;
+  const paddingTop = 5;
+  const paddingBottom = 5;
+  
+  const innerWidth = chartWidth - paddingLeft - paddingRight;
+  const innerHeight = chartHeight - paddingTop - paddingBottom;
+
+  const generatePath = (data: number[]) => {
+    if (!data || data.length === 0) return "";
+    
+    return data.map((value, index) => {
+      const x = paddingLeft + (index / (data.length - 1)) * innerWidth;
+      const y = paddingTop + (1 - value / 100) * innerHeight;
+      return `${index === 0 ? 'M' : 'L'} ${x},${y}`;
+    }).join(" ");
+  };
+
+  // Y-axis percentage labels
+  const yLabels = [100, 75, 50, 25, 0];
 
   return (
-    <div className="w-full h-20 bg-muted/20 rounded-lg p-2 relative">
-      <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none">
-        <polyline
-          fill="none"
-          stroke={`hsl(var(--${color}))`}
-          strokeWidth="2"
-          points={points}
-        />
-      </svg>
-      {/* Y-axis labels */}
-      <div className="absolute left-1 top-1 text-[10px] text-muted-foreground font-mono">{max.toFixed(0)}</div>
-      <div className="absolute left-1 bottom-1 text-[10px] text-muted-foreground font-mono">{min.toFixed(0)}</div>
+    <div className="w-full bg-muted/20 rounded-xl p-4 relative">
+      <div className="relative h-32">
+        {/* Y-axis labels */}
+        <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between text-[10px] text-muted-foreground font-mono w-8 text-right pr-1">
+          {yLabels.map((label) => (
+            <span key={label}>{label}%</span>
+          ))}
+        </div>
+        
+        {/* Chart area */}
+        <div className="absolute left-0 right-10 top-0 bottom-0">
+          {/* Horizontal grid lines */}
+          <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+            {yLabels.map((_, i) => (
+              <div key={i} className="border-t border-dashed border-border/30" />
+            ))}
+          </div>
+          
+          {/* SVG Chart */}
+          <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full" preserveAspectRatio="none">
+            {options.map((option, index) => {
+              const data = option.priceHistory || Array.from({ length: 20 }, () => 30 + Math.random() * 40);
+              const color = CHART_COLORS[index % CHART_COLORS.length];
+              
+              return (
+                <path
+                  key={option.id}
+                  d={generatePath(data)}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-all"
+                />
+              );
+            })}
+          </svg>
+        </div>
+      </div>
+      
+      {/* X-axis labels */}
+      <div className="flex justify-between mt-2 text-[10px] text-muted-foreground font-mono pr-10">
+        {dateLabels.map((label, index) => (
+          <span key={index}>{label}</span>
+        ))}
+      </div>
     </div>
   );
 };
@@ -78,9 +158,12 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
     }
   };
 
-  // Generate mock price history if not provided
-  const priceHistory = event.priceHistory || Array.from({ length: 24 }, () => 60 + Math.random() * 15);
-  const chartColor = isLocked ? "muted-foreground" : "trading-green";
+  // Generate mock price history for options if not provided
+  const optionsWithHistory = event.options.map((option, index) => ({
+    ...option,
+    color: CHART_COLORS[index % CHART_COLORS.length],
+    priceHistory: option.priceHistory || Array.from({ length: 20 }, () => 20 + Math.random() * 60),
+  }));
 
   return (
     <Card 
@@ -117,36 +200,36 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
       </CardHeader>
 
       <CardContent className="space-y-4" onClick={(e) => e.stopPropagation()}>
-        {/* Mini Chart */}
-        <MiniChart data={priceHistory} color={chartColor} />
+        {/* Mini Chart - Multi-line for all options */}
+        <MiniChart options={optionsWithHistory} />
 
-        {/* Options List */}
-        <div className="space-y-1">
-          {event.options.map((option) => (
+        {/* Options List - with matching chart colors */}
+        <div className="space-y-2">
+          {optionsWithHistory.map((option, index) => (
             <button
               key={option.id}
               onClick={() => !isLocked && setSelectedOption(option.id)}
               disabled={isLocked}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
                 selectedOption === option.id
-                  ? "bg-trading-purple/20 border border-trading-purple/40"
-                  : "bg-muted/30 border border-transparent hover:bg-muted/50"
+                  ? "bg-muted/50 border border-border/60"
+                  : "bg-muted/30 border border-transparent hover:bg-muted/40"
               } ${isLocked ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span 
-                  className={`w-2 h-2 rounded-full ${
-                    selectedOption === option.id ? "bg-trading-purple" : "bg-muted-foreground/30"
-                  }`} 
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
                 />
-                <span className={`text-sm ${selectedOption === option.id ? "text-foreground" : "text-muted-foreground"}`}>
+                <span className="text-sm text-foreground">
                   {option.label}
                 </span>
               </div>
-              <span className={`font-mono text-sm ${
-                selectedOption === option.id ? "text-trading-purple" : "text-muted-foreground"
-              }`}>
-                ${option.price}
+              <span 
+                className="font-mono text-sm font-medium"
+                style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
+              >
+                $ {option.price}
               </span>
             </button>
           ))}
