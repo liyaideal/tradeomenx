@@ -182,8 +182,7 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
       </h3>
 
       {/* Value */}
-      <div className={`flex items-center gap-1 font-mono font-bold text-trading-green ${isFirst ? "text-base md:text-lg" : "text-sm md:text-base"} mt-0.5`}>
-        <span className="text-[10px] md:text-xs">◆</span>
+      <div className={`font-mono font-bold text-trading-green ${isFirst ? "text-base md:text-lg" : "text-sm md:text-base"} mt-0.5`}>
         {getValue()}
       </div>
     </div>
@@ -257,10 +256,9 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
 
       {/* Value + Rank Change */}
       <div className="text-right flex-shrink-0">
-        <div className={`flex items-center justify-end gap-1 font-mono font-bold text-sm ${
+        <div className={`font-mono font-bold text-sm ${
           isCurrentUser ? "text-primary" : "text-trading-green"
         }`}>
-          <span className="text-trading-green text-xs">◆</span>
           {getValue()}
         </div>
         {/* Rank Change Indicator */}
