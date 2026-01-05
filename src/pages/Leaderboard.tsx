@@ -225,12 +225,12 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
   return (
     <div 
       id={isCurrentUser ? "current-user-row" : undefined}
-      className={`flex items-center gap-4 p-4 rounded-2xl border backdrop-blur-sm transition-all duration-300 group animate-fade-in ${
+      className={`flex items-center gap-3 p-3 rounded-xl border backdrop-blur-sm transition-all duration-300 group animate-fade-in ${
         isCurrentUser 
-          ? "bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border-primary/40 ring-1 ring-primary/20 shadow-[0_0_30px_hsl(260_60%_55%/0.15)]" 
-          : `${rankAccent.bg} ${rankAccent.border} hover:border-primary/40 hover:bg-primary/5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)]`
+          ? "bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border-primary/40 ring-1 ring-primary/20 shadow-[0_0_20px_hsl(260_60%_55%/0.15)]" 
+          : `${rankAccent.bg} ${rankAccent.border} hover:border-primary/40 hover:bg-primary/5`
       }`}
-      style={{ animationDelay: `${index * 40}ms` }}
+      style={{ animationDelay: `${index * 30}ms` }}
     >
       {/* Rank Badge */}
       <div className="flex-shrink-0">
@@ -238,45 +238,43 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
       </div>
 
       {/* Avatar + Name */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="relative">
-          <Avatar className={`h-11 w-11 border-2 transition-all duration-300 ${
-            isCurrentUser 
-              ? "border-primary/60 shadow-[0_0_12px_hsl(260_60%_55%/0.3)]" 
-              : "border-border/40 group-hover:border-primary/40 group-hover:shadow-[0_0_10px_hsl(260_60%_55%/0.2)]"
-          }`}>
-            <AvatarImage src={user.avatar} alt={user.username} />
-            <AvatarFallback className="bg-muted text-muted-foreground font-medium">
-              {user.username.slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
-        </div>
+      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+        <Avatar className={`h-9 w-9 border transition-all duration-300 ${
+          isCurrentUser 
+            ? "border-primary/60" 
+            : "border-border/40 group-hover:border-primary/40"
+        }`}>
+          <AvatarImage src={user.avatar} alt={user.username} />
+          <AvatarFallback className="bg-muted text-muted-foreground font-medium text-sm">
+            {user.username.slice(0, 2)}
+          </AvatarFallback>
+        </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h4 className={`font-semibold truncate transition-colors ${
+            <h4 className={`font-medium text-sm truncate transition-colors ${
               isCurrentUser ? "text-primary" : "text-foreground group-hover:text-primary"
             }`}>
               {user.username}
             </h4>
             {isCurrentUser && (
-              <span className="px-2 py-0.5 text-[10px] font-bold bg-primary text-primary-foreground rounded-full shadow-sm">
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-primary text-primary-foreground rounded-full">
                 YOU
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground/80 mt-0.5">{user.trades} trades</p>
+          <p className="text-[11px] text-muted-foreground/80">{user.trades} trades</p>
         </div>
       </div>
 
       {/* Value */}
       <div className="text-right flex-shrink-0">
-        <div className={`flex items-center justify-end gap-1.5 font-mono font-bold text-base ${
+        <div className={`flex items-center justify-end gap-1 font-mono font-bold text-sm ${
           isCurrentUser ? "text-primary" : "text-trading-green"
         }`}>
-          <span className="text-trading-green text-sm">◆</span>
+          <span className="text-trading-green text-xs">◆</span>
           {getValue()}
         </div>
-        <div className="text-xs text-muted-foreground/70 mt-0.5">
+        <div className="text-[11px] text-muted-foreground/70">
           {sortType === "pnl" && `${user.roi.toFixed(1)}% ROI`}
           {sortType === "roi" && `$${user.pnl.toLocaleString()} PnL`}
           {sortType === "volume" && `${user.roi.toFixed(1)}% ROI`}
@@ -967,35 +965,35 @@ export default function Leaderboard() {
           )}
 
           {/* Logo + Title with Neon Effect */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-5">
             {/* Logo */}
-            <div className="flex justify-center mb-6">
-              <img src={omenxLogo} alt="OMENX" className="h-8" />
+            <div className="flex justify-center mb-3">
+              <img src={omenxLogo} alt="OMENX" className="h-7" />
             </div>
             
             {/* Neon Leaderboard Title */}
             <div className="relative inline-block">
               {/* Outer glow - soft spread with pulse */}
-              <div className="absolute inset-0 blur-3xl opacity-40 animate-[pulse_3s_ease-in-out_infinite]">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#a855f7]">
+              <div className="absolute inset-0 blur-2xl opacity-40 animate-[pulse_3s_ease-in-out_infinite]">
+                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-[#a855f7]">
                   LEADERBOARD
                 </h1>
               </div>
               {/* Mid glow with delayed pulse */}
-              <div className="absolute inset-0 blur-xl opacity-60 animate-[pulse_3s_ease-in-out_0.5s_infinite]">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#c084fc]">
+              <div className="absolute inset-0 blur-lg opacity-60 animate-[pulse_3s_ease-in-out_0.5s_infinite]">
+                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-[#c084fc]">
                   LEADERBOARD
                 </h1>
               </div>
               {/* Inner glow */}
               <div className="absolute inset-0 blur-sm opacity-90">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#d8b4fe]">
+                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-[#d8b4fe]">
                   LEADERBOARD
                 </h1>
               </div>
               {/* Main text - hollow stroke effect with subtle glow pulse */}
               <h1 
-                className="relative text-4xl md:text-6xl font-black tracking-tight text-transparent animate-[neon-pulse_3s_ease-in-out_infinite]"
+                className="relative text-3xl md:text-5xl font-black tracking-tight text-transparent animate-[neon-pulse_3s_ease-in-out_infinite]"
                 style={{
                   WebkitTextStroke: '2px #c084fc',
                   textShadow: '0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 40px #7c3aed, 0 0 80px #7c3aed'
@@ -1004,18 +1002,18 @@ export default function Leaderboard() {
                 LEADERBOARD
               </h1>
             </div>
-            <p className="text-muted-foreground mt-4">
+            <p className="text-muted-foreground text-sm mt-2">
               Top traders this week
             </p>
           </div>
 
           {/* Sort Tabs */}
-          <div className="flex justify-center gap-2 mb-10">
+          <div className="flex justify-center gap-2 mb-5">
             {sortTabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setSortType(tab.key)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                   sortType === tab.key
                     ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(260_60%_55%/0.4)]"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/30"
@@ -1028,7 +1026,7 @@ export default function Leaderboard() {
           </div>
 
           {/* Top 3 Podium */}
-          <div className="flex justify-center items-start gap-4 md:gap-8 mb-6 px-4">
+          <div className="flex justify-center items-start gap-3 md:gap-6 mb-4 px-2">
             <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
             <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
             <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
@@ -1039,13 +1037,13 @@ export default function Leaderboard() {
       {/* Rest of Leaderboard */}
       <div className="px-4 pb-24 md:pb-8 max-w-2xl mx-auto">
         {/* Top Ranking Label */}
-        <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="flex items-center justify-center gap-2 mb-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/30" />
           <span className="text-xs font-semibold text-primary px-3">◆ Top Ranking ◆</span>
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/30" />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {restOfList.map((user, index) => (
             <LeaderboardRow 
               key={user.rank} 
