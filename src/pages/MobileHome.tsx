@@ -3,6 +3,7 @@ import { Globe, Bell, ChevronRight, BarChart3, Clock, GraduationCap, Users } fro
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
+import { toast } from "sonner";
 import omenxLogo from "@/assets/omenx-logo.svg";
 
 // Mock user data
@@ -143,7 +144,10 @@ const MobileHome = () => {
             <span className="text-xs text-muted-foreground">Available Balance</span>
             <div className="text-2xl font-bold text-foreground">{userData.availableBalance}</div>
           </div>
-          <Button className="w-full bg-muted hover:bg-muted/80 text-foreground">
+          <Button 
+            className="w-full bg-muted hover:bg-muted/80 text-foreground"
+            onClick={() => toast("Get ready! You'll soon be able to swap your earnings for points.")}
+          >
             Redeem Points
           </Button>
         </div>
