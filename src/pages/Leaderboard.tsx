@@ -1009,11 +1009,26 @@ export default function Leaderboard() {
             ))}
           </div>
 
-          {/* Top 3 Podium */}
-          <div className="flex justify-center items-start gap-3 md:gap-6 mb-4 px-2">
-            <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
-            <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
-            <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
+          {/* Top 3 Podium with background glow effects */}
+          <div className="relative py-8 mb-4">
+            {/* Background glow effects */}
+            <div className="absolute inset-0 overflow-hidden">
+              {/* Central gold glow for 1st place */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 bg-yellow-500/20 rounded-full blur-[80px] animate-pulse" />
+              {/* Left silver glow for 2nd place */}
+              <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-48 md:h-48 bg-slate-400/15 rounded-full blur-[60px]" />
+              {/* Right bronze glow for 3rd place */}
+              <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-48 md:h-48 bg-amber-500/15 rounded-full blur-[60px]" />
+              {/* Radial gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent opacity-60" />
+            </div>
+            
+            {/* Podium cards */}
+            <div className="relative flex justify-center items-start gap-3 md:gap-6 px-2">
+              <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
+              <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
+              <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
+            </div>
           </div>
         </div>
       </div>
