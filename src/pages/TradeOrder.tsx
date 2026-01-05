@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { MobileTradingLayout, useMobileTradingContext } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
@@ -8,12 +9,39 @@ import { useOrdersStore } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { generateOrderBookData } from "@/lib/tradingUtils";
 
+interface LocationState {
+  tab?: string;
+  highlightPosition?: number;
+}
+
 function TradeOrderContent() {
+  const location = useLocation();
+  const state = location.state as LocationState | null;
+  
   const { orders } = useOrdersStore();
   const { positions } = usePositionsStore();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
-  const [bottomTab, setBottomTab] = useState("Orders");
+  const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
+  const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);
+  const positionRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Scroll to and highlight position when coming from MobileHome
+  useEffect(() => {
+    if (highlightedPosition !== null && positionRefs.current[highlightedPosition]) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        positionRefs.current[highlightedPosition]?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      
+      // Clear highlight after animation
+      const timer = setTimeout(() => {
+        setHighlightedPosition(null);
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [highlightedPosition]);
 
   // Generate order book data based on selected option's price
   const orderBookData = useMemo(() => {
@@ -126,7 +154,17 @@ function TradeOrderContent() {
           <OrderCard key={index} {...order} />
         ))}
         {bottomTab === "Positions" && positions.map((position, index) => (
-          <PositionCard key={index} {...position} />
+          <div 
+            key={index} 
+            ref={(el) => (positionRefs.current[index] = el)}
+            className={`transition-all duration-500 ${
+              highlightedPosition === index 
+                ? "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-lg" 
+                : ""
+            }`}
+          >
+            <PositionCard {...position} />
+          </div>
         ))}
       </div>
     </div>
