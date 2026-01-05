@@ -127,11 +127,11 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   const getValue = () => {
     switch (sortType) {
       case "pnl":
-        return user.pnl.toLocaleString();
+        return `$${user.pnl.toLocaleString()}`;
       case "roi":
-        return user.roi.toFixed(0);
+        return `${user.roi.toFixed(0)}%`;
       case "volume":
-        return user.volume.toLocaleString();
+        return `$${user.volume.toLocaleString()}`;
     }
   };
 
