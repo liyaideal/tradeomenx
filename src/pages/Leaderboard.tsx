@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, Medal, Award, ChevronLeft, Sparkles } from "lucide-react";
+import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 
 type SortType = "pnl" | "roi" | "volume";
 
@@ -16,14 +17,13 @@ interface LeaderboardUser {
   roi: number;
   volume: number;
   trades: number;
-  badge?: "gold" | "silver" | "bronze";
 }
 
 // Mock data for leaderboard
 const mockLeaderboardData: LeaderboardUser[] = [
-  { rank: 1, username: "CryptoWhale", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=whale", pnl: 125430, roi: 342.5, volume: 2450000, trades: 156, badge: "gold" },
-  { rank: 2, username: "TradingMaster", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=master", pnl: 89250, roi: 287.3, volume: 1890000, trades: 234, badge: "silver" },
-  { rank: 3, username: "ProfitHunter", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=hunter", pnl: 67890, roi: 198.7, volume: 1560000, trades: 189, badge: "bronze" },
+  { rank: 1, username: "CryptoWhale", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=whale", pnl: 125430, roi: 342.5, volume: 2450000, trades: 156 },
+  { rank: 2, username: "TradingMaster", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=master", pnl: 89250, roi: 287.3, volume: 1890000, trades: 234 },
+  { rank: 3, username: "ProfitHunter", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=hunter", pnl: 67890, roi: 198.7, volume: 1560000, trades: 189 },
   { rank: 4, username: "AlphaTrader", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=alpha", pnl: 45670, roi: 156.2, volume: 980000, trades: 145 },
   { rank: 5, username: "MarketMaker", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=maker", pnl: 34560, roi: 134.8, volume: 890000, trades: 178 },
   { rank: 6, username: "DiamondHands", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=diamond", pnl: 28900, roi: 112.4, volume: 750000, trades: 98 },
@@ -39,85 +39,124 @@ const sortTabs: { key: SortType; label: string; icon: React.ElementType }[] = [
   { key: "volume", label: "Volume", icon: BarChart3 },
 ];
 
-const getRankIcon = (rank: number) => {
+const getRankColors = (rank: number) => {
   switch (rank) {
     case 1:
-      return <Crown className="w-5 h-5" />;
+      return {
+        gradient: "from-yellow-400 via-yellow-500 to-amber-600",
+        glow: "shadow-[0_0_40px_rgba(255,215,0,0.4)]",
+        border: "border-yellow-500/50",
+        text: "text-yellow-400",
+        leaf: "#FFD700",
+        bg: "bg-gradient-to-b from-yellow-500/20 to-transparent",
+      };
     case 2:
-      return <Medal className="w-5 h-5" />;
+      return {
+        gradient: "from-slate-300 via-slate-400 to-slate-500",
+        glow: "shadow-[0_0_30px_rgba(192,192,192,0.3)]",
+        border: "border-slate-400/50",
+        text: "text-slate-300",
+        leaf: "#C0C0C0",
+        bg: "bg-gradient-to-b from-slate-400/20 to-transparent",
+      };
     case 3:
-      return <Award className="w-5 h-5" />;
+      return {
+        gradient: "from-amber-600 via-amber-700 to-orange-800",
+        glow: "shadow-[0_0_30px_rgba(205,127,50,0.3)]",
+        border: "border-amber-600/50",
+        text: "text-amber-500",
+        leaf: "#CD7F32",
+        bg: "bg-gradient-to-b from-amber-600/20 to-transparent",
+      };
     default:
-      return null;
+      return {
+        gradient: "from-slate-500 to-slate-600",
+        glow: "",
+        border: "border-border/50",
+        text: "text-muted-foreground",
+        leaf: "#666",
+        bg: "",
+      };
   }
 };
 
-const getRankGradient = (rank: number) => {
-  switch (rank) {
-    case 1:
-      return "from-yellow-400 via-yellow-500 to-amber-600";
-    case 2:
-      return "from-slate-300 via-slate-400 to-slate-500";
-    case 3:
-      return "from-amber-600 via-amber-700 to-orange-800";
-    default:
-      return "";
-  }
-};
-
-const TopThreeCard = ({ user, sortType }: { user: LeaderboardUser; sortType: SortType }) => {
+const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sortType: SortType; position: "left" | "center" | "right" }) => {
+  const colors = getRankColors(user.rank);
   const isFirst = user.rank === 1;
-  const gradientClass = getRankGradient(user.rank);
   
   const getValue = () => {
     switch (sortType) {
       case "pnl":
-        return `+$${user.pnl.toLocaleString()}`;
+        return `$${user.pnl.toLocaleString()}`;
       case "roi":
-        return `+${user.roi.toFixed(1)}%`;
+        return `${user.roi.toFixed(1)}%`;
       case "volume":
         return `$${user.volume.toLocaleString()}`;
     }
   };
 
+  const podiumHeight = isFirst ? "h-28" : user.rank === 2 ? "h-20" : "h-16";
+  const avatarSize = isFirst ? "h-24 w-24" : "h-20 w-20";
+  const orderClass = position === "left" ? "order-1" : position === "center" ? "order-2" : "order-3";
+
   return (
-    <div className={`relative flex flex-col items-center ${isFirst ? "order-2 -mt-4" : user.rank === 2 ? "order-1" : "order-3"}`}>
-      {/* Glow effect */}
-      <div className={`absolute inset-0 bg-gradient-to-b ${gradientClass} opacity-20 blur-2xl rounded-full scale-150`} />
-      
-      {/* Rank badge */}
-      <div className={`relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${gradientClass} text-background font-bold text-sm mb-2 shadow-lg`}>
-        {user.rank}
+    <div className={`flex flex-col items-center ${orderClass}`}>
+      {/* Crown for #1 */}
+      {isFirst && (
+        <div className="relative mb-2 animate-pulse">
+          <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]" />
+        </div>
+      )}
+
+      {/* Laurel Wreath + Avatar Container */}
+      <div className="relative mb-3">
+        {/* Glow effect */}
+        <div className={`absolute inset-0 rounded-full blur-xl opacity-50 scale-150 ${colors.bg}`} />
+        
+        {/* Laurel Wreath behind avatar */}
+        <div className="absolute -inset-4 flex items-center justify-center">
+          <LaurelWreath 
+            color={colors.leaf} 
+            size={isFirst ? "lg" : "md"} 
+            className="opacity-80"
+          />
+        </div>
+
+        {/* Avatar */}
+        <div className={`relative ${colors.glow} rounded-full`}>
+          <div className={`absolute -inset-1 bg-gradient-to-br ${colors.gradient} rounded-full opacity-75 blur-sm`} />
+          <Avatar className={`relative ${avatarSize} border-3 ${colors.border} ring-2 ring-background`}>
+            <AvatarImage src={user.avatar} alt={user.username} />
+            <AvatarFallback className="text-lg">{user.username.slice(0, 2)}</AvatarFallback>
+          </Avatar>
+        </div>
       </div>
 
-      {/* Avatar with ring */}
-      <div className={`relative mb-3 ${isFirst ? "scale-110" : ""}`}>
-        <div className={`absolute -inset-1 bg-gradient-to-br ${gradientClass} rounded-full blur-sm opacity-75`} />
-        <Avatar className={`relative ${isFirst ? "h-20 w-20" : "h-16 w-16"} border-2 border-background`}>
-          <AvatarImage src={user.avatar} alt={user.username} />
-          <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-        </Avatar>
-        {/* Crown for #1 */}
-        {isFirst && (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-yellow-400">
-            <Crown className="w-6 h-6 fill-yellow-400" />
-          </div>
-        )}
+      {/* Rank Badge */}
+      <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${colors.gradient} font-bold text-sm mb-2 shadow-lg`}>
+        <span className="text-background drop-shadow">{user.rank}</span>
+        <span className="text-[10px] text-background/80">{user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd"}</span>
       </div>
 
       {/* Username */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base" : "text-sm"} mb-1 truncate max-w-24`}>
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base" : "text-sm"} mb-1 truncate max-w-[100px] text-center`}>
         {user.username}
       </h3>
 
       {/* Value */}
-      <div className={`font-mono font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent ${isFirst ? "text-lg" : "text-base"}`}>
+      <div className={`flex items-center gap-1 font-mono font-bold ${colors.text} ${isFirst ? "text-xl" : "text-lg"}`}>
+        <Zap className="w-4 h-4" />
         {getValue()}
       </div>
 
-      {/* Trophy icon */}
-      <div className={`mt-2 text-gradient-to-r ${gradientClass}`}>
-        {getRankIcon(user.rank)}
+      {/* Podium */}
+      <div className={`w-24 ${podiumHeight} mt-4 rounded-t-xl bg-gradient-to-b ${colors.gradient} opacity-80 relative overflow-hidden`}>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 font-bold text-background/80 text-2xl">
+          {user.rank}
+        </div>
+        {/* Shine effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
       </div>
     </div>
   );
@@ -127,9 +166,9 @@ const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sort
   const getValue = () => {
     switch (sortType) {
       case "pnl":
-        return `+$${user.pnl.toLocaleString()}`;
+        return `$${user.pnl.toLocaleString()}`;
       case "roi":
-        return `+${user.roi.toFixed(1)}%`;
+        return `${user.roi.toFixed(1)}%`;
       case "volume":
         return `$${user.volume.toLocaleString()}`;
     }
@@ -137,17 +176,15 @@ const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sort
 
   return (
     <div 
-      className="flex items-center gap-4 p-4 bg-card/50 rounded-xl border border-border/30 hover:border-primary/30 hover:bg-card/80 transition-all duration-200 group"
+      className="flex items-center gap-3 p-3 bg-card/60 rounded-xl border border-border/30 hover:border-primary/30 hover:bg-card/80 transition-all duration-200 group animate-fade-in"
       style={{ animationDelay: `${index * 50}ms` }}
     >
-      {/* Rank */}
-      <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-muted text-muted-foreground font-bold text-sm">
-        {user.rank}
-      </div>
+      {/* Rank with laurel */}
+      <SmallLaurelBadge rank={user.rank} />
 
       {/* Avatar + Name */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <Avatar className="h-10 w-10 border border-border/50">
+        <Avatar className="h-10 w-10 border border-border/50 group-hover:border-primary/30 transition-colors">
           <AvatarImage src={user.avatar} alt={user.username} />
           <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
         </Avatar>
@@ -159,7 +196,10 @@ const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sort
 
       {/* Value */}
       <div className="text-right">
-        <div className="font-mono font-bold text-trading-green">{getValue()}</div>
+        <div className="flex items-center justify-end gap-1 font-mono font-bold text-trading-green">
+          <Zap className="w-3 h-3" />
+          {getValue()}
+        </div>
         <div className="text-xs text-muted-foreground">
           {sortType === "pnl" && `${user.roi.toFixed(1)}% ROI`}
           {sortType === "roi" && `$${user.pnl.toLocaleString()} PnL`}
@@ -171,37 +211,55 @@ const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sort
 };
 
 const ShareableCard = ({ user }: { user: LeaderboardUser }) => {
+  const colors = getRankColors(user.rank);
+  
   return (
     <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-card via-background to-primary/5 p-6">
       {/* Background effects */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-2xl" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-trading-green/20 to-transparent rounded-full blur-2xl" />
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-yellow-500/20 to-transparent rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-trading-green/20 to-transparent rounded-full blur-2xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
       
       {/* Sparkle decorations */}
-      <Sparkles className="absolute top-4 right-4 w-5 h-5 text-primary/40" />
-      <Sparkles className="absolute bottom-8 right-12 w-4 h-4 text-trading-green/40" />
+      <Sparkles className="absolute top-4 right-4 w-5 h-5 text-yellow-400/60 animate-pulse" />
+      <Sparkles className="absolute bottom-8 right-12 w-4 h-4 text-trading-green/50" />
+      <Sparkles className="absolute top-12 left-8 w-3 h-3 text-primary/40" />
       
       <div className="relative z-10">
         {/* Header */}
-        <div className="flex items-center gap-2 mb-4">
-          <Trophy className="w-5 h-5 text-primary" />
-          <span className="text-sm font-medium text-primary">OMENX Leaderboard</span>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium text-primary">OMENX Leaderboard</span>
+          </div>
+          <div className="px-3 py-1 rounded-full bg-trading-green/20 border border-trading-green/30">
+            <span className="text-xs font-semibold text-trading-green">Top Ranking</span>
+          </div>
         </div>
 
-        {/* User info */}
-        <div className="flex items-center gap-4 mb-4">
+        {/* User info with Laurel */}
+        <div className="flex items-center gap-5 mb-6">
           <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-full blur-sm opacity-75" />
-            <Avatar className="relative h-16 w-16 border-2 border-background">
+            {/* Laurel behind */}
+            <div className="absolute -inset-6 flex items-center justify-center">
+              <LaurelWreath color={colors.leaf} size="lg" className="opacity-60" />
+            </div>
+            {/* Glow */}
+            <div className={`absolute -inset-2 bg-gradient-to-br ${colors.gradient} rounded-full blur-md opacity-50`} />
+            <Avatar className={`relative h-20 w-20 border-3 ${colors.border}`}>
               <AvatarImage src={user.avatar} alt={user.username} />
               <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
             </Avatar>
+            {/* Crown for #1 */}
+            {user.rank === 1 && (
+              <Crown className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 text-yellow-400 fill-yellow-400" />
+            )}
           </div>
           <div>
-            <h3 className="font-bold text-xl text-foreground">{user.username}</h3>
+            <h3 className="font-bold text-2xl text-foreground mb-1">{user.username}</h3>
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 text-background font-bold text-xs">
-                #{user.rank}
+              <div className={`flex items-center justify-center px-3 py-1 rounded-full bg-gradient-to-br ${colors.gradient}`}>
+                <span className="font-bold text-background text-sm">#{user.rank}</span>
               </div>
               <span className="text-sm text-muted-foreground">Global Ranking</span>
             </div>
@@ -210,15 +268,18 @@ const ShareableCard = ({ user }: { user: LeaderboardUser }) => {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 rounded-xl bg-muted/50 border border-border/30">
+          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30 hover:border-trading-green/30 transition-colors">
             <div className="text-xs text-muted-foreground mb-1">PnL</div>
-            <div className="font-mono font-bold text-trading-green">+${user.pnl.toLocaleString()}</div>
+            <div className="flex items-center justify-center gap-1 font-mono font-bold text-trading-green">
+              <Zap className="w-3 h-3" />
+              ${user.pnl.toLocaleString()}
+            </div>
           </div>
-          <div className="text-center p-3 rounded-xl bg-muted/50 border border-border/30">
+          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30 hover:border-primary/30 transition-colors">
             <div className="text-xs text-muted-foreground mb-1">ROI</div>
-            <div className="font-mono font-bold text-primary">+{user.roi.toFixed(1)}%</div>
+            <div className="font-mono font-bold text-primary">{user.roi.toFixed(1)}%</div>
           </div>
-          <div className="text-center p-3 rounded-xl bg-muted/50 border border-border/30">
+          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30 hover:border-border transition-colors">
             <div className="text-xs text-muted-foreground mb-1">Trades</div>
             <div className="font-mono font-bold text-foreground">{user.trades}</div>
           </div>
@@ -242,7 +303,7 @@ export default function Leaderboard() {
       case "volume":
         return b.volume - a.volume;
     }
-  });
+  }).map((user, idx) => ({ ...user, rank: idx + 1 }));
 
   const topThree = sortedData.slice(0, 3);
   const restOfList = sortedData.slice(3);
@@ -252,9 +313,10 @@ export default function Leaderboard() {
       {/* Hero Section with gradient background */}
       <div className="relative overflow-hidden">
         {/* Background effects */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-        <div className="absolute top-20 right-1/4 w-64 h-64 bg-trading-green/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-background" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[100px]" />
+        <div className="absolute top-40 right-1/4 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-60 left-1/4 w-48 h-48 bg-trading-green/10 rounded-full blur-3xl" />
         
         <div className="relative z-10 px-4 pt-6 pb-8">
           {/* Header */}
@@ -285,14 +347,14 @@ export default function Leaderboard() {
           </div>
 
           {/* Sort Tabs */}
-          <div className="flex justify-center gap-2 mb-8">
+          <div className="flex justify-center gap-2 mb-10">
             {sortTabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setSortType(tab.key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                   sortType === tab.key
-                    ? "bg-primary text-primary-foreground shadow-[0_0_15px_hsl(260_60%_55%/0.3)]"
+                    ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(260_60%_55%/0.4)]"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/30"
                 }`}
               >
@@ -303,24 +365,31 @@ export default function Leaderboard() {
           </div>
 
           {/* Top 3 Podium */}
-          <div className="flex justify-center items-end gap-4 md:gap-8 mb-8 px-4">
-            {topThree.map((user) => (
-              <TopThreeCard key={user.rank} user={user} sortType={sortType} />
-            ))}
+          <div className="flex justify-center items-end gap-2 md:gap-6 mb-4 px-2">
+            <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
+            <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
+            <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
           </div>
         </div>
       </div>
 
       {/* Rest of Leaderboard */}
       <div className="px-4 pb-24 md:pb-8 max-w-2xl mx-auto">
-        <div className="space-y-3">
+        {/* Top Ranking Label */}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/30" />
+          <span className="text-xs font-semibold text-primary px-3">◆ Top Ranking ◆</span>
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/30" />
+        </div>
+
+        <div className="space-y-2">
           {restOfList.map((user, index) => (
             <LeaderboardRow key={user.rank} user={user} sortType={sortType} index={index} />
           ))}
         </div>
 
         {/* Shareable Card Section */}
-        <div className="mt-8">
+        <div className="mt-10">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Share2 className="w-5 h-5 text-primary" />
             Share Your Rank
