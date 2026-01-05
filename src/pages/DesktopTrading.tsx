@@ -261,6 +261,12 @@ export default function DesktopTrading() {
   
   const countdown = useCountdown(selectedEvent.endTime);
 
+  // Wrapper to update URL when switching events
+  const handleEventSelect = (event: typeof selectedEvent) => {
+    setSelectedEvent(event);
+    navigate(`/desktop-trading?event=${event.id}`, { replace: true });
+  };
+
   const toggleFavorite = (eventId: string, e: React.MouseEvent) => {
     toggleFavoriteBase(eventId, e);
     if (favorites.has(eventId)) {
@@ -616,7 +622,7 @@ export default function DesktopTrading() {
                     <button
                       key={event.id}
                       onClick={() => {
-                        setSelectedEvent(event);
+                        handleEventSelect(event);
                         setEventDropdownOpen(false);
                         setEventSearchQuery("");
                       }}
@@ -916,7 +922,7 @@ export default function DesktopTrading() {
                                   onClick={() => {
                                     const event = events.find(e => e.name === order.event);
                                     if (event) {
-                                      setSelectedEvent(event);
+                                      handleEventSelect(event);
                                       setEventDropdownOpen(false);
                                     }
                                   }}
