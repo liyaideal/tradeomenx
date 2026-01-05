@@ -93,7 +93,7 @@ const EventsPage = () => {
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               )}
-              <img src={omenxLogo} alt="OMENX" className="h-4 w-auto" />
+              <img src={omenxLogo} alt="OMENX" className="h-5 w-auto" />
             </div>
             <EventFilters
               statusFilter={statusFilter}
