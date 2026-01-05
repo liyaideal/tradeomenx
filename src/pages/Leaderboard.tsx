@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User } from "lucide-react";
+import { TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -305,32 +305,110 @@ const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortTyp
   );
 };
 
+// Card theme types
+type CardTheme = "default" | "neon" | "minimal" | "gold";
+type StatKey = "pnl" | "roi" | "volume";
+
+interface CardThemeConfig {
+  name: string;
+  bgStyle: string;
+  borderStyle: string;
+  glowEffects: boolean;
+  sparkles: boolean;
+}
+
+const cardThemes: Record<CardTheme, CardThemeConfig> = {
+  default: {
+    name: "Default",
+    bgStyle: "from-card via-background to-primary/5",
+    borderStyle: "border-primary/30",
+    glowEffects: true,
+    sparkles: true,
+  },
+  neon: {
+    name: "Neon",
+    bgStyle: "from-purple-950/90 via-background to-cyan-950/50",
+    borderStyle: "border-cyan-400/50",
+    glowEffects: true,
+    sparkles: true,
+  },
+  minimal: {
+    name: "Minimal",
+    bgStyle: "from-card to-card",
+    borderStyle: "border-border/50",
+    glowEffects: false,
+    sparkles: false,
+  },
+  gold: {
+    name: "Gold",
+    bgStyle: "from-yellow-950/40 via-background to-amber-950/30",
+    borderStyle: "border-yellow-500/40",
+    glowEffects: true,
+    sparkles: true,
+  },
+};
+
+const themeGlowColors: Record<CardTheme, { primary: string; secondary: string; tertiary: string }> = {
+  default: { primary: "yellow-500/20", secondary: "trading-green/20", tertiary: "primary/5" },
+  neon: { primary: "cyan-500/30", secondary: "purple-500/30", tertiary: "pink-500/10" },
+  minimal: { primary: "transparent", secondary: "transparent", tertiary: "transparent" },
+  gold: { primary: "yellow-400/30", secondary: "amber-500/20", tertiary: "orange-500/10" },
+};
+
 interface ShareableCardProps {
   user: LeaderboardUser;
   cardRef?: React.RefObject<HTMLDivElement>;
   onShare?: () => void;
   isGenerating?: boolean;
+  theme?: CardTheme;
+  visibleStats?: StatKey[];
 }
 
-const ShareableCard = ({ user, cardRef, onShare, isGenerating }: ShareableCardProps) => {
+const ShareableCard = ({ 
+  user, 
+  cardRef, 
+  onShare, 
+  isGenerating, 
+  theme = "default",
+  visibleStats = ["pnl", "roi", "volume"]
+}: ShareableCardProps) => {
   const colors = getRankColors(user.rank);
+  const themeConfig = cardThemes[theme];
+  const glowColors = themeGlowColors[theme];
+  
+  const stats = [
+    { key: "pnl" as StatKey, label: "PnL", value: `$${user.pnl.toLocaleString()}`, color: "text-trading-green", icon: true },
+    { key: "roi" as StatKey, label: "ROI", value: `${user.roi.toFixed(1)}%`, color: "text-primary", icon: false },
+    { key: "volume" as StatKey, label: "Volume", value: `$${user.volume.toLocaleString()}`, color: "text-foreground", icon: false },
+  ];
+  
+  const displayedStats = stats.filter(s => visibleStats.includes(s.key));
+  const gridCols = displayedStats.length === 1 ? "grid-cols-1" : displayedStats.length === 2 ? "grid-cols-2" : "grid-cols-3";
   
   return (
     <div 
       ref={cardRef}
       onClick={onShare}
-      className={`relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-card via-background to-primary/5 p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 ${isGenerating ? 'pointer-events-none' : ''}`}
-      style={{ backgroundColor: 'hsl(222 47% 6%)' }} // Ensure solid background for export
+      className={`relative overflow-hidden rounded-2xl border ${themeConfig.borderStyle} bg-gradient-to-br ${themeConfig.bgStyle} p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] ${isGenerating ? 'pointer-events-none' : ''}`}
+      style={{ backgroundColor: 'hsl(222 47% 6%)' }}
     >
       {/* Background effects */}
-      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-yellow-500/20 to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-trading-green/20 to-transparent rounded-full blur-2xl" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+      {themeConfig.glowEffects && (
+        <>
+          <div className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-${glowColors.primary} to-transparent rounded-full blur-3xl`} />
+          <div className={`absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-${glowColors.secondary} to-transparent rounded-full blur-2xl`} />
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-${glowColors.tertiary} rounded-full blur-3xl`} />
+        </>
+      )}
       
       {/* Sparkle decorations */}
-      <Sparkles className="absolute top-4 right-4 w-5 h-5 text-yellow-400/60 animate-pulse" />
-      <Sparkles className="absolute bottom-8 right-12 w-4 h-4 text-trading-green/50" />
-      <Sparkles className="absolute top-12 left-8 w-3 h-3 text-primary/40" />
+      {themeConfig.sparkles && (
+        <>
+          <Sparkles className="absolute top-4 right-4 w-5 h-5 text-yellow-400/60 animate-pulse" />
+          <Sparkles className="absolute bottom-8 right-12 w-4 h-4 text-trading-green/50" />
+          <Sparkles className="absolute top-12 left-8 w-3 h-3 text-primary/40" />
+        </>
+      )}
       
       {/* Loading overlay */}
       {isGenerating && (
@@ -381,28 +459,106 @@ const ShareableCard = ({ user, cardRef, onShare, isGenerating }: ShareableCardPr
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30">
-            <div className="text-xs text-muted-foreground mb-1">PnL</div>
-            <div className="flex items-center justify-center gap-1 font-mono font-bold text-trading-green">
-              <Zap className="w-3 h-3" />
-              ${user.pnl.toLocaleString()}
-            </div>
+        {displayedStats.length > 0 && (
+          <div className={`grid ${gridCols} gap-3`}>
+            {displayedStats.map((stat) => (
+              <div key={stat.key} className="text-center p-4 rounded-xl bg-muted/50 border border-border/30">
+                <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
+                <div className={`flex items-center justify-center gap-1 font-mono font-bold ${stat.color}`}>
+                  {stat.icon && <Zap className="w-3 h-3" />}
+                  {stat.value}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30">
-            <div className="text-xs text-muted-foreground mb-1">ROI</div>
-            <div className="font-mono font-bold text-primary">{user.roi.toFixed(1)}%</div>
-          </div>
-          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30">
-            <div className="text-xs text-muted-foreground mb-1">Volume</div>
-            <div className="font-mono font-bold text-foreground">${user.volume.toLocaleString()}</div>
-          </div>
-        </div>
+        )}
 
         {/* Tap to share hint */}
         <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
           <Share2 className="w-3 h-3" />
           <span>Tap to share</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Card Customization Panel
+interface CardCustomizationProps {
+  theme: CardTheme;
+  onThemeChange: (theme: CardTheme) => void;
+  visibleStats: StatKey[];
+  onStatsChange: (stats: StatKey[]) => void;
+}
+
+const CardCustomization = ({ theme, onThemeChange, visibleStats, onStatsChange }: CardCustomizationProps) => {
+  const themes: CardTheme[] = ["default", "neon", "minimal", "gold"];
+  const allStats: { key: StatKey; label: string }[] = [
+    { key: "pnl", label: "PnL" },
+    { key: "roi", label: "ROI" },
+    { key: "volume", label: "Volume" },
+  ];
+  
+  const toggleStat = (stat: StatKey) => {
+    if (visibleStats.includes(stat)) {
+      // Don't allow removing all stats
+      if (visibleStats.length > 1) {
+        onStatsChange(visibleStats.filter(s => s !== stat));
+      }
+    } else {
+      onStatsChange([...visibleStats, stat]);
+    }
+  };
+  
+  return (
+    <div className="space-y-4 mb-4">
+      {/* Theme Selection */}
+      <div>
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+          <Palette className="w-4 h-4 text-primary" />
+          <span>Card Style</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {themes.map((t) => (
+            <button
+              key={t}
+              onClick={() => onThemeChange(t)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                theme === t
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/30"
+              }`}
+            >
+              {cardThemes[t].name}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Stats Toggle */}
+      <div>
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+          <Eye className="w-4 h-4 text-primary" />
+          <span>Show Stats</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {allStats.map((stat) => {
+            const isVisible = visibleStats.includes(stat.key);
+            return (
+              <button
+                key={stat.key}
+                onClick={() => toggleStat(stat.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  isVisible
+                    ? "bg-trading-green/20 text-trading-green border border-trading-green/30"
+                    : "bg-muted/30 text-muted-foreground hover:bg-muted/50 border border-border/30"
+                }`}
+              >
+                {isVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                {stat.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -577,6 +733,8 @@ export default function Leaderboard() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [cardTheme, setCardTheme] = useState<CardTheme>("default");
+  const [visibleStats, setVisibleStats] = useState<StatKey[]>(["pnl", "roi", "volume"]);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const sortedData = [...mockLeaderboardData].sort((a, b) => {
@@ -729,11 +887,22 @@ export default function Leaderboard() {
             <Share2 className="w-5 h-5 text-primary" />
             Share Your Rank
           </h3>
+          
+          {/* Customization Options */}
+          <CardCustomization 
+            theme={cardTheme}
+            onThemeChange={setCardTheme}
+            visibleStats={visibleStats}
+            onStatsChange={setVisibleStats}
+          />
+          
           <ShareableCard 
             user={currentUser || topThree[0]} 
             cardRef={cardRef}
             onShare={handleShareCard}
             isGenerating={isGenerating}
+            theme={cardTheme}
+            visibleStats={visibleStats}
           />
           <p className="text-center text-sm text-muted-foreground mt-4">
             Tap to share your ranking card on social media
