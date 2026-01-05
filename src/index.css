@@ -405,6 +405,45 @@
     }
   }
 
+  /* ===== STAR PARTICLE ANIMATIONS ===== */
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1) rotate(180deg); }
+  }
+
+  @keyframes float-up {
+    0% { opacity: 0; transform: translateY(20px) scale(0); }
+    20% { opacity: 1; transform: translateY(0) scale(1); }
+    80% { opacity: 1; transform: translateY(-20px) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(0); }
+  }
+
+  @keyframes sparkle-burst {
+    0% { opacity: 0; transform: scale(0) rotate(0deg); }
+    25% { opacity: 1; transform: scale(1.2) rotate(90deg); }
+    50% { opacity: 0.8; transform: scale(0.8) rotate(180deg); }
+    75% { opacity: 1; transform: scale(1) rotate(270deg); }
+    100% { opacity: 0; transform: scale(0) rotate(360deg); }
+  }
+
+  .star-particle {
+    position: absolute;
+    pointer-events: none;
+    animation: twinkle 2s ease-in-out infinite;
+  }
+
+  .star-particle-float {
+    position: absolute;
+    pointer-events: none;
+    animation: float-up 3s ease-in-out infinite;
+  }
+
+  .star-particle-burst {
+    position: absolute;
+    pointer-events: none;
+    animation: sparkle-burst 2.5s ease-in-out infinite;
+  }
+
   /* ===== BACKGROUND PATTERNS ===== */
   .bg-grid-pattern {
     background-image: 
