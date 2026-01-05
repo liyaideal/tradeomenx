@@ -307,46 +307,71 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4" onClick={(e) => e.stopPropagation()}>
+      <CardContent className="space-y-4" onClick={(e) => !isMobile && e.stopPropagation()}>
         {/* Mini Chart - Multi-line for all options, or single line when option selected */}
         <MiniChart 
           options={optionsWithHistory} 
-          selectedOptionId={selectedOption}
-          onChartClick={() => setSelectedOption(null)} // Click chart to reset to show all
+          selectedOptionId={isMobile ? null : selectedOption}
+          onChartClick={() => !isMobile && setSelectedOption(null)}
         />
 
-        {/* Options List - refined styling */}
+        {/* Options List - Desktop: interactive, Mobile: display only */}
         <div className="space-y-1.5">
           {optionsWithHistory.map((option, index) => (
-            <button
-              key={option.id}
-              onClick={() => !isLocked && setSelectedOption(option.id)}
-              disabled={isLocked}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
-                selectedOption === option.id
-                  ? "bg-primary/10 border border-primary/30 shadow-[0_0_12px_hsl(260_65%_58%/0.15)]"
-                  : "bg-muted/20 border border-transparent hover:bg-muted/35 hover:border-border/30"
-              } ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              <div className="flex items-center gap-3">
+            isMobile ? (
+              // Mobile: non-interactive display
+              <div
+                key={option.id}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-muted/20 border border-transparent"
+              >
+                <div className="flex items-center gap-3">
+                  <span 
+                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                  />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {option.label}
+                  </span>
+                </div>
                 <span 
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2 ring-offset-1 ring-offset-background"
-                  style={{ 
-                    backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
-                    boxShadow: selectedOption === option.id ? `0 0 8px ${CHART_COLORS[index % CHART_COLORS.length]}` : 'none'
-                  }}
-                />
-                <span className={`text-sm font-medium ${selectedOption === option.id ? "text-foreground" : "text-muted-foreground"}`}>
-                  {option.label}
+                  className="font-mono text-sm font-bold"
+                  style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
+                >
+                  ${option.price}
                 </span>
               </div>
-              <span 
-                className="font-mono text-sm font-bold"
-                style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
+            ) : (
+              // Desktop: interactive buttons
+              <button
+                key={option.id}
+                onClick={() => !isLocked && setSelectedOption(option.id)}
+                disabled={isLocked}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
+                  selectedOption === option.id
+                    ? "bg-primary/10 border border-primary/30 shadow-[0_0_12px_hsl(260_65%_58%/0.15)]"
+                    : "bg-muted/20 border border-transparent hover:bg-muted/35 hover:border-border/30"
+                } ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                ${option.price}
-              </span>
-            </button>
+                <div className="flex items-center gap-3">
+                  <span 
+                    className="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2 ring-offset-1 ring-offset-background"
+                    style={{ 
+                      backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+                      boxShadow: selectedOption === option.id ? `0 0 8px ${CHART_COLORS[index % CHART_COLORS.length]}` : 'none'
+                    }}
+                  />
+                  <span className={`text-sm font-medium ${selectedOption === option.id ? "text-foreground" : "text-muted-foreground"}`}>
+                    {option.label}
+                  </span>
+                </div>
+                <span 
+                  className="font-mono text-sm font-bold"
+                  style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
+                >
+                  ${option.price}
+                </span>
+              </button>
+            )
           ))}
         </div>
 
