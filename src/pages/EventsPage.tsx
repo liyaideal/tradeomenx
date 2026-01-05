@@ -136,12 +136,13 @@ const EventsPage = () => {
         <EventsDesktopHeader />
       )}
 
-      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-8 max-w-7xl mx-auto"} space-y-6`}>
-        {/* Page Title */}
-        <div>
+      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-8 max-w-7xl mx-auto"} space-y-8`}>
+        {/* Page Title with accent */}
+        <div className="relative">
+          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-primary hidden md:block" />
           <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>Events</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Browse and trade all available prediction events with leveraged trading
+            Browse and trade prediction events with leveraged trading
           </p>
         </div>
 
@@ -163,12 +164,12 @@ const EventsPage = () => {
         )}
 
         {/* Events Grid */}
-        <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+        <div className={`grid gap-5 ${isMobile ? "grid-cols-1" : "grid-cols-2 xl:grid-cols-2"}`}>
           {sortedEvents.map((event, index) => (
             <div 
               key={event.id} 
               className="animate-fade-in"
-              style={{ animationDelay: `${index * 50}ms` }}
+              style={{ animationDelay: `${index * 80}ms` }}
             >
               <EventCard
                 event={event}
@@ -193,15 +194,15 @@ const EventsPage = () => {
 
         {/* Load More Button */}
         {sortedEvents.length > 0 && (
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-6">
             <Button 
               variant="outline" 
-              className="gap-2" 
+              className="gap-2 border-border/50 hover:border-primary hover:text-primary transition-colors" 
               onClick={handleLoadMore}
               disabled={isLoading}
             >
               <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-              {isLoading ? "Loading..." : "Load More Events..."}
+              {isLoading ? "Loading..." : "Load More Events"}
             </Button>
           </div>
         )}

@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, DollarSign, Users, Zap } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -8,6 +7,7 @@ interface StatItem {
   change?: string;
   icon: React.ReactNode;
   changeType?: "positive" | "negative" | "neutral";
+  iconColor: string;
 }
 
 interface EventStatsOverviewProps {
@@ -46,6 +46,7 @@ export const EventStatsOverview = ({ stats }: EventStatsOverviewProps) => {
       change: data.activeEventsChange,
       icon: <TrendingUp className="h-4 w-4" />,
       changeType: "positive",
+      iconColor: "icon-container-primary",
     },
     {
       label: "24H Volume",
@@ -53,6 +54,7 @@ export const EventStatsOverview = ({ stats }: EventStatsOverviewProps) => {
       change: data.volume24hChange,
       icon: <DollarSign className="h-4 w-4" />,
       changeType: "positive",
+      iconColor: "icon-container-green",
     },
     {
       label: "Active Traders",
@@ -60,6 +62,7 @@ export const EventStatsOverview = ({ stats }: EventStatsOverviewProps) => {
       change: data.activeTradersChange,
       icon: <Users className="h-4 w-4" />,
       changeType: "positive",
+      iconColor: "icon-container-primary",
     },
     {
       label: "Avg. Leverage",
@@ -67,31 +70,48 @@ export const EventStatsOverview = ({ stats }: EventStatsOverviewProps) => {
       change: data.avgLeverageNote,
       icon: <Zap className="h-4 w-4" />,
       changeType: "neutral",
+      iconColor: "icon-container-yellow",
     },
   ];
 
   return (
-    <Card className="trading-card">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base font-medium">Event Overview</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className={`grid gap-3 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+    <div className="relative overflow-hidden rounded-2xl border border-border/40 p-[1px]">
+      {/* Gradient border effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20 rounded-2xl" />
+      
+      <div className="relative rounded-2xl bg-card/80 backdrop-blur-sm p-6">
+        {/* Header with subtle glow */}
+        <div className="flex items-center gap-3 mb-5">
+          <div className="h-8 w-1 rounded-full bg-primary" />
+          <h2 className="text-lg font-semibold text-foreground">Event Overview</h2>
+        </div>
+
+        {/* Stats Grid */}
+        <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
           {statItems.map((item, index) => (
             <div
               key={index}
-              className="bg-muted/30 rounded-lg p-3 space-y-1"
+              className="stats-card p-4 group"
             >
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                {item.icon}
-                <span className="text-xs">{item.label}</span>
+              {/* Icon + Label Row */}
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className={`icon-container w-8 h-8 ${item.iconColor}`}>
+                  {item.icon}
+                </div>
+                <span className="text-xs text-muted-foreground font-medium">
+                  {item.label}
+                </span>
               </div>
-              <div className="text-xl font-bold font-mono text-foreground">
+
+              {/* Value */}
+              <div className="text-2xl font-bold font-mono text-foreground mb-1 group-hover:text-primary transition-colors">
                 {item.value}
               </div>
+
+              {/* Change indicator */}
               {item.change && (
                 <div 
-                  className={`text-xs ${
+                  className={`text-xs font-medium ${
                     item.changeType === "positive" 
                       ? "text-trading-green" 
                       : item.changeType === "negative" 
@@ -105,7 +125,7 @@ export const EventStatsOverview = ({ stats }: EventStatsOverviewProps) => {
             </div>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

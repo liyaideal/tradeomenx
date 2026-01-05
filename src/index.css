@@ -6,54 +6,81 @@
 
 @layer base {
   :root {
+    /* ===== CORE SURFACE COLORS ===== */
     --background: 222 47% 6%;
+    --background-elevated: 222 40% 8%;
     --foreground: 210 40% 98%;
 
-    --card: 220 15% 13%;
+    --card: 222 35% 10%;
     --card-foreground: 210 40% 98%;
+    --card-hover: 222 35% 12%;
 
-    --popover: 222 47% 9%;
+    --popover: 222 40% 9%;
     --popover-foreground: 210 40% 98%;
 
-    /* Brand color - Purple */
+    /* ===== BRAND COLORS (Purple Primary) ===== */
     --primary: 260 60% 55%;
     --primary-foreground: 210 40% 98%;
+    --primary-hover: 260 60% 50%;
+    --primary-muted: 260 40% 25%;
 
-    --secondary: 222 30% 22%;
+    /* ===== SECONDARY & ACCENT ===== */
+    --secondary: 222 30% 16%;
     --secondary-foreground: 210 40% 98%;
-
-    --muted: 222 30% 18%;
-    --muted-foreground: 215 20% 55%;
+    --secondary-hover: 222 30% 20%;
 
     --accent: 260 50% 45%;
     --accent-foreground: 210 40% 98%;
 
+    /* ===== MUTED & SUBTLE ===== */
+    --muted: 222 25% 14%;
+    --muted-foreground: 215 20% 55%;
+
+    /* ===== DESTRUCTIVE ===== */
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 15%;
+    /* ===== BORDERS & INPUTS ===== */
+    --border: 222 25% 18%;
+    --border-subtle: 222 20% 14%;
+    --input: 222 30% 12%;
     --ring: 260 60% 55%;
 
     --radius: 0.75rem;
 
-    /* Custom trading colors */
+    /* ===== TRADING SEMANTIC COLORS ===== */
+    /* Success/Profit - Green */
     --trading-green: 142 71% 45%;
-    --trading-green-muted: 142 50% 25%;
-    --trading-red: 0 72% 51%;
-    --trading-red-muted: 0 50% 25%;
-    --trading-purple: 260 60% 55%;
-    --trading-purple-muted: 260 40% 35%;
-    --trading-yellow: 45 93% 58%;
+    --trading-green-muted: 142 50% 20%;
+    --trading-green-bg: 142 50% 12%;
     
-    /* Real-time indicator color */
+    /* Loss/Error - Red */
+    --trading-red: 0 72% 51%;
+    --trading-red-muted: 0 50% 20%;
+    --trading-red-bg: 0 50% 12%;
+    
+    /* Brand Emphasis - Purple */
+    --trading-purple: 260 60% 55%;
+    --trading-purple-muted: 260 40% 30%;
+    --trading-purple-bg: 260 40% 15%;
+    
+    /* Alert/Warning - Yellow */
+    --trading-yellow: 45 93% 58%;
+    --trading-yellow-muted: 45 70% 30%;
+    --trading-yellow-bg: 45 60% 12%;
+
+    /* ===== INDICATOR (Real-time) ===== */
     --indicator: 45 93% 58%;
     --indicator-muted: 45 70% 35%;
 
-    /* Gradients */
-    --gradient-card: linear-gradient(135deg, hsl(222 47% 10%) 0%, hsl(222 47% 8%) 100%);
+    /* ===== GRADIENTS ===== */
+    --gradient-card: linear-gradient(135deg, hsl(222 35% 11%) 0%, hsl(222 40% 8%) 100%);
+    --gradient-card-hover: linear-gradient(135deg, hsl(222 35% 13%) 0%, hsl(222 40% 10%) 100%);
+    --gradient-button-primary: linear-gradient(135deg, hsl(260 60% 55%) 0%, hsl(260 65% 48%) 100%);
     --gradient-button-green: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(142 71% 38%) 100%);
     --gradient-button-red: linear-gradient(135deg, hsl(0 72% 51%) 0%, hsl(0 72% 44%) 100%);
+    --gradient-purple-glow: radial-gradient(ellipse at center, hsl(260 60% 55% / 0.15) 0%, transparent 70%);
+    --gradient-stats-card: linear-gradient(180deg, hsl(222 35% 12%) 0%, hsl(222 40% 9%) 100%);
   }
 
   .dark {
@@ -78,11 +105,27 @@
 }
 
 @layer components {
+  /* ===== CARD VARIANTS ===== */
   .trading-card {
-    @apply bg-card rounded-xl border border-border/50;
+    @apply bg-card rounded-xl border border-border/50 transition-all duration-200;
     background: var(--gradient-card);
   }
 
+  .trading-card:hover {
+    @apply border-border/70;
+    background: var(--gradient-card-hover);
+  }
+
+  .stats-card {
+    @apply rounded-xl border border-border/30 transition-all duration-200;
+    background: var(--gradient-stats-card);
+  }
+
+  .stats-card:hover {
+    @apply border-primary/30;
+  }
+
+  /* ===== PRICE DISPLAY ===== */
   .price-green {
     @apply text-trading-green font-mono;
   }
@@ -91,8 +134,18 @@
     @apply text-trading-red font-mono;
   }
 
+  /* ===== TRADING BUTTONS ===== */
+  .btn-primary {
+    @apply text-primary-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
+    background: var(--gradient-button-primary);
+  }
+
+  .btn-primary:hover {
+    @apply opacity-90 scale-[0.98];
+  }
+
   .btn-trading-green {
-    @apply bg-trading-green text-trading-green-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
+    @apply text-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
     background: var(--gradient-button-green);
   }
 
@@ -101,7 +154,7 @@
   }
 
   .btn-trading-red {
-    @apply bg-trading-red text-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
+    @apply text-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
     background: var(--gradient-button-red);
   }
 
@@ -109,8 +162,9 @@
     @apply opacity-90 scale-[0.98];
   }
 
+  /* ===== TAB & CHIP STYLES ===== */
   .tab-active {
-    @apply text-trading-purple border-b-2 border-trading-purple;
+    @apply text-primary border-b-2 border-primary;
   }
 
   .option-chip {
@@ -118,11 +172,72 @@
   }
 
   .option-chip-active {
-    @apply bg-trading-purple/20 border-2 border-trading-purple text-foreground;
+    @apply bg-primary/20 border-2 border-primary text-foreground;
   }
 
   .option-chip-inactive {
-    @apply bg-muted border-2 border-transparent text-muted-foreground;
+    @apply bg-muted border-2 border-transparent text-muted-foreground hover:bg-muted/80;
+  }
+
+  /* ===== FILTER PILLS ===== */
+  .filter-pill {
+    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer;
+    @apply bg-muted/50 text-muted-foreground border border-transparent;
+  }
+
+  .filter-pill:hover {
+    @apply bg-muted text-foreground;
+  }
+
+  .filter-pill-active {
+    @apply bg-primary text-primary-foreground border-primary;
+  }
+
+  /* ===== STATUS BADGES ===== */
+  .status-active {
+    @apply bg-trading-green/15 text-trading-green border border-trading-green/30;
+  }
+
+  .status-locked {
+    @apply bg-trading-red/15 text-trading-red border border-trading-red/30;
+  }
+
+  .status-pending {
+    @apply bg-trading-yellow/15 text-trading-yellow border border-trading-yellow/30;
+  }
+
+  /* ===== GLOW EFFECTS ===== */
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px hsl(var(--trading-green) / 0.3);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 20px hsl(var(--trading-red) / 0.3);
+  }
+
+  /* ===== ICON CONTAINERS ===== */
+  .icon-container {
+    @apply flex items-center justify-center rounded-lg;
+  }
+
+  .icon-container-primary {
+    @apply bg-primary/15 text-primary;
+  }
+
+  .icon-container-green {
+    @apply bg-trading-green/15 text-trading-green;
+  }
+
+  .icon-container-red {
+    @apply bg-trading-red/15 text-trading-red;
+  }
+
+  .icon-container-yellow {
+    @apply bg-trading-yellow/15 text-trading-yellow;
   }
 }
 
@@ -135,7 +250,7 @@
     display: none;
   }
 
-  /* Order book animation */
+  /* ===== ORDER BOOK ANIMATIONS ===== */
   @keyframes flash-green {
     0% { background-color: hsl(var(--trading-green) / 0.3); }
     100% { background-color: transparent; }
@@ -151,6 +266,11 @@
     100% { background-color: transparent; }
   }
 
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
   .flash-update-green {
     animation: flash-green 0.5s ease-out;
   }
@@ -161,5 +281,29 @@
 
   .flash-new-trade {
     animation: flash-new 0.8s ease-out;
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--primary) / 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* ===== BACKGROUND PATTERNS ===== */
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .bg-dots-pattern {
+    background-image: radial-gradient(hsl(var(--border) / 0.5) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }
