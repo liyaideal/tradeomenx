@@ -262,34 +262,47 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
   return (
     <>
       <Card 
-        className="trading-card overflow-hidden cursor-pointer transition-all hover:border-border/80"
+        className="group relative overflow-hidden cursor-pointer transition-all duration-300 border-border/40 hover:border-primary/40"
         onClick={handleCardClick}
+        style={{
+          background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
+        }}
       >
-      <CardHeader className="pb-3">
+        {/* Subtle glow effect on hover */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse at 50% 0%, hsl(260 65% 58% / 0.08) 0%, transparent 60%)"
+          }}
+        />
+        
+      <CardHeader className="pb-3 relative">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-medium text-foreground leading-snug">{event.title}</h3>
+          <h3 className="font-semibold text-foreground leading-snug text-[15px] group-hover:text-primary transition-colors">
+            {event.title}
+          </h3>
           <Badge 
-            className={
+            variant="outline"
+            className={`flex-shrink-0 text-[11px] font-semibold uppercase tracking-wide ${
               event.status === "active" 
-                ? "bg-trading-green/20 text-trading-green border-trading-green/30 flex-shrink-0" 
+                ? "bg-trading-green/15 text-trading-green border-trading-green/40 shadow-[0_0_8px_hsl(145_80%_42%/0.2)]" 
                 : event.status === "locked"
-                ? "bg-trading-red/20 text-trading-red border-trading-red/30 flex-shrink-0"
-                : "bg-muted text-muted-foreground flex-shrink-0"
-            }
+                ? "bg-trading-red/15 text-trading-red border-trading-red/40"
+                : "bg-muted text-muted-foreground"
+            }`}
           >
-            {event.status === "active" ? "Active" : event.status === "locked" ? "Locked" : "Resolved"}
+            {event.status === "active" ? "● Active" : event.status === "locked" ? "Locked" : "Resolved"}
           </Badge>
         </div>
         
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-2 mt-2.5">
           {event.hasMultipleOptions && (
-            <Badge variant="outline" className="text-xs bg-trading-purple/10 text-trading-purple border-trading-purple/30">
-              Multiple Options
+            <Badge variant="outline" className="text-[10px] font-medium bg-primary/10 text-primary border-primary/30 px-2 py-0.5">
+              Multi-Option
             </Badge>
           )}
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
-            <span>{event.settlementDate}</span>
+            <span className="font-mono text-[11px]">{event.settlementDate}</span>
           </div>
         </div>
       </CardHeader>
@@ -302,47 +315,50 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
           onChartClick={() => setSelectedOption(null)} // Click chart to reset to show all
         />
 
-        {/* Options List - with matching chart colors */}
-        <div className="space-y-2">
+        {/* Options List - refined styling */}
+        <div className="space-y-1.5">
           {optionsWithHistory.map((option, index) => (
             <button
               key={option.id}
               onClick={() => !isLocked && setSelectedOption(option.id)}
               disabled={isLocked}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
                 selectedOption === option.id
-                  ? "bg-muted/50 border border-border/60"
-                  : "bg-muted/30 border border-transparent hover:bg-muted/40"
-              } ${isLocked ? "opacity-60 cursor-not-allowed" : ""}`}
+                  ? "bg-primary/10 border border-primary/30 shadow-[0_0_12px_hsl(260_65%_58%/0.15)]"
+                  : "bg-muted/20 border border-transparent hover:bg-muted/35 hover:border-border/30"
+              } ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <div className="flex items-center gap-3">
                 <span 
-                  className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2 ring-offset-1 ring-offset-background"
+                  style={{ 
+                    backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+                    boxShadow: selectedOption === option.id ? `0 0 8px ${CHART_COLORS[index % CHART_COLORS.length]}` : 'none'
+                  }}
                 />
-                <span className="text-sm text-foreground">
+                <span className={`text-sm font-medium ${selectedOption === option.id ? "text-foreground" : "text-muted-foreground"}`}>
                   {option.label}
                 </span>
               </div>
               <span 
-                className="font-mono text-sm font-medium"
+                className="font-mono text-sm font-bold"
                 style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
               >
-                $ {option.price}
+                ${option.price}
               </span>
             </button>
           ))}
         </div>
 
-        {/* Stats Row */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border">
-          <div className="flex items-center gap-1">
-            <BarChart3 className="h-3 w-3" />
-            <span>Volume: <span className="text-foreground font-mono">{event.totalVolume}</span></span>
+        {/* Stats Row - cleaner */}
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-3 border-t border-border/30">
+          <div className="flex items-center gap-1.5">
+            <BarChart3 className="h-3.5 w-3.5 text-primary/60" />
+            <span>Vol: <span className="text-foreground font-mono font-medium">{event.totalVolume}</span></span>
           </div>
-          <div className="flex items-center gap-1">
-            <Users className="h-3 w-3" />
-            <span>Participants: <span className="text-foreground font-mono">{event.participants}</span></span>
+          <div className="flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5 text-primary/60" />
+            <span><span className="text-foreground font-mono font-medium">{event.participants}</span> traders</span>
           </div>
         </div>
 
@@ -356,49 +372,57 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
 
         {/* Quick Trade Section - Only on Desktop and Active events */}
         {!isMobile && !isLocked && (
-          <div className="pt-3 border-t border-border space-y-3">
+          <div className="pt-4 border-t border-border/40 space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Quick Trade</span>
-              <Zap className="h-4 w-4 text-trading-yellow" />
+              <span className="text-sm font-semibold text-foreground">Quick Trade</span>
+              <Zap className="h-4 w-4 text-trading-yellow animate-pulse" />
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Long/Short Toggle */}
-              <div className="flex rounded-lg overflow-hidden border border-border">
+            <div className="flex items-center gap-3">
+              {/* Long/Short Toggle - with glow effect */}
+              <div className="flex rounded-xl overflow-hidden border border-border/50 bg-background/50 p-0.5">
                 <button
                   onClick={() => setTradeSide("long")}
-                  className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                  className={`relative px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${
                     tradeSide === "long" 
-                      ? "bg-trading-green text-primary-foreground" 
-                      : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      ? "text-background shadow-lg" 
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
+                  style={tradeSide === "long" ? {
+                    background: "linear-gradient(135deg, hsl(145 80% 42%) 0%, hsl(155 75% 35%) 100%)",
+                    boxShadow: "0 4px 15px hsl(145 80% 42% / 0.4)"
+                  } : {}}
                 >
                   Long
                 </button>
                 <button
                   onClick={() => setTradeSide("short")}
-                  className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                  className={`relative px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${
                     tradeSide === "short" 
-                      ? "bg-trading-red text-primary-foreground" 
-                      : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      ? "text-foreground shadow-lg" 
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
+                  style={tradeSide === "short" ? {
+                    background: "linear-gradient(135deg, hsl(0 85% 55%) 0%, hsl(350 80% 48%) 100%)",
+                    boxShadow: "0 4px 15px hsl(0 85% 55% / 0.4)"
+                  } : {}}
                 >
                   Short
                 </button>
               </div>
 
-              {/* Leverage */}
+              {/* Leverage - pill style */}
               <div className="flex items-center gap-2 ml-auto">
-                <span className="text-xs text-muted-foreground">Leverage:</span>
-                <div className="flex rounded-lg overflow-hidden border border-border">
+                <span className="text-xs text-muted-foreground font-medium">Leverage:</span>
+                <div className="flex rounded-xl overflow-hidden border border-border/50 bg-background/50 p-0.5">
                   {[5, 10, 20].map((lev) => (
                     <button
                       key={lev}
                       onClick={() => setLeverage(lev)}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 ${
                         leverage === lev
-                          ? "bg-trading-purple text-primary-foreground"
-                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       }`}
                     >
                       {lev}X
@@ -408,41 +432,51 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
               </div>
             </div>
 
-            {/* Price & Quantity */}
+            {/* Price & Quantity - better input styling */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Price</label>
-                <Input 
-                  value={selectedOptionData?.price || ""} 
-                  readOnly 
-                  className="font-mono bg-muted/30"
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground font-medium">Price</label>
+                <div className="relative">
+                  <Input 
+                    value={selectedOptionData?.price || "—"} 
+                    readOnly 
+                    className="font-mono text-foreground bg-muted/40 border-border/40 h-10"
+                  />
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Quantity</label>
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground font-medium">Quantity</label>
                 <Input 
                   type="number"
                   placeholder="Enter quantity"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="font-mono"
+                  className="font-mono h-10 bg-muted/20 border-border/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
                 />
               </div>
             </div>
 
-            {/* Trade Button */}
-            <Button 
-              className={`w-full gap-2 ${
-                tradeSide === "long" 
-                  ? "bg-trading-green hover:bg-trading-green/90" 
-                  : "bg-trading-red hover:bg-trading-red/90"
-              }`}
+            {/* Trade Button - with gradient and glow */}
+            <button 
               onClick={handleTrade}
               disabled={!selectedOption || !quantity}
+              className={`w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed ${
+                tradeSide === "long" 
+                  ? "text-background hover:scale-[0.98] active:scale-[0.96]" 
+                  : "text-foreground hover:scale-[0.98] active:scale-[0.96]"
+              }`}
+              style={{
+                background: tradeSide === "long" 
+                  ? "linear-gradient(135deg, hsl(145 80% 42%) 0%, hsl(155 75% 32%) 100%)"
+                  : "linear-gradient(135deg, hsl(0 85% 55%) 0%, hsl(350 80% 45%) 100%)",
+                boxShadow: tradeSide === "long"
+                  ? "0 4px 20px hsl(145 80% 42% / 0.35), inset 0 1px 0 hsl(145 80% 60% / 0.2)"
+                  : "0 4px 20px hsl(0 85% 55% / 0.35), inset 0 1px 0 hsl(0 85% 70% / 0.2)"
+              }}
             >
               <TrendingUp className={`h-4 w-4 ${tradeSide === "short" ? "rotate-180" : ""}`} />
-              Buy {tradeSide === "long" ? "Long" : "Short"} — {selectedOptionData?.label || "Select option"}
-            </Button>
+              {tradeSide === "long" ? "Buy Long" : "Sell Short"} — {selectedOptionData?.label || "Select option"}
+            </button>
           </div>
         )}
       </CardContent>
