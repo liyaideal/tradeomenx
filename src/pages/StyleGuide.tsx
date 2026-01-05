@@ -6,8 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -16,6 +19,46 @@ const StyleGuide = () => {
   const navigate = useNavigate();
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState("opt1");
+
+  // Playground states
+  const [buttonVariant, setButtonVariant] = useState<"default" | "secondary" | "destructive" | "outline" | "ghost" | "link">("default");
+  const [buttonSize, setButtonSize] = useState<"default" | "sm" | "lg" | "icon">("default");
+  const [buttonText, setButtonText] = useState("Click Me");
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+
+  const [badgeVariant, setBadgeVariant] = useState<"default" | "secondary" | "destructive" | "outline">("default");
+  const [badgeText, setBadgeText] = useState("Badge");
+  const [badgeCustomColor, setBadgeCustomColor] = useState<string>("none");
+
+  const [inputPlaceholder, setInputPlaceholder] = useState("Enter text...");
+  const [inputDisabled, setInputDisabled] = useState(false);
+  const [inputType, setInputType] = useState<"text" | "password" | "number">("text");
+
+  const [progressValue, setProgressValue] = useState(65);
+  const [progressColor, setProgressColor] = useState<"green" | "red" | "purple">("green");
+
+  const [cardStyle, setCardStyle] = useState<"default" | "trading">("trading");
+  const [cardTitle, setCardTitle] = useState("Card Title");
+  const [cardDescription, setCardDescription] = useState("Card description goes here");
+
+  const resetPlayground = () => {
+    setButtonVariant("default");
+    setButtonSize("default");
+    setButtonText("Click Me");
+    setButtonDisabled(false);
+    setBadgeVariant("default");
+    setBadgeText("Badge");
+    setBadgeCustomColor("none");
+    setInputPlaceholder("Enter text...");
+    setInputDisabled(false);
+    setInputType("text");
+    setProgressValue(65);
+    setProgressColor("green");
+    setCardStyle("trading");
+    setCardTitle("Card Title");
+    setCardDescription("Card description goes here");
+    toast.success("Playground reset!");
+  };
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -121,6 +164,364 @@ const StyleGuide = () => {
                 <p className="text-xl font-semibold">text-xl (20px)</p>
                 <p className="text-2xl font-semibold">text-2xl (24px)</p>
                 <p className="text-3xl font-bold">text-3xl (30px)</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Component Playground Section */}
+        <section>
+          <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
+            <div className="flex items-center gap-2">
+              <Play className="h-5 w-5 text-trading-purple" />
+              <h2 className="text-xl font-semibold text-foreground">Component Playground</h2>
+            </div>
+            <Button variant="outline" size="sm" onClick={resetPlayground} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Reset
+            </Button>
+          </div>
+
+          <div className="space-y-8">
+            {/* Button Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-green" />
+                  Button Playground
+                </CardTitle>
+                <CardDescription>Customize button appearance and behavior</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[120px]">
+                    <Button 
+                      variant={buttonVariant} 
+                      size={buttonSize} 
+                      disabled={buttonDisabled}
+                      onClick={() => toast.success("Button clicked!")}
+                    >
+                      {buttonSize === "icon" ? <Settings className="h-4 w-4" /> : buttonText}
+                    </Button>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Variant</Label>
+                      <Select value={buttonVariant} onValueChange={(v) => setButtonVariant(v as typeof buttonVariant)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="default">Default</SelectItem>
+                          <SelectItem value="secondary">Secondary</SelectItem>
+                          <SelectItem value="destructive">Destructive</SelectItem>
+                          <SelectItem value="outline">Outline</SelectItem>
+                          <SelectItem value="ghost">Ghost</SelectItem>
+                          <SelectItem value="link">Link</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Size</Label>
+                      <Select value={buttonSize} onValueChange={(v) => setButtonSize(v as typeof buttonSize)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sm">Small</SelectItem>
+                          <SelectItem value="default">Default</SelectItem>
+                          <SelectItem value="lg">Large</SelectItem>
+                          <SelectItem value="icon">Icon</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Text</Label>
+                      <Input 
+                        value={buttonText} 
+                        onChange={(e) => setButtonText(e.target.value)}
+                        placeholder="Button text"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm">Disabled</Label>
+                      <Switch checked={buttonDisabled} onCheckedChange={setButtonDisabled} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="mt-4 p-3 bg-background rounded-lg border border-border">
+                  <code className="text-xs text-muted-foreground font-mono">
+                    {`<Button variant="${buttonVariant}" size="${buttonSize}"${buttonDisabled ? " disabled" : ""}>${buttonSize === "icon" ? "<Icon />" : buttonText}</Button>`}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Badge Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-purple" />
+                  Badge Playground
+                </CardTitle>
+                <CardDescription>Customize badge variants and colors</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[120px]">
+                    <Badge 
+                      variant={badgeCustomColor === "none" ? badgeVariant : "outline"}
+                      className={
+                        badgeCustomColor === "green" ? "bg-trading-green/20 text-trading-green border-trading-green/30" :
+                        badgeCustomColor === "red" ? "bg-trading-red/20 text-trading-red border-trading-red/30" :
+                        badgeCustomColor === "yellow" ? "bg-trading-yellow/20 text-trading-yellow border-trading-yellow/30" :
+                        badgeCustomColor === "purple" ? "bg-trading-purple/20 text-trading-purple border-trading-purple/30" :
+                        ""
+                      }
+                    >
+                      {badgeText}
+                    </Badge>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Variant</Label>
+                      <Select value={badgeVariant} onValueChange={(v) => { setBadgeVariant(v as typeof badgeVariant); setBadgeCustomColor("none"); }}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="default">Default</SelectItem>
+                          <SelectItem value="secondary">Secondary</SelectItem>
+                          <SelectItem value="destructive">Destructive</SelectItem>
+                          <SelectItem value="outline">Outline</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Trading Color</Label>
+                      <Select value={badgeCustomColor} onValueChange={setBadgeCustomColor}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">None (Use Variant)</SelectItem>
+                          <SelectItem value="green">Trading Green</SelectItem>
+                          <SelectItem value="red">Trading Red</SelectItem>
+                          <SelectItem value="yellow">Trading Yellow</SelectItem>
+                          <SelectItem value="purple">Trading Purple</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Text</Label>
+                      <Input 
+                        value={badgeText} 
+                        onChange={(e) => setBadgeText(e.target.value)}
+                        placeholder="Badge text"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Input Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-yellow" />
+                  Input Playground
+                </CardTitle>
+                <CardDescription>Test input field configurations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[120px]">
+                    <Input 
+                      type={inputType}
+                      placeholder={inputPlaceholder}
+                      disabled={inputDisabled}
+                      className="max-w-[240px]"
+                    />
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Type</Label>
+                      <Select value={inputType} onValueChange={(v) => setInputType(v as typeof inputType)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="text">Text</SelectItem>
+                          <SelectItem value="password">Password</SelectItem>
+                          <SelectItem value="number">Number</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Placeholder</Label>
+                      <Input 
+                        value={inputPlaceholder} 
+                        onChange={(e) => setInputPlaceholder(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm">Disabled</Label>
+                      <Switch checked={inputDisabled} onCheckedChange={setInputDisabled} />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Progress Bar Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-red" />
+                  Progress Bar Playground
+                </CardTitle>
+                <CardDescription>Adjust progress value and color</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex flex-col justify-center min-h-[120px] gap-2">
+                    <div className={`h-3 rounded-full overflow-hidden ${
+                      progressColor === "green" ? "bg-trading-green-muted" :
+                      progressColor === "red" ? "bg-trading-red-muted" :
+                      "bg-trading-purple-muted"
+                    }`}>
+                      <div 
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          progressColor === "green" ? "bg-trading-green" :
+                          progressColor === "red" ? "bg-trading-red" :
+                          "bg-trading-purple"
+                        }`}
+                        style={{ width: `${progressValue}%` }}
+                      />
+                    </div>
+                    <p className={`text-center font-mono text-lg ${
+                      progressColor === "green" ? "text-trading-green" :
+                      progressColor === "red" ? "text-trading-red" :
+                      "text-trading-purple"
+                    }`}>
+                      {progressValue}%
+                    </p>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Value: {progressValue}%</Label>
+                      <Slider 
+                        value={[progressValue]} 
+                        onValueChange={(v) => setProgressValue(v[0])}
+                        min={0}
+                        max={100}
+                        step={1}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Color</Label>
+                      <Select value={progressColor} onValueChange={(v) => setProgressColor(v as typeof progressColor)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="green">Green (Profit)</SelectItem>
+                          <SelectItem value="red">Red (Loss)</SelectItem>
+                          <SelectItem value="purple">Purple (Neutral)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Card Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indicator" />
+                  Card Playground
+                </CardTitle>
+                <CardDescription>Customize card style and content</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[180px]">
+                    <Card className={cardStyle === "trading" ? "trading-card w-full max-w-[280px]" : "w-full max-w-[280px]"}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base">{cardTitle}</CardTitle>
+                        <CardDescription className="text-xs">{cardDescription}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground">Sample card content area.</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Style</Label>
+                      <Select value={cardStyle} onValueChange={(v) => setCardStyle(v as typeof cardStyle)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="default">Default</SelectItem>
+                          <SelectItem value="trading">Trading (Gradient)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Title</Label>
+                      <Input 
+                        value={cardTitle} 
+                        onChange={(e) => setCardTitle(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Description</Label>
+                      <Input 
+                        value={cardDescription} 
+                        onChange={(e) => setCardDescription(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
+                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                    {`<Card${cardStyle === "trading" ? ' className="trading-card"' : ""}><CardHeader>...</CardHeader></Card>`}
+                  </code>
+                </div>
               </CardContent>
             </Card>
           </div>
