@@ -1,11 +1,21 @@
 import { useState } from "react";
-import { TrendingUp, TrendingDown, Pencil } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -40,6 +50,7 @@ export const PositionCard = ({
 }: PositionCardProps) => {
   const isProfitable = !pnl.startsWith("-");
   const [tpSlOpen, setTpSlOpen] = useState(false);
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   // Use saved state to persist values after dialog closes
   const [savedTp, setSavedTp] = useState(initialTp);
   const [savedSl, setSavedSl] = useState(initialSl);
@@ -50,6 +61,14 @@ export const PositionCard = ({
   const [tpMode, setTpMode] = useState<"%" | "$">("$");
   const [slMode, setSlMode] = useState<"%" | "$">("$");
   const { toast } = useToast();
+
+  const handleClosePosition = () => {
+    toast({
+      title: "Position Closed",
+      description: `Your ${type} position on ${option} has been closed.`,
+    });
+    setCloseDialogOpen(false);
+  };
 
   const handleSave = () => {
     setSavedTp(tpValue);
@@ -210,7 +229,10 @@ export const PositionCard = ({
           >
             {hasTpSl ? "Edit TP/SL" : "Add TP/SL"}
           </button>
-          <button className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors">
+          <button 
+            onClick={() => setCloseDialogOpen(true)}
+            className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
+          >
             Close
           </button>
         </div>
@@ -343,6 +365,62 @@ export const PositionCard = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Close Position Confirmation Dialog */}
+      <AlertDialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>
+        <AlertDialogContent className="max-w-sm bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-trading-red" />
+              Close Position
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-left">
+              Are you sure you want to close this position?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="bg-muted/50 rounded-lg p-3 space-y-2 my-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Position</span>
+              <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
+                {type === "long" ? "Long" : "Short"} {leverage}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Contract</span>
+              <span className="font-medium">{option}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Size</span>
+              <span className="font-mono">{size}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Entry Price</span>
+              <span className="font-mono">{entryPrice}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Mark Price</span>
+              <span className="font-mono">{markPrice}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Unrealized P&L</span>
+              <span className={`font-mono font-medium ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>
+                {pnl} ({pnlPercent})
+              </span>
+            </div>
+          </div>
+
+          <AlertDialogFooter className="flex gap-2 sm:gap-2">
+            <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleClosePosition}
+              className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
+            >
+              Close Position
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
