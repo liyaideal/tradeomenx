@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useNavigationType } from "react-router-dom";
+import { useNavigate, useNavigationType, useSearchParams } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft } from "lucide-react";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
@@ -125,6 +125,8 @@ const formatTpSlDisplay = (value: string, mode: "%" | "$", isProfit: boolean) =>
 export default function DesktopTrading() {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const [searchParams] = useSearchParams();
+  const eventId = searchParams.get("event") || undefined;
   
   // Show back button only if user navigated here (PUSH), not if they used bottom nav or direct URL
   const showBackButton = navigationType === "PUSH";
@@ -255,7 +257,7 @@ export default function DesktopTrading() {
     getEventById,
     showFavoritesOnly,
     toggleShowFavoritesOnly,
-  } = useEvents();
+  } = useEvents(eventId);
   
   const countdown = useCountdown(selectedEvent.endTime);
 
