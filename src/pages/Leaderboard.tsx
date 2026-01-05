@@ -730,7 +730,7 @@ export default function Leaderboard() {
             Share Your Rank
           </h3>
           <ShareableCard 
-            user={topThree[0]} 
+            user={currentUser || topThree[0]} 
             cardRef={cardRef}
             onShare={handleShareCard}
             isGenerating={isGenerating}
@@ -748,7 +748,7 @@ export default function Leaderboard() {
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         imageBlob={shareImageBlob}
-        user={topThree[0]}
+        user={currentUser || topThree[0]}
       />
     </div>
   );
