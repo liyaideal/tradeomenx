@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventCard, EventData } from "@/components/EventCard";
 import { EventStatsOverview } from "@/components/EventStatsOverview";
 import { EventFilters, EventStatusFilter } from "@/components/EventFilters";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-
+import omenxLogo from "@/assets/omenx-logo.svg";
 // Mock events data
 const mockEvents: EventData[] = [
   {
@@ -123,9 +123,7 @@ const EventsPage = () => {
       {isMobile ? (
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+            <img src={omenxLogo} alt="OMENX" className="h-5 w-auto" />
             <EventFilters
               statusFilter={statusFilter}
               onStatusFilterChange={setStatusFilter}
