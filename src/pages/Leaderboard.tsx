@@ -928,22 +928,30 @@ export default function Leaderboard() {
           <div className="text-center mb-8">
             {/* Neon Leaderboard Title */}
             <div className="relative inline-block">
-              {/* Glow layers */}
-              <div className="absolute inset-0 blur-2xl opacity-60">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-primary">
+              {/* Outer glow - soft spread */}
+              <div className="absolute inset-0 blur-3xl opacity-40">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#a855f7]">
                   LEADERBOARD
                 </h1>
               </div>
-              <div className="absolute inset-0 blur-md opacity-80">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-primary">
+              {/* Mid glow */}
+              <div className="absolute inset-0 blur-xl opacity-60">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#c084fc]">
                   LEADERBOARD
                 </h1>
               </div>
-              {/* Main text with stroke effect */}
-              <h1 className="relative text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-primary via-primary/90 to-primary/70"
+              {/* Inner glow */}
+              <div className="absolute inset-0 blur-sm opacity-90">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#d8b4fe]">
+                  LEADERBOARD
+                </h1>
+              </div>
+              {/* Main text - hollow stroke effect */}
+              <h1 
+                className="relative text-4xl md:text-6xl font-black tracking-tight text-transparent"
                 style={{
-                  WebkitTextStroke: '1px hsl(260, 60%, 65%)',
-                  textShadow: '0 0 30px hsl(260, 60%, 55%), 0 0 60px hsl(260, 60%, 45%)'
+                  WebkitTextStroke: '2px #c084fc',
+                  textShadow: '0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 40px #7c3aed, 0 0 80px #7c3aed'
                 }}
               >
                 LEADERBOARD
