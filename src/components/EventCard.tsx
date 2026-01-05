@@ -59,7 +59,15 @@ const generateDateLabels = () => {
 };
 
 // Multi-line chart component matching the design reference
-const MiniChart = ({ options }: { options: EventOption[] }) => {
+const MiniChart = ({ 
+  options, 
+  selectedOptionId, 
+  onChartClick 
+}: { 
+  options: EventOption[]; 
+  selectedOptionId: string | null;
+  onChartClick: () => void;
+}) => {
   const dateLabels = useMemo(() => generateDateLabels(), []);
   
   // Memoize the generated price data to prevent regeneration on each render
@@ -100,11 +108,20 @@ const MiniChart = ({ options }: { options: EventOption[] }) => {
     }));
   }, [optionsWithData, generatePath]);
 
+  // Filter paths based on selected option
+  const visiblePaths = useMemo(() => {
+    if (!selectedOptionId) return paths; // Show all if none selected
+    return paths.filter(p => p.id === selectedOptionId);
+  }, [paths, selectedOptionId]);
+
   // Y-axis percentage labels
   const yLabels = [100, 75, 50, 25, 0];
 
   return (
-    <div className="w-full bg-muted/20 rounded-xl p-4 relative">
+    <div 
+      className="w-full bg-muted/20 rounded-xl p-4 relative cursor-pointer hover:bg-muted/30 transition-colors"
+      onClick={onChartClick}
+    >
       <div className="relative h-32">
         {/* Y-axis labels */}
         <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between text-[10px] text-muted-foreground font-mono w-8 text-right pr-1">
@@ -124,7 +141,7 @@ const MiniChart = ({ options }: { options: EventOption[] }) => {
           
           {/* SVG Chart */}
           <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full" preserveAspectRatio="none">
-            {paths.map(({ id, path, color }) => (
+            {visiblePaths.map(({ id, path, color }) => (
               <path
                 key={id}
                 d={path}
@@ -151,7 +168,7 @@ const MiniChart = ({ options }: { options: EventOption[] }) => {
 
 export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
   const isMobile = useIsMobile();
-  const [selectedOption, setSelectedOption] = useState<string | null>(event.options[0]?.id || null);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null); // Default to null (show all)
   const [tradeSide, setTradeSide] = useState<"long" | "short">("long");
   const [leverage, setLeverage] = useState<number>(5);
   const [quantity, setQuantity] = useState<string>("");
@@ -207,8 +224,12 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
       </CardHeader>
 
       <CardContent className="space-y-4" onClick={(e) => e.stopPropagation()}>
-        {/* Mini Chart - Multi-line for all options */}
-        <MiniChart options={optionsWithHistory} />
+        {/* Mini Chart - Multi-line for all options, or single line when option selected */}
+        <MiniChart 
+          options={optionsWithHistory} 
+          selectedOptionId={selectedOption}
+          onChartClick={() => setSelectedOption(null)} // Click chart to reset to show all
+        />
 
         {/* Options List - with matching chart colors */}
         <div className="space-y-2">
