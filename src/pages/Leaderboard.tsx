@@ -965,10 +965,36 @@ export default function Leaderboard() {
               <button onClick={() => navigate(-1)} className="p-2 -ml-2">
                 <ChevronLeft className="w-6 h-6 text-foreground" />
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors">
-                <Share2 className="w-4 h-4" />
-                <span className="text-sm font-medium">Share</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Period Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/30 transition-all duration-200">
+                      {periodTabs.find(t => t.key === period)?.label}
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-card border-border">
+                    {periodTabs.map((tab) => (
+                      <DropdownMenuItem
+                        key={tab.key}
+                        onClick={() => setPeriod(tab.key)}
+                        className={`text-sm cursor-pointer ${period === tab.key ? "text-primary" : ""}`}
+                      >
+                        {tab.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {/* Share button */}
+                <button 
+                  onClick={handleShareCard}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span className="text-sm font-medium">Share</span>
+                </button>
+              </div>
             </div>
           )}
 
