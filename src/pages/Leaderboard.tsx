@@ -24,20 +24,20 @@ interface LeaderboardUser {
 
 // Mock data for leaderboard
 const mockLeaderboardData: LeaderboardUser[] = [
-  { rank: 1, username: "CryptoWhale", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=whale", pnl: 125430, roi: 342.5, volume: 2450000, trades: 156 },
-  { rank: 2, username: "TradingMaster", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=master", pnl: 89250, roi: 287.3, volume: 1890000, trades: 234 },
-  { rank: 3, username: "ProfitHunter", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=hunter", pnl: 67890, roi: 198.7, volume: 1560000, trades: 189 },
-  { rank: 4, username: "AlphaTrader", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=alpha", pnl: 45670, roi: 156.2, volume: 980000, trades: 145 },
-  { rank: 5, username: "MarketMaker", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=maker", pnl: 34560, roi: 134.8, volume: 890000, trades: 178 },
-  { rank: 6, username: "DiamondHands", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=diamond", pnl: 28900, roi: 112.4, volume: 750000, trades: 98 },
-  { rank: 7, username: "MoonShot", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=moon", pnl: 23450, roi: 98.6, volume: 680000, trades: 167 },
-  { rank: 8, username: "BullRunner", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=bull", pnl: 19870, roi: 87.3, volume: 590000, trades: 134 },
-  { rank: 9, username: "SmartMoney", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=smart", pnl: 15690, roi: 76.5, volume: 480000, trades: 112 },
-  { rank: 10, username: "TrendSurfer", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=trend", pnl: 12340, roi: 65.2, volume: 390000, trades: 89 },
+  { rank: 1, username: "CryptoWhale", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=whale&backgroundColor=b6e3f4", pnl: 125430, roi: 342.5, volume: 2450000, trades: 156 },
+  { rank: 2, username: "TradingMaster", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=master&backgroundColor=c0aede", pnl: 89250, roi: 287.3, volume: 1890000, trades: 234 },
+  { rank: 3, username: "ProfitHunter", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=hunter&backgroundColor=d1d4f9", pnl: 67890, roi: 198.7, volume: 1560000, trades: 189 },
+  { rank: 4, username: "AlphaTrader", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=alpha&backgroundColor=ffd5dc", pnl: 45670, roi: 156.2, volume: 980000, trades: 145 },
+  { rank: 5, username: "MarketMaker", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=maker&backgroundColor=ffdfbf", pnl: 34560, roi: 134.8, volume: 890000, trades: 178 },
+  { rank: 6, username: "DiamondHands", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=diamond&backgroundColor=b6e3f4", pnl: 28900, roi: 112.4, volume: 750000, trades: 98 },
+  { rank: 7, username: "MoonShot", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=moon&backgroundColor=c0aede", pnl: 23450, roi: 98.6, volume: 680000, trades: 167 },
+  { rank: 8, username: "BullRunner", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=bull&backgroundColor=d1d4f9", pnl: 19870, roi: 87.3, volume: 590000, trades: 134 },
+  { rank: 9, username: "SmartMoney", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=smart&backgroundColor=ffd5dc", pnl: 15690, roi: 76.5, volume: 480000, trades: 112 },
+  { rank: 10, username: "TrendSurfer", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=trend&backgroundColor=ffdfbf", pnl: 12340, roi: 65.2, volume: 390000, trades: 89 },
   // More users for demo
-  { rank: 11, username: "Hodler", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=hodler", pnl: 10200, roi: 58.3, volume: 320000, trades: 76 },
-  { rank: 12, username: "BlockBuster", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=block", pnl: 8900, roi: 52.1, volume: 280000, trades: 68 },
-  { rank: 13, username: "CryptoNinja", avatar: "https://api.dicebear.com/9.x/pixel-art/svg?seed=currentuser", pnl: 2340, roi: 23.5, volume: 45000, trades: 28 },
+  { rank: 11, username: "Hodler", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=hodler&backgroundColor=b6e3f4", pnl: 10200, roi: 58.3, volume: 320000, trades: 76 },
+  { rank: 12, username: "BlockBuster", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=block&backgroundColor=c0aede", pnl: 8900, roi: 52.1, volume: 280000, trades: 68 },
+  { rank: 13, username: "CryptoNinja", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=currentuser&backgroundColor=d1d4f9", pnl: 2340, roi: 23.5, volume: 45000, trades: 28 },
 ];
 
 // Current user ID (simulated - in real app this would come from auth)
