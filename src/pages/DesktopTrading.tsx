@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft } from "lucide-react";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
+import { usePositionsStore } from "@/stores/usePositionsStore";
 import {
   Tooltip,
   TooltipContent,
@@ -112,105 +113,6 @@ const generateOrderBookData = (basePrice: number) => {
 
 // mockOrders removed - now using useOrdersStore
 
-const initialPositions = [
-  {
-    type: "long" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "200-219",
-    entryPrice: "$0.3200",
-    markPrice: "$0.3456",
-    size: "2,500",
-    margin: "$80.00",
-    pnl: "+$64.00",
-    pnlPercent: "+8.0%",
-    leverage: "10x",
-    tp: "",
-    sl: "",
-    tpMode: "%" as "%" | "$",
-    slMode: "%" as "%" | "$",
-  },
-  {
-    type: "short" as const,
-    event: "Bitcoin price on January 1, 2026?",
-    option: "$100,000-$105,000",
-    entryPrice: "$0.3500",
-    markPrice: "$0.3820",
-    size: "1,500",
-    margin: "$52.50",
-    pnl: "-$48.00",
-    pnlPercent: "-9.1%",
-    leverage: "10x",
-    tp: "0.28",
-    sl: "0.42",
-    tpMode: "$" as "%" | "$",
-    slMode: "$" as "%" | "$",
-  },
-  {
-    type: "long" as const,
-    event: "Fed interest rate decision December 2025?",
-    option: "25bp Cut",
-    entryPrice: "$0.4500",
-    markPrice: "$0.5120",
-    size: "3,000",
-    margin: "$135.00",
-    pnl: "+$186.00",
-    pnlPercent: "+13.8%",
-    leverage: "10x",
-    tp: "25",
-    sl: "10",
-    tpMode: "%" as "%" | "$",
-    slMode: "%" as "%" | "$",
-  },
-  {
-    type: "short" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "140-159",
-    entryPrice: "$0.0600",
-    markPrice: "$0.0534",
-    size: "5,000",
-    margin: "$30.00",
-    pnl: "+$33.00",
-    pnlPercent: "+11.0%",
-    leverage: "10x",
-    tp: "",
-    sl: "",
-    tpMode: "%" as "%" | "$",
-    slMode: "%" as "%" | "$",
-  },
-  {
-    type: "long" as const,
-    event: "Tesla Q4 2025 deliveries?",
-    option: "450k-500k",
-    entryPrice: "$0.2800",
-    markPrice: "$0.2650",
-    size: "2,000",
-    margin: "$56.00",
-    pnl: "-$30.00",
-    pnlPercent: "-5.4%",
-    leverage: "10x",
-    tp: "",
-    sl: "",
-    tpMode: "%" as "%" | "$",
-    slMode: "%" as "%" | "$",
-  },
-  {
-    type: "long" as const,
-    event: "S&P 500 year-end 2025?",
-    option: "5,800-6,000",
-    entryPrice: "$0.3100",
-    markPrice: "$0.3350",
-    size: "1,800",
-    margin: "$55.80",
-    pnl: "+$45.00",
-    pnlPercent: "+8.1%",
-    leverage: "10x",
-    tp: "15",
-    sl: "8",
-    tpMode: "%" as "%" | "$",
-    slMode: "%" as "%" | "$",
-  },
-];
-
 // Format TP/SL display with unit
 const formatTpSlDisplay = (value: string, mode: "%" | "$", isProfit: boolean) => {
   if (!value) return "";
@@ -252,8 +154,8 @@ export default function DesktopTrading() {
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   
-  // Positions state (using initialPositions as starting data)
-  const [positions, setPositions] = useState(initialPositions);
+  // Positions state - using shared store
+  const { positions, closePosition: closePositionStore, updatePositionTpSl } = usePositionsStore();
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
@@ -275,7 +177,7 @@ export default function DesktopTrading() {
   const handleConfirmClosePosition = () => {
     if (closingPositionIndex !== null) {
       const position = positions[closingPositionIndex];
-      setPositions(prev => prev.filter((_, idx) => idx !== closingPositionIndex));
+      closePositionStore(closingPositionIndex);
       toast.success("Position Closed", {
         description: `Your ${position.type} position on ${position.option} has been closed.`,
       });
@@ -318,11 +220,7 @@ export default function DesktopTrading() {
   
   const handleSavePositionTpSl = () => {
     if (editingPositionIndex !== null) {
-      setPositions(prev => prev.map((pos, idx) => 
-        idx === editingPositionIndex 
-          ? { ...pos, tp: positionTpValue, sl: positionSlValue, tpMode: positionTpMode, slMode: positionSlMode }
-          : pos
-      ));
+      updatePositionTpSl(editingPositionIndex, positionTpValue, positionSlValue, positionTpMode, positionSlMode);
     }
     const tpDisplay = positionTpValue ? (positionTpMode === "%" ? `+${positionTpValue}%` : `$${positionTpValue}`) : "Not set";
     const slDisplay = positionSlValue ? (positionSlMode === "%" ? `-${positionSlValue}%` : `$${positionSlValue}`) : "Not set";

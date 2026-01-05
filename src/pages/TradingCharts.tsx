@@ -7,6 +7,7 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
+import { usePositionsStore } from "@/stores/usePositionsStore";
 
 const options = [
   { id: "1", label: "140-159", price: "0.0534" },
@@ -94,37 +95,11 @@ const mockOrders = [
   },
 ];
 
-const mockPositions = [
-  {
-    type: "long" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "200-219",
-    entryPrice: "$0.3200",
-    markPrice: "$0.3456",
-    size: "2,500",
-    margin: "$80.00",
-    pnl: "+$64.00",
-    pnlPercent: "+8.0%",
-    leverage: "10x",
-  },
-  {
-    type: "short" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "140-159",
-    entryPrice: "$0.0600",
-    markPrice: "$0.0534",
-    size: "5,000",
-    margin: "$30.00",
-    pnl: "+$33.00",
-    pnlPercent: "+11.0%",
-    leverage: "10x",
-  },
-];
-
 const tabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
 export default function TradingCharts() {
   const navigate = useNavigate();
+  const { positions } = usePositionsStore();
   const [selectedOption, setSelectedOption] = useState("2");
   const [activeTab, setActiveTab] = useState("Charts");
   const [bottomTab, setBottomTab] = useState("Order Book");
@@ -287,7 +262,7 @@ export default function TradingCharts() {
 
       {bottomTab === "Positions" && (
         <div className="px-4 py-3 space-y-3">
-          {mockPositions.map((position, index) => (
+          {positions.map((position, index) => (
             <PositionCard key={index} {...position} />
           ))}
         </div>
