@@ -47,7 +47,7 @@ export const EventsDesktopHeader = ({ balance = 2345.67 }: EventsDesktopHeaderPr
         <div className="flex items-center gap-8">
           {/* Logo */}
           <button 
-            onClick={() => navigate("/events")}
+            onClick={() => navigate("/style-guide")}
             className="flex items-center gap-2 hover:opacity-80 transition-all duration-300 hover:scale-[1.02]"
           >
             <Logo size="xl" />
