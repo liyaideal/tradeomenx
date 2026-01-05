@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: true },
-  { icon: BarChart3, label: "Events", path: "/events", disabled: true },
+  { icon: BarChart3, label: "Events", path: "/events", disabled: false },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
   { icon: User, label: "Portfolio", path: "/portfolio", disabled: true },
 ];
@@ -15,6 +15,9 @@ export const BottomNav = () => {
   const isActive = (path: string) => {
     if (path === "/trade") {
       return location.pathname.startsWith("/trade") || location.pathname === "/order-preview";
+    }
+    if (path === "/events") {
+      return location.pathname === "/events";
     }
     return location.pathname === path;
   };
