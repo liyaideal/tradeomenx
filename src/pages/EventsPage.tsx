@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useNavigationType } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -73,7 +73,11 @@ const mockEvents: EventData[] = [
 
 const EventsPage = () => {
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const isMobile = useIsMobile();
+  
+  // Show back button only if user navigated here (PUSH), not if they used bottom nav or direct URL
+  const showBackButton = navigationType === "PUSH";
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState<EventStatusFilter>("all");
@@ -124,9 +128,11 @@ const EventsPage = () => {
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/")}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
+              {showBackButton && (
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              )}
               <img src={omenxLogo} alt="OMENX" className="h-4 w-auto" />
             </div>
             <EventFilters
