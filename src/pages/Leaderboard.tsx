@@ -93,37 +93,28 @@ const getRankColors = (rank: number) => {
 const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sortType: SortType; position: "left" | "center" | "right" }) => {
   const isFirst = user.rank === 1;
   
-  // Styles for each rank
+  // Styles matching the reference image exactly
   const rankStyles = {
     1: {
-      cardBg: "from-yellow-500 via-yellow-600 to-amber-700",
-      borderColor: "border-yellow-400/50",
-      glowColor: "shadow-[0_0_30px_rgba(250,204,21,0.3)]",
-      badgeBg: "bg-gradient-to-br from-yellow-400 to-amber-500",
-      badgeText: "text-yellow-950",
-      cardHeight: "h-44",
-      avatarSize: "h-20 w-20",
-      cardWidth: "w-28 md:w-32",
+      cardBg: "bg-gradient-to-b from-yellow-400 via-yellow-500 to-amber-600",
+      wreathColor: "#FFD700",
+      cardHeight: "h-60",
+      cardWidth: "w-40 md:w-48",
+      avatarSize: "w-36 h-36 md:w-40 md:h-40",
     },
     2: {
-      cardBg: "from-slate-400 via-slate-500 to-slate-600",
-      borderColor: "border-slate-400/40",
-      glowColor: "",
-      badgeBg: "bg-gradient-to-br from-slate-300 to-slate-400",
-      badgeText: "text-slate-800",
-      cardHeight: "h-36",
-      avatarSize: "h-16 w-16",
-      cardWidth: "w-24 md:w-28",
+      cardBg: "bg-gradient-to-b from-blue-400 via-blue-600 to-blue-800",
+      wreathColor: "#C0C0C0",
+      cardHeight: "h-52",
+      cardWidth: "w-32 md:w-40",
+      avatarSize: "w-28 h-28 md:w-32 md:h-32",
     },
     3: {
-      cardBg: "from-amber-600 via-amber-700 to-orange-800",
-      borderColor: "border-amber-500/40",
-      glowColor: "",
-      badgeBg: "bg-gradient-to-br from-amber-500 to-orange-600",
-      badgeText: "text-amber-950",
-      cardHeight: "h-36",
-      avatarSize: "h-16 w-16",
-      cardWidth: "w-24 md:w-28",
+      cardBg: "bg-gradient-to-b from-amber-500 via-orange-600 to-orange-800",
+      wreathColor: "#D4A84B",
+      cardHeight: "h-52",
+      cardWidth: "w-32 md:w-40",
+      avatarSize: "w-28 h-28 md:w-32 md:h-32",
     },
   };
   
@@ -132,11 +123,11 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   const getValue = () => {
     switch (sortType) {
       case "pnl":
-        return `$${user.pnl.toLocaleString()}`;
+        return user.pnl.toLocaleString();
       case "roi":
-        return `${user.roi.toFixed(1)}%`;
+        return user.roi.toFixed(0);
       case "volume":
-        return `$${user.volume.toLocaleString()}`;
+        return user.volume.toLocaleString();
     }
   };
 
@@ -144,43 +135,47 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   const rankSuffix = user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd";
 
   return (
-    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "" : "mt-4"}`}>
-      {/* Crown for #1 */}
-      {isFirst && (
-        <div className="mb-2">
-          <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]" />
-        </div>
-      )}
-      
+    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "" : "mt-6"}`}>
       {/* Card Container */}
-      <div className={`relative bg-gradient-to-b ${style.cardBg} rounded-2xl ${style.cardHeight} ${style.cardWidth} border ${style.borderColor} ${style.glowColor} overflow-visible`}>
-        {/* Rank Badge - top center */}
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-          <div className={`${style.badgeBg} ${style.badgeText} px-3 py-1 rounded-full font-bold text-sm shadow-lg`}>
-            {user.rank}<sup className="text-[10px] ml-0.5">{rankSuffix}</sup>
+      <div className={`relative ${style.cardBg} rounded-3xl ${style.cardHeight} ${style.cardWidth} border-2 border-white/30 overflow-hidden shadow-xl`}>
+        
+        {/* Laurel Wreath with Rank at top */}
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 z-10">
+          <div className="relative">
+            <LaurelWreath 
+              color={style.wreathColor} 
+              size={isFirst ? "lg" : "md"} 
+              showTrophy={isFirst}
+            />
+            {/* Rank number inside wreath */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-white font-bold text-2xl drop-shadow-lg" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                {user.rank}<sup className="text-sm">{rankSuffix}</sup>
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Avatar - centered in card, near bottom */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-          <Avatar className={`${style.avatarSize} border-3 border-background/80 shadow-xl`}>
-            <AvatarImage src={user.avatar} alt={user.username} className="object-cover" />
-            <AvatarFallback className="text-lg bg-muted">{user.username.slice(0, 2)}</AvatarFallback>
-          </Avatar>
+        {/* Avatar - large, fills bottom portion */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+          <div className={`${style.avatarSize} overflow-hidden`}>
+            <img 
+              src={user.avatar} 
+              alt={user.username}
+              className="w-full h-full object-cover object-top"
+            />
+          </div>
         </div>
-        
-        {/* Subtle shine overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/10 pointer-events-none rounded-2xl" />
       </div>
 
-      {/* Username */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base" : "text-sm"} mt-3 truncate max-w-[120px] text-center`}>
+      {/* Username - below card */}
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-lg" : "text-base"} mt-4 truncate max-w-[160px] text-center`}>
         {user.username}
       </h3>
 
-      {/* Value */}
-      <div className={`flex items-center gap-1 font-mono font-bold text-trading-green ${isFirst ? "text-lg" : "text-base"} mt-0.5`}>
-        <Zap className="w-4 h-4" />
+      {/* Value with diamond icon */}
+      <div className={`flex items-center gap-1.5 font-bold text-trading-green ${isFirst ? "text-2xl" : "text-xl"} mt-1`}>
+        <span className="text-trading-green">◆</span>
         {getValue()}
       </div>
     </div>
