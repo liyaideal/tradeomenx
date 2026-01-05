@@ -203,7 +203,6 @@ export default function TradingCharts() {
                     className={`w-4 h-4 ${favorites.has(event.id) ? "text-trading-yellow fill-trading-yellow" : "text-muted-foreground"}`} 
                   />
                 </button>
-                <span className="text-lg flex-shrink-0">{event.icon}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground line-clamp-2">{event.name}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Volume: {event.volume}</p>
