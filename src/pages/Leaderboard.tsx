@@ -924,18 +924,32 @@ export default function Leaderboard() {
             </div>
           )}
 
-          {/* Logo + Title */}
+          {/* Title with Neon Effect */}
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <img src={omenxLogo} alt="OMENX" className="h-8" />
+            {/* Neon Leaderboard Title */}
+            <div className="relative inline-block">
+              {/* Glow layers */}
+              <div className="absolute inset-0 blur-2xl opacity-60">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-primary">
+                  LEADERBOARD
+                </h1>
+              </div>
+              <div className="absolute inset-0 blur-md opacity-80">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-primary">
+                  LEADERBOARD
+                </h1>
+              </div>
+              {/* Main text with stroke effect */}
+              <h1 className="relative text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-primary via-primary/90 to-primary/70"
+                style={{
+                  WebkitTextStroke: '1px hsl(260, 60%, 65%)',
+                  textShadow: '0 0 30px hsl(260, 60%, 55%), 0 0 60px hsl(260, 60%, 45%)'
+                }}
+              >
+                LEADERBOARD
+              </h1>
             </div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-4">
-              <span className="text-sm font-semibold text-primary">🏆 Live Rankings</span>
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-              Leaderboard
-            </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mt-4">
               Top traders this week
             </p>
           </div>
