@@ -92,6 +92,8 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         backTo="/"
         tweetCount={selectedEvent.tweetCount}
         onTitleClick={() => setEventSheetOpen(true)}
+        isFavorite={favorites.has(selectedEvent.id)}
+        onFavoriteToggle={() => toggleFavorite(selectedEvent.id)}
       />
 
       {/* Option Chips */}
