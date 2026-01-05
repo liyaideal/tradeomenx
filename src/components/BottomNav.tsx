@@ -9,6 +9,14 @@ const navItems = [
   { icon: User, label: "Portfolio", path: "/portfolio", disabled: true },
 ];
 
+// Haptic feedback utility
+const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
+  if ('vibrate' in navigator) {
+    const duration = style === 'light' ? 10 : style === 'medium' ? 20 : 30;
+    navigator.vibrate(duration);
+  }
+};
+
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,7 +42,12 @@ export const BottomNav = () => {
             return (
               <button
                 key={item.path}
-                onClick={() => !item.disabled && navigate(item.path, { replace: true })}
+                onClick={() => {
+                  if (!item.disabled) {
+                    triggerHaptic('medium');
+                    navigate(item.path, { replace: true });
+                  }
+                }}
                 className="relative flex flex-col items-center"
               >
                 {/* Glow effect behind icon - stronger when active */}
@@ -68,7 +81,12 @@ export const BottomNav = () => {
           return (
             <button
               key={item.path}
-              onClick={() => !item.disabled && navigate(item.path, { replace: true })}
+              onClick={() => {
+                if (!item.disabled) {
+                  triggerHaptic('light');
+                  navigate(item.path, { replace: true });
+                }
+              }}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
                 active 
                   ? "text-trading-purple scale-110" 
