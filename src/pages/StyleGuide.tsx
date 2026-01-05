@@ -243,45 +243,52 @@ const StyleGuide = () => {
 
   const colorSections = [
     {
-      title: "Core Colors",
+      title: "Core Surface Colors",
+      description: "Background and container colors for the application",
       colors: [
-        { name: "Background", variable: "--background", class: "bg-background", value: "222 47% 6%" },
-        { name: "Foreground", variable: "--foreground", class: "bg-foreground", value: "210 40% 98%" },
-        { name: "Card", variable: "--card", class: "bg-card", value: "220 15% 13%" },
-        { name: "Popover", variable: "--popover", class: "bg-popover", value: "222 47% 9%" },
-        { name: "Muted", variable: "--muted", class: "bg-muted", value: "222 30% 18%" },
-        { name: "Border", variable: "--border", class: "bg-border", value: "222 30% 18%" },
-        { name: "Input", variable: "--input", class: "bg-input", value: "222 30% 15%" },
+        { name: "Background", variable: "--background", class: "bg-background", value: "222 47% 6%", usage: "Main app background" },
+        { name: "Background Elevated", variable: "--background-elevated", class: "bg-background-elevated", value: "222 40% 8%", usage: "Elevated surfaces" },
+        { name: "Card", variable: "--card", class: "bg-card", value: "222 35% 10%", usage: "Card backgrounds" },
+        { name: "Card Hover", variable: "--card-hover", class: "bg-card-hover", value: "222 35% 12%", usage: "Card hover state" },
+        { name: "Muted", variable: "--muted", class: "bg-muted", value: "222 25% 14%", usage: "Muted backgrounds" },
+        { name: "Secondary", variable: "--secondary", class: "bg-secondary", value: "222 30% 16%", usage: "Secondary buttons/inputs" },
       ]
     },
     {
-      title: "Brand Colors",
-      description: "Purple is the primary brand color used for navigation, buttons, and interactive elements.",
+      title: "Brand Colors (Purple Primary)",
+      description: "Purple is the primary brand color for navigation, CTAs, and interactive elements",
       colors: [
-        { name: "Primary (Purple)", variable: "--primary", class: "bg-primary", value: "260 60% 55%", usage: "Navigation, CTAs, focus states" },
-        { name: "Secondary", variable: "--secondary", class: "bg-secondary", value: "222 30% 22%", usage: "Secondary buttons, backgrounds" },
-        { name: "Accent", variable: "--accent", class: "bg-accent", value: "260 50% 45%", usage: "Highlights, hover states" },
-        { name: "Destructive (Red)", variable: "--destructive", class: "bg-destructive", value: "0 72% 51%", usage: "Errors, delete actions" },
+        { name: "Primary", variable: "--primary", class: "bg-primary", value: "260 60% 55%", usage: "Navigation, CTAs, focus states" },
+        { name: "Primary Hover", variable: "--primary-hover", class: "bg-primary-hover", value: "260 60% 50%", usage: "Primary hover state" },
+        { name: "Primary Muted", variable: "--primary-muted", class: "bg-primary-muted", value: "260 40% 25%", usage: "Primary backgrounds" },
+        { name: "Accent", variable: "--accent", class: "bg-accent", value: "260 50% 45%", usage: "Highlights, accents" },
       ]
     },
     {
-      title: "Trading Colors",
-      description: "Green for profit/success, Red for loss/error, Purple for brand emphasis, Yellow for alerts.",
+      title: "Trading Semantic Colors",
+      description: "Green = Success/Profit, Red = Loss/Error, Yellow = Alert, Purple = Brand emphasis",
       colors: [
-        { name: "Trading Green (Success)", variable: "--trading-green", class: "bg-trading-green", value: "142 71% 45%", usage: "Profit, buy, success states" },
-        { name: "Trading Green Muted", variable: "--trading-green-muted", class: "bg-trading-green-muted", value: "142 50% 25%", usage: "Green backgrounds" },
-        { name: "Trading Red (Loss)", variable: "--trading-red", class: "bg-trading-red", value: "0 72% 51%", usage: "Loss, sell, error states" },
-        { name: "Trading Red Muted", variable: "--trading-red-muted", class: "bg-trading-red-muted", value: "0 50% 25%", usage: "Red backgrounds" },
-        { name: "Trading Purple (Brand)", variable: "--trading-purple", class: "bg-trading-purple", value: "260 60% 55%", usage: "Brand emphasis, active tabs" },
-        { name: "Trading Purple Muted", variable: "--trading-purple-muted", class: "bg-trading-purple-muted", value: "260 40% 35%", usage: "Purple backgrounds" },
-        { name: "Trading Yellow (Alert)", variable: "--trading-yellow", class: "bg-trading-yellow", value: "45 93% 58%", usage: "Warnings, real-time indicators" },
+        { name: "Trading Green", variable: "--trading-green", class: "bg-trading-green", value: "142 71% 45%", usage: "Profit, buy, success" },
+        { name: "Trading Green Muted", variable: "--trading-green-muted", class: "bg-trading-green-muted", value: "142 50% 20%", usage: "Green backgrounds" },
+        { name: "Trading Green BG", variable: "--trading-green-bg", class: "bg-trading-green-bg", value: "142 50% 12%", usage: "Subtle green bg" },
+        { name: "Trading Red", variable: "--trading-red", class: "bg-trading-red", value: "0 72% 51%", usage: "Loss, sell, error" },
+        { name: "Trading Red Muted", variable: "--trading-red-muted", class: "bg-trading-red-muted", value: "0 50% 20%", usage: "Red backgrounds" },
+        { name: "Trading Red BG", variable: "--trading-red-bg", class: "bg-trading-red-bg", value: "0 50% 12%", usage: "Subtle red bg" },
+        { name: "Trading Purple", variable: "--trading-purple", class: "bg-trading-purple", value: "260 60% 55%", usage: "Brand emphasis" },
+        { name: "Trading Purple Muted", variable: "--trading-purple-muted", class: "bg-trading-purple-muted", value: "260 40% 30%", usage: "Purple backgrounds" },
+        { name: "Trading Yellow", variable: "--trading-yellow", class: "bg-trading-yellow", value: "45 93% 58%", usage: "Alerts, warnings" },
+        { name: "Trading Yellow Muted", variable: "--trading-yellow-muted", class: "bg-trading-yellow-muted", value: "45 70% 30%", usage: "Yellow backgrounds" },
       ]
     },
     {
-      title: "Indicator",
+      title: "Border & Text Colors",
+      description: "Borders, inputs, and text hierarchy",
       colors: [
-        { name: "Indicator", variable: "--indicator", class: "bg-indicator", value: "45 93% 58%" },
-        { name: "Indicator Muted", variable: "--indicator-muted", class: "bg-indicator-muted", value: "45 70% 35%" },
+        { name: "Border", variable: "--border", class: "bg-border", value: "222 25% 18%", usage: "Default borders" },
+        { name: "Border Subtle", variable: "--border-subtle", class: "bg-border-subtle", value: "222 20% 14%", usage: "Subtle borders" },
+        { name: "Input", variable: "--input", class: "bg-input", value: "222 30% 12%", usage: "Input backgrounds" },
+        { name: "Foreground", variable: "--foreground", class: "bg-foreground", value: "210 40% 98%", usage: "Primary text" },
+        { name: "Muted Foreground", variable: "--muted-foreground", class: "text-muted-foreground bg-muted", value: "215 20% 55%", usage: "Secondary text" },
       ]
     },
   ];
@@ -1301,11 +1308,16 @@ const StyleGuide = () => {
         {filterSection("colors") && (
         <section id="colors">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Colors</h2>
-          <div className="space-y-8">
+          <div className="space-y-10">
             {colorSections.map((section) => (
               <div key={section.title}>
-                <h3 className="text-sm font-medium text-muted-foreground mb-4">{section.title}</h3>
-                <div className={`grid gap-3 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+                <div className="mb-4">
+                  <h3 className="text-base font-semibold text-foreground mb-1">{section.title}</h3>
+                  {section.description && (
+                    <p className="text-sm text-muted-foreground">{section.description}</p>
+                  )}
+                </div>
+                <div className={`grid gap-3 ${isMobile ? "grid-cols-2" : "grid-cols-4 lg:grid-cols-6"}`}>
                   {section.colors.map((color) => (
                     <button
                       key={color.name}
@@ -1313,7 +1325,7 @@ const StyleGuide = () => {
                       className="group relative text-left"
                     >
                       <div
-                        className={`h-16 rounded-lg ${color.class} border border-border/50 mb-2 flex items-center justify-center transition-transform group-hover:scale-105`}
+                        className={`h-14 rounded-lg ${color.class} border border-border/50 mb-2 flex items-center justify-center transition-all group-hover:scale-105 group-hover:border-primary/50`}
                       >
                         {copiedColor === color.name ? (
                           <Check className="h-5 w-5 text-foreground" />
@@ -1322,7 +1334,10 @@ const StyleGuide = () => {
                         )}
                       </div>
                       <p className="text-xs font-medium truncate">{color.name}</p>
-                      <p className="text-xs text-muted-foreground font-mono truncate">{color.variable}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono truncate">{color.variable}</p>
+                      {(color as any).usage && (
+                        <p className="text-[10px] text-primary/70 truncate mt-0.5">{(color as any).usage}</p>
+                      )}
                     </button>
                   ))}
                 </div>

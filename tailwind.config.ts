@@ -19,17 +19,22 @@ export default {
       },
       colors: {
         border: "hsl(var(--border))",
+        "border-subtle": "hsl(var(--border-subtle))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
+        "background-elevated": "hsl(var(--background-elevated))",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hover: "hsl(var(--primary-hover))",
+          muted: "hsl(var(--primary-muted))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+          hover: "hsl(var(--secondary-hover))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -50,16 +55,22 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+          hover: "hsl(var(--card-hover))",
         },
         trading: {
           green: "hsl(var(--trading-green))",
           "green-muted": "hsl(var(--trading-green-muted))",
+          "green-bg": "hsl(var(--trading-green-bg))",
           "green-foreground": "hsl(var(--foreground))",
           red: "hsl(var(--trading-red))",
           "red-muted": "hsl(var(--trading-red-muted))",
+          "red-bg": "hsl(var(--trading-red-bg))",
           purple: "hsl(var(--trading-purple))",
           "purple-muted": "hsl(var(--trading-purple-muted))",
+          "purple-bg": "hsl(var(--trading-purple-bg))",
           yellow: "hsl(var(--trading-yellow))",
+          "yellow-muted": "hsl(var(--trading-yellow-muted))",
+          "yellow-bg": "hsl(var(--trading-yellow-bg))",
           "yellow-foreground": "hsl(var(--background))",
         },
         indicator: {

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -8,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter, SlidersHorizontal } from "lucide-react";
+import { Filter } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Sheet,
@@ -80,7 +79,7 @@ export const EventFilters = ({
       <div className="flex items-center justify-between gap-2">
         {/* Status Dropdown */}
         <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as EventStatusFilter)}>
-          <SelectTrigger className="w-[100px] bg-muted/50">
+          <SelectTrigger className="w-[100px] bg-secondary border-border/50 h-9">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -95,7 +94,7 @@ export const EventFilters = ({
         {/* Filter Sheet Trigger */}
         <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="flex-shrink-0">
+            <Button variant="outline" size="icon" className="flex-shrink-0 border-border/50">
               <Filter className="h-4 w-4" />
             </Button>
           </SheetTrigger>
@@ -153,7 +152,7 @@ export const EventFilters = ({
               </div>
 
               <Button 
-                className="w-full" 
+                className="w-full bg-primary hover:bg-primary-hover" 
                 onClick={() => setIsFilterOpen(false)}
               >
                 Apply Filters
@@ -167,32 +166,33 @@ export const EventFilters = ({
 
   // Desktop Filters
   return (
-    <div className="flex items-center justify-between gap-4 flex-wrap">
-      <div className="flex items-center gap-3 flex-wrap">
-        {/* Status Pills */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm text-muted-foreground mr-1">Status:</span>
-          {statusOptions.map((opt) => (
-            <Badge
-              key={opt.value}
-              variant={statusFilter === opt.value ? "default" : "outline"}
-              className={`cursor-pointer transition-colors ${
-                statusFilter === opt.value
-                  ? "bg-trading-purple hover:bg-trading-purple/90"
-                  : "hover:bg-muted/50"
-              }`}
-              onClick={() => onStatusFilterChange(opt.value)}
-            >
-              {opt.label}
-            </Badge>
-          ))}
+    <div className="flex items-center justify-between gap-4 flex-wrap py-2">
+      <div className="flex items-center gap-4 flex-wrap">
+        {/* Status Pills - with better styling */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground font-medium">Status:</span>
+          <div className="flex items-center gap-1 bg-secondary/50 rounded-lg p-1">
+            {statusOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => onStatusFilterChange(opt.value)}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                  statusFilter === opt.value
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Settlement Dropdown */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Settlement:</span>
+          <span className="text-sm text-muted-foreground font-medium">Settlement:</span>
           <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
-            <SelectTrigger className="w-[130px] bg-muted/50 h-8">
+            <SelectTrigger className="w-[130px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -207,9 +207,9 @@ export const EventFilters = ({
 
         {/* Category Dropdown */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Category:</span>
+          <span className="text-sm text-muted-foreground font-medium">Category:</span>
           <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
-            <SelectTrigger className="w-[140px] bg-muted/50 h-8">
+            <SelectTrigger className="w-[150px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -225,9 +225,9 @@ export const EventFilters = ({
 
       {/* Sort Dropdown */}
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Sort:</span>
+        <span className="text-sm text-muted-foreground font-medium">Sort:</span>
         <Select value={sortBy} onValueChange={onSortByChange}>
-          <SelectTrigger className="w-[130px] bg-muted/50 h-8">
+          <SelectTrigger className="w-[130px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
