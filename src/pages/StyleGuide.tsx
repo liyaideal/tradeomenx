@@ -9,8 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -58,6 +60,17 @@ const StyleGuide = () => {
   const [tabsStyle, setTabsStyle] = useState<"default" | "full-width">("default");
   const [tabLabels, setTabLabels] = useState(["Tab 1", "Tab 2", "Tab 3", "Tab 4"]);
 
+  // Tooltip Playground
+  const [tooltipText, setTooltipText] = useState("This is a helpful tooltip");
+  const [tooltipSide, setTooltipSide] = useState<"top" | "right" | "bottom" | "left">("top");
+  const [tooltipDelayDuration, setTooltipDelayDuration] = useState(200);
+
+  // Popover Playground
+  const [popoverTitle, setPopoverTitle] = useState("Popover Title");
+  const [popoverContent, setPopoverContent] = useState("This is the popover content. It can contain any elements.");
+  const [popoverSide, setPopoverSide] = useState<"top" | "right" | "bottom" | "left">("bottom");
+  const [popoverAlign, setPopoverAlign] = useState<"start" | "center" | "end">("center");
+
   const resetPlayground = () => {
     setButtonVariant("default");
     setButtonSize("default");
@@ -85,6 +98,13 @@ const StyleGuide = () => {
     setTabsCount(3);
     setTabsStyle("default");
     setTabLabels(["Tab 1", "Tab 2", "Tab 3", "Tab 4"]);
+    setTooltipText("This is a helpful tooltip");
+    setTooltipSide("top");
+    setTooltipDelayDuration(200);
+    setPopoverTitle("Popover Title");
+    setPopoverContent("This is the popover content. It can contain any elements.");
+    setPopoverSide("bottom");
+    setPopoverAlign("center");
     toast.success("Playground reset!");
   };
 
@@ -769,6 +789,168 @@ const StyleGuide = () => {
                 <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
                   <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
                     {`<Tabs><TabsList${tabsStyle === "full-width" ? ' className="w-full"' : ""}>${Array.from({ length: tabsCount }).map((_, i) => `<TabsTrigger>${tabLabels[i]}</TabsTrigger>`).join("")}</TabsList></Tabs>`}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tooltip Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-muted-foreground" />
+                  Tooltip Playground
+                </CardTitle>
+                <CardDescription>Customize tooltip position and delay</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[150px]">
+                    <Tooltip delayDuration={tooltipDelayDuration}>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          <HelpCircle className="h-4 w-4" />
+                          Hover me
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side={tooltipSide}>
+                        <p>{tooltipText}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Tooltip Text</Label>
+                      <Input 
+                        value={tooltipText} 
+                        onChange={(e) => setTooltipText(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Position</Label>
+                      <Select value={tooltipSide} onValueChange={(v) => setTooltipSide(v as typeof tooltipSide)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="top">Top</SelectItem>
+                          <SelectItem value="right">Right</SelectItem>
+                          <SelectItem value="bottom">Bottom</SelectItem>
+                          <SelectItem value="left">Left</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Delay: {tooltipDelayDuration}ms</Label>
+                      <Slider 
+                        value={[tooltipDelayDuration]}
+                        onValueChange={(v) => setTooltipDelayDuration(v[0])}
+                        min={0}
+                        max={1000}
+                        step={50}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
+                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                    {`<Tooltip delayDuration={${tooltipDelayDuration}}><TooltipTrigger>...</TooltipTrigger><TooltipContent side="${tooltipSide}">${tooltipText}</TooltipContent></Tooltip>`}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Popover Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indicator" />
+                  Popover Playground
+                </CardTitle>
+                <CardDescription>Configure popover position, alignment and content</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[180px]">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          <Info className="h-4 w-4" />
+                          Click me
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent side={popoverSide} align={popoverAlign} className="w-72">
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm">{popoverTitle}</h4>
+                          <p className="text-sm text-muted-foreground">{popoverContent}</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Title</Label>
+                      <Input 
+                        value={popoverTitle} 
+                        onChange={(e) => setPopoverTitle(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Content</Label>
+                      <Input 
+                        value={popoverContent} 
+                        onChange={(e) => setPopoverContent(e.target.value)}
+                      />
+                    </div>
+
+                    <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Side</Label>
+                        <Select value={popoverSide} onValueChange={(v) => setPopoverSide(v as typeof popoverSide)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="top">Top</SelectItem>
+                            <SelectItem value="right">Right</SelectItem>
+                            <SelectItem value="bottom">Bottom</SelectItem>
+                            <SelectItem value="left">Left</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Align</Label>
+                        <Select value={popoverAlign} onValueChange={(v) => setPopoverAlign(v as typeof popoverAlign)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="start">Start</SelectItem>
+                            <SelectItem value="center">Center</SelectItem>
+                            <SelectItem value="end">End</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
+                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                    {`<Popover><PopoverTrigger>...</PopoverTrigger><PopoverContent side="${popoverSide}" align="${popoverAlign}">...</PopoverContent></Popover>`}
                   </code>
                 </div>
               </CardContent>
