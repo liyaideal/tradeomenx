@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { usePositionsStore } from "@/stores/usePositionsStore";
+import { activeEvents, eventOptionsMap } from "@/data/events";
 
 // Mock user data
 const userData = {
@@ -15,72 +16,37 @@ const userData = {
   availableBalance: "$2,345.67",
 };
 
-// Mock hot markets data
-const hotMarketsData = [
-  {
-    id: "1",
-    category: "Politics",
-    categoryColor: "bg-muted text-foreground",
-    title: "When will government shutdown end?",
-    options: [
-      { label: "November 4-7", price: "$52.3" },
-      { label: "November 12-15", price: "$28.1" },
-    ],
-    volume: "$1.4M",
-    countdown: "94D 2h 15m",
-  },
-  {
-    id: "2",
-    category: "Crypto",
-    categoryColor: "bg-trading-yellow/20 text-trading-yellow",
-    title: "Will Ethereum price break $5000?",
-    options: [
-      { label: "Yes", price: "$52.3" },
-      { label: "No", price: "$28.1" },
-    ],
-    volume: "$2.1M",
-    countdown: "12D 5h 30m",
-  },
-  {
-    id: "3",
-    category: "Finance",
-    categoryColor: "bg-trading-green/20 text-trading-green",
-    title: "Will Fed raise rates next meeting?",
-    options: [
-      { label: "Yes", price: "$52.3" },
-      { label: "No", price: "$28.1" },
-    ],
-    volume: "$1.8M",
-    countdown: "8D 14h 22m",
-  },
-  {
-    id: "4",
-    category: "Sports",
-    categoryColor: "bg-trading-red/20 text-trading-red",
-    title: "Super Bowl Champion Prediction 2025",
-    options: [
-      { label: "Chiefs", price: "$52.3" },
-      { label: "Bills", price: "$526.3" },
-    ],
-    volume: "$0.9M",
-    countdown: "45D 8h 12m",
-  },
-];
+// Helper to get category color based on event icon
+const getCategoryInfo = (icon: string) => {
+  switch (icon) {
+    case "🐦":
+      return { category: "Social", color: "bg-primary/20 text-primary" };
+    case "₿":
+      return { category: "Crypto", color: "bg-trading-yellow/20 text-trading-yellow" };
+    case "⟠":
+      return { category: "Crypto", color: "bg-trading-purple/20 text-trading-purple" };
+    case "🏦":
+      return { category: "Finance", color: "bg-trading-green/20 text-trading-green" };
+    case "📈":
+      return { category: "Finance", color: "bg-trading-green/20 text-trading-green" };
+    default:
+      return { category: "Market", color: "bg-muted text-foreground" };
+  }
+};
 
-// Mock settlement soon data
-const settlementSoonData = [
-  {
-    id: "1",
-    category: "Finance",
-    categoryColor: "bg-trading-green/20 text-trading-green",
-    title: "Will Fed cut rates in December?",
-    options: [
-      { label: "YES", price: "$78.3" },
-      { label: "NO", price: "$22.1" },
-    ],
-    settlesIn: "2h 15m",
-  },
-];
+// Helper to calculate countdown from endTime
+const getCountdown = (endTime: Date) => {
+  const now = new Date();
+  const diff = endTime.getTime() - now.getTime();
+  if (diff <= 0) return "Ended";
+  
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (days > 0) return `${days}D ${hours}h ${minutes}m`;
+  return `${hours}h ${minutes}m`;
+};
 
 const MobileHome = () => {
   const navigate = useNavigate();
@@ -200,49 +166,55 @@ const MobileHome = () => {
             </button>
           </div>
           <div className="space-y-3">
-            {hotMarketsData.map((market, index) => (
-              <div
-                key={market.id}
-                className="trading-card p-4 space-y-3 animate-fade-in"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="flex items-start justify-between">
-                  <Badge className={`text-xs ${market.categoryColor} border-0`}>
-                    {market.category}
-                  </Badge>
-                  <Button 
-                    size="sm" 
-                    className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
-                    onClick={() => navigate("/trade")}
-                  >
-                    <BarChart3 className="h-3.5 w-3.5" />
-                    Trade
-                  </Button>
-                </div>
-                <h4 className="font-medium text-foreground">{market.title}</h4>
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                  {market.options.map((option, optIndex) => (
-                    <div
-                      key={optIndex}
-                      className="flex-shrink-0 min-w-[120px] bg-muted/50 rounded-lg p-3"
+            {activeEvents.slice(0, 4).map((event, index) => {
+              const categoryInfo = getCategoryInfo(event.icon);
+              const options = eventOptionsMap[event.id] || [];
+              const countdown = getCountdown(event.endTime);
+              
+              return (
+                <div
+                  key={event.id}
+                  className="trading-card p-4 space-y-3 animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="flex items-start justify-between">
+                    <Badge className={`text-xs ${categoryInfo.color} border-0`}>
+                      {categoryInfo.category}
+                    </Badge>
+                    <Button 
+                      size="sm" 
+                      className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
+                      onClick={() => navigate("/trade")}
                     >
-                      <span className="text-xs text-muted-foreground">{option.label}</span>
-                      <div className="text-lg font-bold font-mono text-foreground">{option.price}</div>
+                      <BarChart3 className="h-3.5 w-3.5" />
+                      Trade
+                    </Button>
+                  </div>
+                  <h4 className="font-medium text-foreground">{event.name}</h4>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    {options.slice(0, 2).map((option) => (
+                      <div
+                        key={option.id}
+                        className="flex-shrink-0 min-w-[120px] bg-muted/50 rounded-lg p-3"
+                      >
+                        <span className="text-xs text-muted-foreground">{option.label}</span>
+                        <div className="text-lg font-bold font-mono text-foreground">${option.price}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                      <span>Volume: {event.volume}</span>
                     </div>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <BarChart3 className="h-3.5 w-3.5 text-primary" />
-                    <span>Volume: {market.volume}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-trading-yellow">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>{market.countdown}</span>
+                    <div className="flex items-center gap-1.5 text-trading-yellow">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>{countdown}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -256,42 +228,53 @@ const MobileHome = () => {
             </div>
           </div>
           <div className="space-y-3">
-            {settlementSoonData.map((market) => (
-              <div
-                key={market.id}
-                className="trading-card p-4 space-y-3 border-trading-yellow/30"
-              >
-                <div className="flex items-start justify-between">
-                  <Badge className={`text-xs ${market.categoryColor} border-0`}>
-                    {market.category}
-                  </Badge>
-                  <Button 
-                    size="sm" 
-                    className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
-                    onClick={() => navigate("/trade")}
+            {/* Show the event closest to settlement */}
+            {activeEvents
+              .filter(e => e.endTime.getTime() > Date.now())
+              .sort((a, b) => a.endTime.getTime() - b.endTime.getTime())
+              .slice(0, 1)
+              .map((event) => {
+                const categoryInfo = getCategoryInfo(event.icon);
+                const options = eventOptionsMap[event.id] || [];
+                const countdown = getCountdown(event.endTime);
+                
+                return (
+                  <div
+                    key={event.id}
+                    className="trading-card p-4 space-y-3 border-trading-yellow/30"
                   >
-                    <BarChart3 className="h-3.5 w-3.5" />
-                    Trade
-                  </Button>
-                </div>
-                <h4 className="font-medium text-foreground">{market.title}</h4>
-                <div className="flex gap-2">
-                  {market.options.map((option, optIndex) => (
-                    <div
-                      key={optIndex}
-                      className="flex-1 bg-muted/50 rounded-lg p-3"
-                    >
-                      <span className="text-xs text-muted-foreground">{option.label}</span>
-                      <div className="text-lg font-bold font-mono text-foreground">{option.price}</div>
+                    <div className="flex items-start justify-between">
+                      <Badge className={`text-xs ${categoryInfo.color} border-0`}>
+                        {categoryInfo.category}
+                      </Badge>
+                      <Button 
+                        size="sm" 
+                        className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
+                        onClick={() => navigate("/trade")}
+                      >
+                        <BarChart3 className="h-3.5 w-3.5" />
+                        Trade
+                      </Button>
                     </div>
-                  ))}
-                </div>
-                <div className="flex items-center gap-1.5 text-trading-yellow text-sm">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>Settles in {market.settlesIn}</span>
-                </div>
-              </div>
-            ))}
+                    <h4 className="font-medium text-foreground">{event.name}</h4>
+                    <div className="flex gap-2">
+                      {options.slice(0, 2).map((option) => (
+                        <div
+                          key={option.id}
+                          className="flex-1 bg-muted/50 rounded-lg p-3"
+                        >
+                          <span className="text-xs text-muted-foreground">{option.label}</span>
+                          <div className="text-lg font-bold font-mono text-foreground">${option.price}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-trading-yellow text-sm">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>Settles in {countdown}</span>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </section>
 
