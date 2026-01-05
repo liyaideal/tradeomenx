@@ -121,7 +121,7 @@ const MiniChart = ({ options }: { options: EventOption[] }) => {
                   d={generatePath(data)}
                   fill="none"
                   stroke={color}
-                  strokeWidth="1.5"
+                  strokeWidth="0.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="transition-all"
