@@ -981,10 +981,12 @@ export default function Leaderboard() {
 
           {/* Logo + Title with Neon Effect */}
           <div className="text-center mb-4">
-            {/* Logo */}
-            <div className="flex justify-center mb-2">
-              <img src={omenxLogo} alt="OMENX" className="h-6" />
-            </div>
+            {/* Logo - only show on desktop since mobile has it in header */}
+            {!isMobile && (
+              <div className="flex justify-center mb-2">
+                <img src={omenxLogo} alt="OMENX" className="h-6" />
+              </div>
+            )}
             
             {/* Neon Leaderboard Title */}
             <div className="relative inline-block">
