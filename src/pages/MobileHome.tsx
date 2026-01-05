@@ -180,13 +180,13 @@ const MobileHome = () => {
                   </div>
                   <h4 className="font-medium text-foreground">{event.name}</h4>
                   <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                    {options.slice(0, 2).map((option) => (
+                    {options.map((option) => (
                       <div
                         key={option.id}
-                        className="flex-shrink-0 min-w-[120px] bg-muted/50 rounded-lg p-3"
+                        className="flex-shrink-0 min-w-[100px] bg-muted/50 rounded-lg p-2.5"
                       >
-                        <span className="text-xs text-muted-foreground">{option.label}</span>
-                        <div className="text-lg font-bold font-mono text-foreground">${option.price}</div>
+                        <span className="text-[10px] text-muted-foreground line-clamp-1">{option.label}</span>
+                        <div className="text-base font-bold font-mono text-foreground">${option.price}</div>
                       </div>
                     ))}
                   </div>
@@ -245,14 +245,14 @@ const MobileHome = () => {
                       </Button>
                     </div>
                     <h4 className="font-medium text-foreground">{event.name}</h4>
-                    <div className="flex gap-2">
-                      {options.slice(0, 2).map((option) => (
+                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                      {options.map((option) => (
                         <div
                           key={option.id}
-                          className="flex-1 bg-muted/50 rounded-lg p-3"
+                          className="flex-shrink-0 min-w-[100px] bg-muted/50 rounded-lg p-2.5"
                         >
-                          <span className="text-xs text-muted-foreground">{option.label}</span>
-                          <div className="text-lg font-bold font-mono text-foreground">${option.price}</div>
+                          <span className="text-[10px] text-muted-foreground line-clamp-1">{option.label}</span>
+                          <div className="text-base font-bold font-mono text-foreground">${option.price}</div>
                         </div>
                       ))}
                     </div>
