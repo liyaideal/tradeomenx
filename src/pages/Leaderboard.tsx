@@ -965,10 +965,7 @@ export default function Leaderboard() {
         <div className="relative z-10 px-4 pt-6">
           {/* Header */}
           {isMobile && (
-            <div className="flex items-center justify-between mb-4">
-              <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-                <ChevronLeft className="w-6 h-6 text-foreground" />
-              </button>
+            <div className="flex items-center justify-end mb-4">
               {/* Share button only on mobile header */}
               <button 
                 onClick={handleShareCard}
