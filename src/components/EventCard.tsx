@@ -379,19 +379,15 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Long/Short Toggle - with glow effect */}
+              {/* Long/Short Toggle - uses standardized btn-trading classes */}
               <div className="flex rounded-xl overflow-hidden border border-border/50 bg-background/50 p-0.5">
                 <button
                   onClick={() => setTradeSide("long")}
                   className={`relative px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${
                     tradeSide === "long" 
-                      ? "text-background shadow-lg" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "btn-trading-green" 
+                      : "btn-trading-inactive"
                   }`}
-                  style={tradeSide === "long" ? {
-                    background: "linear-gradient(135deg, hsl(145 80% 42%) 0%, hsl(155 75% 35%) 100%)",
-                    boxShadow: "0 4px 15px hsl(145 80% 42% / 0.4)"
-                  } : {}}
                 >
                   Long
                 </button>
@@ -399,13 +395,9 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                   onClick={() => setTradeSide("short")}
                   className={`relative px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${
                     tradeSide === "short" 
-                      ? "text-foreground shadow-lg" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "btn-trading-red" 
+                      : "btn-trading-inactive"
                   }`}
-                  style={tradeSide === "short" ? {
-                    background: "linear-gradient(135deg, hsl(0 85% 55%) 0%, hsl(350 80% 48%) 100%)",
-                    boxShadow: "0 4px 15px hsl(0 85% 55% / 0.4)"
-                  } : {}}
                 >
                   Short
                 </button>
