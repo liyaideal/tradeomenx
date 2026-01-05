@@ -29,7 +29,7 @@ const ResponsiveLayout = ({ children }: { children: React.ReactNode }) => {
 // Route component that shows different pages based on device
 const HomePage = () => {
   const isMobile = useIsMobile();
-  return isMobile ? <MobileHome /> : <DesktopTrading />;
+  return isMobile ? <MobileHome /> : <EventsPage />;
 };
 
 const TradingPage = () => {
