@@ -260,7 +260,7 @@ export default function TradingCharts() {
             key={tab}
             onClick={() => {
               setActiveTab(tab);
-              if (tab === "Trade") navigate("/trade/order");
+              if (tab === "Trade") navigate(`/trade/order?event=${selectedEvent.id}`);
             }}
             className={`py-2 mr-6 text-sm font-medium transition-all ${
               activeTab === tab
@@ -380,13 +380,13 @@ export default function TradingCharts() {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => navigate("/trade/order")}
+            onClick={() => navigate(`/trade/order?event=${selectedEvent.id}`)}
             className="flex-1 bg-trading-green text-trading-green-foreground font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98]"
           >
             Buy | Long
           </button>
           <button
-            onClick={() => navigate("/trade/order")}
+            onClick={() => navigate(`/trade/order?event=${selectedEvent.id}`)}
             className="flex-1 bg-trading-red text-foreground font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98]"
           >
             Sell | Short

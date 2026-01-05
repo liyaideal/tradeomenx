@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
@@ -8,14 +8,7 @@ import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
-
-const options = [
-  { id: "1", label: "140-159", price: "0.0534" },
-  { id: "2", label: "160-179", price: "0.1234" },
-  { id: "3", label: "200-219", price: "0.3456" },
-  { id: "4", label: "220-239", price: "0.2834" },
-  { id: "5", label: "240-259", price: "0.1942" },
-];
+import { useEvents } from "@/hooks/useEvents";
 
 // Generate order book data based on base price
 const generateOrderBookData = (basePrice: number) => {
@@ -37,16 +30,21 @@ const generateOrderBookData = (basePrice: number) => {
 
 export default function TradeOrder() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const eventId = searchParams.get("event") || undefined;
+  
   const { orders } = useOrdersStore();
   const { positions } = usePositionsStore();
-  const [selectedOption, setSelectedOption] = useState("2");
+  const { 
+    selectedEvent, 
+    options, 
+    selectedOption, 
+    setSelectedOption, 
+    selectedOptionData,
+  } = useEvents(eventId);
+  
   const [activeTab, setActiveTab] = useState("Trade");
   const [bottomTab, setBottomTab] = useState("Orders");
-
-  // Get selected option data
-  const selectedOptionData = useMemo(() => {
-    return options.find(opt => opt.id === selectedOption) || options[1];
-  }, [selectedOption]);
 
   // Generate order book data based on selected option's price
   const orderBookData = useMemo(() => {
@@ -57,10 +55,10 @@ export default function TradeOrder() {
   return (
     <div className="min-h-screen bg-background pb-8 overflow-x-hidden">
       <MobileHeader
-        title="Elon Musk # tweets December 12 - December 19, 2025?"
-        subtitle="23:47:15"
+        title={selectedEvent.name}
+        endTime={selectedEvent.endTime}
         showActions
-        tweetCount={254}
+        tweetCount={selectedEvent.tweetCount}
       />
 
       {/* Option Chips */}
@@ -77,7 +75,7 @@ export default function TradeOrder() {
             key={tab}
             onClick={() => {
               setActiveTab(tab);
-              if (tab === "Charts") navigate("/trade");
+              if (tab === "Charts") navigate(`/trade?event=${selectedEvent.id}`);
             }}
             className={`py-2 mr-6 text-sm font-medium transition-all ${
               activeTab === tab
@@ -114,7 +112,7 @@ export default function TradeOrder() {
           {/* Trade Form */}
           <TradeForm 
             selectedPrice={selectedOptionData.price} 
-            eventName="Elon Musk # tweets December 12 - December 19, 2025?"
+            eventName={selectedEvent.name}
             optionLabel={selectedOptionData.label}
           />
         </div>
