@@ -219,19 +219,8 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
     }
   };
 
-  // Get rank-specific accent colors for top 3
-  const getRankAccent = () => {
-    switch (user.rank) {
-      case 4:
-        return { border: "border-amber-500/30", bg: "bg-amber-500/5", glow: "" };
-      case 5:
-        return { border: "border-indigo-500/30", bg: "bg-indigo-500/5", glow: "" };
-      default:
-        return { border: "border-border/30", bg: "bg-card/40", glow: "" };
-    }
-  };
-
-  const rankAccent = getRankAccent();
+  // All ranks use same style for consistency
+  const rankAccent = { border: "border-border/30", bg: "bg-card/40" };
 
   return (
     <div 
@@ -1039,7 +1028,7 @@ export default function Leaderboard() {
           </div>
 
           {/* Top 3 Podium */}
-          <div className="flex justify-center items-start gap-4 md:gap-8 mb-16 px-4">
+          <div className="flex justify-center items-start gap-4 md:gap-8 mb-6 px-4">
             <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
             <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
             <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
