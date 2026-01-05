@@ -515,13 +515,9 @@ const ShareableCard = ({
           </div>
         </div>
 
-        {/* User info with Laurel */}
+        {/* User info */}
         <div className="flex items-center gap-5 mb-6">
           <div className="relative">
-            {/* Laurel behind */}
-            <div className="absolute -inset-6 flex items-center justify-center">
-              <LaurelWreath color={colors.leaf} size="lg" className="opacity-60" />
-            </div>
             {/* Glow */}
             <div className={`absolute -inset-2 bg-gradient-to-br ${colors.gradient} rounded-full blur-md opacity-50`} />
             <Avatar className={`relative h-20 w-20 border-3 ${colors.border}`}>
