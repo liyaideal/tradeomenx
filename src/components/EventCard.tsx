@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,12 +60,16 @@ const generateDateLabels = () => {
 
 // Multi-line chart component matching the design reference
 const MiniChart = ({ options }: { options: EventOption[] }) => {
-  const dateLabels = generateDateLabels();
+  const dateLabels = useMemo(() => generateDateLabels(), []);
   
-  // Get all price histories and find global min/max for consistent scaling
-  const allPrices = options.flatMap(o => o.priceHistory || []);
-  const min = 0; // Always start from 0%
-  const max = 100; // Always end at 100%
+  // Memoize the generated price data to prevent regeneration on each render
+  const optionsWithData = useMemo(() => {
+    return options.map((option, index) => ({
+      ...option,
+      data: option.priceHistory || Array.from({ length: 1500 }, () => 20 + Math.random() * 60),
+      color: CHART_COLORS[index % CHART_COLORS.length],
+    }));
+  }, [options]);
   
   const chartWidth = 100;
   const chartHeight = 100;
@@ -77,7 +81,7 @@ const MiniChart = ({ options }: { options: EventOption[] }) => {
   const innerWidth = chartWidth - paddingLeft - paddingRight;
   const innerHeight = chartHeight - paddingTop - paddingBottom;
 
-  const generatePath = (data: number[]) => {
+  const generatePath = useMemo(() => (data: number[]) => {
     if (!data || data.length === 0) return "";
     
     return data.map((value, index) => {
@@ -85,7 +89,16 @@ const MiniChart = ({ options }: { options: EventOption[] }) => {
       const y = paddingTop + (1 - value / 100) * innerHeight;
       return `${index === 0 ? 'M' : 'L'} ${x},${y}`;
     }).join(" ");
-  };
+  }, [innerWidth, innerHeight]);
+
+  // Memoize the paths for each option
+  const paths = useMemo(() => {
+    return optionsWithData.map(option => ({
+      id: option.id,
+      path: generatePath(option.data),
+      color: option.color,
+    }));
+  }, [optionsWithData, generatePath]);
 
   // Y-axis percentage labels
   const yLabels = [100, 75, 50, 25, 0];
@@ -111,23 +124,17 @@ const MiniChart = ({ options }: { options: EventOption[] }) => {
           
           {/* SVG Chart */}
           <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full" preserveAspectRatio="none">
-            {options.map((option, index) => {
-              const data = option.priceHistory || Array.from({ length: 1500 }, () => 20 + Math.random() * 60);
-              const color = CHART_COLORS[index % CHART_COLORS.length];
-              
-              return (
-                <path
-                  key={option.id}
-                  d={generatePath(data)}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth="0.35"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-all"
-                />
-              );
-            })}
+            {paths.map(({ id, path, color }) => (
+              <path
+                key={id}
+                d={path}
+                fill="none"
+                stroke={color}
+                strokeWidth="0.35"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            ))}
           </svg>
         </div>
       </div>
