@@ -112,7 +112,13 @@ const EventsPage = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-background ${isMobile ? "pb-24" : ""}`}>
+    <div className={`min-h-screen ${isMobile ? "pb-24" : ""}`}
+      style={{
+        background: isMobile 
+          ? "hsl(222 47% 6%)" 
+          : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)"
+      }}
+    >
       {/* Header */}
       {isMobile ? (
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
@@ -136,13 +142,17 @@ const EventsPage = () => {
         <EventsDesktopHeader />
       )}
 
-      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-8 max-w-7xl mx-auto"} space-y-8`}>
-        {/* Page Title with accent */}
+      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-8`}>
+        {/* Page Title with more personality */}
         <div className="relative">
-          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-primary hidden md:block" />
-          <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>Events</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Browse and trade prediction events with leveraged trading
+          {!isMobile && (
+            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
+          )}
+          <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
+            Explore Events
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
+            Discover prediction markets and trade on real-world outcomes with leverage
           </p>
         </div>
 
