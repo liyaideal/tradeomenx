@@ -92,28 +92,29 @@ const getRankColors = (rank: number) => {
 
 const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sortType: SortType; position: "left" | "center" | "right" }) => {
   const isFirst = user.rank === 1;
-  const isSecond = user.rank === 2;
-  const isThird = user.rank === 3;
   
   // Styles for each rank
   const rankStyles = {
     1: {
-      cardBg: "bg-gradient-to-b from-yellow-600/90 via-yellow-700/80 to-yellow-900/70",
+      cardBg: "bg-gradient-to-b from-yellow-500/90 via-yellow-600/80 to-yellow-800/70",
       laurelColor: "#FFD700",
-      cardHeight: "h-52",
-      avatarSize: "h-28 w-28",
+      cardHeight: "h-48",
+      avatarSize: "h-24 w-24",
+      cardWidth: "w-32 md:w-40",
     },
     2: {
-      cardBg: "bg-gradient-to-b from-slate-500/80 via-slate-600/70 to-slate-800/60",
+      cardBg: "bg-gradient-to-b from-slate-400/80 via-slate-500/70 to-slate-700/60",
       laurelColor: "#C0C0C0",
-      cardHeight: "h-44",
-      avatarSize: "h-24 w-24",
+      cardHeight: "h-40",
+      avatarSize: "h-20 w-20",
+      cardWidth: "w-28 md:w-32",
     },
     3: {
-      cardBg: "bg-gradient-to-b from-amber-700/80 via-amber-800/70 to-amber-950/60",
+      cardBg: "bg-gradient-to-b from-amber-600/80 via-amber-700/70 to-amber-900/60",
       laurelColor: "#CD7F32",
       cardHeight: "h-40",
       avatarSize: "h-20 w-20",
+      cardWidth: "w-28 md:w-32",
     },
   };
   
@@ -134,18 +135,18 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   const rankSuffix = user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd";
 
   return (
-    <div className={`flex flex-col items-center ${orderClass}`}>
+    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "" : "mt-6"}`}>
       {/* Card Container */}
-      <div className={`relative ${style.cardBg} rounded-2xl ${style.cardHeight} w-28 md:w-36 overflow-hidden border border-white/10 shadow-xl`}>
+      <div className={`relative ${style.cardBg} rounded-2xl ${style.cardHeight} ${style.cardWidth} overflow-visible border border-white/20 shadow-xl`}>
         {/* Crown for #1 */}
         {isFirst && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
-            <Crown className="w-6 h-6 text-yellow-300 fill-yellow-400 drop-shadow-[0_0_6px_rgba(250,204,21,0.8)]" />
+          <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-20">
+            <Crown className="w-8 h-8 text-yellow-300 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
           </div>
         )}
         
         {/* Laurel Wreath with Rank */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+        <div className={`absolute ${isFirst ? "top-4" : "top-2"} left-1/2 -translate-x-1/2 z-10`}>
           <div className="relative">
             <LaurelWreath 
               color={style.laurelColor} 
@@ -154,33 +155,33 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
             />
             {/* Rank number inside wreath */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-white font-bold text-lg drop-shadow-md">
-                {user.rank}<sup className="text-[10px]">{rankSuffix}</sup>
+              <span className="text-white font-bold text-base drop-shadow-md">
+                {user.rank}<sup className="text-[9px]">{rankSuffix}</sup>
               </span>
             </div>
           </div>
         </div>
 
-        {/* Avatar at bottom of card */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/3">
-          <Avatar className={`${style.avatarSize} border-4 border-background shadow-2xl`}>
+        {/* Avatar - positioned to overlap bottom edge */}
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-10">
+          <Avatar className={`${style.avatarSize} border-4 border-background shadow-xl ring-2 ring-white/10`}>
             <AvatarImage src={user.avatar} alt={user.username} className="object-cover" />
-            <AvatarFallback className="text-xl bg-muted">{user.username.slice(0, 2)}</AvatarFallback>
+            <AvatarFallback className="text-lg bg-muted">{user.username.slice(0, 2)}</AvatarFallback>
           </Avatar>
         </div>
         
         {/* Subtle shine overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent pointer-events-none rounded-2xl" />
       </div>
 
-      {/* Username - below card */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base mt-12" : "text-sm mt-10"} truncate max-w-[120px] text-center`}>
+      {/* Username - below avatar */}
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base mt-12" : "text-sm mt-11"} truncate max-w-[120px] text-center`}>
         {user.username}
       </h3>
 
       {/* Value */}
-      <div className={`flex items-center gap-1.5 font-mono font-bold text-trading-green ${isFirst ? "text-xl" : "text-lg"} mt-1`}>
-        <span className="text-trading-green">◆</span>
+      <div className={`flex items-center gap-1.5 font-mono font-bold text-trading-green ${isFirst ? "text-lg" : "text-base"} mt-0.5`}>
+        <span className="text-trading-green text-sm">◆</span>
         {getValue()}
       </div>
     </div>
@@ -1001,7 +1002,7 @@ export default function Leaderboard() {
           </div>
 
           {/* Top 3 Podium */}
-          <div className="flex justify-center items-end gap-2 md:gap-6 mb-4 px-2">
+          <div className="flex justify-center items-start gap-4 md:gap-8 mb-16 px-4">
             <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
             <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
             <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
