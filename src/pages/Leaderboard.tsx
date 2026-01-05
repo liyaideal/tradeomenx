@@ -403,6 +403,7 @@ interface ShareableCardProps {
   isGenerating?: boolean;
   theme?: CardTheme;
   visibleStats?: StatKey[];
+  hideShareHint?: boolean;
 }
 
 const ShareableCard = ({ 
@@ -411,7 +412,8 @@ const ShareableCard = ({
   onShare, 
   isGenerating, 
   theme = "default",
-  visibleStats = ["pnl", "roi", "volume"]
+  visibleStats = ["pnl", "roi", "volume"],
+  hideShareHint = false
 }: ShareableCardProps) => {
   const colors = getRankColors(user.rank);
   const themeConfig = cardThemes[theme];
@@ -517,11 +519,13 @@ const ShareableCard = ({
           </div>
         )}
 
-        {/* Tap to share hint */}
-        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <Share2 className="w-3 h-3" />
-          <span>Tap to share</span>
-        </div>
+        {/* Tap to share hint - hidden in modal preview */}
+        {!hideShareHint && (
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Share2 className="w-3 h-3" />
+            <span>Tap to share</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -769,6 +773,7 @@ const ShareModal = ({
               theme={theme}
               visibleStats={visibleStats}
               isGenerating={isGenerating}
+              hideShareHint={true}
             />
           </div>
         </div>
