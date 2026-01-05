@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams, useNavigationType } from "react-router-dom";
+import { useNavigate, useSearchParams, useNavigationType, useLocation } from "react-router-dom";
 import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
@@ -22,14 +22,18 @@ interface TradingContextData {
 export function MobileTradingLayout({ activeTab, children }: MobileTradingLayoutProps) {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || undefined;
   
+  // Check if navigation came from MobileHome with state
+  const fromMobileHome = !!(location.state as any)?.tab;
+  
   // Determine back navigation behavior:
+  // - If user came from MobileHome (via state), go back to home
   // - If user navigated here via PUSH (from another page like /events), go back to previous page
   // - If user came via bottom toolbar (REPLACE/POP), go back to home
-  const isPushNavigation = navigationType === "PUSH";
-  const backTo = isPushNavigation ? undefined : "/";
+  const backTo = fromMobileHome ? "/" : (navigationType === "PUSH" ? undefined : "/");
   
   const { 
     selectedEvent, 
