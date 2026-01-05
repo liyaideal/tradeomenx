@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Globe, ChevronDown, User } from "lucide-react";
+import { Globe, ChevronDown, User, Trophy } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +10,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/Logo";
 
+// Regular nav items (without Leaderboard)
 const navItems = [
   { label: "Events", path: "/events" },
-  { label: "Leaderboard", path: "/leaderboard" },
   { label: "Resolved", path: "/resolved" },
   { label: "Portfolio", path: "/portfolio" },
 ];
@@ -34,6 +34,7 @@ export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsD
   const [language, setLanguage] = useState("EN");
 
   const currentPath = location.pathname;
+  const isLeaderboardActive = currentPath === "/leaderboard";
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/30 backdrop-blur-md"
@@ -76,6 +77,22 @@ export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsD
                 </button>
               );
             })}
+
+            {/* Leaderboard - Special featured button with icon */}
+            <button
+              onClick={() => navigate("/leaderboard")}
+              className={`relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ml-1 ${
+                isLeaderboardActive
+                  ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-[0_0_20px_hsl(260_60%_55%/0.4)]"
+                  : "text-primary hover:bg-primary/10 border border-primary/30 hover:border-primary/50"
+              }`}
+            >
+              <Trophy className={`w-4 h-4 ${isLeaderboardActive ? "text-primary-foreground" : "text-primary"}`} />
+              <span>Leaderboard</span>
+              {isLeaderboardActive && (
+                <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-primary rounded-full" />
+              )}
+            </button>
           </nav>
         </div>
 
