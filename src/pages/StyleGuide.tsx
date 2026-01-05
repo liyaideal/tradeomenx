@@ -13,15 +13,23 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+type DevicePreview = "auto" | "mobile" | "tablet" | "desktop";
+
 const StyleGuide = () => {
-  const isMobile = useIsMobile();
+  const actualIsMobile = useIsMobile();
   const navigate = useNavigate();
+  const [devicePreview, setDevicePreview] = useState<DevicePreview>("auto");
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState("opt1");
+
+  // Override isMobile based on device preview selection
+  const isMobile = devicePreview === "auto" 
+    ? actualIsMobile 
+    : devicePreview === "mobile" || devicePreview === "tablet";
 
   // Playground states
   const [buttonVariant, setButtonVariant] = useState<"default" | "secondary" | "destructive" | "outline" | "ghost" | "link">("default");
@@ -202,15 +210,93 @@ const StyleGuide = () => {
     <div className={`min-h-screen bg-background ${isMobile ? "pb-20" : ""}`}>
       {/* Header */}
       <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border ${isMobile ? "px-4 py-3" : "px-8 py-4"}`}>
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className={`font-semibold ${isMobile ? "text-lg" : "text-2xl"}`}>Style Guide</h1>
-            <p className="text-sm text-muted-foreground">Design System Documentation</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className={`font-semibold ${isMobile ? "text-lg" : "text-2xl"}`}>Style Guide</h1>
+              <p className="text-sm text-muted-foreground">Design System Documentation</p>
+            </div>
+          </div>
+
+          {/* Device Preview Toggle */}
+          <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={devicePreview === "auto" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-8 px-2 gap-1.5"
+                  onClick={() => setDevicePreview("auto")}
+                >
+                  <span className="text-xs">Auto</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Use actual device size</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={devicePreview === "mobile" ? "secondary" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setDevicePreview("mobile")}
+                >
+                  <Smartphone className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Mobile Preview</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={devicePreview === "tablet" ? "secondary" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setDevicePreview("tablet")}
+                >
+                  <Tablet className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Tablet Preview</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={devicePreview === "desktop" ? "secondary" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setDevicePreview("desktop")}
+                >
+                  <Monitor className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Desktop Preview</TooltipContent>
+            </Tooltip>
           </div>
         </div>
+
+        {/* Device indicator banner */}
+        {devicePreview !== "auto" && (
+          <div className="mt-2 flex items-center justify-center gap-2 py-1.5 px-3 bg-trading-purple/10 border border-trading-purple/20 rounded-lg">
+            {devicePreview === "mobile" && <Smartphone className="h-3.5 w-3.5 text-trading-purple" />}
+            {devicePreview === "tablet" && <Tablet className="h-3.5 w-3.5 text-trading-purple" />}
+            {devicePreview === "desktop" && <Monitor className="h-3.5 w-3.5 text-trading-purple" />}
+            <span className="text-xs text-trading-purple font-medium">
+              Previewing {devicePreview} layout
+            </span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-5 w-5 p-0 ml-1 hover:bg-trading-purple/20"
+              onClick={() => setDevicePreview("auto")}
+            >
+              <X className="h-3 w-3 text-trading-purple" />
+            </Button>
+          </div>
+        )}
       </header>
 
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-8 max-w-7xl mx-auto"} space-y-12`}>
