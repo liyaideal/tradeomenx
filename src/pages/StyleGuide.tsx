@@ -13,7 +13,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download } from "lucide-react";
+import omenxLogo from "@/assets/omenx-logo.svg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -29,6 +30,7 @@ const StyleGuide = () => {
 
   // Define all searchable sections with their IDs and keywords
   const sections = [
+    { id: "brand-logo", title: "Brand Logo", keywords: ["logo", "brand", "omenx", "identity", "mark"] },
     { id: "typography", title: "Typography", keywords: ["font", "text", "heading", "type", "scale", "inter", "mono"] },
     { id: "playground", title: "Component Playground", keywords: ["playground", "interactive", "test", "try"] },
     { id: "button-playground", title: "Button Playground", keywords: ["button", "click", "action", "variant", "size"] },
@@ -425,6 +427,113 @@ const StyleGuide = () => {
               Clear
             </Button>
           </div>
+        )}
+
+        {/* Brand Logo Section */}
+        {filterSection("brand-logo") && (
+        <section id="brand-logo">
+          <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Brand Logo</h2>
+          <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+            {/* Primary Logo - Dark Background */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg">Primary Logo (Dark BG)</CardTitle>
+                <CardDescription>Use on dark backgrounds - default usage</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-background rounded-xl p-8 flex items-center justify-center border border-border/30">
+                  <img src={omenxLogo} alt="OMENX Logo" className="h-12" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <code className="text-xs bg-muted px-2 py-1 rounded font-mono flex-1 truncate">
+                    import omenxLogo from "@/assets/omenx-logo.svg"
+                  </code>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7"
+                    onClick={() => copyCode('import omenxLogo from "@/assets/omenx-logo.svg"', 'logo-import')}
+                  >
+                    {copiedCode === 'logo-import' ? <Check className="h-3.5 w-3.5 text-trading-green" /> : <Copy className="h-3.5 w-3.5" />}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Logo Sizes */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg">Logo Sizes</CardTitle>
+                <CardDescription>Recommended size variants</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Header (h-8)</span>
+                    <img src={omenxLogo} alt="OMENX" className="h-8" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Standard (h-10)</span>
+                    <img src={omenxLogo} alt="OMENX" className="h-10" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Large (h-12)</span>
+                    <img src={omenxLogo} alt="OMENX" className="h-12" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Hero (h-16)</span>
+                    <img src={omenxLogo} alt="OMENX" className="h-16" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Logo on Light Background */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg">Light Background Usage</CardTitle>
+                <CardDescription>When used on light backgrounds, add a dark container or invert</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-white rounded-xl p-8 flex items-center justify-center">
+                  <img src={omenxLogo} alt="OMENX Logo" className="h-12 invert" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Add <code className="bg-muted px-1 rounded">className="invert"</code> for light backgrounds
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Logo Guidelines */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg">Usage Guidelines</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <div className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-trading-green mt-0.5 flex-shrink-0" />
+                  <span>Always use the official SVG file for best quality</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-trading-green mt-0.5 flex-shrink-0" />
+                  <span>Maintain aspect ratio when scaling</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-trading-green mt-0.5 flex-shrink-0" />
+                  <span>Use white logo on dark backgrounds (primary usage)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <X className="h-4 w-4 text-trading-red mt-0.5 flex-shrink-0" />
+                  <span>Don't stretch or distort the logo</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <X className="h-4 w-4 text-trading-red mt-0.5 flex-shrink-0" />
+                  <span>Don't change logo colors (except invert for light BG)</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
         )}
 
         {/* Typography Section */}
