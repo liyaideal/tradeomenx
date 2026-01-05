@@ -268,12 +268,12 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
           {user.rankChange > 0 ? (
             <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-trading-green/15 text-trading-green">
               <ChevronUp className="w-3 h-3" />
-              {user.rankChange}位
+              {user.rankChange}
             </span>
           ) : user.rankChange < 0 ? (
             <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-trading-red/15 text-trading-red">
               <ChevronDown className="w-3 h-3" />
-              {Math.abs(user.rankChange)}位
+              {Math.abs(user.rankChange)}
             </span>
           ) : (
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/30 text-muted-foreground/60">
