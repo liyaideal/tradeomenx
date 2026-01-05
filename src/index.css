@@ -139,31 +139,46 @@
   }
 
   /* ===== TRADING BUTTONS ===== */
+  /* 
+   * IMPORTANT: All trading buttons use WHITE text (primary-foreground)
+   * This is the standard across ALL pages (Trade, Events, etc.)
+   */
   .btn-primary {
     @apply text-primary-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
     background: var(--gradient-button-primary);
+    box-shadow: 0 4px 15px hsl(var(--primary) / 0.3);
   }
 
   .btn-primary:hover {
     @apply opacity-90 scale-[0.98];
   }
 
+  /* Buy/Long Button - GREEN with WHITE text */
   .btn-trading-green {
-    @apply text-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
+    @apply text-primary-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
     background: var(--gradient-button-green);
+    box-shadow: 0 4px 15px hsl(var(--trading-green) / 0.4);
   }
 
   .btn-trading-green:hover {
     @apply opacity-90 scale-[0.98];
   }
 
+  /* Sell/Short Button - RED with WHITE text */
   .btn-trading-red {
-    @apply text-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
+    @apply text-primary-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
     background: var(--gradient-button-red);
+    box-shadow: 0 4px 15px hsl(var(--trading-red) / 0.4);
   }
 
   .btn-trading-red:hover {
     @apply opacity-90 scale-[0.98];
+  }
+
+  /* Toggle button inactive state */
+  .btn-trading-inactive {
+    @apply text-muted-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
+    @apply bg-transparent hover:text-foreground;
   }
 
   /* ===== TAB & CHIP STYLES ===== */
