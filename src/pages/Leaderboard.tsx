@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap } from "lucide-react";
+import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Twitter, Send, Copy, Check, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
+import { useToast } from "@/hooks/use-toast";
+import * as htmlToImage from "html-to-image";
 
 type SortType = "pnl" | "roi" | "volume";
 
@@ -210,11 +212,23 @@ const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sort
   );
 };
 
-const ShareableCard = ({ user }: { user: LeaderboardUser }) => {
+interface ShareableCardProps {
+  user: LeaderboardUser;
+  cardRef?: React.RefObject<HTMLDivElement>;
+  onShare?: () => void;
+  isGenerating?: boolean;
+}
+
+const ShareableCard = ({ user, cardRef, onShare, isGenerating }: ShareableCardProps) => {
   const colors = getRankColors(user.rank);
   
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-card via-background to-primary/5 p-6">
+    <div 
+      ref={cardRef}
+      onClick={onShare}
+      className={`relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-card via-background to-primary/5 p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 ${isGenerating ? 'pointer-events-none' : ''}`}
+      style={{ backgroundColor: 'hsl(222 47% 6%)' }} // Ensure solid background for export
+    >
       {/* Background effects */}
       <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-yellow-500/20 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-trading-green/20 to-transparent rounded-full blur-2xl" />
@@ -224,6 +238,16 @@ const ShareableCard = ({ user }: { user: LeaderboardUser }) => {
       <Sparkles className="absolute top-4 right-4 w-5 h-5 text-yellow-400/60 animate-pulse" />
       <Sparkles className="absolute bottom-8 right-12 w-4 h-4 text-trading-green/50" />
       <Sparkles className="absolute top-12 left-8 w-3 h-3 text-primary/40" />
+      
+      {/* Loading overlay */}
+      {isGenerating && (
+        <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-20 rounded-2xl">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-muted-foreground">Generating...</span>
+          </div>
+        </div>
+      )}
       
       <div className="relative z-10">
         {/* Header */}
@@ -268,22 +292,186 @@ const ShareableCard = ({ user }: { user: LeaderboardUser }) => {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30 hover:border-trading-green/30 transition-colors">
+          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30">
             <div className="text-xs text-muted-foreground mb-1">PnL</div>
             <div className="flex items-center justify-center gap-1 font-mono font-bold text-trading-green">
               <Zap className="w-3 h-3" />
               ${user.pnl.toLocaleString()}
             </div>
           </div>
-          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30 hover:border-primary/30 transition-colors">
+          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30">
             <div className="text-xs text-muted-foreground mb-1">ROI</div>
             <div className="font-mono font-bold text-primary">{user.roi.toFixed(1)}%</div>
           </div>
-          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30 hover:border-border transition-colors">
+          <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30">
             <div className="text-xs text-muted-foreground mb-1">Trades</div>
             <div className="font-mono font-bold text-foreground">{user.trades}</div>
           </div>
         </div>
+
+        {/* Tap to share hint */}
+        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Share2 className="w-3 h-3" />
+          <span>Tap to share</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Share Modal Component
+interface ShareModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  imageBlob: Blob | null;
+  user: LeaderboardUser;
+}
+
+const ShareModal = ({ isOpen, onClose, imageBlob, user }: ShareModalProps) => {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
+
+  if (!isOpen) return null;
+
+  const shareText = `🏆 Check out my ranking on OMENX Leaderboard! #${user.rank} with $${user.pnl.toLocaleString()} PnL and ${user.roi.toFixed(1)}% ROI! 🚀`;
+  const shareUrl = window.location.href;
+
+  const handleDownload = () => {
+    if (!imageBlob) return;
+    const url = URL.createObjectURL(imageBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `omenx-rank-${user.rank}-${user.username}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ title: "Image saved!", description: "Ranking card saved to your device" });
+  };
+
+  const handleCopyImage = async () => {
+    if (!imageBlob) return;
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': imageBlob })
+      ]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({ title: "Copied!", description: "Image copied to clipboard" });
+    } catch {
+      toast({ title: "Copy failed", description: "Please download the image instead", variant: "destructive" });
+    }
+  };
+
+  const handleShareTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+    window.open(twitterUrl, '_blank');
+  };
+
+  const handleShareTelegram = () => {
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+    window.open(telegramUrl, '_blank');
+  };
+
+  const handleNativeShare = async () => {
+    if (!navigator.share) {
+      toast({ title: "Sharing not supported", description: "Use the social media buttons instead" });
+      return;
+    }
+
+    try {
+      const shareData: ShareData = {
+        title: 'OMENX Leaderboard',
+        text: shareText,
+        url: shareUrl,
+      };
+
+      // Try to share with image if supported
+      if (imageBlob && navigator.canShare && navigator.canShare({ files: [new File([imageBlob], 'ranking.png', { type: 'image/png' })] })) {
+        shareData.files = [new File([imageBlob], `omenx-rank-${user.rank}.png`, { type: 'image/png' })];
+      }
+
+      await navigator.share(shareData);
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        toast({ title: "Share failed", description: "Please try another method" });
+      }
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+      
+      {/* Modal */}
+      <div className="relative bg-card border border-border rounded-2xl p-6 w-full max-w-sm animate-scale-in">
+        {/* Close button */}
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1 rounded-full hover:bg-muted transition-colors"
+        >
+          <X className="w-5 h-5 text-muted-foreground" />
+        </button>
+
+        <h3 className="text-lg font-bold text-foreground mb-2">Share Your Rank</h3>
+        <p className="text-sm text-muted-foreground mb-6">Choose how to share your achievement</p>
+
+        {/* Image Preview */}
+        {imageBlob && (
+          <div className="mb-6 rounded-xl overflow-hidden border border-border/50">
+            <img 
+              src={URL.createObjectURL(imageBlob)} 
+              alt="Rank Card Preview" 
+              className="w-full"
+            />
+          </div>
+        )}
+
+        {/* Share Options */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <button
+            onClick={handleDownload}
+            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+          >
+            <Download className="w-5 h-5 text-foreground" />
+            <span className="text-sm font-medium">Save</span>
+          </button>
+          <button
+            onClick={handleCopyImage}
+            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+          >
+            {copied ? <Check className="w-5 h-5 text-trading-green" /> : <Copy className="w-5 h-5 text-foreground" />}
+            <span className="text-sm font-medium">{copied ? "Copied!" : "Copy"}</span>
+          </button>
+        </div>
+
+        {/* Social Media */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleShareTwitter}
+            className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 border border-[#1DA1F2]/30 transition-colors"
+          >
+            <Twitter className="w-5 h-5 text-[#1DA1F2]" />
+            <span className="text-sm font-medium text-[#1DA1F2]">Twitter</span>
+          </button>
+          <button
+            onClick={handleShareTelegram}
+            className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-[#0088cc]/20 hover:bg-[#0088cc]/30 border border-[#0088cc]/30 transition-colors"
+          >
+            <Send className="w-5 h-5 text-[#0088cc]" />
+            <span className="text-sm font-medium text-[#0088cc]">Telegram</span>
+          </button>
+        </div>
+
+        {/* Native Share (Mobile) */}
+        <button
+          onClick={handleNativeShare}
+          className="w-full mt-3 flex items-center justify-center gap-2 p-3 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+        >
+          <Share2 className="w-5 h-5" />
+          <span className="text-sm font-medium">More Options</span>
+        </button>
       </div>
     </div>
   );
@@ -292,7 +480,12 @@ const ShareableCard = ({ user }: { user: LeaderboardUser }) => {
 export default function Leaderboard() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   const [sortType, setSortType] = useState<SortType>("pnl");
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const sortedData = [...mockLeaderboardData].sort((a, b) => {
     switch (sortType) {
@@ -307,6 +500,32 @@ export default function Leaderboard() {
 
   const topThree = sortedData.slice(0, 3);
   const restOfList = sortedData.slice(3);
+
+  const handleShareCard = async () => {
+    if (!cardRef.current || isGenerating) return;
+
+    setIsGenerating(true);
+    try {
+      // Generate image from the card
+      const blob = await htmlToImage.toBlob(cardRef.current, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: '#0a0c14',
+      });
+
+      if (blob) {
+        setShareImageBlob(blob);
+        setIsShareModalOpen(true);
+      } else {
+        toast({ title: "Failed to generate image", variant: "destructive" });
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast({ title: "Failed to generate image", description: "Please try again", variant: "destructive" });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const content = (
     <div className="min-h-screen bg-background">
@@ -394,12 +613,25 @@ export default function Leaderboard() {
             <Share2 className="w-5 h-5 text-primary" />
             Share Your Rank
           </h3>
-          <ShareableCard user={topThree[0]} />
+          <ShareableCard 
+            user={topThree[0]} 
+            cardRef={cardRef}
+            onShare={handleShareCard}
+            isGenerating={isGenerating}
+          />
           <p className="text-center text-sm text-muted-foreground mt-4">
             Tap to share your ranking card on social media
           </p>
         </div>
       </div>
+
+      {/* Share Modal */}
+      <ShareModal 
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        imageBlob={shareImageBlob}
+        user={topThree[0]}
+      />
     </div>
   );
 
