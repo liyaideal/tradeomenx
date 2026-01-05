@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventCard, EventData } from "@/components/EventCard";
@@ -123,7 +123,12 @@ const EventsPage = () => {
       {isMobile ? (
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
           <div className="flex items-center justify-between">
-            <img src={omenxLogo} alt="OMENX" className="h-5 w-auto" />
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/")}>
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <img src={omenxLogo} alt="OMENX" className="h-4 w-auto" />
+            </div>
             <EventFilters
               statusFilter={statusFilter}
               onStatusFilterChange={setStatusFilter}
