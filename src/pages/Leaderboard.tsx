@@ -1022,13 +1022,31 @@ export default function Leaderboard() {
 
           {/* Top 3 Podium - integrated with page flow */}
           <div className="relative pb-4">
-            {/* Subtle glow effects behind avatars only */}
+            {/* Glow effects and star particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {/* Central glow */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-48 md:h-48 bg-yellow-500/10 rounded-full blur-[80px]" />
               
-              {/* Minimal star particles */}
-              <Sparkles className="star-particle text-yellow-400/50 w-2.5 h-2.5 absolute top-[30%] left-[48%]" style={{ animationDelay: '0s' }} />
-              <Sparkles className="star-particle text-yellow-300/40 w-2 h-2 absolute top-[25%] left-[52%]" style={{ animationDelay: '0.8s' }} />
+              {/* Star particles - distributed across the podium area */}
+              {/* Center (1st place) stars */}
+              <Sparkles className="star-particle text-yellow-400/70 w-3 h-3 absolute top-[15%] left-[50%]" style={{ animationDelay: '0s' }} />
+              <Sparkles className="star-particle-burst text-yellow-300/60 w-2.5 h-2.5 absolute top-[5%] left-[48%]" style={{ animationDelay: '0.3s' }} />
+              <Sparkles className="star-particle text-amber-400/50 w-2 h-2 absolute top-[25%] left-[53%]" style={{ animationDelay: '0.6s' }} />
+              <Sparkles className="star-particle-float text-yellow-200/40 w-2 h-2 absolute top-[35%] left-[46%]" style={{ animationDelay: '1.2s' }} />
+              
+              {/* Left (2nd place) stars */}
+              <Sparkles className="star-particle text-slate-300/50 w-2 h-2 absolute top-[30%] left-[25%]" style={{ animationDelay: '0.4s' }} />
+              <Sparkles className="star-particle-burst text-slate-400/40 w-2.5 h-2.5 absolute top-[20%] left-[28%]" style={{ animationDelay: '0.9s' }} />
+              <Sparkles className="star-particle text-gray-300/30 w-1.5 h-1.5 absolute top-[40%] left-[22%]" style={{ animationDelay: '1.5s' }} />
+              
+              {/* Right (3rd place) stars */}
+              <Sparkles className="star-particle text-amber-500/50 w-2 h-2 absolute top-[35%] left-[75%]" style={{ animationDelay: '0.2s' }} />
+              <Sparkles className="star-particle-burst text-orange-400/40 w-2 h-2 absolute top-[25%] left-[72%]" style={{ animationDelay: '0.7s' }} />
+              <Sparkles className="star-particle text-amber-600/30 w-1.5 h-1.5 absolute top-[45%] left-[78%]" style={{ animationDelay: '1.1s' }} />
+              
+              {/* Extra floating particles */}
+              <Sparkles className="star-particle-float text-yellow-400/30 w-1.5 h-1.5 absolute top-[50%] left-[40%]" style={{ animationDelay: '1.8s' }} />
+              <Sparkles className="star-particle-float text-yellow-300/25 w-1.5 h-1.5 absolute top-[55%] left-[60%]" style={{ animationDelay: '2.1s' }} />
             </div>
             
             {/* Podium cards */}
