@@ -739,6 +739,8 @@ export default function Leaderboard() {
             Tap to share your ranking card on social media
           </p>
         </div>
+        {/* Spacer for fixed MyRankBar */}
+        <div className="h-28 md:h-24" />
       </div>
 
       {/* Share Modal */}
