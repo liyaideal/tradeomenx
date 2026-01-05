@@ -35,38 +35,22 @@ export const BottomNav = () => {
               <button
                 key={item.path}
                 onClick={() => !item.disabled && navigate(item.path, { replace: true })}
-                className="relative flex flex-col items-center -mt-6"
+                className="relative flex flex-col items-center -mt-4"
               >
-                {/* Outer glow */}
-                <div className="absolute w-16 h-16 rounded-full bg-gradient-to-br from-red-500/20 via-orange-500/15 to-yellow-500/10 blur-xl animate-pulse" />
+                {/* Glow effect */}
+                <div className="absolute w-12 h-12 rounded-full bg-red-500/25 blur-xl animate-pulse" />
                 
-                {/* Hexagon container */}
+                {/* Icon with glow */}
                 <div className="relative">
-                  <svg width="56" height="64" viewBox="0 0 56 64" className="drop-shadow-[0_0_8px_rgba(239,68,68,0.4)]">
-                    <defs>
-                      <linearGradient id="hexInner" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#1a1a1a" />
-                        <stop offset="100%" stopColor="#0a0a0a" />
-                      </linearGradient>
-                    </defs>
-                    
-                    {/* Inner hexagon only */}
-                    <polygon 
-                      points="28,4 50,17 50,47 28,60 6,47 6,17" 
-                      fill="url(#hexInner)"
-                      stroke={active ? "rgba(239,68,68,0.3)" : "rgba(239,68,68,0.15)"}
-                      strokeWidth="1"
-                    />
-                  </svg>
-                  
-                  {/* Icon */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Trophy className={`w-6 h-6 ${active ? "text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "text-red-500/70"}`} />
-                  </div>
+                  <Trophy className={`w-7 h-7 transition-all duration-300 ${
+                    active 
+                      ? "text-red-400 drop-shadow-[0_0_12px_rgba(239,68,68,0.9)]" 
+                      : "text-red-500/70 drop-shadow-[0_0_6px_rgba(239,68,68,0.4)]"
+                  }`} />
                 </div>
                 
                 {/* Label */}
-                <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
+                <span className={`text-[10px] font-bold uppercase tracking-wider mt-1 ${
                   active 
                     ? "text-red-400 drop-shadow-[0_0_4px_rgba(239,68,68,0.6)]" 
                     : "text-red-500/60"
