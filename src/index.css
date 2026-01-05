@@ -313,6 +313,18 @@
     animation: shimmer 2s infinite;
   }
 
+  /* ===== NEON ANIMATIONS ===== */
+  @keyframes neon-pulse {
+    0%, 100% {
+      filter: brightness(1);
+      text-shadow: 0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 40px #7c3aed, 0 0 80px #7c3aed;
+    }
+    50% {
+      filter: brightness(1.15);
+      text-shadow: 0 0 15px #a855f7, 0 0 30px #a855f7, 0 0 60px #7c3aed, 0 0 100px #7c3aed;
+    }
+  }
+
   /* ===== BACKGROUND PATTERNS ===== */
   .bg-grid-pattern {
     background-image: 
