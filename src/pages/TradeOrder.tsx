@@ -31,7 +31,13 @@ function TradeOrderContent() {
     if (highlightedPosition !== null && positionRefs.current[highlightedPosition]) {
       // Small delay to ensure DOM is ready
       setTimeout(() => {
-        positionRefs.current[highlightedPosition]?.scrollIntoView({ behavior: "smooth", block: "start" });
+        const element = positionRefs.current[highlightedPosition];
+        if (element) {
+          const headerOffset = 200; // Account for sticky header and tab bar
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
+          window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+        }
       }, 100);
       
       // Clear highlight after animation
