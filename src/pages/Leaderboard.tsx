@@ -225,10 +225,10 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
   return (
     <div 
       id={isCurrentUser ? "current-user-row" : undefined}
-      className={`flex items-center gap-3 p-3 rounded-xl border backdrop-blur-sm transition-all duration-300 group animate-fade-in ${
+      className={`web3-card flex items-center gap-3 p-3 transition-all duration-300 group animate-fade-in ${
         isCurrentUser 
-          ? "bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border-primary/40 ring-1 ring-primary/20 shadow-[0_0_20px_hsl(260_60%_55%/0.15)]" 
-          : `${rankAccent.bg} ${rankAccent.border} hover:border-primary/40 hover:bg-primary/5`
+          ? "web3-card-intense" 
+          : "hover:web3-card-intense"
       }`}
       style={{ animationDelay: `${index * 30}ms` }}
     >
