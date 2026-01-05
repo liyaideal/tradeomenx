@@ -156,8 +156,8 @@ const EventsPage = () => {
           </p>
         </div>
 
-        {/* Stats Overview - Desktop only by default, can show on mobile too */}
-        {!isMobile && <EventStatsOverview />}
+        {/* Stats Overview - Hidden for now, uncomment when more data available */}
+        {/* {!isMobile && <EventStatsOverview />} */}
 
         {/* Filters - Desktop */}
         {!isMobile && (
