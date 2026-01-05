@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, TrendingDown, Minus, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, DollarSign, BarChart3, Share2, Crown, ChevronLeft, ChevronDown, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -264,20 +264,20 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
           {getValue()}
         </div>
         {/* Rank Change Indicator */}
-        <div className="flex items-center justify-end gap-0.5">
+        <div className="flex items-center justify-end gap-1">
           {user.rankChange > 0 ? (
-            <span className="flex items-center gap-0.5 text-[11px] text-trading-green">
-              <TrendingUp className="w-3 h-3" />
-              +{user.rankChange}
+            <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-trading-green/15 text-trading-green">
+              <ChevronUp className="w-3 h-3" />
+              {user.rankChange}位
             </span>
           ) : user.rankChange < 0 ? (
-            <span className="flex items-center gap-0.5 text-[11px] text-trading-red">
-              <TrendingDown className="w-3 h-3" />
-              {user.rankChange}
+            <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-trading-red/15 text-trading-red">
+              <ChevronDown className="w-3 h-3" />
+              {Math.abs(user.rankChange)}位
             </span>
           ) : (
-            <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground/60">
-              <Minus className="w-3 h-3" />
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/30 text-muted-foreground/60">
+              —
             </span>
           )}
         </div>
