@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Twitter, Send, Copy, Check, X } from "lucide-react";
+import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -363,9 +363,9 @@ const ShareModal = ({ isOpen, onClose, imageBlob, user }: ShareModalProps) => {
     }
   };
 
-  const handleShareTwitter = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-    window.open(twitterUrl, '_blank');
+  const handleShareX = () => {
+    const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+    window.open(xUrl, '_blank');
   };
 
   const handleShareTelegram = () => {
@@ -449,11 +449,13 @@ const ShareModal = ({ isOpen, onClose, imageBlob, user }: ShareModalProps) => {
         {/* Social Media */}
         <div className="flex gap-3">
           <button
-            onClick={handleShareTwitter}
-            className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 border border-[#1DA1F2]/30 transition-colors"
+            onClick={handleShareX}
+            className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-foreground/10 hover:bg-foreground/20 border border-foreground/20 transition-colors"
           >
-            <Twitter className="w-5 h-5 text-[#1DA1F2]" />
-            <span className="text-sm font-medium text-[#1DA1F2]">Twitter</span>
+            <svg className="w-5 h-5 text-foreground" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+            <span className="text-sm font-medium text-foreground">X</span>
           </button>
           <button
             onClick={handleShareTelegram}
