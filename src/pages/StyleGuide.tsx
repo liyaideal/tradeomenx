@@ -11,8 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -71,6 +72,34 @@ const StyleGuide = () => {
   const [popoverSide, setPopoverSide] = useState<"top" | "right" | "bottom" | "left">("bottom");
   const [popoverAlign, setPopoverAlign] = useState<"start" | "center" | "end">("center");
 
+  // Dialog Playground
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("Dialog Title");
+  const [dialogDescription, setDialogDescription] = useState("This is a dialog description that explains what this dialog is for.");
+  const [dialogSize, setDialogSize] = useState<"sm" | "md" | "lg" | "xl" | "full">("md");
+  const [dialogShowFooter, setDialogShowFooter] = useState(true);
+  const [dialogAnimation, setDialogAnimation] = useState<"fade" | "scale" | "slide">("scale");
+
+  const getDialogSizeClass = () => {
+    switch (dialogSize) {
+      case "sm": return "max-w-sm";
+      case "md": return "max-w-md";
+      case "lg": return "max-w-lg";
+      case "xl": return "max-w-xl";
+      case "full": return "max-w-[90vw] h-[80vh]";
+      default: return "max-w-md";
+    }
+  };
+
+  const getDialogAnimationClass = () => {
+    switch (dialogAnimation) {
+      case "fade": return "data-[state=open]:animate-fade-in data-[state=closed]:animate-fade-out";
+      case "scale": return "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95";
+      case "slide": return "data-[state=open]:animate-slide-up data-[state=closed]:animate-fade-out";
+      default: return "";
+    }
+  };
+
   const resetPlayground = () => {
     setButtonVariant("default");
     setButtonSize("default");
@@ -105,6 +134,11 @@ const StyleGuide = () => {
     setPopoverContent("This is the popover content. It can contain any elements.");
     setPopoverSide("bottom");
     setPopoverAlign("center");
+    setDialogTitle("Dialog Title");
+    setDialogDescription("This is a dialog description that explains what this dialog is for.");
+    setDialogSize("md");
+    setDialogShowFooter(true);
+    setDialogAnimation("scale");
     toast.success("Playground reset!");
   };
 
@@ -951,6 +985,117 @@ const StyleGuide = () => {
                 <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
                   <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
                     {`<Popover><PopoverTrigger>...</PopoverTrigger><PopoverContent side="${popoverSide}" align="${popoverAlign}">...</PopoverContent></Popover>`}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Dialog Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-green" />
+                  Dialog / Modal Playground
+                </CardTitle>
+                <CardDescription>Configure dialog size, animation and content</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[180px]">
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          <Maximize2 className="h-4 w-4" />
+                          Open Dialog
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className={`${getDialogSizeClass()} ${getDialogAnimationClass()}`}>
+                        <DialogHeader>
+                          <DialogTitle>{dialogTitle}</DialogTitle>
+                          <DialogDescription>{dialogDescription}</DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <p className="text-sm text-muted-foreground">
+                            This is the main content area of the dialog. You can put any content here including forms, images, or other components.
+                          </p>
+                          {dialogSize === "full" && (
+                            <div className="mt-4 p-4 bg-muted/30 rounded-lg h-[200px] flex items-center justify-center">
+                              <p className="text-muted-foreground">Extended content area for full-size dialog</p>
+                            </div>
+                          )}
+                        </div>
+                        {dialogShowFooter && (
+                          <DialogFooter className="gap-2">
+                            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                            <Button onClick={() => { setDialogOpen(false); toast.success("Action confirmed!"); }}>Confirm</Button>
+                          </DialogFooter>
+                        )}
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Title</Label>
+                      <Input 
+                        value={dialogTitle} 
+                        onChange={(e) => setDialogTitle(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Description</Label>
+                      <Input 
+                        value={dialogDescription} 
+                        onChange={(e) => setDialogDescription(e.target.value)}
+                      />
+                    </div>
+
+                    <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Size</Label>
+                        <Select value={dialogSize} onValueChange={(v) => setDialogSize(v as typeof dialogSize)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sm">Small</SelectItem>
+                            <SelectItem value="md">Medium</SelectItem>
+                            <SelectItem value="lg">Large</SelectItem>
+                            <SelectItem value="xl">Extra Large</SelectItem>
+                            <SelectItem value="full">Full Screen</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Animation</Label>
+                        <Select value={dialogAnimation} onValueChange={(v) => setDialogAnimation(v as typeof dialogAnimation)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="fade">Fade</SelectItem>
+                            <SelectItem value="scale">Scale (Default)</SelectItem>
+                            <SelectItem value="slide">Slide Up</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm">Show Footer</Label>
+                      <Switch checked={dialogShowFooter} onCheckedChange={setDialogShowFooter} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
+                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                    {`<Dialog><DialogTrigger>...</DialogTrigger><DialogContent className="${getDialogSizeClass()}">...</DialogContent></Dialog>`}
                   </code>
                 </div>
               </CardContent>
