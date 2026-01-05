@@ -96,25 +96,34 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   // Styles for each rank
   const rankStyles = {
     1: {
-      cardBg: "bg-gradient-to-b from-yellow-500/90 via-yellow-600/80 to-yellow-800/70",
-      laurelColor: "#FFD700",
-      cardHeight: "h-48",
-      avatarSize: "h-24 w-24",
-      cardWidth: "w-32 md:w-40",
+      cardBg: "from-yellow-500 via-yellow-600 to-amber-700",
+      borderColor: "border-yellow-400/50",
+      glowColor: "shadow-[0_0_30px_rgba(250,204,21,0.3)]",
+      badgeBg: "bg-gradient-to-br from-yellow-400 to-amber-500",
+      badgeText: "text-yellow-950",
+      cardHeight: "h-44",
+      avatarSize: "h-20 w-20",
+      cardWidth: "w-28 md:w-32",
     },
     2: {
-      cardBg: "bg-gradient-to-b from-slate-400/80 via-slate-500/70 to-slate-700/60",
-      laurelColor: "#C0C0C0",
-      cardHeight: "h-40",
-      avatarSize: "h-20 w-20",
-      cardWidth: "w-28 md:w-32",
+      cardBg: "from-slate-400 via-slate-500 to-slate-600",
+      borderColor: "border-slate-400/40",
+      glowColor: "",
+      badgeBg: "bg-gradient-to-br from-slate-300 to-slate-400",
+      badgeText: "text-slate-800",
+      cardHeight: "h-36",
+      avatarSize: "h-16 w-16",
+      cardWidth: "w-24 md:w-28",
     },
     3: {
-      cardBg: "bg-gradient-to-b from-amber-600/80 via-amber-700/70 to-amber-900/60",
-      laurelColor: "#CD7F32",
-      cardHeight: "h-40",
-      avatarSize: "h-20 w-20",
-      cardWidth: "w-28 md:w-32",
+      cardBg: "from-amber-600 via-amber-700 to-orange-800",
+      borderColor: "border-amber-500/40",
+      glowColor: "",
+      badgeBg: "bg-gradient-to-br from-amber-500 to-orange-600",
+      badgeText: "text-amber-950",
+      cardHeight: "h-36",
+      avatarSize: "h-16 w-16",
+      cardWidth: "w-24 md:w-28",
     },
   };
   
@@ -135,53 +144,43 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   const rankSuffix = user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd";
 
   return (
-    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "" : "mt-6"}`}>
+    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "" : "mt-4"}`}>
+      {/* Crown for #1 */}
+      {isFirst && (
+        <div className="mb-2">
+          <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]" />
+        </div>
+      )}
+      
       {/* Card Container */}
-      <div className={`relative ${style.cardBg} rounded-2xl ${style.cardHeight} ${style.cardWidth} overflow-visible border border-white/20 shadow-xl`}>
-        {/* Crown for #1 */}
-        {isFirst && (
-          <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-20">
-            <Crown className="w-8 h-8 text-yellow-300 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
-          </div>
-        )}
-        
-        {/* Laurel Wreath with Rank */}
-        <div className={`absolute ${isFirst ? "top-4" : "top-2"} left-1/2 -translate-x-1/2 z-10`}>
-          <div className="relative">
-            <LaurelWreath 
-              color={style.laurelColor} 
-              size={isFirst ? "md" : "sm"} 
-              className="opacity-90"
-            />
-            {/* Rank number inside wreath */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-white font-bold text-base drop-shadow-md">
-                {user.rank}<sup className="text-[9px]">{rankSuffix}</sup>
-              </span>
-            </div>
+      <div className={`relative bg-gradient-to-b ${style.cardBg} rounded-2xl ${style.cardHeight} ${style.cardWidth} border ${style.borderColor} ${style.glowColor} overflow-visible`}>
+        {/* Rank Badge - top center */}
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+          <div className={`${style.badgeBg} ${style.badgeText} px-3 py-1 rounded-full font-bold text-sm shadow-lg`}>
+            {user.rank}<sup className="text-[10px] ml-0.5">{rankSuffix}</sup>
           </div>
         </div>
 
-        {/* Avatar - positioned to overlap bottom edge */}
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-10">
-          <Avatar className={`${style.avatarSize} border-4 border-background shadow-xl ring-2 ring-white/10`}>
+        {/* Avatar - centered in card, near bottom */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+          <Avatar className={`${style.avatarSize} border-3 border-background/80 shadow-xl`}>
             <AvatarImage src={user.avatar} alt={user.username} className="object-cover" />
             <AvatarFallback className="text-lg bg-muted">{user.username.slice(0, 2)}</AvatarFallback>
           </Avatar>
         </div>
         
         {/* Subtle shine overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent pointer-events-none rounded-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/10 pointer-events-none rounded-2xl" />
       </div>
 
-      {/* Username - below avatar */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base mt-12" : "text-sm mt-11"} truncate max-w-[120px] text-center`}>
+      {/* Username */}
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base" : "text-sm"} mt-3 truncate max-w-[120px] text-center`}>
         {user.username}
       </h3>
 
       {/* Value */}
-      <div className={`flex items-center gap-1.5 font-mono font-bold text-trading-green ${isFirst ? "text-lg" : "text-base"} mt-0.5`}>
-        <span className="text-trading-green text-sm">◆</span>
+      <div className={`flex items-center gap-1 font-mono font-bold text-trading-green ${isFirst ? "text-lg" : "text-base"} mt-0.5`}>
+        <Zap className="w-4 h-4" />
         {getValue()}
       </div>
     </div>
