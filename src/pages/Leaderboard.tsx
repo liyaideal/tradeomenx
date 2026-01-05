@@ -37,11 +37,11 @@ const mockLeaderboardData: LeaderboardUser[] = [
   // More users for demo
   { rank: 11, username: "Hodler", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=hodler", pnl: 10200, roi: 58.3, volume: 320000, trades: 76 },
   { rank: 12, username: "BlockBuster", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=block", pnl: 8900, roi: 52.1, volume: 280000, trades: 68 },
-  { rank: 42, username: "You", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser", pnl: 2340, roi: 23.5, volume: 45000, trades: 28 },
+  { rank: 13, username: "CryptoNinja", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser", pnl: 2340, roi: 23.5, volume: 45000, trades: 28 },
 ];
 
 // Current user ID (simulated - in real app this would come from auth)
-const CURRENT_USER_USERNAME = "You";
+const CURRENT_USER_USERNAME = "CryptoNinja";
 
 const sortTabs: { key: SortType; label: string; icon: React.ElementType }[] = [
   { key: "pnl", label: "PnL", icon: DollarSign },
