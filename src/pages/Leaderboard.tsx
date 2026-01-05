@@ -99,24 +99,24 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
       gradient: "from-yellow-400 via-amber-400 to-orange-500",
       glowColor: "shadow-[0_0_40px_rgba(251,191,36,0.4)]",
       ringColor: "ring-yellow-400/60",
-      avatarSize: "w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32",
+      avatarSize: "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28",
       marginTop: "mt-0",
-      scale: "scale-100 md:scale-110",
+      scale: "scale-100 md:scale-105",
     },
     2: {
       gradient: "from-slate-300 via-slate-400 to-slate-500",
       glowColor: "shadow-[0_0_30px_rgba(148,163,184,0.3)]",
       ringColor: "ring-slate-400/60",
-      avatarSize: "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28",
-      marginTop: "mt-4 sm:mt-6 md:mt-8",
+      avatarSize: "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24",
+      marginTop: "mt-3 sm:mt-4 md:mt-6",
       scale: "scale-100",
     },
     3: {
       gradient: "from-amber-600 via-orange-500 to-amber-700",
       glowColor: "shadow-[0_0_30px_rgba(217,119,6,0.3)]",
       ringColor: "ring-amber-500/60",
-      avatarSize: "w-18 h-18 sm:w-22 sm:h-22 md:w-24 md:h-24",
-      marginTop: "mt-8 sm:mt-12 md:mt-16",
+      avatarSize: "w-14 h-14 sm:w-18 sm:h-18 md:w-22 md:h-22",
+      marginTop: "mt-6 sm:mt-8 md:mt-10",
       scale: "scale-100",
     },
   };
@@ -176,13 +176,13 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
       </div>
 
       {/* Username */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base md:text-lg" : "text-sm md:text-base"} mt-4 md:mt-5 truncate max-w-[100px] md:max-w-[140px] text-center`}>
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-sm md:text-base" : "text-xs md:text-sm"} mt-2 md:mt-3 truncate max-w-[90px] md:max-w-[120px] text-center`}>
         {user.username}
       </h3>
 
       {/* Value */}
-      <div className={`flex items-center gap-1 font-mono font-bold text-trading-green ${isFirst ? "text-lg md:text-xl" : "text-base md:text-lg"} mt-1`}>
-        <span className="text-xs md:text-sm">◆</span>
+      <div className={`flex items-center gap-1 font-mono font-bold text-trading-green ${isFirst ? "text-base md:text-lg" : "text-sm md:text-base"} mt-0.5`}>
+        <span className="text-[10px] md:text-xs">◆</span>
         {getValue()}
       </div>
     </div>
@@ -1010,43 +1010,26 @@ export default function Leaderboard() {
           </div>
 
           {/* Top 3 Podium with background glow effects */}
-          <div className="relative py-8 mb-4">
+          <div className="relative py-4 mb-2">
             {/* Background glow effects */}
             <div className="absolute inset-0 overflow-hidden">
               {/* Central gold glow for 1st place */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 bg-yellow-500/20 rounded-full blur-[80px] animate-pulse" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 md:w-56 md:h-56 bg-yellow-500/20 rounded-full blur-[60px] animate-pulse" />
               {/* Left silver glow for 2nd place */}
-              <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-48 md:h-48 bg-slate-400/15 rounded-full blur-[60px]" />
+              <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-28 h-28 md:w-40 md:h-40 bg-slate-400/15 rounded-full blur-[50px]" />
               {/* Right bronze glow for 3rd place */}
-              <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-48 md:h-48 bg-amber-500/15 rounded-full blur-[60px]" />
-              {/* Radial gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent opacity-60" />
+              <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-28 h-28 md:w-40 md:h-40 bg-amber-500/15 rounded-full blur-[50px]" />
               
-              {/* Star particles */}
-              {/* Gold stars around 1st place */}
-              <Sparkles className="star-particle text-yellow-400/70 w-4 h-4 absolute top-[20%] left-[48%]" style={{ animationDelay: '0s' }} />
-              <Sparkles className="star-particle-burst text-yellow-300/60 w-3 h-3 absolute top-[15%] left-[52%]" style={{ animationDelay: '0.5s' }} />
-              <Sparkles className="star-particle text-amber-400/50 w-5 h-5 absolute top-[25%] left-[45%]" style={{ animationDelay: '1s' }} />
-              <Sparkles className="star-particle-float text-yellow-200/60 w-3 h-3 absolute top-[30%] left-[55%]" style={{ animationDelay: '1.5s' }} />
-              <Sparkles className="star-particle-burst text-orange-300/50 w-4 h-4 absolute top-[35%] left-[50%]" style={{ animationDelay: '0.8s' }} />
-              
-              {/* Silver stars around 2nd place */}
-              <Sparkles className="star-particle text-slate-300/50 w-3 h-3 absolute top-[30%] left-[22%]" style={{ animationDelay: '0.3s' }} />
-              <Sparkles className="star-particle-float text-slate-200/40 w-2.5 h-2.5 absolute top-[25%] left-[28%]" style={{ animationDelay: '1.2s' }} />
-              <Sparkles className="star-particle text-slate-400/40 w-3 h-3 absolute top-[40%] left-[25%]" style={{ animationDelay: '0.7s' }} />
-              
-              {/* Bronze stars around 3rd place */}
-              <Sparkles className="star-particle text-amber-500/50 w-3 h-3 absolute top-[35%] right-[22%]" style={{ animationDelay: '0.4s' }} />
-              <Sparkles className="star-particle-float text-orange-400/40 w-2.5 h-2.5 absolute top-[30%] right-[28%]" style={{ animationDelay: '1.1s' }} />
-              <Sparkles className="star-particle text-amber-400/40 w-3 h-3 absolute top-[45%] right-[25%]" style={{ animationDelay: '0.9s' }} />
-              
-              {/* Extra floating stars */}
-              <Sparkles className="star-particle-burst text-purple-400/30 w-2 h-2 absolute top-[60%] left-[35%]" style={{ animationDelay: '2s' }} />
-              <Sparkles className="star-particle text-primary/30 w-2.5 h-2.5 absolute top-[65%] right-[35%]" style={{ animationDelay: '1.8s' }} />
+              {/* Star particles - reduced and repositioned */}
+              <Sparkles className="star-particle text-yellow-400/70 w-3 h-3 absolute top-[25%] left-[48%]" style={{ animationDelay: '0s' }} />
+              <Sparkles className="star-particle-burst text-yellow-300/60 w-2.5 h-2.5 absolute top-[20%] left-[52%]" style={{ animationDelay: '0.5s' }} />
+              <Sparkles className="star-particle text-amber-400/50 w-3 h-3 absolute top-[30%] left-[45%]" style={{ animationDelay: '1s' }} />
+              <Sparkles className="star-particle text-slate-300/50 w-2.5 h-2.5 absolute top-[35%] left-[22%]" style={{ animationDelay: '0.3s' }} />
+              <Sparkles className="star-particle text-amber-500/50 w-2.5 h-2.5 absolute top-[40%] right-[22%]" style={{ animationDelay: '0.4s' }} />
             </div>
             
             {/* Podium cards */}
-            <div className="relative flex justify-center items-start gap-3 md:gap-6 px-2">
+            <div className="relative flex justify-center items-start gap-4 md:gap-8 px-2">
               <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
               <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
               <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
@@ -1058,7 +1041,7 @@ export default function Leaderboard() {
       {/* Rest of Leaderboard */}
       <div className="px-4 pb-24 md:pb-8 max-w-2xl mx-auto">
         {/* Top Ranking Label */}
-        <div className="flex items-center justify-center gap-2 mb-3">
+        <div className="flex items-center justify-center gap-2 mb-2">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/30" />
           <span className="text-xs font-semibold text-primary px-3">◆ Top Ranking ◆</span>
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/30" />
