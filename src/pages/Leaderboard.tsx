@@ -266,21 +266,16 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
         {/* Rank Change Indicator */}
         <div className="flex items-center justify-end">
           {user.rankChange > 0 ? (
-            <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-trading-green/15 text-trading-green font-medium">
-              <span className="text-[8px] opacity-70">#</span>
-              <ChevronUp className="w-2.5 h-2.5" />
-              {user.rankChange}
+            <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-trading-green/15 text-trading-green font-medium">
+              ↑{user.rankChange} <span className="opacity-70">ranks</span>
             </span>
           ) : user.rankChange < 0 ? (
-            <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-trading-red/15 text-trading-red font-medium">
-              <span className="text-[8px] opacity-70">#</span>
-              <ChevronDown className="w-2.5 h-2.5" />
-              {Math.abs(user.rankChange)}
+            <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-trading-red/15 text-trading-red font-medium">
+              ↓{Math.abs(user.rankChange)} <span className="opacity-70">ranks</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-muted/30 text-muted-foreground/50 font-medium">
-              <span className="text-[8px] opacity-70">#</span>
-              <Minus className="w-2.5 h-2.5" />
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/30 text-muted-foreground/50 font-medium">
+              —
             </span>
           )}
         </div>
