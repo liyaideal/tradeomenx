@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, Heart, Share2, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronDown, Heart, Share2, ExternalLink } from "lucide-react";
 import { useNavigate, useNavigationType } from "react-router-dom";
 import {
   Popover,
@@ -15,6 +15,7 @@ interface MobileHeaderProps {
   showBack?: boolean; // Force show/hide back button
   showActions?: boolean;
   tweetCount?: number;
+  onTitleClick?: () => void; // Optional callback when title is clicked
 }
 
 // Countdown hook
@@ -51,7 +52,7 @@ const useCountdown = (endTime: Date | undefined) => {
   return timeLeft;
 };
 
-export const MobileHeader = ({ title, subtitle, endTime, showBack, showActions = false, tweetCount }: MobileHeaderProps) => {
+export const MobileHeader = ({ title, subtitle, endTime, showBack, showActions = false, tweetCount, onTitleClick }: MobileHeaderProps) => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const countdown = useCountdown(endTime);
@@ -107,8 +108,14 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack, showActions =
         )}
 
         {/* Center: Title and countdown */}
-        <div className="flex-1 text-center px-2">
-          <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+        <div 
+          className={`flex-1 text-center px-2 ${onTitleClick ? "cursor-pointer" : ""}`}
+          onClick={onTitleClick}
+        >
+          <div className="flex items-center justify-center gap-1">
+            <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+            {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+          </div>
           {(displayTime || tweetCount !== undefined) && (
             <div className="flex items-center justify-center gap-4 mt-0.5">
               {displayTime && (
