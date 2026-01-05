@@ -1,225 +1,28 @@
 import { useState, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { ExternalLink, ChevronDown, Search, Star, X } from "lucide-react";
-import { MobileHeader } from "@/components/MobileHeader";
-import { OptionChips } from "@/components/OptionChips";
+import { ExternalLink, ChevronDown } from "lucide-react";
+import { MobileTradingLayout, useMobileTradingContext } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
-import { useEvents } from "@/hooks/useEvents";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { generateOrderBookData } from "@/lib/tradingUtils";
 
-// Generate order book data based on base price
-const generateOrderBookData = (basePrice: number) => {
-  const asks = [];
-  const bids = [];
-  
-  for (let i = 0; i < 10; i++) {
-    const askPrice = (basePrice + 0.0005 * (i + 1)).toFixed(4);
-    const bidPrice = (basePrice - 0.0005 * (i + 1)).toFixed(4);
-    const amount = Math.floor(Math.random() * 50000 + 500).toString();
-    
-    asks.push({ price: askPrice, amount });
-    bids.push({ price: bidPrice, amount });
-  }
-  
-  return { asks, bids };
-};
-
-
-export default function TradeOrder() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const eventId = searchParams.get("event") || undefined;
-  
+function TradeOrderContent() {
   const { orders } = useOrdersStore();
   const { positions } = usePositionsStore();
-  const { 
-    selectedEvent, 
-    options, 
-    selectedOption, 
-    setSelectedOption, 
-    selectedOptionData,
-    setSelectedEvent,
-    favorites,
-    toggleFavorite,
-    searchQuery,
-    setSearchQuery,
-    filteredEvents,
-    showFavoritesOnly,
-    toggleShowFavoritesOnly,
-  } = useEvents(eventId);
+  const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
-  const [activeTab, setActiveTab] = useState("Trade");
   const [bottomTab, setBottomTab] = useState("Orders");
-  const [eventSheetOpen, setEventSheetOpen] = useState(false);
-
-  // Handle event selection and update URL
-  const handleEventSelect = (event: typeof selectedEvent) => {
-    setSelectedEvent(event);
-    navigate(`/trade/order?event=${event.id}`, { replace: true });
-    setEventSheetOpen(false);
-    setSearchQuery("");
-  };
 
   // Generate order book data based on selected option's price
   const orderBookData = useMemo(() => {
     const basePrice = parseFloat(selectedOptionData.price);
-    return generateOrderBookData(basePrice);
+    return generateOrderBookData(basePrice, 10);
   }, [selectedOptionData.price]);
 
   return (
-    <div className="min-h-screen bg-background pb-8 overflow-x-hidden">
-      {/* Event Selector Sheet */}
-      <Sheet open={eventSheetOpen} onOpenChange={setEventSheetOpen}>
-        <SheetContent side="bottom" className="h-[70vh] bg-background border-t border-border">
-          <SheetHeader className="pb-4">
-            <SheetTitle>Select Event</SheetTitle>
-          </SheetHeader>
-          
-          {/* Search with Favorites Filter */}
-          <div className="mb-4">
-            <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
-              <Search className="w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={showFavoritesOnly ? "Search favorites..." : "Search events..."}
-                className="flex-1 bg-transparent outline-none text-sm"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery("")}>
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
-              )}
-              <button
-                onClick={toggleShowFavoritesOnly}
-                className="p-1 rounded hover:bg-muted/50 transition-colors"
-              >
-                <Star className={`w-4 h-4 transition-colors ${
-                  showFavoritesOnly 
-                    ? "text-trading-yellow fill-trading-yellow" 
-                    : "text-muted-foreground"
-                }`} />
-              </button>
-            </div>
-            {showFavoritesOnly && (
-              <div className="mt-2 text-xs text-trading-yellow flex items-center gap-1">
-                <Star className="w-3 h-3 fill-trading-yellow" />
-                Showing favorites only ({filteredEvents.length})
-              </div>
-            )}
-          </div>
-          
-          {/* Event List */}
-          <div className="space-y-2 overflow-y-auto max-h-[calc(70vh-160px)]">
-            {filteredEvents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                {showFavoritesOnly ? (
-                  <>
-                    <Star className="w-10 h-10 text-muted-foreground/30 mb-3" />
-                    <p className="text-sm text-muted-foreground mb-1">No favorites yet</p>
-                    <p className="text-xs text-muted-foreground/70">
-                      Click the star icon next to events to add them to your favorites
-                    </p>
-                    <button
-                      onClick={toggleShowFavoritesOnly}
-                      className="mt-3 text-xs text-primary hover:underline"
-                    >
-                      View all events
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-10 h-10 text-muted-foreground/30 mb-3" />
-                    <p className="text-sm text-muted-foreground">No events found</p>
-                    <p className="text-xs text-muted-foreground/70">
-                      Try a different search term
-                    </p>
-                  </>
-                )}
-              </div>
-            ) : (
-              filteredEvents.map((event) => (
-                <button
-                  key={event.id}
-                  onClick={() => handleEventSelect(event)}
-                  className={`w-full p-3 rounded-lg text-left transition-colors flex items-center gap-3 ${
-                    selectedEvent.id === event.id 
-                      ? "bg-primary/10 border border-primary/30" 
-                      : "bg-muted/30 hover:bg-muted/50 border border-transparent"
-                  }`}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(event.id, e);
-                    }}
-                    className="flex-shrink-0"
-                  >
-                    <Star 
-                      className={`w-4 h-4 ${favorites.has(event.id) ? "text-trading-yellow fill-trading-yellow" : "text-muted-foreground"}`} 
-                    />
-                  </button>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground line-clamp-2">{event.name}</p>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                      <span>Ends: {event.ends}</span>
-                      <span>Volume: {event.volume}</span>
-                    </div>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <MobileHeader
-        title={selectedEvent.name}
-        endTime={selectedEvent.endTime}
-        showActions
-        showBack={true}
-        backTo="/"
-        tweetCount={selectedEvent.tweetCount}
-        onTitleClick={() => setEventSheetOpen(true)}
-      />
-
-      {/* Option Chips */}
-      <OptionChips
-        options={options}
-        selectedId={selectedOption}
-        onSelect={setSelectedOption}
-      />
-
-      {/* Charts/Trade Tabs */}
-      <div className="flex px-4 border-b border-border/30">
-        {["Charts", "Trade"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => {
-              setActiveTab(tab);
-              if (tab === "Charts") navigate(`/trade?event=${selectedEvent.id}`);
-            }}
-            className={`py-2 mr-6 text-sm font-medium transition-all ${
-              activeTab === tab
-                ? "text-trading-purple border-b-2 border-trading-purple"
-                : "text-muted-foreground"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
+    <div className="pb-8 overflow-x-hidden">
       {/* Main Content Area - Two Column Layout */}
       <div className="flex w-full">
         {/* Left: Trade Form + Price Info */}
@@ -327,5 +130,13 @@ export default function TradeOrder() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function TradeOrder() {
+  return (
+    <MobileTradingLayout activeTab="Trade">
+      <TradeOrderContent />
+    </MobileTradingLayout>
   );
 }
