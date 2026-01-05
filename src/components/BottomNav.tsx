@@ -69,12 +69,20 @@ export const BottomNav = () => {
             <button
               key={item.path}
               onClick={() => !item.disabled && navigate(item.path, { replace: true })}
-              className={`flex flex-col items-center gap-1 transition-all duration-200 ${
-                active ? "text-trading-purple" : "text-muted-foreground"
+              className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+                active 
+                  ? "text-trading-purple scale-110" 
+                  : "text-muted-foreground scale-100 hover:scale-105"
               }`}
             >
-              <item.icon className={`w-5 h-5 ${active ? "text-trading-purple" : ""}`} />
-              <span className="text-xs font-medium">{item.label}</span>
+              <item.icon className={`w-5 h-5 transition-all duration-300 ${
+                active 
+                  ? "text-trading-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" 
+                  : ""
+              }`} />
+              <span className={`text-xs transition-all duration-300 ${
+                active ? "font-semibold" : "font-medium"
+              }`}>{item.label}</span>
             </button>
           );
         })}
