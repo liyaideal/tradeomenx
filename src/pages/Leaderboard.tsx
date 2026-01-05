@@ -1175,8 +1175,8 @@ export default function Leaderboard() {
     <>
       <EventsDesktopHeader />
       <div className="max-w-7xl mx-auto relative">
-        {/* Page-specific controls - absolute positioned */}
-        <div className="absolute top-4 right-6 z-10 flex items-center gap-2">
+        {/* Page-specific controls - absolute positioned with higher z-index */}
+        <div className="absolute top-4 right-6 z-20 flex items-center gap-2">
           {/* Period Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
