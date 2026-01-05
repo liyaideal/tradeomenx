@@ -7,6 +7,7 @@ import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { useOrdersStore } from "@/stores/useOrdersStore";
+import { usePositionsStore } from "@/stores/usePositionsStore";
 
 const options = [
   { id: "1", label: "140-159", price: "0.0534" },
@@ -33,36 +34,11 @@ const generateOrderBookData = (basePrice: number) => {
   return { asks, bids };
 };
 
-const mockPositions = [
-  {
-    type: "long" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "200-219",
-    entryPrice: "$0.3200",
-    markPrice: "$0.3456",
-    size: "2,500",
-    margin: "$80.00",
-    pnl: "+$64.00",
-    pnlPercent: "+8.0%",
-    leverage: "10x",
-  },
-  {
-    type: "short" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "140-159",
-    entryPrice: "$0.0600",
-    markPrice: "$0.0534",
-    size: "5,000",
-    margin: "$30.00",
-    pnl: "+$33.00",
-    pnlPercent: "+11.0%",
-    leverage: "10x",
-  },
-];
 
 export default function TradeOrder() {
   const navigate = useNavigate();
   const { orders } = useOrdersStore();
+  const { positions } = usePositionsStore();
   const [selectedOption, setSelectedOption] = useState("2");
   const [activeTab, setActiveTab] = useState("Trade");
   const [bottomTab, setBottomTab] = useState("Orders");
@@ -216,7 +192,7 @@ export default function TradeOrder() {
         {bottomTab === "Orders" && orders.map((order, index) => (
           <OrderCard key={index} {...order} />
         ))}
-        {bottomTab === "Positions" && mockPositions.map((position, index) => (
+        {bottomTab === "Positions" && positions.map((position, index) => (
           <PositionCard key={index} {...position} />
         ))}
       </div>
