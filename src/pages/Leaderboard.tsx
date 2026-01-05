@@ -315,6 +315,15 @@ interface CardThemeConfig {
   borderStyle: string;
   glowEffects: boolean;
   sparkles: boolean;
+  // Color scheme for stats and badges
+  badgeBg: string;
+  badgeBorder: string;
+  badgeText: string;
+  pnlColor: string;
+  roiColor: string;
+  volumeColor: string;
+  sparkleColors: [string, string, string];
+  rankBadgeBg: string;
 }
 
 const cardThemes: Record<CardTheme, CardThemeConfig> = {
@@ -324,6 +333,14 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     borderStyle: "border-primary/30",
     glowEffects: true,
     sparkles: true,
+    badgeBg: "bg-trading-green/20",
+    badgeBorder: "border-trading-green/30",
+    badgeText: "text-trading-green",
+    pnlColor: "text-trading-green",
+    roiColor: "text-primary",
+    volumeColor: "text-foreground",
+    sparkleColors: ["text-yellow-400/60", "text-trading-green/50", "text-primary/40"],
+    rankBadgeBg: "from-slate-500 to-slate-600",
   },
   neon: {
     name: "Neon",
@@ -331,6 +348,14 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     borderStyle: "border-cyan-400/50",
     glowEffects: true,
     sparkles: true,
+    badgeBg: "bg-cyan-400/20",
+    badgeBorder: "border-cyan-400/40",
+    badgeText: "text-cyan-400",
+    pnlColor: "text-cyan-400",
+    roiColor: "text-purple-400",
+    volumeColor: "text-pink-300",
+    sparkleColors: ["text-cyan-400/60", "text-purple-400/50", "text-pink-400/40"],
+    rankBadgeBg: "from-cyan-500 to-purple-500",
   },
   minimal: {
     name: "Minimal",
@@ -338,6 +363,14 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     borderStyle: "border-border/50",
     glowEffects: false,
     sparkles: false,
+    badgeBg: "bg-muted",
+    badgeBorder: "border-border",
+    badgeText: "text-foreground",
+    pnlColor: "text-foreground",
+    roiColor: "text-muted-foreground",
+    volumeColor: "text-muted-foreground",
+    sparkleColors: ["text-muted-foreground/30", "text-muted-foreground/20", "text-muted-foreground/10"],
+    rankBadgeBg: "from-muted to-muted",
   },
   gold: {
     name: "Gold",
@@ -345,14 +378,22 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     borderStyle: "border-yellow-500/40",
     glowEffects: true,
     sparkles: true,
+    badgeBg: "bg-yellow-500/20",
+    badgeBorder: "border-yellow-500/40",
+    badgeText: "text-yellow-400",
+    pnlColor: "text-yellow-400",
+    roiColor: "text-amber-400",
+    volumeColor: "text-orange-300",
+    sparkleColors: ["text-yellow-400/60", "text-amber-400/50", "text-orange-400/40"],
+    rankBadgeBg: "from-yellow-500 to-amber-600",
   },
 };
 
 const themeGlowColors: Record<CardTheme, { primary: string; secondary: string; tertiary: string }> = {
-  default: { primary: "yellow-500/20", secondary: "trading-green/20", tertiary: "primary/5" },
-  neon: { primary: "cyan-500/30", secondary: "purple-500/30", tertiary: "pink-500/10" },
-  minimal: { primary: "transparent", secondary: "transparent", tertiary: "transparent" },
-  gold: { primary: "yellow-400/30", secondary: "amber-500/20", tertiary: "orange-500/10" },
+  default: { primary: "from-yellow-500/20", secondary: "from-trading-green/20", tertiary: "bg-primary/5" },
+  neon: { primary: "from-cyan-500/30", secondary: "from-purple-500/30", tertiary: "bg-pink-500/10" },
+  minimal: { primary: "from-transparent", secondary: "from-transparent", tertiary: "bg-transparent" },
+  gold: { primary: "from-yellow-400/30", secondary: "from-amber-500/20", tertiary: "bg-orange-500/10" },
 };
 
 interface ShareableCardProps {
@@ -377,13 +418,16 @@ const ShareableCard = ({
   const glowColors = themeGlowColors[theme];
   
   const stats = [
-    { key: "pnl" as StatKey, label: "PnL", value: `$${user.pnl.toLocaleString()}`, color: "text-trading-green", icon: true },
-    { key: "roi" as StatKey, label: "ROI", value: `${user.roi.toFixed(1)}%`, color: "text-primary", icon: false },
-    { key: "volume" as StatKey, label: "Volume", value: `$${user.volume.toLocaleString()}`, color: "text-foreground", icon: false },
+    { key: "pnl" as StatKey, label: "PnL", value: `$${user.pnl.toLocaleString()}`, color: themeConfig.pnlColor, icon: true },
+    { key: "roi" as StatKey, label: "ROI", value: `${user.roi.toFixed(1)}%`, color: themeConfig.roiColor, icon: false },
+    { key: "volume" as StatKey, label: "Volume", value: `$${user.volume.toLocaleString()}`, color: themeConfig.volumeColor, icon: false },
   ];
   
   const displayedStats = stats.filter(s => visibleStats.includes(s.key));
   const gridCols = displayedStats.length === 1 ? "grid-cols-1" : displayedStats.length === 2 ? "grid-cols-2" : "grid-cols-3";
+  
+  // Use theme-specific rank badge for non-top-3 users
+  const rankBadgeGradient = user.rank <= 3 ? colors.gradient : themeConfig.rankBadgeBg;
   
   return (
     <div 
@@ -395,18 +439,18 @@ const ShareableCard = ({
       {/* Background effects */}
       {themeConfig.glowEffects && (
         <>
-          <div className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-${glowColors.primary} to-transparent rounded-full blur-3xl`} />
-          <div className={`absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-${glowColors.secondary} to-transparent rounded-full blur-2xl`} />
-          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-${glowColors.tertiary} rounded-full blur-3xl`} />
+          <div className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl ${glowColors.primary} to-transparent rounded-full blur-3xl`} />
+          <div className={`absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr ${glowColors.secondary} to-transparent rounded-full blur-2xl`} />
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 ${glowColors.tertiary} rounded-full blur-3xl`} />
         </>
       )}
       
       {/* Sparkle decorations */}
       {themeConfig.sparkles && (
         <>
-          <Sparkles className="absolute top-4 right-4 w-5 h-5 text-yellow-400/60 animate-pulse" />
-          <Sparkles className="absolute bottom-8 right-12 w-4 h-4 text-trading-green/50" />
-          <Sparkles className="absolute top-12 left-8 w-3 h-3 text-primary/40" />
+          <Sparkles className={`absolute top-4 right-4 w-5 h-5 ${themeConfig.sparkleColors[0]} animate-pulse`} />
+          <Sparkles className={`absolute bottom-8 right-12 w-4 h-4 ${themeConfig.sparkleColors[1]}`} />
+          <Sparkles className={`absolute top-12 left-8 w-3 h-3 ${themeConfig.sparkleColors[2]}`} />
         </>
       )}
       
@@ -424,8 +468,8 @@ const ShareableCard = ({
         {/* Header with Logo */}
         <div className="flex items-center justify-between mb-6">
           <img src={omenxLogo} alt="OMENX" className="h-6" />
-          <div className="px-3 py-1 rounded-full bg-trading-green/20 border border-trading-green/30">
-            <span className="text-xs font-semibold text-trading-green">Top Ranking</span>
+          <div className={`px-3 py-1 rounded-full ${themeConfig.badgeBg} border ${themeConfig.badgeBorder}`}>
+            <span className={`text-xs font-semibold ${themeConfig.badgeText}`}>Top Ranking</span>
           </div>
         </div>
 
@@ -450,7 +494,7 @@ const ShareableCard = ({
           <div>
             <h3 className="font-bold text-2xl text-foreground mb-1">{user.username}</h3>
             <div className="flex items-center gap-2">
-              <div className={`flex items-center justify-center px-3 py-1 rounded-full bg-gradient-to-br ${colors.gradient}`}>
+              <div className={`flex items-center justify-center px-3 py-1 rounded-full bg-gradient-to-br ${rankBadgeGradient}`}>
                 <span className="font-bold text-background text-sm">#{user.rank}</span>
               </div>
               <span className="text-sm text-muted-foreground">Global Ranking</span>
