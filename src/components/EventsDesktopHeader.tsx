@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { Logo } from "@/components/Logo";
 
 const navItems = [
   { label: "Events", path: "/events" },
@@ -50,7 +50,7 @@ export const EventsDesktopHeader = ({ balance = 2345.67 }: EventsDesktopHeaderPr
             onClick={() => navigate("/events")}
             className="flex items-center gap-2 hover:opacity-80 transition-all duration-300 hover:scale-[1.02]"
           >
-            <img src={omenxLogo} alt="OMENX" className="h-8" />
+            <Logo size="xl" />
           </button>
 
           {/* Navigation Tabs */}
