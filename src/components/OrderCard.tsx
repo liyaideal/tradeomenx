@@ -17,12 +17,12 @@ interface OrderCardProps {
   orderType: "Limit" | "Market";
   event: string;
   option: string;
-  probability: string;
+  probability?: string;
   price: string;
   amount: string;
   total: string;
   time: string;
-  status: "Pending" | "Partially Filled" | "Filled" | "Cancelled";
+  status: "Pending" | "Partially Filled" | "Partial Filled" | "Filled" | "Cancelled";
 }
 
 export const OrderCard = ({
@@ -40,9 +40,10 @@ export const OrderCard = ({
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     Pending: "bg-amber-500/20 text-amber-400",
     "Partially Filled": "bg-cyan-500/20 text-cyan-400",
+    "Partial Filled": "bg-cyan-500/20 text-cyan-400",
     Filled: "bg-trading-green/20 text-trading-green",
     Cancelled: "bg-trading-red/20 text-trading-red",
   };
@@ -81,7 +82,7 @@ export const OrderCard = ({
         <div className="mb-2">
           <h3 className="font-medium text-foreground text-sm">{event}</h3>
           <p className="text-xs text-muted-foreground">
-            {option} · {probability}
+            {option}{probability ? ` · ${probability}` : ""}
           </p>
         </div>
 
@@ -106,7 +107,7 @@ export const OrderCard = ({
         {/* Footer with time and action */}
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
           <span className="text-[10px] text-muted-foreground">{time}</span>
-          {status === "Pending" || status === "Partially Filled" ? (
+          {status === "Pending" || status === "Partially Filled" || status === "Partial Filled" ? (
             <button 
               onClick={() => setCancelDialogOpen(true)}
               className="px-3 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
