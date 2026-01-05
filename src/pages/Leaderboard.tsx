@@ -394,8 +394,8 @@ const ShareableCard = ({ user, cardRef, onShare, isGenerating }: ShareableCardPr
             <div className="font-mono font-bold text-primary">{user.roi.toFixed(1)}%</div>
           </div>
           <div className="text-center p-4 rounded-xl bg-muted/50 border border-border/30">
-            <div className="text-xs text-muted-foreground mb-1">Trades</div>
-            <div className="font-mono font-bold text-foreground">{user.trades}</div>
+            <div className="text-xs text-muted-foreground mb-1">Volume</div>
+            <div className="font-mono font-bold text-foreground">${user.volume.toLocaleString()}</div>
           </div>
         </div>
 
