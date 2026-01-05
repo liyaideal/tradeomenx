@@ -37,23 +37,27 @@ export const BottomNav = () => {
                 onClick={() => !item.disabled && navigate(item.path, { replace: true })}
                 className="relative flex flex-col items-center"
               >
-                {/* Glow effect behind icon */}
-                <div className="absolute -top-2 w-14 h-14 rounded-full bg-trading-purple/30 blur-xl animate-pulse" />
+                {/* Glow effect behind icon - stronger when active */}
+                <div className={`absolute -top-2 w-14 h-14 rounded-full blur-xl transition-all duration-300 ${
+                  active 
+                    ? "bg-trading-purple/50 scale-125" 
+                    : "bg-trading-purple/20 animate-pulse"
+                }`} />
                 
-                {/* Icon container - elevated */}
+                {/* Icon container - elevated, larger when active */}
                 <div className="relative -mt-6 mb-1">
-                  <Trophy className={`w-7 h-7 transition-all duration-300 ${
+                  <Trophy className={`transition-all duration-300 ${
                     active 
-                      ? "text-trading-purple drop-shadow-[0_0_12px_rgba(139,92,246,0.9)]" 
-                      : "text-trading-purple/80 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]"
+                      ? "w-9 h-9 text-trading-purple drop-shadow-[0_0_20px_rgba(139,92,246,1)]" 
+                      : "w-7 h-7 text-trading-purple/70 drop-shadow-[0_0_6px_rgba(139,92,246,0.4)]"
                   }`} />
                 </div>
                 
                 {/* Label - aligned with others */}
-                <span className={`text-xs font-semibold uppercase tracking-wider ${
+                <span className={`text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
                   active 
-                    ? "text-trading-purple drop-shadow-[0_0_4px_rgba(139,92,246,0.6)]" 
-                    : "text-trading-purple/70"
+                    ? "text-trading-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" 
+                    : "text-trading-purple/60"
                 }`}>
                   {item.label}
                 </span>
