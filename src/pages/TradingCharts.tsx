@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { ChevronDown, Search, Star, X } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { OptionChips } from "@/components/OptionChips";
@@ -9,6 +10,14 @@ import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { useEvents } from "@/hooks/useEvents";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 
 // Generate order book data based on base price
 const generateOrderBookData = (basePrice: number) => {
@@ -96,10 +105,32 @@ export default function TradingCharts() {
   const eventId = searchParams.get("event") || undefined;
   
   const { positions } = usePositionsStore();
-  const { selectedEvent, options, selectedOption, setSelectedOption, selectedOptionData } = useEvents(eventId);
+  const { 
+    selectedEvent, 
+    events,
+    options, 
+    selectedOption, 
+    setSelectedOption, 
+    selectedOptionData,
+    setSelectedEvent,
+    favorites,
+    toggleFavorite,
+    searchQuery,
+    setSearchQuery,
+    filteredEvents,
+  } = useEvents(eventId);
   
   const [activeTab, setActiveTab] = useState("Charts");
   const [bottomTab, setBottomTab] = useState("Order Book");
+  const [eventSheetOpen, setEventSheetOpen] = useState(false);
+
+  // Handle event selection and update URL
+  const handleEventSelect = (event: typeof selectedEvent) => {
+    setSelectedEvent(event);
+    navigate(`/trade?event=${event.id}`, { replace: true });
+    setEventSheetOpen(false);
+    setSearchQuery("");
+  };
 
   // Generate order book data based on selected option's price
   const orderBookData = useMemo(() => {
@@ -121,14 +152,92 @@ export default function TradingCharts() {
     return { change, percentage, isPositive };
   }, [selectedOptionData.price]);
 
-  // Set end time to December 25, 2025 23:59:59 (future date for demo)
   return (
     <div className="min-h-screen bg-background pb-40">
+      {/* Event Selector */}
+      <div className="sticky top-0 z-50 bg-background border-b border-border/30">
+        <Sheet open={eventSheetOpen} onOpenChange={setEventSheetOpen}>
+          <SheetTrigger asChild>
+            <button className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/30 transition-colors">
+              <div className="flex-1 text-left">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{selectedEvent.icon}</span>
+                  <span className="text-sm font-medium text-foreground line-clamp-1">{selectedEvent.name}</span>
+                </div>
+              </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[70vh] bg-background border-t border-border">
+            <SheetHeader className="pb-4">
+              <SheetTitle>Select Event</SheetTitle>
+            </SheetHeader>
+            
+            {/* Search */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-9 bg-muted/50 border-border/50"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              )}
+            </div>
+            
+            {/* Event List */}
+            <div className="space-y-2 overflow-y-auto max-h-[calc(70vh-140px)]">
+              {filteredEvents.map((event) => (
+                <button
+                  key={event.id}
+                  onClick={() => handleEventSelect(event)}
+                  className={`w-full p-3 rounded-lg text-left transition-colors flex items-center gap-3 ${
+                    selectedEvent.id === event.id 
+                      ? "bg-primary/10 border border-primary/30" 
+                      : "bg-muted/30 hover:bg-muted/50 border border-transparent"
+                  }`}
+                >
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(event.id, e);
+                    }}
+                    className="flex-shrink-0"
+                  >
+                    <Star 
+                      className={`w-4 h-4 ${favorites.has(event.id) ? "text-trading-yellow fill-trading-yellow" : "text-muted-foreground"}`} 
+                    />
+                  </button>
+                  <span className="text-lg flex-shrink-0">{event.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground line-clamp-2">{event.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Volume: {event.volume}</p>
+                  </div>
+                </button>
+              ))}
+              {filteredEvents.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  No events found
+                </div>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
       <MobileHeader 
         title={selectedEvent.name}
         endTime={selectedEvent.endTime}
         showActions
         tweetCount={selectedEvent.tweetCount}
+        showBack={false}
       />
 
       {/* Option Chips */}
