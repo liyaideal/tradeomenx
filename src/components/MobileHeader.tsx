@@ -17,6 +17,8 @@ interface MobileHeaderProps {
   showActions?: boolean;
   tweetCount?: number;
   onTitleClick?: () => void; // Optional callback when title is clicked
+  isFavorite?: boolean; // External favorite state
+  onFavoriteToggle?: () => void; // Callback to toggle favorite
 }
 
 // Countdown hook
@@ -53,12 +55,22 @@ const useCountdown = (endTime: Date | undefined) => {
   return timeLeft;
 };
 
-export const MobileHeader = ({ title, subtitle, endTime, showBack, backTo, showActions = false, tweetCount, onTitleClick }: MobileHeaderProps) => {
+export const MobileHeader = ({ 
+  title, 
+  subtitle, 
+  endTime, 
+  showBack, 
+  backTo, 
+  showActions = false, 
+  tweetCount, 
+  onTitleClick,
+  isFavorite = false,
+  onFavoriteToggle,
+}: MobileHeaderProps) => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const countdown = useCountdown(endTime);
   const displayTime = endTime ? countdown : subtitle;
-  const [isFavorite, setIsFavorite] = useState(false);
   
   // Show back button: if explicitly set use that value, otherwise show only for PUSH navigation
   const shouldShowBack = showBack !== undefined ? showBack : navigationType === "PUSH";
@@ -72,10 +84,12 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack, backTo, showA
   };
 
   const handleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    toast(isFavorite ? "Removed from favorites" : "Added to favorites", {
-      duration: 2000,
-    });
+    if (onFavoriteToggle) {
+      onFavoriteToggle();
+      toast(isFavorite ? "Removed from favorites" : "Added to favorites", {
+        duration: 2000,
+      });
+    }
   };
 
   const handleShare = async () => {
