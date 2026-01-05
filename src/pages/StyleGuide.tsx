@@ -17,6 +17,7 @@ import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Se
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { CATEGORY_STYLES, getCategoryInfo, getCategoryFromName } from "@/lib/categoryUtils";
 
 type DevicePreview = "auto" | "mobile" | "tablet" | "desktop";
 
@@ -46,6 +47,7 @@ const StyleGuide = () => {
     { id: "dialog-playground", title: "Dialog / Modal Playground", keywords: ["dialog", "modal", "popup", "overlay", "confirm"] },
     { id: "colors", title: "Colors", keywords: ["color", "palette", "theme", "hsl", "variable"] },
     { id: "trading-colors", title: "Trading Colors Usage", keywords: ["trading", "green", "red", "purple", "profit", "loss"] },
+    { id: "category-labels", title: "Category Labels", keywords: ["category", "label", "social", "crypto", "finance", "market", "badge", "tag"] },
     { id: "buttons", title: "Buttons", keywords: ["button", "click", "action", "primary", "secondary"] },
     { id: "badges", title: "Badges", keywords: ["badge", "tag", "status", "label"] },
     { id: "cards", title: "Cards", keywords: ["card", "container", "panel", "trading-card"] },
@@ -1496,6 +1498,120 @@ const StyleGuide = () => {
                 <div className="h-full w-2/3 bg-trading-purple rounded-full" />
               </div>
             </Card>
+          </div>
+        </section>
+        )}
+
+        {/* Category Labels Section */}
+        {filterSection("category-labels") && (
+        <section id="category-labels">
+          <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Category Labels</h2>
+          <div className="space-y-6">
+            <div className="trading-card p-6">
+              <h3 className="text-base font-semibold text-foreground mb-2">Unified Category System</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                All event category labels use consistent colors defined in <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">src/lib/categoryUtils.ts</code>. 
+                Categories are determined by the event icon or name.
+              </p>
+
+              {/* Category Examples */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium text-muted-foreground">Available Categories</h4>
+                <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"}`}>
+                  {/* Social */}
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <Badge className={`${CATEGORY_STYLES.Social} border-0`}>Social</Badge>
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-foreground">Icons: 🐦</p>
+                      <p className="text-xs text-muted-foreground">Twitter, social media events</p>
+                      <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono block mt-2">
+                        bg-primary/20 text-primary
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* Crypto */}
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <Badge className={`${CATEGORY_STYLES.Crypto} border-0`}>Crypto</Badge>
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-foreground">Icons: ₿ ⟠</p>
+                      <p className="text-xs text-muted-foreground">Bitcoin, Ethereum, crypto prices</p>
+                      <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono block mt-2">
+                        bg-trading-yellow/20 text-trading-yellow
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* Finance */}
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <Badge className={`${CATEGORY_STYLES.Finance} border-0`}>Finance</Badge>
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-foreground">Icons: 🏦 📈</p>
+                      <p className="text-xs text-muted-foreground">Fed rates, stock indices</p>
+                      <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono block mt-2">
+                        bg-trading-green/20 text-trading-green
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* Market */}
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <Badge className={`${CATEGORY_STYLES.Market} border-0`}>Market</Badge>
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-foreground">Default</p>
+                      <p className="text-xs text-muted-foreground">Generic market events</p>
+                      <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono block mt-2">
+                        bg-muted text-foreground
+                      </code>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Usage Examples */}
+              <div className="mt-8 space-y-4">
+                <h4 className="text-sm font-medium text-muted-foreground">Usage Examples</h4>
+                <div className="space-y-3">
+                  <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
+                    <Badge className={`${getCategoryInfo("🐦").color} border-0`}>
+                      {getCategoryInfo("🐦").category}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">Elon Musk # tweets January 2026</span>
+                  </div>
+                  <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
+                    <Badge className={`${getCategoryInfo("₿").color} border-0`}>
+                      {getCategoryInfo("₿").category}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">Bitcoin price on January 31, 2026</span>
+                  </div>
+                  <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
+                    <Badge className={`${getCategoryInfo("🏦").color} border-0`}>
+                      {getCategoryInfo("🏦").category}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">Fed interest rate decision</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Code Example */}
+              <div className="mt-8 space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground">Code Usage</h4>
+                <div className="p-4 bg-background rounded-lg border border-border overflow-x-auto">
+                  <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap">
+{`import { getCategoryInfo, getCategoryFromName } from "@/lib/categoryUtils";
+
+// Using event icon
+const categoryInfo = getCategoryInfo(event.icon);
+<Badge className={\`\${categoryInfo.color} border-0\`}>
+  {categoryInfo.category}
+</Badge>
+
+// Using event name (fallback)
+const categoryInfo = getCategoryFromName(event.title);`}
+                  </pre>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
         )}
