@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X } from "lucide-react";
+import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -33,7 +33,14 @@ const mockLeaderboardData: LeaderboardUser[] = [
   { rank: 8, username: "BullRunner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=bull", pnl: 19870, roi: 87.3, volume: 590000, trades: 134 },
   { rank: 9, username: "SmartMoney", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=smart", pnl: 15690, roi: 76.5, volume: 480000, trades: 112 },
   { rank: 10, username: "TrendSurfer", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=trend", pnl: 12340, roi: 65.2, volume: 390000, trades: 89 },
+  // More users for demo
+  { rank: 11, username: "Hodler", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=hodler", pnl: 10200, roi: 58.3, volume: 320000, trades: 76 },
+  { rank: 12, username: "BlockBuster", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=block", pnl: 8900, roi: 52.1, volume: 280000, trades: 68 },
+  { rank: 42, username: "You", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser", pnl: 2340, roi: 23.5, volume: 45000, trades: 28 },
 ];
+
+// Current user ID (simulated - in real app this would come from auth)
+const CURRENT_USER_USERNAME = "You";
 
 const sortTabs: { key: SortType; label: string; icon: React.ElementType }[] = [
   { key: "pnl", label: "PnL", icon: DollarSign },
@@ -164,7 +171,13 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   );
 };
 
-const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sortType: SortType; index: number }) => {
+const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }: { 
+  user: LeaderboardUser; 
+  sortType: SortType; 
+  index: number;
+  isCurrentUser?: boolean;
+  onScrollToUser?: () => void;
+}) => {
   const getValue = () => {
     switch (sortType) {
       case "pnl":
@@ -178,7 +191,12 @@ const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sort
 
   return (
     <div 
-      className="flex items-center gap-3 p-3 bg-card/60 rounded-xl border border-border/30 hover:border-primary/30 hover:bg-card/80 transition-all duration-200 group animate-fade-in"
+      id={isCurrentUser ? "current-user-row" : undefined}
+      className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 group animate-fade-in ${
+        isCurrentUser 
+          ? "bg-primary/10 border-primary/50 ring-2 ring-primary/30 shadow-[0_0_20px_hsl(260_60%_55%/0.2)]" 
+          : "bg-card/60 border-border/30 hover:border-primary/30 hover:bg-card/80"
+      }`}
       style={{ animationDelay: `${index * 50}ms` }}
     >
       {/* Rank with laurel */}
@@ -186,19 +204,32 @@ const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sort
 
       {/* Avatar + Name */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <Avatar className="h-10 w-10 border border-border/50 group-hover:border-primary/30 transition-colors">
+        <Avatar className={`h-10 w-10 border transition-colors ${
+          isCurrentUser ? "border-primary/50" : "border-border/50 group-hover:border-primary/30"
+        }`}>
           <AvatarImage src={user.avatar} alt={user.username} />
           <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h4 className="font-medium text-foreground truncate">{user.username}</h4>
+          <div className="flex items-center gap-2">
+            <h4 className={`font-medium truncate ${isCurrentUser ? "text-primary" : "text-foreground"}`}>
+              {user.username}
+            </h4>
+            {isCurrentUser && (
+              <span className="px-2 py-0.5 text-[10px] font-bold bg-primary text-primary-foreground rounded-full">
+                YOU
+              </span>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground">{user.trades} trades</p>
         </div>
       </div>
 
       {/* Value */}
       <div className="text-right">
-        <div className="flex items-center justify-end gap-1 font-mono font-bold text-trading-green">
+        <div className={`flex items-center justify-end gap-1 font-mono font-bold ${
+          isCurrentUser ? "text-primary" : "text-trading-green"
+        }`}>
           <Zap className="w-3 h-3" />
           {getValue()}
         </div>
@@ -206,6 +237,67 @@ const LeaderboardRow = ({ user, sortType, index }: { user: LeaderboardUser; sort
           {sortType === "pnl" && `${user.roi.toFixed(1)}% ROI`}
           {sortType === "roi" && `$${user.pnl.toLocaleString()} PnL`}
           {sortType === "volume" && `${user.roi.toFixed(1)}% ROI`}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Fixed bottom "My Rank" component
+const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortType: SortType; onClick: () => void }) => {
+  const getValue = () => {
+    switch (sortType) {
+      case "pnl":
+        return `$${user.pnl.toLocaleString()}`;
+      case "roi":
+        return `${user.roi.toFixed(1)}%`;
+      case "volume":
+        return `$${user.volume.toLocaleString()}`;
+    }
+  };
+
+  return (
+    <div 
+      onClick={onClick}
+      className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-96 z-40 cursor-pointer"
+    >
+      <div className="bg-card/95 backdrop-blur-md border border-primary/40 rounded-2xl p-4 shadow-[0_0_30px_hsl(260_60%_55%/0.3)] transition-all duration-300 hover:scale-[1.02] hover:border-primary/60">
+        <div className="flex items-center gap-3">
+          {/* User icon */}
+          <div className="relative">
+            <div className="absolute -inset-1 bg-gradient-to-br from-primary to-primary/50 rounded-full blur-sm opacity-50" />
+            <Avatar className="relative h-12 w-12 border-2 border-primary/50">
+              <AvatarImage src={user.avatar} alt={user.username} />
+              <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
+            </Avatar>
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-medium text-muted-foreground">My Ranking</span>
+              <ChevronUp className="w-4 h-4 text-primary animate-bounce" />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 border border-primary/30">
+                  <span className="text-sm font-bold text-primary">#{user.rank}</span>
+                </div>
+                <span className="font-semibold text-foreground">{user.username}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Value */}
+          <div className="text-right">
+            <div className="flex items-center gap-1 font-mono font-bold text-primary text-lg">
+              <Zap className="w-4 h-4" />
+              {getValue()}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {user.roi.toFixed(1)}% ROI
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -502,6 +594,22 @@ export default function Leaderboard() {
 
   const topThree = sortedData.slice(0, 3);
   const restOfList = sortedData.slice(3);
+  
+  // Find current user
+  const currentUser = sortedData.find(user => user.username === CURRENT_USER_USERNAME);
+  const isCurrentUserInTopThree = currentUser && currentUser.rank <= 3;
+
+  const scrollToCurrentUser = () => {
+    const element = document.getElementById('current-user-row');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Add a flash effect
+      element.classList.add('ring-4', 'ring-primary');
+      setTimeout(() => {
+        element.classList.remove('ring-4', 'ring-primary');
+      }, 1500);
+    }
+  };
 
   const handleShareCard = async () => {
     if (!cardRef.current || isGenerating) return;
@@ -605,7 +713,13 @@ export default function Leaderboard() {
 
         <div className="space-y-2">
           {restOfList.map((user, index) => (
-            <LeaderboardRow key={user.rank} user={user} sortType={sortType} index={index} />
+            <LeaderboardRow 
+              key={user.rank} 
+              user={user} 
+              sortType={sortType} 
+              index={index}
+              isCurrentUser={user.username === CURRENT_USER_USERNAME}
+            />
           ))}
         </div>
 
@@ -641,6 +755,9 @@ export default function Leaderboard() {
     return (
       <>
         {content}
+        {currentUser && !isCurrentUserInTopThree && (
+          <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
+        )}
         <BottomNav />
       </>
     );
@@ -657,6 +774,9 @@ export default function Leaderboard() {
           </button>
         </div>
         {content}
+        {currentUser && !isCurrentUserInTopThree && (
+          <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
+        )}
       </div>
     </>
   );
