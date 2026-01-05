@@ -1039,15 +1039,16 @@ export default function Leaderboard() {
 
   return (
     <>
-      <EventsDesktopHeader 
-        rightContent={
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors">
-            <Share2 className="w-4 h-4" />
-            <span className="text-sm font-medium">Share Rankings</span>
-          </button>
-        }
-      />
-      <div className="max-w-7xl mx-auto">
+      <EventsDesktopHeader />
+      <div className="max-w-7xl mx-auto relative">
+        {/* Page-specific Share button - absolute positioned */}
+        <button 
+          onClick={handleShareCard}
+          className="absolute top-4 right-6 z-10 flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
+        >
+          <Share2 className="w-4 h-4" />
+          <span className="text-sm font-medium">Share Rankings</span>
+        </button>
         {content}
         {currentUser && !isCurrentUserInTopThree && (
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
