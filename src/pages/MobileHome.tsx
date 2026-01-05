@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Globe, Bell, ChevronRight, BarChart3, Clock, GraduationCap, Users } from "lucide-react";
+import { Globe, Bell, ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
@@ -174,7 +174,7 @@ const MobileHome = () => {
                         navigate(`/trade?event=${event.id}`);
                       }}
                     >
-                      <BarChart3 className="h-3.5 w-3.5" />
+                      <TrendingUp className="h-3.5 w-3.5" />
                       Trade
                     </Button>
                   </div>
@@ -240,7 +240,7 @@ const MobileHome = () => {
                         className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
                         onClick={() => navigate("/trade")}
                       >
-                        <BarChart3 className="h-3.5 w-3.5" />
+                        <TrendingUp className="h-3.5 w-3.5" />
                         Trade
                       </Button>
                     </div>
