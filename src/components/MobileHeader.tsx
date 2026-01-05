@@ -93,7 +93,7 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack = true, showAc
         {/* Left: Back button */}
         {showBack ? (
           <button
-            onClick={() => navigate("/events")}
+            onClick={() => navigate(-1)}
             className="w-9 h-9 rounded-full bg-muted/80 flex items-center justify-center transition-all duration-200 active:scale-95"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
