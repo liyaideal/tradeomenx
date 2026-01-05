@@ -37,67 +37,39 @@ export const BottomNav = () => {
                 onClick={() => !item.disabled && navigate(item.path, { replace: true })}
                 className="relative flex flex-col items-center -mt-6"
               >
-                {/* Outer glow ring */}
-                <div className="absolute w-20 h-20 -top-1 rounded-full bg-gradient-to-br from-red-500/30 via-orange-500/20 to-yellow-500/10 blur-xl animate-pulse" />
+                {/* Outer glow */}
+                <div className="absolute w-16 h-16 rounded-full bg-gradient-to-br from-red-500/20 via-orange-500/15 to-yellow-500/10 blur-xl animate-pulse" />
                 
                 {/* Hexagon container */}
                 <div className="relative">
-                  {/* Hexagon shape with gradient border */}
-                  <svg width="56" height="64" viewBox="0 0 56 64" className="drop-shadow-[0_0_12px_rgba(239,68,68,0.5)]">
-                    {/* Gradient definitions */}
+                  <svg width="56" height="64" viewBox="0 0 56 64" className="drop-shadow-[0_0_8px_rgba(239,68,68,0.4)]">
                     <defs>
-                      <linearGradient id="hexGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={active ? "#ef4444" : "#dc2626"} />
-                        <stop offset="50%" stopColor={active ? "#f97316" : "#ea580c"} />
-                        <stop offset="100%" stopColor={active ? "#eab308" : "#ca8a04"} />
-                      </linearGradient>
                       <linearGradient id="hexInner" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="#1a1a1a" />
                         <stop offset="100%" stopColor="#0a0a0a" />
                       </linearGradient>
-                      <filter id="innerGlow">
-                        <feGaussianBlur stdDeviation="2" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                      </filter>
                     </defs>
                     
-                    {/* Outer hexagon (border) */}
+                    {/* Inner hexagon only */}
                     <polygon 
-                      points="28,2 52,16 52,48 28,62 4,48 4,16" 
-                      fill="url(#hexGradient)"
-                      className={active ? "opacity-100" : "opacity-80"}
-                    />
-                    
-                    {/* Inner hexagon (background) */}
-                    <polygon 
-                      points="28,6 48,18 48,46 28,58 8,46 8,18" 
+                      points="28,4 50,17 50,47 28,60 6,47 6,17" 
                       fill="url(#hexInner)"
-                    />
-                    
-                    {/* Inner glow line */}
-                    <polygon 
-                      points="28,8 46,19 46,45 28,56 10,45 10,19" 
-                      fill="none"
-                      stroke={active ? "rgba(239,68,68,0.4)" : "rgba(239,68,68,0.2)"}
+                      stroke={active ? "rgba(239,68,68,0.3)" : "rgba(239,68,68,0.15)"}
                       strokeWidth="1"
                     />
                   </svg>
                   
-                  {/* Icon centered in hexagon */}
+                  {/* Icon */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Trophy className={`w-6 h-6 ${active ? "text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "text-red-500/80"}`} />
+                    <Trophy className={`w-6 h-6 ${active ? "text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "text-red-500/70"}`} />
                   </div>
-                  
-                  {/* Corner accents */}
-                  <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-400 rounded-full opacity-60" />
-                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-yellow-400 rounded-full opacity-60" />
                 </div>
                 
-                {/* Label with war-style font */}
+                {/* Label */}
                 <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
                   active 
                     ? "text-red-400 drop-shadow-[0_0_4px_rgba(239,68,68,0.6)]" 
-                    : "text-red-500/70"
+                    : "text-red-500/60"
                 }`}>
                   {item.label}
                 </span>
