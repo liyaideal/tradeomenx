@@ -13,6 +13,7 @@ interface MobileHeaderProps {
   subtitle?: string;
   endTime?: Date; // New prop for countdown
   showBack?: boolean; // Force show/hide back button
+  backTo?: string; // Custom back navigation path (default: navigate(-1))
   showActions?: boolean;
   tweetCount?: number;
   onTitleClick?: () => void; // Optional callback when title is clicked
@@ -52,7 +53,7 @@ const useCountdown = (endTime: Date | undefined) => {
   return timeLeft;
 };
 
-export const MobileHeader = ({ title, subtitle, endTime, showBack, showActions = false, tweetCount, onTitleClick }: MobileHeaderProps) => {
+export const MobileHeader = ({ title, subtitle, endTime, showBack, backTo, showActions = false, tweetCount, onTitleClick }: MobileHeaderProps) => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const countdown = useCountdown(endTime);
@@ -61,6 +62,14 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack, showActions =
   
   // Show back button: if explicitly set use that value, otherwise show only for PUSH navigation
   const shouldShowBack = showBack !== undefined ? showBack : navigationType === "PUSH";
+
+  const handleBack = () => {
+    if (backTo) {
+      navigate(backTo);
+    } else {
+      navigate(-1);
+    }
+  };
 
   const handleFavorite = () => {
     setIsFavorite(!isFavorite);
@@ -98,7 +107,7 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack, showActions =
         {/* Left: Back button */}
         {shouldShowBack ? (
           <button
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
             className="w-9 h-9 rounded-full bg-muted/80 flex items-center justify-center transition-all duration-200 active:scale-95"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
