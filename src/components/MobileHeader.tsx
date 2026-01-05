@@ -16,6 +16,12 @@ interface MobileHeaderProps {
   backTo?: string; // Custom back navigation path (default: navigate(-1))
   showActions?: boolean;
   tweetCount?: number;
+  // Price-based event data
+  currentPrice?: string;
+  priceChange24h?: string;
+  sourceUrl?: string;
+  sourceName?: string;
+  period?: string;
   onTitleClick?: () => void; // Optional callback when title is clicked
   isFavorite?: boolean; // External favorite state
   onFavoriteToggle?: () => void; // Callback to toggle favorite
@@ -63,6 +69,11 @@ export const MobileHeader = ({
   backTo, 
   showActions = false, 
   tweetCount, 
+  currentPrice,
+  priceChange24h,
+  sourceUrl,
+  sourceName,
+  period,
   onTitleClick,
   isFavorite = false,
   onFavoriteToggle,
@@ -139,7 +150,7 @@ export const MobileHeader = ({
             <h1 className="text-sm font-semibold text-foreground">{title}</h1>
             {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground" />}
           </div>
-          {(displayTime || tweetCount !== undefined) && (
+          {(displayTime || tweetCount !== undefined || currentPrice) && (
             <div className="flex items-center justify-center gap-4 mt-0.5">
               {displayTime && (
                 <div className="flex items-center gap-1.5">
@@ -169,22 +180,80 @@ export const MobileHeader = ({
                       <div className="text-xs text-muted-foreground space-y-1">
                         <div className="flex justify-between">
                           <span>Period</span>
-                          <span>Dec 12 - Dec 19, 2025</span>
+                          <span>{period || "N/A"}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Last updated</span>
                           <span>Just now</span>
                         </div>
                       </div>
-                      <a
-                        href="https://x.com/elonmusk"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-xs text-primary hover:underline"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        View on X (Twitter)
-                      </a>
+                      {sourceUrl && (
+                        <a
+                          href={sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          {sourceName || "View Source"}
+                        </a>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+              {currentPrice && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button 
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                    >
+                      <span className="w-1.5 h-1.5 bg-trading-green rounded-full animate-pulse" />
+                      <span className="text-xs text-muted-foreground">Price</span>
+                      <span className="text-xs text-trading-green font-mono font-medium">{currentPrice}</span>
+                      {priceChange24h && (
+                        <span className={`text-xs font-mono ${priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
+                          {priceChange24h}
+                        </span>
+                      )}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-3" align="center">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Current Price</span>
+                        <span className="text-lg font-bold text-trading-green">{currentPrice}</span>
+                      </div>
+                      {priceChange24h && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">24h Change</span>
+                          <span className={`text-sm font-medium ${priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
+                            {priceChange24h}
+                          </span>
+                        </div>
+                      )}
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div className="flex justify-between">
+                          <span>Period</span>
+                          <span>{period || "N/A"}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Last updated</span>
+                          <span>Just now</span>
+                        </div>
+                      </div>
+                      {sourceUrl && (
+                        <a
+                          href={sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          {sourceName || "View Source"}
+                        </a>
+                      )}
                     </div>
                   </PopoverContent>
                 </Popover>

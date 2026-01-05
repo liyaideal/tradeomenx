@@ -98,6 +98,11 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         showBack={true}
         backTo={backTo}
         tweetCount={selectedEvent.tweetCount}
+        currentPrice={selectedEvent.currentPrice}
+        priceChange24h={selectedEvent.priceChange24h}
+        sourceUrl={selectedEvent.sourceUrl}
+        sourceName={selectedEvent.sourceName}
+        period={selectedEvent.period}
         onTitleClick={() => setEventSheetOpen(true)}
         isFavorite={favorites.has(selectedEvent.id)}
         onFavoriteToggle={() => toggleFavorite(selectedEvent.id)}
