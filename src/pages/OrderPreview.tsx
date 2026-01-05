@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { MobileHeader } from "@/components/MobileHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
+import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 
 interface OrderDetail {
   label: string;
@@ -22,6 +23,7 @@ interface OrderCalculations {
 export default function OrderPreview() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { addOrder } = useOrdersStore();
   const orderData = location.state || {};
   const orderCalculations: OrderCalculations = orderData.orderCalculations || {
     notionalValue: "0.00",
@@ -34,10 +36,14 @@ export default function OrderPreview() {
   };
 
   const isBuy = orderData.side === "buy";
+  
+  // Get event and option from order data or use defaults
+  const eventName = orderData.event || "Elon Musk # tweets December 12 - December 19, 2025?";
+  const optionLabel = orderData.option || "200-219";
 
   const orderDetails: OrderDetail[] = [
-    { label: "Event", value: "Elon Musk # tweets December 12 - December 19, 2025?" },
-    { label: "Option", value: "200-219" },
+    { label: "Event", value: eventName },
+    { label: "Option", value: optionLabel },
     { label: "Side", value: isBuy ? "Buy | Long" : "Sell | Short", highlight: isBuy ? "green" : "red" },
     { label: "Margin type", value: orderData.marginType || "Cross" },
     { label: "Type", value: orderData.orderType || "Market" },
@@ -53,6 +59,19 @@ export default function OrderPreview() {
   const potentialWin = parseInt(orderCalculations.potentialWin) || 0;
 
   const handleConfirm = () => {
+    // Create new order and add to orders list
+    const newOrder: Order = {
+      type: isBuy ? "buy" : "sell",
+      orderType: (orderData.orderType as "Limit" | "Market") || "Market",
+      event: eventName,
+      option: optionLabel,
+      price: `$${orderData.price || "0.0000"}`,
+      amount: parseInt(orderCalculations.quantity).toLocaleString(),
+      total: `$${orderCalculations.total}`,
+      time: "Just now",
+      status: "Pending",
+    };
+    addOrder(newOrder);
     toast.success("Order placed successfully!");
     navigate("/trade");
   };

@@ -6,6 +6,7 @@ import { OptionChips } from "@/components/OptionChips";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
+import { useOrdersStore } from "@/stores/useOrdersStore";
 
 const options = [
   { id: "1", label: "140-159", price: "0.0534" },
@@ -31,33 +32,6 @@ const generateOrderBookData = (basePrice: number) => {
   
   return { asks, bids };
 };
-
-const mockOrders = [
-  {
-    type: "buy" as const,
-    orderType: "Limit" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "200-219",
-    probability: "35%",
-    price: "$0.3456",
-    amount: "1,500",
-    total: "$518",
-    time: "2 mins ago",
-    status: "Pending" as const,
-  },
-  {
-    type: "sell" as const,
-    orderType: "Limit" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "160-179",
-    probability: "12%",
-    price: "$0.1150",
-    amount: "2,300",
-    total: "$265",
-    time: "5 mins ago",
-    status: "Pending" as const,
-  },
-];
 
 const mockPositions = [
   {
@@ -88,6 +62,7 @@ const mockPositions = [
 
 export default function TradeOrder() {
   const navigate = useNavigate();
+  const { orders } = useOrdersStore();
   const [selectedOption, setSelectedOption] = useState("2");
   const [activeTab, setActiveTab] = useState("Trade");
   const [bottomTab, setBottomTab] = useState("Orders");
@@ -161,7 +136,11 @@ export default function TradeOrder() {
           </div>
 
           {/* Trade Form */}
-          <TradeForm selectedPrice={selectedOptionData.price} />
+          <TradeForm 
+            selectedPrice={selectedOptionData.price} 
+            eventName="Elon Musk # tweets December 12 - December 19, 2025?"
+            optionLabel={selectedOptionData.label}
+          />
         </div>
 
         {/* Right: Order Book */}
@@ -234,7 +213,7 @@ export default function TradeOrder() {
 
       {/* Orders/Positions Content */}
       <div className="px-4 py-3 space-y-3">
-        {bottomTab === "Orders" && mockOrders.map((order, index) => (
+        {bottomTab === "Orders" && orders.map((order, index) => (
           <OrderCard key={index} {...order} />
         ))}
         {bottomTab === "Positions" && mockPositions.map((position, index) => (

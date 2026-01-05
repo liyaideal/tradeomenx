@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle } from "lucide-react";
+import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import {
   Tooltip,
   TooltipContent,
@@ -109,78 +110,7 @@ const generateOrderBookData = (basePrice: number) => {
   return { asks, bids };
 };
 
-const mockOrders = [
-  {
-    type: "buy" as const,
-    orderType: "Limit" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "200-219",
-    price: "$0.3456",
-    amount: "1,500",
-    total: "$518",
-    time: "2 mins ago",
-    status: "Pending" as const,
-  },
-  {
-    type: "sell" as const,
-    orderType: "Limit" as const,
-    event: "Bitcoin price on January 1, 2026?",
-    option: "$95,000-$100,000",
-    price: "$0.2850",
-    amount: "800",
-    total: "$228",
-    time: "5 mins ago",
-    status: "Pending" as const,
-  },
-  {
-    type: "buy" as const,
-    orderType: "Limit" as const,
-    event: "Elon Musk # tweets December 12 - December 19, 2025?",
-    option: "220-239",
-    price: "$0.2834",
-    amount: "3,000",
-    filledAmount: "1,800",
-    remainingAmount: "1,200",
-    total: "$850",
-    time: "8 mins ago",
-    status: "Partial Filled" as const,
-  },
-  {
-    type: "buy" as const,
-    orderType: "Market" as const,
-    event: "Fed interest rate decision December 2025?",
-    option: "No Change",
-    price: "$0.6200",
-    amount: "500",
-    total: "$310",
-    time: "12 mins ago",
-    status: "Pending" as const,
-  },
-  {
-    type: "sell" as const,
-    orderType: "Limit" as const,
-    event: "Tesla Q4 2025 deliveries?",
-    option: "500k-550k",
-    price: "$0.4100",
-    amount: "1,200",
-    filledAmount: "600",
-    remainingAmount: "600",
-    total: "$492",
-    time: "15 mins ago",
-    status: "Partial Filled" as const,
-  },
-  {
-    type: "buy" as const,
-    orderType: "Limit" as const,
-    event: "S&P 500 year-end 2025?",
-    option: "6,000-6,200",
-    price: "$0.1850",
-    amount: "2,000",
-    total: "$370",
-    time: "20 mins ago",
-    status: "Pending" as const,
-  },
-];
+// mockOrders removed - now using useOrdersStore
 
 const initialPositions = [
   {
@@ -349,8 +279,8 @@ export default function DesktopTrading() {
     setClosingPositionIndex(null);
   };
   
-  // Cancel order dialog state
-  const [orders, setOrders] = useState(mockOrders);
+  // Cancel order dialog state - using zustand store
+  const { orders, addOrder, cancelOrder } = useOrdersStore();
   const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
   const [cancellingOrderIndex, setCancellingOrderIndex] = useState<number | null>(null);
   
@@ -362,7 +292,7 @@ export default function DesktopTrading() {
   const handleConfirmCancelOrder = () => {
     if (cancellingOrderIndex !== null) {
       const order = orders[cancellingOrderIndex];
-      setOrders(prev => prev.filter((_, idx) => idx !== cancellingOrderIndex));
+      cancelOrder(cancellingOrderIndex);
       toast.success("Order Cancelled", {
         description: `Your ${order.type} order for ${order.option} has been cancelled.`,
       });
@@ -553,7 +483,26 @@ export default function DesktopTrading() {
   };
 
   const handleConfirmOrder = () => {
+    // Create new order and add to orders list
+    const newOrder: Order = {
+      type: side,
+      orderType: orderType,
+      event: selectedEvent.name,
+      option: selectedOptionData.label,
+      price: `$${selectedOptionData.price}`,
+      amount: parseInt(orderCalculations.quantity).toLocaleString(),
+      total: `$${orderCalculations.total}`,
+      time: "Just now",
+      status: "Pending",
+    };
+    addOrder(newOrder);
     setOrderPreviewOpen(false);
+    // Reset form
+    setAmount("0.00");
+    setSliderValue([0]);
+    setTpValue("");
+    setSlValue("");
+    setTpsl(false);
     toast.success("Order placed successfully!");
   };
 

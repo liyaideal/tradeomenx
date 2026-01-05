@@ -7,10 +7,16 @@ import { toast } from "sonner";
 
 interface TradeFormProps {
   selectedPrice?: string;
+  eventName?: string;
+  optionLabel?: string;
 }
 
 
-export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
+export const TradeForm = ({ 
+  selectedPrice = "0.1234", 
+  eventName = "Elon Musk # tweets December 12 - December 19, 2025?",
+  optionLabel = "200-219"
+}: TradeFormProps) => {
   const navigate = useNavigate();
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [marginType, setMarginType] = useState("Cross");
@@ -128,6 +134,8 @@ export const TradeForm = ({ selectedPrice = "0.1234" }: TradeFormProps) => {
         orderType,
         amount,
         price: selectedPrice,
+        event: eventName,
+        option: optionLabel,
         orderCalculations,
         tpsl: tpsl ? {
           tp: tpValue ? { value: tpValue, mode: tpMode, price: tpslCalculations.tpPrice } : null,
