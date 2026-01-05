@@ -1,9 +1,10 @@
-import { Home, BarChart3, TrendingUp, User } from "lucide-react";
+import { Home, BarChart3, TrendingUp, Trophy, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
+  { icon: Trophy, label: "Ranks", path: "/leaderboard", disabled: false },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
   { icon: User, label: "Portfolio", path: "/portfolio", disabled: true },
 ];
