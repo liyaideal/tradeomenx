@@ -965,14 +965,16 @@ export default function Leaderboard() {
         <div className="relative z-10 px-4 pt-6">
           {/* Header */}
           {isMobile && (
-            <div className="flex items-center justify-end mb-4">
-              {/* Share button only on mobile header */}
+            <div className="flex items-center justify-between mb-4">
+              {/* Logo on the left */}
+              <img src={omenxLogo} alt="OMENX" className="h-5" />
+              {/* Share button - smaller on mobile */}
               <button 
                 onClick={handleShareCard}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
               >
-                <Share2 className="w-4 h-4" />
-                <span className="text-sm font-medium">Share</span>
+                <Share2 className="w-3.5 h-3.5" />
+                <span className="text-xs font-medium">Share</span>
               </button>
             </div>
           )}
