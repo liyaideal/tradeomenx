@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, DollarSign, BarChart3, Share2, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff, Crown } from "lucide-react";
+import { TrendingUp, DollarSign, BarChart3, Share2, ChevronLeft, Sparkles, Zap, Download, Send, X, User, Palette, Eye, EyeOff, Crown } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
-import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
+import { LaurelWreath } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import * as htmlToImage from "html-to-image";
 import omenxLogo from "@/assets/omenx-logo.svg";
@@ -58,16 +58,8 @@ const sortTabs: { key: SortType; label: string; icon: React.ElementType }[] = [
   { key: "volume", label: "Volume", icon: BarChart3 },
 ];
 
-// ============ DESKTOP TOP 3 COMPONENT ============
+// ============ DESKTOP TOP 3 - VERTICAL LAYOUT ============
 const DesktopTopThree = ({ users, sortType }: { users: LeaderboardUser[]; sortType: SortType }) => {
-  const getValue = (user: LeaderboardUser) => {
-    switch (sortType) {
-      case "pnl": return `$${user.pnl.toLocaleString()}`;
-      case "roi": return `${user.roi.toFixed(1)}%`;
-      case "volume": return `$${user.volume.toLocaleString()}`;
-    }
-  };
-
   const getAsset = (rank: number) => {
     switch (rank) {
       case 1: return desktopChampion;
@@ -77,66 +69,75 @@ const DesktopTopThree = ({ users, sortType }: { users: LeaderboardUser[]; sortTy
     }
   };
 
+  const getGlowColor = (rank: number) => {
+    switch (rank) {
+      case 1: return "shadow-[0_0_40px_rgba(255,215,0,0.5)]";
+      case 2: return "shadow-[0_0_35px_rgba(168,85,247,0.5)]";
+      case 3: return "shadow-[0_0_35px_rgba(205,127,50,0.5)]";
+      default: return "";
+    }
+  };
+
+  const getBorderColor = (rank: number) => {
+    switch (rank) {
+      case 1: return "border-yellow-400";
+      case 2: return "border-purple-400";
+      case 3: return "border-amber-600";
+      default: return "border-border";
+    }
+  };
+
   return (
-    <div className="flex justify-center items-end gap-4 mb-8">
-      {/* 2nd Place - Left */}
-      <div className="flex flex-col items-center order-1">
-        <div className="relative w-48 h-48 flex items-center justify-center">
-          <img src={getAsset(2)} alt="Runner Up" className="absolute inset-0 w-full h-full object-contain" />
-          <Avatar className="relative w-20 h-20 border-2 border-gray-400/50">
-            <AvatarImage src={users[1]?.avatar} alt={users[1]?.username} />
-            <AvatarFallback>{users[1]?.username?.slice(0, 2)}</AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="text-center mt-2">
-          <p className="font-semibold text-foreground text-sm">{users[1]?.username}</p>
-          <p className="font-mono font-bold text-gray-400 text-lg">{getValue(users[1])}</p>
-        </div>
-      </div>
+    <div className="space-y-6 mb-8 max-w-2xl mx-auto">
+      {users.map((user, index) => (
+        <div 
+          key={user.rank}
+          className="relative flex items-center gap-6 p-4"
+        >
+          {/* Medal/Badge on left */}
+          <div className="relative w-24 h-24 flex-shrink-0">
+            <img 
+              src={getAsset(user.rank)} 
+              alt={`Rank ${user.rank}`} 
+              className="w-full h-full object-contain"
+            />
+          </div>
 
-      {/* 1st Place - Center */}
-      <div className="flex flex-col items-center order-2">
-        <div className="relative w-64 h-64 flex items-center justify-center">
-          <img src={getAsset(1)} alt="Champion" className="absolute inset-0 w-full h-full object-contain" />
-          <Avatar className="relative w-24 h-24 border-2 border-yellow-500/50">
-            <AvatarImage src={users[0]?.avatar} alt={users[0]?.username} />
-            <AvatarFallback>{users[0]?.username?.slice(0, 2)}</AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="text-center mt-2">
-          <p className="font-semibold text-foreground">{users[0]?.username}</p>
-          <p className="font-mono font-bold text-yellow-400 text-xl">{getValue(users[0])}</p>
-        </div>
-      </div>
+          {/* Avatar with glow */}
+          <div className="relative flex-shrink-0">
+            {/* Sparkle decorations */}
+            <Sparkles className="absolute -top-2 -right-2 w-4 h-4 text-yellow-400/60 animate-pulse" />
+            <Sparkles className="absolute -bottom-1 -left-2 w-3 h-3 text-purple-400/50" />
+            
+            {/* Avatar */}
+            <div className={`relative ${getGlowColor(user.rank)} rounded-full`}>
+              <Avatar className={`w-20 h-20 border-3 ${getBorderColor(user.rank)}`}>
+                <AvatarImage src={user.avatar} alt={user.username} />
+                <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
+              </Avatar>
+            </div>
+          </div>
 
-      {/* 3rd Place - Right */}
-      <div className="flex flex-col items-center order-3">
-        <div className="relative w-44 h-44 flex items-center justify-center">
-          <img src={getAsset(3)} alt="Bronze" className="absolute inset-0 w-full h-full object-contain" />
-          <Avatar className="relative w-16 h-16 border-2 border-amber-600/50">
-            <AvatarImage src={users[2]?.avatar} alt={users[2]?.username} />
-            <AvatarFallback>{users[2]?.username?.slice(0, 2)}</AvatarFallback>
-          </Avatar>
+          {/* User info */}
+          <div className="flex-1">
+            <h3 className="font-bold text-xl text-foreground">{user.username}</h3>
+            <div className="flex items-center gap-4 mt-1">
+              <span className="text-trading-green font-mono font-bold text-xl">
+                +${user.pnl.toLocaleString()}.00 ↑
+              </span>
+              <span className="text-sm text-muted-foreground">
+                ROI: <span className="text-trading-green">+{user.roi.toFixed(1)}%</span>
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="text-center mt-2">
-          <p className="font-semibold text-foreground text-sm">{users[2]?.username}</p>
-          <p className="font-mono font-bold text-amber-600 text-lg">{getValue(users[2])}</p>
-        </div>
-      </div>
+      ))}
     </div>
   );
 };
 
-// ============ MOBILE TOP 3 COMPONENT ============
+// ============ MOBILE TOP 3 - HORIZONTAL LAYOUT ============
 const MobileTopThree = ({ users, sortType }: { users: LeaderboardUser[]; sortType: SortType }) => {
-  const getValue = (user: LeaderboardUser) => {
-    switch (sortType) {
-      case "pnl": return `$${user.pnl.toLocaleString()}`;
-      case "roi": return `${user.roi.toFixed(1)}%`;
-      case "volume": return `$${user.volume.toLocaleString()}`;
-    }
-  };
-
   const getMedal = (rank: number) => {
     switch (rank) {
       case 1: return medalGold;
@@ -148,16 +149,16 @@ const MobileTopThree = ({ users, sortType }: { users: LeaderboardUser[]; sortTyp
 
   const getGlowColor = (rank: number) => {
     switch (rank) {
-      case 1: return "shadow-[0_0_30px_rgba(255,215,0,0.5)]";
-      case 2: return "shadow-[0_0_25px_rgba(192,192,192,0.4)]";
-      case 3: return "shadow-[0_0_25px_rgba(205,127,50,0.4)]";
+      case 1: return "shadow-[0_0_30px_rgba(255,215,0,0.6)]";
+      case 2: return "shadow-[0_0_25px_rgba(192,192,192,0.5)]";
+      case 3: return "shadow-[0_0_25px_rgba(205,127,50,0.5)]";
       default: return "";
     }
   };
 
   const getBorderColor = (rank: number) => {
     switch (rank) {
-      case 1: return "border-yellow-500";
+      case 1: return "border-yellow-400";
       case 2: return "border-gray-400";
       case 3: return "border-amber-600";
       default: return "border-border";
@@ -173,74 +174,65 @@ const MobileTopThree = ({ users, sortType }: { users: LeaderboardUser[]; sortTyp
     }
   };
 
+  const first = users[0];
+  const second = users[1];
+  const third = users[2];
+
   return (
-    <div className="flex justify-center items-end gap-3 mb-6 px-2">
+    <div className="flex justify-center items-end gap-4 mb-8 px-4">
       {/* 2nd Place - Left */}
       <div className="flex flex-col items-center order-1">
-        <div className="relative mb-2">
-          <div className={`absolute inset-0 rounded-full blur-xl opacity-50 scale-150 bg-gray-400/20`} />
-          <div className={`relative ${getGlowColor(2)} rounded-full`}>
-            <Avatar className={`w-16 h-16 border-2 ${getBorderColor(2)}`}>
-              <AvatarImage src={users[1]?.avatar} alt={users[1]?.username} />
-              <AvatarFallback>{users[1]?.username?.slice(0, 2)}</AvatarFallback>
-            </Avatar>
-          </div>
-          <img 
-            src={getMedal(2)} 
-            alt="Silver" 
-            className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-8"
-          />
+        <div className={`relative ${getGlowColor(2)} rounded-full mb-2`}>
+          <Avatar className={`w-16 h-16 border-2 ${getBorderColor(2)}`}>
+            <AvatarImage src={second?.avatar} alt={second?.username} />
+            <AvatarFallback>{second?.username?.slice(0, 2)}</AvatarFallback>
+          </Avatar>
         </div>
-        <p className="font-medium text-foreground text-xs mt-3 truncate max-w-[80px]">{users[1]?.username}</p>
-        <p className={`font-mono font-bold text-sm ${getValueColor(2)}`}>{getValue(users[1])}</p>
+        <img src={getMedal(2)} alt="Silver" className="w-12 h-12 -mt-2" />
+        <p className="font-medium text-foreground text-sm mt-2">{second?.username}</p>
+        <p className={`font-mono font-bold ${getValueColor(2)}`}>
+          ${second?.pnl.toLocaleString()}
+        </p>
       </div>
 
       {/* 1st Place - Center */}
-      <div className="flex flex-col items-center order-2 -mt-4">
-        <Crown className="w-8 h-8 text-yellow-400 fill-yellow-400 mb-1 drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]" />
-        <div className="relative mb-2">
-          <div className={`absolute inset-0 rounded-full blur-xl opacity-60 scale-150 bg-yellow-400/30`} />
-          <div className={`relative ${getGlowColor(1)} rounded-full`}>
-            <Avatar className={`w-20 h-20 border-2 ${getBorderColor(1)}`}>
-              <AvatarImage src={users[0]?.avatar} alt={users[0]?.username} />
-              <AvatarFallback>{users[0]?.username?.slice(0, 2)}</AvatarFallback>
-            </Avatar>
-          </div>
-          <img 
-            src={getMedal(1)} 
-            alt="Gold" 
-            className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-10 h-10"
-          />
+      <div className="flex flex-col items-center order-2 -mt-6">
+        {/* Crown */}
+        <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 mb-2 drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]" />
+        
+        <div className={`relative ${getGlowColor(1)} rounded-full mb-2`}>
+          <Avatar className={`w-20 h-20 border-3 ${getBorderColor(1)}`}>
+            <AvatarImage src={first?.avatar} alt={first?.username} />
+            <AvatarFallback>{first?.username?.slice(0, 2)}</AvatarFallback>
+          </Avatar>
         </div>
-        <p className="font-semibold text-foreground text-sm mt-3 truncate max-w-[90px]">{users[0]?.username}</p>
-        <p className={`font-mono font-bold text-lg ${getValueColor(1)}`}>{getValue(users[0])}</p>
+        <img src={getMedal(1)} alt="Gold" className="w-14 h-14 -mt-3" />
+        <p className="font-semibold text-foreground mt-2">{first?.username}</p>
+        <p className={`font-mono font-bold text-xl ${getValueColor(1)}`}>
+          ${first?.pnl.toLocaleString()}
+        </p>
       </div>
 
       {/* 3rd Place - Right */}
       <div className="flex flex-col items-center order-3">
-        <div className="relative mb-2">
-          <div className={`absolute inset-0 rounded-full blur-xl opacity-50 scale-150 bg-amber-600/20`} />
-          <div className={`relative ${getGlowColor(3)} rounded-full`}>
-            <Avatar className={`w-14 h-14 border-2 ${getBorderColor(3)}`}>
-              <AvatarImage src={users[2]?.avatar} alt={users[2]?.username} />
-              <AvatarFallback>{users[2]?.username?.slice(0, 2)}</AvatarFallback>
-            </Avatar>
-          </div>
-          <img 
-            src={getMedal(3)} 
-            alt="Bronze" 
-            className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-7 h-7"
-          />
+        <div className={`relative ${getGlowColor(3)} rounded-full mb-2`}>
+          <Avatar className={`w-14 h-14 border-2 ${getBorderColor(3)}`}>
+            <AvatarImage src={third?.avatar} alt={third?.username} />
+            <AvatarFallback>{third?.username?.slice(0, 2)}</AvatarFallback>
+          </Avatar>
         </div>
-        <p className="font-medium text-foreground text-xs mt-3 truncate max-w-[70px]">{users[2]?.username}</p>
-        <p className={`font-mono font-bold text-sm ${getValueColor(3)}`}>{getValue(users[2])}</p>
+        <img src={getMedal(3)} alt="Bronze" className="w-11 h-11 -mt-2" />
+        <p className="font-medium text-foreground text-sm mt-2">{third?.username}</p>
+        <p className={`font-mono font-bold ${getValueColor(3)}`}>
+          ${third?.pnl.toLocaleString()}
+        </p>
       </div>
     </div>
   );
 };
 
-// ============ LEADERBOARD ROW COMPONENT ============
-const LeaderboardRow = ({ 
+// ============ MOBILE LEADERBOARD ROW ============
+const MobileLeaderboardRow = ({ 
   user, 
   sortType, 
   index,
@@ -251,117 +243,134 @@ const LeaderboardRow = ({
   index: number;
   isCurrentUser?: boolean;
 }) => {
-  const getValue = () => {
-    switch (sortType) {
-      case "pnl": return `$${user.pnl.toLocaleString()}`;
-      case "roi": return `${user.roi.toFixed(1)}%`;
-      case "volume": return `$${user.volume.toLocaleString()}`;
-    }
-  };
-
   return (
     <div 
       id={isCurrentUser ? "current-user-row" : undefined}
-      className={`relative flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200 group animate-fade-in overflow-hidden ${
+      className={`flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200 animate-fade-in ${
         isCurrentUser 
-          ? "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-primary/50 ring-1 ring-primary/30" 
-          : "bg-gradient-to-r from-card/80 via-card/60 to-transparent border-border/30 hover:border-primary/30"
+          ? "bg-primary/15 border-primary/50" 
+          : "bg-card/60 border-border/30"
       }`}
       style={{ animationDelay: `${index * 50}ms` }}
     >
-      {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-      
-      {/* Rank */}
-      <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-muted/50 border border-border/50">
+      {/* Rank number */}
+      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/80 border border-border/50">
         <span className="font-bold text-foreground">{user.rank}</span>
       </div>
 
-      {/* Avatar + Name */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <Avatar className={`h-10 w-10 border ${isCurrentUser ? "border-primary/50" : "border-border/50"}`}>
-          <AvatarImage src={user.avatar} alt={user.username} />
-          <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-        </Avatar>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <h4 className={`font-medium truncate ${isCurrentUser ? "text-primary" : "text-foreground"}`}>
-              {user.username}
-            </h4>
-            {isCurrentUser && (
-              <span className="px-2 py-0.5 text-[10px] font-bold bg-primary text-primary-foreground rounded-full">
-                YOU
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground">{user.trades} trades</p>
-        </div>
+      {/* Avatar */}
+      <Avatar className="h-12 w-12 border border-border/50">
+        <AvatarImage src={user.avatar} alt={user.username} />
+        <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
+      </Avatar>
+
+      {/* Name & trades */}
+      <div className="flex-1 min-w-0">
+        <h4 className={`font-semibold ${isCurrentUser ? "text-primary" : "text-foreground"}`}>
+          {user.username}
+        </h4>
+        <p className="text-xs text-muted-foreground">{user.trades} trades</p>
       </div>
 
       {/* Value */}
       <div className="text-right">
-        <div className={`font-mono font-bold ${isCurrentUser ? "text-primary" : "text-trading-green"}`}>
-          {getValue()}
+        <div className="font-mono font-bold text-trading-green text-lg">
+          ${user.pnl.toLocaleString()}
         </div>
         <div className="text-xs text-muted-foreground">
-          {sortType === "pnl" && `${user.roi.toFixed(1)}% ROI`}
-          {sortType === "roi" && `$${user.pnl.toLocaleString()} PnL`}
-          {sortType === "volume" && `${user.roi.toFixed(1)}% ROI`}
+          {user.roi.toFixed(1)}% ROI
         </div>
       </div>
     </div>
   );
 };
 
-// ============ MY RANK BAR COMPONENT ============
-const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortType: SortType; onClick: () => void }) => {
-  const getValue = () => {
-    switch (sortType) {
-      case "pnl": return `$${user.pnl.toLocaleString()}`;
-      case "roi": return `${user.roi.toFixed(1)}%`;
-      case "volume": return `$${user.volume.toLocaleString()}`;
-    }
-  };
+// ============ DESKTOP LEADERBOARD ROW ============
+const DesktopLeaderboardRow = ({ 
+  user, 
+  sortType, 
+  index,
+  isCurrentUser 
+}: { 
+  user: LeaderboardUser; 
+  sortType: SortType; 
+  index: number;
+  isCurrentUser?: boolean;
+}) => {
+  return (
+    <div 
+      id={isCurrentUser ? "current-user-row" : undefined}
+      className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 animate-fade-in ${
+        isCurrentUser 
+          ? "bg-gradient-to-r from-primary/20 via-primary/10 to-primary/5 border-primary/50" 
+          : "bg-gradient-to-r from-purple-900/30 via-purple-900/20 to-transparent border-purple-500/30"
+      }`}
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      {/* Rank number */}
+      <div className="flex items-center justify-center w-10 h-10">
+        <span className="font-bold text-2xl text-foreground">{user.rank}</span>
+      </div>
 
+      {/* Avatar */}
+      <Avatar className="h-12 w-12 border-2 border-purple-400/50">
+        <AvatarImage src={user.avatar} alt={user.username} />
+        <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
+      </Avatar>
+
+      {/* Name */}
+      <div className="flex-1 min-w-0">
+        <h4 className="font-semibold text-foreground text-lg">{user.username}</h4>
+      </div>
+
+      {/* Stats */}
+      <div className="flex items-center gap-6">
+        <div className="text-right">
+          <div className="text-xs text-muted-foreground mb-0.5">PnL:</div>
+          <div className="font-mono font-bold text-trading-green">
+            +${user.pnl.toLocaleString()} ↗
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-xs text-muted-foreground mb-0.5">ROI:</div>
+          <div className="font-mono font-bold text-trading-green">
+            +{user.roi.toFixed(1)}% ↗
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-xs text-muted-foreground mb-0.5">ᵈˡ Vol:</div>
+          <div className="font-mono font-bold text-foreground">
+            ${(user.volume / 1000000).toFixed(1)}M
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============ MY RANK BAR ============
+const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortType: SortType; onClick: () => void }) => {
   return (
     <div 
       onClick={onClick}
       className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-96 z-40 cursor-pointer"
     >
-      <div className="relative bg-gradient-to-r from-card/95 via-card/90 to-primary/10 backdrop-blur-md border border-primary/40 rounded-2xl p-4 shadow-[0_0_30px_hsl(260_60%_55%/0.3)] transition-all duration-300 hover:scale-[1.02] hover:border-primary/60 overflow-hidden">
-        {/* Background shimmer */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent shimmer" />
-        
-        <div className="relative flex items-center gap-3">
-          {/* User icon */}
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-br from-primary to-primary/50 rounded-full blur-sm opacity-50" />
-            <Avatar className="relative h-12 w-12 border-2 border-primary/50">
-              <AvatarImage src={user.avatar} alt={user.username} />
-              <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
-            </Avatar>
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-medium text-muted-foreground">My Ranking</span>
-              <ChevronUp className="w-4 h-4 text-primary animate-bounce" />
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 border border-primary/30">
-                  <span className="text-sm font-bold text-primary">#{user.rank}</span>
-                </div>
-                <span className="font-semibold text-foreground">{user.username}</span>
-              </div>
+      <div className="bg-card/95 backdrop-blur-md border border-primary/40 rounded-2xl p-4 shadow-[0_0_30px_hsl(260_60%_55%/0.3)]">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-12 w-12 border-2 border-primary/50">
+            <AvatarImage src={user.avatar} alt={user.username} />
+            <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <span className="text-xs text-muted-foreground">My Ranking</span>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-primary">#{user.rank}</span>
+              <span className="font-semibold text-foreground">{user.username}</span>
             </div>
           </div>
-
-          {/* Value */}
           <div className="text-right">
             <div className="font-mono font-bold text-primary text-lg">
-              {getValue()}
+              ${user.pnl.toLocaleString()}
             </div>
             <div className="text-xs text-muted-foreground">
               {user.roi.toFixed(1)}% ROI
@@ -373,7 +382,7 @@ const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortTyp
   );
 };
 
-// ============ SHARE MODAL & CARD COMPONENTS (PRESERVED FROM ORIGINAL) ============
+// ============ SHARE COMPONENTS (PRESERVED) ============
 const getRankColors = (rank: number) => {
   switch (rank) {
     case 1:
@@ -777,20 +786,6 @@ const ShareModal = ({
     toast({ title: "Image saved!", description: "Ranking card saved to your device" });
   };
 
-  const handleCopyImage = async () => {
-    if (!imageBlob) return;
-    try {
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': imageBlob })
-      ]);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast({ title: "Copied!", description: "Image copied to clipboard" });
-    } catch {
-      toast({ title: "Copy failed", description: "Please download the image instead", variant: "destructive" });
-    }
-  };
-
   const handleShareX = () => {
     const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     window.open(xUrl, '_blank');
@@ -918,7 +913,6 @@ export default function Leaderboard() {
   const { toast } = useToast();
   const [sortType, setSortType] = useState<SortType>("pnl");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [cardTheme, setCardTheme] = useState<CardTheme>("default");
   const [visibleStats, setVisibleStats] = useState<StatKey[]>(["pnl", "roi", "volume"]);
@@ -951,7 +945,6 @@ export default function Leaderboard() {
 
   const handleShareCard = async () => {
     if (!cardRef.current || isGenerating) return;
-
     setIsGenerating(true);
     try {
       const blob = await htmlToImage.toBlob(cardRef.current, {
@@ -959,110 +952,110 @@ export default function Leaderboard() {
         pixelRatio: 2,
         backgroundColor: '#0a0c14',
       });
-
       if (blob) {
-        setShareImageBlob(blob);
         setIsShareModalOpen(true);
-      } else {
-        toast({ title: "Failed to generate image", variant: "destructive" });
       }
     } catch (error) {
       console.error('Error generating image:', error);
-      toast({ title: "Failed to generate image", description: "Please try again", variant: "destructive" });
+      toast({ title: "Failed to generate image", variant: "destructive" });
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const content = (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background grid pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30" />
+  return (
+    <>
+      {!isMobile && <EventsDesktopHeader />}
       
-      {/* Background glow effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-primary/20 via-primary/10 to-transparent rounded-full blur-[100px]" />
-      <div className="absolute top-40 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl" />
-      <div className="absolute top-60 left-0 w-48 h-48 bg-trading-green/10 rounded-full blur-3xl" />
-      
-      <div className="relative z-10">
-        {/* Header */}
-        {isMobile && (
-          <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-              <ChevronLeft className="w-6 h-6 text-foreground" />
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors">
-              <Share2 className="w-4 h-4" />
-              <span className="text-sm font-medium">Share</span>
-            </button>
-          </div>
-        )}
+      <div className="min-h-screen bg-background">
+        {/* Background gradient */}
+        <div className="fixed inset-0 bg-gradient-to-b from-purple-950/30 via-background to-background pointer-events-none" />
+        
+        <div className="relative z-10 max-w-4xl mx-auto px-4 pb-32">
+          {/* Mobile Header */}
+          {isMobile && (
+            <div className="flex items-center justify-between pt-4 pb-2">
+              <button onClick={() => navigate(-1)} className="p-2 -ml-2">
+                <ChevronLeft className="w-6 h-6 text-foreground" />
+              </button>
+              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30">
+                <Share2 className="w-4 h-4" />
+                <span className="text-sm font-medium">Share</span>
+              </button>
+            </div>
+          )}
 
-        {/* Neon Title */}
-        <div className="text-center pt-4 pb-6">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-wider">
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]">
+          {/* Title */}
+          <div className="text-center pt-4 pb-2">
+            <h1 className="text-4xl md:text-5xl font-bold italic bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
               LEADERBOARD
-            </span>
-          </h1>
-          <div className="mt-2 h-1 w-48 md:w-64 mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-        </div>
+            </h1>
+            {!isMobile && (
+              <p className="text-muted-foreground mt-2">Top Traders This Week</p>
+            )}
+          </div>
 
-        {/* Sort Tabs */}
-        <div className="flex justify-center gap-2 mb-6 px-4">
-          {sortTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setSortType(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                sortType === tab.key
-                  ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(260_60%_55%/0.4)]"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/30"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+          {/* Sort Tabs */}
+          <div className="flex justify-center gap-2 my-6">
+            {sortTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setSortType(tab.key)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                  sortType === tab.key
+                    ? "bg-trading-green text-primary-foreground"
+                    : "bg-transparent text-muted-foreground border border-border/50 hover:text-foreground"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-        {/* Top 3 Section */}
-        <div className="px-4 mb-6">
+          {/* Top 3 Section */}
           {isMobile ? (
             <MobileTopThree users={topThree} sortType={sortType} />
           ) : (
             <DesktopTopThree users={topThree} sortType={sortType} />
           )}
-        </div>
 
-        {/* Divider */}
-        <div className="flex items-center justify-center gap-2 mb-4 px-4">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-          <span className="text-xs font-semibold text-primary/80 px-3 uppercase tracking-wider">Top Ranking</span>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-primary/40 to-transparent" />
-        </div>
+          {/* Divider */}
+          <div className="flex items-center justify-center gap-4 my-6">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/30" />
+            <span className="text-sm font-semibold text-primary tracking-wider uppercase">Top Ranking</span>
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/30" />
+          </div>
 
-        {/* Leaderboard List */}
-        <div className="px-4 pb-24 md:pb-8 max-w-2xl mx-auto">
+          {/* Leaderboard List */}
           <div className="space-y-3">
             {restOfList.map((user, index) => (
-              <LeaderboardRow 
-                key={user.rank} 
-                user={user} 
-                sortType={sortType} 
-                index={index}
-                isCurrentUser={user.username === CURRENT_USER_USERNAME}
-              />
+              isMobile ? (
+                <MobileLeaderboardRow 
+                  key={user.rank} 
+                  user={user} 
+                  sortType={sortType} 
+                  index={index}
+                  isCurrentUser={user.username === CURRENT_USER_USERNAME}
+                />
+              ) : (
+                <DesktopLeaderboardRow 
+                  key={user.rank} 
+                  user={user} 
+                  sortType={sortType} 
+                  index={index}
+                  isCurrentUser={user.username === CURRENT_USER_USERNAME}
+                />
+              )
             ))}
           </div>
 
-          {/* Shareable Card Section */}
+          {/* Share Card Section */}
           <div className="mt-10">
             <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <Share2 className="w-5 h-5 text-primary" />
               Share Your Rank
             </h3>
-            
             <ShareableCard 
               user={currentUser || topThree[0]} 
               cardRef={cardRef}
@@ -1071,13 +1064,7 @@ export default function Leaderboard() {
               theme={cardTheme}
               visibleStats={visibleStats}
             />
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              Tap to customize and share your ranking card
-            </p>
           </div>
-          
-          {/* Spacer for fixed elements */}
-          <div className="h-32 md:h-24" />
         </div>
       </div>
 
@@ -1092,36 +1079,14 @@ export default function Leaderboard() {
         visibleStats={visibleStats}
         onStatsChange={setVisibleStats}
       />
-    </div>
-  );
 
-  if (isMobile) {
-    return (
-      <>
-        {content}
-        {currentUser && !isCurrentUserInTopThree && (
-          <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
-        )}
-        <BottomNav />
-      </>
-    );
-  }
+      {/* My Rank Bar */}
+      {currentUser && !isCurrentUserInTopThree && (
+        <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
+      )}
 
-  return (
-    <>
-      <EventsDesktopHeader />
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-end px-6 py-4">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors">
-            <Share2 className="w-4 h-4" />
-            <span className="text-sm font-medium">Share Rankings</span>
-          </button>
-        </div>
-        {content}
-        {currentUser && !isCurrentUserInTopThree && (
-          <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
-        )}
-      </div>
+      {/* Bottom Nav (Mobile) */}
+      {isMobile && <BottomNav />}
     </>
   );
 }
