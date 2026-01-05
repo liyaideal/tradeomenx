@@ -1,10 +1,19 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Clock, Lock, TrendingUp, Zap, Users, BarChart3 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useOrdersStore, Order } from "@/stores/useOrdersStore";
+import { toast } from "sonner";
 
 export type EventStatus = "active" | "locked" | "resolved";
 
@@ -167,19 +176,80 @@ const MiniChart = ({
 };
 
 export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { addOrder } = useOrdersStore();
   const [selectedOption, setSelectedOption] = useState<string | null>(null); // Default to null (show all)
   const [tradeSide, setTradeSide] = useState<"long" | "short">("long");
   const [leverage, setLeverage] = useState<number>(5);
   const [quantity, setQuantity] = useState<string>("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const selectedOptionData = event.options.find(o => o.id === selectedOption);
   const isLocked = event.status === "locked";
 
+  // Calculate order details for confirmation
+  const orderDetails = useMemo(() => {
+    if (!selectedOptionData || !quantity) return null;
+    const price = parseFloat(selectedOptionData.price);
+    const qty = parseFloat(quantity);
+    const notionalValue = (price * qty).toFixed(2);
+    const marginRequired = (price * qty / leverage).toFixed(2);
+    const estimatedFee = (price * qty * 0.001).toFixed(2);
+    const total = (parseFloat(marginRequired) + parseFloat(estimatedFee)).toFixed(2);
+    const potentialWin = (qty * (1 - price)).toFixed(0);
+    const liqPrice = tradeSide === "long" 
+      ? (price * (1 - 1/leverage)).toFixed(4)
+      : (price * (1 + 1/leverage)).toFixed(4);
+    
+    return {
+      notionalValue,
+      marginRequired,
+      estimatedFee,
+      total,
+      quantity: qty.toLocaleString(),
+      potentialWin,
+      liqPrice,
+    };
+  }, [selectedOptionData, quantity, leverage, tradeSide]);
+
   const handleTrade = () => {
-    if (selectedOption && quantity && onTrade) {
-      onTrade(event.id, selectedOption, tradeSide, parseFloat(quantity));
+    if (selectedOption && quantity) {
+      setShowConfirmDialog(true);
     }
+  };
+
+  const handleConfirmOrder = () => {
+    if (!selectedOptionData || !orderDetails) return;
+
+    const newOrder: Order = {
+      type: tradeSide === "long" ? "buy" : "sell",
+      orderType: "Market",
+      event: event.title,
+      option: selectedOptionData.label,
+      price: `$${selectedOptionData.price}`,
+      amount: orderDetails.quantity,
+      total: `$${orderDetails.total}`,
+      time: "Just now",
+      status: "Pending",
+    };
+    
+    addOrder(newOrder);
+    setShowConfirmDialog(false);
+    toast.success("Order placed successfully!");
+    
+    // Navigate to trade page
+    navigate("/trade");
+    
+    // Also call the original onTrade callback if provided
+    if (onTrade) {
+      onTrade(event.id, selectedOption!, tradeSide, parseFloat(quantity));
+    }
+  };
+
+  // Navigate to trade page when clicking card (except interactive areas)
+  const handleCardClick = () => {
+    navigate("/trade");
   };
 
   // Generate mock price history for options if not provided
@@ -190,10 +260,11 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
   }));
 
   return (
-    <Card 
-      className="trading-card overflow-hidden cursor-pointer transition-all hover:border-border/80"
-      onClick={() => onEventClick?.(event.id)}
-    >
+    <>
+      <Card 
+        className="trading-card overflow-hidden cursor-pointer transition-all hover:border-border/80"
+        onClick={handleCardClick}
+      >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-medium text-foreground leading-snug">{event.title}</h3>
@@ -376,5 +447,80 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
         )}
       </CardContent>
     </Card>
+
+    {/* Order Confirmation Dialog */}
+    <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Order Preview</DialogTitle>
+        </DialogHeader>
+        
+        {orderDetails && selectedOptionData && (
+          <div className="space-y-4">
+            <div className="trading-card p-4 space-y-3">
+              <div className="flex justify-between py-2 border-b border-border/20">
+                <span className="text-muted-foreground text-sm">Event</span>
+                <span className="text-sm text-right max-w-[200px] truncate">{event.title}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-border/20">
+                <span className="text-muted-foreground text-sm">Option</span>
+                <span className="text-sm">{selectedOptionData.label}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-border/20">
+                <span className="text-muted-foreground text-sm">Side</span>
+                <span className={`text-sm font-medium ${tradeSide === "long" ? "text-trading-green" : "text-trading-red"}`}>
+                  {tradeSide === "long" ? "Buy | Long" : "Sell | Short"}
+                </span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-border/20">
+                <span className="text-muted-foreground text-sm">Order Price</span>
+                <span className="text-sm font-mono">{selectedOptionData.price} USDC</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-border/20">
+                <span className="text-muted-foreground text-sm">Quantity</span>
+                <span className="text-sm font-mono">{orderDetails.quantity}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-border/20">
+                <span className="text-muted-foreground text-sm">Leverage</span>
+                <span className="text-sm font-mono">{leverage}x</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-border/20">
+                <span className="text-muted-foreground text-sm">Margin Required</span>
+                <span className="text-sm font-mono">{orderDetails.marginRequired} USDC</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-border/20">
+                <span className="text-muted-foreground text-sm">Est. Liq. Price</span>
+                <span className="text-sm font-mono">{orderDetails.liqPrice} USDC</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-muted-foreground text-sm">Est. Fee</span>
+                <span className="text-sm font-mono">{orderDetails.estimatedFee} USDC</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className={`flex-1 ${
+                  tradeSide === "long" 
+                    ? "bg-trading-green hover:bg-trading-green/90" 
+                    : "bg-trading-red hover:bg-trading-red/90"
+                }`}
+                onClick={handleConfirmOrder}
+              >
+                {tradeSide === "long" ? "Buy Long" : "Sell Short"} - Win ${orderDetails.potentialWin}
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
