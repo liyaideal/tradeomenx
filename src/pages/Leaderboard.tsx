@@ -1012,46 +1012,22 @@ export default function Leaderboard() {
             </div>
           </div>
 
-          {/* Sort Tabs + Period Dropdown */}
-          <div className="flex justify-center items-center gap-3 mb-4">
-            {/* Sort Tabs */}
-            <div className="flex gap-2">
-              {sortTabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setSortType(tab.key)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                    sortType === tab.key
-                      ? "bg-primary text-primary-foreground shadow-[0_0_15px_hsl(260_60%_55%/0.3)]"
-                      : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20"
-                  }`}
-                >
-                  <tab.icon className="w-3.5 h-3.5" />
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Period Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20 transition-all duration-200">
-                  {periodTabs.find(t => t.key === period)?.label}
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-card border-border">
-                {periodTabs.map((tab) => (
-                  <DropdownMenuItem
-                    key={tab.key}
-                    onClick={() => setPeriod(tab.key)}
-                    className={`text-xs cursor-pointer ${period === tab.key ? "text-primary" : ""}`}
-                  >
-                    {tab.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {/* Sort Tabs */}
+          <div className="flex justify-center gap-2 mb-4">
+            {sortTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setSortType(tab.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                  sortType === tab.key
+                    ? "bg-primary text-primary-foreground shadow-[0_0_15px_hsl(260_60%_55%/0.3)]"
+                    : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20"
+                }`}
+              >
+                <tab.icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Top 3 Podium - integrated with page flow */}
@@ -1167,14 +1143,38 @@ export default function Leaderboard() {
     <>
       <EventsDesktopHeader />
       <div className="max-w-7xl mx-auto relative">
-        {/* Page-specific Share button - absolute positioned */}
-        <button 
-          onClick={handleShareCard}
-          className="absolute top-4 right-6 z-10 flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
-        >
-          <Share2 className="w-4 h-4" />
-          <span className="text-sm font-medium">Share Rankings</span>
-        </button>
+        {/* Page-specific controls - absolute positioned */}
+        <div className="absolute top-4 right-6 z-10 flex items-center gap-2">
+          {/* Period Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/30 transition-all duration-200">
+                {periodTabs.find(t => t.key === period)?.label}
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-card border-border">
+              {periodTabs.map((tab) => (
+                <DropdownMenuItem
+                  key={tab.key}
+                  onClick={() => setPeriod(tab.key)}
+                  className={`text-sm cursor-pointer ${period === tab.key ? "text-primary" : ""}`}
+                >
+                  {tab.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Share button */}
+          <button 
+            onClick={handleShareCard}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            <span className="text-sm font-medium">Share</span>
+          </button>
+        </div>
         {content}
         {currentUser && !isCurrentUserInTopThree && (
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
