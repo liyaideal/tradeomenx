@@ -95,31 +95,25 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   const isSecond = user.rank === 2;
   const isThird = user.rank === 3;
   
-  // Colors for each rank
+  // Styles for each rank
   const rankStyles = {
     1: {
-      border: "border-yellow-400",
-      glow: "shadow-[0_0_20px_rgba(250,204,21,0.4)]",
-      badgeBg: "bg-yellow-400",
-      badgeText: "text-yellow-950",
-      podiumBg: "bg-gradient-to-b from-yellow-400/80 to-yellow-600/60",
-      valueColor: "text-yellow-400",
+      cardBg: "bg-gradient-to-b from-yellow-600/90 via-yellow-700/80 to-yellow-900/70",
+      laurelColor: "#FFD700",
+      cardHeight: "h-52",
+      avatarSize: "h-28 w-28",
     },
     2: {
-      border: "border-slate-400",
-      glow: "shadow-[0_0_15px_rgba(148,163,184,0.3)]",
-      badgeBg: "bg-slate-400",
-      badgeText: "text-slate-900",
-      podiumBg: "bg-gradient-to-b from-slate-400/60 to-slate-500/40",
-      valueColor: "text-slate-300",
+      cardBg: "bg-gradient-to-b from-slate-500/80 via-slate-600/70 to-slate-800/60",
+      laurelColor: "#C0C0C0",
+      cardHeight: "h-44",
+      avatarSize: "h-24 w-24",
     },
     3: {
-      border: "border-amber-600",
-      glow: "shadow-[0_0_15px_rgba(217,119,6,0.3)]",
-      badgeBg: "bg-amber-600",
-      badgeText: "text-amber-950",
-      podiumBg: "bg-gradient-to-b from-amber-600/60 to-amber-700/40",
-      valueColor: "text-amber-500",
+      cardBg: "bg-gradient-to-b from-amber-700/80 via-amber-800/70 to-amber-950/60",
+      laurelColor: "#CD7F32",
+      cardHeight: "h-40",
+      avatarSize: "h-20 w-20",
     },
   };
   
@@ -136,53 +130,58 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
     }
   };
 
-  const podiumHeight = isFirst ? "h-24" : isSecond ? "h-16" : "h-12";
-  const avatarSize = isFirst ? "h-20 w-20" : "h-16 w-16";
   const orderClass = position === "left" ? "order-1" : position === "center" ? "order-2" : "order-3";
+  const rankSuffix = user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd";
 
   return (
-    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "-mt-8" : ""}`}>
-      {/* Crown for #1 */}
-      {isFirst && (
-        <div className="mb-2">
-          <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
+    <div className={`flex flex-col items-center ${orderClass}`}>
+      {/* Card Container */}
+      <div className={`relative ${style.cardBg} rounded-2xl ${style.cardHeight} w-28 md:w-36 overflow-hidden border border-white/10 shadow-xl`}>
+        {/* Crown for #1 */}
+        {isFirst && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+            <Crown className="w-6 h-6 text-yellow-300 fill-yellow-400 drop-shadow-[0_0_6px_rgba(250,204,21,0.8)]" />
+          </div>
+        )}
+        
+        {/* Laurel Wreath with Rank */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+          <div className="relative">
+            <LaurelWreath 
+              color={style.laurelColor} 
+              size={isFirst ? "md" : "sm"} 
+              className="opacity-90"
+            />
+            {/* Rank number inside wreath */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-white font-bold text-lg drop-shadow-md">
+                {user.rank}<sup className="text-[10px]">{rankSuffix}</sup>
+              </span>
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Avatar with border */}
-      <div className="relative mb-1">
-        <div className={`relative rounded-full ${style.glow}`}>
-          <Avatar className={`${avatarSize} border-[3px] ${style.border} bg-background`}>
-            <AvatarImage src={user.avatar} alt={user.username} />
-            <AvatarFallback className="text-lg">{user.username.slice(0, 2)}</AvatarFallback>
+        {/* Avatar at bottom of card */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/3">
+          <Avatar className={`${style.avatarSize} border-4 border-background shadow-2xl`}>
+            <AvatarImage src={user.avatar} alt={user.username} className="object-cover" />
+            <AvatarFallback className="text-xl bg-muted">{user.username.slice(0, 2)}</AvatarFallback>
           </Avatar>
         </div>
         
-        {/* Rank Badge - positioned at bottom right */}
-        <div className={`absolute -bottom-1 -right-1 flex items-center justify-center w-7 h-7 rounded-full ${style.badgeBg} ${style.badgeText} text-xs font-bold shadow-lg`}>
-          {user.rank}<sup className="text-[8px]">{user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd"}</sup>
-        </div>
+        {/* Subtle shine overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
       </div>
 
-      {/* Username */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base" : "text-sm"} mt-2 truncate max-w-[100px] text-center`}>
+      {/* Username - below card */}
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base mt-12" : "text-sm mt-10"} truncate max-w-[120px] text-center`}>
         {user.username}
       </h3>
 
       {/* Value */}
-      <div className={`flex items-center gap-1 font-mono font-bold ${style.valueColor} ${isFirst ? "text-lg" : "text-base"}`}>
-        <Zap className="w-4 h-4" />
+      <div className={`flex items-center gap-1.5 font-mono font-bold text-trading-green ${isFirst ? "text-xl" : "text-lg"} mt-1`}>
+        <span className="text-trading-green">◆</span>
         {getValue()}
-      </div>
-
-      {/* Podium Block */}
-      <div className={`w-20 md:w-24 ${podiumHeight} mt-3 rounded-t-xl ${style.podiumBg} relative overflow-hidden border-t border-x border-white/10`}>
-        {/* Number */}
-        <div className={`absolute inset-0 flex items-center justify-center font-bold text-2xl md:text-3xl text-white/20`}>
-          {user.rank}
-        </div>
-        {/* Shine effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
     </div>
   );
