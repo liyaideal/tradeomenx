@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, Heart, Share2, ExternalLink } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useNavigationType } from "react-router-dom";
 import {
   Popover,
   PopoverContent,
@@ -12,7 +12,7 @@ interface MobileHeaderProps {
   title: string;
   subtitle?: string;
   endTime?: Date; // New prop for countdown
-  showBack?: boolean;
+  showBack?: boolean; // Force show/hide back button
   showActions?: boolean;
   tweetCount?: number;
 }
@@ -51,11 +51,15 @@ const useCountdown = (endTime: Date | undefined) => {
   return timeLeft;
 };
 
-export const MobileHeader = ({ title, subtitle, endTime, showBack = true, showActions = false, tweetCount }: MobileHeaderProps) => {
+export const MobileHeader = ({ title, subtitle, endTime, showBack, showActions = false, tweetCount }: MobileHeaderProps) => {
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const countdown = useCountdown(endTime);
   const displayTime = endTime ? countdown : subtitle;
   const [isFavorite, setIsFavorite] = useState(false);
+  
+  // Show back button: if explicitly set use that value, otherwise show only for PUSH navigation
+  const shouldShowBack = showBack !== undefined ? showBack : navigationType === "PUSH";
 
   const handleFavorite = () => {
     setIsFavorite(!isFavorite);
@@ -91,7 +95,7 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack = true, showAc
     <header className="sticky top-0 bg-background z-40 px-4 py-1.5">
       <div className="flex items-center">
         {/* Left: Back button */}
-        {showBack ? (
+        {shouldShowBack ? (
           <button
             onClick={() => navigate(-1)}
             className="w-9 h-9 rounded-full bg-muted/80 flex items-center justify-center transition-all duration-200 active:scale-95"
