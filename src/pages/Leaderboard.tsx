@@ -1,25 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, DollarSign, BarChart3, Share2, ChevronLeft, Sparkles, Zap, Download, Send, X, User, Palette, Eye, EyeOff, Crown } from "lucide-react";
+import { TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
-import { LaurelWreath } from "@/components/LaurelWreath";
+import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import * as htmlToImage from "html-to-image";
 import omenxLogo from "@/assets/omenx-logo.svg";
-
-// Desktop Top 3 Assets
-import desktopChampion from "@/assets/leaderboard/desktop-champion.svg";
-import desktopRunnerUp from "@/assets/leaderboard/desktop-runner-up.svg";
-import desktopBronze from "@/assets/leaderboard/desktop-bronze.svg";
-
-// Mobile Medal Assets
-import medalGold from "@/assets/leaderboard/medal-gold.svg";
-import medalSilver from "@/assets/leaderboard/medal-silver.svg";
-import medalBronze from "@/assets/leaderboard/medal-bronze.svg";
-import avatarExample from "@/assets/leaderboard/avatar-example-1.svg";
 
 type SortType = "pnl" | "roi" | "volume";
 
@@ -35,7 +24,7 @@ interface LeaderboardUser {
 
 // Mock data for leaderboard
 const mockLeaderboardData: LeaderboardUser[] = [
-  { rank: 1, username: "CryptoWhale", avatar: avatarExample, pnl: 125430, roi: 342.5, volume: 2450000, trades: 156 },
+  { rank: 1, username: "CryptoWhale", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=whale", pnl: 125430, roi: 342.5, volume: 2450000, trades: 156 },
   { rank: 2, username: "TradingMaster", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=master", pnl: 89250, roi: 287.3, volume: 1890000, trades: 234 },
   { rank: 3, username: "ProfitHunter", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=hunter", pnl: 67890, roi: 198.7, volume: 1560000, trades: 189 },
   { rank: 4, username: "AlphaTrader", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=alpha", pnl: 45670, roi: 156.2, volume: 980000, trades: 145 },
@@ -45,11 +34,13 @@ const mockLeaderboardData: LeaderboardUser[] = [
   { rank: 8, username: "BullRunner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=bull", pnl: 19870, roi: 87.3, volume: 590000, trades: 134 },
   { rank: 9, username: "SmartMoney", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=smart", pnl: 15690, roi: 76.5, volume: 480000, trades: 112 },
   { rank: 10, username: "TrendSurfer", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=trend", pnl: 12340, roi: 65.2, volume: 390000, trades: 89 },
+  // More users for demo
   { rank: 11, username: "Hodler", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=hodler", pnl: 10200, roi: 58.3, volume: 320000, trades: 76 },
   { rank: 12, username: "BlockBuster", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=block", pnl: 8900, roi: 52.1, volume: 280000, trades: 68 },
   { rank: 13, username: "CryptoNinja", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser", pnl: 2340, roi: 23.5, volume: 45000, trades: 28 },
 ];
 
+// Current user ID (simulated - in real app this would come from auth)
 const CURRENT_USER_USERNAME = "CryptoNinja";
 
 const sortTabs: { key: SortType; label: string; icon: React.ElementType }[] = [
@@ -58,331 +49,6 @@ const sortTabs: { key: SortType; label: string; icon: React.ElementType }[] = [
   { key: "volume", label: "Volume", icon: BarChart3 },
 ];
 
-// ============ DESKTOP TOP 3 - VERTICAL LAYOUT ============
-const DesktopTopThree = ({ users, sortType }: { users: LeaderboardUser[]; sortType: SortType }) => {
-  const getAsset = (rank: number) => {
-    switch (rank) {
-      case 1: return desktopChampion;
-      case 2: return desktopRunnerUp;
-      case 3: return desktopBronze;
-      default: return desktopBronze;
-    }
-  };
-
-  const getGlowColor = (rank: number) => {
-    switch (rank) {
-      case 1: return "shadow-[0_0_40px_rgba(255,215,0,0.5)]";
-      case 2: return "shadow-[0_0_35px_rgba(168,85,247,0.5)]";
-      case 3: return "shadow-[0_0_35px_rgba(205,127,50,0.5)]";
-      default: return "";
-    }
-  };
-
-  const getBorderColor = (rank: number) => {
-    switch (rank) {
-      case 1: return "border-yellow-400";
-      case 2: return "border-purple-400";
-      case 3: return "border-amber-600";
-      default: return "border-border";
-    }
-  };
-
-  return (
-    <div className="space-y-6 mb-8 max-w-2xl mx-auto">
-      {users.map((user, index) => (
-        <div 
-          key={user.rank}
-          className="relative flex items-center gap-6 p-4"
-        >
-          {/* Medal/Badge on left */}
-          <div className="relative w-24 h-24 flex-shrink-0">
-            <img 
-              src={getAsset(user.rank)} 
-              alt={`Rank ${user.rank}`} 
-              className="w-full h-full object-contain"
-            />
-          </div>
-
-          {/* Avatar with glow */}
-          <div className="relative flex-shrink-0">
-            {/* Sparkle decorations */}
-            <Sparkles className="absolute -top-2 -right-2 w-4 h-4 text-yellow-400/60 animate-pulse" />
-            <Sparkles className="absolute -bottom-1 -left-2 w-3 h-3 text-purple-400/50" />
-            
-            {/* Avatar */}
-            <div className={`relative ${getGlowColor(user.rank)} rounded-full`}>
-              <Avatar className={`w-20 h-20 border-3 ${getBorderColor(user.rank)}`}>
-                <AvatarImage src={user.avatar} alt={user.username} />
-                <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
-
-          {/* User info */}
-          <div className="flex-1">
-            <h3 className="font-bold text-xl text-foreground">{user.username}</h3>
-            <div className="flex items-center gap-4 mt-1">
-              <span className="text-trading-green font-mono font-bold text-xl">
-                +${user.pnl.toLocaleString()}.00 ↑
-              </span>
-              <span className="text-sm text-muted-foreground">
-                ROI: <span className="text-trading-green">+{user.roi.toFixed(1)}%</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-// ============ MOBILE TOP 3 - HORIZONTAL LAYOUT ============
-const MobileTopThree = ({ users, sortType }: { users: LeaderboardUser[]; sortType: SortType }) => {
-  const getMedal = (rank: number) => {
-    switch (rank) {
-      case 1: return medalGold;
-      case 2: return medalSilver;
-      case 3: return medalBronze;
-      default: return medalBronze;
-    }
-  };
-
-  const getGlowColor = (rank: number) => {
-    switch (rank) {
-      case 1: return "shadow-[0_0_30px_rgba(255,215,0,0.6)]";
-      case 2: return "shadow-[0_0_25px_rgba(192,192,192,0.5)]";
-      case 3: return "shadow-[0_0_25px_rgba(205,127,50,0.5)]";
-      default: return "";
-    }
-  };
-
-  const getBorderColor = (rank: number) => {
-    switch (rank) {
-      case 1: return "border-yellow-400";
-      case 2: return "border-gray-400";
-      case 3: return "border-amber-600";
-      default: return "border-border";
-    }
-  };
-
-  const getValueColor = (rank: number) => {
-    switch (rank) {
-      case 1: return "text-yellow-400";
-      case 2: return "text-gray-300";
-      case 3: return "text-amber-500";
-      default: return "text-foreground";
-    }
-  };
-
-  const first = users[0];
-  const second = users[1];
-  const third = users[2];
-
-  return (
-    <div className="flex justify-center items-end gap-4 mb-8 px-4">
-      {/* 2nd Place - Left */}
-      <div className="flex flex-col items-center order-1">
-        <div className={`relative ${getGlowColor(2)} rounded-full mb-2`}>
-          <Avatar className={`w-16 h-16 border-2 ${getBorderColor(2)}`}>
-            <AvatarImage src={second?.avatar} alt={second?.username} />
-            <AvatarFallback>{second?.username?.slice(0, 2)}</AvatarFallback>
-          </Avatar>
-        </div>
-        <img src={getMedal(2)} alt="Silver" className="w-12 h-12 -mt-2" />
-        <p className="font-medium text-foreground text-sm mt-2">{second?.username}</p>
-        <p className={`font-mono font-bold ${getValueColor(2)}`}>
-          ${second?.pnl.toLocaleString()}
-        </p>
-      </div>
-
-      {/* 1st Place - Center */}
-      <div className="flex flex-col items-center order-2 -mt-6">
-        {/* Crown */}
-        <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 mb-2 drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]" />
-        
-        <div className={`relative ${getGlowColor(1)} rounded-full mb-2`}>
-          <Avatar className={`w-20 h-20 border-3 ${getBorderColor(1)}`}>
-            <AvatarImage src={first?.avatar} alt={first?.username} />
-            <AvatarFallback>{first?.username?.slice(0, 2)}</AvatarFallback>
-          </Avatar>
-        </div>
-        <img src={getMedal(1)} alt="Gold" className="w-14 h-14 -mt-3" />
-        <p className="font-semibold text-foreground mt-2">{first?.username}</p>
-        <p className={`font-mono font-bold text-xl ${getValueColor(1)}`}>
-          ${first?.pnl.toLocaleString()}
-        </p>
-      </div>
-
-      {/* 3rd Place - Right */}
-      <div className="flex flex-col items-center order-3">
-        <div className={`relative ${getGlowColor(3)} rounded-full mb-2`}>
-          <Avatar className={`w-14 h-14 border-2 ${getBorderColor(3)}`}>
-            <AvatarImage src={third?.avatar} alt={third?.username} />
-            <AvatarFallback>{third?.username?.slice(0, 2)}</AvatarFallback>
-          </Avatar>
-        </div>
-        <img src={getMedal(3)} alt="Bronze" className="w-11 h-11 -mt-2" />
-        <p className="font-medium text-foreground text-sm mt-2">{third?.username}</p>
-        <p className={`font-mono font-bold ${getValueColor(3)}`}>
-          ${third?.pnl.toLocaleString()}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-// ============ MOBILE LEADERBOARD ROW ============
-const MobileLeaderboardRow = ({ 
-  user, 
-  sortType, 
-  index,
-  isCurrentUser 
-}: { 
-  user: LeaderboardUser; 
-  sortType: SortType; 
-  index: number;
-  isCurrentUser?: boolean;
-}) => {
-  return (
-    <div 
-      id={isCurrentUser ? "current-user-row" : undefined}
-      className={`flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200 animate-fade-in ${
-        isCurrentUser 
-          ? "bg-primary/15 border-primary/50" 
-          : "bg-card/60 border-border/30"
-      }`}
-      style={{ animationDelay: `${index * 50}ms` }}
-    >
-      {/* Rank number */}
-      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/80 border border-border/50">
-        <span className="font-bold text-foreground">{user.rank}</span>
-      </div>
-
-      {/* Avatar */}
-      <Avatar className="h-12 w-12 border border-border/50">
-        <AvatarImage src={user.avatar} alt={user.username} />
-        <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-      </Avatar>
-
-      {/* Name & trades */}
-      <div className="flex-1 min-w-0">
-        <h4 className={`font-semibold ${isCurrentUser ? "text-primary" : "text-foreground"}`}>
-          {user.username}
-        </h4>
-        <p className="text-xs text-muted-foreground">{user.trades} trades</p>
-      </div>
-
-      {/* Value */}
-      <div className="text-right">
-        <div className="font-mono font-bold text-trading-green text-lg">
-          ${user.pnl.toLocaleString()}
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {user.roi.toFixed(1)}% ROI
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ============ DESKTOP LEADERBOARD ROW ============
-const DesktopLeaderboardRow = ({ 
-  user, 
-  sortType, 
-  index,
-  isCurrentUser 
-}: { 
-  user: LeaderboardUser; 
-  sortType: SortType; 
-  index: number;
-  isCurrentUser?: boolean;
-}) => {
-  return (
-    <div 
-      id={isCurrentUser ? "current-user-row" : undefined}
-      className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 animate-fade-in ${
-        isCurrentUser 
-          ? "bg-gradient-to-r from-primary/20 via-primary/10 to-primary/5 border-primary/50" 
-          : "bg-gradient-to-r from-purple-900/30 via-purple-900/20 to-transparent border-purple-500/30"
-      }`}
-      style={{ animationDelay: `${index * 50}ms` }}
-    >
-      {/* Rank number */}
-      <div className="flex items-center justify-center w-10 h-10">
-        <span className="font-bold text-2xl text-foreground">{user.rank}</span>
-      </div>
-
-      {/* Avatar */}
-      <Avatar className="h-12 w-12 border-2 border-purple-400/50">
-        <AvatarImage src={user.avatar} alt={user.username} />
-        <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-      </Avatar>
-
-      {/* Name */}
-      <div className="flex-1 min-w-0">
-        <h4 className="font-semibold text-foreground text-lg">{user.username}</h4>
-      </div>
-
-      {/* Stats */}
-      <div className="flex items-center gap-6">
-        <div className="text-right">
-          <div className="text-xs text-muted-foreground mb-0.5">PnL:</div>
-          <div className="font-mono font-bold text-trading-green">
-            +${user.pnl.toLocaleString()} ↗
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-xs text-muted-foreground mb-0.5">ROI:</div>
-          <div className="font-mono font-bold text-trading-green">
-            +{user.roi.toFixed(1)}% ↗
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-xs text-muted-foreground mb-0.5">ᵈˡ Vol:</div>
-          <div className="font-mono font-bold text-foreground">
-            ${(user.volume / 1000000).toFixed(1)}M
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ============ MY RANK BAR ============
-const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortType: SortType; onClick: () => void }) => {
-  return (
-    <div 
-      onClick={onClick}
-      className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-96 z-40 cursor-pointer"
-    >
-      <div className="bg-card/95 backdrop-blur-md border border-primary/40 rounded-2xl p-4 shadow-[0_0_30px_hsl(260_60%_55%/0.3)]">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-12 w-12 border-2 border-primary/50">
-            <AvatarImage src={user.avatar} alt={user.username} />
-            <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <span className="text-xs text-muted-foreground">My Ranking</span>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-primary">#{user.rank}</span>
-              <span className="font-semibold text-foreground">{user.username}</span>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="font-mono font-bold text-primary text-lg">
-              ${user.pnl.toLocaleString()}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {user.roi.toFixed(1)}% ROI
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ============ SHARE COMPONENTS (PRESERVED) ============
 const getRankColors = (rank: number) => {
   switch (rank) {
     case 1:
@@ -424,6 +90,222 @@ const getRankColors = (rank: number) => {
   }
 };
 
+const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sortType: SortType; position: "left" | "center" | "right" }) => {
+  const colors = getRankColors(user.rank);
+  const isFirst = user.rank === 1;
+  
+  const getValue = () => {
+    switch (sortType) {
+      case "pnl":
+        return `$${user.pnl.toLocaleString()}`;
+      case "roi":
+        return `${user.roi.toFixed(1)}%`;
+      case "volume":
+        return `$${user.volume.toLocaleString()}`;
+    }
+  };
+
+  const podiumHeight = isFirst ? "h-28" : user.rank === 2 ? "h-20" : "h-16";
+  const avatarSize = isFirst ? "h-24 w-24" : "h-20 w-20";
+  const orderClass = position === "left" ? "order-1" : position === "center" ? "order-2" : "order-3";
+
+  return (
+    <div className={`flex flex-col items-center ${orderClass}`}>
+      {/* Crown for #1 */}
+      {isFirst && (
+        <div className="relative mb-2 animate-pulse">
+          <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]" />
+        </div>
+      )}
+
+      {/* Laurel Wreath + Avatar Container */}
+      <div className="relative mb-3">
+        {/* Glow effect */}
+        <div className={`absolute inset-0 rounded-full blur-xl opacity-50 scale-150 ${colors.bg}`} />
+        
+        {/* Laurel Wreath behind avatar */}
+        <div className="absolute -inset-4 flex items-center justify-center">
+          <LaurelWreath 
+            color={colors.leaf} 
+            size={isFirst ? "lg" : "md"} 
+            className="opacity-80"
+          />
+        </div>
+
+        {/* Avatar */}
+        <div className={`relative ${colors.glow} rounded-full`}>
+          <div className={`absolute -inset-1 bg-gradient-to-br ${colors.gradient} rounded-full opacity-75 blur-sm`} />
+          <Avatar className={`relative ${avatarSize} border-3 ${colors.border} ring-2 ring-background`}>
+            <AvatarImage src={user.avatar} alt={user.username} />
+            <AvatarFallback className="text-lg">{user.username.slice(0, 2)}</AvatarFallback>
+          </Avatar>
+        </div>
+      </div>
+
+      {/* Rank Badge */}
+      <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${colors.gradient} font-bold text-sm mb-2 shadow-lg`}>
+        <span className="text-background drop-shadow">{user.rank}</span>
+        <span className="text-[10px] text-background/80">{user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd"}</span>
+      </div>
+
+      {/* Username */}
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base" : "text-sm"} mb-1 truncate max-w-[100px] text-center`}>
+        {user.username}
+      </h3>
+
+      {/* Value */}
+      <div className={`flex items-center gap-1 font-mono font-bold ${colors.text} ${isFirst ? "text-xl" : "text-lg"}`}>
+        <Zap className="w-4 h-4" />
+        {getValue()}
+      </div>
+
+      {/* Podium */}
+      <div className={`w-24 ${podiumHeight} mt-4 rounded-t-xl bg-gradient-to-b ${colors.gradient} opacity-80 relative overflow-hidden`}>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 font-bold text-background/80 text-2xl">
+          {user.rank}
+        </div>
+        {/* Shine effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
+      </div>
+    </div>
+  );
+};
+
+const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }: { 
+  user: LeaderboardUser; 
+  sortType: SortType; 
+  index: number;
+  isCurrentUser?: boolean;
+  onScrollToUser?: () => void;
+}) => {
+  const getValue = () => {
+    switch (sortType) {
+      case "pnl":
+        return `$${user.pnl.toLocaleString()}`;
+      case "roi":
+        return `${user.roi.toFixed(1)}%`;
+      case "volume":
+        return `$${user.volume.toLocaleString()}`;
+    }
+  };
+
+  return (
+    <div 
+      id={isCurrentUser ? "current-user-row" : undefined}
+      className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 group animate-fade-in ${
+        isCurrentUser 
+          ? "bg-primary/10 border-primary/50 ring-2 ring-primary/30 shadow-[0_0_20px_hsl(260_60%_55%/0.2)]" 
+          : "bg-card/60 border-border/30 hover:border-primary/30 hover:bg-card/80"
+      }`}
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      {/* Rank with laurel */}
+      <SmallLaurelBadge rank={user.rank} />
+
+      {/* Avatar + Name */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <Avatar className={`h-10 w-10 border transition-colors ${
+          isCurrentUser ? "border-primary/50" : "border-border/50 group-hover:border-primary/30"
+        }`}>
+          <AvatarImage src={user.avatar} alt={user.username} />
+          <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h4 className={`font-medium truncate ${isCurrentUser ? "text-primary" : "text-foreground"}`}>
+              {user.username}
+            </h4>
+            {isCurrentUser && (
+              <span className="px-2 py-0.5 text-[10px] font-bold bg-primary text-primary-foreground rounded-full">
+                YOU
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">{user.trades} trades</p>
+        </div>
+      </div>
+
+      {/* Value */}
+      <div className="text-right">
+        <div className={`flex items-center justify-end gap-1 font-mono font-bold ${
+          isCurrentUser ? "text-primary" : "text-trading-green"
+        }`}>
+          <Zap className="w-3 h-3" />
+          {getValue()}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {sortType === "pnl" && `${user.roi.toFixed(1)}% ROI`}
+          {sortType === "roi" && `$${user.pnl.toLocaleString()} PnL`}
+          {sortType === "volume" && `${user.roi.toFixed(1)}% ROI`}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Fixed bottom "My Rank" component
+const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortType: SortType; onClick: () => void }) => {
+  const getValue = () => {
+    switch (sortType) {
+      case "pnl":
+        return `$${user.pnl.toLocaleString()}`;
+      case "roi":
+        return `${user.roi.toFixed(1)}%`;
+      case "volume":
+        return `$${user.volume.toLocaleString()}`;
+    }
+  };
+
+  return (
+    <div 
+      onClick={onClick}
+      className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-96 z-40 cursor-pointer"
+    >
+      <div className="bg-card/95 backdrop-blur-md border border-primary/40 rounded-2xl p-4 shadow-[0_0_30px_hsl(260_60%_55%/0.3)] transition-all duration-300 hover:scale-[1.02] hover:border-primary/60">
+        <div className="flex items-center gap-3">
+          {/* User icon */}
+          <div className="relative">
+            <div className="absolute -inset-1 bg-gradient-to-br from-primary to-primary/50 rounded-full blur-sm opacity-50" />
+            <Avatar className="relative h-12 w-12 border-2 border-primary/50">
+              <AvatarImage src={user.avatar} alt={user.username} />
+              <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
+            </Avatar>
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-medium text-muted-foreground">My Ranking</span>
+              <ChevronUp className="w-4 h-4 text-primary animate-bounce" />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 border border-primary/30">
+                  <span className="text-sm font-bold text-primary">#{user.rank}</span>
+                </div>
+                <span className="font-semibold text-foreground">{user.username}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Value */}
+          <div className="text-right">
+            <div className="flex items-center gap-1 font-mono font-bold text-primary text-lg">
+              <Zap className="w-4 h-4" />
+              {getValue()}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {user.roi.toFixed(1)}% ROI
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Card theme types
 type CardTheme = "default" | "neon" | "brutal" | "gold";
 type StatKey = "pnl" | "roi" | "volume";
 
@@ -433,6 +315,7 @@ interface CardThemeConfig {
   borderStyle: string;
   glowEffects: boolean;
   sparkles: boolean;
+  // Color scheme for stats and badges
   badgeBg: string;
   badgeBorder: string;
   badgeText: string;
@@ -544,6 +427,8 @@ const ShareableCard = ({
   
   const displayedStats = stats.filter(s => visibleStats.includes(s.key));
   const gridCols = displayedStats.length === 1 ? "grid-cols-1" : displayedStats.length === 2 ? "grid-cols-2" : "grid-cols-3";
+  
+  // Use theme-specific rank badge for non-top-3 users
   const rankBadgeGradient = user.rank <= 3 ? colors.gradient : themeConfig.rankBadgeBg;
   
   return (
@@ -553,6 +438,7 @@ const ShareableCard = ({
       className={`relative overflow-hidden rounded-2xl border ${themeConfig.borderStyle} bg-gradient-to-br ${themeConfig.bgStyle} p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] ${isGenerating ? 'pointer-events-none' : ''}`}
       style={{ backgroundColor: 'hsl(222 47% 6%)' }}
     >
+      {/* Background effects */}
       {themeConfig.glowEffects && (
         <>
           <div className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl ${glowColors.primary} to-transparent rounded-full blur-3xl`} />
@@ -561,6 +447,7 @@ const ShareableCard = ({
         </>
       )}
       
+      {/* Sparkle decorations */}
       {themeConfig.sparkles && (
         <>
           <Sparkles className={`absolute top-4 right-4 w-5 h-5 ${themeConfig.sparkleColors[0]} animate-pulse`} />
@@ -569,6 +456,7 @@ const ShareableCard = ({
         </>
       )}
       
+      {/* Loading overlay */}
       {isGenerating && (
         <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-20 rounded-2xl">
           <div className="flex flex-col items-center gap-2">
@@ -579,6 +467,7 @@ const ShareableCard = ({
       )}
       
       <div className="relative z-10">
+        {/* Header with Logo */}
         <div className="flex items-center justify-between mb-6">
           <img src={omenxLogo} alt="OMENX" className="h-6" />
           <div className={`px-3 py-1 rounded-full ${themeConfig.badgeBg} border ${themeConfig.badgeBorder}`}>
@@ -586,16 +475,20 @@ const ShareableCard = ({
           </div>
         </div>
 
+        {/* User info with Laurel */}
         <div className="flex items-center gap-5 mb-6">
           <div className="relative">
+            {/* Laurel behind */}
             <div className="absolute -inset-6 flex items-center justify-center">
               <LaurelWreath color={colors.leaf} size="lg" className="opacity-60" />
             </div>
+            {/* Glow */}
             <div className={`absolute -inset-2 bg-gradient-to-br ${colors.gradient} rounded-full blur-md opacity-50`} />
             <Avatar className={`relative h-20 w-20 border-3 ${colors.border}`}>
               <AvatarImage src={user.avatar} alt={user.username} />
               <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
             </Avatar>
+            {/* Crown for #1 */}
             {user.rank === 1 && (
               <Crown className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 text-yellow-400 fill-yellow-400" />
             )}
@@ -611,6 +504,7 @@ const ShareableCard = ({
           </div>
         </div>
 
+        {/* Stats */}
         {displayedStats.length > 0 && (
           <div className={`grid ${gridCols} gap-3`}>
             {displayedStats.map((stat) => (
@@ -625,6 +519,7 @@ const ShareableCard = ({
           </div>
         )}
 
+        {/* Tap to share hint - hidden in modal preview */}
         {!hideShareHint && (
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Share2 className="w-3 h-3" />
@@ -636,6 +531,7 @@ const ShareableCard = ({
   );
 };
 
+// Card Customization Panel
 interface CardCustomizationProps {
   theme: CardTheme;
   onThemeChange: (theme: CardTheme) => void;
@@ -653,6 +549,7 @@ const CardCustomization = ({ theme, onThemeChange, visibleStats, onStatsChange }
   
   const toggleStat = (stat: StatKey) => {
     if (visibleStats.includes(stat)) {
+      // Don't allow removing all stats
       if (visibleStats.length > 1) {
         onStatsChange(visibleStats.filter(s => s !== stat));
       }
@@ -663,6 +560,7 @@ const CardCustomization = ({ theme, onThemeChange, visibleStats, onStatsChange }
   
   return (
     <div className="space-y-4 mb-4">
+      {/* Theme Selection */}
       <div>
         <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
           <Palette className="w-4 h-4 text-primary" />
@@ -685,6 +583,7 @@ const CardCustomization = ({ theme, onThemeChange, visibleStats, onStatsChange }
         </div>
       </div>
       
+      {/* Stats Toggle */}
       <div>
         <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
           <Eye className="w-4 h-4 text-primary" />
@@ -714,6 +613,7 @@ const CardCustomization = ({ theme, onThemeChange, visibleStats, onStatsChange }
   );
 };
 
+// Share Modal Component
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -741,6 +641,7 @@ const ShareModal = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const modalCardRef = useRef<HTMLDivElement>(null);
 
+  // Generate image when modal opens or customization changes
   const generateImage = async () => {
     if (!modalCardRef.current) return;
     
@@ -761,8 +662,10 @@ const ShareModal = ({
     }
   };
 
+  // Regenerate image when theme or stats change
   useEffect(() => {
     if (isOpen) {
+      // Small delay to ensure the card is rendered
       const timer = setTimeout(generateImage, 100);
       return () => clearTimeout(timer);
     }
@@ -784,6 +687,20 @@ const ShareModal = ({
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     toast({ title: "Image saved!", description: "Ranking card saved to your device" });
+  };
+
+  const handleCopyImage = async () => {
+    if (!imageBlob) return;
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': imageBlob })
+      ]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({ title: "Copied!", description: "Image copied to clipboard" });
+    } catch {
+      toast({ title: "Copy failed", description: "Please download the image instead", variant: "destructive" });
+    }
   };
 
   const handleShareX = () => {
@@ -809,6 +726,7 @@ const ShareModal = ({
         url: shareUrl,
       };
 
+      // Try to share with image if supported
       if (imageBlob && navigator.canShare && navigator.canShare({ files: [new File([imageBlob], 'ranking.png', { type: 'image/png' })] })) {
         shareData.files = [new File([imageBlob], `omenx-rank-${user.rank}.png`, { type: 'image/png' })];
       }
@@ -823,9 +741,12 @@ const ShareModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
       
+      {/* Modal */}
       <div className="relative bg-card border border-border rounded-2xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto animate-scale-in">
+        {/* Close button */}
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 p-1 rounded-full hover:bg-muted transition-colors z-10"
@@ -836,6 +757,7 @@ const ShareModal = ({
         <h3 className="text-lg font-bold text-foreground mb-2">Share Your Rank</h3>
         <p className="text-sm text-muted-foreground mb-4">Customize and share your achievement</p>
 
+        {/* Customization Options */}
         <CardCustomization 
           theme={theme}
           onThemeChange={onThemeChange}
@@ -843,6 +765,7 @@ const ShareModal = ({
           onStatsChange={onStatsChange}
         />
 
+        {/* Card Preview with Loading */}
         <div className="relative mb-4">
           <div ref={modalCardRef}>
             <ShareableCard 
@@ -855,6 +778,7 @@ const ShareModal = ({
           </div>
         </div>
 
+        {/* Share Options */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <button
             onClick={handleDownload}
@@ -875,6 +799,7 @@ const ShareModal = ({
           </button>
         </div>
 
+        {/* Social Media */}
         <div className="flex gap-3">
           <button
             onClick={handleShareX}
@@ -894,6 +819,7 @@ const ShareModal = ({
           </button>
         </div>
 
+        {/* Native Share (Mobile) */}
         <button
           onClick={handleNativeShare}
           className="w-full mt-3 flex items-center justify-center gap-2 p-3 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
@@ -906,13 +832,13 @@ const ShareModal = ({
   );
 };
 
-// ============ MAIN LEADERBOARD COMPONENT ============
 export default function Leaderboard() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [sortType, setSortType] = useState<SortType>("pnl");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [cardTheme, setCardTheme] = useState<CardTheme>("default");
   const [visibleStats, setVisibleStats] = useState<StatKey[]>(["pnl", "roi", "volume"]);
@@ -920,15 +846,19 @@ export default function Leaderboard() {
 
   const sortedData = [...mockLeaderboardData].sort((a, b) => {
     switch (sortType) {
-      case "pnl": return b.pnl - a.pnl;
-      case "roi": return b.roi - a.roi;
-      case "volume": return b.volume - a.volume;
+      case "pnl":
+        return b.pnl - a.pnl;
+      case "roi":
+        return b.roi - a.roi;
+      case "volume":
+        return b.volume - a.volume;
     }
   }).map((user, idx) => ({ ...user, rank: idx + 1 }));
 
   const topThree = sortedData.slice(0, 3);
   const restOfList = sortedData.slice(3);
   
+  // Find current user
   const currentUser = sortedData.find(user => user.username === CURRENT_USER_USERNAME);
   const isCurrentUserInTopThree = currentUser && currentUser.rank <= 3;
 
@@ -936,6 +866,7 @@ export default function Leaderboard() {
     const element = document.getElementById('current-user-row');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Add a flash effect
       element.classList.add('ring-4', 'ring-primary');
       setTimeout(() => {
         element.classList.remove('ring-4', 'ring-primary');
@@ -945,66 +876,80 @@ export default function Leaderboard() {
 
   const handleShareCard = async () => {
     if (!cardRef.current || isGenerating) return;
+
     setIsGenerating(true);
     try {
+      // Generate image from the card
       const blob = await htmlToImage.toBlob(cardRef.current, {
         quality: 1,
         pixelRatio: 2,
         backgroundColor: '#0a0c14',
       });
+
       if (blob) {
+        setShareImageBlob(blob);
         setIsShareModalOpen(true);
+      } else {
+        toast({ title: "Failed to generate image", variant: "destructive" });
       }
     } catch (error) {
       console.error('Error generating image:', error);
-      toast({ title: "Failed to generate image", variant: "destructive" });
+      toast({ title: "Failed to generate image", description: "Please try again", variant: "destructive" });
     } finally {
       setIsGenerating(false);
     }
   };
 
-  return (
-    <>
-      {!isMobile && <EventsDesktopHeader />}
-      
-      <div className="min-h-screen bg-background">
-        {/* Background gradient */}
-        <div className="fixed inset-0 bg-gradient-to-b from-purple-950/30 via-background to-background pointer-events-none" />
+  const content = (
+    <div className="min-h-screen bg-background">
+      {/* Hero Section with gradient background */}
+      <div className="relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-background" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[100px]" />
+        <div className="absolute top-40 right-1/4 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-60 left-1/4 w-48 h-48 bg-trading-green/10 rounded-full blur-3xl" />
         
-        <div className="relative z-10 max-w-4xl mx-auto px-4 pb-32">
-          {/* Mobile Header */}
+        <div className="relative z-10 px-4 pt-6 pb-8">
+          {/* Header */}
           {isMobile && (
-            <div className="flex items-center justify-between pt-4 pb-2">
+            <div className="flex items-center justify-between mb-6">
               <button onClick={() => navigate(-1)} className="p-2 -ml-2">
                 <ChevronLeft className="w-6 h-6 text-foreground" />
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30">
+              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors">
                 <Share2 className="w-4 h-4" />
                 <span className="text-sm font-medium">Share</span>
               </button>
             </div>
           )}
 
-          {/* Title */}
-          <div className="text-center pt-4 pb-2">
-            <h1 className="text-4xl md:text-5xl font-bold italic bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-              LEADERBOARD
+          {/* Logo + Title */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <img src={omenxLogo} alt="OMENX" className="h-8" />
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-4">
+              <span className="text-sm font-semibold text-primary">🏆 Live Rankings</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+              Leaderboard
             </h1>
-            {!isMobile && (
-              <p className="text-muted-foreground mt-2">Top Traders This Week</p>
-            )}
+            <p className="text-muted-foreground">
+              Top traders this week
+            </p>
           </div>
 
           {/* Sort Tabs */}
-          <div className="flex justify-center gap-2 my-6">
+          <div className="flex justify-center gap-2 mb-10">
             {sortTabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setSortType(tab.key)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                   sortType === tab.key
-                    ? "bg-trading-green text-primary-foreground"
-                    : "bg-transparent text-muted-foreground border border-border/50 hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(260_60%_55%/0.4)]"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/30"
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -1013,59 +958,57 @@ export default function Leaderboard() {
             ))}
           </div>
 
-          {/* Top 3 Section */}
-          {isMobile ? (
-            <MobileTopThree users={topThree} sortType={sortType} />
-          ) : (
-            <DesktopTopThree users={topThree} sortType={sortType} />
-          )}
-
-          {/* Divider */}
-          <div className="flex items-center justify-center gap-4 my-6">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/30" />
-            <span className="text-sm font-semibold text-primary tracking-wider uppercase">Top Ranking</span>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/30" />
-          </div>
-
-          {/* Leaderboard List */}
-          <div className="space-y-3">
-            {restOfList.map((user, index) => (
-              isMobile ? (
-                <MobileLeaderboardRow 
-                  key={user.rank} 
-                  user={user} 
-                  sortType={sortType} 
-                  index={index}
-                  isCurrentUser={user.username === CURRENT_USER_USERNAME}
-                />
-              ) : (
-                <DesktopLeaderboardRow 
-                  key={user.rank} 
-                  user={user} 
-                  sortType={sortType} 
-                  index={index}
-                  isCurrentUser={user.username === CURRENT_USER_USERNAME}
-                />
-              )
-            ))}
-          </div>
-
-          {/* Share Card Section */}
-          <div className="mt-10">
-            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Share2 className="w-5 h-5 text-primary" />
-              Share Your Rank
-            </h3>
-            <ShareableCard 
-              user={currentUser || topThree[0]} 
-              cardRef={cardRef}
-              onShare={handleShareCard}
-              isGenerating={isGenerating}
-              theme={cardTheme}
-              visibleStats={visibleStats}
-            />
+          {/* Top 3 Podium */}
+          <div className="flex justify-center items-end gap-2 md:gap-6 mb-4 px-2">
+            <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
+            <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
+            <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
           </div>
         </div>
+      </div>
+
+      {/* Rest of Leaderboard */}
+      <div className="px-4 pb-24 md:pb-8 max-w-2xl mx-auto">
+        {/* Top Ranking Label */}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/30" />
+          <span className="text-xs font-semibold text-primary px-3">◆ Top Ranking ◆</span>
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/30" />
+        </div>
+
+        <div className="space-y-2">
+          {restOfList.map((user, index) => (
+            <LeaderboardRow 
+              key={user.rank} 
+              user={user} 
+              sortType={sortType} 
+              index={index}
+              isCurrentUser={user.username === CURRENT_USER_USERNAME}
+            />
+          ))}
+        </div>
+
+        {/* Shareable Card Section */}
+        <div className="mt-10">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Share2 className="w-5 h-5 text-primary" />
+            Share Your Rank
+          </h3>
+          
+          <ShareableCard 
+            user={currentUser || topThree[0]} 
+            cardRef={cardRef}
+            onShare={handleShareCard}
+            isGenerating={isGenerating}
+            theme={cardTheme}
+            visibleStats={visibleStats}
+          />
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            Tap to customize and share your ranking card
+          </p>
+        </div>
+        {/* Spacer for fixed MyRankBar */}
+        <div className="h-28 md:h-24" />
       </div>
 
       {/* Share Modal */}
@@ -1079,14 +1022,36 @@ export default function Leaderboard() {
         visibleStats={visibleStats}
         onStatsChange={setVisibleStats}
       />
+    </div>
+  );
 
-      {/* My Rank Bar */}
-      {currentUser && !isCurrentUserInTopThree && (
-        <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
-      )}
+  if (isMobile) {
+    return (
+      <>
+        {content}
+        {currentUser && !isCurrentUserInTopThree && (
+          <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
+        )}
+        <BottomNav />
+      </>
+    );
+  }
 
-      {/* Bottom Nav (Mobile) */}
-      {isMobile && <BottomNav />}
+  return (
+    <>
+      <EventsDesktopHeader />
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-end px-6 py-4">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors">
+            <Share2 className="w-4 h-4" />
+            <span className="text-sm font-medium">Share Rankings</span>
+          </button>
+        </div>
+        {content}
+        {currentUser && !isCurrentUserInTopThree && (
+          <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
+        )}
+      </div>
     </>
   );
 }
