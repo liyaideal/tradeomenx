@@ -2,6 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown, Minus, DollarSign, BarChart3, Share2, Crown, ChevronLeft, ChevronDown, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -1006,39 +1012,46 @@ export default function Leaderboard() {
             </div>
           </div>
 
-          {/* Period Tabs */}
-          <div className="flex justify-center gap-1.5 mt-3 mb-4">
-            {periodTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setPeriod(tab.key)}
-                className={`px-3 py-1 rounded-full text-[11px] font-medium transition-all duration-200 ${
-                  period === tab.key
-                    ? "bg-foreground/10 text-foreground border border-foreground/20"
-                    : "text-muted-foreground hover:text-foreground/80"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          {/* Sort Tabs + Period Dropdown */}
+          <div className="flex justify-center items-center gap-3 mb-4">
+            {/* Sort Tabs */}
+            <div className="flex gap-2">
+              {sortTabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setSortType(tab.key)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                    sortType === tab.key
+                      ? "bg-primary text-primary-foreground shadow-[0_0_15px_hsl(260_60%_55%/0.3)]"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20"
+                  }`}
+                >
+                  <tab.icon className="w-3.5 h-3.5" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
 
-          {/* Sort Tabs */}
-          <div className="flex justify-center gap-2 mb-4">
-            {sortTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setSortType(tab.key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                  sortType === tab.key
-                    ? "bg-primary text-primary-foreground shadow-[0_0_15px_hsl(260_60%_55%/0.3)]"
-                    : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20"
-                }`}
-              >
-                <tab.icon className="w-3.5 h-3.5" />
-                {tab.label}
-              </button>
-            ))}
+            {/* Period Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20 transition-all duration-200">
+                  {periodTabs.find(t => t.key === period)?.label}
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-card border-border">
+                {periodTabs.map((tab) => (
+                  <DropdownMenuItem
+                    key={tab.key}
+                    onClick={() => setPeriod(tab.key)}
+                    className={`text-xs cursor-pointer ${period === tab.key ? "text-primary" : ""}`}
+                  >
+                    {tab.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Top 3 Podium - integrated with page flow */}
