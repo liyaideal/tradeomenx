@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useNavigationType } from "react-router-dom";
 import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
@@ -21,8 +21,15 @@ interface TradingContextData {
 
 export function MobileTradingLayout({ activeTab, children }: MobileTradingLayoutProps) {
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || undefined;
+  
+  // Determine back navigation behavior:
+  // - If user navigated here via PUSH (from another page like /events), go back to previous page
+  // - If user came via bottom toolbar (REPLACE/POP), go back to home
+  const isPushNavigation = navigationType === "PUSH";
+  const backTo = isPushNavigation ? undefined : "/";
   
   const { 
     selectedEvent, 
@@ -89,7 +96,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         endTime={selectedEvent.endTime}
         showActions
         showBack={true}
-        backTo="/"
+        backTo={backTo}
         tweetCount={selectedEvent.tweetCount}
         onTitleClick={() => setEventSheetOpen(true)}
         isFavorite={favorites.has(selectedEvent.id)}
