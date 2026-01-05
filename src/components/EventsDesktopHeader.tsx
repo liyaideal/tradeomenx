@@ -12,6 +12,7 @@ import { Logo } from "@/components/Logo";
 
 const navItems = [
   { label: "Events", path: "/events" },
+  { label: "Leaderboard", path: "/leaderboard" },
   { label: "Resolved", path: "/resolved" },
   { label: "Portfolio", path: "/portfolio" },
 ];
