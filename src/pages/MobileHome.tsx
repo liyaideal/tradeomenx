@@ -174,8 +174,9 @@ const MobileHome = () => {
               return (
                 <div
                   key={event.id}
-                  className="trading-card p-4 space-y-3 animate-fade-in"
+                  className="trading-card p-4 space-y-3 animate-fade-in cursor-pointer hover:bg-card-hover transition-colors"
                   style={{ animationDelay: `${index * 50}ms` }}
+                  onClick={() => navigate(`/trade?event=${event.id}`)}
                 >
                   <div className="flex items-start justify-between">
                     <Badge className={`text-xs ${categoryInfo.color} border-0`}>
@@ -184,7 +185,10 @@ const MobileHome = () => {
                     <Button 
                       size="sm" 
                       className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
-                      onClick={() => navigate("/trade")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/trade?event=${event.id}`);
+                      }}
                     >
                       <BarChart3 className="h-3.5 w-3.5" />
                       Trade
