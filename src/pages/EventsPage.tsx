@@ -26,7 +26,6 @@ const mockEvents: EventData[] = [
     totalVolume: "$2.4M",
     volume24h: "$0.1M",
     participants: 183,
-    priceHistory: [68, 69, 67, 68, 70, 71, 69, 68, 69, 70, 71, 70, 69, 68, 69, 70, 71, 72, 71, 70, 69, 70, 71, 72],
   },
   {
     id: "2",
@@ -41,7 +40,6 @@ const mockEvents: EventData[] = [
     totalVolume: "$45.7M",
     volume24h: "$0.1M",
     participants: 289,
-    priceHistory: [70, 71, 72, 71, 70, 69, 70, 71, 72, 73, 72, 71, 70, 71, 72, 71, 70, 69, 70, 71, 72, 71, 70, 69],
   },
   {
     id: "3",
@@ -56,7 +54,6 @@ const mockEvents: EventData[] = [
     totalVolume: "$2.4M",
     volume24h: "$0.1M",
     participants: 183,
-    priceHistory: [38, 39, 40, 41, 42, 41, 42, 43, 44, 43, 42, 43, 44, 45, 44, 43, 44, 45, 46, 45, 44, 45, 46, 47],
   },
   {
     id: "4",
@@ -71,7 +68,6 @@ const mockEvents: EventData[] = [
     totalVolume: "$2.4M",
     volume24h: "$0.1M",
     participants: 183,
-    priceHistory: [40, 41, 42, 41, 40, 39, 40, 41, 42, 43, 42, 41, 40, 41, 42, 43, 44, 43, 42, 41, 42, 43, 44, 45],
   },
 ];
 
