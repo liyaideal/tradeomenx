@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { activeEvents, eventOptionsMap } from "@/data/events";
+import { getCategoryInfo } from "@/lib/categoryUtils";
 
 // Mock user data
 const userData = {
@@ -14,24 +15,6 @@ const userData = {
   weeklyPnL: "+$34.56",
   weeklyPnLPercent: "+1.9%",
   availableBalance: "$2,345.67",
-};
-
-// Helper to get category color based on event icon
-const getCategoryInfo = (icon: string) => {
-  switch (icon) {
-    case "🐦":
-      return { category: "Social", color: "bg-primary/20 text-primary" };
-    case "₿":
-      return { category: "Crypto", color: "bg-trading-yellow/20 text-trading-yellow" };
-    case "⟠":
-      return { category: "Crypto", color: "bg-trading-purple/20 text-trading-purple" };
-    case "🏦":
-      return { category: "Finance", color: "bg-trading-green/20 text-trading-green" };
-    case "📈":
-      return { category: "Finance", color: "bg-trading-green/20 text-trading-green" };
-    default:
-      return { category: "Market", color: "bg-muted text-foreground" };
-  }
 };
 
 // Helper to calculate countdown from endTime
