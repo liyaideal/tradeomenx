@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft } from "lucide-react";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import {
   Tooltip,
@@ -510,6 +510,14 @@ export default function DesktopTrading() {
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top Header */}
       <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate("/events")}
+          className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center transition-all duration-200 hover:bg-muted flex-shrink-0"
+        >
+          <ArrowLeft className="w-5 h-5 text-foreground" />
+        </button>
+        
         <div className="flex items-center gap-3 flex-1 min-w-0 relative">
           {/* Event Dropdown Trigger */}
           <button 
