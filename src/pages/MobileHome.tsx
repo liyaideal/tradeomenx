@@ -110,12 +110,7 @@ const MobileHome = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <img src={omenxLogo} alt="OMENX" className="h-4 w-auto" />
-            </div>
-            <span className="font-semibold text-foreground">OMENX</span>
-          </div>
+          <img src={omenxLogo} alt="OMENX" className="h-5 w-auto" />
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <Globe className="h-5 w-5 text-muted-foreground" />
