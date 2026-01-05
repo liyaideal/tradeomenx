@@ -238,8 +238,8 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
     setShowConfirmDialog(false);
     toast.success("Order placed successfully!");
     
-    // Navigate to trade page
-    navigate("/trade");
+    // Navigate to trade page with event ID
+    navigate(`/trade?event=${event.id}`);
     
     // Also call the original onTrade callback if provided
     if (onTrade) {
@@ -249,7 +249,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
 
   // Navigate to trade page when clicking card (except interactive areas)
   const handleCardClick = () => {
-    navigate("/trade");
+    navigate(`/trade?event=${event.id}`);
   };
 
   // Generate mock price history for options if not provided
