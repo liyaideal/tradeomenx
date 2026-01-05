@@ -2,114 +2,338 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+/* System fonts for glassmorphism - matches Apple design */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    /* ========================================
+       GLASSMORPHISM DARK THEME
+       Based on Style Guide v1.0
+       ======================================== */
 
-    --card: 220 15% 13%;
-    --card-foreground: 210 40% 98%;
+    /* === Primary Colors === */
+    --primary: 259 84% 71%;           /* #9D7FED - Primary actions, key highlights */
+    --primary-lighter: 259 78% 80%;   /* #B8A1F5 - Hover states */
+    --primary-darker: 259 66% 59%;    /* #7D5FCD - Active states */
+    --primary-foreground: 0 0% 100%;
 
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 142 71% 45%;
-    --primary-foreground: 222 47% 6%;
-
-    --secondary: 260 60% 55%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 222 30% 18%;
-    --muted-foreground: 215 20% 55%;
-
-    --accent: 260 60% 55%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 222 30% 18%;
-    --input: 222 30% 15%;
-    --ring: 142 71% 45%;
-
-    --radius: 0.75rem;
-
-    /* Custom trading colors */
-    --trading-green: 142 71% 45%;
-    --trading-green-muted: 142 50% 25%;
-    --trading-red: 0 72% 51%;
-    --trading-red-muted: 0 50% 25%;
-    --trading-purple: 260 60% 55%;
-    --trading-purple-muted: 260 40% 35%;
-    --trading-yellow: 45 93% 58%;
+    /* === Page Background === */
+    --background: 260 50% 8%;         /* #0F0B1F base */
+    --background-start: 260 50% 8%;   /* #0F0B1F */
+    --background-mid: 260 40% 14%;    /* #1A1433 */
+    --background-end: 260 50% 8%;     /* #0F0B1F */
     
-    /* Real-time indicator color */
+    /* === Text Colors === */
+    --foreground: 0 0% 100%;          /* Base white */
+    --foreground-primary: 0 0% 95%;   /* white/95 */
+    --foreground-secondary: 0 0% 75%; /* white/75 */
+    --foreground-tertiary: 0 0% 55%;  /* white/55 */
+    --foreground-quaternary: 0 0% 35%; /* white/35 */
+
+    /* === Glass Container Colors === */
+    --glass-primary: 0 0% 100%;       /* white/8 - Main glass cards */
+    --glass-secondary: 0 0% 100%;     /* white/5 - Secondary elements */
+    --glass-elevated: 0 0% 100%;      /* white/12 - Elevated surfaces */
+    --glass-inset: 0 0% 0%;           /* black/30 - Input fields */
+    --glass-strong: 259 84% 71%;      /* primary/15 - Highlighted sections */
+
+    /* === Semantic Container Colors === */
+    --card: 260 40% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 260 45% 10%;
+    --popover-foreground: 0 0% 95%;
+    --muted: 260 30% 18%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 259 84% 71%;
+    --accent-foreground: 0 0% 100%;
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 0 0% 95%;
+
+    /* === Functional Colors === */
+    --success: 145 63% 58%;           /* #4ADE80 */
+    --success-light: 145 63% 73%;     /* #86EFAC */
+    --error: 0 84% 60%;               /* #EF4444 */
+    --error-light: 0 91% 82%;         /* #FCA5A5 */
+    --warning: 38 92% 50%;            /* #F59E0B */
+    --warning-light: 45 93% 58%;      /* #FCD34D */
+    --info: 217 91% 60%;              /* #3B82F6 */
+    --info-light: 213 94% 78%;        /* #93C5FD */
+
+    /* === Trading Colors (mapped to functional) === */
+    --trading-green: 145 63% 58%;
+    --trading-green-muted: 145 50% 25%;
+    --trading-red: 0 84% 60%;
+    --trading-red-muted: 0 50% 25%;
+    --trading-purple: 259 84% 71%;
+    --trading-purple-muted: 259 40% 35%;
+    --trading-yellow: 45 93% 58%;
+
+    /* === Accent Colors (Data Visualization) === */
+    --accent-cyan: 187 92% 53%;       /* #22D3EE */
+    --accent-cyan-light: 185 92% 69%; /* #67E8F9 */
+    --accent-pink: 330 81% 60%;       /* #EC4899 */
+    --accent-pink-light: 330 79% 79%; /* #F9A8D4 */
+    --accent-amber: 38 92% 50%;       /* #F59E0B */
+    --accent-emerald: 160 84% 39%;    /* #10B981 */
+    --accent-blue: 217 91% 60%;       /* #3B82F6 */
+    --accent-purple-light: 263 70% 75%; /* #A78BFA */
+
+    /* === Borders === */
+    --border: 0 0% 100%;              /* white - use with opacity */
+    --border-glass: 0 0% 100%;        /* white/20 for glass cards */
+    --border-subtle: 0 0% 100%;       /* white/10 for subtle elements */
+    --border-accent: 259 84% 71%;     /* primary/40 for accent borders */
+    --input: 0 0% 0%;                 /* black/30 */
+    --ring: 259 84% 71%;
+
+    /* === Border Radius === */
+    --radius: 0.75rem;                /* 12px - Medium (buttons, inputs) */
+    --radius-sm: 0.5rem;              /* 8px - Small (inner elements) */
+    --radius-lg: 1rem;                /* 16px - Large (cards) */
+    --radius-xl: 1.25rem;             /* 20px - Extra large (hero panels) */
+
+    /* === Indicator === */
     --indicator: 45 93% 58%;
     --indicator-muted: 45 70% 35%;
 
-    /* Gradients */
-    --gradient-card: linear-gradient(135deg, hsl(222 47% 10%) 0%, hsl(222 47% 8%) 100%);
-    --gradient-button-green: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(142 71% 38%) 100%);
-    --gradient-button-red: linear-gradient(135deg, hsl(0 72% 51%) 0%, hsl(0 72% 44%) 100%);
+    /* === Destructive === */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* === Shadow Colors (for CSS custom shadows) === */
+    --shadow-color: 0 0% 0%;
+    --glow-primary: 259 84% 71%;
+    --glow-cyan: 187 92% 53%;
+    --glow-pink: 330 81% 60%;
+    --glow-success: 145 63% 58%;
+    --glow-error: 0 84% 60%;
+
+    /* === Chart Colors === */
+    --chart-1: 259 84% 71%;
+    --chart-2: 259 66% 59%;
+    --chart-3: 259 78% 80%;
+    --chart-4: 187 92% 53%;
+    --chart-5: 330 81% 60%;
   }
 
+  /* Dark mode is the default */
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    /* Same as root - this is already a dark theme */
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border/20;
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    @apply text-foreground/95 antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, 
+      hsl(var(--background-start)) 0%, 
+      hsl(var(--background-mid)) 50%, 
+      hsl(var(--background-end)) 100%
+    );
+    min-height: 100vh;
+    line-height: 1.4;
   }
 
   .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'SF Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
   }
 }
 
+/* ========================================
+   GLASSMORPHISM COMPONENT CLASSES
+   ======================================== */
+
 @layer components {
-  .trading-card {
-    @apply bg-card rounded-xl border border-border/50;
-    background: var(--gradient-card);
+  /* === Glass Cards === */
+  .glass-card {
+    @apply backdrop-blur-xl rounded-xl;
+    background: hsl(var(--glass-primary) / 0.08);
+    border: 1px solid hsl(var(--border-glass) / 0.2);
+    box-shadow: 
+      0 8px 32px hsl(var(--shadow-color) / 0.35),
+      0 0 24px hsl(var(--glow-primary) / 0.15);
   }
 
-  .price-green {
-    @apply text-trading-green font-mono;
+  .glass-card-secondary {
+    @apply backdrop-blur-lg rounded-lg;
+    background: hsl(var(--glass-secondary) / 0.05);
+    border: 1px solid hsl(var(--border-subtle) / 0.1);
+    box-shadow: 0 4px 24px hsl(var(--shadow-color) / 0.25);
   }
 
-  .price-red {
-    @apply text-trading-red font-mono;
+  .glass-card-elevated {
+    @apply backdrop-blur-2xl rounded-2xl;
+    background: hsl(var(--glass-elevated) / 0.12);
+    border: 1px solid hsl(var(--border-glass) / 0.25);
+    box-shadow: 
+      0 12px 48px hsl(var(--shadow-color) / 0.45),
+      0 0 32px hsl(var(--glow-primary) / 0.25);
   }
 
+  .glass-card-strong {
+    @apply backdrop-blur-lg rounded-xl;
+    background: hsl(var(--glass-strong) / 0.15);
+    border: 1px solid hsl(var(--border-accent) / 0.4);
+  }
+
+  .glass-inset {
+    @apply backdrop-blur-md rounded-xl;
+    background: hsl(var(--glass-inset) / 0.3);
+    border: 1px solid hsl(var(--border-subtle) / 0.15);
+  }
+
+  /* === Glass Buttons === */
+  .glass-button-primary {
+    @apply flex items-center gap-2 px-4 py-2.5 backdrop-blur-lg rounded-xl font-semibold transition-all duration-200;
+    background: hsl(var(--primary) / 0.2);
+    border: 1px solid hsl(var(--primary) / 0.4);
+    color: hsl(var(--foreground-primary));
+    box-shadow: 0 4px 16px hsl(var(--glow-primary) / 0.25);
+  }
+
+  .glass-button-primary:hover {
+    background: hsl(var(--primary) / 0.3);
+    box-shadow: 0 6px 24px hsl(var(--glow-primary) / 0.35);
+  }
+
+  .glass-button-secondary {
+    @apply flex items-center gap-2 px-4 py-2.5 backdrop-blur-lg rounded-xl font-medium transition-all duration-200;
+    background: hsl(var(--glass-primary) / 0.08);
+    border: 1px solid hsl(var(--border-glass) / 0.2);
+    color: hsl(var(--foreground-secondary));
+    box-shadow: 0 4px 16px hsl(var(--shadow-color) / 0.25);
+  }
+
+  .glass-button-secondary:hover {
+    background: hsl(var(--glass-primary) / 0.12);
+    color: hsl(var(--foreground-primary));
+  }
+
+  .glass-button-icon {
+    @apply flex items-center justify-center w-10 h-10 backdrop-blur-lg rounded-xl transition-all duration-200;
+    background: hsl(var(--glass-primary) / 0.08);
+    border: 1px solid hsl(var(--border-subtle) / 0.15);
+    box-shadow: 0 4px 16px hsl(var(--shadow-color) / 0.25);
+  }
+
+  .glass-button-icon:hover {
+    background: hsl(var(--glass-primary) / 0.12);
+  }
+
+  /* === Trading Buttons === */
   .btn-trading-green {
-    @apply bg-trading-green text-trading-green-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
-    background: var(--gradient-button-green);
+    @apply font-semibold rounded-xl py-3 px-6 transition-all duration-200;
+    background: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(145 63% 45%) 100%);
+    color: hsl(var(--foreground));
+    box-shadow: 0 4px 16px hsl(var(--glow-success) / 0.3);
   }
 
   .btn-trading-green:hover {
     @apply opacity-90 scale-[0.98];
+    box-shadow: 0 6px 24px hsl(var(--glow-success) / 0.4);
   }
 
   .btn-trading-red {
-    @apply bg-trading-red text-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
-    background: var(--gradient-button-red);
+    @apply font-semibold rounded-xl py-3 px-6 transition-all duration-200;
+    background: linear-gradient(135deg, hsl(var(--error)) 0%, hsl(0 84% 50%) 100%);
+    color: hsl(var(--foreground));
+    box-shadow: 0 4px 16px hsl(var(--glow-error) / 0.3);
   }
 
   .btn-trading-red:hover {
     @apply opacity-90 scale-[0.98];
+    box-shadow: 0 6px 24px hsl(var(--glow-error) / 0.4);
+  }
+
+  /* === Glass Input === */
+  .glass-input {
+    @apply w-full px-4 py-2.5 backdrop-blur-md rounded-xl text-foreground/95 placeholder:text-foreground/40 transition-all duration-200;
+    background: hsl(var(--glass-inset) / 0.3);
+    border: 1px solid hsl(var(--border-subtle) / 0.15);
+  }
+
+  .glass-input:focus {
+    border-color: hsl(var(--primary) / 0.6);
+    box-shadow: 0 0 20px hsl(var(--glow-primary) / 0.2);
+    outline: none;
+  }
+
+  /* === Tags/Badges === */
+  .glass-tag {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 backdrop-blur-md rounded-lg text-xs font-medium;
+    background: hsl(var(--primary) / 0.15);
+    border: 1px solid hsl(var(--primary) / 0.3);
+    color: hsl(var(--primary-lighter));
+  }
+
+  .glass-tag-success {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 backdrop-blur-md rounded-lg text-xs font-medium;
+    background: hsl(var(--success) / 0.15);
+    border: 1px solid hsl(var(--success) / 0.3);
+    color: hsl(var(--success-light));
+  }
+
+  .glass-tag-error {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 backdrop-blur-md rounded-lg text-xs font-medium;
+    background: hsl(var(--error) / 0.15);
+    border: 1px solid hsl(var(--error) / 0.3);
+    color: hsl(var(--error-light));
+  }
+
+  .glass-tag-warning {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 backdrop-blur-md rounded-lg text-xs font-medium;
+    background: hsl(var(--warning) / 0.15);
+    border: 1px solid hsl(var(--warning) / 0.3);
+    color: hsl(var(--warning-light));
+  }
+
+  /* === Progress Bar === */
+  .glass-progress {
+    @apply h-1.5 rounded-full;
+    background: hsl(var(--glass-primary) / 0.1);
+  }
+
+  .glass-progress-fill {
+    @apply h-full rounded-full;
+    background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary-lighter)) 100%);
+    box-shadow: 0 0 12px hsl(var(--glow-primary) / 0.5);
+  }
+
+  /* === Dividers === */
+  .glass-divider {
+    @apply border-t;
+    border-color: hsl(var(--border-subtle) / 0.1);
+  }
+
+  .glass-divider-strong {
+    @apply border-t;
+    border-color: hsl(var(--border-glass) / 0.2);
+  }
+
+  /* === Legacy Trading Card (for backwards compatibility) === */
+  .trading-card {
+    @apply glass-card p-4;
+  }
+
+  .price-green {
+    color: hsl(var(--success));
+    font-family: 'SF Mono', monospace;
+  }
+
+  .price-red {
+    color: hsl(var(--error));
+    font-family: 'SF Mono', monospace;
   }
 
   .tab-active {
-    @apply text-trading-purple border-b-2 border-trading-purple;
+    color: hsl(var(--primary));
+    border-bottom: 2px solid hsl(var(--primary));
   }
 
   .option-chip {
@@ -117,15 +341,77 @@
   }
 
   .option-chip-active {
-    @apply bg-trading-purple/20 border-2 border-trading-purple text-foreground;
+    background: hsl(var(--primary) / 0.2);
+    border: 2px solid hsl(var(--primary));
+    color: hsl(var(--foreground-primary));
   }
 
   .option-chip-inactive {
-    @apply bg-muted border-2 border-transparent text-muted-foreground;
+    background: hsl(var(--muted));
+    border: 2px solid transparent;
+    color: hsl(var(--foreground-tertiary));
+  }
+
+  /* === Bottom Navigation (Mobile) === */
+  .glass-bottom-nav {
+    @apply backdrop-blur-2xl;
+    background: hsl(260 50% 8% / 0.95);
+    border-top: 1px solid hsl(var(--border-subtle) / 0.08);
+  }
+
+  /* === Modal/Dialog === */
+  .glass-modal {
+    @apply backdrop-blur-2xl rounded-2xl p-6;
+    background: hsl(var(--glass-elevated) / 0.12);
+    border: 1px solid hsl(var(--border-glass) / 0.15);
+    box-shadow: 
+      0 16px 64px hsl(var(--shadow-color) / 0.5),
+      0 8px 24px hsl(var(--glow-primary) / 0.3);
   }
 }
 
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
 @layer utilities {
+  /* === Text Utilities === */
+  .text-primary-base { color: hsl(var(--primary)); }
+  .text-primary-lighter { color: hsl(var(--primary-lighter)); }
+  .text-primary-darker { color: hsl(var(--primary-darker)); }
+  .text-success { color: hsl(var(--success)); }
+  .text-error { color: hsl(var(--error)); }
+  .text-warning { color: hsl(var(--warning)); }
+  .text-info { color: hsl(var(--info)); }
+
+  /* === Background Utilities === */
+  .bg-primary-base { background-color: hsl(var(--primary)); }
+  .bg-success { background-color: hsl(var(--success)); }
+  .bg-error { background-color: hsl(var(--error)); }
+  .bg-warning { background-color: hsl(var(--warning)); }
+
+  /* === Glow Effects === */
+  .glow-primary {
+    box-shadow: 0 0 24px hsl(var(--glow-primary) / 0.4);
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 24px hsl(var(--glow-cyan) / 0.3);
+  }
+
+  .glow-pink {
+    box-shadow: 0 0 24px hsl(var(--glow-pink) / 0.3);
+  }
+
+  .glow-success {
+    box-shadow: 0 0 16px hsl(var(--glow-success) / 0.3);
+  }
+
+  .glow-error {
+    box-shadow: 0 0 16px hsl(var(--glow-error) / 0.3);
+  }
+
+  /* === Scrollbar === */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -134,19 +420,19 @@
     display: none;
   }
 
-  /* Order book animation */
+  /* === Flash Animations === */
   @keyframes flash-green {
-    0% { background-color: hsl(var(--trading-green) / 0.3); }
+    0% { background-color: hsl(var(--success) / 0.3); }
     100% { background-color: transparent; }
   }
 
   @keyframes flash-red {
-    0% { background-color: hsl(var(--trading-red) / 0.3); }
+    0% { background-color: hsl(var(--error) / 0.3); }
     100% { background-color: transparent; }
   }
 
   @keyframes flash-new {
-    0% { background-color: hsl(var(--trading-yellow) / 0.3); }
+    0% { background-color: hsl(var(--warning) / 0.3); }
     100% { background-color: transparent; }
   }
 
@@ -161,4 +447,10 @@
   .flash-new-trade {
     animation: flash-new 0.8s ease-out;
   }
+
+  /* === Glassmorphism Backdrop Helpers === */
+  .backdrop-glass-sm { backdrop-filter: blur(8px); }
+  .backdrop-glass-md { backdrop-filter: blur(16px); }
+  .backdrop-glass-lg { backdrop-filter: blur(24px); }
+  .backdrop-glass-xl { backdrop-filter: blur(40px); }
 }
