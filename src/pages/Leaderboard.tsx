@@ -306,7 +306,7 @@ const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortTyp
 };
 
 // Card theme types
-type CardTheme = "default" | "neon" | "minimal" | "gold";
+type CardTheme = "default" | "neon" | "brutal" | "gold";
 type StatKey = "pnl" | "roi" | "volume";
 
 interface CardThemeConfig {
@@ -357,20 +357,20 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     sparkleColors: ["text-cyan-400/60", "text-purple-400/50", "text-pink-400/40"],
     rankBadgeBg: "from-cyan-500 to-purple-500",
   },
-  minimal: {
-    name: "Minimal",
-    bgStyle: "from-card to-card",
-    borderStyle: "border-border/50",
-    glowEffects: false,
+  brutal: {
+    name: "Brutal",
+    bgStyle: "from-black via-zinc-950 to-black",
+    borderStyle: "border-white border-4",
+    glowEffects: true,
     sparkles: false,
-    badgeBg: "bg-muted",
-    badgeBorder: "border-border",
-    badgeText: "text-foreground",
-    pnlColor: "text-foreground",
-    roiColor: "text-muted-foreground",
-    volumeColor: "text-muted-foreground",
-    sparkleColors: ["text-muted-foreground/30", "text-muted-foreground/20", "text-muted-foreground/10"],
-    rankBadgeBg: "from-muted to-muted",
+    badgeBg: "bg-white",
+    badgeBorder: "border-white",
+    badgeText: "text-black",
+    pnlColor: "text-lime-400",
+    roiColor: "text-white",
+    volumeColor: "text-white",
+    sparkleColors: ["text-white/60", "text-white/40", "text-white/20"],
+    rankBadgeBg: "from-white to-zinc-200",
   },
   gold: {
     name: "Gold",
@@ -392,7 +392,7 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
 const themeGlowColors: Record<CardTheme, { primary: string; secondary: string; tertiary: string }> = {
   default: { primary: "from-yellow-500/20", secondary: "from-trading-green/20", tertiary: "bg-primary/5" },
   neon: { primary: "from-cyan-500/30", secondary: "from-purple-500/30", tertiary: "bg-pink-500/10" },
-  minimal: { primary: "from-transparent", secondary: "from-transparent", tertiary: "bg-transparent" },
+  brutal: { primary: "from-white/10", secondary: "from-lime-400/20", tertiary: "bg-white/5" },
   gold: { primary: "from-yellow-400/30", secondary: "from-amber-500/20", tertiary: "bg-orange-500/10" },
 };
 
@@ -536,7 +536,7 @@ interface CardCustomizationProps {
 }
 
 const CardCustomization = ({ theme, onThemeChange, visibleStats, onStatsChange }: CardCustomizationProps) => {
-  const themes: CardTheme[] = ["default", "neon", "minimal", "gold"];
+  const themes: CardTheme[] = ["default", "neon", "brutal", "gold"];
   const allStats: { key: StatKey; label: string }[] = [
     { key: "pnl", label: "PnL" },
     { key: "roi", label: "ROI" },
