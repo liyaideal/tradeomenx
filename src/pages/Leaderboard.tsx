@@ -699,6 +699,8 @@ const ShareModal = ({
         quality: 1,
         pixelRatio: 2,
         backgroundColor: '#0a0c14',
+        skipFonts: true, // Skip external fonts to avoid CORS errors
+        cacheBust: true,
       });
       if (blob) {
         setImageBlob(blob);
@@ -933,6 +935,8 @@ export default function Leaderboard() {
         quality: 1,
         pixelRatio: 2,
         backgroundColor: '#0a0c14',
+        skipFonts: true, // Skip external fonts to avoid CORS errors
+        cacheBust: true,
       });
 
       if (blob) {
