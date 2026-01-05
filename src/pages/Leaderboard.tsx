@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -613,13 +613,59 @@ const CardCustomization = ({ theme, onThemeChange, visibleStats, onStatsChange }
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
-  imageBlob: Blob | null;
   user: LeaderboardUser;
+  cardRef: React.RefObject<HTMLDivElement>;
+  theme: CardTheme;
+  onThemeChange: (theme: CardTheme) => void;
+  visibleStats: StatKey[];
+  onStatsChange: (stats: StatKey[]) => void;
 }
 
-const ShareModal = ({ isOpen, onClose, imageBlob, user }: ShareModalProps) => {
+const ShareModal = ({ 
+  isOpen, 
+  onClose, 
+  user, 
+  cardRef,
+  theme,
+  onThemeChange,
+  visibleStats,
+  onStatsChange
+}: ShareModalProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [imageBlob, setImageBlob] = useState<Blob | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const modalCardRef = useRef<HTMLDivElement>(null);
+
+  // Generate image when modal opens or customization changes
+  const generateImage = async () => {
+    if (!modalCardRef.current) return;
+    
+    setIsGenerating(true);
+    try {
+      const blob = await htmlToImage.toBlob(modalCardRef.current, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: '#0a0c14',
+      });
+      if (blob) {
+        setImageBlob(blob);
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Regenerate image when theme or stats change
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to ensure the card is rendered
+      const timer = setTimeout(generateImage, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, theme, visibleStats]);
 
   if (!isOpen) return null;
 
@@ -695,41 +741,52 @@ const ShareModal = ({ isOpen, onClose, imageBlob, user }: ShareModalProps) => {
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="relative bg-card border border-border rounded-2xl p-6 w-full max-w-sm animate-scale-in">
+      <div className="relative bg-card border border-border rounded-2xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto animate-scale-in">
         {/* Close button */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 rounded-full hover:bg-muted transition-colors"
+          className="absolute top-4 right-4 p-1 rounded-full hover:bg-muted transition-colors z-10"
         >
           <X className="w-5 h-5 text-muted-foreground" />
         </button>
 
         <h3 className="text-lg font-bold text-foreground mb-2">Share Your Rank</h3>
-        <p className="text-sm text-muted-foreground mb-6">Choose how to share your achievement</p>
+        <p className="text-sm text-muted-foreground mb-4">Customize and share your achievement</p>
 
-        {/* Image Preview */}
-        {imageBlob && (
-          <div className="mb-6 rounded-xl overflow-hidden border border-border/50">
-            <img 
-              src={URL.createObjectURL(imageBlob)} 
-              alt="Rank Card Preview" 
-              className="w-full"
+        {/* Customization Options */}
+        <CardCustomization 
+          theme={theme}
+          onThemeChange={onThemeChange}
+          visibleStats={visibleStats}
+          onStatsChange={onStatsChange}
+        />
+
+        {/* Card Preview with Loading */}
+        <div className="relative mb-4">
+          <div ref={modalCardRef}>
+            <ShareableCard 
+              user={user}
+              theme={theme}
+              visibleStats={visibleStats}
+              isGenerating={isGenerating}
             />
           </div>
-        )}
+        </div>
 
         {/* Share Options */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <button
             onClick={handleDownload}
-            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+            disabled={!imageBlob || isGenerating}
+            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors disabled:opacity-50"
           >
             <Download className="w-5 h-5 text-foreground" />
             <span className="text-sm font-medium">Save</span>
           </button>
           <button
             onClick={handleCopyImage}
-            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+            disabled={!imageBlob || isGenerating}
+            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors disabled:opacity-50"
           >
             {copied ? <Check className="w-5 h-5 text-trading-green" /> : <Copy className="w-5 h-5 text-foreground" />}
             <span className="text-sm font-medium">{copied ? "Copied!" : "Copy"}</span>
@@ -932,14 +989,6 @@ export default function Leaderboard() {
             Share Your Rank
           </h3>
           
-          {/* Customization Options */}
-          <CardCustomization 
-            theme={cardTheme}
-            onThemeChange={setCardTheme}
-            visibleStats={visibleStats}
-            onStatsChange={setVisibleStats}
-          />
-          
           <ShareableCard 
             user={currentUser || topThree[0]} 
             cardRef={cardRef}
@@ -949,7 +998,7 @@ export default function Leaderboard() {
             visibleStats={visibleStats}
           />
           <p className="text-center text-sm text-muted-foreground mt-4">
-            Tap to share your ranking card on social media
+            Tap to customize and share your ranking card
           </p>
         </div>
         {/* Spacer for fixed MyRankBar */}
@@ -960,8 +1009,12 @@ export default function Leaderboard() {
       <ShareModal 
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        imageBlob={shareImageBlob}
         user={currentUser || topThree[0]}
+        cardRef={cardRef}
+        theme={cardTheme}
+        onThemeChange={setCardTheme}
+        visibleStats={visibleStats}
+        onStatsChange={setVisibleStats}
       />
     </div>
   );
