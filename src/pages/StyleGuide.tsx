@@ -157,6 +157,37 @@ const StyleGuide = () => {
     setTimeout(() => setCopiedColor(null), 2000);
   };
 
+  // State for tracking copied code snippets
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  const copyCode = (code: string, id: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(id);
+    toast.success("Code copied to clipboard!");
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  // Reusable CodePreview component
+  const CodePreview = ({ code, id }: { code: string; id: string }) => (
+    <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto relative group">
+      <code className="text-xs text-muted-foreground font-mono whitespace-nowrap pr-10">
+        {code}
+      </code>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={() => copyCode(code, id)}
+      >
+        {copiedCode === id ? (
+          <Check className="h-3.5 w-3.5 text-trading-green" />
+        ) : (
+          <Copy className="h-3.5 w-3.5" />
+        )}
+      </Button>
+    </div>
+  );
+
   const colorSections = [
     {
       title: "Core Colors",
@@ -424,12 +455,10 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Code Preview */}
-                <div className="mt-4 p-3 bg-background rounded-lg border border-border">
-                  <code className="text-xs text-muted-foreground font-mono">
-                    {`<Button variant="${buttonVariant}" size="${buttonSize}"${buttonDisabled ? " disabled" : ""}>${buttonSize === "icon" ? "<Icon />" : buttonText}</Button>`}
-                  </code>
-                </div>
+                <CodePreview 
+                  code={`<Button variant="${buttonVariant}" size="${buttonSize}"${buttonDisabled ? " disabled" : ""}>${buttonSize === "icon" ? "<Icon />" : buttonText}</Button>`}
+                  id="button-code"
+                />
               </CardContent>
             </Card>
 
@@ -684,12 +713,10 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Code Preview */}
-                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
-                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
-                    {`<Card${cardStyle === "trading" ? ' className="trading-card"' : ""}><CardHeader>...</CardHeader></Card>`}
-                  </code>
-                </div>
+                <CodePreview 
+                  code={`<Card${cardStyle === "trading" ? ' className="trading-card"' : ""}><CardHeader>...</CardHeader></Card>`}
+                  id="card-code"
+                />
               </CardContent>
             </Card>
 
@@ -740,12 +767,10 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Code Preview */}
-                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
-                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
-                    {`<Switch${switchChecked ? " checked" : ""}${switchDisabled ? " disabled" : ""} />`}
-                  </code>
-                </div>
+                <CodePreview 
+                  code={`<Switch${switchChecked ? " checked" : ""}${switchDisabled ? " disabled" : ""} />`}
+                  id="switch-code"
+                />
               </CardContent>
             </Card>
 
@@ -814,12 +839,10 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Code Preview */}
-                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
-                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
-                    {`<Slider value={[${sliderValue[0]}]} min={${sliderMin}} max={${sliderMax}} step={${sliderStep}}${sliderDisabled ? " disabled" : ""} />`}
-                  </code>
-                </div>
+                <CodePreview 
+                  code={`<Slider value={[${sliderValue[0]}]} min={${sliderMin}} max={${sliderMax}} step={${sliderStep}}${sliderDisabled ? " disabled" : ""} />`}
+                  id="slider-code"
+                />
               </CardContent>
             </Card>
 
@@ -905,12 +928,10 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Code Preview */}
-                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
-                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
-                    {`<Tabs><TabsList${tabsStyle === "full-width" ? ' className="w-full"' : ""}>${Array.from({ length: tabsCount }).map((_, i) => `<TabsTrigger>${tabLabels[i]}</TabsTrigger>`).join("")}</TabsList></Tabs>`}
-                  </code>
-                </div>
+                <CodePreview 
+                  code={`<Tabs><TabsList${tabsStyle === "full-width" ? ' className="w-full"' : ""}>${Array.from({ length: tabsCount }).map((_, i) => `<TabsTrigger>${tabLabels[i]}</TabsTrigger>`).join("")}</TabsList></Tabs>`}
+                  id="tabs-code"
+                />
               </CardContent>
             </Card>
 
@@ -978,12 +999,10 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Code Preview */}
-                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
-                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
-                    {`<Tooltip delayDuration={${tooltipDelayDuration}}><TooltipTrigger>...</TooltipTrigger><TooltipContent side="${tooltipSide}">${tooltipText}</TooltipContent></Tooltip>`}
-                  </code>
-                </div>
+                <CodePreview 
+                  code={`<Tooltip delayDuration={${tooltipDelayDuration}}><TooltipTrigger>...</TooltipTrigger><TooltipContent side="${tooltipSide}">${tooltipText}</TooltipContent></Tooltip>`}
+                  id="tooltip-code"
+                />
               </CardContent>
             </Card>
 
@@ -1067,12 +1086,10 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Code Preview */}
-                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
-                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
-                    {`<Popover><PopoverTrigger>...</PopoverTrigger><PopoverContent side="${popoverSide}" align="${popoverAlign}">...</PopoverContent></Popover>`}
-                  </code>
-                </div>
+                <CodePreview 
+                  code={`<Popover><PopoverTrigger>...</PopoverTrigger><PopoverContent side="${popoverSide}" align="${popoverAlign}">...</PopoverContent></Popover>`}
+                  id="popover-code"
+                />
               </CardContent>
             </Card>
 
@@ -1178,12 +1195,10 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Code Preview */}
-                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
-                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
-                    {`<Dialog><DialogTrigger>...</DialogTrigger><DialogContent className="${getDialogSizeClass()}">...</DialogContent></Dialog>`}
-                  </code>
-                </div>
+                <CodePreview 
+                  code={`<Dialog><DialogTrigger>...</DialogTrigger><DialogContent className="${getDialogSizeClass()}">...</DialogContent></Dialog>`}
+                  id="dialog-code"
+                />
               </CardContent>
             </Card>
           </div>
