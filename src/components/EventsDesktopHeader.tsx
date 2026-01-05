@@ -25,9 +25,10 @@ const languages = [
 
 interface EventsDesktopHeaderProps {
   balance?: number;
+  rightContent?: React.ReactNode;
 }
 
-export const EventsDesktopHeader = ({ balance = 2345.67 }: EventsDesktopHeaderProps) => {
+export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsDesktopHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [language, setLanguage] = useState("EN");
@@ -78,8 +79,10 @@ export const EventsDesktopHeader = ({ balance = 2345.67 }: EventsDesktopHeaderPr
           </nav>
         </div>
 
-        {/* Right: Language + Balance + Profile */}
+        {/* Right: Custom Content + Language + Balance + Profile */}
         <div className="flex items-center gap-4">
+          {/* Custom right content */}
+          {rightContent}
           {/* Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
