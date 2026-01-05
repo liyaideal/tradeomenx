@@ -241,6 +241,8 @@ export default function TradingCharts() {
         title={selectedEvent.name}
         endTime={selectedEvent.endTime}
         showActions
+        showBack={true}
+        backTo="/"
         tweetCount={selectedEvent.tweetCount}
         onTitleClick={() => setEventSheetOpen(true)}
       />

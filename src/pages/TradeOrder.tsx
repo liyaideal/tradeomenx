@@ -187,6 +187,8 @@ export default function TradeOrder() {
         title={selectedEvent.name}
         endTime={selectedEvent.endTime}
         showActions
+        showBack={true}
+        backTo="/"
         tweetCount={selectedEvent.tweetCount}
         onTitleClick={() => setEventSheetOpen(true)}
       />
