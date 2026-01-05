@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, RefreshCw } from "lucide-react";
@@ -8,68 +8,28 @@ import { EventCard, EventData } from "@/components/EventCard";
 import { EventStatsOverview } from "@/components/EventStatsOverview";
 import { EventFilters, EventStatusFilter } from "@/components/EventFilters";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { activeEvents, eventOptionsMap } from "@/data/events";
 import omenxLogo from "@/assets/omenx-logo.svg";
-// Mock events data
-const mockEvents: EventData[] = [
-  {
-    id: "1",
-    title: "When will government shutdown end?",
-    status: "active",
-    hasMultipleOptions: true,
-    settlementDate: "2024-11-05 23:59 UTC",
-    options: [
-      { id: "1", label: "November 4-7", price: "0.01" },
-      { id: "2", label: "November 8-11", price: "0.09" },
-      { id: "3", label: "November 12-15", price: "0.33" },
-      { id: "4", label: "November 16+", price: "0.57" },
-    ],
-    totalVolume: "$2.4M",
+
+// Transform activeEvents to EventData format for EventCard
+const transformedEvents: EventData[] = activeEvents.map((event) => {
+  const options = eventOptionsMap[event.id] || [];
+  return {
+    id: event.id,
+    title: event.name,
+    status: event.endTime > new Date() ? "active" : "locked",
+    hasMultipleOptions: options.length > 2,
+    settlementDate: event.ends,
+    options: options.map(opt => ({
+      id: opt.id,
+      label: opt.label,
+      price: opt.price,
+    })),
+    totalVolume: event.volume,
     volume24h: "$0.1M",
-    participants: 183,
-  },
-  {
-    id: "2",
-    title: "Will Bitcoin exceed $100K by end of 2024?",
-    status: "locked",
-    hasMultipleOptions: false,
-    settlementDate: "2024-12-31 23:59 UTC",
-    options: [
-      { id: "1", label: "YES", price: "6.89" },
-      { id: "2", label: "NO", price: "3.11" },
-    ],
-    totalVolume: "$45.7M",
-    volume24h: "$0.1M",
-    participants: 289,
-  },
-  {
-    id: "3",
-    title: "Will Apple next quarter revenue exceed analyst expectations?",
-    status: "active",
-    hasMultipleOptions: false,
-    settlementDate: "2024-10-31 16:30 UTC",
-    options: [
-      { id: "1", label: "YES", price: "0.412" },
-      { id: "2", label: "NO", price: "0.588" },
-    ],
-    totalVolume: "$2.4M",
-    volume24h: "$0.1M",
-    participants: 183,
-  },
-  {
-    id: "4",
-    title: "Will Tesla Q1 2025 deliveries exceed 500K units?",
-    status: "active",
-    hasMultipleOptions: false,
-    settlementDate: "2025-04-30 23:59 UTC",
-    options: [
-      { id: "1", label: "YES", price: "0.423" },
-      { id: "2", label: "NO", price: "0.577" },
-    ],
-    totalVolume: "$2.4M",
-    volume24h: "$0.1M",
-    participants: 183,
-  },
-];
+    participants: Math.floor(Math.random() * 200 + 100),
+  };
+});
 
 const EventsPage = () => {
   const navigate = useNavigate();
@@ -87,7 +47,7 @@ const EventsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Filter events
-  const filteredEvents = mockEvents.filter((event) => {
+  const filteredEvents = transformedEvents.filter((event) => {
     if (statusFilter !== "all" && event.status !== statusFilter) {
       return false;
     }
