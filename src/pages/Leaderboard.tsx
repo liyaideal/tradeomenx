@@ -11,6 +11,14 @@ import * as htmlToImage from "html-to-image";
 import omenxLogo from "@/assets/omenx-logo.svg";
 
 type SortType = "pnl" | "roi" | "volume";
+type PeriodType = "daily" | "7d" | "30d" | "180d";
+
+const periodTabs: { key: PeriodType; label: string }[] = [
+  { key: "daily", label: "Daily" },
+  { key: "7d", label: "7 Days" },
+  { key: "30d", label: "30 Days" },
+  { key: "180d", label: "180 Days" },
+];
 
 interface LeaderboardUser {
   rank: number;
@@ -871,6 +879,7 @@ export default function Leaderboard() {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [sortType, setSortType] = useState<SortType>("pnl");
+  const [period, setPeriod] = useState<PeriodType>("7d");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -995,9 +1004,23 @@ export default function Leaderboard() {
                 LEADERBOARD
               </h1>
             </div>
-            <p className="text-muted-foreground text-xs mt-1">
-              Top traders this week
-            </p>
+          </div>
+
+          {/* Period Tabs */}
+          <div className="flex justify-center gap-1.5 mt-3 mb-4">
+            {periodTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setPeriod(tab.key)}
+                className={`px-3 py-1 rounded-full text-[11px] font-medium transition-all duration-200 ${
+                  period === tab.key
+                    ? "bg-foreground/10 text-foreground border border-foreground/20"
+                    : "text-muted-foreground hover:text-foreground/80"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Sort Tabs */}
