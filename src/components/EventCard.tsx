@@ -249,7 +249,11 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
 
   // Navigate to trade page when clicking card (except interactive areas)
   const handleCardClick = () => {
-    navigate(`/trade?event=${event.id}`);
+    if (onEventClick) {
+      onEventClick(event.id);
+    } else {
+      navigate(`/trade?event=${event.id}`);
+    }
   };
 
   // Generate mock price history for options if not provided
