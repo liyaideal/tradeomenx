@@ -112,7 +112,7 @@ const MiniChart = ({ options }: { options: EventOption[] }) => {
           {/* SVG Chart */}
           <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full" preserveAspectRatio="none">
             {options.map((option, index) => {
-              const data = option.priceHistory || Array.from({ length: 200 }, () => 20 + Math.random() * 60);
+              const data = option.priceHistory || Array.from({ length: 1500 }, () => 20 + Math.random() * 60);
               const color = CHART_COLORS[index % CHART_COLORS.length];
               
               return (
