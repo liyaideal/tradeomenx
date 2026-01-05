@@ -8,6 +8,7 @@ import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
+import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/trade" element={<TradingPage />} />
             <Route path="/trade/order" element={<TradeOrderPage />} />
             <Route path="/order-preview" element={<OrderPreview />} />
+            <Route path="/design-system" element={<DesignSystem />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ResponsiveLayout>
