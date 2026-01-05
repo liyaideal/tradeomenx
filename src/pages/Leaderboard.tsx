@@ -933,14 +933,14 @@ export default function Leaderboard() {
             
             {/* Neon Leaderboard Title */}
             <div className="relative inline-block">
-              {/* Outer glow - soft spread */}
-              <div className="absolute inset-0 blur-3xl opacity-40">
+              {/* Outer glow - soft spread with pulse */}
+              <div className="absolute inset-0 blur-3xl opacity-40 animate-[pulse_3s_ease-in-out_infinite]">
                 <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#a855f7]">
                   LEADERBOARD
                 </h1>
               </div>
-              {/* Mid glow */}
-              <div className="absolute inset-0 blur-xl opacity-60">
+              {/* Mid glow with delayed pulse */}
+              <div className="absolute inset-0 blur-xl opacity-60 animate-[pulse_3s_ease-in-out_0.5s_infinite]">
                 <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#c084fc]">
                   LEADERBOARD
                 </h1>
@@ -951,9 +951,9 @@ export default function Leaderboard() {
                   LEADERBOARD
                 </h1>
               </div>
-              {/* Main text - hollow stroke effect */}
+              {/* Main text - hollow stroke effect with subtle glow pulse */}
               <h1 
-                className="relative text-4xl md:text-6xl font-black tracking-tight text-transparent"
+                className="relative text-4xl md:text-6xl font-black tracking-tight text-transparent animate-[neon-pulse_3s_ease-in-out_infinite]"
                 style={{
                   WebkitTextStroke: '2px #c084fc',
                   textShadow: '0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 40px #7c3aed, 0 0 80px #7c3aed'
