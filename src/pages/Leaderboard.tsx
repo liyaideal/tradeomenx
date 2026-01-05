@@ -91,8 +91,39 @@ const getRankColors = (rank: number) => {
 };
 
 const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sortType: SortType; position: "left" | "center" | "right" }) => {
-  const colors = getRankColors(user.rank);
   const isFirst = user.rank === 1;
+  const isSecond = user.rank === 2;
+  const isThird = user.rank === 3;
+  
+  // Colors for each rank
+  const rankStyles = {
+    1: {
+      border: "border-yellow-400",
+      glow: "shadow-[0_0_20px_rgba(250,204,21,0.4)]",
+      badgeBg: "bg-yellow-400",
+      badgeText: "text-yellow-950",
+      podiumBg: "bg-gradient-to-b from-yellow-400/80 to-yellow-600/60",
+      valueColor: "text-yellow-400",
+    },
+    2: {
+      border: "border-slate-400",
+      glow: "shadow-[0_0_15px_rgba(148,163,184,0.3)]",
+      badgeBg: "bg-slate-400",
+      badgeText: "text-slate-900",
+      podiumBg: "bg-gradient-to-b from-slate-400/60 to-slate-500/40",
+      valueColor: "text-slate-300",
+    },
+    3: {
+      border: "border-amber-600",
+      glow: "shadow-[0_0_15px_rgba(217,119,6,0.3)]",
+      badgeBg: "bg-amber-600",
+      badgeText: "text-amber-950",
+      podiumBg: "bg-gradient-to-b from-amber-600/60 to-amber-700/40",
+      valueColor: "text-amber-500",
+    },
+  };
+  
+  const style = rankStyles[user.rank as 1 | 2 | 3];
   
   const getValue = () => {
     switch (sortType) {
@@ -105,68 +136,53 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
     }
   };
 
-  const podiumHeight = isFirst ? "h-28" : user.rank === 2 ? "h-20" : "h-16";
-  const avatarSize = isFirst ? "h-24 w-24" : "h-20 w-20";
+  const podiumHeight = isFirst ? "h-24" : isSecond ? "h-16" : "h-12";
+  const avatarSize = isFirst ? "h-20 w-20" : "h-16 w-16";
   const orderClass = position === "left" ? "order-1" : position === "center" ? "order-2" : "order-3";
 
   return (
-    <div className={`flex flex-col items-center ${orderClass}`}>
+    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "-mt-8" : ""}`}>
       {/* Crown for #1 */}
       {isFirst && (
-        <div className="relative mb-2 animate-pulse">
-          <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]" />
+        <div className="mb-2">
+          <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
         </div>
       )}
 
-      {/* Laurel Wreath + Avatar Container */}
-      <div className="relative mb-3">
-        {/* Glow effect */}
-        <div className={`absolute inset-0 rounded-full blur-xl opacity-50 scale-150 ${colors.bg}`} />
-        
-        {/* Laurel Wreath behind avatar */}
-        <div className="absolute -inset-4 flex items-center justify-center">
-          <LaurelWreath 
-            color={colors.leaf} 
-            size={isFirst ? "lg" : "md"} 
-            className="opacity-80"
-          />
-        </div>
-
-        {/* Avatar */}
-        <div className={`relative ${colors.glow} rounded-full`}>
-          <div className={`absolute -inset-1 bg-gradient-to-br ${colors.gradient} rounded-full opacity-75 blur-sm`} />
-          <Avatar className={`relative ${avatarSize} border-3 ${colors.border} ring-2 ring-background`}>
+      {/* Avatar with border */}
+      <div className="relative mb-1">
+        <div className={`relative rounded-full ${style.glow}`}>
+          <Avatar className={`${avatarSize} border-[3px] ${style.border} bg-background`}>
             <AvatarImage src={user.avatar} alt={user.username} />
             <AvatarFallback className="text-lg">{user.username.slice(0, 2)}</AvatarFallback>
           </Avatar>
         </div>
-      </div>
-
-      {/* Rank Badge */}
-      <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${colors.gradient} font-bold text-sm mb-2 shadow-lg`}>
-        <span className="text-background drop-shadow">{user.rank}</span>
-        <span className="text-[10px] text-background/80">{user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd"}</span>
+        
+        {/* Rank Badge - positioned at bottom right */}
+        <div className={`absolute -bottom-1 -right-1 flex items-center justify-center w-7 h-7 rounded-full ${style.badgeBg} ${style.badgeText} text-xs font-bold shadow-lg`}>
+          {user.rank}<sup className="text-[8px]">{user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd"}</sup>
+        </div>
       </div>
 
       {/* Username */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base" : "text-sm"} mb-1 truncate max-w-[100px] text-center`}>
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-base" : "text-sm"} mt-2 truncate max-w-[100px] text-center`}>
         {user.username}
       </h3>
 
       {/* Value */}
-      <div className={`flex items-center gap-1 font-mono font-bold ${colors.text} ${isFirst ? "text-xl" : "text-lg"}`}>
+      <div className={`flex items-center gap-1 font-mono font-bold ${style.valueColor} ${isFirst ? "text-lg" : "text-base"}`}>
         <Zap className="w-4 h-4" />
         {getValue()}
       </div>
 
-      {/* Podium */}
-      <div className={`w-24 ${podiumHeight} mt-4 rounded-t-xl bg-gradient-to-b ${colors.gradient} opacity-80 relative overflow-hidden`}>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 font-bold text-background/80 text-2xl">
+      {/* Podium Block */}
+      <div className={`w-20 md:w-24 ${podiumHeight} mt-3 rounded-t-xl ${style.podiumBg} relative overflow-hidden border-t border-x border-white/10`}>
+        {/* Number */}
+        <div className={`absolute inset-0 flex items-center justify-center font-bold text-2xl md:text-3xl text-white/20`}>
           {user.rank}
         </div>
         {/* Shine effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
     </div>
   );
