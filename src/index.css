@@ -15,16 +15,17 @@
     --popover: 222 47% 9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 142 71% 45%;
-    --primary-foreground: 222 47% 6%;
+    /* Brand color - Purple */
+    --primary: 260 60% 55%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 260 60% 55%;
+    --secondary: 222 30% 22%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 222 30% 18%;
     --muted-foreground: 215 20% 55%;
 
-    --accent: 260 60% 55%;
+    --accent: 260 50% 45%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 72% 51%;
@@ -32,7 +33,7 @@
 
     --border: 222 30% 18%;
     --input: 222 30% 15%;
-    --ring: 142 71% 45%;
+    --ring: 260 60% 55%;
 
     --radius: 0.75rem;
 
