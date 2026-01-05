@@ -2,48 +2,56 @@ interface LaurelWreathProps {
   className?: string;
   color?: string;
   size?: "sm" | "md" | "lg";
+  showTrophy?: boolean;
 }
 
-export const LaurelWreath = ({ className = "", color = "currentColor", size = "md" }: LaurelWreathProps) => {
+// Complete circular laurel wreath
+export const LaurelWreath = ({ className = "", color = "#FFD700", size = "md", showTrophy = false }: LaurelWreathProps) => {
   const sizeMap = {
-    sm: { width: 60, height: 40 },
-    md: { width: 80, height: 50 },
-    lg: { width: 120, height: 70 },
+    sm: { width: 70, height: 70 },
+    md: { width: 90, height: 90 },
+    lg: { width: 110, height: 110 },
   };
 
   const { width, height } = sizeMap[size];
 
   return (
     <svg
-      viewBox="0 0 100 60"
+      viewBox="0 0 100 100"
       width={width}
       height={height}
       className={className}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Left branch */}
-      <g fill={color} opacity="0.9">
-        {/* Left leaves */}
-        <ellipse cx="15" cy="50" rx="4" ry="8" transform="rotate(-30 15 50)" />
-        <ellipse cx="18" cy="42" rx="4" ry="8" transform="rotate(-20 18 42)" />
-        <ellipse cx="22" cy="34" rx="4" ry="8" transform="rotate(-10 22 34)" />
-        <ellipse cx="27" cy="27" rx="4" ry="8" transform="rotate(0 27 27)" />
-        <ellipse cx="33" cy="21" rx="4" ry="8" transform="rotate(10 33 21)" />
-        <ellipse cx="40" cy="16" rx="4" ry="8" transform="rotate(20 40 16)" />
-        <ellipse cx="47" cy="13" rx="3" ry="6" transform="rotate(30 47 13)" />
+      {/* Left branch - bottom to top */}
+      <g fill={color}>
+        <ellipse cx="18" cy="75" rx="5" ry="10" transform="rotate(-60 18 75)" />
+        <ellipse cx="12" cy="62" rx="5" ry="10" transform="rotate(-45 12 62)" />
+        <ellipse cx="10" cy="48" rx="5" ry="10" transform="rotate(-30 10 48)" />
+        <ellipse cx="12" cy="35" rx="5" ry="10" transform="rotate(-15 12 35)" />
+        <ellipse cx="18" cy="23" rx="5" ry="10" transform="rotate(5 18 23)" />
+        <ellipse cx="28" cy="14" rx="5" ry="10" transform="rotate(25 28 14)" />
+        <ellipse cx="40" cy="8" rx="4" ry="8" transform="rotate(45 40 8)" />
       </g>
 
-      {/* Right branch (mirrored) */}
-      <g fill={color} opacity="0.9">
-        <ellipse cx="85" cy="50" rx="4" ry="8" transform="rotate(30 85 50)" />
-        <ellipse cx="82" cy="42" rx="4" ry="8" transform="rotate(20 82 42)" />
-        <ellipse cx="78" cy="34" rx="4" ry="8" transform="rotate(10 78 34)" />
-        <ellipse cx="73" cy="27" rx="4" ry="8" transform="rotate(0 73 27)" />
-        <ellipse cx="67" cy="21" rx="4" ry="8" transform="rotate(-10 67 21)" />
-        <ellipse cx="60" cy="16" rx="4" ry="8" transform="rotate(-20 60 16)" />
-        <ellipse cx="53" cy="13" rx="3" ry="6" transform="rotate(-30 53 13)" />
+      {/* Right branch - bottom to top (mirrored) */}
+      <g fill={color}>
+        <ellipse cx="82" cy="75" rx="5" ry="10" transform="rotate(60 82 75)" />
+        <ellipse cx="88" cy="62" rx="5" ry="10" transform="rotate(45 88 62)" />
+        <ellipse cx="90" cy="48" rx="5" ry="10" transform="rotate(30 90 48)" />
+        <ellipse cx="88" cy="35" rx="5" ry="10" transform="rotate(15 88 35)" />
+        <ellipse cx="82" cy="23" rx="5" ry="10" transform="rotate(-5 82 23)" />
+        <ellipse cx="72" cy="14" rx="5" ry="10" transform="rotate(-25 72 14)" />
+        <ellipse cx="60" cy="8" rx="4" ry="8" transform="rotate(-45 60 8)" />
       </g>
+
+      {/* Trophy icon at top center for 1st place */}
+      {showTrophy && (
+        <g fill={color} transform="translate(42, -2) scale(0.16)">
+          <path d="M50 20h-8v-8c0-2.2-1.8-4-4-4H26c-2.2 0-4 1.8-4 4v8h-8c-2.2 0-4 1.8-4 4v12c0 8.8 7.2 16 16 16h4c1.1 4.5 4.2 8.3 8.5 10.5V72H26c-2.2 0-4 1.8-4 4v4h40v-4c0-2.2-1.8-4-4-4H45.5V62.5c4.3-2.2 7.4-6 8.5-10.5h4c8.8 0 16-7.2 16-16V24c0-2.2-1.8-4-4-4zM18 36V28h4v12c0 1.4.1 2.7.3 4-2.5-1.8-4.3-4.6-4.3-8zm32-16v20c0 5.5-4.5 10-10 10h-4c-5.5 0-10-4.5-10-10V20h24zm16 16c0 3.4-1.8 6.2-4.3 8 .2-1.3.3-2.6.3-4V28h4v8z"/>
+        </g>
+      )}
     </svg>
   );
 };
@@ -62,12 +70,12 @@ export const LaurelBadge = ({ rank, className = "" }: { rank: number; className?
     }
   };
 
-  const { leaf, badge, text } = getColors();
+  const { leaf, text } = getColors();
   const suffix = rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th";
 
   return (
     <div className={`relative flex items-center justify-center ${className}`}>
-      <LaurelWreath color={leaf} size="md" />
+      <LaurelWreath color={leaf} size="md" showTrophy={rank === 1} />
       <div 
         className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-baseline gap-0.5 font-bold`}
         style={{ color: text }}
@@ -96,19 +104,9 @@ export const SmallLaurelBadge = ({ rank }: { rank: number }) => {
     }
   };
 
-  const suffix = rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th";
-
   return (
-    <div className="relative flex items-center justify-center w-12 h-10">
-      {rank <= 5 && (
-        <LaurelWreath color="currentColor" size="sm" className={getColors()} />
-      )}
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-baseline gap-0.5 font-bold ${
-        rank <= 3 ? getColors() : "text-muted-foreground"
-      }`}>
-        <span className="text-sm">{rank}</span>
-        <span className="text-[10px]">{suffix}</span>
-      </div>
+    <div className={`flex items-center justify-center w-10 font-bold text-sm ${getColors()}`}>
+      #{rank}
     </div>
   );
 };
