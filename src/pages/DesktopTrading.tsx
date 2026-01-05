@@ -250,6 +250,28 @@ export default function DesktopTrading() {
     setClosingPositionIndex(null);
   };
   
+  // Cancel order dialog state
+  const [orders, setOrders] = useState(mockOrders);
+  const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
+  const [cancellingOrderIndex, setCancellingOrderIndex] = useState<number | null>(null);
+  
+  const handleCancelOrderClick = (index: number) => {
+    setCancellingOrderIndex(index);
+    setCancelOrderOpen(true);
+  };
+  
+  const handleConfirmCancelOrder = () => {
+    if (cancellingOrderIndex !== null) {
+      const order = orders[cancellingOrderIndex];
+      setOrders(prev => prev.filter((_, idx) => idx !== cancellingOrderIndex));
+      toast.success("Order Cancelled", {
+        description: `Your ${order.type} order for ${order.option} has been cancelled.`,
+      });
+    }
+    setCancelOrderOpen(false);
+    setCancellingOrderIndex(null);
+  };
+  
   const handleEditPositionTpSl = (index: number) => {
     const position = positions[index];
     setEditingPositionIndex(index);
@@ -887,7 +909,7 @@ export default function DesktopTrading() {
                 >
                   {tab}
                   <span className="ml-1 text-muted-foreground">
-                    ({tab === "Current Orders" ? mockOrders.length : positions.length})
+                    ({tab === "Current Orders" ? orders.length : positions.length})
                   </span>
                 </button>
               ))}
@@ -910,12 +932,12 @@ export default function DesktopTrading() {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockOrders.length === 0 ? (
+                    {orders.length === 0 ? (
                       <tr>
                         <td colSpan={9} className="px-4 py-6 text-center text-sm text-muted-foreground">No open orders</td>
                       </tr>
                     ) : (
-                      mockOrders.map((order, index) => (
+                      orders.map((order, index) => (
                         <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
                           <td className="px-4 py-2">
                             <div className="text-sm font-medium">{order.option}</div>
@@ -989,7 +1011,12 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2 text-xs text-muted-foreground">{order.time}</td>
                           <td className="px-4 py-2 text-center">
-                            <button className="px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10">Cancel</button>
+                            <button 
+                              onClick={() => handleCancelOrderClick(index)}
+                              className="px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10"
+                            >
+                              Cancel
+                            </button>
                           </td>
                         </tr>
                       ))
@@ -1706,6 +1733,75 @@ export default function DesktopTrading() {
               className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
             >
               Close Position
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Order Confirmation Dialog */}
+      <AlertDialog open={cancelOrderOpen} onOpenChange={setCancelOrderOpen}>
+        <AlertDialogContent className="max-w-md bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-trading-red" />
+              Cancel Order
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-left">
+              Are you sure you want to cancel this order?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          {cancellingOrderIndex !== null && orders[cancellingOrderIndex] && (() => {
+            const order = orders[cancellingOrderIndex];
+            return (
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2 my-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Order Type</span>
+                  <span className={order.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
+                    {order.type === "buy" ? "Buy" : "Sell"} {order.orderType}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Contract</span>
+                  <span className="font-medium">{order.option}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Event</span>
+                  <span className="text-xs text-muted-foreground truncate max-w-[200px]">{order.event}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Price</span>
+                  <span className="font-mono">{order.price}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Amount</span>
+                  <span className="font-mono">{order.amount}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Total</span>
+                  <span className="font-mono">{order.total}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm border-t border-border/30 pt-2 mt-2">
+                  <span className="text-muted-foreground">Status</span>
+                  <span className={`px-2 py-0.5 rounded text-xs ${
+                    order.status === "Pending" ? "bg-amber-500/20 text-amber-400" :
+                    order.status === "Partial Filled" ? "bg-cyan-500/20 text-cyan-400" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
+                    {order.status}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
+
+          <AlertDialogFooter className="flex gap-2 sm:gap-2">
+            <AlertDialogCancel className="flex-1">Keep Order</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmCancelOrder}
+              className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
+            >
+              Cancel Order
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
