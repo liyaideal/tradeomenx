@@ -1395,7 +1395,7 @@ const StyleGuide = () => {
         {filterSection("buttons") && (
         <section id="buttons">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Buttons</h2>
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-4">Standard Variants</h3>
               <div className="flex flex-wrap gap-3">
@@ -1418,14 +1418,107 @@ const StyleGuide = () => {
               </div>
             </div>
 
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-4">Trading Buttons</h3>
-              <div className="flex flex-wrap gap-3">
-                <button className="btn-trading-green">Buy / Long</button>
-                <button className="btn-trading-red">Sell / Short</button>
-                <Button className="bg-trading-purple hover:bg-trading-purple/90 text-foreground">
-                  Place Order
-                </Button>
+            {/* NEW: Trading Buttons with full documentation */}
+            <div className="trading-card p-6 space-y-6">
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-trading-yellow" />
+                  Trading Buttons (Standardized)
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Use these CSS classes for ALL trading-related buttons across the app. 
+                  <span className="text-trading-yellow font-medium"> All trading buttons use WHITE text (primary-foreground).</span>
+                </p>
+              </div>
+
+              {/* Buy/Long Button */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <button className="btn-trading-green">
+                    <TrendingUp className="h-4 w-4 inline mr-2" />
+                    Buy | Long
+                  </button>
+                  <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-trading-green">
+                    .btn-trading-green
+                  </code>
+                </div>
+                <p className="text-xs text-muted-foreground pl-1">
+                  For: Buy actions, Long positions, Profit indicators, Success confirmations
+                </p>
+                <CodePreview 
+                  code={`<button className="btn-trading-green">Buy | Long</button>`}
+                  id="btn-green-code"
+                />
+              </div>
+
+              {/* Sell/Short Button */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <button className="btn-trading-red">
+                    <TrendingDown className="h-4 w-4 inline mr-2" />
+                    Sell | Short
+                  </button>
+                  <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-trading-red">
+                    .btn-trading-red
+                  </code>
+                </div>
+                <p className="text-xs text-muted-foreground pl-1">
+                  For: Sell actions, Short positions, Loss indicators, Destructive actions
+                </p>
+                <CodePreview 
+                  code={`<button className="btn-trading-red">Sell | Short</button>`}
+                  id="btn-red-code"
+                />
+              </div>
+
+              {/* Primary Brand Button */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <button className="btn-primary">
+                    Place Order
+                  </button>
+                  <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-primary">
+                    .btn-primary
+                  </code>
+                </div>
+                <p className="text-xs text-muted-foreground pl-1">
+                  For: Primary CTAs, Navigation, Brand emphasis (Purple)
+                </p>
+                <CodePreview 
+                  code={`<button className="btn-primary">Place Order</button>`}
+                  id="btn-primary-code"
+                />
+              </div>
+
+              {/* Inactive Toggle State */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <button className="btn-trading-inactive">
+                    Inactive Option
+                  </button>
+                  <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-muted-foreground">
+                    .btn-trading-inactive
+                  </code>
+                </div>
+                <p className="text-xs text-muted-foreground pl-1">
+                  For: Unselected toggle options in Long/Short switches
+                </p>
+              </div>
+
+              {/* Usage Example: Toggle Group */}
+              <div className="space-y-3 pt-4 border-t border-border/50">
+                <h4 className="text-sm font-medium text-foreground">Usage Example: Long/Short Toggle</h4>
+                <div className="flex rounded-xl overflow-hidden border border-border/50 bg-background/50 p-0.5 w-fit">
+                  <button className="btn-trading-green px-5 py-2 text-sm rounded-lg">Long</button>
+                  <button className="btn-trading-inactive px-5 py-2 text-sm rounded-lg">Short</button>
+                </div>
+                <CodePreview 
+                  code={`<div className="flex rounded-xl border border-border/50 p-0.5">
+  <button className={side === "long" ? "btn-trading-green" : "btn-trading-inactive"}>Long</button>
+  <button className={side === "short" ? "btn-trading-red" : "btn-trading-inactive"}>Short</button>
+</div>`}
+                  id="toggle-example-code"
+                />
               </div>
             </div>
 

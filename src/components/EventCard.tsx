@@ -449,22 +449,14 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
             </div>
 
             {/* Trade Button - with gradient and glow */}
-            <button 
+            <button
               onClick={handleTrade}
               disabled={!selectedOption || !quantity}
               className={`w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed ${
                 tradeSide === "long" 
-                  ? "text-background hover:scale-[0.98] active:scale-[0.96]" 
-                  : "text-foreground hover:scale-[0.98] active:scale-[0.96]"
+                  ? "btn-trading-green" 
+                  : "btn-trading-red"
               }`}
-              style={{
-                background: tradeSide === "long" 
-                  ? "linear-gradient(135deg, hsl(145 80% 42%) 0%, hsl(155 75% 32%) 100%)"
-                  : "linear-gradient(135deg, hsl(0 85% 55%) 0%, hsl(350 80% 45%) 100%)",
-                boxShadow: tradeSide === "long"
-                  ? "0 4px 20px hsl(145 80% 42% / 0.35), inset 0 1px 0 hsl(145 80% 60% / 0.2)"
-                  : "0 4px 20px hsl(0 85% 55% / 0.35), inset 0 1px 0 hsl(0 85% 70% / 0.2)"
-              }}
             >
               <TrendingUp className={`h-4 w-4 ${tradeSide === "short" ? "rotate-180" : ""}`} />
               {tradeSide === "long" ? "Buy Long" : "Sell Short"} — {selectedOptionData?.label || "Select option"}
