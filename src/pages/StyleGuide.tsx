@@ -41,6 +41,23 @@ const StyleGuide = () => {
   const [cardTitle, setCardTitle] = useState("Card Title");
   const [cardDescription, setCardDescription] = useState("Card description goes here");
 
+  // Switch Playground
+  const [switchChecked, setSwitchChecked] = useState(false);
+  const [switchDisabled, setSwitchDisabled] = useState(false);
+  const [switchLabel, setSwitchLabel] = useState("Enable feature");
+
+  // Slider Playground
+  const [sliderValue, setSliderValue] = useState([50]);
+  const [sliderMin, setSliderMin] = useState(0);
+  const [sliderMax, setSliderMax] = useState(100);
+  const [sliderStep, setSliderStep] = useState(1);
+  const [sliderDisabled, setSliderDisabled] = useState(false);
+
+  // Tabs Playground
+  const [tabsCount, setTabsCount] = useState(3);
+  const [tabsStyle, setTabsStyle] = useState<"default" | "full-width">("default");
+  const [tabLabels, setTabLabels] = useState(["Tab 1", "Tab 2", "Tab 3", "Tab 4"]);
+
   const resetPlayground = () => {
     setButtonVariant("default");
     setButtonSize("default");
@@ -57,6 +74,17 @@ const StyleGuide = () => {
     setCardStyle("trading");
     setCardTitle("Card Title");
     setCardDescription("Card description goes here");
+    setSwitchChecked(false);
+    setSwitchDisabled(false);
+    setSwitchLabel("Enable feature");
+    setSliderValue([50]);
+    setSliderMin(0);
+    setSliderMax(100);
+    setSliderStep(1);
+    setSliderDisabled(false);
+    setTabsCount(3);
+    setTabsStyle("default");
+    setTabLabels(["Tab 1", "Tab 2", "Tab 3", "Tab 4"]);
     toast.success("Playground reset!");
   };
 
@@ -520,6 +548,227 @@ const StyleGuide = () => {
                 <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
                   <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
                     {`<Card${cardStyle === "trading" ? ' className="trading-card"' : ""}><CardHeader>...</CardHeader></Card>`}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Switch Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-green" />
+                  Switch Playground
+                </CardTitle>
+                <CardDescription>Toggle switch with label and states</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[120px]">
+                    <div className="flex items-center gap-3">
+                      <Switch 
+                        checked={switchChecked} 
+                        onCheckedChange={setSwitchChecked}
+                        disabled={switchDisabled}
+                      />
+                      <Label className={switchDisabled ? "text-muted-foreground" : ""}>
+                        {switchLabel}
+                      </Label>
+                    </div>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Label Text</Label>
+                      <Input 
+                        value={switchLabel} 
+                        onChange={(e) => setSwitchLabel(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm">Checked</Label>
+                      <Switch checked={switchChecked} onCheckedChange={setSwitchChecked} />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm">Disabled</Label>
+                      <Switch checked={switchDisabled} onCheckedChange={setSwitchDisabled} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
+                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                    {`<Switch${switchChecked ? " checked" : ""}${switchDisabled ? " disabled" : ""} />`}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Slider Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-purple" />
+                  Slider Playground
+                </CardTitle>
+                <CardDescription>Adjust slider range and behavior</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex flex-col justify-center min-h-[120px] gap-4">
+                    <Slider 
+                      value={sliderValue}
+                      onValueChange={setSliderValue}
+                      min={sliderMin}
+                      max={sliderMax}
+                      step={sliderStep}
+                      disabled={sliderDisabled}
+                    />
+                    <p className="text-center font-mono text-lg text-trading-purple">
+                      {sliderValue[0]}
+                    </p>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "grid-cols-3"}`}>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Min</Label>
+                        <Input 
+                          type="number"
+                          value={sliderMin} 
+                          onChange={(e) => setSliderMin(Number(e.target.value))}
+                          className="font-mono"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Max</Label>
+                        <Input 
+                          type="number"
+                          value={sliderMax} 
+                          onChange={(e) => setSliderMax(Number(e.target.value))}
+                          className="font-mono"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Step</Label>
+                        <Input 
+                          type="number"
+                          value={sliderStep} 
+                          onChange={(e) => setSliderStep(Number(e.target.value))}
+                          className="font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm">Disabled</Label>
+                      <Switch checked={sliderDisabled} onCheckedChange={setSliderDisabled} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
+                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                    {`<Slider value={[${sliderValue[0]}]} min={${sliderMin}} max={${sliderMax}} step={${sliderStep}}${sliderDisabled ? " disabled" : ""} />`}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tabs Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-yellow" />
+                  Tabs Playground
+                </CardTitle>
+                <CardDescription>Configure tab count and styling</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-4 min-h-[180px]">
+                    <Tabs defaultValue="tab-0" className="w-full">
+                      <TabsList className={tabsStyle === "full-width" ? "w-full bg-muted/30" : "bg-muted/30"}>
+                        {Array.from({ length: tabsCount }).map((_, i) => (
+                          <TabsTrigger 
+                            key={i} 
+                            value={`tab-${i}`}
+                            className={tabsStyle === "full-width" ? "flex-1" : ""}
+                          >
+                            {tabLabels[i] || `Tab ${i + 1}`}
+                          </TabsTrigger>
+                        ))}
+                      </TabsList>
+                      {Array.from({ length: tabsCount }).map((_, i) => (
+                        <TabsContent key={i} value={`tab-${i}`} className="p-4">
+                          <p className="text-sm text-muted-foreground">
+                            Content for {tabLabels[i] || `Tab ${i + 1}`}
+                          </p>
+                        </TabsContent>
+                      ))}
+                    </Tabs>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Number of Tabs: {tabsCount}</Label>
+                      <Slider 
+                        value={[tabsCount]}
+                        onValueChange={(v) => setTabsCount(v[0])}
+                        min={2}
+                        max={4}
+                        step={1}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Style</Label>
+                      <Select value={tabsStyle} onValueChange={(v) => setTabsStyle(v as typeof tabsStyle)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="default">Default</SelectItem>
+                          <SelectItem value="full-width">Full Width</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Tab Labels</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Array.from({ length: tabsCount }).map((_, i) => (
+                          <Input
+                            key={i}
+                            value={tabLabels[i]}
+                            onChange={(e) => {
+                              const newLabels = [...tabLabels];
+                              newLabels[i] = e.target.value;
+                              setTabLabels(newLabels);
+                            }}
+                            placeholder={`Tab ${i + 1}`}
+                            className="text-sm"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="mt-4 p-3 bg-background rounded-lg border border-border overflow-x-auto">
+                  <code className="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                    {`<Tabs><TabsList${tabsStyle === "full-width" ? ' className="w-full"' : ""}>${Array.from({ length: tabsCount }).map((_, i) => `<TabsTrigger>${tabLabels[i]}</TabsTrigger>`).join("")}</TabsList></Tabs>`}
                   </code>
                 </div>
               </CardContent>
