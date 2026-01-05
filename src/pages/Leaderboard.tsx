@@ -924,8 +924,13 @@ export default function Leaderboard() {
             </div>
           )}
 
-          {/* Title with Neon Effect */}
+          {/* Logo + Title with Neon Effect */}
           <div className="text-center mb-8">
+            {/* Logo */}
+            <div className="flex justify-center mb-6">
+              <img src={omenxLogo} alt="OMENX" className="h-8" />
+            </div>
+            
             {/* Neon Leaderboard Title */}
             <div className="relative inline-block">
               {/* Outer glow - soft spread */}
