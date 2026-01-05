@@ -7,7 +7,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { EventCard, EventData } from "@/components/EventCard";
 import { EventStatsOverview } from "@/components/EventStatsOverview";
 import { EventFilters, EventStatusFilter } from "@/components/EventFilters";
-import { DesktopHeader } from "@/components/DesktopHeader";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 
 // Mock events data
 const mockEvents: EventData[] = [
@@ -133,7 +133,7 @@ const EventsPage = () => {
           </div>
         </header>
       ) : (
-        <DesktopHeader />
+        <EventsDesktopHeader />
       )}
 
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-8 max-w-7xl mx-auto"} space-y-6`}>
