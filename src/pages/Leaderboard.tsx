@@ -93,34 +93,37 @@ const getRankColors = (rank: number) => {
 const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sortType: SortType; position: "left" | "center" | "right" }) => {
   const isFirst = user.rank === 1;
   
-  // Styles matching the reference image exactly
+  // Styles matching the reference image - colors coordinated with purple theme
   const rankStyles = {
     1: {
-      cardBg: "bg-gradient-to-b from-yellow-400 via-yellow-500 to-amber-600",
+      cardBg: "bg-gradient-to-b from-amber-400 via-yellow-500 to-amber-600",
       wreathColor: "#FFD700",
       cardHeight: "h-40 sm:h-48 md:h-52",
       cardWidth: "w-28 sm:w-32 md:w-44",
       avatarSize: "w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36",
       wreathSize: "md" as const,
       wreathSizeLg: "lg" as const,
+      marginTop: "mt-0",
     },
     2: {
-      cardBg: "bg-gradient-to-b from-blue-400 via-blue-600 to-blue-800",
-      wreathColor: "#C0C0C0",
-      cardHeight: "h-32 sm:h-40 md:h-44",
+      cardBg: "bg-gradient-to-b from-indigo-400 via-indigo-500 to-indigo-700",
+      wreathColor: "#A8B4C8",
+      cardHeight: "h-36 sm:h-42 md:h-46",
       cardWidth: "w-24 sm:w-28 md:w-36",
       avatarSize: "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28",
       wreathSize: "sm" as const,
       wreathSizeLg: "md" as const,
+      marginTop: "mt-2 sm:mt-4 md:mt-6",
     },
     3: {
-      cardBg: "bg-gradient-to-b from-amber-500 via-orange-600 to-orange-800",
+      cardBg: "bg-gradient-to-b from-orange-400 via-orange-500 to-orange-700",
       wreathColor: "#D4A84B",
-      cardHeight: "h-32 sm:h-40 md:h-44",
-      cardWidth: "w-24 sm:w-28 md:w-36",
-      avatarSize: "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28",
+      cardHeight: "h-28 sm:h-34 md:h-38",
+      cardWidth: "w-22 sm:w-26 md:w-32",
+      avatarSize: "w-18 h-18 sm:w-22 sm:h-22 md:w-26 md:h-26",
       wreathSize: "sm" as const,
       wreathSizeLg: "md" as const,
+      marginTop: "mt-6 sm:mt-10 md:mt-14",
     },
   };
   
@@ -141,7 +144,7 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   const rankSuffix = user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd";
 
   return (
-    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "" : "mt-4"}`}>
+    <div className={`flex flex-col items-center ${orderClass} ${style.marginTop}`}>
       {/* Card Container */}
       <div className={`relative ${style.cardBg} rounded-3xl ${style.cardHeight} ${style.cardWidth} border-2 border-white/20 overflow-hidden shadow-xl`}>
         
