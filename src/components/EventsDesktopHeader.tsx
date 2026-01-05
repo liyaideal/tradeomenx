@@ -34,14 +34,21 @@ export const EventsDesktopHeader = ({ balance = 2345.67 }: EventsDesktopHeaderPr
   const currentPath = location.pathname;
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border/30">
+    <header className="sticky top-0 z-50 border-b border-border/30 backdrop-blur-md"
+      style={{
+        background: "linear-gradient(180deg, hsl(222 47% 8% / 0.98) 0%, hsl(222 47% 6% / 0.95) 100%)"
+      }}
+    >
+      {/* Subtle brand accent line at top */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      
       <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
         {/* Left: Logo + Navigation */}
         <div className="flex items-center gap-8">
           {/* Logo */}
           <button 
             onClick={() => navigate("/events")}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-all duration-300 hover:scale-[1.02]"
           >
             <img src={omenxLogo} alt="OMENX" className="h-8" />
           </button>
@@ -54,13 +61,16 @@ export const EventsDesktopHeader = ({ balance = 2345.67 }: EventsDesktopHeaderPr
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(260_60%_55%/0.3)]"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   {item.label}
+                  {isActive && (
+                    <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-primary rounded-full" />
+                  )}
                 </button>
               );
             })}
@@ -91,7 +101,7 @@ export const EventsDesktopHeader = ({ balance = 2345.67 }: EventsDesktopHeaderPr
           </DropdownMenu>
 
           {/* Balance */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5">
             <span className="text-sm text-muted-foreground">Balance:</span>
             <span className="text-sm font-bold text-trading-green font-mono">
               ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
