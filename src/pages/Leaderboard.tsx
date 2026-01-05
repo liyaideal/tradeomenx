@@ -1016,27 +1016,31 @@ export default function Leaderboard() {
             </div>
           </div>
 
-          {/* Period Pills - Mobile only */}
-          {isMobile && (
-            <div className="flex justify-center gap-2 mb-3">
-              {periodTabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setPeriod(tab.key)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-                    period === tab.key
-                      ? "bg-foreground/10 text-foreground border border-foreground/20"
-                      : "text-muted-foreground hover:text-foreground/80"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Sort Tabs */}
-          <div className="flex justify-center gap-2 mb-4">
+          {/* Sort Tabs with Period Dropdown on mobile */}
+          <div className="flex justify-center items-center gap-2 mb-4">
+            {/* Period Dropdown - Mobile only, inline with sort tabs */}
+            {isMobile && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20 transition-all duration-200">
+                    {periodTabs.find(t => t.key === period)?.label}
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="bg-card border-border">
+                  {periodTabs.map((tab) => (
+                    <DropdownMenuItem
+                      key={tab.key}
+                      onClick={() => setPeriod(tab.key)}
+                      className={`text-sm cursor-pointer ${period === tab.key ? "text-primary" : ""}`}
+                    >
+                      {tab.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            
             {sortTabs.map((tab) => (
               <button
                 key={tab.key}
