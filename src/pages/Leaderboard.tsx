@@ -219,51 +219,75 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
     }
   };
 
+  // Get rank-specific accent colors for top 3
+  const getRankAccent = () => {
+    switch (user.rank) {
+      case 4:
+        return { border: "border-amber-500/30", bg: "bg-amber-500/5", glow: "" };
+      case 5:
+        return { border: "border-indigo-500/30", bg: "bg-indigo-500/5", glow: "" };
+      default:
+        return { border: "border-border/30", bg: "bg-card/40", glow: "" };
+    }
+  };
+
+  const rankAccent = getRankAccent();
+
   return (
     <div 
       id={isCurrentUser ? "current-user-row" : undefined}
-      className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 group animate-fade-in ${
+      className={`flex items-center gap-4 p-4 rounded-2xl border backdrop-blur-sm transition-all duration-300 group animate-fade-in ${
         isCurrentUser 
-          ? "bg-primary/10 border-primary/50 ring-2 ring-primary/30 shadow-[0_0_20px_hsl(260_60%_55%/0.2)]" 
-          : "bg-card/60 border-border/30 hover:border-primary/30 hover:bg-card/80"
+          ? "bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border-primary/40 ring-1 ring-primary/20 shadow-[0_0_30px_hsl(260_60%_55%/0.15)]" 
+          : `${rankAccent.bg} ${rankAccent.border} hover:border-primary/40 hover:bg-primary/5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)]`
       }`}
-      style={{ animationDelay: `${index * 50}ms` }}
+      style={{ animationDelay: `${index * 40}ms` }}
     >
-      {/* Rank with laurel */}
-      <SmallLaurelBadge rank={user.rank} />
+      {/* Rank Badge */}
+      <div className="flex-shrink-0">
+        <SmallLaurelBadge rank={user.rank} />
+      </div>
 
       {/* Avatar + Name */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <Avatar className={`h-10 w-10 border transition-colors ${
-          isCurrentUser ? "border-primary/50" : "border-border/50 group-hover:border-primary/30"
-        }`}>
-          <AvatarImage src={user.avatar} alt={user.username} />
-          <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
-        </Avatar>
-        <div className="min-w-0">
+        <div className="relative">
+          <Avatar className={`h-11 w-11 border-2 transition-all duration-300 ${
+            isCurrentUser 
+              ? "border-primary/60 shadow-[0_0_12px_hsl(260_60%_55%/0.3)]" 
+              : "border-border/40 group-hover:border-primary/40 group-hover:shadow-[0_0_10px_hsl(260_60%_55%/0.2)]"
+          }`}>
+            <AvatarImage src={user.avatar} alt={user.username} />
+            <AvatarFallback className="bg-muted text-muted-foreground font-medium">
+              {user.username.slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h4 className={`font-medium truncate ${isCurrentUser ? "text-primary" : "text-foreground"}`}>
+            <h4 className={`font-semibold truncate transition-colors ${
+              isCurrentUser ? "text-primary" : "text-foreground group-hover:text-primary"
+            }`}>
               {user.username}
             </h4>
             {isCurrentUser && (
-              <span className="px-2 py-0.5 text-[10px] font-bold bg-primary text-primary-foreground rounded-full">
+              <span className="px-2 py-0.5 text-[10px] font-bold bg-primary text-primary-foreground rounded-full shadow-sm">
                 YOU
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground">{user.trades} trades</p>
+          <p className="text-xs text-muted-foreground/80 mt-0.5">{user.trades} trades</p>
         </div>
       </div>
 
       {/* Value */}
-      <div className="text-right">
-        <div className={`flex items-center justify-end gap-1 font-mono font-bold ${
+      <div className="text-right flex-shrink-0">
+        <div className={`flex items-center justify-end gap-1.5 font-mono font-bold text-base ${
           isCurrentUser ? "text-primary" : "text-trading-green"
         }`}>
-          <Zap className="w-3 h-3" />
+          <span className="text-trading-green text-sm">◆</span>
           {getValue()}
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-muted-foreground/70 mt-0.5">
           {sortType === "pnl" && `${user.roi.toFixed(1)}% ROI`}
           {sortType === "roi" && `$${user.pnl.toLocaleString()} PnL`}
           {sortType === "volume" && `${user.roi.toFixed(1)}% ROI`}
