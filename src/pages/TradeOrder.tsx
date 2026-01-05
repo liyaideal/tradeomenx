@@ -25,8 +25,25 @@ function TradeOrderContent() {
   const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
   const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);
   const positionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const tabSectionRef = useRef<HTMLDivElement | null>(null);
+  const hasScrolledToSection = useRef(false);
 
-  // Scroll to and highlight position when coming from MobileHome
+  // Scroll to positions section when coming from "View All"
+  useEffect(() => {
+    if (state?.tab === "Positions" && highlightedPosition === null && !hasScrolledToSection.current) {
+      hasScrolledToSection.current = true;
+      setTimeout(() => {
+        if (tabSectionRef.current) {
+          const headerOffset = 100; // Account for sticky header
+          const elementPosition = tabSectionRef.current.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
+          window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [state?.tab, highlightedPosition]);
+
+  // Scroll to and highlight specific position when clicking a card
   useEffect(() => {
     if (highlightedPosition !== null && positionRefs.current[highlightedPosition]) {
       // Small delay to ensure DOM is ready
@@ -138,7 +155,7 @@ function TradeOrderContent() {
       </div>
 
       {/* Orders/Positions Tabs */}
-      <div className="flex px-4 mt-2 border-b border-border/30">
+      <div ref={tabSectionRef} className="flex px-4 mt-2 border-b border-border/30">
         {["Orders", "Positions"].map((tab) => (
           <button
             key={tab}
