@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -20,24 +20,25 @@ interface LeaderboardUser {
   roi: number;
   volume: number;
   trades: number;
+  rankChange: number; // positive = up, negative = down, 0 = no change
 }
 
 // Mock data for leaderboard
 const mockLeaderboardData: LeaderboardUser[] = [
-  { rank: 1, username: "CryptoWhale", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=whale&backgroundColor=b6e3f4", pnl: 125430, roi: 342.5, volume: 2450000, trades: 156 },
-  { rank: 2, username: "TradingMaster", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=master&backgroundColor=c0aede", pnl: 89250, roi: 287.3, volume: 1890000, trades: 234 },
-  { rank: 3, username: "ProfitHunter", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=hunter&backgroundColor=d1d4f9", pnl: 67890, roi: 198.7, volume: 1560000, trades: 189 },
-  { rank: 4, username: "AlphaTrader", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=alpha&backgroundColor=ffd5dc", pnl: 45670, roi: 156.2, volume: 980000, trades: 145 },
-  { rank: 5, username: "MarketMaker", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=maker&backgroundColor=ffdfbf", pnl: 34560, roi: 134.8, volume: 890000, trades: 178 },
-  { rank: 6, username: "DiamondHands", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=diamond&backgroundColor=b6e3f4", pnl: 28900, roi: 112.4, volume: 750000, trades: 98 },
-  { rank: 7, username: "MoonShot", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=moon&backgroundColor=c0aede", pnl: 23450, roi: 98.6, volume: 680000, trades: 167 },
-  { rank: 8, username: "BullRunner", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=bull&backgroundColor=d1d4f9", pnl: 19870, roi: 87.3, volume: 590000, trades: 134 },
-  { rank: 9, username: "SmartMoney", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=smart&backgroundColor=ffd5dc", pnl: 15690, roi: 76.5, volume: 480000, trades: 112 },
-  { rank: 10, username: "TrendSurfer", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=trend&backgroundColor=ffdfbf", pnl: 12340, roi: 65.2, volume: 390000, trades: 89 },
+  { rank: 1, username: "CryptoWhale", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=whale&backgroundColor=b6e3f4", pnl: 125430, roi: 342.5, volume: 2450000, trades: 156, rankChange: 0 },
+  { rank: 2, username: "TradingMaster", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=master&backgroundColor=c0aede", pnl: 89250, roi: 287.3, volume: 1890000, trades: 234, rankChange: 2 },
+  { rank: 3, username: "ProfitHunter", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=hunter&backgroundColor=d1d4f9", pnl: 67890, roi: 198.7, volume: 1560000, trades: 189, rankChange: -1 },
+  { rank: 4, username: "AlphaTrader", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=alpha&backgroundColor=ffd5dc", pnl: 45670, roi: 156.2, volume: 980000, trades: 145, rankChange: 3 },
+  { rank: 5, username: "MarketMaker", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=maker&backgroundColor=ffdfbf", pnl: 34560, roi: 134.8, volume: 890000, trades: 178, rankChange: -2 },
+  { rank: 6, username: "DiamondHands", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=diamond&backgroundColor=b6e3f4", pnl: 28900, roi: 112.4, volume: 750000, trades: 98, rankChange: 1 },
+  { rank: 7, username: "MoonShot", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=moon&backgroundColor=c0aede", pnl: 23450, roi: 98.6, volume: 680000, trades: 167, rankChange: 0 },
+  { rank: 8, username: "BullRunner", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=bull&backgroundColor=d1d4f9", pnl: 19870, roi: 87.3, volume: 590000, trades: 134, rankChange: -3 },
+  { rank: 9, username: "SmartMoney", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=smart&backgroundColor=ffd5dc", pnl: 15690, roi: 76.5, volume: 480000, trades: 112, rankChange: 2 },
+  { rank: 10, username: "TrendSurfer", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=trend&backgroundColor=ffdfbf", pnl: 12340, roi: 65.2, volume: 390000, trades: 89, rankChange: -1 },
   // More users for demo
-  { rank: 11, username: "Hodler", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=hodler&backgroundColor=b6e3f4", pnl: 10200, roi: 58.3, volume: 320000, trades: 76 },
-  { rank: 12, username: "BlockBuster", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=block&backgroundColor=c0aede", pnl: 8900, roi: 52.1, volume: 280000, trades: 68 },
-  { rank: 13, username: "CryptoNinja", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=currentuser&backgroundColor=d1d4f9", pnl: 2340, roi: 23.5, volume: 45000, trades: 28 },
+  { rank: 11, username: "Hodler", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=hodler&backgroundColor=b6e3f4", pnl: 10200, roi: 58.3, volume: 320000, trades: 76, rankChange: 4 },
+  { rank: 12, username: "BlockBuster", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=block&backgroundColor=c0aede", pnl: 8900, roi: 52.1, volume: 280000, trades: 68, rankChange: -2 },
+  { rank: 13, username: "CryptoNinja", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=currentuser&backgroundColor=d1d4f9", pnl: 2340, roi: 23.5, volume: 45000, trades: 28, rankChange: 5 },
 ];
 
 // Current user ID (simulated - in real app this would come from auth)
@@ -254,7 +255,7 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
         </div>
       </div>
 
-      {/* Value */}
+      {/* Value + Rank Change */}
       <div className="text-right flex-shrink-0">
         <div className={`flex items-center justify-end gap-1 font-mono font-bold text-sm ${
           isCurrentUser ? "text-primary" : "text-trading-green"
@@ -262,10 +263,23 @@ const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }
           <span className="text-trading-green text-xs">◆</span>
           {getValue()}
         </div>
-        <div className="text-[11px] text-muted-foreground/70">
-          {sortType === "pnl" && `${user.roi.toFixed(1)}% ROI`}
-          {sortType === "roi" && `$${user.pnl.toLocaleString()} PnL`}
-          {sortType === "volume" && `${user.roi.toFixed(1)}% ROI`}
+        {/* Rank Change Indicator */}
+        <div className="flex items-center justify-end gap-0.5">
+          {user.rankChange > 0 ? (
+            <span className="flex items-center gap-0.5 text-[11px] text-trading-green">
+              <TrendingUp className="w-3 h-3" />
+              +{user.rankChange}
+            </span>
+          ) : user.rankChange < 0 ? (
+            <span className="flex items-center gap-0.5 text-[11px] text-trading-red">
+              <TrendingDown className="w-3 h-3" />
+              {user.rankChange}
+            </span>
+          ) : (
+            <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground/60">
+              <Minus className="w-3 h-3" />
+            </span>
+          )}
         </div>
       </div>
     </div>
