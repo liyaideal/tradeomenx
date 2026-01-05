@@ -98,23 +98,26 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
     1: {
       cardBg: "bg-gradient-to-b from-yellow-400 via-yellow-500 to-amber-600",
       wreathColor: "#FFD700",
-      cardHeight: "h-60",
-      cardWidth: "w-40 md:w-48",
-      avatarSize: "w-36 h-36 md:w-40 md:h-40",
+      cardHeight: "h-52",
+      cardWidth: "w-36 md:w-44",
+      avatarSize: "w-32 h-32 md:w-36 md:h-36",
+      wreathSize: "lg" as const,
     },
     2: {
       cardBg: "bg-gradient-to-b from-blue-400 via-blue-600 to-blue-800",
       wreathColor: "#C0C0C0",
-      cardHeight: "h-52",
-      cardWidth: "w-32 md:w-40",
-      avatarSize: "w-28 h-28 md:w-32 md:h-32",
+      cardHeight: "h-44",
+      cardWidth: "w-28 md:w-36",
+      avatarSize: "w-24 h-24 md:w-28 md:h-28",
+      wreathSize: "md" as const,
     },
     3: {
       cardBg: "bg-gradient-to-b from-amber-500 via-orange-600 to-orange-800",
       wreathColor: "#D4A84B",
-      cardHeight: "h-52",
-      cardWidth: "w-32 md:w-40",
-      avatarSize: "w-28 h-28 md:w-32 md:h-32",
+      cardHeight: "h-44",
+      cardWidth: "w-28 md:w-36",
+      avatarSize: "w-24 h-24 md:w-28 md:h-28",
+      wreathSize: "md" as const,
     },
   };
   
@@ -135,29 +138,29 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
   const rankSuffix = user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd";
 
   return (
-    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "" : "mt-6"}`}>
+    <div className={`flex flex-col items-center ${orderClass} ${isFirst ? "" : "mt-4"}`}>
       {/* Card Container */}
-      <div className={`relative ${style.cardBg} rounded-3xl ${style.cardHeight} ${style.cardWidth} border-2 border-white/30 overflow-hidden shadow-xl`}>
+      <div className={`relative ${style.cardBg} rounded-3xl ${style.cardHeight} ${style.cardWidth} border-2 border-white/20 overflow-hidden shadow-xl`}>
         
         {/* Laurel Wreath with Rank at top */}
-        <div className="absolute top-1 left-1/2 -translate-x-1/2 z-10">
+        <div className={`absolute ${isFirst ? "-top-1" : "-top-2"} left-1/2 -translate-x-1/2 z-10`}>
           <div className="relative">
             <LaurelWreath 
               color={style.wreathColor} 
-              size={isFirst ? "lg" : "md"} 
+              size={style.wreathSize} 
               showTrophy={isFirst}
             />
             {/* Rank number inside wreath */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-white font-bold text-2xl drop-shadow-lg" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                {user.rank}<sup className="text-sm">{rankSuffix}</sup>
+            <div className="absolute inset-0 flex items-center justify-center pt-1">
+              <span className={`text-white font-bold ${isFirst ? "text-2xl" : "text-xl"} drop-shadow-lg`} style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                {user.rank}<sup className={`${isFirst ? "text-sm" : "text-xs"}`}>{rankSuffix}</sup>
               </span>
             </div>
           </div>
         </div>
 
         {/* Avatar - large, fills bottom portion */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
           <div className={`${style.avatarSize} overflow-hidden`}>
             <img 
               src={user.avatar} 
@@ -169,13 +172,13 @@ const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sor
       </div>
 
       {/* Username - below card */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-lg" : "text-base"} mt-4 truncate max-w-[160px] text-center`}>
+      <h3 className={`font-semibold text-foreground ${isFirst ? "text-lg" : "text-base"} mt-3 truncate max-w-[160px] text-center`}>
         {user.username}
       </h3>
 
       {/* Value with diamond icon */}
-      <div className={`flex items-center gap-1.5 font-bold text-trading-green ${isFirst ? "text-2xl" : "text-xl"} mt-1`}>
-        <span className="text-trading-green">◆</span>
+      <div className={`flex items-center gap-1 font-bold text-trading-green ${isFirst ? "text-xl" : "text-lg"} mt-0.5`}>
+        <span className="text-trading-green text-sm">◆</span>
         {getValue()}
       </div>
     </div>
