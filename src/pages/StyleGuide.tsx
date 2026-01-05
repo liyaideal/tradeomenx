@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -25,6 +25,59 @@ const StyleGuide = () => {
   const [devicePreview, setDevicePreview] = useState<DevicePreview>("auto");
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState("opt1");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Define all searchable sections with their IDs and keywords
+  const sections = [
+    { id: "typography", title: "Typography", keywords: ["font", "text", "heading", "type", "scale", "inter", "mono"] },
+    { id: "playground", title: "Component Playground", keywords: ["playground", "interactive", "test", "try"] },
+    { id: "button-playground", title: "Button Playground", keywords: ["button", "click", "action", "variant", "size"] },
+    { id: "badge-playground", title: "Badge Playground", keywords: ["badge", "tag", "label", "status"] },
+    { id: "input-playground", title: "Input Playground", keywords: ["input", "text", "field", "form", "type"] },
+    { id: "progress-playground", title: "Progress Bar Playground", keywords: ["progress", "bar", "loading", "percentage"] },
+    { id: "card-playground", title: "Card Playground", keywords: ["card", "container", "panel", "box"] },
+    { id: "switch-playground", title: "Switch Playground", keywords: ["switch", "toggle", "on", "off", "boolean"] },
+    { id: "slider-playground", title: "Slider Playground", keywords: ["slider", "range", "value", "min", "max"] },
+    { id: "tabs-playground", title: "Tabs Playground", keywords: ["tabs", "navigation", "panel", "switch"] },
+    { id: "tooltip-playground", title: "Tooltip Playground", keywords: ["tooltip", "hover", "hint", "help"] },
+    { id: "popover-playground", title: "Popover Playground", keywords: ["popover", "popup", "overlay", "dropdown"] },
+    { id: "dialog-playground", title: "Dialog / Modal Playground", keywords: ["dialog", "modal", "popup", "overlay", "confirm"] },
+    { id: "colors", title: "Colors", keywords: ["color", "palette", "theme", "hsl", "variable"] },
+    { id: "trading-colors", title: "Trading Colors Usage", keywords: ["trading", "green", "red", "purple", "profit", "loss"] },
+    { id: "buttons", title: "Buttons", keywords: ["button", "click", "action", "primary", "secondary"] },
+    { id: "badges", title: "Badges", keywords: ["badge", "tag", "status", "label"] },
+    { id: "cards", title: "Cards", keywords: ["card", "container", "panel", "trading-card"] },
+    { id: "form-elements", title: "Form Elements", keywords: ["form", "input", "switch", "control"] },
+    { id: "option-chips", title: "Option Chips", keywords: ["chip", "option", "select", "choice"] },
+    { id: "tabs", title: "Tabs", keywords: ["tabs", "navigation", "panel"] },
+    { id: "animations", title: "Animations", keywords: ["animation", "fade", "slide", "pulse", "flash", "motion"] },
+    { id: "spacing", title: "Spacing & Border Radius", keywords: ["spacing", "padding", "margin", "radius", "border", "rounded"] },
+    { id: "icons", title: "Icons", keywords: ["icon", "lucide", "svg", "symbol"] },
+    { id: "css-classes", title: "Custom CSS Classes", keywords: ["css", "class", "custom", "price", "chip", "tab", "scrollbar"] },
+  ];
+
+  // Filter sections based on search query
+  const filterSection = (sectionId: string): boolean => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    const section = sections.find(s => s.id === sectionId);
+    if (!section) return true;
+    return (
+      section.title.toLowerCase().includes(query) ||
+      section.keywords.some(k => k.includes(query))
+    );
+  };
+
+  // Check if any playground component matches
+  const playgroundMatches = (): boolean => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    const playgroundSections = sections.filter(s => s.id.includes("playground"));
+    return playgroundSections.some(s => 
+      s.title.toLowerCase().includes(query) || 
+      s.keywords.some(k => k.includes(query))
+    );
+  };
 
   // Override isMobile based on device preview selection
   const isMobile = devicePreview === "auto" 
@@ -252,21 +305,43 @@ const StyleGuide = () => {
             </div>
           </div>
 
-          {/* Device Preview Toggle */}
-          <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
+          <div className="flex items-center gap-3">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search components..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`${isMobile ? "w-[140px]" : "w-[200px]"} pl-9 h-8 text-sm bg-muted/50 border-border/50`}
+              />
+              {searchQuery && (
                 <Button
-                  variant={devicePreview === "auto" ? "secondary" : "ghost"}
-                  size="sm"
-                  className="h-8 px-2 gap-1.5"
-                  onClick={() => setDevicePreview("auto")}
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
+                  onClick={() => setSearchQuery("")}
                 >
-                  <span className="text-xs">Auto</span>
+                  <X className="h-3 w-3" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>Use actual device size</TooltipContent>
-            </Tooltip>
+              )}
+            </div>
+
+            {/* Device Preview Toggle */}
+            <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={devicePreview === "auto" ? "secondary" : "ghost"}
+                    size="sm"
+                    className="h-8 px-2 gap-1.5"
+                    onClick={() => setDevicePreview("auto")}
+                  >
+                    <span className="text-xs">Auto</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Use actual device size</TooltipContent>
+              </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -293,19 +368,20 @@ const StyleGuide = () => {
               </TooltipTrigger>
               <TooltipContent>Tablet Preview</TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={devicePreview === "desktop" ? "secondary" : "ghost"}
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setDevicePreview("desktop")}
-                >
-                  <Monitor className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Desktop Preview</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={devicePreview === "desktop" ? "secondary" : "ghost"}
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setDevicePreview("desktop")}
+                  >
+                    <Monitor className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Desktop Preview</TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
 
@@ -331,8 +407,20 @@ const StyleGuide = () => {
       </header>
 
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-8 max-w-7xl mx-auto"} space-y-12`}>
+        {/* Search results info */}
+        {searchQuery && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 rounded-lg px-3 py-2">
+            <Search className="h-4 w-4" />
+            <span>Showing results for "<span className="text-foreground font-medium">{searchQuery}</span>"</span>
+            <Button variant="ghost" size="sm" className="h-6 ml-auto" onClick={() => setSearchQuery("")}>
+              Clear
+            </Button>
+          </div>
+        )}
+
         {/* Typography Section */}
-        <section>
+        {filterSection("typography") && (
+        <section id="typography">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Typography</h2>
           <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
             <Card className="trading-card">
@@ -367,9 +455,11 @@ const StyleGuide = () => {
             </Card>
           </div>
         </section>
+        )}
 
         {/* Component Playground Section */}
-        <section>
+        {playgroundMatches() && (
+        <section id="playground">
           <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
             <div className="flex items-center gap-2">
               <Play className="h-5 w-5 text-trading-purple" />
@@ -1203,9 +1293,11 @@ const StyleGuide = () => {
             </Card>
           </div>
         </section>
+        )}
 
         {/* Colors Section */}
-        <section>
+        {filterSection("colors") && (
+        <section id="colors">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Colors</h2>
           <div className="space-y-8">
             {colorSections.map((section) => (
@@ -1236,9 +1328,11 @@ const StyleGuide = () => {
             ))}
           </div>
         </section>
+        )}
 
         {/* Trading Colors Demo */}
-        <section>
+        {filterSection("trading-colors") && (
+        <section id="trading-colors">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Trading Colors Usage</h2>
           <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
             <Card className="trading-card p-4">
@@ -1278,9 +1372,11 @@ const StyleGuide = () => {
             </Card>
           </div>
         </section>
+        )}
 
         {/* Buttons Section */}
-        <section>
+        {filterSection("buttons") && (
+        <section id="buttons">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Buttons</h2>
           <div className="space-y-6">
             <div>
@@ -1325,9 +1421,11 @@ const StyleGuide = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Badges Section */}
-        <section>
+        {filterSection("badges") && (
+        <section id="badges">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Badges</h2>
           <div className="space-y-4">
             <div>
@@ -1352,9 +1450,11 @@ const StyleGuide = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Cards Section */}
-        <section>
+        {filterSection("cards") && (
+        <section id="cards">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Cards</h2>
           <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
             <Card>
@@ -1378,9 +1478,11 @@ const StyleGuide = () => {
             </Card>
           </div>
         </section>
+        )}
 
         {/* Form Elements */}
-        <section>
+        {filterSection("form-elements") && (
+        <section id="form-elements">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Form Elements</h2>
           <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
             <Card className="trading-card">
@@ -1420,9 +1522,11 @@ const StyleGuide = () => {
             </Card>
           </div>
         </section>
+        )}
 
         {/* Option Chips */}
-        <section>
+        {filterSection("option-chips") && (
+        <section id="option-chips">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Option Chips</h2>
           <Card className="trading-card p-4">
             <p className="text-sm text-muted-foreground mb-4">Interactive chips for option selection</p>
@@ -1438,9 +1542,11 @@ const StyleGuide = () => {
             </div>
           </Card>
         </section>
+        )}
 
         {/* Tabs */}
-        <section>
+        {filterSection("tabs") && (
+        <section id="tabs">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Tabs</h2>
           <Card className="trading-card">
             <Tabs defaultValue="positions" className="w-full">
@@ -1461,9 +1567,11 @@ const StyleGuide = () => {
             </Tabs>
           </Card>
         </section>
+        )}
 
         {/* Animations */}
-        <section>
+        {filterSection("animations") && (
+        <section id="animations">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Animations</h2>
           <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
             <Card className="trading-card p-4">
@@ -1506,9 +1614,11 @@ const StyleGuide = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Spacing & Radius */}
-        <section>
+        {filterSection("spacing") && (
+        <section id="spacing">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Spacing & Border Radius</h2>
           <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
             <Card className="trading-card">
@@ -1555,9 +1665,11 @@ const StyleGuide = () => {
             </Card>
           </div>
         </section>
+        )}
 
         {/* Icons */}
-        <section>
+        {filterSection("icons") && (
+        <section id="icons">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Icons</h2>
           <Card className="trading-card p-4">
             <p className="text-sm text-muted-foreground mb-4">Using Lucide React icons</p>
@@ -1578,9 +1690,11 @@ const StyleGuide = () => {
             </div>
           </Card>
         </section>
+        )}
 
         {/* CSS Custom Classes */}
-        <section>
+        {filterSection("css-classes") && (
+        <section id="css-classes">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Custom CSS Classes</h2>
           <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
             <Card className="trading-card p-4">
@@ -1635,6 +1749,7 @@ const StyleGuide = () => {
             </Card>
           </div>
         </section>
+        )}
       </main>
     </div>
   );
