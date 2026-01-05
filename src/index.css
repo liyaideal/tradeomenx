@@ -49,38 +49,42 @@
     --radius: 0.75rem;
 
     /* ===== TRADING SEMANTIC COLORS ===== */
-    /* Success/Profit - Green */
-    --trading-green: 142 71% 45%;
-    --trading-green-muted: 142 50% 20%;
-    --trading-green-bg: 142 50% 12%;
+    /* Success/Profit - Green (more vibrant) */
+    --trading-green: 145 80% 42%;
+    --trading-green-muted: 145 60% 22%;
+    --trading-green-bg: 145 50% 10%;
+    --trading-green-glow: 145 80% 42%;
     
     /* Loss/Error - Red */
-    --trading-red: 0 72% 51%;
-    --trading-red-muted: 0 50% 20%;
-    --trading-red-bg: 0 50% 12%;
+    --trading-red: 0 85% 55%;
+    --trading-red-muted: 0 60% 22%;
+    --trading-red-bg: 0 50% 10%;
+    --trading-red-glow: 0 85% 55%;
     
     /* Brand Emphasis - Purple */
-    --trading-purple: 260 60% 55%;
-    --trading-purple-muted: 260 40% 30%;
-    --trading-purple-bg: 260 40% 15%;
+    --trading-purple: 260 65% 58%;
+    --trading-purple-muted: 260 45% 30%;
+    --trading-purple-bg: 260 40% 12%;
     
     /* Alert/Warning - Yellow */
-    --trading-yellow: 45 93% 58%;
-    --trading-yellow-muted: 45 70% 30%;
-    --trading-yellow-bg: 45 60% 12%;
+    --trading-yellow: 48 100% 55%;
+    --trading-yellow-muted: 48 70% 28%;
+    --trading-yellow-bg: 48 60% 10%;
 
     /* ===== INDICATOR (Real-time) ===== */
     --indicator: 45 93% 58%;
     --indicator-muted: 45 70% 35%;
 
     /* ===== GRADIENTS ===== */
-    --gradient-card: linear-gradient(135deg, hsl(222 35% 11%) 0%, hsl(222 40% 8%) 100%);
-    --gradient-card-hover: linear-gradient(135deg, hsl(222 35% 13%) 0%, hsl(222 40% 10%) 100%);
-    --gradient-button-primary: linear-gradient(135deg, hsl(260 60% 55%) 0%, hsl(260 65% 48%) 100%);
-    --gradient-button-green: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(142 71% 38%) 100%);
-    --gradient-button-red: linear-gradient(135deg, hsl(0 72% 51%) 0%, hsl(0 72% 44%) 100%);
-    --gradient-purple-glow: radial-gradient(ellipse at center, hsl(260 60% 55% / 0.15) 0%, transparent 70%);
-    --gradient-stats-card: linear-gradient(180deg, hsl(222 35% 12%) 0%, hsl(222 40% 9%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%);
+    --gradient-card-hover: linear-gradient(145deg, hsl(222 35% 13%) 0%, hsl(225 40% 9%) 100%);
+    --gradient-button-primary: linear-gradient(135deg, hsl(260 65% 58%) 0%, hsl(270 70% 48%) 100%);
+    --gradient-button-green: linear-gradient(135deg, hsl(145 80% 42%) 0%, hsl(155 75% 32%) 100%);
+    --gradient-button-red: linear-gradient(135deg, hsl(0 85% 55%) 0%, hsl(350 80% 45%) 100%);
+    --gradient-purple-glow: radial-gradient(ellipse at center, hsl(260 65% 58% / 0.2) 0%, transparent 70%);
+    --gradient-stats-card: linear-gradient(160deg, hsl(222 35% 12%) 0%, hsl(225 40% 8%) 100%);
+    --gradient-green-glow: radial-gradient(ellipse at center, hsl(145 80% 42% / 0.15) 0%, transparent 60%);
+    --gradient-red-glow: radial-gradient(ellipse at center, hsl(0 85% 55% / 0.15) 0%, transparent 60%);
   }
 
   .dark {
