@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
-  { icon: Trophy, label: "Ranks", path: "/leaderboard", disabled: false },
+  { icon: Trophy, label: "Ranks", path: "/leaderboard", disabled: false, featured: true },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
   { icon: User, label: "Portfolio", path: "/portfolio", disabled: true },
 ];
@@ -28,6 +28,37 @@ export const BottomNav = () => {
       <div className="flex justify-around items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const active = isActive(item.path);
+          const isFeatured = item.featured;
+          
+          if (isFeatured) {
+            return (
+              <button
+                key={item.path}
+                onClick={() => !item.disabled && navigate(item.path, { replace: true })}
+                className="relative flex flex-col items-center -mt-8"
+              >
+                {/* Glow effect */}
+                <div className="absolute inset-0 -top-2 w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-yellow-400/40 via-amber-500/30 to-orange-500/20 blur-xl animate-pulse" />
+                
+                {/* Main button */}
+                <div className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  active 
+                    ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 shadow-lg shadow-amber-500/40" 
+                    : "bg-gradient-to-br from-yellow-500/80 via-amber-600/80 to-orange-600/80 shadow-md shadow-amber-500/20"
+                }`}>
+                  {/* Inner glow ring */}
+                  <div className="absolute inset-1 rounded-full bg-gradient-to-br from-yellow-300/30 to-transparent" />
+                  <Trophy className={`w-6 h-6 relative z-10 ${active ? "text-black" : "text-black/80"}`} />
+                </div>
+                
+                {/* Label */}
+                <span className={`text-xs font-semibold mt-1 ${active ? "text-amber-400" : "text-amber-500/70"}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          }
+          
           return (
             <button
               key={item.path}
