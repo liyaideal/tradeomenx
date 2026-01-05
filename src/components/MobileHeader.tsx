@@ -128,7 +128,10 @@ export const MobileHeader = ({ title, subtitle, endTime, showBack, showActions =
               {tweetCount !== undefined && (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+                    <button 
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                    >
                       <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
                       <span className="text-xs text-muted-foreground">Tweets</span>
                       <span className="text-xs text-orange-500 font-mono font-medium">{tweetCount}</span>
