@@ -35,24 +35,70 @@ export const BottomNav = () => {
               <button
                 key={item.path}
                 onClick={() => !item.disabled && navigate(item.path, { replace: true })}
-                className="relative flex flex-col items-center -mt-8"
+                className="relative flex flex-col items-center -mt-6"
               >
-                {/* Glow effect */}
-                <div className="absolute inset-0 -top-2 w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-yellow-400/40 via-amber-500/30 to-orange-500/20 blur-xl animate-pulse" />
+                {/* Outer glow ring */}
+                <div className="absolute w-20 h-20 -top-1 rounded-full bg-gradient-to-br from-red-500/30 via-orange-500/20 to-yellow-500/10 blur-xl animate-pulse" />
                 
-                {/* Main button */}
-                <div className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
-                  active 
-                    ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 shadow-lg shadow-amber-500/40" 
-                    : "bg-gradient-to-br from-yellow-500/80 via-amber-600/80 to-orange-600/80 shadow-md shadow-amber-500/20"
-                }`}>
-                  {/* Inner glow ring */}
-                  <div className="absolute inset-1 rounded-full bg-gradient-to-br from-yellow-300/30 to-transparent" />
-                  <Trophy className={`w-6 h-6 relative z-10 ${active ? "text-black" : "text-black/80"}`} />
+                {/* Hexagon container */}
+                <div className="relative">
+                  {/* Hexagon shape with gradient border */}
+                  <svg width="56" height="64" viewBox="0 0 56 64" className="drop-shadow-[0_0_12px_rgba(239,68,68,0.5)]">
+                    {/* Gradient definitions */}
+                    <defs>
+                      <linearGradient id="hexGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor={active ? "#ef4444" : "#dc2626"} />
+                        <stop offset="50%" stopColor={active ? "#f97316" : "#ea580c"} />
+                        <stop offset="100%" stopColor={active ? "#eab308" : "#ca8a04"} />
+                      </linearGradient>
+                      <linearGradient id="hexInner" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#1a1a1a" />
+                        <stop offset="100%" stopColor="#0a0a0a" />
+                      </linearGradient>
+                      <filter id="innerGlow">
+                        <feGaussianBlur stdDeviation="2" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+                    
+                    {/* Outer hexagon (border) */}
+                    <polygon 
+                      points="28,2 52,16 52,48 28,62 4,48 4,16" 
+                      fill="url(#hexGradient)"
+                      className={active ? "opacity-100" : "opacity-80"}
+                    />
+                    
+                    {/* Inner hexagon (background) */}
+                    <polygon 
+                      points="28,6 48,18 48,46 28,58 8,46 8,18" 
+                      fill="url(#hexInner)"
+                    />
+                    
+                    {/* Inner glow line */}
+                    <polygon 
+                      points="28,8 46,19 46,45 28,56 10,45 10,19" 
+                      fill="none"
+                      stroke={active ? "rgba(239,68,68,0.4)" : "rgba(239,68,68,0.2)"}
+                      strokeWidth="1"
+                    />
+                  </svg>
+                  
+                  {/* Icon centered in hexagon */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Trophy className={`w-6 h-6 ${active ? "text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "text-red-500/80"}`} />
+                  </div>
+                  
+                  {/* Corner accents */}
+                  <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-400 rounded-full opacity-60" />
+                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-yellow-400 rounded-full opacity-60" />
                 </div>
                 
-                {/* Label */}
-                <span className={`text-xs font-semibold mt-1 ${active ? "text-amber-400" : "text-amber-500/70"}`}>
+                {/* Label with war-style font */}
+                <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
+                  active 
+                    ? "text-red-400 drop-shadow-[0_0_4px_rgba(239,68,68,0.6)]" 
+                    : "text-red-500/70"
+                }`}>
                   {item.label}
                 </span>
               </button>
