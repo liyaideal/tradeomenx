@@ -14,6 +14,7 @@ import { Clock, Lock, TrendingUp, Zap, Users, BarChart3 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { toast } from "sonner";
+import { getCategoryFromName } from "@/lib/categoryUtils";
 
 export type EventStatus = "active" | "locked" | "resolved";
 
@@ -187,6 +188,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
 
   const selectedOptionData = event.options.find(o => o.id === selectedOption);
   const isLocked = event.status === "locked";
+  const categoryInfo = getCategoryFromName(event.title);
 
   // Calculate order details for confirmation
   const orderDetails = useMemo(() => {
@@ -299,6 +301,9 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
         </div>
         
         <div className="flex items-center gap-2 mt-2.5">
+          <Badge className={`text-[10px] font-medium border-0 px-2 py-0.5 ${categoryInfo.color}`}>
+            {categoryInfo.category}
+          </Badge>
           {event.hasMultipleOptions && (
             <Badge variant="outline" className="text-[10px] font-medium bg-primary/10 text-primary border-primary/30 px-2 py-0.5">
               Multi-Option
