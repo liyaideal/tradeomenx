@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import MobileHome from "./pages/MobileHome";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import OrderPreview from "./pages/OrderPreview";
@@ -27,6 +27,11 @@ const ResponsiveLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 // Route component that shows different pages based on device
+const HomePage = () => {
+  const isMobile = useIsMobile();
+  return isMobile ? <MobileHome /> : <DesktopTrading />;
+};
+
 const TradingPage = () => {
   const isMobile = useIsMobile();
   return isMobile ? <TradingCharts /> : <DesktopTrading />;
@@ -45,7 +50,7 @@ const App = () => (
       <BrowserRouter>
         <ResponsiveLayout>
           <Routes>
-            <Route path="/" element={<TradingPage />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/trade" element={<TradingPage />} />
             <Route path="/trade/order" element={<TradeOrderPage />} />
             <Route path="/order-preview" element={<OrderPreview />} />
