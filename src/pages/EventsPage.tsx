@@ -9,7 +9,7 @@ import { EventStatsOverview } from "@/components/EventStatsOverview";
 import { EventFilters, EventStatusFilter } from "@/components/EventFilters";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { activeEvents, eventOptionsMap } from "@/data/events";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { Logo } from "@/components/Logo";
 
 // Transform activeEvents to EventData format for EventCard
 const transformedEvents: EventData[] = activeEvents.map((event) => {
@@ -93,7 +93,7 @@ const EventsPage = () => {
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               )}
-              <img src={omenxLogo} alt="OMENX" className="h-5 w-auto" />
+              <Logo size="md" />
             </div>
             <EventFilters
               statusFilter={statusFilter}

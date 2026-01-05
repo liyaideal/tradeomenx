@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { Logo } from "@/components/Logo";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { activeEvents, eventOptionsMap } from "@/data/events";
 
@@ -57,7 +57,7 @@ const MobileHome = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur px-4 py-3">
         <div className="flex items-center justify-between">
-          <img src={omenxLogo} alt="OMENX" className="h-5 w-auto" />
+          <Logo size="md" />
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <Globe className="h-5 w-5 text-muted-foreground" />
