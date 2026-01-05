@@ -256,23 +256,25 @@ const StyleGuide = () => {
     },
     {
       title: "Brand Colors",
+      description: "Purple is the primary brand color used for navigation, buttons, and interactive elements.",
       colors: [
-        { name: "Primary (Green)", variable: "--primary", class: "bg-primary", value: "142 71% 45%" },
-        { name: "Secondary (Purple)", variable: "--secondary", class: "bg-secondary", value: "260 60% 55%" },
-        { name: "Accent", variable: "--accent", class: "bg-accent", value: "260 60% 55%" },
-        { name: "Destructive (Red)", variable: "--destructive", class: "bg-destructive", value: "0 72% 51%" },
+        { name: "Primary (Purple)", variable: "--primary", class: "bg-primary", value: "260 60% 55%", usage: "Navigation, CTAs, focus states" },
+        { name: "Secondary", variable: "--secondary", class: "bg-secondary", value: "222 30% 22%", usage: "Secondary buttons, backgrounds" },
+        { name: "Accent", variable: "--accent", class: "bg-accent", value: "260 50% 45%", usage: "Highlights, hover states" },
+        { name: "Destructive (Red)", variable: "--destructive", class: "bg-destructive", value: "0 72% 51%", usage: "Errors, delete actions" },
       ]
     },
     {
       title: "Trading Colors",
+      description: "Green for profit/success, Red for loss/error, Purple for brand emphasis, Yellow for alerts.",
       colors: [
-        { name: "Trading Green", variable: "--trading-green", class: "bg-trading-green", value: "142 71% 45%" },
-        { name: "Trading Green Muted", variable: "--trading-green-muted", class: "bg-trading-green-muted", value: "142 50% 25%" },
-        { name: "Trading Red", variable: "--trading-red", class: "bg-trading-red", value: "0 72% 51%" },
-        { name: "Trading Red Muted", variable: "--trading-red-muted", class: "bg-trading-red-muted", value: "0 50% 25%" },
-        { name: "Trading Purple", variable: "--trading-purple", class: "bg-trading-purple", value: "260 60% 55%" },
-        { name: "Trading Purple Muted", variable: "--trading-purple-muted", class: "bg-trading-purple-muted", value: "260 40% 35%" },
-        { name: "Trading Yellow", variable: "--trading-yellow", class: "bg-trading-yellow", value: "45 93% 58%" },
+        { name: "Trading Green (Success)", variable: "--trading-green", class: "bg-trading-green", value: "142 71% 45%", usage: "Profit, buy, success states" },
+        { name: "Trading Green Muted", variable: "--trading-green-muted", class: "bg-trading-green-muted", value: "142 50% 25%", usage: "Green backgrounds" },
+        { name: "Trading Red (Loss)", variable: "--trading-red", class: "bg-trading-red", value: "0 72% 51%", usage: "Loss, sell, error states" },
+        { name: "Trading Red Muted", variable: "--trading-red-muted", class: "bg-trading-red-muted", value: "0 50% 25%", usage: "Red backgrounds" },
+        { name: "Trading Purple (Brand)", variable: "--trading-purple", class: "bg-trading-purple", value: "260 60% 55%", usage: "Brand emphasis, active tabs" },
+        { name: "Trading Purple Muted", variable: "--trading-purple-muted", class: "bg-trading-purple-muted", value: "260 40% 35%", usage: "Purple backgrounds" },
+        { name: "Trading Yellow (Alert)", variable: "--trading-yellow", class: "bg-trading-yellow", value: "45 93% 58%", usage: "Warnings, real-time indicators" },
       ]
     },
     {
