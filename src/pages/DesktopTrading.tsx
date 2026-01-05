@@ -512,7 +512,7 @@ export default function DesktopTrading() {
       <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
         {/* Back Button */}
         <button
-          onClick={() => navigate("/events")}
+          onClick={() => navigate(-1)}
           className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center transition-all duration-200 hover:bg-muted flex-shrink-0"
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
