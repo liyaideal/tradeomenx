@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trophy, TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User } from "lucide-react";
+import { TrendingUp, DollarSign, BarChart3, Share2, Crown, ChevronLeft, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -8,6 +8,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import * as htmlToImage from "html-to-image";
+import omenxLogo from "@/assets/omenx-logo.svg";
 
 type SortType = "pnl" | "roi" | "volume";
 
@@ -342,12 +343,9 @@ const ShareableCard = ({ user, cardRef, onShare, isGenerating }: ShareableCardPr
       )}
       
       <div className="relative z-10">
-        {/* Header */}
+        {/* Header with Logo */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium text-primary">OMENX Leaderboard</span>
-          </div>
+          <img src={omenxLogo} alt="OMENX" className="h-6" />
           <div className="px-3 py-1 rounded-full bg-trading-green/20 border border-trading-green/30">
             <span className="text-xs font-semibold text-trading-green">Top Ranking</span>
           </div>
@@ -661,11 +659,13 @@ export default function Leaderboard() {
             </div>
           )}
 
-          {/* Title */}
+          {/* Logo + Title */}
           <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <img src={omenxLogo} alt="OMENX" className="h-8" />
+            </div>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-4">
-              <Trophy className="w-5 h-5 text-primary" />
-              <span className="text-sm font-semibold text-primary">Live Rankings</span>
+              <span className="text-sm font-semibold text-primary">🏆 Live Rankings</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
               Leaderboard
