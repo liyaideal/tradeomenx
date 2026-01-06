@@ -1,14 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Globe, ChevronDown, User, Trophy } from "lucide-react";
+import { Globe, ChevronDown, User, Trophy, LogOut, LogIn } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/Logo";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 // Regular nav items (without Leaderboard)
 const navItems = [
@@ -32,6 +37,31 @@ export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsD
   const navigate = useNavigate();
   const location = useLocation();
   const [language, setLanguage] = useState("EN");
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Failed to sign out");
+    } else {
+      toast.success("Signed out successfully");
+      navigate("/");
+    }
+  };
 
   const currentPath = location.pathname;
   const isLeaderboardActive = currentPath === "/leaderboard";
@@ -121,42 +151,61 @@ export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsD
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Balance */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5">
-            <span className="text-sm text-muted-foreground">Balance:</span>
-            <span className="text-sm font-bold text-trading-green font-mono">
-              ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
+          {user ? (
+            <>
+              {/* Balance - only show when logged in */}
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5">
+                <span className="text-sm text-muted-foreground">Balance:</span>
+                <span className="text-sm font-bold text-trading-green font-mono">
+                  ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
 
-          {/* Profile Avatar */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Avatar className="h-9 w-9 border-2 border-border/50">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="User" />
-                  <AvatarFallback>
-                    <User className="w-4 h-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => navigate("/portfolio")}>
-                Portfolio
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Help & Support
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-trading-red">
-                Disconnect
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              {/* Profile Avatar - logged in */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <Avatar className="h-9 w-9 border-2 border-primary/50">
+                      <AvatarImage src={user.user_metadata?.avatar_url} alt="User" />
+                      <AvatarFallback className="bg-primary/20 text-primary">
+                        {user.email?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+                      </AvatarFallback>
+                    </Avatar>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5 border-b border-border/50 mb-1">
+                    <p className="text-sm font-medium truncate">{user.user_metadata?.username || "User"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuItem onClick={() => navigate("/portfolio")}>
+                    Portfolio
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Help & Support
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-trading-red">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            /* Login Button - not logged in */
+            <Button
+              onClick={() => navigate("/auth")}
+              className="btn-primary flex items-center gap-2"
+            >
+              <LogIn className="w-4 h-4" />
+              Sign In
+            </Button>
+          )}
         </div>
       </div>
     </header>

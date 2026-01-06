@@ -11,6 +11,7 @@ import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide";
 import EventsPage from "./pages/EventsPage";
 import Leaderboard from "./pages/Leaderboard";
+import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 
@@ -52,6 +53,7 @@ const App = () => (
         <ResponsiveLayout>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/auth" element={<AuthPage />} />
             <Route path="/trade" element={<TradingPage />} />
             <Route path="/trade/order" element={<TradeOrderPage />} />
             <Route path="/order-preview" element={<OrderPreview />} />
