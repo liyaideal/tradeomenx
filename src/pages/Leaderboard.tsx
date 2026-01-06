@@ -472,6 +472,18 @@ const ShareableCard = ({
   const themeConfig = cardThemes[theme];
   const glowColors = themeGlowColors[theme];
   
+  // Generate a random 5-character referral code (stable per user)
+  const referralCode = React.useMemo(() => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    // Use username as seed for consistency
+    const seed = user.username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    for (let i = 0; i < 5; i++) {
+      code += chars[(seed * (i + 1) * 7) % chars.length];
+    }
+    return code;
+  }, [user.username]);
+  
   const stats = [
     { key: "pnl" as StatKey, label: "PnL", value: `$${user.pnl.toLocaleString()}`, color: themeConfig.pnlColor, icon: true },
     { key: "roi" as StatKey, label: "ROI", value: `${user.roi.toFixed(1)}%`, color: themeConfig.roiColor, icon: false },
@@ -568,27 +580,39 @@ const ShareableCard = ({
           </div>
         )}
 
-        {/* QR Code and Share hint */}
-        <div className="mt-4 flex items-center justify-between">
-          {/* QR Code */}
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-white rounded-lg">
-              <QRCodeSVG 
-                value="https://omenx.trade" 
-                size={48}
-                level="M"
-                includeMargin={false}
-              />
+        {/* Footer with Referral & QR Code */}
+        <div className="mt-5 pt-4 border-t border-border/20">
+          <div className="flex items-end justify-between">
+            {/* Left: Referral Text */}
+            <div className="flex-1">
+              <div className="text-xs text-primary font-medium mb-1">
+                Join & claim $10,000 trial funds!
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">Referral code:</span>
+                <span className="font-mono text-sm font-bold text-foreground tracking-wider">
+                  {referralCode}
+                </span>
+              </div>
             </div>
-            <div className="text-[10px] text-muted-foreground">
-              <div className="font-medium text-foreground/80">Scan to join</div>
-              <div>omenx.trade</div>
+            
+            {/* Right: QR Code */}
+            <div className="flex flex-col items-center gap-1">
+              <div className="p-1.5 bg-white rounded-lg shadow-sm">
+                <QRCodeSVG 
+                  value="https://omenx.trade" 
+                  size={52}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+              <span className="text-[8px] text-muted-foreground">omenx.trade</span>
             </div>
           </div>
           
           {/* Tap to share hint - hidden in modal preview */}
           {!hideShareHint && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Share2 className="w-3 h-3" />
               <span>Tap to share</span>
             </div>
