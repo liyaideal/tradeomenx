@@ -62,7 +62,7 @@ export function MobileDrawer({
       <SheetContent
         side="bottom"
         className={cn(
-          "rounded-t-3xl px-5 pt-4 max-h-[85vh] flex flex-col",
+          "rounded-t-3xl px-5 pt-4 pb-6 max-h-[85vh] overflow-y-auto",
           height,
           hideCloseButton && "[&>button]:hidden",
           className
@@ -70,21 +70,19 @@ export function MobileDrawer({
       >
         {/* Drag handle indicator */}
         {showHandle && (
-          <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4 flex-shrink-0" />
+          <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
         )}
         
         {/* Header with title and description */}
         {(title || description) && (
-          <SheetHeader className="text-left mb-4 flex-shrink-0">
+          <SheetHeader className="text-left mb-4">
             {title && <SheetTitle>{title}</SheetTitle>}
             {description && <SheetDescription>{description}</SheetDescription>}
           </SheetHeader>
         )}
         
-        {/* Content - scrollable when needed */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
-          {children}
-        </div>
+        {/* Content */}
+        {children}
       </SheetContent>
     </Sheet>
   );
