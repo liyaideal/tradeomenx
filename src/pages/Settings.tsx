@@ -333,7 +333,7 @@ const Settings = () => {
         <div>
           <h3 className="font-semibold mb-1">Username</h3>
           <p className="text-sm text-muted-foreground">
-            Status: {username || "Not Set"}
+            {username || "Not Set"}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             Used for display and @mentions
@@ -359,7 +359,7 @@ const Settings = () => {
         <div>
           <h3 className="font-semibold mb-1">Email Address</h3>
           <p className="text-sm text-muted-foreground">
-            Status: {email || "Not Set"}
+            {email || "Not Set"}
           </p>
         </div>
         <Button
