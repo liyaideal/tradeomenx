@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { PROFILE_QUERY_KEY } from "@/hooks/useUserProfile";
 import { 
   Gift, 
   Wallet, 
@@ -36,6 +38,7 @@ export const AuthContent = ({
   setIsLoading,
   variant = "desktop" 
 }: AuthContentProps) => {
+  const queryClient = useQueryClient();
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">("google");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -96,6 +99,9 @@ export const AuthContent = ({
 
         if (profileError) {
           console.error("Profile update error:", profileError);
+        } else {
+          // Invalidate profile cache to refresh the username
+          queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
         }
 
         toast.success(`Connected via ${method === "google" ? "Google" : method === "telegram" ? "Telegram" : "Wallet"}!`);
