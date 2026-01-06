@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
-import { Home, BarChart3, TrendingUp, Trophy, User, LogIn } from "lucide-react";
+import { Home, BarChart3, TrendingUp, Trophy, User, LogIn, LogOut, Settings, HelpCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { AuthSheet } from "@/components/auth/AuthSheet";
-
+import { toast } from "sonner";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
@@ -25,6 +32,7 @@ export const BottomNav = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
+  const [profileSheetOpen, setProfileSheetOpen] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -37,6 +45,17 @@ export const BottomNav = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Failed to sign out");
+    } else {
+      toast.success("Signed out successfully");
+      setProfileSheetOpen(false);
+      navigate("/");
+    }
+  };
 
   const isActive = (path: string) => {
     if (path === "/trade") {
@@ -127,7 +146,7 @@ export const BottomNav = () => {
           <button
             onClick={() => {
               triggerHaptic('light');
-              navigate("/portfolio", { replace: true });
+              setProfileSheetOpen(true);
             }}
             className={`flex flex-col items-center gap-1 transition-all duration-300 ${
               location.pathname === "/portfolio"
@@ -135,14 +154,15 @@ export const BottomNav = () => {
                 : "text-muted-foreground scale-100 hover:scale-105"
             }`}
           >
-            <User className={`w-5 h-5 transition-all duration-300 ${
-              location.pathname === "/portfolio"
-                ? "text-trading-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" 
-                : ""
-            }`} />
+            <Avatar className="w-6 h-6 border border-primary/50">
+              <AvatarImage src={user.user_metadata?.avatar_url} alt="User" />
+              <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                {user.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
+              </AvatarFallback>
+            </Avatar>
             <span className={`text-xs transition-all duration-300 ${
               location.pathname === "/portfolio" ? "font-semibold" : "font-medium"
-            }`}>Portfolio</span>
+            }`}>Me</span>
           </button>
         ) : (
           <button
@@ -160,6 +180,80 @@ export const BottomNav = () => {
 
       {/* Auth Sheet for mobile */}
       <AuthSheet open={authSheetOpen} onOpenChange={setAuthSheetOpen} />
+
+      {/* Profile Sheet for logged in users */}
+      <Sheet open={profileSheetOpen} onOpenChange={setProfileSheetOpen}>
+        <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8 bg-background border-t border-border/50">
+          {/* Drag handle */}
+          <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
+          
+          <SheetHeader className="text-left mb-4">
+            <SheetTitle className="sr-only">Profile Menu</SheetTitle>
+          </SheetHeader>
+
+          {/* User Info */}
+          <div className="flex items-center gap-3 mb-6 p-3 bg-muted/30 rounded-xl">
+            <Avatar className="w-12 h-12 border-2 border-primary/50">
+              <AvatarImage src={user?.user_metadata?.avatar_url} alt="User" />
+              <AvatarFallback className="bg-primary/20 text-primary">
+                {user?.email?.charAt(0).toUpperCase() || <User className="w-5 h-5" />}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">
+                {user?.user_metadata?.username || user?.user_metadata?.full_name || "User"}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <div className="space-y-1">
+            <button
+              onClick={() => {
+                setProfileSheetOpen(false);
+                navigate("/portfolio");
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted/50 transition-colors text-left"
+            >
+              <User className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm font-medium">Portfolio</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setProfileSheetOpen(false);
+                toast.info("Settings coming soon");
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted/50 transition-colors text-left"
+            >
+              <Settings className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm font-medium">Settings</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setProfileSheetOpen(false);
+                toast.info("Help & Support coming soon");
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted/50 transition-colors text-left"
+            >
+              <HelpCircle className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm font-medium">Help & Support</span>
+            </button>
+
+            <div className="h-px bg-border/50 my-2" />
+            
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-trading-red/10 transition-colors text-left text-trading-red"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="text-sm font-medium">Sign Out</span>
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </nav>
   );
 };
