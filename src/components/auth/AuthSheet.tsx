@@ -42,7 +42,7 @@ export const AuthSheet = ({ open, onOpenChange }: AuthSheetProps) => {
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent 
         side="bottom" 
-        className="h-[90vh] rounded-t-3xl px-5 py-6 bg-background border-t border-border/50"
+        className="rounded-t-3xl px-5 pt-4 pb-8 bg-background border-t border-border/50 max-h-[85vh]"
       >
         {/* Drag handle */}
         <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
@@ -54,7 +54,7 @@ export const AuthSheet = ({ open, onOpenChange }: AuthSheetProps) => {
           <SheetTitle className="sr-only">Sign In</SheetTitle>
         </SheetHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)] pb-safe">
+        <div className="overflow-y-auto">
           <AuthContent
             step={step}
             setStep={setStep}
