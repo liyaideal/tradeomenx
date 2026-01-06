@@ -326,21 +326,8 @@ export const DesktopPositionsPanel = () => {
                           </span>
                         </td>
                         <td className="px-3 py-2 text-sm text-muted-foreground">{order.time}</td>
-                        <td className="px-3 py-2 text-sm">
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => handleFillOrder(actualIndex)}
-                              className="px-2 py-1 text-xs bg-trading-green/20 text-trading-green rounded hover:bg-trading-green/30"
-                            >
-                              Fill
-                            </button>
-                            <button 
-                              onClick={() => handleCancelOrder(actualIndex)}
-                              className="px-2 py-1 text-xs bg-trading-red/20 text-trading-red rounded hover:bg-trading-red/30"
-                            >
-                              Cancel
-                            </button>
-                          </div>
+                        <td className="px-3 py-2 text-sm text-muted-foreground">
+                          —
                         </td>
                       </tr>
                     );
