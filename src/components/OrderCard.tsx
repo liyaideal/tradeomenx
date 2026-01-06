@@ -121,25 +121,9 @@ export const OrderCard = ({
           </div>
         </div>
 
-        {/* Footer with time and actions */}
+        {/* Footer with time */}
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
           <span className="text-[10px] text-muted-foreground">{time}</span>
-          {isPending && (
-            <div className="flex gap-2">
-              <button 
-                onClick={() => setFillDialogOpen(true)}
-                className="px-3 py-1.5 text-[10px] font-medium bg-trading-green/20 text-trading-green rounded-lg hover:bg-trading-green/30 transition-colors"
-              >
-                Fill
-              </button>
-              <button 
-                onClick={() => setCancelDialogOpen(true)}
-                className="px-3 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
