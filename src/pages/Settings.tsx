@@ -489,15 +489,8 @@ const Settings = () => {
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
         <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/30">
-          <div className="flex items-center justify-between px-4 py-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
+          <div className="flex items-center justify-center px-4 py-4">
             <h1 className="text-lg font-semibold">Settings</h1>
-            <div className="w-10" />
           </div>
         </div>
 
