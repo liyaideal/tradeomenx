@@ -603,26 +603,26 @@ const ShareableCard = ({
 
         {/* Footer with Referral & QR Code */}
         <div className="mt-5 rounded-xl bg-background/60 border border-border/30 p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             {/* Left: Referral Text */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className={`text-sm font-medium mb-2 ${themeConfig.ctaColor}`}>
                 Join & claim $10,000 trial funds!
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-xs text-muted-foreground">Referral code:</span>
-                <span className="font-mono text-lg font-bold text-foreground tracking-widest">
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">Referral code:</span>
+                <span className="font-mono text-base font-bold text-foreground tracking-widest">
                   {referralCode}
                 </span>
               </div>
             </div>
             
             {/* Right: QR Code */}
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 flex-shrink-0">
               <div className="p-2 bg-white rounded-lg">
                 <QRCodeSVG 
                   value="https://omenx.com" 
-                  size={64}
+                  size={56}
                   level="M"
                   includeMargin={false}
                 />
