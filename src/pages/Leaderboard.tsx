@@ -581,43 +581,46 @@ const ShareableCard = ({
         )}
 
         {/* Footer with Referral & QR Code */}
-        <div className="mt-5 pt-4 border-t border-border/20">
-          <div className="flex items-end justify-between">
+        <div className="mt-5 rounded-xl bg-background/60 border border-border/30 p-4">
+          <div className="flex items-center justify-between">
             {/* Left: Referral Text */}
             <div className="flex-1">
-              <div className="text-xs text-primary font-medium mb-1">
+              <div className="text-sm text-primary font-medium mb-2">
                 Join & claim $10,000 trial funds!
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-muted-foreground">Referral code:</span>
-                <span className="font-mono text-sm font-bold text-foreground tracking-wider">
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs text-muted-foreground">Referral code:</span>
+                <span className="font-mono text-lg font-bold text-foreground tracking-widest">
                   {referralCode}
                 </span>
               </div>
             </div>
             
             {/* Right: QR Code */}
-            <div className="flex flex-col items-center gap-1">
-              <div className="p-1.5 bg-white rounded-lg shadow-sm">
+            <div className="flex flex-col items-end gap-1">
+              <div className="p-2 bg-white rounded-lg">
                 <QRCodeSVG 
                   value="https://omenx.trade" 
-                  size={52}
+                  size={64}
                   level="M"
                   includeMargin={false}
                 />
               </div>
-              <span className="text-[8px] text-muted-foreground">omenx.trade</span>
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <span className="text-primary">✦</span>
+                <span>omenx.trade</span>
+              </div>
             </div>
           </div>
-          
-          {/* Tap to share hint - hidden in modal preview */}
-          {!hideShareHint && (
-            <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Share2 className="w-3 h-3" />
-              <span>Tap to share</span>
-            </div>
-          )}
         </div>
+        
+        {/* Tap to share hint - hidden in modal preview */}
+        {!hideShareHint && (
+          <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Share2 className="w-3 h-3" />
+            <span>Tap to share</span>
+          </div>
+        )}
       </div>
     </div>
   );
