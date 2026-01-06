@@ -109,9 +109,7 @@ export const useOrdersStore = create<OrdersStore>()(
         orders: state.orders.filter((_, i) => i !== index) 
       })),
       fillOrder: (index) => set((state) => ({
-        orders: state.orders.map((order, i) => 
-          i === index ? { ...order, status: 'Filled' as const } : order
-        )
+        orders: state.orders.filter((_, i) => i !== index)
       })),
       updateOrderStatus: (index, status) => set((state) => ({
         orders: state.orders.map((order, i) => 
