@@ -167,80 +167,19 @@ export const EventFilters = ({
     );
   }
 
-  // Desktop Filters
+  // Desktop Filters - No status pills since header has Resolved nav
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap py-2">
       <div className="flex items-center gap-4 flex-wrap">
-        {/* Status Pills - with better styling */}
+        {/* Settlement Dropdown */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground font-medium">Status:</span>
-          <div className="flex items-center gap-1 bg-secondary/50 rounded-lg p-1">
-            {statusOptions.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => onStatusFilterChange(opt.value)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
-                  statusFilter === opt.value
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Only show these filters for Active events */}
-        {statusFilter === "active" && (
-          <>
-            {/* Settlement Dropdown */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-medium">Settlement:</span>
-              <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
-                <SelectTrigger className="w-[130px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {settlementOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Category Dropdown */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-medium">Category:</span>
-              <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
-                <SelectTrigger className="w-[150px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoryOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Sort Dropdown - Only show for Active events */}
-      {statusFilter === "active" && (
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground font-medium">Sort:</span>
-          <Select value={sortBy} onValueChange={onSortByChange}>
+          <span className="text-sm text-muted-foreground font-medium">Settlement:</span>
+          <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
             <SelectTrigger className="w-[130px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {sortOptions.map((opt) => (
+              {settlementOptions.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
                 </SelectItem>
@@ -248,7 +187,41 @@ export const EventFilters = ({
             </SelectContent>
           </Select>
         </div>
-      )}
+
+        {/* Category Dropdown */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground font-medium">Category:</span>
+          <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
+            <SelectTrigger className="w-[150px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Sort Dropdown */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground font-medium">Sort:</span>
+        <Select value={sortBy} onValueChange={onSortByChange}>
+          <SelectTrigger className="w-[130px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {sortOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };
