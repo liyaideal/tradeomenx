@@ -166,7 +166,7 @@ export const BottomNav = () => {
 
       {/* Profile Sheet for logged in users */}
       <Sheet open={profileSheetOpen} onOpenChange={setProfileSheetOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8 bg-background border-t border-border/50">
+        <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 bg-background border-t border-border/50">
           {/* Drag handle */}
           <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
           

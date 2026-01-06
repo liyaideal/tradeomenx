@@ -509,7 +509,7 @@ const Settings = () => {
         
         {/* Avatar Picker Sheet */}
         <Sheet open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8 h-[85vh]">
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 h-[85vh]">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <SheetHeader className="text-left mb-4">
               <SheetTitle>Choose Avatar</SheetTitle>
@@ -529,7 +529,7 @@ const Settings = () => {
 
         {/* Username Sheet */}
         <Sheet open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-24">
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <SheetHeader className="text-left mb-4">
               <SheetTitle>Set Username</SheetTitle>
@@ -560,7 +560,7 @@ const Settings = () => {
 
         {/* Email Sheet */}
         <Sheet open={emailDialogOpen} onOpenChange={handleEmailDialogClose}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-24">
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <SheetHeader className="text-left mb-4">
               <SheetTitle>
@@ -635,7 +635,7 @@ const Settings = () => {
 
         {/* Wallet Connection Sheet */}
         <Sheet open={walletDialogOpen} onOpenChange={handleWalletDialogClose}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8">
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <SheetHeader className="text-left mb-4">
               <SheetTitle>
@@ -710,7 +710,7 @@ const Settings = () => {
 
         {/* Disconnect Wallet Confirmation Sheet */}
         <Sheet open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8">
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <div className="py-4 text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-red/10 flex items-center justify-center">
