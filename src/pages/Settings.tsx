@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -239,28 +239,26 @@ const Settings = () => {
     );
   }
 
-  // Generate avatar grid
-  const avatarOptions = AVATAR_SEEDS.flatMap((seed, seedIndex) => 
-    AVATAR_BACKGROUNDS.map((bg, bgIndex) => ({
-      seed,
-      bgIndex,
-      url: generateAvatarUrl(seed, bgIndex),
-      key: `${seed}-${bgIndex}`
-    }))
-  ).slice(0, 50); // Limit to 50 avatars for performance
-
-  // Avatar Picker Component
-  const AvatarPicker = ({ isSheet = false }: { isSheet?: boolean }) => (
-    <div className={`overflow-y-auto ${isSheet ? "max-h-[350px]" : "max-h-[380px]"}`}>
+  // Generate avatar grid - memoized to prevent re-creation
+  const avatarOptions = useMemo(() => 
+    AVATAR_SEEDS.flatMap((seed, seedIndex) => 
+      AVATAR_BACKGROUNDS.map((bg, bgIndex) => ({
+        seed,
+        bgIndex,
+        url: generateAvatarUrl(seed, bgIndex),
+        key: `${seed}-${bgIndex}`
+      }))
+    ).slice(0, 50), // Limit to 50 avatars for performance
+  []);
+  // Avatar grid JSX - rendered inline to avoid component recreation
+  const renderAvatarGrid = (maxHeight: string) => (
+    <div className={`overflow-y-auto ${maxHeight}`}>
       <div className="grid grid-cols-5 gap-3 pr-2">
         {avatarOptions.map((avatar) => (
           <button
             key={avatar.key}
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              setSelectedAvatar(avatar.url);
-            }}
+            onClick={() => setSelectedAvatar(avatar.url)}
             className={`relative rounded-xl p-1 transition-all ${
               selectedAvatar === avatar.url
                 ? "ring-2 ring-primary bg-primary/20 scale-105"
@@ -520,9 +518,7 @@ const Settings = () => {
           onOpenChange={setAvatarDialogOpen}
           title="Choose Avatar"
         >
-          <div className="max-h-[60vh] overflow-y-auto">
-            <AvatarPicker isSheet />
-          </div>
+          {renderAvatarGrid("max-h-[50vh]")}
           <MobileDrawerActions>
             <Button
               onClick={handleSelectAvatar}
@@ -752,7 +748,7 @@ const Settings = () => {
               Select an avatar from our collection
             </DialogDescription>
           </DialogHeader>
-          <AvatarPicker />
+          {renderAvatarGrid("max-h-[380px]")}
           <DialogFooter>
             <Button variant="outline" onClick={() => setAvatarDialogOpen(false)}>
               Cancel
