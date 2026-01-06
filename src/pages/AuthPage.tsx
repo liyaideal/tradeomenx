@@ -305,49 +305,6 @@ const AuthPage = () => {
               </div>
             )}
 
-            {/* Divider */}
-            <div className="flex items-center gap-4 my-6">
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-sm text-muted-foreground">OR</span>
-              <div className="flex-1 h-px bg-border" />
-            </div>
-
-            {/* Email/Password Login Form */}
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your.email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 h-11 bg-muted/50 border-border/50"
-                />
-                {errors.email && <p className="text-xs text-trading-red mt-1">{errors.email}</p>}
-              </div>
-              <div>
-                <Label htmlFor="password" className="text-sm text-muted-foreground">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 h-11 bg-muted/50 border-border/50"
-                />
-                {errors.password && <p className="text-xs text-trading-red mt-1">{errors.password}</p>}
-              </div>
-
-              <Button
-                onClick={handleEmailSignIn}
-                disabled={isLoading}
-                className="w-full h-11 btn-primary"
-              >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
-              </Button>
-            </div>
-
             {/* Info text */}
             <div className="mt-6 pt-6 border-t border-border/50 text-center">
               <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
