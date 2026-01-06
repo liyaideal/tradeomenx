@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Wallet, CreditCard, Copy, Check } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TopUpDialogProps {
   open: boolean;
@@ -202,11 +201,8 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
         open={open}
         onOpenChange={onOpenChange}
         title="Top Up"
-        height="max-h-[90vh]"
       >
-        <ScrollArea className="max-h-[calc(90vh-120px)]">
-          <TopUpContent />
-        </ScrollArea>
+        <TopUpContent />
       </MobileDrawer>
     );
   }
