@@ -133,9 +133,9 @@ export const BottomNav = () => {
             }`}
           >
             <Avatar className="w-6 h-6 border border-border">
-              <AvatarImage src={user.user_metadata?.avatar_url} alt="User" />
+              <AvatarImage src={avatarUrl || undefined} alt="User" />
               <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                {user.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
+                {username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
               </AvatarFallback>
             </Avatar>
             <span className={`text-xs transition-all duration-300 ${

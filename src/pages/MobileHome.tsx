@@ -51,7 +51,6 @@ const MobileHome = () => {
               <Bell className="h-5 w-5 text-muted-foreground" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-trading-red rounded-full" />
             </Button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-trading-green to-trading-purple" />
           </div>
         </div>
       </header>
