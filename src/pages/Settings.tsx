@@ -417,36 +417,38 @@ const Settings = () => {
       <div className="space-y-4">
         {connectedWallets.map((wallet, index) => (
           <div key={index} className="bg-muted/30 rounded-xl p-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{wallet.icon}</span>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-medium">{wallet.address}</span>
-                    <button
-                      onClick={() => handleCopyWallet(wallet.fullAddress)}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {copiedWallet ? (
-                        <Check className="w-4 h-4 text-trading-green" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="text-sm text-muted-foreground">{wallet.network}</span>
-                    {wallet.isPrimary && (
-                      <Badge variant="outline" className="border-primary/50 text-primary text-xs h-5">
-                        Primary Wallet
-                      </Badge>
+            {/* Wallet info row */}
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">{wallet.icon}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-medium">{wallet.address}</span>
+                  <button
+                    onClick={() => handleCopyWallet(wallet.fullAddress)}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {copiedWallet ? (
+                      <Check className="w-4 h-4 text-trading-green" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
                     )}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Connected: {wallet.connectedAt}
-                  </p>
+                  </button>
                 </div>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span className="text-sm text-muted-foreground">{wallet.network}</span>
+                  {wallet.isPrimary && (
+                    <Badge variant="outline" className="border-primary/50 text-primary text-xs h-5">
+                      Primary Wallet
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Connected: {wallet.connectedAt}
+                </p>
               </div>
+            </div>
+            {/* Action button - always full width on mobile, right-aligned */}
+            <div className="mt-3 flex justify-end">
               <Button
                 variant="outline"
                 size="sm"

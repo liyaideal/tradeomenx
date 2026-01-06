@@ -58,6 +58,7 @@ const StyleGuide = () => {
     { id: "spacing", title: "Spacing & Border Radius", keywords: ["spacing", "padding", "margin", "radius", "border", "rounded"] },
     { id: "icons", title: "Icons", keywords: ["icon", "lucide", "svg", "symbol"] },
     { id: "css-classes", title: "Custom CSS Classes", keywords: ["css", "class", "custom", "price", "chip", "tab", "scrollbar"] },
+    { id: "mobile-patterns", title: "Mobile UI Patterns", keywords: ["mobile", "pattern", "button", "placement", "drawer", "spacing", "safe", "area"] },
   ];
 
   // Filter sections based on search query
@@ -2080,6 +2081,137 @@ const categoryInfo = getCategoryFromName(event.title);`}
               </div>
               <div className="mt-4 p-3 bg-muted/30 rounded-lg">
                 <code className="text-xs text-muted-foreground">.scrollbar-hide</code>
+              </div>
+            </Card>
+          </div>
+        </section>
+        )}
+
+        {/* Mobile UI Patterns Section */}
+        {filterSection("mobile-patterns") && (
+        <section id="mobile-patterns">
+          <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Mobile UI Patterns</h2>
+          <p className="text-muted-foreground mb-6">
+            Consistent patterns for mobile interfaces to ensure unified user experience.
+          </p>
+          
+          <div className="grid gap-6">
+            {/* Button Placement Rules */}
+            <Card className="trading-card p-4 md:p-6">
+              <h3 className="text-sm font-medium mb-4">Button Placement Rules</h3>
+              <div className="space-y-4">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">1. Card Actions</p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Primary action buttons in cards should be right-aligned.
+                  </p>
+                  <div className="border border-border rounded-lg p-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium">Card Title</p>
+                        <p className="text-sm text-muted-foreground">Description text</p>
+                      </div>
+                      <Button size="sm" className="btn-primary">Edit</Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">2. Drawer Actions</p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Primary actions full-width, secondary actions can be side-by-side.
+                  </p>
+                  <div className="border border-border rounded-lg p-3 space-y-2">
+                    <Button className="w-full btn-primary">Confirm</Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="flex-1">Cancel</Button>
+                      <Button variant="destructive" className="flex-1">Delete</Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">3. Item with Actions</p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    When content is complex, put action button below content, right-aligned.
+                  </p>
+                  <div className="border border-border rounded-lg p-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">🦊</div>
+                      <div className="flex-1">
+                        <p className="font-mono text-sm">0x1234...5678</p>
+                        <p className="text-xs text-muted-foreground">Ethereum Mainnet</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex justify-end">
+                      <Button variant="outline" size="sm">Disconnect</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <CodePreview 
+                code="// Card: justify-between | Drawer: w-full | Item: mt-3 flex justify-end" 
+                id="mobile-button-placement" 
+              />
+            </Card>
+
+            {/* MobileDrawer Usage */}
+            <Card className="trading-card p-4 md:p-6">
+              <h3 className="text-sm font-medium mb-4">MobileDrawer Component</h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Use MobileDrawer for all bottom sheets on mobile. It includes drag handle, safe area padding, and consistent styling.
+              </p>
+              <div className="space-y-3">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">Basic Usage</p>
+                  <code className="text-xs text-muted-foreground block">
+                    {`<MobileDrawer open={open} onOpenChange={setOpen} title="Title">`}
+                  </code>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">With List Items</p>
+                  <code className="text-xs text-muted-foreground block whitespace-pre-wrap">
+{`<MobileDrawerList>
+  <MobileDrawerListItem icon={User} label="Profile" onClick={...} />
+  <MobileDrawerListItem icon={Settings} label="Settings" onClick={...} />
+</MobileDrawerList>`}
+                  </code>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">With Actions</p>
+                  <code className="text-xs text-muted-foreground block whitespace-pre-wrap">
+{`<MobileDrawerActions>
+  <Button className="w-full">Confirm</Button>
+</MobileDrawerActions>`}
+                  </code>
+                </div>
+              </div>
+            </Card>
+
+            {/* Spacing Guidelines */}
+            <Card className="trading-card p-4 md:p-6">
+              <h3 className="text-sm font-medium mb-4">Mobile Spacing</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-sm">Page padding</span>
+                  <code className="text-xs bg-muted px-2 py-1 rounded">px-4</code>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-sm">Card padding</span>
+                  <code className="text-xs bg-muted px-2 py-1 rounded">p-4</code>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-sm">Section gap</span>
+                  <code className="text-xs bg-muted px-2 py-1 rounded">space-y-4</code>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-border">
+                  <span className="text-sm">Bottom nav safe area</span>
+                  <code className="text-xs bg-muted px-2 py-1 rounded">pb-safe (5rem)</code>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm">Drawer safe area</span>
+                  <code className="text-xs bg-muted px-2 py-1 rounded">pb-safe (auto)</code>
+                </div>
               </div>
             </Card>
           </div>
