@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Pencil, Mail } from "lucide-react";
+import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Mail } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -21,11 +21,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  MobileDrawer,
+  MobileDrawerSection,
+  MobileDrawerActions,
+  MobileDrawerList,
+  MobileDrawerListItem,
+  MobileDrawerStatus,
+} from "@/components/ui/mobile-drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Settings = () => {
@@ -507,237 +509,211 @@ const Settings = () => {
 
         <BottomNav />
         
-        {/* Avatar Picker Sheet */}
-        <Sheet open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 h-[85vh]">
-            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
-            <SheetHeader className="text-left mb-4">
-              <SheetTitle>Choose Avatar</SheetTitle>
-            </SheetHeader>
-            <AvatarPicker isSheet />
-            <div className="mt-4 pt-4 border-t border-border">
-              <Button
-                onClick={handleSelectAvatar}
-                disabled={!selectedAvatar || isUpdating}
-                className="w-full btn-primary h-12"
-              >
-                {isUpdating ? "Saving..." : "Save Avatar"}
-              </Button>
-            </div>
-          </SheetContent>
-        </Sheet>
+        {/* Avatar Picker Drawer */}
+        <MobileDrawer
+          open={avatarDialogOpen}
+          onOpenChange={setAvatarDialogOpen}
+          title="Choose Avatar"
+          height="h-[85vh]"
+        >
+          <AvatarPicker isSheet />
+          <MobileDrawerActions>
+            <Button
+              onClick={handleSelectAvatar}
+              disabled={!selectedAvatar || isUpdating}
+              className="w-full btn-primary h-12"
+            >
+              {isUpdating ? "Saving..." : "Save Avatar"}
+            </Button>
+          </MobileDrawerActions>
+        </MobileDrawer>
 
-        {/* Username Sheet */}
-        <Sheet open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4">
-            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
-            <SheetHeader className="text-left mb-4">
-              <SheetTitle>Set Username</SheetTitle>
-            </SheetHeader>
-            <div className="space-y-4">
-              <div>
-                <Input
-                  placeholder="Enter your username"
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  className="h-12"
-                  maxLength={20}
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  3-20 characters, letters, numbers, and underscores only
-                </p>
-              </div>
-              <Button
-                onClick={handleUpdateUsername}
-                disabled={isUpdating || !newUsername.trim()}
-                className="w-full btn-primary h-12"
-              >
-                {isUpdating ? "Saving..." : "Confirm"}
-              </Button>
-            </div>
-          </SheetContent>
-        </Sheet>
-
-        {/* Email Sheet */}
-        <Sheet open={emailDialogOpen} onOpenChange={handleEmailDialogClose}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4">
-            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
-            <SheetHeader className="text-left mb-4">
-              <SheetTitle>
-                {emailStep === "input" 
-                  ? (email ? "Edit Email Address" : "Add Email Address")
-                  : "Verify Email"
-                }
-              </SheetTitle>
-            </SheetHeader>
-            
-            {emailStep === "input" ? (
-              <div className="space-y-4">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  className="h-12"
-                />
-                <Button
-                  onClick={handleSendVerificationCode}
-                  disabled={!newEmail.trim()}
-                  className="w-full btn-primary h-12"
-                >
-                  Send Verification Code
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Mail className="w-8 h-8 text-primary" />
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Enter the 6-digit code sent to<br />
-                    <span className="font-medium text-foreground">{newEmail}</span>
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <InputOTP
-                    maxLength={6}
-                    value={verificationCode}
-                    onChange={setVerificationCode}
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-                <Button
-                  onClick={handleVerifyCode}
-                  disabled={isUpdating || verificationCode.length !== 6}
-                  className="w-full btn-primary h-12"
-                >
-                  {isUpdating ? "Verifying..." : "Verify"}
-                </Button>
-                <button
-                  onClick={() => setEmailStep("input")}
-                  className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  ← Change email address
-                </button>
-              </div>
-            )}
-          </SheetContent>
-        </Sheet>
-
-        {/* Wallet Connection Sheet */}
-        <Sheet open={walletDialogOpen} onOpenChange={handleWalletDialogClose}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4">
-            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
-            <SheetHeader className="text-left mb-4">
-              <SheetTitle>
-                {walletStep === "select" && "Connect Wallet"}
-                {walletStep === "connecting" && "Connecting..."}
-                {walletStep === "success" && "Connected!"}
-              </SheetTitle>
-            </SheetHeader>
-            
-            {walletStep === "select" && (
-              <div className="space-y-3">
-                <button
-                  onClick={() => handleConnectWallet("MetaMask", "🦊")}
-                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <span className="text-3xl">🦊</span>
-                  <div className="text-left">
-                    <p className="font-medium">MetaMask</p>
-                    <p className="text-sm text-muted-foreground">Connect to your MetaMask wallet</p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => handleConnectWallet("Rainbow", "🌈")}
-                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <span className="text-3xl">🌈</span>
-                  <div className="text-left">
-                    <p className="font-medium">Rainbow</p>
-                    <p className="text-sm text-muted-foreground">Connect to your Rainbow wallet</p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => handleConnectWallet("WalletConnect", "💎")}
-                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <span className="text-3xl">💎</span>
-                  <div className="text-left">
-                    <p className="font-medium">WalletConnect</p>
-                    <p className="text-sm text-muted-foreground">Scan with WalletConnect</p>
-                  </div>
-                </button>
-              </div>
-            )}
-            
-            {walletStep === "connecting" && (
-              <div className="py-8 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-                  <span className="text-3xl">{selectedWalletType === "MetaMask" ? "🦊" : selectedWalletType === "Rainbow" ? "🌈" : "💎"}</span>
-                </div>
-                <p className="text-muted-foreground">Connecting to {selectedWalletType}...</p>
-                <p className="text-sm text-muted-foreground mt-2">Please confirm in your wallet</p>
-              </div>
-            )}
-            
-            {walletStep === "success" && (
-              <div className="py-8 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-green/20 flex items-center justify-center">
-                  <Check className="w-8 h-8 text-trading-green" />
-                </div>
-                <p className="font-medium text-trading-green">Wallet Connected!</p>
-                <p className="text-sm text-muted-foreground mt-2">Your {selectedWalletType} wallet has been linked</p>
-                <Button
-                  onClick={() => handleWalletDialogClose(false)}
-                  className="mt-6 btn-primary"
-                >
-                  Done
-                </Button>
-              </div>
-            )}
-          </SheetContent>
-        </Sheet>
-
-        {/* Disconnect Wallet Confirmation Sheet */}
-        <Sheet open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4">
-            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
-            <div className="py-4 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-red/10 flex items-center justify-center">
-                <AlertTriangle className="w-8 h-8 text-trading-red" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Disconnect Wallet?</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Are you sure you want to disconnect this wallet? You can reconnect it anytime.
+        {/* Username Drawer */}
+        <MobileDrawer
+          open={usernameDialogOpen}
+          onOpenChange={setUsernameDialogOpen}
+          title="Set Username"
+        >
+          <MobileDrawerSection>
+            <div>
+              <Input
+                placeholder="Enter your username"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                className="h-12"
+                maxLength={20}
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                3-20 characters, letters, numbers, and underscores only
               </p>
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setDisconnectDialogOpen(false)}
-                  className="flex-1 h-12"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleConfirmDisconnect}
-                  className="flex-1 h-12 bg-trading-red hover:bg-trading-red/90 text-white"
-                >
-                  Disconnect
-                </Button>
-              </div>
             </div>
-          </SheetContent>
-        </Sheet>
+            <Button
+              onClick={handleUpdateUsername}
+              disabled={isUpdating || !newUsername.trim()}
+              className="w-full btn-primary h-12"
+            >
+              {isUpdating ? "Saving..." : "Confirm"}
+            </Button>
+          </MobileDrawerSection>
+        </MobileDrawer>
+
+        {/* Email Drawer */}
+        <MobileDrawer
+          open={emailDialogOpen}
+          onOpenChange={handleEmailDialogClose}
+          title={emailStep === "input" 
+            ? (email ? "Edit Email Address" : "Add Email Address")
+            : "Verify Email"
+          }
+        >
+          {emailStep === "input" ? (
+            <MobileDrawerSection>
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                className="h-12"
+              />
+              <Button
+                onClick={handleSendVerificationCode}
+                disabled={!newEmail.trim()}
+                className="w-full btn-primary h-12"
+              >
+                Send Verification Code
+              </Button>
+            </MobileDrawerSection>
+          ) : (
+            <MobileDrawerSection>
+              <MobileDrawerStatus
+                icon={<Mail className="w-8 h-8 text-primary" />}
+                title=""
+                description={`Enter the 6-digit code sent to ${newEmail}`}
+              />
+              <div className="flex justify-center -mt-4">
+                <InputOTP
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={setVerificationCode}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <Button
+                onClick={handleVerifyCode}
+                disabled={isUpdating || verificationCode.length !== 6}
+                className="w-full btn-primary h-12"
+              >
+                {isUpdating ? "Verifying..." : "Verify"}
+              </Button>
+              <button
+                onClick={() => setEmailStep("input")}
+                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                ← Change email address
+              </button>
+            </MobileDrawerSection>
+          )}
+        </MobileDrawer>
+
+        {/* Wallet Connection Drawer */}
+        <MobileDrawer
+          open={walletDialogOpen}
+          onOpenChange={handleWalletDialogClose}
+          title={
+            walletStep === "select" ? "Connect Wallet" :
+            walletStep === "connecting" ? "Connecting..." :
+            "Connected!"
+          }
+        >
+          {walletStep === "select" && (
+            <MobileDrawerList>
+              <MobileDrawerListItem
+                icon="🦊"
+                label="MetaMask"
+                description="Connect to your MetaMask wallet"
+                onClick={() => handleConnectWallet("MetaMask", "🦊")}
+              />
+              <MobileDrawerListItem
+                icon="🌈"
+                label="Rainbow"
+                description="Connect to your Rainbow wallet"
+                onClick={() => handleConnectWallet("Rainbow", "🌈")}
+              />
+              <MobileDrawerListItem
+                icon="💎"
+                label="WalletConnect"
+                description="Scan with WalletConnect"
+                onClick={() => handleConnectWallet("WalletConnect", "💎")}
+              />
+            </MobileDrawerList>
+          )}
+          
+          {walletStep === "connecting" && (
+            <MobileDrawerStatus
+              icon={
+                <span className="text-3xl animate-pulse">
+                  {selectedWalletType === "MetaMask" ? "🦊" : selectedWalletType === "Rainbow" ? "🌈" : "💎"}
+                </span>
+              }
+              title={`Connecting to ${selectedWalletType}...`}
+              description="Please confirm in your wallet"
+            />
+          )}
+          
+          {walletStep === "success" && (
+            <>
+              <MobileDrawerStatus
+                icon={<Check className="w-8 h-8 text-trading-green" />}
+                title="Wallet Connected!"
+                description={`Your ${selectedWalletType} wallet has been linked`}
+                variant="success"
+              />
+              <Button
+                onClick={() => handleWalletDialogClose(false)}
+                className="w-full btn-primary h-12"
+              >
+                Done
+              </Button>
+            </>
+          )}
+        </MobileDrawer>
+
+        {/* Disconnect Wallet Confirmation Drawer */}
+        <MobileDrawer
+          open={disconnectDialogOpen}
+          onOpenChange={setDisconnectDialogOpen}
+          showHandle={true}
+        >
+          <MobileDrawerStatus
+            icon={<AlertTriangle className="w-8 h-8 text-trading-red" />}
+            title="Disconnect Wallet?"
+            description="Are you sure you want to disconnect this wallet? You can reconnect it anytime."
+            variant="error"
+          />
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setDisconnectDialogOpen(false)}
+              className="flex-1 h-12"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmDisconnect}
+              className="flex-1 h-12 bg-trading-red hover:bg-trading-red/90 text-white"
+            >
+              Disconnect
+            </Button>
+          </div>
+        </MobileDrawer>
       </div>
     );
   }
