@@ -1,12 +1,15 @@
-import { Home, BarChart3, TrendingUp, Trophy, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Home, BarChart3, TrendingUp, Trophy, User, LogIn } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
   { icon: Trophy, label: "Ranks", path: "/leaderboard", disabled: false, featured: true },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
-  { icon: User, label: "Portfolio", path: "/portfolio", disabled: true },
 ];
 
 // Haptic feedback utility
@@ -20,6 +23,20 @@ const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [authSheetOpen, setAuthSheetOpen] = useState(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const isActive = (path: string) => {
     if (path === "/trade") {
@@ -104,7 +121,45 @@ export const BottomNav = () => {
             </button>
           );
         })}
+
+        {/* Profile/Login button - rightmost */}
+        {user ? (
+          <button
+            onClick={() => {
+              triggerHaptic('light');
+              navigate("/portfolio", { replace: true });
+            }}
+            className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+              location.pathname === "/portfolio"
+                ? "text-trading-purple scale-110" 
+                : "text-muted-foreground scale-100 hover:scale-105"
+            }`}
+          >
+            <User className={`w-5 h-5 transition-all duration-300 ${
+              location.pathname === "/portfolio"
+                ? "text-trading-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" 
+                : ""
+            }`} />
+            <span className={`text-xs transition-all duration-300 ${
+              location.pathname === "/portfolio" ? "font-semibold" : "font-medium"
+            }`}>Portfolio</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              triggerHaptic('light');
+              setAuthSheetOpen(true);
+            }}
+            className="flex flex-col items-center gap-1 transition-all duration-300 text-primary hover:scale-105"
+          >
+            <LogIn className="w-5 h-5" />
+            <span className="text-xs font-medium">Sign In</span>
+          </button>
+        )}
       </div>
+
+      {/* Auth Sheet for mobile */}
+      <AuthSheet open={authSheetOpen} onOpenChange={setAuthSheetOpen} />
     </nav>
   );
 };

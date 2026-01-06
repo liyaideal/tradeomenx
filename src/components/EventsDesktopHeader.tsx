@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 // Regular nav items (without Leaderboard)
 const navItems = [
@@ -38,6 +39,7 @@ export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsD
   const location = useLocation();
   const [language, setLanguage] = useState("EN");
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -199,7 +201,7 @@ export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsD
           ) : (
             /* Login Button - not logged in */
             <Button
-              onClick={() => navigate("/auth")}
+              onClick={() => setAuthDialogOpen(true)}
               className="btn-primary flex items-center gap-2"
             >
               <LogIn className="w-4 h-4" />
@@ -208,6 +210,9 @@ export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsD
           )}
         </div>
       </div>
+
+      {/* Auth Dialog */}
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>
   );
 };
