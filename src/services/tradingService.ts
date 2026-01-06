@@ -1,4 +1,28 @@
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+// Maximum allowed leverage
+const MAX_LEVERAGE = 100;
+const MIN_LEVERAGE = 1;
+const FEE_RATE = 0.001; // 0.1% fee rate
+
+// Zod schema for trade data validation
+const TradeDataSchema = z.object({
+  eventName: z.string().min(1, "Event name is required").max(200, "Event name too long"),
+  optionLabel: z.string().min(1, "Option label is required").max(200, "Option label too long"),
+  side: z.enum(["buy", "sell"], { errorMap: () => ({ message: "Invalid side" }) }),
+  orderType: z.enum(["Market", "Limit"], { errorMap: () => ({ message: "Invalid order type" }) }),
+  price: z.number().positive("Price must be positive").max(1000000, "Price exceeds maximum"),
+  amount: z.number().positive("Amount must be positive").max(1000000, "Amount exceeds maximum"),
+  quantity: z.number().positive("Quantity must be positive").max(10000, "Quantity exceeds maximum"),
+  leverage: z.number().int("Leverage must be an integer").min(MIN_LEVERAGE).max(MAX_LEVERAGE, `Leverage cannot exceed ${MAX_LEVERAGE}x`),
+  margin: z.number().positive("Margin must be positive"),
+  fee: z.number().nonnegative("Fee cannot be negative").max(10000, "Fee exceeds maximum"),
+  tpValue: z.number().positive("Take profit must be positive").optional(),
+  tpMode: z.enum(["%", "$"]).optional(),
+  slValue: z.number().positive("Stop loss must be positive").optional(),
+  slMode: z.enum(["%", "$"]).optional(),
+});
 
 export interface TradeData {
   eventName: string;
@@ -33,29 +57,77 @@ export interface PositionData {
   slMode?: "%" | "$";
 }
 
-// Create a new trade and position
+// Validate margin calculation
+const validateMarginCalculation = (price: number, quantity: number, leverage: number, providedMargin: number): boolean => {
+  const expectedMargin = (price * quantity) / leverage;
+  // Allow 1% tolerance for rounding differences
+  const tolerance = expectedMargin * 0.01;
+  return Math.abs(providedMargin - expectedMargin) <= Math.max(tolerance, 0.01);
+};
+
+// Validate fee calculation
+const validateFeeCalculation = (amount: number, providedFee: number): boolean => {
+  const expectedFee = amount * FEE_RATE;
+  // Allow 1% tolerance for rounding differences
+  const tolerance = expectedFee * 0.01;
+  return Math.abs(providedFee - expectedFee) <= Math.max(tolerance, 0.01);
+};
+
+// Create a new trade and position with validation
 export const executeTrade = async (userId: string, tradeData: TradeData) => {
   try {
-    // Insert trade record
+    // Step 1: Validate input schema
+    const validationResult = TradeDataSchema.safeParse(tradeData);
+    if (!validationResult.success) {
+      const errorMessage = validationResult.error.errors.map(e => e.message).join(", ");
+      throw new Error(`Validation failed: ${errorMessage}`);
+    }
+    
+    const validated = validationResult.data;
+    
+    // Step 2: Validate business logic - margin calculation
+    if (!validateMarginCalculation(validated.price, validated.quantity, validated.leverage, validated.margin)) {
+      throw new Error("Invalid margin calculation. Please try again.");
+    }
+    
+    // Step 3: Validate business logic - fee calculation
+    if (!validateFeeCalculation(validated.amount, validated.fee)) {
+      throw new Error("Invalid fee calculation. Please try again.");
+    }
+    
+    // Step 4: Additional sanity checks
+    if (validated.leverage > MAX_LEVERAGE) {
+      throw new Error(`Leverage cannot exceed ${MAX_LEVERAGE}x`);
+    }
+    
+    // Validate TP/SL values if provided
+    if (validated.tpValue !== undefined && validated.tpMode === undefined) {
+      throw new Error("Take profit mode is required when take profit value is set");
+    }
+    if (validated.slValue !== undefined && validated.slMode === undefined) {
+      throw new Error("Stop loss mode is required when stop loss value is set");
+    }
+
+    // Insert trade record with validated data
     const { data: trade, error: tradeError } = await supabase
       .from("trades")
       .insert({
         user_id: userId,
-        event_name: tradeData.eventName,
-        option_label: tradeData.optionLabel,
-        side: tradeData.side,
-        order_type: tradeData.orderType,
-        price: tradeData.price,
-        amount: tradeData.amount,
-        quantity: tradeData.quantity,
-        leverage: tradeData.leverage,
-        margin: tradeData.margin,
-        fee: tradeData.fee,
-        status: "Filled", // Market orders fill immediately
-        tp_value: tradeData.tpValue,
-        tp_mode: tradeData.tpMode,
-        sl_value: tradeData.slValue,
-        sl_mode: tradeData.slMode,
+        event_name: validated.eventName,
+        option_label: validated.optionLabel,
+        side: validated.side,
+        order_type: validated.orderType,
+        price: validated.price,
+        amount: validated.amount,
+        quantity: validated.quantity,
+        leverage: validated.leverage,
+        margin: validated.margin,
+        fee: validated.fee,
+        status: "Filled",
+        tp_value: validated.tpValue,
+        tp_mode: validated.tpMode,
+        sl_value: validated.slValue,
+        sl_mode: validated.slMode,
       })
       .select()
       .single();
@@ -65,28 +137,28 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       throw tradeError;
     }
 
-    // Create corresponding position
-    const positionSide = tradeData.side === "buy" ? "long" : "short";
+    // Create corresponding position with validated data
+    const positionSide = validated.side === "buy" ? "long" : "short";
     
     const { data: position, error: positionError } = await supabase
       .from("positions")
       .insert({
         user_id: userId,
         trade_id: trade.id,
-        event_name: tradeData.eventName,
-        option_label: tradeData.optionLabel,
+        event_name: validated.eventName,
+        option_label: validated.optionLabel,
         side: positionSide,
-        entry_price: tradeData.price,
-        mark_price: tradeData.price, // Initially same as entry
-        size: tradeData.quantity,
-        margin: tradeData.margin,
-        leverage: tradeData.leverage,
+        entry_price: validated.price,
+        mark_price: validated.price,
+        size: validated.quantity,
+        margin: validated.margin,
+        leverage: validated.leverage,
         pnl: 0,
         pnl_percent: 0,
-        tp_value: tradeData.tpValue,
-        tp_mode: tradeData.tpMode,
-        sl_value: tradeData.slValue,
-        sl_mode: tradeData.slMode,
+        tp_value: validated.tpValue,
+        tp_mode: validated.tpMode,
+        sl_value: validated.slValue,
+        sl_mode: validated.slMode,
         status: "Open",
       })
       .select()
