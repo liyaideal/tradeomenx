@@ -149,24 +149,23 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 </span>
               </div>
 
-              {/* Profile Avatar - logged in */}
+              {/* Profile Avatar with Username - logged in */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <button className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-muted/50 transition-colors">
                     <Avatar className="h-9 w-9 border-2 border-primary/50">
                       <AvatarImage src={avatarUrl || undefined} alt="User" />
                       <AvatarFallback className="bg-primary/20 text-primary">
                         {username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
                       </AvatarFallback>
                     </Avatar>
+                    <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
+                      {username || "User"}
+                    </span>
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5 border-b border-border/50 mb-1">
-                    <p className="text-sm font-medium truncate">{username || "User"}</p>
-                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                  </div>
+                <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={() => navigate("/portfolio")}>
                     Portfolio
                   </DropdownMenuItem>
