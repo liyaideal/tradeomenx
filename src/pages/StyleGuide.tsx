@@ -59,6 +59,7 @@ const StyleGuide = () => {
     { id: "icons", title: "Icons", keywords: ["icon", "lucide", "svg", "symbol"] },
     { id: "css-classes", title: "Custom CSS Classes", keywords: ["css", "class", "custom", "price", "chip", "tab", "scrollbar"] },
     { id: "mobile-patterns", title: "Mobile UI Patterns", keywords: ["mobile", "pattern", "button", "placement", "drawer", "spacing", "safe", "area"] },
+    { id: "toast-notifications", title: "Toast & Notifications", keywords: ["toast", "notification", "alert", "message", "sonner", "success", "error", "warning"] },
   ];
 
   // Filter sections based on search query
@@ -2211,6 +2212,165 @@ const categoryInfo = getCategoryFromName(event.title);`}
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm">Drawer safe area</span>
                   <code className="text-xs bg-muted px-2 py-1 rounded">pb-safe (auto)</code>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </section>
+        )}
+
+        {/* Toast & Notifications Section */}
+        {filterSection("toast-notifications") && (
+        <section id="toast-notifications">
+          <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Toast & Notifications</h2>
+          <p className="text-muted-foreground mb-6">
+            使用 Sonner 库实现 Toast 通知。位置固定在屏幕顶部中央。
+          </p>
+          
+          <div className="grid gap-6">
+            {/* Toast Types */}
+            <Card className="trading-card p-4 md:p-6">
+              <h3 className="text-sm font-medium mb-4">Toast Types</h3>
+              <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                <div className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start gap-3"
+                    onClick={() => toast.success("Operation completed successfully")}
+                  >
+                    <span className="w-3 h-3 rounded-full bg-trading-green" />
+                    Success Toast
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start gap-3"
+                    onClick={() => toast.error("Something went wrong")}
+                  >
+                    <span className="w-3 h-3 rounded-full bg-trading-red" />
+                    Error Toast
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start gap-3"
+                    onClick={() => toast.warning("Please review your input")}
+                  >
+                    <span className="w-3 h-3 rounded-full bg-trading-yellow" />
+                    Warning Toast
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start gap-3"
+                    onClick={() => toast.info("Here's some information")}
+                  >
+                    <span className="w-3 h-3 rounded-full bg-primary" />
+                    Info Toast
+                  </Button>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-3">Usage</p>
+                  <code className="text-xs text-muted-foreground block whitespace-pre-wrap">
+{`import { toast } from "sonner";
+
+// Success - 操作成功
+toast.success("Saved successfully");
+
+// Error - 操作失败
+toast.error("Failed to save");
+
+// Warning - 警告提示
+toast.warning("Check your input");
+
+// Info - 一般信息
+toast.info("New update available");`}
+                  </code>
+                </div>
+              </div>
+            </Card>
+
+            {/* Toast with Actions */}
+            <Card className="trading-card p-4 md:p-6">
+              <h3 className="text-sm font-medium mb-4">Toast with Actions</h3>
+              <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                <div className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => toast("Item deleted", {
+                      action: {
+                        label: "Undo",
+                        onClick: () => toast.success("Restored!")
+                      }
+                    })}
+                  >
+                    Toast with Undo Action
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => toast.promise(
+                      new Promise((resolve) => setTimeout(resolve, 2000)),
+                      {
+                        loading: "Loading...",
+                        success: "Data loaded!",
+                        error: "Failed to load"
+                      }
+                    )}
+                  >
+                    Promise Toast (Loading State)
+                  </Button>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-3">With Action</p>
+                  <code className="text-xs text-muted-foreground block whitespace-pre-wrap">
+{`// With action button
+toast("Item deleted", {
+  action: {
+    label: "Undo",
+    onClick: () => restore()
+  }
+});
+
+// Promise pattern
+toast.promise(asyncFn(), {
+  loading: "Loading...",
+  success: "Done!",
+  error: "Failed"
+});`}
+                  </code>
+                </div>
+              </div>
+            </Card>
+
+            {/* When to Use */}
+            <Card className="trading-card p-4 md:p-6">
+              <h3 className="text-sm font-medium mb-4">Usage Guidelines</h3>
+              <div className="space-y-4">
+                <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-green mb-2">✓ 使用 Toast 的场景</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>操作成功反馈（保存、删除、更新）</li>
+                    <li>非阻塞性错误提示</li>
+                    <li>短暂的状态通知</li>
+                    <li>可撤销操作的确认</li>
+                  </ul>
+                </div>
+                <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-red mb-2">✗ 不使用 Toast 的场景</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>需要用户确认的重要操作（用 Dialog）</li>
+                    <li>表单验证错误（用 inline error）</li>
+                    <li>需要持久显示的信息（用 Alert）</li>
+                    <li>复杂的多步骤反馈</li>
+                  </ul>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">Message 规范</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 简短明确，不超过一行</li>
+                    <li>• 使用动词开头描述结果</li>
+                    <li>• Success: "Saved", "Updated", "Deleted"</li>
+                    <li>• Error: "Failed to save", "Unable to connect"</li>
+                  </ul>
                 </div>
               </div>
             </Card>
