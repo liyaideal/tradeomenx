@@ -17,6 +17,7 @@ import {
   Loader2
 } from "lucide-react";
 import type { AuthStep } from "@/hooks/useAuth";
+import sillyname from "sillyname";
 
 interface AuthContentProps {
   step: AuthStep;
@@ -80,9 +81,8 @@ export const AuthContent = ({
       if (data.user) {
         // Generate mock email based on auth method
         const mockEmail = generateMockEmail(method);
-        const mockUsername = method === "wallet" 
-          ? `Trader_${Math.random().toString(36).substring(2, 8)}`
-          : mockEmail.split("@")[0];
+        // Generate funny username using sillyname (e.g. "Fluffy Unicorn")
+        const mockUsername = sillyname();
 
         // Create profile with simulated email
         const { error: profileError } = await supabase
