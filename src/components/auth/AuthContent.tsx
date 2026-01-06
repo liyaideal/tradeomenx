@@ -192,10 +192,13 @@ export const AuthContent = ({
         )}
 
         {/* Info text */}
-        <div className="pt-4 border-t border-border/50 text-center">
+        <div className="pt-4 border-t border-border/50 text-center space-y-2">
+          <p className="text-sm text-foreground">
+            New to OMENX? Authorization creates your account automatically
+          </p>
           <p className="text-xs text-muted-foreground flex items-center justify-center gap-2">
             <Gift className="w-3.5 h-3.5 text-primary" />
-            10,000 USDT Trial Funds · No Deposit Required
+            10,000 USDT Trial Funds · No Deposit Required · Start Trading Now
           </p>
         </div>
 
