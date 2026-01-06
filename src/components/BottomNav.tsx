@@ -26,7 +26,7 @@ const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { balance, user, username, avatarUrl } = useUserProfile();
+  const { balance, user, username, avatarUrl, profile } = useUserProfile();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
 
@@ -173,7 +173,7 @@ export const BottomNav = () => {
             <p className="text-sm font-medium text-foreground truncate">
               {username || "Trader"}
             </p>
-            <p className="text-xs text-muted-foreground truncate">{user?.email || "Anonymous User"}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email || profile?.email || "Trial Account"}</p>
           </div>
         </div>
 
