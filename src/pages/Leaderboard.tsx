@@ -13,6 +13,7 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import * as htmlToImage from "html-to-image";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { QRCodeSVG } from "qrcode.react";
@@ -72,8 +73,8 @@ const mockLeaderboardData: LeaderboardUser[] = [
   { rank: 30, username: "NewbieTrader", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=newbie&backgroundColor=ffdfbf", pnl: 420, roi: 1.5, volume: 28000, trades: 8, rankChange: 0 },
 ];
 
-// Current user ID (simulated - in real app this would come from auth)
-const CURRENT_USER_USERNAME = "CryptoNinja";
+// Current user mock ID - will be replaced with actual user data
+const MOCK_CURRENT_USER_USERNAME = "CryptoNinja";
 
 const sortTabs: { key: SortType; label: string; icon: React.ElementType }[] = [
   { key: "pnl", label: "PnL", icon: DollarSign },
@@ -964,6 +965,7 @@ export default function Leaderboard() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { username, avatarUrl, user } = useUserProfile();
   const [sortType, setSortType] = useState<SortType>("pnl");
   const [period, setPeriod] = useState<PeriodType>("7d");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -972,6 +974,10 @@ export default function Leaderboard() {
   const [cardTheme, setCardTheme] = useState<CardTheme>("default");
   const [visibleStats, setVisibleStats] = useState<StatKey[]>(["pnl", "roi", "volume"]);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Use actual user info if logged in, otherwise use mock data
+  const currentUserUsername = user ? (username || "You") : MOCK_CURRENT_USER_USERNAME;
+  const currentUserAvatar = user ? (avatarUrl || "") : "";
 
   const sortedData = [...mockLeaderboardData].sort((a, b) => {
     switch (sortType) {
@@ -982,13 +988,24 @@ export default function Leaderboard() {
       case "volume":
         return b.volume - a.volume;
     }
-  }).map((user, idx) => ({ ...user, rank: idx + 1 }));
+  }).map((user, idx) => {
+    // Replace mock current user with actual user data
+    if (user.username === MOCK_CURRENT_USER_USERNAME) {
+      return { 
+        ...user, 
+        rank: idx + 1,
+        username: currentUserUsername,
+        avatar: currentUserAvatar || user.avatar
+      };
+    }
+    return { ...user, rank: idx + 1 };
+  });
 
   const topThree = sortedData.slice(0, 3);
   const restOfList = sortedData.slice(3);
   
   // Find current user
-  const currentUser = sortedData.find(user => user.username === CURRENT_USER_USERNAME);
+  const currentUser = sortedData.find(u => u.username === currentUserUsername);
   const isCurrentUserInTopThree = currentUser && currentUser.rank <= 3;
 
   const scrollToCurrentUser = () => {
@@ -1195,7 +1212,7 @@ export default function Leaderboard() {
               user={user} 
               sortType={sortType} 
               index={index}
-              isCurrentUser={user.username === CURRENT_USER_USERNAME}
+              isCurrentUser={user.username === currentUserUsername}
             />
           ))}
         </div>
