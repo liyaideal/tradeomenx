@@ -231,7 +231,8 @@ const MobileHome = () => {
                 return (
                   <div
                     key={event.id}
-                    className="trading-card p-4 space-y-3 border-trading-yellow/30"
+                    className="trading-card p-4 space-y-3 border-trading-yellow/30 cursor-pointer hover:bg-card-hover transition-colors"
+                    onClick={() => navigate(`/trade?event=${event.id}`)}
                   >
                     <div className="flex items-start justify-between">
                       <Badge className={`text-xs ${categoryInfo.color} border-0`}>
@@ -240,7 +241,10 @@ const MobileHome = () => {
                       <Button 
                         size="sm" 
                         className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
-                        onClick={() => navigate("/trade")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/trade?event=${event.id}`);
+                        }}
                       >
                         <TrendingUp className="h-3.5 w-3.5" />
                         Trade
