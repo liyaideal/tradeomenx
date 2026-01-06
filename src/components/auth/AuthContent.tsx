@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Save,
   ArrowRight,
+  ArrowLeft,
   Check,
   Loader2
 } from "lucide-react";
@@ -272,6 +273,15 @@ export const AuthContent = ({
   if (step === "createWallet") {
     return (
       <div className={containerClass}>
+        {/* Back Button */}
+        <button
+          onClick={() => setStep("login")}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
+
         <div className="text-center space-y-1">
           <h2 className="text-lg font-semibold text-foreground">Create Simulation Wallet</h2>
           <p className="text-sm text-muted-foreground">Get 10,000 USDT trial funds and start trading</p>
@@ -342,6 +352,15 @@ export const AuthContent = ({
   if (step === "completeProfile") {
     return (
       <div className={containerClass}>
+        {/* Back Button */}
+        <button
+          onClick={() => setStep("createWallet")}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
+
         {/* Success Banner */}
         <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-3 flex items-center gap-2">
           <Check className="w-4 h-4 text-trading-green" />
