@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +23,8 @@ interface OrderCardProps {
   total: string;
   time: string;
   status: "Pending" | "Partially Filled" | "Partial Filled" | "Filled" | "Cancelled";
+  onCancel?: () => void;
+  onFill?: () => void;
 }
 
 export const OrderCard = ({
@@ -36,8 +38,11 @@ export const OrderCard = ({
   total,
   time,
   status,
+  onCancel,
+  onFill,
 }: OrderCardProps) => {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [fillDialogOpen, setFillDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const statusColors: Record<string, string> = {
@@ -49,12 +54,24 @@ export const OrderCard = ({
   };
 
   const handleCancelOrder = () => {
+    onCancel?.();
     toast({
       title: "Order Cancelled",
       description: `Your ${type} order for ${option} has been cancelled.`,
     });
     setCancelDialogOpen(false);
   };
+
+  const handleFillOrder = () => {
+    onFill?.();
+    toast({
+      title: "Order Filled",
+      description: `Your ${type} order for ${option} has been executed. Check your positions.`,
+    });
+    setFillDialogOpen(false);
+  };
+
+  const isPending = status === "Pending" || status === "Partially Filled" || status === "Partial Filled";
 
   return (
     <>
@@ -104,19 +121,77 @@ export const OrderCard = ({
           </div>
         </div>
 
-        {/* Footer with time and action */}
+        {/* Footer with time and actions */}
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
           <span className="text-[10px] text-muted-foreground">{time}</span>
-          {status === "Pending" || status === "Partially Filled" || status === "Partial Filled" ? (
-            <button 
-              onClick={() => setCancelDialogOpen(true)}
-              className="px-3 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
-            >
-              Cancel
-            </button>
-          ) : null}
+          {isPending && (
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setFillDialogOpen(true)}
+                className="px-3 py-1.5 text-[10px] font-medium bg-trading-green/20 text-trading-green rounded-lg hover:bg-trading-green/30 transition-colors"
+              >
+                Fill
+              </button>
+              <button 
+                onClick={() => setCancelDialogOpen(true)}
+                className="px-3 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Fill Order Confirmation Dialog */}
+      <AlertDialog open={fillDialogOpen} onOpenChange={setFillDialogOpen}>
+        <AlertDialogContent className="max-w-sm bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-trading-green" />
+              Fill Order
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-left">
+              Simulate this order being filled? It will create a new position.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="bg-muted/50 rounded-lg p-3 space-y-2 my-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Order Type</span>
+              <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
+                {type === "buy" ? "Buy" : "Sell"} {orderType}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Contract</span>
+              <span className="font-medium">{option}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Price</span>
+              <span className="font-mono">{price}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Amount</span>
+              <span className="font-mono">{amount}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Total</span>
+              <span className="font-mono">{total}</span>
+            </div>
+          </div>
+
+          <AlertDialogFooter className="flex gap-2 sm:gap-2">
+            <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleFillOrder}
+              className="flex-1 bg-trading-green hover:bg-trading-green/90 text-white"
+            >
+              Fill Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Cancel Order Confirmation Dialog */}
       <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>

@@ -8,6 +8,7 @@ import { PositionCard } from "@/components/PositionCard";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { generateOrderBookData } from "@/lib/tradingUtils";
+import { orderToPosition } from "@/lib/orderUtils";
 
 interface LocationState {
   tab?: string;
@@ -18,9 +19,20 @@ function TradeOrderContent() {
   const location = useLocation();
   const state = location.state as LocationState | null;
   
-  const { orders } = useOrdersStore();
-  const { positions } = usePositionsStore();
+  const { orders, cancelOrder, fillOrder } = useOrdersStore();
+  const { positions, addPosition } = usePositionsStore();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
+
+  const handleFillOrder = (index: number) => {
+    const order = orders[index];
+    const position = orderToPosition(order);
+    addPosition(position);
+    fillOrder(index);
+  };
+
+  const handleCancelOrder = (index: number) => {
+    cancelOrder(index);
+  };
   
   const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
   const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);
@@ -173,9 +185,20 @@ function TradeOrderContent() {
 
       {/* Orders/Positions Content */}
       <div className="px-4 py-3 space-y-3">
-        {bottomTab === "Orders" && orders.map((order, index) => (
-          <OrderCard key={index} {...order} />
-        ))}
+        {bottomTab === "Orders" && orders
+          .filter(order => order.status === 'Pending' || order.status === 'Partial Filled')
+          .map((order, displayIndex) => {
+            const actualIndex = orders.findIndex(o => o === order);
+            return (
+              <OrderCard 
+                key={actualIndex} 
+                {...order} 
+                onFill={() => handleFillOrder(actualIndex)}
+                onCancel={() => handleCancelOrder(actualIndex)}
+              />
+            );
+          })
+        }
         {bottomTab === "Positions" && positions.map((position, index) => (
           <div 
             key={index} 

@@ -20,6 +20,8 @@ interface OrdersStore {
   orders: Order[];
   addOrder: (order: Order) => void;
   cancelOrder: (index: number) => void;
+  fillOrder: (index: number) => void;
+  updateOrderStatus: (index: number, status: Order['status']) => void;
   setOrders: (orders: Order[]) => void;
   clearOrders: () => void;
 }
@@ -105,6 +107,16 @@ export const useOrdersStore = create<OrdersStore>()(
       addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
       cancelOrder: (index) => set((state) => ({ 
         orders: state.orders.filter((_, i) => i !== index) 
+      })),
+      fillOrder: (index) => set((state) => ({
+        orders: state.orders.map((order, i) => 
+          i === index ? { ...order, status: 'Filled' as const } : order
+        )
+      })),
+      updateOrderStatus: (index, status) => set((state) => ({
+        orders: state.orders.map((order, i) => 
+          i === index ? { ...order, status } : order
+        )
       })),
       setOrders: (orders) => set({ orders }),
       clearOrders: () => set({ orders: [] }),
