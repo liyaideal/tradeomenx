@@ -6,6 +6,9 @@
 
 @layer base {
   :root {
+    /* ===== SAFE AREA FOR MOBILE BOTTOM NAV ===== */
+    --safe-area-bottom: 5rem;
+    
     /* ===== CORE SURFACE COLORS ===== */
     --background: 222 47% 6%;
     --background-elevated: 222 40% 8%;
