@@ -6,7 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventCard, EventData } from "@/components/EventCard";
 import { EventStatsOverview } from "@/components/EventStatsOverview";
-import { EventFilters, EventStatusFilter } from "@/components/EventFilters";
+import { EventFilters, EventStatusFilter, MobileStatusDropdown, MobileFilterDrawer } from "@/components/EventFilters";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { activeEvents, eventOptionsMap } from "@/data/events";
 import { Logo } from "@/components/Logo";
@@ -95,6 +95,11 @@ const EventsPage = () => {
               )}
               <Logo size="md" />
             </div>
+            {/* Status dropdown stays in header */}
+            <MobileStatusDropdown
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+            />
           </div>
         </header>
       ) : (
@@ -116,11 +121,10 @@ const EventsPage = () => {
                 Discover prediction markets and trade on real-world outcomes with leverage
               </p>
             </div>
-            {/* Mobile Filters - Now at Explore Events level */}
+            {/* Filter button at Explore Events level - Mobile only */}
             {isMobile && (
-              <EventFilters
+              <MobileFilterDrawer
                 statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
                 settlementFilter={settlementFilter}
                 onSettlementFilterChange={setSettlementFilter}
                 categoryFilter={categoryFilter}
