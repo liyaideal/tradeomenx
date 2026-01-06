@@ -75,27 +75,23 @@ export const BottomNav = () => {
                 }}
                 className="relative flex flex-col items-center"
               >
-                {/* Glow effect behind icon - stronger when active */}
-                <div className={`absolute -top-2 w-14 h-14 rounded-full blur-xl transition-all duration-300 ${
-                  active 
-                    ? "bg-trading-purple/50 scale-125" 
-                    : "bg-trading-purple/20 animate-pulse"
-                }`} />
+                {/* Glow effect - only when active */}
+                {active && (
+                  <div className="absolute -top-2 w-14 h-14 rounded-full blur-xl bg-primary/40" />
+                )}
                 
-                {/* Icon container - elevated, larger when active */}
+                {/* Icon container - elevated */}
                 <div className="relative -mt-6 mb-1">
                   <Trophy className={`transition-all duration-300 ${
                     active 
-                      ? "w-9 h-9 text-trading-purple drop-shadow-[0_0_20px_rgba(139,92,246,1)]" 
-                      : "w-7 h-7 text-trading-purple/70 drop-shadow-[0_0_6px_rgba(139,92,246,0.4)]"
+                      ? "w-9 h-9 text-primary drop-shadow-[0_0_12px_hsl(var(--primary))]" 
+                      : "w-7 h-7 text-muted-foreground"
                   }`} />
                 </div>
                 
-                {/* Label - aligned with others */}
+                {/* Label */}
                 <span className={`text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
-                  active 
-                    ? "text-trading-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" 
-                    : "text-trading-purple/60"
+                  active ? "text-primary" : "text-muted-foreground"
                 }`}>
                   {item.label}
                 </span>
@@ -114,14 +110,12 @@ export const BottomNav = () => {
               }}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
                 active 
-                  ? "text-trading-purple scale-110" 
+                  ? "text-primary scale-110" 
                   : "text-muted-foreground scale-100 hover:scale-105"
               }`}
             >
               <item.icon className={`w-5 h-5 transition-all duration-300 ${
-                active 
-                  ? "text-trading-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" 
-                  : ""
+                active ? "text-primary" : ""
               }`} />
               <span className={`text-xs transition-all duration-300 ${
                 active ? "font-semibold" : "font-medium"
@@ -139,13 +133,13 @@ export const BottomNav = () => {
             }}
             className={`flex flex-col items-center gap-1 transition-all duration-300 ${
               location.pathname === "/portfolio"
-                ? "text-trading-purple scale-110" 
+                ? "text-primary scale-110" 
                 : "text-muted-foreground scale-100 hover:scale-105"
             }`}
           >
-            <Avatar className="w-6 h-6 border border-primary/50">
+            <Avatar className="w-6 h-6 border border-border">
               <AvatarImage src={user.user_metadata?.avatar_url} alt="User" />
-              <AvatarFallback className="bg-primary/20 text-primary text-xs">
+              <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                 {user.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
               </AvatarFallback>
             </Avatar>
@@ -159,10 +153,10 @@ export const BottomNav = () => {
               triggerHaptic('light');
               setAuthSheetOpen(true);
             }}
-            className="flex flex-col items-center gap-1 transition-all duration-300 text-primary hover:scale-105"
+            className="flex flex-col items-center gap-1 transition-all duration-300 text-muted-foreground hover:text-foreground hover:scale-105"
           >
-            <LogIn className="w-5 h-5" />
-            <span className="text-xs font-medium">Sign In</span>
+            <User className="w-5 h-5" />
+            <span className="text-xs font-medium">Me</span>
           </button>
         )}
       </div>
