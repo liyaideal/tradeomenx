@@ -199,6 +199,48 @@ export type Database = {
         }
         Relationships: []
       }
+      wallets: {
+        Row: {
+          address: string
+          connected_at: string
+          created_at: string
+          full_address: string
+          icon: string
+          id: string
+          is_primary: boolean
+          network: string
+          updated_at: string
+          user_id: string
+          wallet_type: string
+        }
+        Insert: {
+          address: string
+          connected_at?: string
+          created_at?: string
+          full_address: string
+          icon?: string
+          id?: string
+          is_primary?: boolean
+          network?: string
+          updated_at?: string
+          user_id: string
+          wallet_type?: string
+        }
+        Update: {
+          address?: string
+          connected_at?: string
+          created_at?: string
+          full_address?: string
+          icon?: string
+          id?: string
+          is_primary?: boolean
+          network?: string
+          updated_at?: string
+          user_id?: string
+          wallet_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
