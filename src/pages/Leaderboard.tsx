@@ -38,7 +38,7 @@ interface LeaderboardUser {
   rankChange: number; // positive = up, negative = down, 0 = no change
 }
 
-// Mock data for leaderboard
+// Mock data for leaderboard (30 users max)
 const mockLeaderboardData: LeaderboardUser[] = [
   { rank: 1, username: "CryptoWhale", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=whale&backgroundColor=b6e3f4", pnl: 125430, roi: 342.5, volume: 2450000, trades: 156, rankChange: 0 },
   { rank: 2, username: "TradingMaster", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=master&backgroundColor=c0aede", pnl: 89250, roi: 287.3, volume: 1890000, trades: 234, rankChange: 2 },
@@ -50,10 +50,26 @@ const mockLeaderboardData: LeaderboardUser[] = [
   { rank: 8, username: "BullRunner", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=bull&backgroundColor=d1d4f9", pnl: 19870, roi: 87.3, volume: 590000, trades: 134, rankChange: -3 },
   { rank: 9, username: "SmartMoney", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=smart&backgroundColor=ffd5dc", pnl: 15690, roi: 76.5, volume: 480000, trades: 112, rankChange: 2 },
   { rank: 10, username: "TrendSurfer", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=trend&backgroundColor=ffdfbf", pnl: 12340, roi: 65.2, volume: 390000, trades: 89, rankChange: -1 },
-  // More users for demo
   { rank: 11, username: "Hodler", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=hodler&backgroundColor=b6e3f4", pnl: 10200, roi: 58.3, volume: 320000, trades: 76, rankChange: 4 },
   { rank: 12, username: "BlockBuster", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=block&backgroundColor=c0aede", pnl: 8900, roi: 52.1, volume: 280000, trades: 68, rankChange: -2 },
-  { rank: 13, username: "CryptoNinja", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=currentuser&backgroundColor=d1d4f9", pnl: 2340, roi: 23.5, volume: 45000, trades: 28, rankChange: 5 },
+  { rank: 13, username: "CryptoNinja", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=currentuser&backgroundColor=d1d4f9", pnl: 7650, roi: 45.8, volume: 245000, trades: 52, rankChange: 5 },
+  { rank: 14, username: "SatoshiFan", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=satoshi&backgroundColor=ffd5dc", pnl: 6890, roi: 42.3, volume: 218000, trades: 45, rankChange: 1 },
+  { rank: 15, username: "ChartWizard", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=wizard&backgroundColor=ffdfbf", pnl: 6120, roi: 38.7, volume: 195000, trades: 39, rankChange: -1 },
+  { rank: 16, username: "RiskTaker", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=risk&backgroundColor=b6e3f4", pnl: 5450, roi: 35.2, volume: 178000, trades: 67, rankChange: 3 },
+  { rank: 17, username: "TokenKing", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=token&backgroundColor=c0aede", pnl: 4890, roi: 32.1, volume: 156000, trades: 41, rankChange: 0 },
+  { rank: 18, username: "WhaleWatcher", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=watcher&backgroundColor=d1d4f9", pnl: 4320, roi: 28.9, volume: 142000, trades: 33, rankChange: -2 },
+  { rank: 19, username: "GainsGuru", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=gains&backgroundColor=ffd5dc", pnl: 3780, roi: 25.6, volume: 128000, trades: 29, rankChange: 2 },
+  { rank: 20, username: "PumpPatrol", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=pump&backgroundColor=ffdfbf", pnl: 3250, roi: 22.4, volume: 115000, trades: 38, rankChange: -1 },
+  { rank: 21, username: "DipBuyer", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=dip&backgroundColor=b6e3f4", pnl: 2890, roi: 19.8, volume: 98000, trades: 24, rankChange: 1 },
+  { rank: 22, username: "MomentumX", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=momentum&backgroundColor=c0aede", pnl: 2540, roi: 17.3, volume: 87000, trades: 31, rankChange: 0 },
+  { rank: 23, username: "ScalpKing", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=scalp&backgroundColor=d1d4f9", pnl: 2180, roi: 14.9, volume: 156000, trades: 89, rankChange: -3 },
+  { rank: 24, username: "SwingTrader", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=swing&backgroundColor=ffd5dc", pnl: 1920, roi: 12.6, volume: 72000, trades: 18, rankChange: 2 },
+  { rank: 25, username: "CoinCollector", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=coin&backgroundColor=ffdfbf", pnl: 1650, roi: 10.4, volume: 65000, trades: 22, rankChange: 1 },
+  { rank: 26, username: "AltSeason", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=alt&backgroundColor=b6e3f4", pnl: 1380, roi: 8.2, volume: 54000, trades: 16, rankChange: -1 },
+  { rank: 27, username: "FuturesFreak", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=futures&backgroundColor=c0aede", pnl: 1120, roi: 6.1, volume: 48000, trades: 27, rankChange: 0 },
+  { rank: 28, username: "LeverageL", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=leverage&backgroundColor=d1d4f9", pnl: 890, roi: 4.3, volume: 42000, trades: 35, rankChange: -2 },
+  { rank: 29, username: "PerpsPlayer", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=perps&backgroundColor=ffd5dc", pnl: 650, roi: 2.8, volume: 35000, trades: 14, rankChange: 1 },
+  { rank: 30, username: "NewbieTrader", avatar: "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=newbie&backgroundColor=ffdfbf", pnl: 420, roi: 1.5, volume: 28000, trades: 8, rankChange: 0 },
 ];
 
 // Current user ID (simulated - in real app this would come from auth)
