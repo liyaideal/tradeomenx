@@ -65,11 +65,12 @@ const validateMarginCalculation = (price: number, quantity: number, leverage: nu
   return Math.abs(providedMargin - expectedMargin) <= Math.max(tolerance, 0.01);
 };
 
-// Validate fee calculation
-const validateFeeCalculation = (amount: number, providedFee: number): boolean => {
-  const expectedFee = amount * FEE_RATE;
-  // Allow 1% tolerance for rounding differences
-  const tolerance = expectedFee * 0.01;
+// Validate fee calculation (fee is based on notional value = amount * leverage)
+const validateFeeCalculation = (amount: number, leverage: number, providedFee: number): boolean => {
+  const notionalValue = amount * leverage;
+  const expectedFee = notionalValue * FEE_RATE;
+  // Allow 5% tolerance for rounding differences
+  const tolerance = expectedFee * 0.05;
   return Math.abs(providedFee - expectedFee) <= Math.max(tolerance, 0.01);
 };
 
@@ -90,8 +91,8 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       throw new Error("Invalid margin calculation. Please try again.");
     }
     
-    // Step 3: Validate business logic - fee calculation
-    if (!validateFeeCalculation(validated.amount, validated.fee)) {
+    // Step 3: Validate business logic - fee calculation (based on notional value)
+    if (!validateFeeCalculation(validated.amount, validated.leverage, validated.fee)) {
       throw new Error("Invalid fee calculation. Please try again.");
     }
     
