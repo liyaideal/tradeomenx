@@ -377,6 +377,7 @@ interface CardThemeConfig {
   volumeColor: string;
   sparkleColors: [string, string, string];
   rankBadgeBg: string;
+  ctaColor: string;
 }
 
 const cardThemes: Record<CardTheme, CardThemeConfig> = {
@@ -394,6 +395,7 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     volumeColor: "text-foreground",
     sparkleColors: ["text-yellow-400/60", "text-trading-green/50", "text-primary/40"],
     rankBadgeBg: "from-slate-500 to-slate-600",
+    ctaColor: "text-primary",
   },
   neon: {
     name: "Neon",
@@ -409,6 +411,7 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     volumeColor: "text-pink-300",
     sparkleColors: ["text-cyan-400/60", "text-purple-400/50", "text-pink-400/40"],
     rankBadgeBg: "from-cyan-500 to-purple-500",
+    ctaColor: "text-cyan-400",
   },
   brutal: {
     name: "Brutal",
@@ -424,6 +427,7 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     volumeColor: "text-white",
     sparkleColors: ["text-white/60", "text-white/40", "text-white/20"],
     rankBadgeBg: "from-white to-zinc-200",
+    ctaColor: "text-lime-400",
   },
   gold: {
     name: "Gold",
@@ -439,6 +443,7 @@ const cardThemes: Record<CardTheme, CardThemeConfig> = {
     volumeColor: "text-orange-300",
     sparkleColors: ["text-yellow-400/60", "text-amber-400/50", "text-orange-400/40"],
     rankBadgeBg: "from-yellow-500 to-amber-600",
+    ctaColor: "text-yellow-400",
   },
 };
 
@@ -585,7 +590,7 @@ const ShareableCard = ({
           <div className="flex items-center justify-between">
             {/* Left: Referral Text */}
             <div className="flex-1">
-              <div className="text-sm text-primary font-medium mb-2">
+              <div className={`text-sm font-medium mb-2 ${themeConfig.ctaColor}`}>
                 Join & claim $10,000 trial funds!
               </div>
               <div className="flex items-baseline gap-2">
@@ -607,7 +612,7 @@ const ShareableCard = ({
                 />
               </div>
               <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span className="text-primary">✦</span>
+                <span className={themeConfig.ctaColor}>✦</span>
                 <span>omenx.trade</span>
               </div>
             </div>
