@@ -1,11 +1,7 @@
 import { Search, Star, X } from "lucide-react";
 import { TradingEvent } from "@/data/events";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface EventSelectorSheetProps {
   open: boolean;
@@ -35,49 +31,50 @@ export function EventSelectorSheet({
   onEventSelect,
 }: EventSelectorSheetProps) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[70vh] bg-background border-t border-border">
-        <SheetHeader className="pb-4">
-          <SheetTitle>Select Event</SheetTitle>
-        </SheetHeader>
-        
-        {/* Search with Favorites Filter */}
-        <div className="mb-4">
-          <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
-            <Search className="w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={showFavoritesOnly ? "Search favorites..." : "Search events..."}
-              className="flex-1 bg-transparent outline-none text-sm"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery("")}>
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
-            )}
-            <button
-              onClick={toggleShowFavoritesOnly}
-              className="p-1 rounded hover:bg-muted/50 transition-colors"
-            >
-              <Star className={`w-4 h-4 transition-colors ${
-                showFavoritesOnly 
-                  ? "text-trading-yellow fill-trading-yellow" 
-                  : "text-muted-foreground"
-              }`} />
+    <MobileDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Select Event"
+      height="h-[70vh]"
+    >
+      {/* Search with Favorites Filter */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+          <Search className="w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={showFavoritesOnly ? "Search favorites..." : "Search events..."}
+            className="flex-1 bg-transparent outline-none text-sm"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")}>
+              <X className="w-4 h-4 text-muted-foreground" />
             </button>
-          </div>
-          {showFavoritesOnly && (
-            <div className="mt-2 text-xs text-trading-yellow flex items-center gap-1">
-              <Star className="w-3 h-3 fill-trading-yellow" />
-              Showing favorites only ({filteredEvents.length})
-            </div>
           )}
+          <button
+            onClick={toggleShowFavoritesOnly}
+            className="p-1 rounded hover:bg-muted/50 transition-colors"
+          >
+            <Star className={`w-4 h-4 transition-colors ${
+              showFavoritesOnly 
+                ? "text-trading-yellow fill-trading-yellow" 
+                : "text-muted-foreground"
+            }`} />
+          </button>
         </div>
-        
-        {/* Event List */}
-        <div className="space-y-2 overflow-y-auto max-h-[calc(70vh-160px)]">
+        {showFavoritesOnly && (
+          <div className="mt-2 text-xs text-trading-yellow flex items-center gap-1">
+            <Star className="w-3 h-3 fill-trading-yellow" />
+            Showing favorites only ({filteredEvents.length})
+          </div>
+        )}
+      </div>
+      
+      {/* Event List */}
+      <ScrollArea className="h-[calc(70vh-180px)]">
+        <div className="space-y-2 pr-2">
           {filteredEvents.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
               {showFavoritesOnly ? (
@@ -137,7 +134,7 @@ export function EventSelectorSheet({
             ))
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </ScrollArea>
+    </MobileDrawer>
   );
 }
