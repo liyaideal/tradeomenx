@@ -312,7 +312,7 @@ const AuthPage = () => {
               <div className="flex-1 h-px bg-border" />
             </div>
 
-            {/* Email/Password Form */}
+            {/* Email/Password Login Form */}
             <div className="space-y-4">
               <div>
                 <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
@@ -339,30 +339,17 @@ const AuthPage = () => {
                 {errors.password && <p className="text-xs text-trading-red mt-1">{errors.password}</p>}
               </div>
 
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleEmailSignIn}
-                  disabled={isLoading}
-                  variant="outline"
-                  className="flex-1 h-11"
-                >
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
-                </Button>
-                <Button
-                  onClick={handleEmailSignUp}
-                  disabled={isLoading}
-                  className="flex-1 h-11 btn-primary"
-                >
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign Up"}
-                </Button>
-              </div>
+              <Button
+                onClick={handleEmailSignIn}
+                disabled={isLoading}
+                className="w-full h-11 btn-primary"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
+              </Button>
             </div>
 
-            {/* New user info */}
+            {/* Info text */}
             <div className="mt-6 pt-6 border-t border-border/50 text-center">
-              <p className="text-foreground mb-1">
-                New here? Authorization creates your account automatically
-              </p>
               <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
                 <Gift className="w-4 h-4 text-primary" />
                 10,000 USDT Trial Funds · No Deposit Required · Start Trading Now
