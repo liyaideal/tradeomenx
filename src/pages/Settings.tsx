@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Pencil } from "lucide-react";
+import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Pencil, Mail } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, AVATAR_SEEDS, AVATAR_BACKGROUNDS, generateAvatarUrl } from "@/hooks/useProfile";
 import { toast } from "sonner";
@@ -44,6 +45,10 @@ const Settings = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  
+  // Email verification states
+  const [emailStep, setEmailStep] = useState<"input" | "verify">("input");
+  const [verificationCode, setVerificationCode] = useState("");
 
   // Mock wallet data (in real app, this would come from a wallet connection)
   const [connectedWallets, setConnectedWallets] = useState([
@@ -97,22 +102,52 @@ const Settings = () => {
     setIsUpdating(false);
   };
 
-  const handleAddEmail = async () => {
+  const handleSendVerificationCode = () => {
     if (!newEmail.trim()) {
       toast.error("Email cannot be empty");
       return;
     }
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    // Move to verification step
+    setEmailStep("verify");
+    toast.success("Verification code sent to " + newEmail);
+  };
+
+  const handleVerifyCode = async () => {
+    if (verificationCode.length !== 6) {
+      toast.error("Please enter a 6-digit code");
+      return;
+    }
     setIsUpdating(true);
+    
+    // Simulate verification delay
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     const result = await updateEmail(newEmail.trim());
     if (result.success) {
-      toast.success("Email updated successfully");
+      toast.success("Email verified successfully");
       setEmailDialogOpen(false);
       setNewEmail("");
+      setVerificationCode("");
+      setEmailStep("input");
     } else {
       toast.error(result.error || "Failed to update email");
     }
     setIsUpdating(false);
+  };
+
+  const handleEmailDialogClose = (open: boolean) => {
+    setEmailDialogOpen(open);
+    if (!open) {
+      // Reset state when closing
+      setEmailStep("input");
+      setVerificationCode("");
+    }
   };
 
   const handleConnectWallet = () => {
@@ -477,28 +512,77 @@ const Settings = () => {
         </Sheet>
 
         {/* Email Sheet */}
-        <Sheet open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <Sheet open={emailDialogOpen} onOpenChange={handleEmailDialogClose}>
           <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-24">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <SheetHeader className="text-left mb-4">
-              <SheetTitle>{email ? "Edit Email Address" : "Add Email Address"}</SheetTitle>
+              <SheetTitle>
+                {emailStep === "input" 
+                  ? (email ? "Edit Email Address" : "Add Email Address")
+                  : "Verify Email"
+                }
+              </SheetTitle>
             </SheetHeader>
-            <div className="space-y-4">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                className="h-12"
-              />
-              <Button
-                onClick={handleAddEmail}
-                disabled={isUpdating || !newEmail.trim()}
-                className="w-full btn-primary h-12"
-              >
-                {isUpdating ? "Saving..." : (email ? "Update Email" : "Confirm")}
-              </Button>
-            </div>
+            
+            {emailStep === "input" ? (
+              <div className="space-y-4">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className="h-12"
+                />
+                <Button
+                  onClick={handleSendVerificationCode}
+                  disabled={!newEmail.trim()}
+                  className="w-full btn-primary h-12"
+                >
+                  Send Verification Code
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Mail className="w-8 h-8 text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Enter the 6-digit code sent to<br />
+                    <span className="font-medium text-foreground">{newEmail}</span>
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <InputOTP
+                    maxLength={6}
+                    value={verificationCode}
+                    onChange={setVerificationCode}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
+                <Button
+                  onClick={handleVerifyCode}
+                  disabled={isUpdating || verificationCode.length !== 6}
+                  className="w-full btn-primary h-12"
+                >
+                  {isUpdating ? "Verifying..." : "Verify"}
+                </Button>
+                <button
+                  onClick={() => setEmailStep("input")}
+                  className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← Change email address
+                </button>
+              </div>
+            )}
           </SheetContent>
         </Sheet>
 
@@ -624,30 +708,91 @@ const Settings = () => {
       </Dialog>
 
       {/* Email Dialog */}
-      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+      <Dialog open={emailDialogOpen} onOpenChange={handleEmailDialogClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{email ? "Edit Email Address" : "Add Email Address"}</DialogTitle>
+            <DialogTitle>
+              {emailStep === "input" 
+                ? (email ? "Edit Email Address" : "Add Email Address")
+                : "Verify Email"
+              }
+            </DialogTitle>
             <DialogDescription>
-              {email ? "Update your email for notifications" : "Add an email for security notifications and account recovery"}
+              {emailStep === "input"
+                ? (email ? "Update your email for notifications" : "Add an email for security notifications and account recovery")
+                : "Enter the verification code to confirm your email"
+              }
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              className="h-12"
-            />
-          </div>
+          
+          {emailStep === "input" ? (
+            <div className="py-4">
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                className="h-12"
+              />
+            </div>
+          ) : (
+            <div className="py-4 space-y-4">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Mail className="w-8 h-8 text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Enter the 6-digit code sent to<br />
+                  <span className="font-medium text-foreground">{newEmail}</span>
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <InputOTP
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={setVerificationCode}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+            </div>
+          )}
+          
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddEmail} disabled={isUpdating} className="btn-primary">
-              {isUpdating ? "Saving..." : (email ? "Update" : "Add Email")}
-            </Button>
+            {emailStep === "input" ? (
+              <>
+                <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSendVerificationCode} 
+                  disabled={!newEmail.trim()} 
+                  className="btn-primary"
+                >
+                  Send Code
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => setEmailStep("input")}>
+                  Back
+                </Button>
+                <Button 
+                  onClick={handleVerifyCode} 
+                  disabled={isUpdating || verificationCode.length !== 6} 
+                  className="btn-primary"
+                >
+                  {isUpdating ? "Verifying..." : "Verify"}
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
