@@ -15,7 +15,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
-import { useBalance } from "@/hooks/useBalance";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 // Regular nav items (without Leaderboard)
 const navItems = [
@@ -39,7 +39,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const location = useLocation();
   const [language, setLanguage] = useState("EN");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const { balance, user } = useBalance();
+  const { balance, user, username, avatarUrl } = useUserProfile();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -154,9 +154,9 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <Avatar className="h-9 w-9 border-2 border-primary/50">
-                      <AvatarImage src={user.user_metadata?.avatar_url} alt="User" />
+                      <AvatarImage src={avatarUrl || undefined} alt="User" />
                       <AvatarFallback className="bg-primary/20 text-primary">
-                        {user.email?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+                        {username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
                       </AvatarFallback>
                     </Avatar>
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -164,7 +164,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5 border-b border-border/50 mb-1">
-                    <p className="text-sm font-medium truncate">{user.user_metadata?.username || "User"}</p>
+                    <p className="text-sm font-medium truncate">{username || "User"}</p>
                     <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                   </div>
                   <DropdownMenuItem onClick={() => navigate("/portfolio")}>

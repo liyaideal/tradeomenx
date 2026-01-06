@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositionsStore, Position } from "@/stores/usePositionsStore";
-import { useBalance } from "@/hooks/useBalance";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
 import { Loader2 } from "lucide-react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -31,7 +31,7 @@ export default function OrderPreview() {
   const location = useLocation();
   const { addOrder } = useOrdersStore();
   const { addPosition } = usePositionsStore();
-  const { balance, user, deductBalance } = useBalance();
+  const { balance, user, deductBalance } = useUserProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
 
