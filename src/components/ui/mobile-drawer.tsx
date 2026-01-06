@@ -1,4 +1,5 @@
 import * as React from "react";
+import { LucideIcon } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -136,7 +137,7 @@ export function MobileDrawerList({ children, className }: MobileDrawerListProps)
 }
 
 interface MobileDrawerListItemProps {
-  icon?: React.ReactNode;
+  icon?: LucideIcon | React.ReactNode;
   label: string;
   description?: string;
   onClick?: () => void;
@@ -148,26 +149,36 @@ interface MobileDrawerListItemProps {
  * MobileDrawerListItem - A clickable list item for the drawer
  */
 export function MobileDrawerListItem({
-  icon,
+  icon: Icon,
   label,
   description,
   onClick,
   className,
   disabled = false,
 }: MobileDrawerListItemProps) {
+  const renderIcon = () => {
+    if (!Icon) return null;
+    // Check if it's a Lucide icon component (function component)
+    if (typeof Icon === 'function') {
+      return <Icon className="w-5 h-5 text-muted-foreground shrink-0" />;
+    }
+    // Otherwise render as ReactNode
+    return <span className="text-2xl shrink-0">{Icon}</span>;
+  };
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors text-left",
+        "w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted/50 transition-colors text-left",
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}
     >
-      {icon && <span className="text-2xl shrink-0">{icon}</span>}
+      {renderIcon()}
       <div className="flex-1 min-w-0">
-        <p className="font-medium">{label}</p>
+        <span className="text-sm font-medium">{label}</span>
         {description && (
           <p className="text-sm text-muted-foreground truncate">{description}</p>
         )}
