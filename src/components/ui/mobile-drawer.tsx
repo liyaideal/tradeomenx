@@ -158,12 +158,22 @@ export function MobileDrawerListItem({
 }: MobileDrawerListItemProps) {
   const renderIcon = () => {
     if (!Icon) return null;
-    // Check if it's a Lucide icon component (function component)
-    if (typeof Icon === 'function') {
-      return <Icon className="w-5 h-5 text-muted-foreground shrink-0" />;
+    // Check if it's already a React element
+    if (React.isValidElement(Icon)) {
+      return Icon;
     }
-    // Otherwise render as ReactNode
-    return <span className="text-2xl shrink-0">{Icon}</span>;
+    // Check if it's a component (Lucide icons are ForwardRefExoticComponent)
+    if (typeof Icon === 'object' && Icon !== null && '$$typeof' in Icon) {
+      const IconComponent = Icon as unknown as React.ComponentType<{ className?: string }>;
+      return <IconComponent className="w-5 h-5 text-muted-foreground shrink-0" />;
+    }
+    // Check if it's a function component
+    if (typeof Icon === 'function') {
+      const IconComponent = Icon as React.ComponentType<{ className?: string }>;
+      return <IconComponent className="w-5 h-5 text-muted-foreground shrink-0" />;
+    }
+    // Otherwise render as ReactNode (string, emoji, etc.)
+    return <span className="text-2xl shrink-0">{Icon as React.ReactNode}</span>;
   };
 
   return (
