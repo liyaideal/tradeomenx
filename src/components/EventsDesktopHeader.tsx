@@ -15,6 +15,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { useBalance } from "@/hooks/useBalance";
 
 // Regular nav items (without Leaderboard)
 const navItems = [
@@ -30,30 +31,15 @@ const languages = [
 ];
 
 interface EventsDesktopHeaderProps {
-  balance?: number;
   rightContent?: React.ReactNode;
 }
 
-export const EventsDesktopHeader = ({ balance = 2345.67, rightContent }: EventsDesktopHeaderProps) => {
+export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [language, setLanguage] = useState("EN");
-  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { balance, user } = useBalance();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();

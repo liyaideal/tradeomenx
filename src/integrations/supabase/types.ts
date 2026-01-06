@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      positions: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          entry_price: number
+          event_name: string
+          id: string
+          leverage: number
+          margin: number
+          mark_price: number
+          option_label: string
+          pnl: number | null
+          pnl_percent: number | null
+          side: string
+          size: number
+          sl_mode: string | null
+          sl_value: number | null
+          status: string
+          tp_mode: string | null
+          tp_value: number | null
+          trade_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          entry_price: number
+          event_name: string
+          id?: string
+          leverage?: number
+          margin: number
+          mark_price: number
+          option_label: string
+          pnl?: number | null
+          pnl_percent?: number | null
+          side: string
+          size: number
+          sl_mode?: string | null
+          sl_value?: number | null
+          status?: string
+          tp_mode?: string | null
+          tp_value?: number | null
+          trade_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          entry_price?: number
+          event_name?: string
+          id?: string
+          leverage?: number
+          margin?: number
+          mark_price?: number
+          option_label?: string
+          pnl?: number | null
+          pnl_percent?: number | null
+          side?: string
+          size?: number
+          sl_mode?: string | null
+          sl_value?: number | null
+          status?: string
+          tp_mode?: string | null
+          tp_value?: number | null
+          trade_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "positions_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -44,6 +124,78 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      trades: {
+        Row: {
+          amount: number
+          closed_at: string | null
+          created_at: string
+          event_name: string
+          fee: number
+          id: string
+          leverage: number
+          margin: number
+          option_label: string
+          order_type: string
+          pnl: number | null
+          price: number
+          quantity: number
+          side: string
+          sl_mode: string | null
+          sl_value: number | null
+          status: string
+          tp_mode: string | null
+          tp_value: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          closed_at?: string | null
+          created_at?: string
+          event_name: string
+          fee?: number
+          id?: string
+          leverage?: number
+          margin: number
+          option_label: string
+          order_type: string
+          pnl?: number | null
+          price: number
+          quantity: number
+          side: string
+          sl_mode?: string | null
+          sl_value?: number | null
+          status?: string
+          tp_mode?: string | null
+          tp_value?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          closed_at?: string | null
+          created_at?: string
+          event_name?: string
+          fee?: number
+          id?: string
+          leverage?: number
+          margin?: number
+          option_label?: string
+          order_type?: string
+          pnl?: number | null
+          price?: number
+          quantity?: number
+          side?: string
+          sl_mode?: string | null
+          sl_value?: number | null
+          status?: string
+          tp_mode?: string | null
+          tp_value?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
