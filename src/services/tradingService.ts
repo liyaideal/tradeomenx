@@ -4,7 +4,7 @@ import { z } from "zod";
 // Maximum allowed leverage
 const MAX_LEVERAGE = 100;
 const MIN_LEVERAGE = 1;
-const FEE_RATE = 0.001; // 0.1% fee rate
+const FEE_RATE = 0.0005; // 0.05% fee rate (must match TradeForm)
 
 // Zod schema for trade data validation
 const TradeDataSchema = z.object({
