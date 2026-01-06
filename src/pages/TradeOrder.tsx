@@ -8,7 +8,7 @@ import { PositionCard } from "@/components/PositionCard";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { generateOrderBookData } from "@/lib/tradingUtils";
-import { orderToPosition } from "@/lib/orderUtils";
+import { useOrderSimulation } from "@/hooks/useOrderSimulation";
 
 interface LocationState {
   tab?: string;
@@ -19,20 +19,12 @@ function TradeOrderContent() {
   const location = useLocation();
   const state = location.state as LocationState | null;
   
-  const { orders, cancelOrder, fillOrder } = useOrdersStore();
-  const { positions, addPosition } = usePositionsStore();
+  const { orders } = useOrdersStore();
+  const { positions } = usePositionsStore();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
-
-  const handleFillOrder = (index: number) => {
-    const order = orders[index];
-    const position = orderToPosition(order);
-    addPosition(position);
-    fillOrder(index);
-  };
-
-  const handleCancelOrder = (index: number) => {
-    cancelOrder(index);
-  };
+  
+  // Enable order simulation for auto-filling
+  useOrderSimulation();
   
   const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
   const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);
@@ -193,8 +185,6 @@ function TradeOrderContent() {
               <OrderCard 
                 key={actualIndex} 
                 {...order} 
-                onFill={() => handleFillOrder(actualIndex)}
-                onCancel={() => handleCancelOrder(actualIndex)}
               />
             );
           })

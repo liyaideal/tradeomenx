@@ -41,6 +41,7 @@ import { TopUpDialog } from "@/components/TopUpDialog";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
+import { useOrderSimulation } from "@/hooks/useOrderSimulation";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
@@ -130,6 +131,9 @@ export default function DesktopTrading() {
   
   // Show back button only if user navigated here (PUSH), not if they used bottom nav or direct URL
   const showBackButton = navigationType === "PUSH";
+  
+  // Enable order simulation for auto-filling
+  useOrderSimulation();
   
   // selectedOption is now managed by useEvents hook
   const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">("Orders");
