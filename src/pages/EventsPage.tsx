@@ -40,7 +40,7 @@ const EventsPage = () => {
   const showBackButton = navigationType === "PUSH";
   
   // Filter states
-  const [statusFilter, setStatusFilter] = useState<EventStatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<EventStatusFilter>("active");
   const [settlementFilter, setSettlementFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("volume");
@@ -48,7 +48,7 @@ const EventsPage = () => {
 
   // Filter events
   const filteredEvents = transformedEvents.filter((event) => {
-    if (statusFilter !== "all" && event.status !== statusFilter) {
+    if (event.status !== statusFilter) {
       return false;
     }
     // Add more filter logic here for settlement and category
