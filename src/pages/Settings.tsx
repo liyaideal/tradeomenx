@@ -36,7 +36,7 @@ const Settings = () => {
   const navigate = useNavigate();
   const { profile, user, isLoading: profileLoading, updateUsername, updateAvatar, updateEmail, refetchProfile } = useUserProfile();
   const { wallets: connectedWallets, isLoading: walletsLoading, addWallet, removeWallet, setPrimaryWallet } = useWallets();
-  const [copiedWallet, setCopiedWallet] = useState(false);
+  const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
   
   // Dialog states
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
@@ -60,11 +60,11 @@ const Settings = () => {
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
   const [walletToDisconnect, setWalletToDisconnect] = useState<{ id: string; address: string } | null>(null);
 
-  const handleCopyWallet = (address: string) => {
+  const handleCopyWallet = (walletId: string, address: string) => {
     navigator.clipboard.writeText(address);
-    setCopiedWallet(true);
+    setCopiedWalletId(walletId);
     toast.success("Wallet address copied");
-    setTimeout(() => setCopiedWallet(false), 2000);
+    setTimeout(() => setCopiedWalletId(null), 2000);
   };
 
   const handleSelectAvatar = async () => {
@@ -417,10 +417,10 @@ const Settings = () => {
                 <div className="flex items-center gap-2">
                   <span className="font-mono font-medium">{wallet.address}</span>
                   <button
-                    onClick={() => handleCopyWallet(wallet.fullAddress)}
+                    onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {copiedWallet ? (
+                    {copiedWalletId === wallet.id ? (
                       <Check className="w-4 h-4 text-trading-green" />
                     ) : (
                       <Copy className="w-4 h-4" />
