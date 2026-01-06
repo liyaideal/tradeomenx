@@ -43,19 +43,14 @@ export const AuthContent = ({
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
 
-  // Generate mock email based on auth method
-  const generateMockEmail = (method: "wallet" | "google" | "telegram") => {
-    const randomId = Math.random().toString(36).substring(2, 8);
-    switch (method) {
-      case "google":
-        return `user.${randomId}@gmail.com`;
-      case "telegram":
-        return `tg_${randomId}@telegram.org`;
-      case "wallet":
-        return `0x${randomId}@wallet.eth`;
-      default:
-        return `user.${randomId}@example.com`;
+  // Generate mock email only for Google (simulates real OAuth email)
+  // Telegram and Wallet don't provide email, so keep it null
+  const generateMockEmail = (method: "wallet" | "google" | "telegram"): string | null => {
+    if (method === "google") {
+      const randomId = Math.random().toString(36).substring(2, 8);
+      return `user.${randomId}@gmail.com`;
     }
+    return null; // Telegram and Wallet don't have email
   };
 
   // Demo login - simulates auth callback and proceeds to next step
@@ -87,14 +82,16 @@ export const AuthContent = ({
         // Generate funny username using sillyname (e.g. "Fluffy Unicorn")
         const mockUsername = sillyname();
 
-        // Update profile with sillyname username and mock email
+        // Update profile with sillyname username (and email only for Google)
         // (profile is auto-created by database trigger, so we update it)
+        const updateData: { username: string; email?: string } = { username: mockUsername };
+        if (mockEmail) {
+          updateData.email = mockEmail;
+        }
+        
         const { error: profileError } = await supabase
           .from("profiles")
-          .update({
-            username: mockUsername,
-            email: mockEmail,
-          })
+          .update(updateData)
           .eq("user_id", data.user.id);
 
         if (profileError) {
