@@ -62,7 +62,7 @@ export function MobileDrawer({
       <SheetContent
         side="bottom"
         className={cn(
-          "rounded-t-3xl px-5 pt-4 pb-6 max-h-[85vh] overflow-y-auto",
+          "rounded-t-3xl px-5 pt-4 max-h-[85vh] overflow-y-auto",
           height,
           hideCloseButton && "[&>button]:hidden",
           className
