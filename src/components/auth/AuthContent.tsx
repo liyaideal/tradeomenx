@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { PROFILE_QUERY_KEY } from "@/hooks/useUserProfile";
+import { PROFILE_QUERY_KEY, useUserProfile } from "@/hooks/useUserProfile";
 import { 
   Gift, 
   Wallet, 
@@ -39,9 +39,22 @@ export const AuthContent = ({
   variant = "desktop" 
 }: AuthContentProps) => {
   const queryClient = useQueryClient();
+  const { profile, username: profileUsername, email: profileEmail } = useUserProfile();
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">("google");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+
+  // Pre-fill username and email when entering completeProfile step
+  useEffect(() => {
+    if (step === "completeProfile") {
+      if (profileUsername && !username) {
+        setUsername(profileUsername);
+      }
+      if (profileEmail && !email) {
+        setEmail(profileEmail);
+      }
+    }
+  }, [step, profileUsername, profileEmail]);
 
   // Generate mock email only for Google (simulates real OAuth email)
   // Telegram and Wallet don't provide email, so keep it null
