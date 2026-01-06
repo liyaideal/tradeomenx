@@ -37,6 +37,7 @@ export const AuthContent = ({
 }: AuthContentProps) => {
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">("google");
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
 
   // Demo login - simulates auth and proceeds to next step
   const handleDemoLogin = async (method: "wallet" | "google" | "telegram") => {
@@ -94,14 +95,20 @@ export const AuthContent = ({
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (user && username) {
-        const { error } = await supabase
-          .from("profiles")
-          .update({ username })
-          .eq("user_id", user.id);
+      if (user) {
+        const updates: { username?: string; email?: string } = {};
+        if (username.trim()) updates.username = username.trim();
+        if (email.trim()) updates.email = email.trim();
 
-        if (error) {
-          console.error("Profile update error:", error);
+        if (Object.keys(updates).length > 0) {
+          const { error } = await supabase
+            .from("profiles")
+            .update(updates)
+            .eq("user_id", user.id);
+
+          if (error) {
+            console.error("Profile update error:", error);
+          }
         }
       }
       
@@ -376,16 +383,43 @@ export const AuthContent = ({
         </div>
 
         {/* Username Input */}
-        <div>
-          <Label htmlFor="username" className="text-sm text-muted-foreground">Username</Label>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="username" className="text-sm font-medium text-foreground">Username</Label>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Optional</span>
+          </div>
           <Input
             id="username"
             type="text"
-            placeholder="Choose a username"
+            placeholder="Enter your display name"
             value={username}
+            maxLength={20}
             onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 h-10 bg-muted/50 border-border/50"
+            className="h-11 bg-muted/50 border-border/50"
           />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>This will be your public display name</span>
+            <span>{username.length}/20 characters</span>
+          </div>
+        </div>
+
+        {/* Email Input */}
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="email" className="text-sm font-medium text-foreground">Email Address</Label>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Optional</span>
+          </div>
+          <Input
+            id="email"
+            type="email"
+            placeholder="your.email@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-11 bg-muted/50 border-border/50"
+          />
+          <p className="text-xs text-muted-foreground">
+            For important notifications and account recovery
+          </p>
         </div>
 
         {/* Buttons */}
