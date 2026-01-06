@@ -91,30 +91,30 @@ export const AuthContent = ({
   };
 
   const isMobile = variant === "mobile";
-  const containerClass = isMobile ? "space-y-4" : "space-y-6";
-  const headingClass = isMobile ? "text-xl font-bold" : "text-2xl font-bold";
-  const subheadingClass = "text-muted-foreground text-sm";
+  const containerClass = isMobile ? "space-y-5" : "space-y-6";
 
   // Login Step
   if (step === "login") {
     return (
       <div className={containerClass}>
-        {/* Headlines */}
-        <div className="text-center">
-          <h2 className={headingClass}>Predict the Future, Profit from Certainty</h2>
-          <p className={`${subheadingClass} mt-1`}>Trade crypto, politics, sports & more like futures</p>
+        {/* Headlines - Clear hierarchy: lg title, sm subtitle */}
+        <div className="text-center space-y-1">
+          <h2 className="text-lg font-semibold text-foreground">
+            Predict the Future, Profit from Certainty
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Trade crypto, politics, sports & more like futures
+          </p>
         </div>
 
-        {/* Trial Funds Banner */}
-        <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-              <Gift className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground text-sm">Get 10,000 USDT Trial Funds</p>
-              <p className="text-xs text-muted-foreground">Demo Trading · No Deposit · Start Now</p>
-            </div>
+        {/* Trial Funds Banner - Compact */}
+        <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <Gift className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="font-medium text-foreground text-sm">Get 10,000 USDT Trial Funds</p>
+            <p className="text-xs text-muted-foreground">Demo Trading · No Deposit · Start Now</p>
           </div>
         </div>
 
@@ -128,7 +128,7 @@ export const AuthContent = ({
             <button
               key={method.id}
               onClick={() => setAuthMethod(method.id)}
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
                 authMethod === method.id
                   ? "bg-card text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -140,63 +140,72 @@ export const AuthContent = ({
         </div>
 
         {/* Auth Content */}
-        {authMethod === "google" && (
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">Quick sign-in with Google</p>
-            <Button
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-              className="w-full h-11 bg-card hover:bg-card-hover border border-border text-foreground"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              ) : (
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-              )}
-              Sign in with Google
-            </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              Instant access · No wallet needed · Start trading in seconds
-            </p>
-          </div>
-        )}
+        <div className="space-y-3">
+          {authMethod === "google" && (
+            <>
+              <p className="text-sm text-muted-foreground">Quick sign-in with Google</p>
+              <Button
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                ) : (
+                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                )}
+                Sign in with Google
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Instant access · No wallet needed · Start trading in seconds
+              </p>
+            </>
+          )}
 
-        {authMethod === "wallet" && (
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">Connect your Web3 wallet</p>
-            <Button
-              disabled
-              className="w-full h-11 bg-card hover:bg-card-hover border border-border text-muted-foreground"
-            >
-              <Wallet className="w-5 h-5 mr-2" />
-              Connect Wallet (Coming Soon)
-            </Button>
-          </div>
-        )}
+          {authMethod === "wallet" && (
+            <>
+              <p className="text-sm text-muted-foreground">Connect your Web3 wallet</p>
+              <Button
+                disabled
+                className="w-full h-12 bg-card hover:bg-card-hover border border-border text-muted-foreground text-sm"
+              >
+                <Wallet className="w-5 h-5 mr-2" />
+                Connect Wallet (Coming Soon)
+              </Button>
+            </>
+          )}
 
-        {authMethod === "telegram" && (
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">Sign in with Telegram</p>
-            <Button
-              disabled
-              className="w-full h-11 bg-card hover:bg-card-hover border border-border text-muted-foreground"
-            >
-              Telegram (Coming Soon)
-            </Button>
-          </div>
-        )}
+          {authMethod === "telegram" && (
+            <>
+              <p className="text-sm text-muted-foreground">Sign in with Telegram</p>
+              <Button
+                disabled
+                className="w-full h-12 bg-card hover:bg-card-hover border border-border text-muted-foreground text-sm"
+              >
+                Telegram (Coming Soon)
+              </Button>
+            </>
+          )}
+        </div>
+
+        {/* Divider with OR */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-border/50" />
+          <span className="text-xs text-muted-foreground">OR</span>
+          <div className="flex-1 h-px bg-border/50" />
+        </div>
 
         {/* Info text */}
-        <div className="pt-4 border-t border-border/50 text-center space-y-2">
+        <div className="text-center space-y-2">
           <p className="text-sm text-foreground">
             New to OMENX? Authorization creates your account automatically
           </p>
-          <p className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+          <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
             <Gift className="w-3.5 h-3.5 text-primary" />
             10,000 USDT Trial Funds · No Deposit Required · Start Trading Now
           </p>
@@ -205,7 +214,7 @@ export const AuthContent = ({
         {/* Terms */}
         <p className="text-xs text-muted-foreground text-center">
           By continuing, you agree to our{" "}
-          <span className="text-primary hover:underline cursor-pointer">Terms</span>
+          <span className="text-primary hover:underline cursor-pointer">Terms of Service</span>
           {" "}and{" "}
           <span className="text-primary hover:underline cursor-pointer">Privacy Policy</span>
         </p>
@@ -217,9 +226,9 @@ export const AuthContent = ({
   if (step === "createWallet") {
     return (
       <div className={containerClass}>
-        <div className="text-center">
-          <h2 className={headingClass}>Create Simulation Wallet</h2>
-          <p className={`${subheadingClass} mt-1`}>Get 10,000 USDT trial funds and start trading</p>
+        <div className="text-center space-y-1">
+          <h2 className="text-lg font-semibold text-foreground">Create Simulation Wallet</h2>
+          <p className="text-sm text-muted-foreground">Get 10,000 USDT trial funds and start trading</p>
         </div>
 
         {/* Welcome Bonus Card */}
@@ -295,10 +304,10 @@ export const AuthContent = ({
           </span>
         </div>
 
-        <div className="text-center">
+        <div className="text-center space-y-1">
           <p className="text-xs text-muted-foreground">Final Step</p>
-          <h2 className={headingClass}>Complete Your Profile</h2>
-          <p className={`${subheadingClass} mt-1`}>Optional — Unlock exclusive features</p>
+          <h2 className="text-lg font-semibold text-foreground">Complete Your Profile</h2>
+          <p className="text-sm text-muted-foreground">Optional — Unlock exclusive features</p>
         </div>
 
         {/* Username Input */}
