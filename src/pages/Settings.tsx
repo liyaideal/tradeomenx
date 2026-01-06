@@ -251,24 +251,27 @@ const Settings = () => {
 
   // Avatar Picker Component
   const AvatarPicker = ({ isSheet = false }: { isSheet?: boolean }) => (
-    <ScrollArea className={isSheet ? "h-[350px]" : "h-[380px]"}>
-      <div className="grid grid-cols-5 gap-3 pr-4">
+    <div className={`overflow-y-auto ${isSheet ? "max-h-[350px]" : "max-h-[380px]"}`}>
+      <div className="grid grid-cols-5 gap-3 pr-2">
         {avatarOptions.map((avatar) => (
           <button
             key={avatar.key}
-            onClick={() => setSelectedAvatar(avatar.url)}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              setSelectedAvatar(avatar.url);
+            }}
             className={`relative rounded-xl p-1 transition-all ${
               selectedAvatar === avatar.url
                 ? "ring-2 ring-primary bg-primary/20 scale-105"
                 : "hover:bg-muted/50 hover:scale-105"
             }`}
           >
-            <Avatar className="w-full aspect-square">
-              <AvatarImage src={avatar.url} alt={avatar.seed} />
-              <AvatarFallback className="bg-muted">
-                <User className="w-6 h-6 text-muted-foreground" />
-              </AvatarFallback>
-            </Avatar>
+            <img 
+              src={avatar.url} 
+              alt={avatar.seed}
+              className="w-full aspect-square rounded-lg"
+            />
             {selectedAvatar === avatar.url && (
               <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                 <Check className="w-3 h-3 text-primary-foreground" />
@@ -277,7 +280,7 @@ const Settings = () => {
           </button>
         ))}
       </div>
-    </ScrollArea>
+    </div>
   );
 
   // Profile Card
