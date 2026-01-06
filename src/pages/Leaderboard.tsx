@@ -15,6 +15,7 @@ import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import * as htmlToImage from "html-to-image";
 import omenxLogo from "@/assets/omenx-logo.svg";
+import { QRCodeSVG } from "qrcode.react";
 
 type SortType = "pnl" | "roi" | "volume";
 type PeriodType = "daily" | "7d" | "30d" | "180d";
@@ -567,13 +568,32 @@ const ShareableCard = ({
           </div>
         )}
 
-        {/* Tap to share hint - hidden in modal preview */}
-        {!hideShareHint && (
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Share2 className="w-3 h-3" />
-            <span>Tap to share</span>
+        {/* QR Code and Share hint */}
+        <div className="mt-4 flex items-center justify-between">
+          {/* QR Code */}
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-white rounded-lg">
+              <QRCodeSVG 
+                value="https://omenx.trade" 
+                size={48}
+                level="M"
+                includeMargin={false}
+              />
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              <div className="font-medium text-foreground/80">Scan to join</div>
+              <div>omenx.trade</div>
+            </div>
           </div>
-        )}
+          
+          {/* Tap to share hint - hidden in modal preview */}
+          {!hideShareHint && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Share2 className="w-3 h-3" />
+              <span>Tap to share</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
