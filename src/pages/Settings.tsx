@@ -50,6 +50,12 @@ const Settings = () => {
   const [emailStep, setEmailStep] = useState<"input" | "verify">("input");
   const [verificationCode, setVerificationCode] = useState("");
 
+  // Wallet connection states
+  const [walletStep, setWalletStep] = useState<"select" | "connecting" | "success">("select");
+  const [selectedWalletType, setSelectedWalletType] = useState<string | null>(null);
+  const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
+  const [walletToDisconnect, setWalletToDisconnect] = useState<string | null>(null);
+
   // Mock wallet data (in real app, this would come from a wallet connection)
   const [connectedWallets, setConnectedWallets] = useState([
     {
@@ -150,15 +156,56 @@ const Settings = () => {
     }
   };
 
-  const handleConnectWallet = () => {
-    // Mock wallet connection - in real app this would use Web3 wallet
-    toast.info("Wallet connection coming soon");
-    setWalletDialogOpen(false);
+  const handleConnectWallet = async (walletType: string, icon: string) => {
+    setSelectedWalletType(walletType);
+    setWalletStep("connecting");
+    
+    // Simulate connection delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Generate random wallet address
+    const randomHex = () => Math.floor(Math.random() * 16).toString(16);
+    const randomAddress = '0x' + Array(40).fill(0).map(() => randomHex()).join('');
+    const shortAddress = randomAddress.slice(0, 6) + '...' + randomAddress.slice(-4);
+    
+    setConnectedWallets(wallets => [
+      ...wallets.map(w => ({ ...w, isPrimary: false })),
+      {
+        address: shortAddress,
+        fullAddress: randomAddress,
+        network: "Ethereum Mainnet",
+        isPrimary: wallets.length === 0,
+        connectedAt: new Date().toISOString().split('T')[0],
+        icon
+      }
+    ]);
+    
+    setWalletStep("success");
+  };
+
+  const handleWalletDialogClose = (open: boolean) => {
+    setWalletDialogOpen(open);
+    if (!open) {
+      // Reset state when closing
+      setTimeout(() => {
+        setWalletStep("select");
+        setSelectedWalletType(null);
+      }, 200);
+    }
+  };
+
+  const handleConfirmDisconnect = () => {
+    if (walletToDisconnect) {
+      setConnectedWallets(wallets => wallets.filter(w => w.fullAddress !== walletToDisconnect));
+      toast.success("Wallet disconnected");
+    }
+    setDisconnectDialogOpen(false);
+    setWalletToDisconnect(null);
   };
 
   const handleDisconnectWallet = (address: string) => {
-    setConnectedWallets(wallets => wallets.filter(w => w.fullAddress !== address));
-    toast.success("Wallet disconnected");
+    setWalletToDisconnect(address);
+    setDisconnectDialogOpen(true);
   };
 
   const formatDate = (dateString?: string) => {
@@ -587,43 +634,107 @@ const Settings = () => {
         </Sheet>
 
         {/* Wallet Connection Sheet */}
-        <Sheet open={walletDialogOpen} onOpenChange={setWalletDialogOpen}>
+        <Sheet open={walletDialogOpen} onOpenChange={handleWalletDialogClose}>
           <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <SheetHeader className="text-left mb-4">
-              <SheetTitle>Connect Wallet</SheetTitle>
+              <SheetTitle>
+                {walletStep === "select" && "Connect Wallet"}
+                {walletStep === "connecting" && "Connecting..."}
+                {walletStep === "success" && "Connected!"}
+              </SheetTitle>
             </SheetHeader>
-            <div className="space-y-3">
-              <button
-                onClick={handleConnectWallet}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <span className="text-3xl">🦊</span>
-                <div className="text-left">
-                  <p className="font-medium">MetaMask</p>
-                  <p className="text-sm text-muted-foreground">Connect to your MetaMask wallet</p>
+            
+            {walletStep === "select" && (
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleConnectWallet("MetaMask", "🦊")}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <span className="text-3xl">🦊</span>
+                  <div className="text-left">
+                    <p className="font-medium">MetaMask</p>
+                    <p className="text-sm text-muted-foreground">Connect to your MetaMask wallet</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleConnectWallet("Rainbow", "🌈")}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <span className="text-3xl">🌈</span>
+                  <div className="text-left">
+                    <p className="font-medium">Rainbow</p>
+                    <p className="text-sm text-muted-foreground">Connect to your Rainbow wallet</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleConnectWallet("WalletConnect", "💎")}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <span className="text-3xl">💎</span>
+                  <div className="text-left">
+                    <p className="font-medium">WalletConnect</p>
+                    <p className="text-sm text-muted-foreground">Scan with WalletConnect</p>
+                  </div>
+                </button>
+              </div>
+            )}
+            
+            {walletStep === "connecting" && (
+              <div className="py-8 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
+                  <span className="text-3xl">{selectedWalletType === "MetaMask" ? "🦊" : selectedWalletType === "Rainbow" ? "🌈" : "💎"}</span>
                 </div>
-              </button>
-              <button
-                onClick={handleConnectWallet}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <span className="text-3xl">🌈</span>
-                <div className="text-left">
-                  <p className="font-medium">Rainbow</p>
-                  <p className="text-sm text-muted-foreground">Connect to your Rainbow wallet</p>
+                <p className="text-muted-foreground">Connecting to {selectedWalletType}...</p>
+                <p className="text-sm text-muted-foreground mt-2">Please confirm in your wallet</p>
+              </div>
+            )}
+            
+            {walletStep === "success" && (
+              <div className="py-8 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-green/20 flex items-center justify-center">
+                  <Check className="w-8 h-8 text-trading-green" />
                 </div>
-              </button>
-              <button
-                onClick={handleConnectWallet}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <span className="text-3xl">💎</span>
-                <div className="text-left">
-                  <p className="font-medium">WalletConnect</p>
-                  <p className="text-sm text-muted-foreground">Scan with WalletConnect</p>
-                </div>
-              </button>
+                <p className="font-medium text-trading-green">Wallet Connected!</p>
+                <p className="text-sm text-muted-foreground mt-2">Your {selectedWalletType} wallet has been linked</p>
+                <Button
+                  onClick={() => handleWalletDialogClose(false)}
+                  className="mt-6 btn-primary"
+                >
+                  Done
+                </Button>
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
+
+        {/* Disconnect Wallet Confirmation Sheet */}
+        <Sheet open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8">
+            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
+            <div className="py-4 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-red/10 flex items-center justify-center">
+                <AlertTriangle className="w-8 h-8 text-trading-red" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Disconnect Wallet?</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                Are you sure you want to disconnect this wallet? You can reconnect it anytime.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setDisconnectDialogOpen(false)}
+                  className="flex-1 h-12"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmDisconnect}
+                  className="flex-1 h-12 bg-trading-red hover:bg-trading-red/90 text-white"
+                >
+                  Disconnect
+                </Button>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -798,45 +909,110 @@ const Settings = () => {
       </Dialog>
 
       {/* Wallet Connection Dialog */}
-      <Dialog open={walletDialogOpen} onOpenChange={setWalletDialogOpen}>
+      <Dialog open={walletDialogOpen} onOpenChange={handleWalletDialogClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Connect Wallet</DialogTitle>
-            <DialogDescription>
-              Choose a wallet to connect
-            </DialogDescription>
+            <DialogTitle>
+              {walletStep === "select" && "Connect Wallet"}
+              {walletStep === "connecting" && "Connecting..."}
+              {walletStep === "success" && "Connected!"}
+            </DialogTitle>
+            {walletStep === "select" && (
+              <DialogDescription>
+                Choose a wallet to connect
+              </DialogDescription>
+            )}
           </DialogHeader>
-          <div className="py-4 space-y-3">
-            <button
-              onClick={handleConnectWallet}
-              className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <span className="text-3xl">🦊</span>
-              <div className="text-left">
-                <p className="font-medium">MetaMask</p>
-                <p className="text-sm text-muted-foreground">Connect to your MetaMask wallet</p>
+          
+          {walletStep === "select" && (
+            <div className="py-4 space-y-3">
+              <button
+                onClick={() => handleConnectWallet("MetaMask", "🦊")}
+                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <span className="text-3xl">🦊</span>
+                <div className="text-left">
+                  <p className="font-medium">MetaMask</p>
+                  <p className="text-sm text-muted-foreground">Connect to your MetaMask wallet</p>
+                </div>
+              </button>
+              <button
+                onClick={() => handleConnectWallet("Rainbow", "🌈")}
+                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <span className="text-3xl">🌈</span>
+                <div className="text-left">
+                  <p className="font-medium">Rainbow</p>
+                  <p className="text-sm text-muted-foreground">Connect to your Rainbow wallet</p>
+                </div>
+              </button>
+              <button
+                onClick={() => handleConnectWallet("WalletConnect", "💎")}
+                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <span className="text-3xl">💎</span>
+                <div className="text-left">
+                  <p className="font-medium">WalletConnect</p>
+                  <p className="text-sm text-muted-foreground">Scan with WalletConnect</p>
+                </div>
+              </button>
+            </div>
+          )}
+          
+          {walletStep === "connecting" && (
+            <div className="py-8 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
+                <span className="text-3xl">{selectedWalletType === "MetaMask" ? "🦊" : selectedWalletType === "Rainbow" ? "🌈" : "💎"}</span>
               </div>
-            </button>
-            <button
-              onClick={handleConnectWallet}
-              className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <span className="text-3xl">🌈</span>
-              <div className="text-left">
-                <p className="font-medium">Rainbow</p>
-                <p className="text-sm text-muted-foreground">Connect to your Rainbow wallet</p>
+              <p className="text-muted-foreground">Connecting to {selectedWalletType}...</p>
+              <p className="text-sm text-muted-foreground mt-2">Please confirm in your wallet</p>
+            </div>
+          )}
+          
+          {walletStep === "success" && (
+            <div className="py-8 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-green/20 flex items-center justify-center">
+                <Check className="w-8 h-8 text-trading-green" />
               </div>
-            </button>
-            <button
-              onClick={handleConnectWallet}
-              className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <span className="text-3xl">💎</span>
-              <div className="text-left">
-                <p className="font-medium">WalletConnect</p>
-                <p className="text-sm text-muted-foreground">Scan with WalletConnect</p>
-              </div>
-            </button>
+              <p className="font-medium text-trading-green">Wallet Connected!</p>
+              <p className="text-sm text-muted-foreground mt-2">Your {selectedWalletType} wallet has been linked</p>
+              <Button
+                onClick={() => handleWalletDialogClose(false)}
+                className="mt-6 btn-primary"
+              >
+                Done
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Disconnect Wallet Confirmation Dialog */}
+      <Dialog open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
+        <DialogContent>
+          <div className="py-4 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-red/10 flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-trading-red" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Disconnect Wallet?</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Are you sure you want to disconnect this wallet? You can reconnect it anytime.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setDisconnectDialogOpen(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmDisconnect}
+                className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
+              >
+                Disconnect
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
