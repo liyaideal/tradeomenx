@@ -170,7 +170,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   <DropdownMenuItem onClick={() => navigate("/portfolio")}>
                     Portfolio
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
                     Settings
                   </DropdownMenuItem>
                   <DropdownMenuItem>
