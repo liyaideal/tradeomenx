@@ -8,7 +8,12 @@ export const AVATAR_SEEDS = [
   "ava", "elijah", "isabella", "james", "luna", "benjamin", "chloe",
   "lucas", "penelope", "henry", "layla", "alexander", "riley", "jackson",
   "zoey", "sebastian", "nora", "aiden", "lily", "owen", "ella", "william",
-  "grace", "ethan", "aurora", "jacob", "scarlett", "michael", "camila"
+  "grace", "ethan", "aurora", "jacob", "scarlett", "michael", "camila",
+  "harper", "mason", "evelyn", "logan", "abigail", "lucas", "emily", "jack",
+  "madison", "levi", "elizabeth", "mateo", "sofia", "daniel", "avery", "leo",
+  "mila", "asher", "aria", "carter", "charlotte", "wyatt", "amelia", "julian",
+  "harper", "grayson", "ella", "ezra", "chloe", "luke", "layla", "henry",
+  "madison", "jayden", "victoria", "gabriel", "scarlett", "isaac", "hannah"
 ];
 
 // Background colors for avatars
