@@ -150,42 +150,37 @@ const Settings = () => {
       url: generateAvatarUrl(seed, bgIndex),
       key: `${seed}-${bgIndex}`
     }))
-  ).slice(0, 30); // Limit to 30 avatars for performance
+  ).slice(0, 50); // Limit to 50 avatars for performance
 
   // Avatar Picker Component
   const AvatarPicker = ({ isSheet = false }: { isSheet?: boolean }) => (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Choose an avatar from our collection
-      </p>
-      <ScrollArea className={isSheet ? "h-[300px]" : "h-[320px]"}>
-        <div className="grid grid-cols-5 gap-3 pr-4">
-          {avatarOptions.map((avatar) => (
-            <button
-              key={avatar.key}
-              onClick={() => setSelectedAvatar(avatar.url)}
-              className={`relative rounded-xl p-1 transition-all ${
-                selectedAvatar === avatar.url
-                  ? "ring-2 ring-primary bg-primary/20 scale-105"
-                  : "hover:bg-muted/50 hover:scale-105"
-              }`}
-            >
-              <Avatar className="w-full aspect-square">
-                <AvatarImage src={avatar.url} alt={avatar.seed} />
-                <AvatarFallback className="bg-muted">
-                  <User className="w-6 h-6 text-muted-foreground" />
-                </AvatarFallback>
-              </Avatar>
-              {selectedAvatar === avatar.url && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                  <Check className="w-3 h-3 text-primary-foreground" />
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      </ScrollArea>
-    </div>
+    <ScrollArea className={isSheet ? "h-[350px]" : "h-[380px]"}>
+      <div className="grid grid-cols-5 gap-3 pr-4">
+        {avatarOptions.map((avatar) => (
+          <button
+            key={avatar.key}
+            onClick={() => setSelectedAvatar(avatar.url)}
+            className={`relative rounded-xl p-1 transition-all ${
+              selectedAvatar === avatar.url
+                ? "ring-2 ring-primary bg-primary/20 scale-105"
+                : "hover:bg-muted/50 hover:scale-105"
+            }`}
+          >
+            <Avatar className="w-full aspect-square">
+              <AvatarImage src={avatar.url} alt={avatar.seed} />
+              <AvatarFallback className="bg-muted">
+                <User className="w-6 h-6 text-muted-foreground" />
+              </AvatarFallback>
+            </Avatar>
+            {selectedAvatar === avatar.url && (
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                <Check className="w-3 h-3 text-primary-foreground" />
+              </div>
+            )}
+          </button>
+        ))}
+      </div>
+    </ScrollArea>
   );
 
   // Profile Card
