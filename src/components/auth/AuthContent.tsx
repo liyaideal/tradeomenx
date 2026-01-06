@@ -372,7 +372,7 @@ export const AuthContent = ({
         <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-3 flex items-center gap-2">
           <Check className="w-4 h-4 text-trading-green" />
           <span className="text-trading-green font-medium text-sm">
-            Ready to trade with 10,000 USDT!
+            Ready to trade with 10,000 USDT trial funds
           </span>
         </div>
 
