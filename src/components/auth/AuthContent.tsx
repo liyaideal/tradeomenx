@@ -84,18 +84,18 @@ export const AuthContent = ({
         // Generate funny username using sillyname (e.g. "Fluffy Unicorn")
         const mockUsername = sillyname();
 
-        // Create profile with simulated email
+        // Update profile with sillyname username and mock email
+        // (profile is auto-created by database trigger, so we update it)
         const { error: profileError } = await supabase
           .from("profiles")
-          .insert({
-            user_id: data.user.id,
+          .update({
             username: mockUsername,
             email: mockEmail,
-            trial_balance: 10000,
-          });
+          })
+          .eq("user_id", data.user.id);
 
-        if (profileError && !profileError.message.includes("duplicate")) {
-          console.error("Profile creation error:", profileError);
+        if (profileError) {
+          console.error("Profile update error:", profileError);
         }
 
         toast.success(`Connected via ${method === "google" ? "Google" : method === "telegram" ? "Telegram" : "Wallet"}!`);
