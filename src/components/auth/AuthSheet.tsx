@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Logo } from "@/components/Logo";
 import { AuthContent } from "./AuthContent";
 import { useAuth, type AuthStep } from "@/hooks/useAuth";
@@ -39,32 +34,27 @@ export const AuthSheet = ({ open, onOpenChange }: AuthSheetProps) => {
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent 
-        side="bottom" 
-        className="rounded-t-3xl px-5 pt-4 pb-8 bg-background border-t border-border/50 max-h-[85vh]"
-      >
-        {/* Drag handle */}
-        <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
-        
-        <SheetHeader className="mb-4">
-          <div className="flex justify-center">
-            <Logo size="lg" />
-          </div>
-          <SheetTitle className="sr-only">Sign In</SheetTitle>
-        </SheetHeader>
+    <MobileDrawer 
+      open={open} 
+      onOpenChange={handleOpenChange}
+      height="max-h-[85vh]"
+      hideCloseButton
+    >
+      {/* Logo header */}
+      <div className="flex justify-center mb-4">
+        <Logo size="lg" />
+      </div>
 
-        <div className="overflow-y-auto">
-          <AuthContent
-            step={step}
-            setStep={setStep}
-            onSuccess={handleSuccess}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-            variant="mobile"
-          />
-        </div>
-      </SheetContent>
-    </Sheet>
+      <div className="overflow-y-auto">
+        <AuthContent
+          step={step}
+          setStep={setStep}
+          onSuccess={handleSuccess}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          variant="mobile"
+        />
+      </div>
+    </MobileDrawer>
   );
 };
