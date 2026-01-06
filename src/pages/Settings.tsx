@@ -301,21 +301,9 @@ const Settings = () => {
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-lg font-semibold">
-              {username ? username : "Username Not Set"}
-            </span>
-            <Button
-              size="sm"
-              onClick={() => {
-                setNewUsername(username || "");
-                setUsernameDialogOpen(true);
-              }}
-              className="btn-primary h-7 px-3 text-xs"
-            >
-              {username ? "Edit" : "Set Now"}
-            </Button>
-          </div>
+          <span className="text-lg font-semibold">
+            {username ? username : "Username Not Set"}
+          </span>
           
           {/* Mobile layout */}
           {isMobile ? (
@@ -328,21 +316,12 @@ const Settings = () => {
                 <span className="text-muted-foreground">Join Date</span>
                 <span>{joinDate}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Account Type</span>
-                <Badge variant="outline" className="border-primary/50 text-primary">
-                  Wallet
-                </Badge>
-              </div>
             </div>
           ) : (
             /* Desktop layout */
             <div className="mt-2 space-y-1 text-sm text-muted-foreground">
               <p>User ID: #{userId}</p>
               <p>Joined {joinDate}</p>
-              <Badge variant="outline" className="border-primary/50 text-primary mt-2">
-                Wallet
-              </Badge>
             </div>
           )}
         </div>
