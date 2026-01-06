@@ -14,7 +14,7 @@ import {
   MobileDrawerSection,
 } from "@/components/ui/mobile-drawer";
 
-export type EventStatusFilter = "all" | "active" | "resolved";
+export type EventStatusFilter = "active" | "resolved";
 
 interface EventFiltersProps {
   statusFilter: EventStatusFilter;
@@ -41,7 +41,6 @@ export const EventFilters = ({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const statusOptions: { value: EventStatusFilter; label: string }[] = [
-    { value: "all", label: "All" },
     { value: "active", label: "Active" },
     { value: "resolved", label: "Resolved" },
   ];
