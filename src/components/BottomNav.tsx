@@ -6,7 +6,7 @@ import { AuthSheet } from "@/components/auth/AuthSheet";
 import { toast } from "sonner";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useBalance } from "@/hooks/useBalance";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
@@ -26,7 +26,7 @@ const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { balance, user } = useBalance();
+  const { balance, user, username, avatarUrl } = useUserProfile();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
 
@@ -164,14 +164,14 @@ export const BottomNav = () => {
         {/* User Info */}
         <div className="flex items-center gap-3 mb-4 p-3 bg-muted/30 rounded-xl">
           <Avatar className="w-12 h-12 border-2 border-primary/50">
-            <AvatarImage src={user?.user_metadata?.avatar_url} alt="User" />
+            <AvatarImage src={avatarUrl || undefined} alt="User" />
             <AvatarFallback className="bg-primary/20 text-primary">
-              {user?.email?.charAt(0).toUpperCase() || <User className="w-5 h-5" />}
+              {username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || <User className="w-5 h-5" />}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              {user?.user_metadata?.username || user?.user_metadata?.full_name || "Trader"}
+              {username || "Trader"}
             </p>
             <p className="text-xs text-muted-foreground truncate">{user?.email || "Anonymous User"}</p>
           </div>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { TopUpDialog } from "@/components/TopUpDialog";
 import { toast } from "sonner";
-import { useBalance } from "@/hooks/useBalance";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface TradeFormProps {
   selectedPrice?: string;
@@ -19,7 +19,7 @@ export const TradeForm = ({
   optionLabel = "200-219"
 }: TradeFormProps) => {
   const navigate = useNavigate();
-  const { balance, user } = useBalance();
+  const { balance, user } = useUserProfile();
   
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [marginType, setMarginType] = useState("Cross");

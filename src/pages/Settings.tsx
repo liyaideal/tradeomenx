@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, AVATAR_SEEDS, AVATAR_BACKGROUNDS, generateAvatarUrl } from "@/hooks/useProfile";
+import { useUserProfile, AVATAR_SEEDS, AVATAR_BACKGROUNDS, generateAvatarUrl } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -33,7 +33,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const Settings = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { profile, user, updateUsername, updateAvatar, updateEmail, refetchProfile } = useProfile();
+  const { profile, user, updateUsername, updateAvatar, updateEmail, refetchProfile } = useUserProfile();
   const [copiedWallet, setCopiedWallet] = useState(false);
   
   // Dialog states
