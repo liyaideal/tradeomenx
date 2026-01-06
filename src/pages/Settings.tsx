@@ -451,7 +451,7 @@ const Settings = () => {
 
         {/* Username Sheet */}
         <Sheet open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen}>
-          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8">
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-24">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <SheetHeader className="text-left mb-4">
               <SheetTitle>Set Username</SheetTitle>
@@ -471,10 +471,10 @@ const Settings = () => {
               </div>
               <Button
                 onClick={handleUpdateUsername}
-                disabled={isUpdating}
+                disabled={isUpdating || !newUsername.trim()}
                 className="w-full btn-primary h-12"
               >
-                {isUpdating ? "Saving..." : "Save Username"}
+                {isUpdating ? "Saving..." : "Confirm"}
               </Button>
             </div>
           </SheetContent>
