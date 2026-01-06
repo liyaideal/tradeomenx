@@ -37,7 +37,7 @@ export const AuthContent = ({
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">("google");
   const [username, setUsername] = useState("");
 
-  // Demo login - uses anonymous auth for persistence
+  // Demo login - simulates auth and proceeds to next step
   const handleDemoLogin = async (method: "wallet" | "google" | "telegram") => {
     setIsLoading(true);
     try {
@@ -72,8 +72,9 @@ export const AuthContent = ({
           console.error("Profile creation error:", profileError);
         }
 
-        toast.success(`Account created via ${method}! You have 10,000 USDT to trade.`);
-        onSuccess?.();
+        toast.success(`Connected via ${method}! Let's set up your wallet.`);
+        // Proceed to next step instead of completing immediately
+        setStep("createWallet");
       }
     } catch (error: any) {
       console.error("Auth error:", error);
