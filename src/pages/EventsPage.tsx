@@ -95,16 +95,6 @@ const EventsPage = () => {
               )}
               <Logo size="md" />
             </div>
-            <EventFilters
-              statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
-              settlementFilter={settlementFilter}
-              onSettlementFilterChange={setSettlementFilter}
-              categoryFilter={categoryFilter}
-              onCategoryFilterChange={setCategoryFilter}
-              sortBy={sortBy}
-              onSortByChange={setSortBy}
-            />
           </div>
         </header>
       ) : (
@@ -117,12 +107,29 @@ const EventsPage = () => {
           {!isMobile && (
             <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
           )}
-          <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
-            Explore Events
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
-            Discover prediction markets and trade on real-world outcomes with leverage
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
+                Explore Events
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
+                Discover prediction markets and trade on real-world outcomes with leverage
+              </p>
+            </div>
+            {/* Mobile Filters - Now at Explore Events level */}
+            {isMobile && (
+              <EventFilters
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                settlementFilter={settlementFilter}
+                onSettlementFilterChange={setSettlementFilter}
+                categoryFilter={categoryFilter}
+                onCategoryFilterChange={setCategoryFilter}
+                sortBy={sortBy}
+                onSortByChange={setSortBy}
+              />
+            )}
+          </div>
         </div>
 
         {/* Stats Overview - Hidden for now, uncomment when more data available */}
