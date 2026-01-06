@@ -87,78 +87,82 @@ export const EventFilters = ({
           </SelectContent>
         </Select>
 
-        {/* Filter Drawer Trigger */}
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className="flex-shrink-0 border-border/50"
-          onClick={() => setIsFilterOpen(true)}
-        >
-          <Filter className="h-4 w-4" />
-        </Button>
-
-        <MobileDrawer
-          open={isFilterOpen}
-          onOpenChange={setIsFilterOpen}
-          title="Filters"
-        >
-          <MobileDrawerSection className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">Settlement</label>
-              <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {settlementOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">Category</label>
-              <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoryOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">Sort By</label>
-              <Select value={sortBy} onValueChange={onSortByChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
+        {/* Filter Drawer Trigger - Only show for Active events */}
+        {statusFilter === "active" && (
+          <>
             <Button 
-              className="w-full bg-primary hover:bg-primary-hover" 
-              onClick={() => setIsFilterOpen(false)}
+              variant="outline" 
+              size="icon" 
+              className="flex-shrink-0 border-border/50"
+              onClick={() => setIsFilterOpen(true)}
             >
-              Apply Filters
+              <Filter className="h-4 w-4" />
             </Button>
-          </MobileDrawerSection>
-        </MobileDrawer>
+
+            <MobileDrawer
+              open={isFilterOpen}
+              onOpenChange={setIsFilterOpen}
+              title="Filters"
+            >
+              <MobileDrawerSection className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Settlement</label>
+                  <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {settlementOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Category</label>
+                  <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoryOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Sort By</label>
+                  <Select value={sortBy} onValueChange={onSortByChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sortOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button 
+                  className="w-full bg-primary hover:bg-primary-hover" 
+                  onClick={() => setIsFilterOpen(false)}
+                >
+                  Apply Filters
+                </Button>
+              </MobileDrawerSection>
+            </MobileDrawer>
+          </>
+        )}
       </div>
     );
   }
@@ -187,15 +191,56 @@ export const EventFilters = ({
           </div>
         </div>
 
-        {/* Settlement Dropdown */}
+        {/* Only show these filters for Active events */}
+        {statusFilter === "active" && (
+          <>
+            {/* Settlement Dropdown */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground font-medium">Settlement:</span>
+              <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
+                <SelectTrigger className="w-[130px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {settlementOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Category Dropdown */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground font-medium">Category:</span>
+              <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
+                <SelectTrigger className="w-[150px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Sort Dropdown - Only show for Active events */}
+      {statusFilter === "active" && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground font-medium">Settlement:</span>
-          <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
+          <span className="text-sm text-muted-foreground font-medium">Sort:</span>
+          <Select value={sortBy} onValueChange={onSortByChange}>
             <SelectTrigger className="w-[130px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {settlementOptions.map((opt) => (
+              {sortOptions.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
                 </SelectItem>
@@ -203,41 +248,7 @@ export const EventFilters = ({
             </SelectContent>
           </Select>
         </div>
-
-        {/* Category Dropdown */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground font-medium">Category:</span>
-          <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
-            <SelectTrigger className="w-[150px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {categoryOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Sort Dropdown */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground font-medium">Sort:</span>
-        <Select value={sortBy} onValueChange={onSortByChange}>
-          <SelectTrigger className="w-[130px] bg-secondary/50 border-border/30 h-9 hover:bg-secondary transition-colors">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {sortOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      )}
     </div>
   );
 };
