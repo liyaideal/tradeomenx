@@ -602,19 +602,16 @@ const ShareableCard = ({
             </div>
             
             {/* Right: QR Code */}
-            <div className="flex flex-col items-end gap-1">
+            <div className="flex flex-col items-center gap-1">
               <div className="p-2 bg-white rounded-lg">
                 <QRCodeSVG 
-                  value="https://omenx.trade" 
+                  value="https://omenx.com" 
                   size={64}
                   level="M"
                   includeMargin={false}
                 />
               </div>
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span className={themeConfig.ctaColor}>✦</span>
-                <span>omenx.trade</span>
-              </div>
+              <span className="text-[10px] text-muted-foreground">omenx.com</span>
             </div>
           </div>
         </div>
