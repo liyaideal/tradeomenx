@@ -606,10 +606,10 @@ const ShareableCard = ({
           <div className="flex items-center justify-between gap-4">
             {/* Left: Referral Text */}
             <div className="flex-1 min-w-0">
-              <div className={`text-sm font-medium mb-2 ${themeConfig.ctaColor}`}>
+              <div className={`text-sm font-medium mb-1 ${themeConfig.ctaColor}`}>
                 Join & claim $10,000 trial funds!
               </div>
-              <div className="flex items-baseline gap-2 flex-wrap">
+              <div className="flex items-baseline gap-1.5 flex-wrap">
                 <span className="text-xs text-muted-foreground whitespace-nowrap">Referral code:</span>
                 <span className="font-mono text-base font-bold text-foreground tracking-widest">
                   {referralCode}
