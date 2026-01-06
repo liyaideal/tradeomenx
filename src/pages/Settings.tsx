@@ -516,9 +516,10 @@ const Settings = () => {
           open={avatarDialogOpen}
           onOpenChange={setAvatarDialogOpen}
           title="Choose Avatar"
-          height="h-[85vh]"
         >
-          <AvatarPicker isSheet />
+          <div className="max-h-[60vh] overflow-y-auto">
+            <AvatarPicker isSheet />
+          </div>
           <MobileDrawerActions>
             <Button
               onClick={handleSelectAvatar}
