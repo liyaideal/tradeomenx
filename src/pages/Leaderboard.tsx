@@ -867,12 +867,12 @@ const ShareModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pb-20 md:pb-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="relative bg-card border border-border rounded-2xl p-6 pb-8 w-full max-w-sm max-h-[90vh] overflow-y-auto animate-scale-in">
+      <div className="relative bg-card border border-border rounded-2xl p-6 pb-8 w-full max-w-sm max-h-[80vh] md:max-h-[90vh] overflow-y-auto animate-scale-in">
         {/* Close button */}
         <button 
           onClick={onClose}
