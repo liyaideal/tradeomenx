@@ -11,6 +11,7 @@ import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide";
 import EventsPage from "./pages/EventsPage";
 import Leaderboard from "./pages/Leaderboard";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/order-preview" element={<OrderPreview />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/style-guide" element={<StyleGuide />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

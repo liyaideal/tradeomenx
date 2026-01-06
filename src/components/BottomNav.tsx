@@ -219,7 +219,7 @@ export const BottomNav = () => {
             <button
               onClick={() => {
                 setProfileSheetOpen(false);
-                toast.info("Settings coming soon");
+                navigate("/settings");
               }}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted/50 transition-colors text-left"
             >
