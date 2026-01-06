@@ -872,7 +872,7 @@ const ShareModal = ({
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="relative bg-card border border-border rounded-2xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto animate-scale-in">
+      <div className="relative bg-card border border-border rounded-2xl p-6 pb-8 w-full max-w-sm max-h-[90vh] overflow-y-auto animate-scale-in">
         {/* Close button */}
         <button 
           onClick={onClose}
@@ -905,14 +905,14 @@ const ShareModal = ({
           </div>
         </div>
 
-        {/* Share Options */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* Share Options - Unified Style */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
           <button
             onClick={handleDownload}
             disabled={!imageBlob || isGenerating}
-            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors disabled:opacity-50"
+            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 border border-border transition-colors disabled:opacity-50"
           >
-            <Download className="w-5 h-5 text-foreground" />
+            <Download className="w-4 h-4 text-foreground" />
             <span className="text-sm font-medium">Save</span>
           </button>
           <button
@@ -924,39 +924,35 @@ const ShareModal = ({
                 description: "Referral link copied to clipboard",
               });
             }}
-            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-primary/20 hover:bg-primary/30 border border-primary/30 transition-colors"
+            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 border border-border transition-colors"
           >
-            <Copy className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium text-primary">Copy Link</span>
+            <Copy className="w-4 h-4 text-foreground" />
+            <span className="text-sm font-medium">Copy Link</span>
           </button>
-        </div>
-
-        {/* Social Media */}
-        <div className="flex gap-3">
           <button
             onClick={handleShareX}
-            className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-foreground/10 hover:bg-foreground/20 border border-foreground/20 transition-colors"
+            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 border border-border transition-colors"
           >
-            <svg className="w-5 h-5 text-foreground" viewBox="0 0 24 24" fill="currentColor">
+            <svg className="w-4 h-4 text-foreground" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
-            <span className="text-sm font-medium text-foreground">X</span>
+            <span className="text-sm font-medium">X</span>
           </button>
           <button
             onClick={handleShareTelegram}
-            className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-[#0088cc]/20 hover:bg-[#0088cc]/30 border border-[#0088cc]/30 transition-colors"
+            className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 border border-border transition-colors"
           >
-            <Send className="w-5 h-5 text-[#0088cc]" />
-            <span className="text-sm font-medium text-[#0088cc]">Telegram</span>
+            <Send className="w-4 h-4 text-foreground" />
+            <span className="text-sm font-medium">Telegram</span>
           </button>
         </div>
 
         {/* Native Share (Mobile) */}
         <button
           onClick={handleNativeShare}
-          className="w-full mt-3 flex items-center justify-center gap-2 p-3 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+          className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
         >
-          <Share2 className="w-5 h-5" />
+          <Share2 className="w-4 h-4" />
           <span className="text-sm font-medium">More Options</span>
         </button>
       </div>
