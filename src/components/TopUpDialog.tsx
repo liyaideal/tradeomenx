@@ -5,16 +5,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Wallet, CreditCard, Copy, Check } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TopUpDialogProps {
   open: boolean;
@@ -199,19 +195,19 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
     </div>
   );
 
-  // Mobile: Use Drawer
+  // Mobile: Use MobileDrawer
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="px-4 pb-8 max-h-[90vh]">
-          <DrawerHeader className="pt-2 pb-4">
-            <DrawerTitle className="text-xl font-bold text-center">Top Up</DrawerTitle>
-          </DrawerHeader>
-          <div className="overflow-y-auto">
-            <TopUpContent />
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <MobileDrawer
+        open={open}
+        onOpenChange={onOpenChange}
+        title="Top Up"
+        height="max-h-[90vh]"
+      >
+        <ScrollArea className="max-h-[calc(90vh-120px)]">
+          <TopUpContent />
+        </ScrollArea>
+      </MobileDrawer>
     );
   }
 
