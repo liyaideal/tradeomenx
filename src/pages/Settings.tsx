@@ -294,11 +294,7 @@ const Settings = () => {
             setNewEmail(email || "");
             setEmailDialogOpen(true);
           }}
-          variant={email ? "outline" : "outline"}
-          className={email 
-            ? "h-9 px-4" 
-            : "h-9 px-4 border-trading-yellow text-trading-yellow hover:bg-trading-yellow/10"
-          }
+          className="btn-primary h-9 px-4"
         >
           {email ? "Edit" : "Add Email"}
         </Button>
