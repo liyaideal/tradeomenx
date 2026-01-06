@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Mail } from "lucide-react";
+import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile, AVATAR_SEEDS, AVATAR_BACKGROUNDS, generateAvatarUrl } from "@/hooks/useUserProfile";
+import { useWallets } from "@/hooks/useWallets";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -34,6 +35,7 @@ const Settings = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { profile, user, updateUsername, updateAvatar, updateEmail, refetchProfile } = useUserProfile();
+  const { wallets: connectedWallets, isLoading: walletsLoading, addWallet, removeWallet, setPrimaryWallet } = useWallets();
   const [copiedWallet, setCopiedWallet] = useState(false);
   
   // Dialog states
@@ -56,19 +58,7 @@ const Settings = () => {
   const [walletStep, setWalletStep] = useState<"select" | "connecting" | "success">("select");
   const [selectedWalletType, setSelectedWalletType] = useState<string | null>(null);
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
-  const [walletToDisconnect, setWalletToDisconnect] = useState<string | null>(null);
-
-  // Mock wallet data (in real app, this would come from a wallet connection)
-  const [connectedWallets, setConnectedWallets] = useState([
-    {
-      address: "0x1234...5678",
-      fullAddress: "0x1234567890abcdef1234567890abcdef12345678",
-      network: "Ethereum Mainnet",
-      isPrimary: true,
-      connectedAt: "2025-11-12",
-      icon: "🦊"
-    }
-  ]);
+  const [walletToDisconnect, setWalletToDisconnect] = useState<{ id: string; address: string } | null>(null);
 
   const handleCopyWallet = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -170,19 +160,20 @@ const Settings = () => {
     const randomAddress = '0x' + Array(40).fill(0).map(() => randomHex()).join('');
     const shortAddress = randomAddress.slice(0, 6) + '...' + randomAddress.slice(-4);
     
-    setConnectedWallets(wallets => [
-      ...wallets.map(w => ({ ...w, isPrimary: false })),
-      {
-        address: shortAddress,
-        fullAddress: randomAddress,
-        network: "Ethereum Mainnet",
-        isPrimary: wallets.length === 0,
-        connectedAt: new Date().toISOString().split('T')[0],
-        icon
-      }
-    ]);
+    const result = await addWallet({
+      address: shortAddress,
+      fullAddress: randomAddress,
+      network: "Ethereum Mainnet",
+      walletType,
+      icon
+    });
     
-    setWalletStep("success");
+    if (result.success) {
+      setWalletStep("success");
+    } else {
+      toast.error(result.error || "Failed to connect wallet");
+      setWalletStep("select");
+    }
   };
 
   const handleWalletDialogClose = (open: boolean) => {
@@ -196,18 +187,31 @@ const Settings = () => {
     }
   };
 
-  const handleConfirmDisconnect = () => {
+  const handleConfirmDisconnect = async () => {
     if (walletToDisconnect) {
-      setConnectedWallets(wallets => wallets.filter(w => w.fullAddress !== walletToDisconnect));
-      toast.success("Wallet disconnected");
+      const result = await removeWallet(walletToDisconnect.id);
+      if (result.success) {
+        toast.success("Wallet disconnected");
+      } else {
+        toast.error(result.error || "Failed to disconnect wallet");
+      }
     }
     setDisconnectDialogOpen(false);
     setWalletToDisconnect(null);
   };
 
-  const handleDisconnectWallet = (address: string) => {
-    setWalletToDisconnect(address);
+  const handleDisconnectWallet = (wallet: { id: string; address: string }) => {
+    setWalletToDisconnect(wallet);
     setDisconnectDialogOpen(true);
+  };
+
+  const handleSetPrimaryWallet = async (walletId: string) => {
+    const result = await setPrimaryWallet(walletId);
+    if (result.success) {
+      toast.success("Primary wallet updated");
+    } else {
+      toast.error(result.error || "Failed to update primary wallet");
+    }
   };
 
   const formatDate = (dateString?: string) => {
@@ -415,8 +419,12 @@ const Settings = () => {
       <h3 className="font-semibold mb-4">Connected Wallets</h3>
       
       <div className="space-y-4">
-        {connectedWallets.map((wallet, index) => (
-          <div key={index} className="bg-muted/30 rounded-xl p-4">
+        {walletsLoading ? (
+          <div className="text-center py-6 text-muted-foreground">
+            <p>Loading wallets...</p>
+          </div>
+        ) : connectedWallets.map((wallet) => (
+          <div key={wallet.id} className="bg-muted/30 rounded-xl p-4">
             {/* Wallet info row */}
             <div className="flex items-start gap-3">
               <span className="text-2xl">{wallet.icon}</span>
@@ -447,12 +455,23 @@ const Settings = () => {
                 </p>
               </div>
             </div>
-            {/* Action button - always full width on mobile, right-aligned */}
-            <div className="mt-3 flex justify-end">
+            {/* Action buttons */}
+            <div className="mt-3 flex justify-end gap-2">
+              {!wallet.isPrimary && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSetPrimaryWallet(wallet.id)}
+                  className="border-primary/30 hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+                >
+                  <Star className="w-3 h-3 mr-1" />
+                  Set Primary
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleDisconnectWallet(wallet.fullAddress)}
+                onClick={() => handleDisconnectWallet({ id: wallet.id, address: wallet.address })}
                 className="border-border hover:bg-trading-red/10 hover:text-trading-red hover:border-trading-red/50"
               >
                 Disconnect
@@ -461,7 +480,7 @@ const Settings = () => {
           </div>
         ))}
 
-        {connectedWallets.length === 0 && (
+        {!walletsLoading && connectedWallets.length === 0 && (
           <div className="text-center py-6 text-muted-foreground">
             <p>No wallets connected yet</p>
           </div>
