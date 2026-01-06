@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
-import { Home, BarChart3, TrendingUp, Trophy, User, LogIn, LogOut, Settings, HelpCircle } from "lucide-react";
+import { useState } from "react";
+import { Home, BarChart3, TrendingUp, Trophy, User, LogIn, LogOut, Settings, HelpCircle, Wallet } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { User as SupabaseUser } from "@supabase/supabase-js";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { toast } from "sonner";
 import {
@@ -12,6 +11,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useBalance } from "@/hooks/useBalance";
+
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
@@ -30,21 +31,9 @@ const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const { balance, user } = useBalance();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -192,7 +181,7 @@ export const BottomNav = () => {
           </SheetHeader>
 
           {/* User Info */}
-          <div className="flex items-center gap-3 mb-6 p-3 bg-muted/30 rounded-xl">
+          <div className="flex items-center gap-3 mb-4 p-3 bg-muted/30 rounded-xl">
             <Avatar className="w-12 h-12 border-2 border-primary/50">
               <AvatarImage src={user?.user_metadata?.avatar_url} alt="User" />
               <AvatarFallback className="bg-primary/20 text-primary">
@@ -201,9 +190,22 @@ export const BottomNav = () => {
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
-                {user?.user_metadata?.username || user?.user_metadata?.full_name || "User"}
+                {user?.user_metadata?.username || user?.user_metadata?.full_name || "Trader"}
               </p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email || "Anonymous User"}</p>
+            </div>
+          </div>
+
+          {/* Balance Card */}
+          <div className="mb-4 p-4 bg-trading-green/10 border border-trading-green/30 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-trading-green" />
+                <span className="text-sm text-muted-foreground">Trial Balance</span>
+              </div>
+              <span className="text-lg font-bold text-trading-green font-mono">
+                ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
           </div>
 
