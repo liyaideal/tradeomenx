@@ -232,7 +232,7 @@ const Settings = () => {
         url: generateAvatarUrl(seed, bgIndex),
         key: `${seed}-${bgIndex}`
       }))
-    ).slice(0, 50),
+    ).slice(0, 80),
   []);
 
   // Profile data - prioritize profile from database
