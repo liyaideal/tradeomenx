@@ -602,32 +602,32 @@ const ShareableCard = ({
         )}
 
         {/* Footer with Referral & QR Code */}
-        <div className="mt-5 rounded-xl bg-background/60 border border-border/30 p-4">
-          <div className="flex items-center justify-between gap-4">
+        <div className="mt-5 rounded-xl bg-background/60 border border-border/30 p-3">
+          <div className="flex items-center gap-3">
             {/* Left: Referral Text */}
             <div className="flex-1 min-w-0">
-              <div className={`text-sm font-medium mb-1 ${themeConfig.ctaColor}`}>
+              <div className={`text-xs font-medium mb-1 ${themeConfig.ctaColor}`}>
                 Join & claim $10,000 trial funds!
               </div>
-              <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="text-xs text-muted-foreground whitespace-nowrap">Referral code:</span>
-                <span className="font-mono text-base font-bold text-foreground tracking-widest">
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-muted-foreground">Referral code:</span>
+                <span className="font-mono text-sm font-bold text-foreground tracking-wider">
                   {referralCode}
                 </span>
               </div>
             </div>
             
             {/* Right: QR Code */}
-            <div className="flex flex-col items-center gap-1 flex-shrink-0">
-              <div className="p-2 bg-white rounded-lg">
+            <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+              <div className="p-1.5 bg-white rounded-md">
                 <QRCodeSVG 
                   value="https://omenx.com" 
-                  size={56}
+                  size={48}
                   level="M"
                   includeMargin={false}
                 />
               </div>
-              <span className="text-[10px] text-muted-foreground">omenx.com</span>
+              <span className="text-[9px] text-muted-foreground">omenx.com</span>
             </div>
           </div>
         </div>
