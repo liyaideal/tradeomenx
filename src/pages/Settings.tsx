@@ -223,6 +223,18 @@ const Settings = () => {
     }).replace(/\//g, "-");
   };
 
+  // Generate avatar grid - memoized to prevent re-creation (MUST be before early returns)
+  const avatarOptions = useMemo(() => 
+    AVATAR_SEEDS.flatMap((seed, seedIndex) => 
+      AVATAR_BACKGROUNDS.map((bg, bgIndex) => ({
+        seed,
+        bgIndex,
+        url: generateAvatarUrl(seed, bgIndex),
+        key: `${seed}-${bgIndex}`
+      }))
+    ).slice(0, 50),
+  []);
+
   // Profile data - prioritize profile from database
   const username = profile?.username || null;
   const email = profile?.email || user?.email || null;
@@ -239,17 +251,6 @@ const Settings = () => {
     );
   }
 
-  // Generate avatar grid - memoized to prevent re-creation
-  const avatarOptions = useMemo(() => 
-    AVATAR_SEEDS.flatMap((seed, seedIndex) => 
-      AVATAR_BACKGROUNDS.map((bg, bgIndex) => ({
-        seed,
-        bgIndex,
-        url: generateAvatarUrl(seed, bgIndex),
-        key: `${seed}-${bgIndex}`
-      }))
-    ).slice(0, 50), // Limit to 50 avatars for performance
-  []);
   // Avatar grid JSX - rendered inline to avoid component recreation
   const renderAvatarGrid = (maxHeight: string) => (
     <div className={`overflow-y-auto ${maxHeight}`}>
@@ -262,19 +263,14 @@ const Settings = () => {
             className={`relative rounded-xl p-1 transition-all ${
               selectedAvatar === avatar.url
                 ? "ring-2 ring-primary bg-primary/20 scale-105"
-                : "hover:bg-muted/50 hover:scale-105"
+                : "hover:bg-muted"
             }`}
           >
-            <img 
-              src={avatar.url} 
-              alt={avatar.seed}
+            <img
+              src={avatar.url}
+              alt={`Avatar ${avatar.seed}`}
               className="w-full aspect-square rounded-lg"
             />
-            {selectedAvatar === avatar.url && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                <Check className="w-3 h-3 text-primary-foreground" />
-              </div>
-            )}
           </button>
         ))}
       </div>
