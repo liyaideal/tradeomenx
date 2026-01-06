@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, User, LogOut, Copy, Check, AlertTriangle, Plus, Wallet } from "lucide-react";
+import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Pencil } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { useBalance } from "@/hooks/useBalance";
+import { useProfile, AVATAR_SEEDS, AVATAR_BACKGROUNDS, generateAvatarUrl } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -25,23 +25,28 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Settings = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { user, balance } = useBalance();
-  const [copiedUserId, setCopiedUserId] = useState(false);
+  const { profile, user, updateUsername, updateAvatar, updateEmail, refetchProfile } = useProfile();
   const [copiedWallet, setCopiedWallet] = useState(false);
   
   // Dialog states
+  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [usernameDialogOpen, setUsernameDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [walletDialogOpen, setWalletDialogOpen] = useState(false);
+  
+  // Form states
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Mock wallet data (in real app, this would come from a wallet connection)
-  const connectedWallets = [
+  const [connectedWallets, setConnectedWallets] = useState([
     {
       address: "0x1234...5678",
       fullAddress: "0x1234567890abcdef1234567890abcdef12345678",
@@ -50,25 +55,7 @@ const Settings = () => {
       connectedAt: "2025-11-12",
       icon: "🦊"
     }
-  ];
-
-  const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error("Failed to sign out");
-    } else {
-      toast.success("Signed out successfully");
-      navigate("/");
-    }
-  };
-
-  const handleCopyUserId = () => {
-    const userId = user?.id?.slice(0, 6) || "123456";
-    navigator.clipboard.writeText(userId);
-    setCopiedUserId(true);
-    toast.success("User ID copied");
-    setTimeout(() => setCopiedUserId(false), 2000);
-  };
+  ]);
 
   const handleCopyWallet = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -77,27 +64,37 @@ const Settings = () => {
     setTimeout(() => setCopiedWallet(false), 2000);
   };
 
+  const handleSelectAvatar = async () => {
+    if (!selectedAvatar) return;
+    setIsUpdating(true);
+    
+    const result = await updateAvatar(selectedAvatar);
+    if (result.success) {
+      toast.success("Avatar updated successfully");
+      setAvatarDialogOpen(false);
+      setSelectedAvatar(null);
+    } else {
+      toast.error(result.error || "Failed to update avatar");
+    }
+    setIsUpdating(false);
+  };
+
   const handleUpdateUsername = async () => {
     if (!newUsername.trim()) {
       toast.error("Username cannot be empty");
       return;
     }
     setIsUpdating(true);
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ username: newUsername.trim() })
-        .eq("user_id", user?.id);
-      
-      if (error) throw error;
+    
+    const result = await updateUsername(newUsername.trim());
+    if (result.success) {
       toast.success("Username updated successfully");
       setUsernameDialogOpen(false);
       setNewUsername("");
-    } catch (error) {
-      toast.error("Failed to update username");
-    } finally {
-      setIsUpdating(false);
+    } else {
+      toast.error(result.error || "Failed to update username");
     }
+    setIsUpdating(false);
   };
 
   const handleAddEmail = async () => {
@@ -105,10 +102,28 @@ const Settings = () => {
       toast.error("Email cannot be empty");
       return;
     }
-    // In real app, this would trigger email verification flow
-    toast.info("Email verification flow would be triggered here");
-    setEmailDialogOpen(false);
-    setNewEmail("");
+    setIsUpdating(true);
+    
+    const result = await updateEmail(newEmail.trim());
+    if (result.success) {
+      toast.success("Email updated successfully");
+      setEmailDialogOpen(false);
+      setNewEmail("");
+    } else {
+      toast.error(result.error || "Failed to update email");
+    }
+    setIsUpdating(false);
+  };
+
+  const handleConnectWallet = () => {
+    // Mock wallet connection - in real app this would use Web3 wallet
+    toast.info("Wallet connection coming soon");
+    setWalletDialogOpen(false);
+  };
+
+  const handleDisconnectWallet = (address: string) => {
+    setConnectedWallets(wallets => wallets.filter(w => w.fullAddress !== address));
+    toast.success("Wallet disconnected");
   };
 
   const formatDate = (dateString?: string) => {
@@ -120,35 +135,94 @@ const Settings = () => {
     }).replace(/\//g, "-");
   };
 
-  const username = user?.user_metadata?.username || user?.user_metadata?.full_name;
-  const email = user?.email;
+  // Profile data from database or auth
+  const username = profile?.username || user?.user_metadata?.username || user?.user_metadata?.full_name;
+  const email = profile?.email || user?.email;
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
   const userId = user?.id?.slice(0, 6) || "123456";
-  const joinDate = formatDate(user?.created_at);
+  const joinDate = formatDate(profile?.created_at || user?.created_at);
+
+  // Generate avatar grid
+  const avatarOptions = AVATAR_SEEDS.flatMap((seed, seedIndex) => 
+    AVATAR_BACKGROUNDS.map((bg, bgIndex) => ({
+      seed,
+      bgIndex,
+      url: generateAvatarUrl(seed, bgIndex),
+      key: `${seed}-${bgIndex}`
+    }))
+  ).slice(0, 30); // Limit to 30 avatars for performance
+
+  // Avatar Picker Component
+  const AvatarPicker = ({ isSheet = false }: { isSheet?: boolean }) => (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Choose an avatar from our collection
+      </p>
+      <ScrollArea className={isSheet ? "h-[300px]" : "h-[320px]"}>
+        <div className="grid grid-cols-5 gap-3 pr-4">
+          {avatarOptions.map((avatar) => (
+            <button
+              key={avatar.key}
+              onClick={() => setSelectedAvatar(avatar.url)}
+              className={`relative rounded-xl p-1 transition-all ${
+                selectedAvatar === avatar.url
+                  ? "ring-2 ring-primary bg-primary/20 scale-105"
+                  : "hover:bg-muted/50 hover:scale-105"
+              }`}
+            >
+              <Avatar className="w-full aspect-square">
+                <AvatarImage src={avatar.url} alt={avatar.seed} />
+                <AvatarFallback className="bg-muted">
+                  <User className="w-6 h-6 text-muted-foreground" />
+                </AvatarFallback>
+              </Avatar>
+              {selectedAvatar === avatar.url && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                  <Check className="w-3 h-3 text-primary-foreground" />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
+  );
 
   // Profile Card
   const ProfileCard = () => (
     <div className="trading-card p-4 md:p-6">
       <div className="flex items-start gap-4">
-        <Avatar className="w-16 h-16 md:w-20 md:h-20 border-2 border-primary/50">
-          <AvatarImage src={user?.user_metadata?.avatar_url} alt="User" />
-          <AvatarFallback className="bg-primary/20 text-primary text-xl">
-            {email?.charAt(0).toUpperCase() || <User className="w-8 h-8" />}
-          </AvatarFallback>
-        </Avatar>
+        {/* Avatar with edit button */}
+        <div className="relative">
+          <Avatar className="w-16 h-16 md:w-20 md:h-20 border-2 border-primary/50">
+            <AvatarImage src={avatarUrl} alt="User" />
+            <AvatarFallback className="bg-primary/20 text-primary text-xl">
+              {(username || email)?.charAt(0).toUpperCase() || <User className="w-8 h-8" />}
+            </AvatarFallback>
+          </Avatar>
+          <button
+            onClick={() => setAvatarDialogOpen(true)}
+            className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
+          >
+            <Camera className="w-3.5 h-3.5 text-primary-foreground" />
+          </button>
+        </div>
+        
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-lg font-semibold">
-              {username ? `Username: ${username}` : "Username: Not Set"}
+              {username ? username : "Username Not Set"}
             </span>
-            {!username && (
-              <Button
-                size="sm"
-                onClick={() => setUsernameDialogOpen(true)}
-                className="btn-primary h-7 px-3 text-xs"
-              >
-                Set Now
-              </Button>
-            )}
+            <Button
+              size="sm"
+              onClick={() => {
+                setNewUsername(username || "");
+                setUsernameDialogOpen(true);
+              }}
+              className="btn-primary h-7 px-3 text-xs"
+            >
+              {username ? "Edit" : "Set Now"}
+            </Button>
           </div>
           
           {/* Mobile layout */}
@@ -191,17 +265,20 @@ const Settings = () => {
         <div>
           <h3 className="font-semibold mb-1">Username</h3>
           <p className="text-sm text-muted-foreground">
-            Status: {username ? username : "Not Set"}
+            Status: {username || "Not Set"}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             Used for display and @mentions
           </p>
         </div>
         <Button
-          onClick={() => setUsernameDialogOpen(true)}
+          onClick={() => {
+            setNewUsername(username || "");
+            setUsernameDialogOpen(true);
+          }}
           className="btn-primary h-9 px-4"
         >
-          Set Now
+          {username ? "Edit" : "Set Now"}
         </Button>
       </div>
     </div>
@@ -217,18 +294,22 @@ const Settings = () => {
             Status: {email || "Not Set"}
           </p>
         </div>
-        {!email && (
-          <Button
-            onClick={() => setEmailDialogOpen(true)}
-            variant="outline"
-            className="h-9 px-4 border-trading-yellow text-trading-yellow hover:bg-trading-yellow/10"
-          >
-            Add Email
-          </Button>
-        )}
+        <Button
+          onClick={() => {
+            setNewEmail(email || "");
+            setEmailDialogOpen(true);
+          }}
+          variant={email ? "outline" : "outline"}
+          className={email 
+            ? "h-9 px-4" 
+            : "h-9 px-4 border-trading-yellow text-trading-yellow hover:bg-trading-yellow/10"
+          }
+        >
+          {email ? "Edit" : "Add Email"}
+        </Button>
       </div>
       
-      {/* Recommendation box */}
+      {/* Recommendation box - only show if no email */}
       {!email && (
         <div className="bg-trading-yellow/10 border border-trading-yellow/30 rounded-xl p-4">
           <div className="flex items-start gap-3">
@@ -261,7 +342,7 @@ const Settings = () => {
       <div className="space-y-4">
         {connectedWallets.map((wallet, index) => (
           <div key={index} className="bg-muted/30 rounded-xl p-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{wallet.icon}</span>
                 <div>
@@ -278,7 +359,7 @@ const Settings = () => {
                       )}
                     </button>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <span className="text-sm text-muted-foreground">{wallet.network}</span>
                     {wallet.isPrimary && (
                       <Badge variant="outline" className="border-primary/50 text-primary text-xs h-5">
@@ -294,6 +375,7 @@ const Settings = () => {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => handleDisconnectWallet(wallet.fullAddress)}
                 className="border-border hover:bg-trading-red/10 hover:text-trading-red hover:border-trading-red/50"
               >
                 Disconnect
@@ -302,8 +384,17 @@ const Settings = () => {
           </div>
         ))}
 
+        {connectedWallets.length === 0 && (
+          <div className="text-center py-6 text-muted-foreground">
+            <p>No wallets connected yet</p>
+          </div>
+        )}
+
         {/* Connect Other Wallet */}
-        <button className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all">
+        <button 
+          onClick={() => setWalletDialogOpen(true)}
+          className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all"
+        >
           <Plus className="w-4 h-4" />
           <span>Connect Other Wallet</span>
         </button>
@@ -329,7 +420,7 @@ const Settings = () => {
               <ChevronLeft className="w-5 h-5" />
             </button>
             <h1 className="text-lg font-semibold">Settings</h1>
-            <div className="w-10" /> {/* Spacer */}
+            <div className="w-10" />
           </div>
         </div>
 
@@ -343,7 +434,27 @@ const Settings = () => {
 
         <BottomNav />
         
-        {/* Username Dialog */}
+        {/* Avatar Picker Sheet */}
+        <Sheet open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8 h-[85vh]">
+            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
+            <SheetHeader className="text-left mb-4">
+              <SheetTitle>Choose Avatar</SheetTitle>
+            </SheetHeader>
+            <AvatarPicker isSheet />
+            <div className="mt-4 pt-4 border-t border-border">
+              <Button
+                onClick={handleSelectAvatar}
+                disabled={!selectedAvatar || isUpdating}
+                className="w-full btn-primary h-12"
+              >
+                {isUpdating ? "Saving..." : "Save Avatar"}
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Username Sheet */}
         <Sheet open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen}>
           <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
@@ -351,29 +462,35 @@ const Settings = () => {
               <SheetTitle>Set Username</SheetTitle>
             </SheetHeader>
             <div className="space-y-4">
-              <Input
-                placeholder="Enter your username"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                className="h-12"
-              />
+              <div>
+                <Input
+                  placeholder="Enter your username"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  className="h-12"
+                  maxLength={20}
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  3-20 characters, letters, numbers, and underscores only
+                </p>
+              </div>
               <Button
                 onClick={handleUpdateUsername}
                 disabled={isUpdating}
                 className="w-full btn-primary h-12"
               >
-                {isUpdating ? "Updating..." : "Save Username"}
+                {isUpdating ? "Saving..." : "Save Username"}
               </Button>
             </div>
           </SheetContent>
         </Sheet>
 
-        {/* Email Dialog */}
+        {/* Email Sheet */}
         <Sheet open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
           <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8">
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
             <SheetHeader className="text-left mb-4">
-              <SheetTitle>Add Email Address</SheetTitle>
+              <SheetTitle>{email ? "Edit Email Address" : "Add Email Address"}</SheetTitle>
             </SheetHeader>
             <div className="space-y-4">
               <Input
@@ -385,10 +502,53 @@ const Settings = () => {
               />
               <Button
                 onClick={handleAddEmail}
+                disabled={isUpdating}
                 className="w-full btn-primary h-12"
               >
-                Add Email
+                {isUpdating ? "Saving..." : (email ? "Update Email" : "Add Email")}
               </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Wallet Connection Sheet */}
+        <Sheet open={walletDialogOpen} onOpenChange={setWalletDialogOpen}>
+          <SheetContent side="bottom" className="rounded-t-3xl px-5 pt-4 pb-8">
+            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
+            <SheetHeader className="text-left mb-4">
+              <SheetTitle>Connect Wallet</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-3">
+              <button
+                onClick={handleConnectWallet}
+                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <span className="text-3xl">🦊</span>
+                <div className="text-left">
+                  <p className="font-medium">MetaMask</p>
+                  <p className="text-sm text-muted-foreground">Connect to your MetaMask wallet</p>
+                </div>
+              </button>
+              <button
+                onClick={handleConnectWallet}
+                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <span className="text-3xl">🌈</span>
+                <div className="text-left">
+                  <p className="font-medium">Rainbow</p>
+                  <p className="text-sm text-muted-foreground">Connect to your Rainbow wallet</p>
+                </div>
+              </button>
+              <button
+                onClick={handleConnectWallet}
+                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <span className="text-3xl">💎</span>
+                <div className="text-left">
+                  <p className="font-medium">WalletConnect</p>
+                  <p className="text-sm text-muted-foreground">Scan with WalletConnect</p>
+                </div>
+              </button>
             </div>
           </SheetContent>
         </Sheet>
@@ -396,19 +556,17 @@ const Settings = () => {
     );
   }
 
-  // Desktop Layout - Full width centered, matching platform style
+  // Desktop Layout
   return (
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
       
       <div className="max-w-3xl mx-auto px-6 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold">Account Settings</h1>
           <p className="text-muted-foreground">Manage your basic account information</p>
         </div>
         
-        {/* Content - Single column, full width */}
         <div className="space-y-6">
           <ProfileCard />
           <UsernameCard />
@@ -416,6 +574,31 @@ const Settings = () => {
           <WalletsCard />
         </div>
       </div>
+
+      {/* Avatar Picker Dialog */}
+      <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Choose Avatar</DialogTitle>
+            <DialogDescription>
+              Select an avatar from our collection
+            </DialogDescription>
+          </DialogHeader>
+          <AvatarPicker />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAvatarDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSelectAvatar} 
+              disabled={!selectedAvatar || isUpdating} 
+              className="btn-primary"
+            >
+              {isUpdating ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Username Dialog */}
       <Dialog open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen}>
@@ -432,14 +615,18 @@ const Settings = () => {
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
               className="h-12"
+              maxLength={20}
             />
+            <p className="text-xs text-muted-foreground mt-2">
+              3-20 characters, letters, numbers, and underscores only
+            </p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUsernameDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleUpdateUsername} disabled={isUpdating} className="btn-primary">
-              {isUpdating ? "Updating..." : "Save"}
+              {isUpdating ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -449,9 +636,9 @@ const Settings = () => {
       <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Email Address</DialogTitle>
+            <DialogTitle>{email ? "Edit Email Address" : "Add Email Address"}</DialogTitle>
             <DialogDescription>
-              Add an email for security notifications and account recovery
+              {email ? "Update your email for notifications" : "Add an email for security notifications and account recovery"}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -467,10 +654,54 @@ const Settings = () => {
             <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddEmail} className="btn-primary">
-              Add Email
+            <Button onClick={handleAddEmail} disabled={isUpdating} className="btn-primary">
+              {isUpdating ? "Saving..." : (email ? "Update" : "Add Email")}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Wallet Connection Dialog */}
+      <Dialog open={walletDialogOpen} onOpenChange={setWalletDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Connect Wallet</DialogTitle>
+            <DialogDescription>
+              Choose a wallet to connect
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-3">
+            <button
+              onClick={handleConnectWallet}
+              className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+            >
+              <span className="text-3xl">🦊</span>
+              <div className="text-left">
+                <p className="font-medium">MetaMask</p>
+                <p className="text-sm text-muted-foreground">Connect to your MetaMask wallet</p>
+              </div>
+            </button>
+            <button
+              onClick={handleConnectWallet}
+              className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+            >
+              <span className="text-3xl">🌈</span>
+              <div className="text-left">
+                <p className="font-medium">Rainbow</p>
+                <p className="text-sm text-muted-foreground">Connect to your Rainbow wallet</p>
+              </div>
+            </button>
+            <button
+              onClick={handleConnectWallet}
+              className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+            >
+              <span className="text-3xl">💎</span>
+              <div className="text-left">
+                <p className="font-medium">WalletConnect</p>
+                <p className="text-sm text-muted-foreground">Scan with WalletConnect</p>
+              </div>
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
