@@ -10,12 +10,9 @@ import {
 import { Filter } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  MobileDrawer,
+  MobileDrawerSection,
+} from "@/components/ui/mobile-drawer";
 
 export type EventStatusFilter = "all" | "active" | "locked";
 
@@ -73,7 +70,7 @@ export const EventFilters = ({
     { value: "participants", label: "Participants" },
   ];
 
-  // Mobile Filter Sheet
+  // Mobile Filter Drawer
   if (isMobile) {
     return (
       <div className="flex items-center justify-between gap-2">
@@ -91,75 +88,78 @@ export const EventFilters = ({
           </SelectContent>
         </Select>
 
-        {/* Filter Sheet Trigger */}
-        <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="flex-shrink-0 border-border/50">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[280px]">
-            <SheetHeader>
-              <SheetTitle>Filters</SheetTitle>
-            </SheetHeader>
-            <div className="mt-6 space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Settlement</label>
-                <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {settlementOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Filter Drawer Trigger */}
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="flex-shrink-0 border-border/50"
+          onClick={() => setIsFilterOpen(true)}
+        >
+          <Filter className="h-4 w-4" />
+        </Button>
 
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Category</label>
-                <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categoryOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Sort By</label>
-                <Select value={sortBy} onValueChange={onSortByChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button 
-                className="w-full bg-primary hover:bg-primary-hover" 
-                onClick={() => setIsFilterOpen(false)}
-              >
-                Apply Filters
-              </Button>
+        <MobileDrawer
+          open={isFilterOpen}
+          onOpenChange={setIsFilterOpen}
+          title="Filters"
+        >
+          <MobileDrawerSection className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm text-muted-foreground">Settlement</label>
+              <Select value={settlementFilter} onValueChange={onSettlementFilterChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {settlementOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </SheetContent>
-        </Sheet>
+
+            <div className="space-y-2">
+              <label className="text-sm text-muted-foreground">Category</label>
+              <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-muted-foreground">Sort By</label>
+              <Select value={sortBy} onValueChange={onSortByChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button 
+              className="w-full bg-primary hover:bg-primary-hover" 
+              onClick={() => setIsFilterOpen(false)}
+            >
+              Apply Filters
+            </Button>
+          </MobileDrawerSection>
+        </MobileDrawer>
       </div>
     );
   }
