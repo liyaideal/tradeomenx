@@ -34,7 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const Settings = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { profile, user, updateUsername, updateAvatar, updateEmail, refetchProfile } = useUserProfile();
+  const { profile, user, isLoading: profileLoading, updateUsername, updateAvatar, updateEmail, refetchProfile } = useUserProfile();
   const { wallets: connectedWallets, isLoading: walletsLoading, addWallet, removeWallet, setPrimaryWallet } = useWallets();
   const [copiedWallet, setCopiedWallet] = useState(false);
   
@@ -223,12 +223,21 @@ const Settings = () => {
     }).replace(/\//g, "-");
   };
 
-  // Profile data from database or auth
-  const username = profile?.username || user?.user_metadata?.username || user?.user_metadata?.full_name;
-  const email = profile?.email || user?.email;
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
+  // Profile data - prioritize profile from database
+  const username = profile?.username || null;
+  const email = profile?.email || user?.email || null;
+  const avatarUrl = profile?.avatar_url || null;
   const userId = user?.id?.slice(0, 6) || "123456";
   const joinDate = formatDate(profile?.created_at || user?.created_at);
+
+  // Show loading state while profile is loading
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading profile...</div>
+      </div>
+    );
+  }
 
   // Generate avatar grid
   const avatarOptions = AVATAR_SEEDS.flatMap((seed, seedIndex) => 
