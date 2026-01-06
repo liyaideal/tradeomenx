@@ -26,13 +26,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-type SettingsTab = "account" | "logout";
-
 const Settings = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, balance } = useBalance();
-  const [activeTab, setActiveTab] = useState<SettingsTab>("account");
   const [copiedUserId, setCopiedUserId] = useState(false);
   const [copiedWallet, setCopiedWallet] = useState(false);
   
@@ -127,33 +124,6 @@ const Settings = () => {
   const email = user?.email;
   const userId = user?.id?.slice(0, 6) || "123456";
   const joinDate = formatDate(user?.created_at);
-
-  // Sidebar for desktop
-  const SettingsSidebar = () => (
-    <div className="w-48 shrink-0">
-      <h2 className="text-lg font-semibold mb-4">Settings</h2>
-      <div className="space-y-1">
-        <button
-          onClick={() => setActiveTab("account")}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-            activeTab === "account"
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-          }`}
-        >
-          <User className="w-4 h-4" />
-          Account
-        </button>
-        <button
-          onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-trading-red/10 hover:text-trading-red transition-all"
-        >
-          <LogOut className="w-4 h-4" />
-          Log Out
-        </button>
-      </div>
-    </div>
-  );
 
   // Profile Card
   const ProfileCard = () => (
@@ -426,28 +396,24 @@ const Settings = () => {
     );
   }
 
-  // Desktop Layout
+  // Desktop Layout - Full width centered, matching platform style
   return (
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
       
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <div className="flex gap-8">
-          {/* Sidebar */}
-          <SettingsSidebar />
-          
-          {/* Main Content */}
-          <div className="flex-1 space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold">Account</h1>
-              <p className="text-muted-foreground">Manage your basic account information</p>
-            </div>
-            
-            <ProfileCard />
-            <UsernameCard />
-            <EmailCard />
-            <WalletsCard />
-          </div>
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold">Account Settings</h1>
+          <p className="text-muted-foreground">Manage your basic account information</p>
+        </div>
+        
+        {/* Content - Single column, full width */}
+        <div className="space-y-6">
+          <ProfileCard />
+          <UsernameCard />
+          <EmailCard />
+          <WalletsCard />
         </div>
       </div>
 
