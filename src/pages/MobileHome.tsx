@@ -8,14 +8,7 @@ import { Logo } from "@/components/Logo";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { activeEvents, eventOptionsMap } from "@/data/events";
 import { getCategoryInfo } from "@/lib/categoryUtils";
-
-// Mock user data
-const userData = {
-  name: "Liya",
-  weeklyPnL: "+$34.56",
-  weeklyPnLPercent: "+1.9%",
-  availableBalance: "$2,345.67",
-};
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 // Helper to calculate countdown from endTime
 const getCountdown = (endTime: Date) => {
@@ -34,6 +27,17 @@ const getCountdown = (endTime: Date) => {
 const MobileHome = () => {
   const navigate = useNavigate();
   const { positions } = usePositionsStore();
+  const { profile, username } = useUserProfile();
+
+  // Format balance for display
+  const formatBalance = (balance: number | null | undefined) => {
+    if (balance == null) return "$0.00";
+    return `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  // Mock P&L data (could be calculated from positions in the future)
+  const weeklyPnL = "+$34.56";
+  const weeklyPnLPercent = "+1.9%";
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -60,19 +64,19 @@ const MobileHome = () => {
         <div className="trading-card p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-foreground">Hello, {userData.name}!</h2>
+              <h2 className="text-lg font-semibold text-foreground">Hello, {username || 'Trader'}!</h2>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs text-muted-foreground">7-Day P&L</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-trading-green">{userData.weeklyPnL}</span>
-                <span className="text-sm text-trading-green">({userData.weeklyPnLPercent})</span>
+                <span className="text-xl font-bold text-trading-green">{weeklyPnL}</span>
+                <span className="text-sm text-trading-green">({weeklyPnLPercent})</span>
               </div>
             </div>
           </div>
           <div className="pt-2 border-t border-border">
             <span className="text-xs text-muted-foreground">Available Balance</span>
-            <div className="text-2xl font-bold text-foreground">{userData.availableBalance}</div>
+            <div className="text-2xl font-bold text-foreground">{formatBalance(profile?.trial_balance)}</div>
           </div>
           <Button 
             className="w-full bg-muted hover:bg-muted/80 text-foreground"
