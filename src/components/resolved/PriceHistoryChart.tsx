@@ -87,9 +87,9 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   }, [priceHistory, options]);
 
   // Calculate chart dimensions
-  const chartHeight = isMobile ? 180 : 220;
+  const chartHeight = isMobile ? 200 : 240;
   const chartWidth = 1000;
-  const padding = { top: 20, right: 60, bottom: 30, left: 50 };
+  const padding = { top: 20, right: 60, bottom: 45, left: 50 };
 
   // Find min/max prices across VISIBLE options only
   const visiblePrices = Object.entries(chartData)
@@ -113,6 +113,35 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
 
   // Generate price labels (USD)
   const priceLabels = [maxPrice, (maxPrice + minPrice) / 2, minPrice];
+
+  // Get time labels from first available option's data
+  const timeLabels = useMemo(() => {
+    const firstOptionId = options[0]?.id;
+    const points = chartData[firstOptionId] || [];
+    if (points.length === 0) return [];
+    
+    // Show 4-6 time labels depending on data points
+    const labelCount = isMobile ? 4 : 6;
+    const step = Math.max(1, Math.floor((points.length - 1) / (labelCount - 1)));
+    const labels: { index: number; date: string }[] = [];
+    
+    for (let i = 0; i < points.length; i += step) {
+      labels.push({
+        index: i,
+        date: format(new Date(points[i].recorded_at), isMobile ? "M/d" : "MMM d"),
+      });
+    }
+    
+    // Always include last point
+    if (labels.length > 0 && labels[labels.length - 1].index !== points.length - 1) {
+      labels.push({
+        index: points.length - 1,
+        date: format(new Date(points[points.length - 1].recorded_at), isMobile ? "M/d" : "MMM d"),
+      });
+    }
+    
+    return labels;
+  }, [chartData, options, isMobile]);
 
   if (options.length === 0) {
     return (
@@ -202,6 +231,37 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               strokeDasharray="4,4"
             />
           ))}
+
+          {/* X-axis time labels */}
+          {timeLabels.map((label, i) => {
+            const firstOptionId = options[0]?.id;
+            const points = chartData[firstOptionId] || [];
+            const x = indexToX(label.index, points.length);
+            
+            return (
+              <g key={`time-${i}`}>
+                {/* Vertical tick */}
+                <line
+                  x1={x}
+                  y1={chartHeight - padding.bottom}
+                  x2={x}
+                  y2={chartHeight - padding.bottom + 5}
+                  stroke="hsl(222 25% 25%)"
+                  strokeWidth="1"
+                />
+                {/* Date text */}
+                <text
+                  x={x}
+                  y={chartHeight - padding.bottom + 18}
+                  textAnchor="middle"
+                  className="fill-muted-foreground"
+                  style={{ fontSize: "10px", fontFamily: "monospace" }}
+                >
+                  {label.date}
+                </text>
+              </g>
+            );
+          })}
 
           {/* Price lines for each option */}
           {options.map((option, optionIndex) => {
