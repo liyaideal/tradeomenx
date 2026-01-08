@@ -107,13 +107,13 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   }, [chartData, options]);
 
   // Chart dimensions - mobile optimized
-  const chartHeight = isMobile ? 180 : 220;
-  const chartWidth = isMobile ? 600 : 1000;
+  const chartHeight = isMobile ? 160 : 220;
+  const chartWidth = isMobile ? 400 : 1000;
   const padding = { 
-    top: 8, 
-    right: isMobile ? 50 : 70, 
-    bottom: isMobile ? 24 : 30, 
-    left: 8 
+    top: 5, 
+    right: isMobile ? 40 : 70, 
+    bottom: isMobile ? 20 : 30, 
+    left: 5 
   };
 
   // Find min/max prices across VISIBLE options only
@@ -123,7 +123,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   
   const dataMin = visiblePrices.length > 0 ? Math.min(...visiblePrices) : 0;
   const dataMax = visiblePrices.length > 0 ? Math.max(...visiblePrices) : 100;
-  const priceBuffer = (dataMax - dataMin) * 0.15 || 5;
+  const priceBuffer = (dataMax - dataMin) * 0.08 || 2;
   const minPrice = Math.max(0, dataMin - priceBuffer);
   const maxPrice = dataMax + priceBuffer;
   const priceRange = maxPrice - minPrice;
@@ -301,10 +301,10 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
         <svg
           ref={svgRef}
           width="100%"
-          height={chartHeight}
           viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-          preserveAspectRatio="xMidYMid meet"
-          className="overflow-visible cursor-crosshair"
+          preserveAspectRatio="none"
+          className="overflow-visible cursor-crosshair w-full"
+          style={{ height: isMobile ? 180 : 220 }}
           onMouseMove={handleMouseMove}
           onMouseLeave={() => setTooltip(null)}
         >
