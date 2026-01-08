@@ -95,10 +95,16 @@ const EventsPage = () => {
               )}
               <Logo size="md" />
             </div>
-            {/* Status dropdown stays in header */}
+            {/* Status dropdown - navigate to resolved page when selected */}
             <MobileStatusDropdown
               statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
+              onStatusFilterChange={(status) => {
+                if (status === "resolved") {
+                  navigate("/resolved");
+                } else {
+                  setStatusFilter(status);
+                }
+              }}
             />
           </div>
         </header>
