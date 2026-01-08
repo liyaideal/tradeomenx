@@ -1,4 +1,3 @@
-import { CalendarDays, Clock, Scale, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 interface EventRulesCardProps {
@@ -6,31 +5,26 @@ interface EventRulesCardProps {
   endDate: string | null;
   settledAt: string | null;
   rules: string | null;
+  eventName?: string;
   isMobile?: boolean;
 }
 
 interface RuleItemProps {
-  icon: React.ReactNode;
   label: string;
   value: string;
 }
 
-const RuleItem = ({ icon, label, value }: RuleItemProps) => (
-  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-    <div className="p-2 rounded-lg bg-primary/10 text-primary flex-shrink-0">
-      {icon}
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="text-sm font-medium text-foreground mt-0.5">{value}</div>
-    </div>
+const RuleItem = ({ label, value }: RuleItemProps) => (
+  <div className="space-y-1">
+    <div className="text-xs text-muted-foreground">{label}</div>
+    <div className="text-sm font-medium text-foreground">{value}</div>
   </div>
 );
 
-const formatDate = (dateStr: string | null): string => {
+const formatDateTime = (dateStr: string | null): string => {
   if (!dateStr) return "—";
   try {
-    return format(new Date(dateStr), "MMM d, yyyy 'at' h:mm a");
+    return format(new Date(dateStr), "yyyy-MM-dd HH:mm:ss") + " UTC";
   } catch {
     return "—";
   }
@@ -40,7 +34,7 @@ const formatDateRange = (start: string | null, end: string | null): string => {
   if (!start && !end) return "—";
   const startFormatted = start ? format(new Date(start), "MMM d, yyyy") : "—";
   const endFormatted = end ? format(new Date(end), "MMM d, yyyy") : "—";
-  return `${startFormatted} → ${endFormatted}`;
+  return `${startFormatted} - ${endFormatted}`;
 };
 
 export const EventRulesCard = ({ 
@@ -48,46 +42,27 @@ export const EventRulesCard = ({
   endDate, 
   settledAt, 
   rules,
+  eventName,
   isMobile = false 
 }: EventRulesCardProps) => {
-  const items = [
-    {
-      icon: <CalendarDays className="h-4 w-4" />,
-      label: "Created Time",
-      value: formatDate(startDate),
-    },
-    {
-      icon: <Clock className="h-4 w-4" />,
-      label: "Trading Period",
-      value: formatDateRange(startDate, endDate),
-    },
-    {
-      icon: <Scale className="h-4 w-4" />,
-      label: "Settlement Time",
-      value: formatDate(settledAt),
-    },
-  ];
-
   return (
     <div className="space-y-4">
-      <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
-        {items.map((item) => (
-          <RuleItem
-            key={item.label}
-            icon={item.icon}
-            label={item.label}
-            value={item.value}
-          />
-        ))}
-      </div>
+      {/* Question - if provided */}
+      {eventName && (
+        <RuleItem label="Question" value={eventName} />
+      )}
+
+      {/* Created */}
+      <RuleItem label="Created" value={formatDateTime(startDate)} />
       
+      {/* Trading Period */}
+      <RuleItem label="Trading Period" value={formatDateRange(startDate, endDate)} />
+      
+      {/* Settlement Rules */}
       {rules && (
-        <div className="p-3 rounded-lg bg-muted/30">
-          <div className="flex items-center gap-2 mb-2">
-            <FileText className="h-4 w-4 text-primary" />
-            <span className="text-xs text-muted-foreground">Settlement Rules</span>
-          </div>
-          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+        <div className="space-y-1">
+          <div className="text-xs text-muted-foreground">Settlement Rules</div>
+          <p className="text-sm text-foreground leading-relaxed">
             {rules}
           </p>
         </div>

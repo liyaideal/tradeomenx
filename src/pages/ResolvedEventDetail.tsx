@@ -279,6 +279,7 @@ const ResolvedEventDetail = () => {
                     endDate={event.end_date}
                     settledAt={event.settled_at}
                     rules={event.rules}
+                    eventName={event.name}
                     isMobile={true}
                   />
                 </CardContent>
@@ -465,6 +466,7 @@ const ResolvedEventDetail = () => {
                   endDate={event.end_date}
                   settledAt={event.settled_at}
                   rules={event.rules}
+                  eventName={event.name}
                   isMobile={false}
                 />
               </CardContent>
