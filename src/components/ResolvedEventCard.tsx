@@ -98,9 +98,9 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
                     ? "bg-trading-green/15 text-trading-green border-trading-green/40"
                     : "bg-trading-red/15 text-trading-red border-trading-red/40"
                 }`}
-              >
-                Participated {event.userPnl >= 0 ? "+" : ""}${event.userPnl.toFixed(0)}
-              </Badge>
+                >
+                  Participated {event.userPnl >= 0 ? "+" : "-"}${Math.abs(event.userPnl).toFixed(0)}
+                </Badge>
             )}
           </div>
         </div>
