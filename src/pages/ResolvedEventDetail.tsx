@@ -196,6 +196,20 @@ const ResolvedEventDetail = () => {
             </CardContent>
           </Card>
 
+          {/* Settlement Progress */}
+          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-medium">Settlement Progress</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <SettlementTimeline
+                startDate={event.start_date}
+                endDate={event.end_date}
+                settledAt={event.settled_at}
+              />
+            </CardContent>
+          </Card>
+
           {/* Settlement Evidence */}
           <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
             <CardHeader className="pb-2 pt-4 px-4">
