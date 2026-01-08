@@ -106,10 +106,15 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     }, {} as Record<string, { change: number; startPrice: number; endPrice: number }>);
   }, [chartData, options]);
 
-  // Chart dimensions
-  const chartHeight = isMobile ? 200 : 220;
-  const chartWidth = 1000;
-  const padding = { top: 10, right: isMobile ? 55 : 70, bottom: 30, left: 10 };
+  // Chart dimensions - mobile optimized
+  const chartHeight = isMobile ? 180 : 220;
+  const chartWidth = isMobile ? 600 : 1000;
+  const padding = { 
+    top: 8, 
+    right: isMobile ? 50 : 70, 
+    bottom: isMobile ? 24 : 30, 
+    left: 8 
+  };
 
   // Find min/max prices across VISIBLE options only
   const visiblePrices = Object.entries(chartData)
@@ -247,9 +252,12 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   };
 
   return (
-    <div className="space-y-2">
-      {/* Legend */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+    <div className={isMobile ? "space-y-3" : "space-y-2"}>
+      {/* Legend - compact grid on mobile */}
+      <div className={isMobile 
+        ? "grid grid-cols-2 gap-x-2 gap-y-2" 
+        : "flex flex-wrap gap-x-4 gap-y-1.5"
+      }>
         {options.map((option, index) => {
           const isVisible = visibleOptions.has(option.id);
           const color = OPTION_COLORS[index % OPTION_COLORS.length];
@@ -262,24 +270,24 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               onClick={() => toggleOption(option.id)}
               className={`flex items-center gap-1.5 transition-opacity ${
                 isVisible ? "opacity-100" : "opacity-40"
-              }`}
+              } ${isMobile ? "text-left" : ""}`}
             >
               <div 
-                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                className={`rounded-full flex-shrink-0 ${isMobile ? "w-2 h-2" : "w-2.5 h-2.5"}`}
                 style={{ backgroundColor: color }}
               />
-              <span className={`text-sm ${
+              <span className={`${isMobile ? "text-xs" : "text-sm"} ${
                 option.is_winner ? "text-foreground font-medium" : "text-muted-foreground"
-              }`}>
+              } truncate`}>
                 {option.label}
               </span>
-              <span className={`text-xs font-mono font-medium ${
+              <span className={`${isMobile ? "text-[10px]" : "text-xs"} font-mono font-medium flex-shrink-0 ${
                 isPositive ? "text-trading-green" : "text-trading-red"
               }`}>
                 {isPositive ? "+" : ""}{changeData.change.toFixed(1)}%
               </span>
               {option.is_winner && (
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-trading-green bg-trading-green/15 px-1.5 py-0.5 rounded">
+                <span className={`${isMobile ? "text-[8px] px-1 py-0.5" : "text-[10px] px-1.5 py-0.5"} font-semibold uppercase tracking-wide text-trading-green bg-trading-green/15 rounded flex-shrink-0`}>
                   Winner
                 </span>
               )}
@@ -314,14 +322,14 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
                 opacity={0.5}
               />
               <text
-                x={chartWidth - padding.right + 8}
+                x={chartWidth - padding.right + 6}
                 y={priceToY(price)}
                 fill="hsl(222 20% 50%)"
-                fontSize="11"
+                fontSize={isMobile ? "9" : "11"}
                 fontFamily="monospace"
                 dominantBaseline="middle"
               >
-                ${price.toFixed(2)}
+                ${price.toFixed(isMobile ? 0 : 2)}
               </text>
             </g>
           ))}
@@ -337,9 +345,9 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               <text
                 key={`time-${i}`}
                 x={x}
-                y={chartHeight - padding.bottom + 25}
+                y={chartHeight - padding.bottom + (isMobile ? 16 : 22)}
                 fill="hsl(222 20% 50%)"
-                fontSize="12"
+                fontSize={isMobile ? "9" : "12"}
                 fontFamily="system-ui"
                 textAnchor="middle"
               >
@@ -374,7 +382,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
                   d={pathD}
                   fill="none"
                   stroke={color}
-                  strokeWidth={option.is_winner ? 2.5 : 2}
+                  strokeWidth={isMobile ? (option.is_winner ? 2 : 1.5) : (option.is_winner ? 2.5 : 2)}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -383,22 +391,24 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
                 <circle
                   cx={lastX}
                   cy={lastY}
-                  r={5}
+                  r={isMobile ? 3 : 5}
                   fill={color}
                 />
                 
-                {/* End price label */}
-                <text
-                  x={lastX + 12}
-                  y={lastY}
-                  fill={color}
-                  fontSize="11"
-                  fontFamily="monospace"
-                  fontWeight="600"
-                  dominantBaseline="middle"
-                >
-                  ${lastPoint.price.toFixed(2)}
-                </text>
+                {/* End price label - hide on mobile to reduce clutter */}
+                {!isMobile && (
+                  <text
+                    x={lastX + 12}
+                    y={lastY}
+                    fill={color}
+                    fontSize="11"
+                    fontFamily="monospace"
+                    fontWeight="600"
+                    dominantBaseline="middle"
+                  >
+                    ${lastPoint.price.toFixed(2)}
+                  </text>
+                )}
               </g>
             );
           })}
