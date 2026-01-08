@@ -55,6 +55,33 @@ export type Database = {
           },
         ]
       }
+      event_relations: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          related_event_id: string
+          source_event_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          related_event_id: string
+          source_event_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          related_event_id?: string
+          source_event_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           category: string
@@ -67,6 +94,7 @@ export type Database = {
           name: string
           rules: string | null
           settled_at: string | null
+          settlement_description: string | null
           source_name: string | null
           source_url: string | null
           start_date: string | null
@@ -85,6 +113,7 @@ export type Database = {
           name: string
           rules?: string | null
           settled_at?: string | null
+          settlement_description?: string | null
           source_name?: string | null
           source_url?: string | null
           start_date?: string | null
@@ -103,6 +132,7 @@ export type Database = {
           name?: string
           rules?: string | null
           settled_at?: string | null
+          settlement_description?: string | null
           source_name?: string | null
           source_url?: string | null
           start_date?: string | null
@@ -191,6 +221,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      price_history: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          option_id: string
+          price: number
+          recorded_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          option_id: string
+          price: number
+          recorded_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          option_id?: string
+          price?: number
+          recorded_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
