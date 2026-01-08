@@ -95,7 +95,9 @@ export const AuthContent = ({
         // Generate mock email based on auth method
         const mockEmail = generateMockEmail(method);
         // Generate funny username using sillyname (e.g. "Fluffy Unicorn")
-        const mockUsername = sillyname();
+        // Replace spaces with underscores to satisfy database constraint
+        const rawUsername = sillyname();
+        const mockUsername = rawUsername.replace(/ /g, '_');
 
         // Update profile with sillyname username (and email only for Google)
         // (profile is auto-created by database trigger, so we update it)
