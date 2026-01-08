@@ -72,32 +72,32 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
           background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
         }}
       >
-        <CardContent className="p-4 space-y-3">
-          {/* Title and badges row */}
-          <div className="flex items-start gap-3">
-            <h3 className="font-semibold text-foreground leading-snug text-[15px] group-hover:text-primary transition-colors flex-1 min-w-0">
-              {event.name}
-            </h3>
-            <div className="flex items-center gap-2 flex-shrink-0">
+        <CardContent className="p-4 space-y-2.5">
+          {/* Title - full width */}
+          <h3 className="font-semibold text-foreground leading-snug text-base group-hover:text-primary transition-colors">
+            {event.name}
+          </h3>
+          
+          {/* Badges row */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge 
+              variant="outline"
+              className="text-[10px] font-semibold uppercase tracking-wide bg-muted/50 text-muted-foreground border-border/50 px-2 py-0.5"
+            >
+              Settled
+            </Badge>
+            {event.userParticipated && event.userPnl !== null && (
               <Badge 
                 variant="outline"
-                className="text-[10px] font-semibold uppercase tracking-wide bg-muted/50 text-muted-foreground border-border/50 px-2 py-0.5"
+                className={`text-[10px] font-semibold px-2 py-0.5 ${
+                  event.userPnl >= 0
+                    ? "bg-trading-green/15 text-trading-green border-trading-green/40"
+                    : "bg-trading-red/15 text-trading-red border-trading-red/40"
+                }`}
               >
-                Settled
+                Participated {event.userPnl >= 0 ? "+" : "-"}${Math.abs(event.userPnl).toFixed(0)}
               </Badge>
-              {event.userParticipated && event.userPnl !== null && (
-                <Badge 
-                  variant="outline"
-                  className={`text-[10px] font-semibold px-2 py-0.5 ${
-                    event.userPnl >= 0
-                      ? "bg-trading-green/15 text-trading-green border-trading-green/40"
-                      : "bg-trading-red/15 text-trading-red border-trading-red/40"
-                  }`}
-                >
-                  Participated {event.userPnl >= 0 ? "+" : "-"}${Math.abs(event.userPnl).toFixed(0)}
-                </Badge>
-              )}
-            </div>
+            )}
           </div>
           
           {/* Settled date */}
