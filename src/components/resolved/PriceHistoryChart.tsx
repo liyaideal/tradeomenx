@@ -265,7 +265,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               }`}
             >
               <div 
-                className="w-2.5 h-2.5 rounded-full"
+                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                 style={{ backgroundColor: color }}
               />
               <span className={`text-sm ${
@@ -274,8 +274,8 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
                 {option.label}
               </span>
               {option.is_winner && (
-                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-trading-green/20 ml-0.5">
-                  <Check className="w-2 h-2 text-trading-green" strokeWidth={3} />
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-trading-green bg-trading-green/15 px-1.5 py-0.5 rounded">
+                  Winner
                 </span>
               )}
               <span className={`text-xs font-mono font-medium ${
