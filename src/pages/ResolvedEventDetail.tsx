@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   ArrowLeft, 
   Share2, 
@@ -32,7 +30,6 @@ const ResolvedEventDetail = () => {
   const navigate = useNavigate();
   const { eventId } = useParams<{ eventId: string }>();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: event, isLoading, error } = useResolvedEventDetail({
     eventId: eventId || "",
@@ -88,7 +85,7 @@ const ResolvedEventDetail = () => {
     ? format(new Date(event.settled_at), "MMM d, yyyy")
     : "N/A";
 
-  // Mobile Layout
+  // Mobile Layout - flat scrollable design
   if (isMobile) {
     return (
       <div className="min-h-screen pb-24" style={{ background: "hsl(222 47% 6%)" }}>
@@ -107,7 +104,7 @@ const ResolvedEventDetail = () => {
           </div>
         </header>
 
-        <main className="px-4 py-6 space-y-6">
+        <main className="px-4 py-5 space-y-4">
           {/* Event Header */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -130,7 +127,7 @@ const ResolvedEventDetail = () => {
               </Badge>
             </div>
             
-            <h1 className="text-xl font-bold text-foreground leading-tight">
+            <h1 className="text-lg font-bold text-foreground leading-tight">
               {event.name}
             </h1>
 
@@ -139,46 +136,46 @@ const ResolvedEventDetail = () => {
                 {event.description}
               </p>
             )}
-
-            {/* User Participation Banner */}
-            {event.userParticipated && (
-              <div 
-                className={`flex items-center justify-between p-3 rounded-xl border ${
-                  (event.userPnl || 0) >= 0 
-                    ? "bg-trading-green/10 border-trading-green/30" 
-                    : "bg-trading-red/10 border-trading-red/30"
-                }`}
-                onClick={handleGoToPortfolio}
-              >
-                <div className="flex items-center gap-2">
-                  <Briefcase className={`h-4 w-4 ${(event.userPnl || 0) >= 0 ? "text-trading-green" : "text-trading-red"}`} />
-                  <span className="text-sm font-medium text-foreground">You participated</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`font-mono font-semibold ${
-                    (event.userPnl || 0) >= 0 ? "text-trading-green" : "text-trading-red"
-                  }`}>
-                    {(event.userPnl || 0) >= 0 ? "+" : ""}${(event.userPnl || 0).toFixed(2)}
-                  </span>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Options Result */}
+          {/* User Participation Banner */}
+          {event.userParticipated && (
+            <div 
+              className={`flex items-center justify-between p-3 rounded-xl border ${
+                (event.userPnl || 0) >= 0 
+                  ? "bg-trading-green/10 border-trading-green/30" 
+                  : "bg-trading-red/10 border-trading-red/30"
+              }`}
+              onClick={handleGoToPortfolio}
+            >
+              <div className="flex items-center gap-2">
+                <Briefcase className={`h-4 w-4 ${(event.userPnl || 0) >= 0 ? "text-trading-green" : "text-trading-red"}`} />
+                <span className="text-sm font-medium text-foreground">You participated</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`font-mono font-semibold ${
+                  (event.userPnl || 0) >= 0 ? "text-trading-green" : "text-trading-red"
+                }`}>
+                  {(event.userPnl || 0) >= 0 ? "+" : ""}${(event.userPnl || 0).toFixed(2)}
+                </span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+          )}
+
+          {/* Final Results */}
           <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Final Results</CardTitle>
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-medium">Final Results</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="px-4 pb-4 space-y-2">
               {event.options.map((option) => (
                 <div
                   key={option.id}
-                  className={`flex items-center justify-between px-3 py-3 rounded-lg transition-all ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-lg ${
                     option.is_winner
                       ? "bg-trading-green/15 border border-trading-green/30"
-                      : "bg-muted/20 border border-transparent"
+                      : "bg-muted/20"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -199,111 +196,83 @@ const ResolvedEventDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Tabs for mobile */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-3 bg-muted/30">
-              <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
-              <TabsTrigger value="chart" className="text-xs">Chart</TabsTrigger>
-              <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
-            </TabsList>
+          {/* Settlement Evidence */}
+          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-medium">Settlement Evidence</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <SettlementEvidenceCard
+                sourceName={event.source_name}
+                sourceUrl={event.source_url}
+                settlementDescription={event.settlement_description}
+                winningOptionLabel={winningOption?.label || null}
+              />
+            </CardContent>
+          </Card>
 
-            <TabsContent value="overview" className="space-y-6 mt-4">
-              {/* Settlement Timeline */}
-              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Settlement Progress</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <SettlementTimeline
-                    startDate={event.start_date}
-                    endDate={event.end_date}
-                    settledAt={event.settled_at}
+          {/* Price History Chart */}
+          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-medium">Price History</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <PriceHistoryChart
+                priceHistory={event.priceHistory}
+                options={event.options}
+                isMobile={true}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Event Statistics */}
+          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-medium">Statistics</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <EventStatisticsCard 
+                statistics={event.statistics} 
+                volume={event.volume}
+                isMobile={true}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Event Rules */}
+          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-medium">Event Rules</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <EventRulesCard
+                startDate={event.start_date}
+                endDate={event.end_date}
+                settledAt={event.settled_at}
+                rules={event.rules}
+                eventName={event.name}
+                isMobile={true}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Related Events */}
+          {event.relatedEvents.length > 0 && (
+            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-2 pt-4 px-4">
+                <CardTitle className="text-sm font-medium">Related Events</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 space-y-2">
+                {event.relatedEvents.map((related) => (
+                  <RelatedEventCard
+                    key={related.id}
+                    event={related}
+                    onClick={() => handleRelatedEventClick(related.id)}
                   />
-                </CardContent>
-              </Card>
-
-              {/* Event Statistics */}
-              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Event Statistics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <EventStatisticsCard 
-                    statistics={event.statistics} 
-                    volume={event.volume}
-                    isMobile={true}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Settlement Evidence */}
-              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Settlement Evidence</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <SettlementEvidenceCard
-                    sourceName={event.source_name}
-                    sourceUrl={event.source_url}
-                    settlementDescription={event.settlement_description}
-                    winningOptionLabel={winningOption?.label || null}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="chart" className="mt-4">
-              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Price History</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <PriceHistoryChart
-                    priceHistory={event.priceHistory}
-                    options={event.options}
-                    isMobile={true}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="details" className="space-y-4 mt-4">
-              {/* Event Rules */}
-              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Event Rules</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <EventRulesCard
-                    startDate={event.start_date}
-                    endDate={event.end_date}
-                    settledAt={event.settled_at}
-                    rules={event.rules}
-                    eventName={event.name}
-                    isMobile={true}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Related Events */}
-              {event.relatedEvents.length > 0 && (
-                <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Related Events</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {event.relatedEvents.map((related) => (
-                      <RelatedEventCard
-                        key={related.id}
-                        event={related}
-                        onClick={() => handleRelatedEventClick(related.id)}
-                      />
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-          </Tabs>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </main>
 
         <BottomNav />
