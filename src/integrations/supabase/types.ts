@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_options: {
+        Row: {
+          created_at: string
+          event_id: string
+          final_price: number | null
+          id: string
+          is_winner: boolean | null
+          label: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          final_price?: number | null
+          id: string
+          is_winner?: boolean | null
+          label: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          final_price?: number | null
+          id?: string
+          is_winner?: boolean | null
+          label?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_options_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          icon: string
+          id: string
+          is_resolved: boolean
+          name: string
+          rules: string | null
+          settled_at: string | null
+          source_name: string | null
+          source_url: string | null
+          start_date: string | null
+          updated_at: string
+          volume: string | null
+          winning_option_id: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          icon?: string
+          id: string
+          is_resolved?: boolean
+          name: string
+          rules?: string | null
+          settled_at?: string | null
+          source_name?: string | null
+          source_url?: string | null
+          start_date?: string | null
+          updated_at?: string
+          volume?: string | null
+          winning_option_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          icon?: string
+          id?: string
+          is_resolved?: boolean
+          name?: string
+          rules?: string | null
+          settled_at?: string | null
+          source_name?: string | null
+          source_url?: string | null
+          start_date?: string | null
+          updated_at?: string
+          volume?: string | null
+          winning_option_id?: string | null
+        }
+        Relationships: []
+      }
       positions: {
         Row: {
           closed_at: string | null
