@@ -130,7 +130,7 @@ const ResolvedEventDetail = () => {
             </div>
             
             <h1 className="text-xl font-bold text-foreground leading-tight">
-              {event.icon} {event.name}
+              {event.name}
             </h1>
 
             {event.description && (
@@ -355,7 +355,7 @@ const ResolvedEventDetail = () => {
               
               <div className="flex items-start justify-between gap-4">
                 <h1 className="text-2xl font-bold text-foreground leading-tight">
-                  {event.icon} {event.name}
+                  {event.name}
                 </h1>
                 <Button variant="outline" size="sm" className="gap-2" onClick={handleShare}>
                   <Share2 className="h-4 w-4" />
