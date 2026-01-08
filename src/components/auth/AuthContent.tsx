@@ -44,13 +44,15 @@ export const AuthContent = ({
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
 
-  // Pre-fill username and email when entering completeProfile step
+  // Pre-fill username and email when profile data loads or step changes
   useEffect(() => {
     if (step === "completeProfile") {
-      if (profileUsername && !username) {
+      // Pre-fill username if profile has one and user hasn't modified it yet
+      if (profileUsername) {
         setUsername(profileUsername);
       }
-      if (profileEmail && !email) {
+      // Pre-fill email if profile has one and user hasn't modified it yet
+      if (profileEmail) {
         setEmail(profileEmail);
       }
     }
