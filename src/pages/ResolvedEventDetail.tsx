@@ -23,6 +23,7 @@ import { PriceHistoryChart } from "@/components/resolved/PriceHistoryChart";
 import { EventStatisticsCard } from "@/components/resolved/EventStatisticsCard";
 import { RelatedEventCard } from "@/components/resolved/RelatedEventCard";
 import { SettlementEvidenceCard } from "@/components/resolved/SettlementEvidenceCard";
+import { EventRulesCard } from "@/components/resolved/EventRulesCard";
 import { getCategoryInfo } from "@/lib/categoryUtils";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -267,19 +268,21 @@ const ResolvedEventDetail = () => {
             </TabsContent>
 
             <TabsContent value="details" className="space-y-4 mt-4">
-              {/* Rules */}
-              {event.rules && (
-                <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Resolution Rules</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                      {event.rules}
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Event Rules */}
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Event Rules</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EventRulesCard
+                    startDate={event.start_date}
+                    endDate={event.end_date}
+                    settledAt={event.settled_at}
+                    rules={event.rules}
+                    isMobile={true}
+                  />
+                </CardContent>
+              </Card>
 
               {/* Related Events */}
               {event.relatedEvents.length > 0 && (
@@ -318,16 +321,6 @@ const ResolvedEventDetail = () => {
       <EventsDesktopHeader />
 
       <main className="max-w-6xl mx-auto px-8 py-10">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          className="gap-2 mb-6 text-muted-foreground hover:text-foreground"
-          onClick={() => navigate("/resolved")}
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Resolved Events
-        </Button>
-
         <div className="grid grid-cols-3 gap-8">
           {/* Left Column - Main Content */}
           <div className="col-span-2 space-y-6">
@@ -461,19 +454,21 @@ const ResolvedEventDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Rules */}
-            {event.rules && (
-              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Resolution Rules</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {event.rules}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+            {/* Event Rules */}
+            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Event Rules</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EventRulesCard
+                  startDate={event.start_date}
+                  endDate={event.end_date}
+                  settledAt={event.settled_at}
+                  rules={event.rules}
+                  isMobile={false}
+                />
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right Column - Sidebar */}

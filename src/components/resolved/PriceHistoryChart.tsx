@@ -172,7 +172,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
           })}
         </svg>
 
-        {/* Y-axis labels */}
+        {/* Y-axis labels - showing probability (0-1) */}
         {priceLabels.map((price, i) => (
           <span
             key={`label-${i}`}
@@ -183,7 +183,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               transform: "translateY(-50%)",
             }}
           >
-            ${price.toFixed(2)}
+            {price.toFixed(2)}
           </span>
         ))}
       </div>
