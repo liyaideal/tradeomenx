@@ -256,45 +256,45 @@ const ResolvedEventDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Stats + Rules Row - 并排显示 */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Statistics - 紧凑版 */}
-            <Card className="border-border/30" style={{ background: "var(--gradient-card)" }}>
-              <CardHeader className="pb-1 pt-3 px-3">
-                <CardTitle className="text-xs font-medium text-muted-foreground">Stats</CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <EventStatisticsCard 
-                  statistics={event.statistics} 
-                  volume={event.volume}
-                  isMobile={true}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Event Info - 紧凑版 */}
-            <Card className="border-border/30" style={{ background: "var(--gradient-card)" }}>
-              <CardHeader className="pb-1 pt-3 px-3">
-                <CardTitle className="text-xs font-medium text-muted-foreground">Info</CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <div className="space-y-2 text-xs">
-                  <div>
-                    <div className="text-muted-foreground/70">Created</div>
-                    <div className="text-foreground font-medium truncate">
-                      {event.start_date ? format(new Date(event.start_date), "MMM d, yyyy") : "—"}
-                    </div>
+          {/* Statistics - 单行紧凑版 */}
+          <Card className="border-border/30" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-2 pt-3 px-4">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Statistics</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-3">
+              <div className="grid grid-cols-4 gap-2 text-center">
+                <div>
+                  <div className="text-base font-semibold text-foreground">
+                    {event.statistics.participants}
                   </div>
-                  <div>
-                    <div className="text-muted-foreground/70">Settled</div>
-                    <div className="text-foreground font-medium truncate">
-                      {event.settled_at ? format(new Date(event.settled_at), "MMM d, yyyy") : "—"}
-                    </div>
-                  </div>
+                  <div className="text-[10px] text-muted-foreground">Participants</div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <div>
+                  <div className="text-base font-semibold text-foreground">
+                    {event.statistics.totalTrades}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">Trades</div>
+                </div>
+                <div>
+                  <div className="text-base font-semibold text-foreground">
+                    {event.statistics.avgHoldingTime}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">Avg Hold</div>
+                </div>
+                <div>
+                  <div className="text-base font-semibold text-foreground">
+                    {event.volume ? (parseFloat(event.volume.replace(/[$,]/g, "")) >= 1000000 
+                      ? `$${(parseFloat(event.volume.replace(/[$,]/g, "")) / 1000000).toFixed(1)}M`
+                      : parseFloat(event.volume.replace(/[$,]/g, "")) >= 1000
+                        ? `$${(parseFloat(event.volume.replace(/[$,]/g, "")) / 1000).toFixed(0)}K`
+                        : `$${parseFloat(event.volume.replace(/[$,]/g, "")).toFixed(0)}`)
+                      : "$0"}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">Volume</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Event Rules - 可折叠或精简显示 */}
           {event.rules && (
