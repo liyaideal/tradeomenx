@@ -107,9 +107,9 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   }, [chartData, options]);
 
   // Chart dimensions
-  const chartHeight = isMobile ? 200 : 280;
+  const chartHeight = isMobile ? 180 : 220;
   const chartWidth = 1000;
-  const padding = { top: 30, right: 70, bottom: 50, left: 10 };
+  const padding = { top: 10, right: 70, bottom: 30, left: 10 };
 
   // Find min/max prices across VISIBLE options only
   const visiblePrices = Object.entries(chartData)
