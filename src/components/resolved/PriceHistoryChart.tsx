@@ -274,8 +274,8 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
                 {option.label}
               </span>
               {option.is_winner && (
-                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-trading-green/20">
-                  <Check className="w-2.5 h-2.5 text-trading-green" strokeWidth={3} />
+                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-trading-green/20 ml-0.5">
+                  <Check className="w-2 h-2 text-trading-green" strokeWidth={3} />
                 </span>
               )}
               <span className={`text-xs font-mono font-medium ${
