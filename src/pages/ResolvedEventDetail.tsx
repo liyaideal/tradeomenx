@@ -1,0 +1,534 @@
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  ArrowLeft, 
+  Share2, 
+  Check, 
+  X, 
+  RefreshCw,
+  Briefcase,
+  ChevronRight
+} from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { BottomNav } from "@/components/BottomNav";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { Logo } from "@/components/Logo";
+import { useResolvedEventDetail } from "@/hooks/useResolvedEventDetail";
+import { SettlementTimeline } from "@/components/resolved/SettlementTimeline";
+import { PriceHistoryChart } from "@/components/resolved/PriceHistoryChart";
+import { EventStatisticsCard } from "@/components/resolved/EventStatisticsCard";
+import { RelatedEventCard } from "@/components/resolved/RelatedEventCard";
+import { SettlementEvidenceCard } from "@/components/resolved/SettlementEvidenceCard";
+import { getCategoryInfo } from "@/lib/categoryUtils";
+import { format } from "date-fns";
+import { toast } from "sonner";
+
+const ResolvedEventDetail = () => {
+  const navigate = useNavigate();
+  const { eventId } = useParams<{ eventId: string }>();
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const { data: event, isLoading, error } = useResolvedEventDetail({
+    eventId: eventId || "",
+  });
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: event?.name || "Resolved Event",
+          url,
+        });
+      } catch (err) {
+        // User cancelled or error
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard");
+    }
+  };
+
+  const handleRelatedEventClick = (relatedEventId: string) => {
+    navigate(`/resolved/${relatedEventId}`);
+  };
+
+  const handleGoToPortfolio = () => {
+    navigate("/settings"); // Navigate to settings/portfolio page
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <RefreshCw className="h-8 w-8 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !event) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <p className="text-muted-foreground">Event not found</p>
+        <Button variant="outline" onClick={() => navigate("/resolved")}>
+          Back to Resolved Events
+        </Button>
+      </div>
+    );
+  }
+
+  const categoryInfo = getCategoryInfo(event.category);
+  const winningOption = event.options.find((o) => o.is_winner);
+  const settledDate = event.settled_at
+    ? format(new Date(event.settled_at), "MMM d, yyyy")
+    : "N/A";
+
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen pb-24" style={{ background: "hsl(222 47% 6%)" }}>
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Logo size="md" />
+            </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare}>
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </header>
+
+        <main className="px-4 py-6 space-y-6">
+          {/* Event Header */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Badge 
+                variant="outline" 
+                className="text-[10px] uppercase tracking-wide"
+                style={{
+                  backgroundColor: `hsl(${categoryInfo.color} / 0.15)`,
+                  color: `hsl(${categoryInfo.color})`,
+                  borderColor: `hsl(${categoryInfo.color} / 0.3)`,
+                }}
+              >
+                {categoryInfo.label}
+              </Badge>
+              <Badge 
+                variant="outline"
+                className="text-[10px] uppercase tracking-wide bg-muted/50 text-muted-foreground border-border/50"
+              >
+                Settled {settledDate}
+              </Badge>
+            </div>
+            
+            <h1 className="text-xl font-bold text-foreground leading-tight">
+              {event.icon} {event.name}
+            </h1>
+
+            {event.description && (
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {event.description}
+              </p>
+            )}
+
+            {/* User Participation Banner */}
+            {event.userParticipated && (
+              <div 
+                className={`flex items-center justify-between p-3 rounded-xl border ${
+                  (event.userPnl || 0) >= 0 
+                    ? "bg-trading-green/10 border-trading-green/30" 
+                    : "bg-trading-red/10 border-trading-red/30"
+                }`}
+                onClick={handleGoToPortfolio}
+              >
+                <div className="flex items-center gap-2">
+                  <Briefcase className={`h-4 w-4 ${(event.userPnl || 0) >= 0 ? "text-trading-green" : "text-trading-red"}`} />
+                  <span className="text-sm font-medium text-foreground">You participated</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`font-mono font-semibold ${
+                    (event.userPnl || 0) >= 0 ? "text-trading-green" : "text-trading-red"
+                  }`}>
+                    {(event.userPnl || 0) >= 0 ? "+" : ""}${(event.userPnl || 0).toFixed(2)}
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Options Result */}
+          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Final Results</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {event.options.map((option) => (
+                <div
+                  key={option.id}
+                  className={`flex items-center justify-between px-3 py-3 rounded-lg transition-all ${
+                    option.is_winner
+                      ? "bg-trading-green/15 border border-trading-green/30"
+                      : "bg-muted/20 border border-transparent"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {option.is_winner ? (
+                      <Check className="h-4 w-4 text-trading-green" />
+                    ) : (
+                      <X className="h-4 w-4 text-trading-red/70" />
+                    )}
+                    <span className={`text-sm ${option.is_winner ? "text-trading-green font-medium" : "text-muted-foreground"}`}>
+                      {option.label}
+                    </span>
+                  </div>
+                  <span className={`font-mono text-sm font-semibold ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
+                    ${(option.final_price ?? option.price).toFixed(4)}
+                  </span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Tabs for mobile */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full grid grid-cols-3 bg-muted/30">
+              <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
+              <TabsTrigger value="chart" className="text-xs">Chart</TabsTrigger>
+              <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6 mt-4">
+              {/* Settlement Timeline */}
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Settlement Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SettlementTimeline
+                    startDate={event.start_date}
+                    endDate={event.end_date}
+                    settledAt={event.settled_at}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Event Statistics */}
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Event Statistics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EventStatisticsCard 
+                    statistics={event.statistics} 
+                    volume={event.volume}
+                    isMobile={true}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Settlement Evidence */}
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Settlement Evidence</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SettlementEvidenceCard
+                    sourceName={event.source_name}
+                    sourceUrl={event.source_url}
+                    settlementDescription={event.settlement_description}
+                    winningOptionLabel={winningOption?.label || null}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="chart" className="mt-4">
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Price History</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PriceHistoryChart
+                    priceHistory={event.priceHistory}
+                    options={event.options}
+                    isMobile={true}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="details" className="space-y-4 mt-4">
+              {/* Rules */}
+              {event.rules && (
+                <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Resolution Rules</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {event.rules}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Related Events */}
+              {event.relatedEvents.length > 0 && (
+                <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Related Events</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {event.relatedEvents.map((related) => (
+                      <RelatedEventCard
+                        key={related.id}
+                        event={related}
+                        onClick={() => handleRelatedEventClick(related.id)}
+                      />
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+          </Tabs>
+        </main>
+
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // Desktop Layout
+  return (
+    <div 
+      className="min-h-screen"
+      style={{
+        background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)"
+      }}
+    >
+      <EventsDesktopHeader />
+
+      <main className="max-w-6xl mx-auto px-8 py-10">
+        {/* Back Button */}
+        <Button 
+          variant="ghost" 
+          className="gap-2 mb-6 text-muted-foreground hover:text-foreground"
+          onClick={() => navigate("/resolved")}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Resolved Events
+        </Button>
+
+        <div className="grid grid-cols-3 gap-8">
+          {/* Left Column - Main Content */}
+          <div className="col-span-2 space-y-6">
+            {/* Event Header */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Badge 
+                  variant="outline" 
+                  className="text-[10px] uppercase tracking-wide"
+                  style={{
+                    backgroundColor: `hsl(${categoryInfo.color} / 0.15)`,
+                    color: `hsl(${categoryInfo.color})`,
+                    borderColor: `hsl(${categoryInfo.color} / 0.3)`,
+                  }}
+                >
+                  {categoryInfo.label}
+                </Badge>
+                <Badge 
+                  variant="outline"
+                  className="text-[10px] uppercase tracking-wide bg-muted/50 text-muted-foreground border-border/50"
+                >
+                  Settled {settledDate}
+                </Badge>
+              </div>
+              
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="text-2xl font-bold text-foreground leading-tight">
+                  {event.icon} {event.name}
+                </h1>
+                <Button variant="outline" size="sm" className="gap-2" onClick={handleShare}>
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </Button>
+              </div>
+
+              {event.description && (
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+                  {event.description}
+                </p>
+              )}
+
+              {/* User Participation Banner */}
+              {event.userParticipated && (
+                <div 
+                  className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer hover:opacity-90 transition-opacity ${
+                    (event.userPnl || 0) >= 0 
+                      ? "bg-trading-green/10 border-trading-green/30" 
+                      : "bg-trading-red/10 border-trading-red/30"
+                  }`}
+                  onClick={handleGoToPortfolio}
+                >
+                  <div className="flex items-center gap-3">
+                    <Briefcase className={`h-5 w-5 ${(event.userPnl || 0) >= 0 ? "text-trading-green" : "text-trading-red"}`} />
+                    <div>
+                      <span className="text-sm font-medium text-foreground">You participated in this event</span>
+                      <p className="text-xs text-muted-foreground">Click to view your trade history</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`font-mono text-lg font-semibold ${
+                      (event.userPnl || 0) >= 0 ? "text-trading-green" : "text-trading-red"
+                    }`}>
+                      {(event.userPnl || 0) >= 0 ? "+" : ""}${(event.userPnl || 0).toFixed(2)}
+                    </span>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Options Result Card */}
+            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Final Results</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  {event.options.map((option) => (
+                    <div
+                      key={option.id}
+                      className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
+                        option.is_winner
+                          ? "bg-trading-green/15 border border-trading-green/30"
+                          : "bg-muted/20 border border-transparent"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {option.is_winner ? (
+                          <Check className="h-5 w-5 text-trading-green" />
+                        ) : (
+                          <X className="h-5 w-5 text-trading-red/70" />
+                        )}
+                        <span className={`font-medium ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
+                          {option.label}
+                        </span>
+                      </div>
+                      <span className={`font-mono font-semibold ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
+                        ${(option.final_price ?? option.price).toFixed(4)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Price History Chart */}
+            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Price History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PriceHistoryChart
+                  priceHistory={event.priceHistory}
+                  options={event.options}
+                  isMobile={false}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Event Statistics */}
+            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Event Statistics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EventStatisticsCard 
+                  statistics={event.statistics} 
+                  volume={event.volume}
+                  isMobile={false}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Rules */}
+            {event.rules && (
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Resolution Rules</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {event.rules}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Right Column - Sidebar */}
+          <div className="space-y-6">
+            {/* Settlement Timeline */}
+            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Settlement Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SettlementTimeline
+                  startDate={event.start_date}
+                  endDate={event.end_date}
+                  settledAt={event.settled_at}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Settlement Evidence */}
+            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Settlement Evidence</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SettlementEvidenceCard
+                  sourceName={event.source_name}
+                  sourceUrl={event.source_url}
+                  settlementDescription={event.settlement_description}
+                  winningOptionLabel={winningOption?.label || null}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Related Events */}
+            {event.relatedEvents.length > 0 && (
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Related Events</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {event.relatedEvents.map((related) => (
+                    <RelatedEventCard
+                      key={related.id}
+                      event={related}
+                      onClick={() => handleRelatedEventClick(related.id)}
+                    />
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default ResolvedEventDetail;

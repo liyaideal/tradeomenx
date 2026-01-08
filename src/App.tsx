@@ -11,6 +11,7 @@ import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide";
 import EventsPage from "./pages/EventsPage";
 import ResolvedPage from "./pages/ResolvedPage";
+import ResolvedEventDetail from "./pages/ResolvedEventDetail";
 import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/order-preview" element={<OrderPreview />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/resolved" element={<ResolvedPage />} />
+            <Route path="/resolved/:eventId" element={<ResolvedEventDetail />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/style-guide" element={<StyleGuide />} />
