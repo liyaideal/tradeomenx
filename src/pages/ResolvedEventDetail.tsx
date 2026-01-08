@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,34 +23,23 @@ import { EventStatisticsCard } from "@/components/resolved/EventStatisticsCard";
 import { RelatedEventCard } from "@/components/resolved/RelatedEventCard";
 import { SettlementEvidenceCard } from "@/components/resolved/SettlementEvidenceCard";
 import { EventRulesCard } from "@/components/resolved/EventRulesCard";
+import { ShareModal } from "@/components/ShareModal";
+import { EventShareCard } from "@/components/resolved/EventShareCard";
 import { getCategoryInfo } from "@/lib/categoryUtils";
 import { format } from "date-fns";
-import { toast } from "sonner";
 
 const ResolvedEventDetail = () => {
   const navigate = useNavigate();
   const { eventId } = useParams<{ eventId: string }>();
   const isMobile = useIsMobile();
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const { data: event, isLoading, error } = useResolvedEventDetail({
     eventId: eventId || "",
   });
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: event?.name || "Resolved Event",
-          url,
-        });
-      } catch (err) {
-        // User cancelled or error
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success("Link copied to clipboard");
-    }
+  const handleShare = () => {
+    setIsShareModalOpen(true);
   };
 
   const handleRelatedEventClick = (relatedEventId: string) => {
@@ -333,6 +323,26 @@ const ResolvedEventDetail = () => {
         </main>
 
         <BottomNav />
+        
+        {/* Share Modal */}
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          title="Share Event Result"
+          subtitle="Share this resolved event with your friends"
+          shareText={`📊 ${event.name} - Result: ${winningOption?.label || 'N/A'}! Check out the final outcome on OMENX 🚀`}
+          shareUrl={window.location.href}
+          fileName={`omenx-event-${eventId}`}
+        >
+          <EventShareCard
+            eventName={event.name}
+            category={event.category}
+            settledAt={event.settled_at}
+            options={event.options}
+            userPnl={event.userPnl}
+            userParticipated={event.userParticipated}
+          />
+        </ShareModal>
       </div>
     );
   }
@@ -550,6 +560,26 @@ const ResolvedEventDetail = () => {
           </div>
         </div>
       </main>
+      
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        title="Share Event Result"
+        subtitle="Share this resolved event with your friends"
+        shareText={`📊 ${event.name} - Result: ${winningOption?.label || 'N/A'}! Check out the final outcome on OMENX 🚀`}
+        shareUrl={window.location.href}
+        fileName={`omenx-event-${eventId}`}
+      >
+        <EventShareCard
+          eventName={event.name}
+          category={event.category}
+          settledAt={event.settled_at}
+          options={event.options}
+          userPnl={event.userPnl}
+          userParticipated={event.userParticipated}
+        />
+      </ShareModal>
     </div>
   );
 };
