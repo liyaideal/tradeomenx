@@ -104,9 +104,13 @@ const ResolvedEventDetail = () => {
           </div>
         </header>
 
-        <main className="px-4 py-5 space-y-4">
+        <main className="px-4 py-5 space-y-5">
+          {/* ═══════════════════════════════════════════════════════════════
+              SECTION 1: CORE INFO - 核心信息区域
+          ═══════════════════════════════════════════════════════════════ */}
+          
           {/* Event Header */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Badge 
                 variant="outline" 
@@ -163,10 +167,11 @@ const ResolvedEventDetail = () => {
             </div>
           )}
 
-          {/* Final Results */}
-          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-medium">Final Results</CardTitle>
+          {/* Combined Results & Evidence Card - 主卡片 */}
+          <Card className="border-border/50 overflow-hidden" style={{ background: "var(--gradient-card)" }}>
+            {/* Final Results Section */}
+            <CardHeader className="pb-3 pt-4 px-4">
+              <CardTitle className="text-base font-semibold">Final Results</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-2">
               {event.options.map((option) => (
@@ -194,14 +199,30 @@ const ResolvedEventDetail = () => {
                 </div>
               ))}
             </CardContent>
-          </Card>
 
-          {/* Settlement Progress */}
-          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+            {/* Divider */}
+            <div className="h-px bg-border/40 mx-4" />
+
+            {/* Settlement Evidence Section */}
             <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-medium">Settlement Progress</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Settlement Evidence</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4">
+              <SettlementEvidenceCard
+                sourceName={event.source_name}
+                sourceUrl={event.source_url}
+                settlementDescription={event.settlement_description}
+                winningOptionLabel={null}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Settlement Progress - 紧凑时间线 */}
+          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-2 pt-3 px-4">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Settlement Progress</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-3">
               <SettlementTimeline
                 startDate={event.start_date}
                 endDate={event.end_date}
@@ -210,27 +231,23 @@ const ResolvedEventDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Settlement Evidence */}
-          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-medium">Settlement Evidence</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <SettlementEvidenceCard
-                sourceName={event.source_name}
-                sourceUrl={event.source_url}
-                settlementDescription={event.settlement_description}
-                winningOptionLabel={winningOption?.label || null}
-              />
-            </CardContent>
-          </Card>
+          {/* ═══════════════════════════════════════════════════════════════
+              SECTION 2: ANALYSIS - 分析数据区域
+          ═══════════════════════════════════════════════════════════════ */}
+          
+          {/* Section Divider */}
+          <div className="flex items-center gap-3 pt-2">
+            <div className="h-px flex-1 bg-border/30" />
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">Analysis</span>
+            <div className="h-px flex-1 bg-border/30" />
+          </div>
 
           {/* Price History Chart */}
-          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-medium">Price History</CardTitle>
+          <Card className="border-border/30" style={{ background: "var(--gradient-card)" }}>
+            <CardHeader className="pb-2 pt-3 px-4">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Price History</CardTitle>
             </CardHeader>
-            <CardContent className="px-4 pb-4">
+            <CardContent className="px-4 pb-3">
               <PriceHistoryChart
                 priceHistory={event.priceHistory}
                 options={event.options}
@@ -239,44 +256,70 @@ const ResolvedEventDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Event Statistics */}
-          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-medium">Statistics</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <EventStatisticsCard 
-                statistics={event.statistics} 
-                volume={event.volume}
-                isMobile={true}
-              />
-            </CardContent>
-          </Card>
+          {/* Stats + Rules Row - 并排显示 */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Statistics - 紧凑版 */}
+            <Card className="border-border/30" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-1 pt-3 px-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Stats</CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 pb-3">
+                <EventStatisticsCard 
+                  statistics={event.statistics} 
+                  volume={event.volume}
+                  isMobile={true}
+                />
+              </CardContent>
+            </Card>
 
-          {/* Event Rules */}
-          <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-medium">Event Rules</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <EventRulesCard
-                startDate={event.start_date}
-                endDate={event.end_date}
-                settledAt={event.settled_at}
-                rules={event.rules}
-                eventName={event.name}
-                isMobile={true}
-              />
-            </CardContent>
-          </Card>
+            {/* Event Info - 紧凑版 */}
+            <Card className="border-border/30" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-1 pt-3 px-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Info</CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 pb-3">
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <div className="text-muted-foreground/70">Created</div>
+                    <div className="text-foreground font-medium truncate">
+                      {event.start_date ? format(new Date(event.start_date), "MMM d, yyyy") : "—"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground/70">Settled</div>
+                    <div className="text-foreground font-medium truncate">
+                      {event.settled_at ? format(new Date(event.settled_at), "MMM d, yyyy") : "—"}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Event Rules - 可折叠或精简显示 */}
+          {event.rules && (
+            <Card className="border-border/30" style={{ background: "var(--gradient-card)" }}>
+              <CardHeader className="pb-2 pt-3 px-4">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Settlement Rules</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
+                <p className="text-xs text-foreground/80 leading-relaxed">
+                  {event.rules}
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Related Events */}
           {event.relatedEvents.length > 0 && (
-            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
-              <CardHeader className="pb-2 pt-4 px-4">
-                <CardTitle className="text-sm font-medium">Related Events</CardTitle>
-              </CardHeader>
-              <CardContent className="px-4 pb-4 space-y-2">
+            <>
+              <div className="flex items-center gap-3 pt-2">
+                <div className="h-px flex-1 bg-border/30" />
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">Related</span>
+                <div className="h-px flex-1 bg-border/30" />
+              </div>
+              
+              <div className="space-y-2">
                 {event.relatedEvents.map((related) => (
                   <RelatedEventCard
                     key={related.id}
@@ -284,8 +327,8 @@ const ResolvedEventDetail = () => {
                     onClick={() => handleRelatedEventClick(related.id)}
                   />
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </>
           )}
         </main>
 
