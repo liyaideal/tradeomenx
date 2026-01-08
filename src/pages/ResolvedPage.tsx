@@ -46,8 +46,7 @@ const ResolvedPage = () => {
   };
 
   const handleEventClick = (eventId: string) => {
-    // Could navigate to event detail page in the future
-    console.log("Event clicked:", eventId);
+    navigate(`/resolved/${eventId}`);
   };
 
   return (
