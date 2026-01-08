@@ -106,13 +106,13 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     }, {} as Record<string, { change: number; startPrice: number; endPrice: number }>);
   }, [chartData, options]);
 
-  // Chart dimensions - mobile optimized with proper aspect ratio
-  const chartHeight = isMobile ? 180 : 220;
-  const chartWidth = isMobile ? 320 : 1000;
+  // Chart dimensions - different aspect ratios for mobile vs desktop
+  const chartHeight = isMobile ? 180 : 200;
+  const chartWidth = isMobile ? 320 : 800;
   const padding = { 
     top: 5, 
-    right: isMobile ? 32 : 70, 
-    bottom: isMobile ? 22 : 30, 
+    right: isMobile ? 32 : 60, 
+    bottom: isMobile ? 22 : 28, 
     left: 5 
   };
 
@@ -147,7 +147,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     return lines;
   }, [minPrice, priceRange]);
 
-  // Get time labels
+  // Get time labels - avoid overlapping on mobile
   const timeLabels = useMemo(() => {
     const firstOptionId = options[0]?.id;
     const points = chartData[firstOptionId] || [];
@@ -160,15 +160,20 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     for (let i = 0; i < points.length; i += step) {
       labels.push({
         index: i,
-        date: format(new Date(points[i].recorded_at), "MMM d"),
+        date: format(new Date(points[i].recorded_at), isMobile ? "M/d" : "MMM d"),
       });
     }
     
+    // Only add last label if it's far enough from the previous one
     if (labels.length > 0 && labels[labels.length - 1].index !== points.length - 1) {
-      labels.push({
-        index: points.length - 1,
-        date: format(new Date(points[points.length - 1].recorded_at), "MMM d"),
-      });
+      const lastLabelIndex = labels[labels.length - 1].index;
+      const minGap = isMobile ? step * 0.6 : step * 0.5;
+      if (points.length - 1 - lastLabelIndex >= minGap) {
+        labels.push({
+          index: points.length - 1,
+          date: format(new Date(points[points.length - 1].recorded_at), isMobile ? "M/d" : "MMM d"),
+        });
+      }
     }
     
     return labels;
