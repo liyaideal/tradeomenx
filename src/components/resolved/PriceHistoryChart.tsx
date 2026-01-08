@@ -143,6 +143,26 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     return labels;
   }, [chartData, options, isMobile]);
 
+  // Calculate price change percentage for each option
+  const priceChanges = useMemo(() => {
+    return options.map((option, index) => {
+      const points = chartData[option.id] || [];
+      if (points.length < 2) return { optionId: option.id, change: 0, startPrice: 0, endPrice: 0 };
+      
+      const startPrice = points[0].price;
+      const endPrice = points[points.length - 1].price;
+      const change = startPrice > 0 ? ((endPrice - startPrice) / startPrice) * 100 : 0;
+      
+      return {
+        optionId: option.id,
+        change,
+        startPrice,
+        endPrice,
+        color: OPTION_COLORS[index % OPTION_COLORS.length],
+      };
+    });
+  }, [chartData, options]);
+
   if (options.length === 0) {
     return (
       <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
@@ -175,17 +195,20 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
 
   return (
     <div className="space-y-3">
-      {/* Interactive Legend */}
+      {/* Interactive Legend with Price Change */}
       <div className="flex flex-wrap gap-2">
         {options.map((option, index) => {
           const isVisible = visibleOptions.has(option.id);
           const color = OPTION_COLORS[index % OPTION_COLORS.length];
+          const changeData = priceChanges.find(p => p.optionId === option.id);
+          const change = changeData?.change ?? 0;
+          const isPositive = change >= 0;
           
           return (
             <button
               key={option.id}
               onClick={() => toggleOption(option.id)}
-              className={`flex items-center gap-2 px-2 py-1 rounded-md transition-all ${
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-md transition-all ${
                 isVisible 
                   ? "bg-muted/40 hover:bg-muted/60" 
                   : "bg-muted/10 opacity-50 hover:opacity-70"
@@ -203,7 +226,53 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
                 {option.label}
                 {option.is_winner && " ✓"}
               </span>
+              {isVisible && (
+                <span className={`text-[10px] font-mono font-semibold ${
+                  isPositive ? "text-trading-green" : "text-trading-red"
+                }`}>
+                  {isPositive ? "+" : ""}{change.toFixed(1)}%
+                </span>
+              )}
             </button>
+          );
+        })}
+      </div>
+
+      {/* Price Change Summary Cards */}
+      <div className={`grid gap-2 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+        {options.map((option, index) => {
+          const changeData = priceChanges.find(p => p.optionId === option.id);
+          if (!changeData || !visibleOptions.has(option.id)) return null;
+          
+          const { change, startPrice, endPrice } = changeData;
+          const isPositive = change >= 0;
+          const color = OPTION_COLORS[index % OPTION_COLORS.length];
+          
+          return (
+            <div
+              key={option.id}
+              className="flex flex-col gap-1 p-2 rounded-lg bg-muted/20 border border-border/30"
+            >
+              <div className="flex items-center gap-1.5">
+                <div 
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="text-[10px] text-muted-foreground truncate">
+                  {option.label}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs font-mono text-muted-foreground">
+                  ${startPrice.toFixed(2)} → ${endPrice.toFixed(2)}
+                </span>
+                <span className={`text-xs font-mono font-bold ${
+                  isPositive ? "text-trading-green" : "text-trading-red"
+                }`}>
+                  {isPositive ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
+                </span>
+              </div>
+            </div>
           );
         })}
       </div>
