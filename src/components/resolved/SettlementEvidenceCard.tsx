@@ -1,5 +1,4 @@
-import { ExternalLink, FileCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ExternalLink, FileCheck, CheckCircle2 } from "lucide-react";
 
 interface SettlementEvidenceCardProps {
   sourceName: string | null;
@@ -14,10 +13,62 @@ export const SettlementEvidenceCard = ({
   settlementDescription,
   winningOptionLabel 
 }: SettlementEvidenceCardProps) => {
+  const hasSourceInfo = sourceName || sourceUrl;
+  const hasAnyContent = hasSourceInfo || settlementDescription || winningOptionLabel;
+
+  if (!hasAnyContent) {
+    return (
+      <div className="p-4 rounded-xl bg-muted/20 text-center">
+        <p className="text-sm text-muted-foreground">
+          No settlement evidence available
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      {/* Winning Result */}
-      {winningOptionLabel && (
+    <div className="space-y-3">
+      {/* Source Link - clickable card style */}
+      {hasSourceInfo && (
+        <div 
+          className="p-4 rounded-xl bg-muted/30 border border-border/30 cursor-pointer hover:bg-muted/40 transition-colors"
+          onClick={() => sourceUrl && window.open(sourceUrl, "_blank")}
+        >
+          <div className="flex items-start gap-3">
+            <ExternalLink className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-foreground text-sm">
+                {sourceName || "Resolution Source"}
+              </div>
+              {sourceUrl && (
+                <div className="text-xs text-primary/80 truncate mt-1">
+                  {sourceUrl}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Result Confirmed - settlement description */}
+      {settlementDescription && (
+        <div className="p-4 rounded-xl bg-trading-green/10 border border-trading-green/30">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="h-4 w-4 text-trading-green mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="text-sm font-medium text-trading-green mb-1">
+                Result Confirmed
+              </div>
+              <p className="text-sm text-trading-green/90 leading-relaxed">
+                {settlementDescription}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Winning Result - only show if no other content shows the winner */}
+      {winningOptionLabel && !settlementDescription && (
         <div className="flex items-center gap-3 p-4 rounded-xl bg-trading-green/10 border border-trading-green/30">
           <div className="p-2 rounded-lg bg-trading-green/20">
             <FileCheck className="h-5 w-5 text-trading-green" />
@@ -30,50 +81,6 @@ export const SettlementEvidenceCard = ({
               {winningOptionLabel}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Settlement Description */}
-      {settlementDescription && (
-        <div className="p-4 rounded-xl bg-muted/30 border border-border/30">
-          <div className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
-            Settlement Details
-          </div>
-          <p className="text-sm text-foreground leading-relaxed">
-            {settlementDescription}
-          </p>
-        </div>
-      )}
-
-      {/* Source Link */}
-      {sourceName && sourceUrl && (
-        <div className="flex items-center justify-between p-3 rounded-xl bg-muted/20 border border-border/20">
-          <div>
-            <div className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
-              Resolution Source
-            </div>
-            <div className="text-sm font-medium text-foreground">
-              {sourceName}
-            </div>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => window.open(sourceUrl, "_blank")}
-          >
-            <ExternalLink className="h-3 w-3" />
-            View Source
-          </Button>
-        </div>
-      )}
-
-      {/* Fallback if no evidence */}
-      {!settlementDescription && !sourceUrl && !winningOptionLabel && (
-        <div className="p-4 rounded-xl bg-muted/20 text-center">
-          <p className="text-sm text-muted-foreground">
-            No settlement evidence available
-          </p>
         </div>
       )}
     </div>
