@@ -4,7 +4,7 @@ import { format } from "date-fns";
 
 interface PriceHistoryChartProps {
   priceHistory: Record<string, PriceHistoryPoint[]>;
-  options: { id: string; label: string; is_winner: boolean }[];
+  options: { id: string; label: string; is_winner: boolean; final_price: number | null; price: number }[];
   isMobile?: boolean;
 }
 
@@ -18,38 +18,38 @@ const OPTION_COLORS = [
 export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: PriceHistoryChartProps) => {
   const [hoveredPoint, setHoveredPoint] = useState<{ optionId: string; index: number } | null>(null);
 
-  // Generate mock data if no real data exists
+  // Convert price history to USD prices and generate mock data if needed
   const chartData = useMemo(() => {
     const hasRealData = Object.values(priceHistory).some(arr => arr.length > 0);
     
     if (hasRealData) {
+      // Convert probability prices to USD - price_history stores USD directly now
       return priceHistory;
     }
 
-    // Generate mock price history for visualization
+    // Generate mock price history in USD for visualization
     const mockData: Record<string, PriceHistoryPoint[]> = {};
     const pointCount = 30;
     const now = new Date();
 
-    options.forEach((option, optionIndex) => {
+    options.forEach((option) => {
       const points: PriceHistoryPoint[] = [];
-      let price = 0.3 + Math.random() * 0.4;
+      const finalUsdPrice = option.final_price ?? option.price * 100;
+      
+      // Start from a reasonable base price
+      let price = finalUsdPrice * (0.3 + Math.random() * 0.4);
       
       for (let i = 0; i < pointCount; i++) {
         const date = new Date(now);
         date.setDate(date.getDate() - (pointCount - i));
         
         // Add some volatility
-        const change = (Math.random() - 0.5) * 0.08;
-        price = Math.max(0.01, Math.min(0.99, price + change));
+        const change = (Math.random() - 0.5) * finalUsdPrice * 0.1;
+        price = Math.max(0.01, price + change);
         
-        // If winner, trend toward 1.0 near the end
-        if (option.is_winner && i > pointCount * 0.7) {
-          price = price + (1.0 - price) * 0.15;
-        }
-        // If loser, trend toward 0.0 near the end
-        if (!option.is_winner && i > pointCount * 0.7) {
-          price = price * 0.85;
+        // Near the end, trend toward final price
+        if (i > pointCount * 0.7) {
+          price = price + (finalUsdPrice - price) * 0.2;
         }
         
         points.push({
@@ -67,12 +67,15 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   // Calculate chart dimensions
   const chartHeight = isMobile ? 180 : 220;
   const chartWidth = 1000;
-  const padding = { top: 20, right: 50, bottom: 30, left: 50 };
+  const padding = { top: 20, right: 60, bottom: 30, left: 50 };
 
-  // Find min/max prices across all options
+  // Find min/max prices across all options (USD prices)
   const allPrices = Object.values(chartData).flatMap(points => points.map(p => p.price));
-  const minPrice = Math.max(0, Math.min(...allPrices) - 0.05);
-  const maxPrice = Math.min(1, Math.max(...allPrices) + 0.05);
+  const dataMin = Math.min(...allPrices);
+  const dataMax = Math.max(...allPrices);
+  const priceBuffer = (dataMax - dataMin) * 0.1 || 1;
+  const minPrice = Math.max(0, dataMin - priceBuffer);
+  const maxPrice = dataMax + priceBuffer;
   const priceRange = maxPrice - minPrice;
 
   const priceToY = (price: number) => {
@@ -83,7 +86,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     return padding.left + ((chartWidth - padding.left - padding.right) * index) / (total - 1);
   };
 
-  // Generate price labels
+  // Generate price labels (USD)
   const priceLabels = [maxPrice, (maxPrice + minPrice) / 2, minPrice];
 
   if (options.length === 0) {
@@ -172,18 +175,18 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
           })}
         </svg>
 
-        {/* Y-axis labels - showing probability (0-1) */}
+        {/* Y-axis labels - showing USD prices */}
         {priceLabels.map((price, i) => (
           <span
             key={`label-${i}`}
             className="absolute text-[10px] font-mono text-muted-foreground"
             style={{
-              right: `${(padding.right / chartWidth) * 100 + 1}%`,
+              right: `${(padding.right / chartWidth) * 100 - 2}%`,
               top: `${(priceToY(price) / chartHeight) * 100}%`,
               transform: "translateY(-50%)",
             }}
           >
-            {price.toFixed(2)}
+            ${price.toFixed(2)}
           </span>
         ))}
       </div>
