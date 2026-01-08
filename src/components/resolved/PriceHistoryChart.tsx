@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { PriceHistoryPoint } from "@/hooks/useResolvedEventDetail";
 import { format } from "date-fns";
 
@@ -22,18 +22,20 @@ interface TooltipData {
   date: string;
   label: string;
   color: string;
+  startPrice: number;
+  changePercent: number;
 }
 
 export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: PriceHistoryChartProps) => {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [visibleOptions, setVisibleOptions] = useState<Set<string>>(new Set(options.map(o => o.id)));
+  const svgRef = useRef<SVGSVGElement>(null);
 
   // Toggle option visibility
   const toggleOption = (optionId: string) => {
     setVisibleOptions(prev => {
       const next = new Set(prev);
       if (next.has(optionId)) {
-        // Don't allow hiding all options
         if (next.size > 1) {
           next.delete(optionId);
         }
@@ -52,7 +54,6 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
       return priceHistory;
     }
 
-    // Generate mock price history in USD for visualization
     const mockData: Record<string, PriceHistoryPoint[]> = {};
     const pointCount = 30;
     const now = new Date();
@@ -86,10 +87,28 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     return mockData;
   }, [priceHistory, options]);
 
-  // Calculate chart dimensions
-  const chartHeight = isMobile ? 200 : 240;
+  // Calculate price changes
+  const priceChanges = useMemo(() => {
+    return options.reduce((acc, option, index) => {
+      const points = chartData[option.id] || [];
+      if (points.length < 2) {
+        acc[option.id] = { change: 0, startPrice: 0, endPrice: 0 };
+        return acc;
+      }
+      
+      const startPrice = points[0].price;
+      const endPrice = points[points.length - 1].price;
+      const change = startPrice > 0 ? ((endPrice - startPrice) / startPrice) * 100 : 0;
+      
+      acc[option.id] = { change, startPrice, endPrice };
+      return acc;
+    }, {} as Record<string, { change: number; startPrice: number; endPrice: number }>);
+  }, [chartData, options]);
+
+  // Chart dimensions
+  const chartHeight = isMobile ? 200 : 280;
   const chartWidth = 1000;
-  const padding = { top: 20, right: 60, bottom: 45, left: 50 };
+  const padding = { top: 30, right: 70, bottom: 50, left: 10 };
 
   // Find min/max prices across VISIBLE options only
   const visiblePrices = Object.entries(chartData)
@@ -98,7 +117,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   
   const dataMin = visiblePrices.length > 0 ? Math.min(...visiblePrices) : 0;
   const dataMax = visiblePrices.length > 0 ? Math.max(...visiblePrices) : 100;
-  const priceBuffer = (dataMax - dataMin) * 0.1 || 1;
+  const priceBuffer = (dataMax - dataMin) * 0.15 || 5;
   const minPrice = Math.max(0, dataMin - priceBuffer);
   const maxPrice = dataMax + priceBuffer;
   const priceRange = maxPrice - minPrice;
@@ -108,60 +127,46 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   };
 
   const indexToX = (index: number, total: number) => {
+    if (total <= 1) return padding.left;
     return padding.left + ((chartWidth - padding.left - padding.right) * index) / (total - 1);
   };
 
-  // Generate price labels (USD)
-  const priceLabels = [maxPrice, (maxPrice + minPrice) / 2, minPrice];
+  // Generate horizontal grid lines
+  const gridLines = useMemo(() => {
+    const lines: number[] = [];
+    const step = priceRange / 3;
+    for (let i = 0; i <= 3; i++) {
+      lines.push(minPrice + step * i);
+    }
+    return lines;
+  }, [minPrice, priceRange]);
 
-  // Get time labels from first available option's data
+  // Get time labels
   const timeLabels = useMemo(() => {
     const firstOptionId = options[0]?.id;
     const points = chartData[firstOptionId] || [];
     if (points.length === 0) return [];
     
-    // Show 4-6 time labels depending on data points
-    const labelCount = isMobile ? 4 : 6;
+    const labelCount = isMobile ? 4 : 5;
     const step = Math.max(1, Math.floor((points.length - 1) / (labelCount - 1)));
     const labels: { index: number; date: string }[] = [];
     
     for (let i = 0; i < points.length; i += step) {
       labels.push({
         index: i,
-        date: format(new Date(points[i].recorded_at), isMobile ? "M/d" : "MMM d"),
+        date: format(new Date(points[i].recorded_at), "MMM d"),
       });
     }
     
-    // Always include last point
     if (labels.length > 0 && labels[labels.length - 1].index !== points.length - 1) {
       labels.push({
         index: points.length - 1,
-        date: format(new Date(points[points.length - 1].recorded_at), isMobile ? "M/d" : "MMM d"),
+        date: format(new Date(points[points.length - 1].recorded_at), "MMM d"),
       });
     }
     
     return labels;
   }, [chartData, options, isMobile]);
-
-  // Calculate price change percentage for each option
-  const priceChanges = useMemo(() => {
-    return options.map((option, index) => {
-      const points = chartData[option.id] || [];
-      if (points.length < 2) return { optionId: option.id, change: 0, startPrice: 0, endPrice: 0 };
-      
-      const startPrice = points[0].price;
-      const endPrice = points[points.length - 1].price;
-      const change = startPrice > 0 ? ((endPrice - startPrice) / startPrice) * 100 : 0;
-      
-      return {
-        optionId: option.id,
-        change,
-        startPrice,
-        endPrice,
-        color: OPTION_COLORS[index % OPTION_COLORS.length],
-      };
-    });
-  }, [chartData, options]);
 
   if (options.length === 0) {
     return (
@@ -171,108 +176,109 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     );
   }
 
-  const handleMouseMove = (
-    e: React.MouseEvent<SVGCircleElement>,
-    point: PriceHistoryPoint,
-    option: typeof options[0],
-    colorIndex: number
-  ) => {
-    const rect = e.currentTarget.ownerSVGElement?.getBoundingClientRect();
-    if (!rect) return;
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
     
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const rect = svgRef.current.getBoundingClientRect();
+    const mouseX = ((e.clientX - rect.left) / rect.width) * chartWidth;
+    const mouseY = ((e.clientY - rect.top) / rect.height) * chartHeight;
     
-    setTooltip({
-      x,
-      y,
-      price: point.price,
-      date: format(new Date(point.recorded_at), "MMM d, yyyy"),
-      label: option.label,
-      color: OPTION_COLORS[colorIndex % OPTION_COLORS.length],
+    // Find nearest point
+    let nearestPoint: TooltipData | null = null;
+    let minDistance = Infinity;
+    
+    options.forEach((option, optionIndex) => {
+      if (!visibleOptions.has(option.id)) return;
+      
+      const points = chartData[option.id] || [];
+      const color = OPTION_COLORS[optionIndex % OPTION_COLORS.length];
+      const priceChange = priceChanges[option.id];
+      
+      points.forEach((point, i) => {
+        const x = indexToX(i, points.length);
+        const y = priceToY(point.price);
+        const distance = Math.sqrt(Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2));
+        
+        if (distance < minDistance && distance < 50) {
+          minDistance = distance;
+          
+          const changeFromStart = priceChange.startPrice > 0 
+            ? ((point.price - priceChange.startPrice) / priceChange.startPrice) * 100 
+            : 0;
+          
+          nearestPoint = {
+            x: (x / chartWidth) * rect.width,
+            y: (y / chartHeight) * rect.height,
+            price: point.price,
+            date: format(new Date(point.recorded_at), "MMM d, yyyy"),
+            label: option.label,
+            color,
+            startPrice: priceChange.startPrice,
+            changePercent: changeFromStart,
+          };
+        }
+      });
     });
+    
+    setTooltip(nearestPoint);
+  };
+
+  // Create smooth curve path
+  const createSmoothPath = (points: PriceHistoryPoint[]) => {
+    if (points.length < 2) return "";
+    
+    const coords = points.map((point, i) => ({
+      x: indexToX(i, points.length),
+      y: priceToY(point.price),
+    }));
+    
+    let path = `M ${coords[0].x} ${coords[0].y}`;
+    
+    for (let i = 1; i < coords.length; i++) {
+      const prev = coords[i - 1];
+      const curr = coords[i];
+      const cpX = (prev.x + curr.x) / 2;
+      path += ` Q ${cpX} ${prev.y}, ${cpX} ${(prev.y + curr.y) / 2}`;
+      path += ` Q ${cpX} ${curr.y}, ${curr.x} ${curr.y}`;
+    }
+    
+    return path;
   };
 
   return (
-    <div className="space-y-3">
-      {/* Interactive Legend with Price Change */}
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-4">
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3">
         {options.map((option, index) => {
           const isVisible = visibleOptions.has(option.id);
           const color = OPTION_COLORS[index % OPTION_COLORS.length];
-          const changeData = priceChanges.find(p => p.optionId === option.id);
-          const change = changeData?.change ?? 0;
-          const isPositive = change >= 0;
+          const changeData = priceChanges[option.id];
+          const isPositive = changeData.change >= 0;
           
           return (
             <button
               key={option.id}
               onClick={() => toggleOption(option.id)}
-              className={`flex items-center gap-2 px-2 py-1.5 rounded-md transition-all ${
-                isVisible 
-                  ? "bg-muted/40 hover:bg-muted/60" 
-                  : "bg-muted/10 opacity-50 hover:opacity-70"
+              className={`flex items-center gap-2 transition-opacity ${
+                isVisible ? "opacity-100" : "opacity-40"
               }`}
             >
               <div 
-                className={`w-3 h-3 rounded-full transition-opacity ${isVisible ? "" : "opacity-30"}`}
+                className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: color }}
               />
-              <span className={`text-xs ${
-                option.is_winner 
-                  ? "text-foreground font-medium" 
-                  : "text-muted-foreground"
-              } ${!isVisible ? "line-through" : ""}`}>
+              <span className={`text-sm ${
+                option.is_winner ? "text-foreground font-medium" : "text-muted-foreground"
+              }`}>
                 {option.label}
                 {option.is_winner && " ✓"}
               </span>
-              {isVisible && (
-                <span className={`text-[10px] font-mono font-semibold ${
-                  isPositive ? "text-trading-green" : "text-trading-red"
-                }`}>
-                  {isPositive ? "+" : ""}{change.toFixed(1)}%
-                </span>
-              )}
+              <span className={`text-xs font-mono font-medium ${
+                isPositive ? "text-trading-green" : "text-trading-red"
+              }`}>
+                {isPositive ? "+" : ""}{changeData.change.toFixed(1)}%
+              </span>
             </button>
-          );
-        })}
-      </div>
-
-      {/* Price Change Summary Cards */}
-      <div className={`grid gap-2 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
-        {options.map((option, index) => {
-          const changeData = priceChanges.find(p => p.optionId === option.id);
-          if (!changeData || !visibleOptions.has(option.id)) return null;
-          
-          const { change, startPrice, endPrice } = changeData;
-          const isPositive = change >= 0;
-          const color = OPTION_COLORS[index % OPTION_COLORS.length];
-          
-          return (
-            <div
-              key={option.id}
-              className="flex flex-col gap-1 p-2 rounded-lg bg-muted/20 border border-border/30"
-            >
-              <div className="flex items-center gap-1.5">
-                <div 
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: color }}
-                />
-                <span className="text-[10px] text-muted-foreground truncate">
-                  {option.label}
-                </span>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs font-mono text-muted-foreground">
-                  ${startPrice.toFixed(2)} → ${endPrice.toFixed(2)}
-                </span>
-                <span className={`text-xs font-mono font-bold ${
-                  isPositive ? "text-trading-green" : "text-trading-red"
-                }`}>
-                  {isPositive ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%
-                </span>
-              </div>
-            </div>
           );
         })}
       </div>
@@ -280,59 +286,64 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
       {/* Chart */}
       <div className="relative">
         <svg
+          ref={svgRef}
           width="100%"
           height={chartHeight}
           viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-          preserveAspectRatio="none"
-          className="overflow-visible"
+          preserveAspectRatio="xMidYMid meet"
+          className="overflow-visible cursor-crosshair"
+          onMouseMove={handleMouseMove}
           onMouseLeave={() => setTooltip(null)}
         >
-          {/* Grid lines */}
-          {priceLabels.map((price, i) => (
-            <line
-              key={`grid-${i}`}
-              x1={padding.left}
-              y1={priceToY(price)}
-              x2={chartWidth - padding.right}
-              y2={priceToY(price)}
-              stroke="hsl(222 25% 18%)"
-              strokeWidth="1"
-              strokeDasharray="4,4"
-            />
+          {/* Horizontal grid lines */}
+          {gridLines.map((price, i) => (
+            <g key={`grid-${i}`}>
+              <line
+                x1={padding.left}
+                y1={priceToY(price)}
+                x2={chartWidth - padding.right}
+                y2={priceToY(price)}
+                stroke="hsl(222 20% 20%)"
+                strokeWidth="1"
+                strokeDasharray="4 4"
+                opacity={0.5}
+              />
+              <text
+                x={chartWidth - padding.right + 8}
+                y={priceToY(price)}
+                fill="hsl(222 20% 50%)"
+                fontSize="11"
+                fontFamily="monospace"
+                dominantBaseline="middle"
+              >
+                ${price.toFixed(2)}
+              </text>
+            </g>
           ))}
 
-          {/* X-axis time labels */}
+          {/* X-axis labels */}
           {timeLabels.map((label, i) => {
             const firstOptionId = options[0]?.id;
             const points = chartData[firstOptionId] || [];
+            if (points.length === 0) return null;
             const x = indexToX(label.index, points.length);
             
             return (
-              <g key={`time-${i}`}>
-                {/* Vertical tick */}
-                <line
-                  x1={x}
-                  y1={chartHeight - padding.bottom}
-                  x2={x}
-                  y2={chartHeight - padding.bottom + 5}
-                  stroke="hsl(222 25% 25%)"
-                  strokeWidth="1"
-                />
-                {/* Date text */}
-                <text
-                  x={x}
-                  y={chartHeight - padding.bottom + 18}
-                  textAnchor="middle"
-                  className="fill-muted-foreground"
-                  style={{ fontSize: "10px", fontFamily: "monospace" }}
-                >
-                  {label.date}
-                </text>
-              </g>
+              <text
+                key={`time-${i}`}
+                x={x}
+                y={chartHeight - padding.bottom + 25}
+                fill="hsl(222 20% 50%)"
+                fontSize="12"
+                fontFamily="system-ui"
+                textAnchor="middle"
+              >
+                {label.date}
+              </text>
             );
           })}
 
-          {/* Price lines for each option */}
+          {/* Price lines */}
           {options.map((option, optionIndex) => {
             const points = chartData[option.id] || [];
             if (points.length < 2) return null;
@@ -347,75 +358,100 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               })
               .join(" ");
 
+            const lastPoint = points[points.length - 1];
+            const lastX = indexToX(points.length - 1, points.length);
+            const lastY = priceToY(lastPoint.price);
+
             return (
               <g key={option.id}>
-                {/* Line path */}
+                {/* Line */}
                 <path
                   d={pathD}
                   fill="none"
                   stroke={color}
-                  strokeWidth={option.is_winner ? 3 : 2}
-                  opacity={option.is_winner ? 1 : 0.7}
+                  strokeWidth={option.is_winner ? 2.5 : 2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
                 
-                {/* Interactive points */}
-                {points.map((point, i) => (
-                  <circle
-                    key={i}
-                    cx={indexToX(i, points.length)}
-                    cy={priceToY(point.price)}
-                    r={i === points.length - 1 ? 5 : 4}
-                    fill={i === points.length - 1 ? color : "transparent"}
-                    stroke={color}
-                    strokeWidth={2}
-                    className="cursor-pointer transition-all hover:fill-current"
-                    style={{ fill: i === points.length - 1 ? color : "transparent" }}
-                    onMouseEnter={(e) => handleMouseMove(e, point, option, optionIndex)}
-                    onMouseMove={(e) => handleMouseMove(e, point, option, optionIndex)}
-                    onMouseLeave={() => setTooltip(null)}
-                  />
-                ))}
+                {/* End point */}
+                <circle
+                  cx={lastX}
+                  cy={lastY}
+                  r={5}
+                  fill={color}
+                />
+                
+                {/* End price label */}
+                <text
+                  x={lastX + 12}
+                  y={lastY}
+                  fill={color}
+                  fontSize="11"
+                  fontFamily="monospace"
+                  fontWeight="600"
+                  dominantBaseline="middle"
+                >
+                  ${lastPoint.price.toFixed(2)}
+                </text>
               </g>
             );
           })}
+
+          {/* Hover indicator */}
+          {tooltip && (
+            <g>
+              <line
+                x1={(tooltip.x / (svgRef.current?.getBoundingClientRect().width || 1)) * chartWidth}
+                y1={padding.top}
+                x2={(tooltip.x / (svgRef.current?.getBoundingClientRect().width || 1)) * chartWidth}
+                y2={chartHeight - padding.bottom}
+                stroke="hsl(222 20% 40%)"
+                strokeWidth="1"
+                strokeDasharray="3 3"
+              />
+              <circle
+                cx={(tooltip.x / (svgRef.current?.getBoundingClientRect().width || 1)) * chartWidth}
+                cy={(tooltip.y / (svgRef.current?.getBoundingClientRect().height || 1)) * chartHeight}
+                r={6}
+                fill={tooltip.color}
+                stroke="white"
+                strokeWidth={2}
+              />
+            </g>
+          )}
         </svg>
 
         {/* Tooltip */}
         {tooltip && (
           <div
-            className="absolute z-50 pointer-events-none px-3 py-2 rounded-lg shadow-lg border border-border/50 bg-popover text-popover-foreground"
+            className="absolute z-50 pointer-events-none px-3 py-2 rounded-lg shadow-xl border border-border/60 bg-popover/95 backdrop-blur-sm"
             style={{
-              left: `${(tooltip.x / (document.querySelector('svg')?.getBoundingClientRect().width || chartWidth)) * 100}%`,
-              top: `${(tooltip.y / chartHeight) * 100 - 15}%`,
+              left: tooltip.x,
+              top: tooltip.y - 10,
               transform: "translate(-50%, -100%)",
             }}
           >
             <div className="flex items-center gap-2 mb-1">
               <div 
-                className="w-2 h-2 rounded-full"
+                className="w-2.5 h-2.5 rounded-full"
                 style={{ backgroundColor: tooltip.color }}
               />
-              <span className="text-xs font-medium">{tooltip.label}</span>
+              <span className="text-xs font-medium text-foreground">{tooltip.label}</span>
             </div>
-            <div className="text-sm font-mono font-semibold">${tooltip.price.toFixed(2)}</div>
-            <div className="text-[10px] text-muted-foreground">{tooltip.date}</div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-base font-mono font-bold text-foreground">
+                ${tooltip.price.toFixed(2)}
+              </span>
+              <span className={`text-xs font-mono font-semibold ${
+                tooltip.changePercent >= 0 ? "text-trading-green" : "text-trading-red"
+              }`}>
+                {tooltip.changePercent >= 0 ? "+" : ""}{tooltip.changePercent.toFixed(1)}%
+              </span>
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">{tooltip.date}</div>
           </div>
         )}
-
-        {/* Y-axis labels - showing USD prices */}
-        {priceLabels.map((price, i) => (
-          <span
-            key={`label-${i}`}
-            className="absolute text-[10px] font-mono text-muted-foreground"
-            style={{
-              right: `${(padding.right / chartWidth) * 100 - 2}%`,
-              top: `${(priceToY(price) / chartHeight) * 100}%`,
-              transform: "translateY(-50%)",
-            }}
-          >
-            ${price.toFixed(2)}
-          </span>
-        ))}
       </div>
     </div>
   );
