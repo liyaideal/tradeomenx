@@ -62,6 +62,68 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
     ? format(new Date(event.settled_at), "yyyy-MM-dd")
     : "N/A";
 
+  // Mobile layout matching the design
+  if (isMobile) {
+    return (
+      <Card 
+        className="group relative overflow-hidden cursor-pointer transition-all duration-300 border-border/40 hover:border-primary/40"
+        onClick={onClick}
+        style={{
+          background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
+        }}
+      >
+        <CardContent className="p-4 space-y-3">
+          {/* Title and badges row */}
+          <div className="flex items-start gap-3">
+            <h3 className="font-semibold text-foreground leading-snug text-[15px] group-hover:text-primary transition-colors flex-1 min-w-0">
+              {event.name}
+            </h3>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Badge 
+                variant="outline"
+                className="text-[10px] font-semibold uppercase tracking-wide bg-muted/50 text-muted-foreground border-border/50 px-2 py-0.5"
+              >
+                Settled
+              </Badge>
+              {event.userParticipated && event.userPnl !== null && (
+                <Badge 
+                  variant="outline"
+                  className={`text-[10px] font-semibold px-2 py-0.5 ${
+                    event.userPnl >= 0
+                      ? "bg-trading-green/15 text-trading-green border-trading-green/40"
+                      : "bg-trading-red/15 text-trading-red border-trading-red/40"
+                  }`}
+                >
+                  Participated {event.userPnl >= 0 ? "+" : "-"}${Math.abs(event.userPnl).toFixed(0)}
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          {/* Settled date */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            <span>Settled On: {settledDate}</span>
+          </div>
+
+          {/* Options List - vertical for mobile */}
+          <div className="space-y-2">
+            {event.options.map((option) => (
+              <OptionItem key={option.id} option={option} isMobile={true} />
+            ))}
+          </div>
+
+          {/* Total Volume */}
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-2 border-t border-border/30">
+            <BarChart3 className="h-3.5 w-3.5 text-primary/60" />
+            <span>Total Volume: <span className="text-foreground font-mono font-medium">{formatVolume(event.volume)}</span></span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Desktop layout
   return (
     <Card 
       className="group relative overflow-hidden cursor-pointer transition-all duration-300 border-border/40 hover:border-primary/40"
@@ -98,9 +160,9 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
                     ? "bg-trading-green/15 text-trading-green border-trading-green/40"
                     : "bg-trading-red/15 text-trading-red border-trading-red/40"
                 }`}
-                >
-                  Participated {event.userPnl >= 0 ? "+" : "-"}${Math.abs(event.userPnl).toFixed(0)}
-                </Badge>
+              >
+                Participated {event.userPnl >= 0 ? "+" : "-"}${Math.abs(event.userPnl).toFixed(0)}
+              </Badge>
             )}
           </div>
         </div>
@@ -112,22 +174,12 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {/* Options List */}
-        {isMobile ? (
-          // Mobile: vertical list
-          <div className="space-y-1.5">
-            {event.options.map((option) => (
-              <OptionItem key={option.id} option={option} isMobile={true} />
-            ))}
-          </div>
-        ) : (
-          // Desktop: 2-column grid for multi-option, single column for binary
-          <div className={`gap-2 ${event.options.length > 2 ? "grid grid-cols-2" : "space-y-1.5"}`}>
-            {event.options.map((option) => (
-              <OptionItem key={option.id} option={option} isMobile={false} />
-            ))}
-          </div>
-        )}
+        {/* Options - 2-column grid for multi-option, single column for binary */}
+        <div className={`gap-2 ${event.options.length > 2 ? "grid grid-cols-2" : "space-y-1.5"}`}>
+          {event.options.map((option) => (
+            <OptionItem key={option.id} option={option} isMobile={false} />
+          ))}
+        </div>
 
         {/* Total Volume */}
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-3 border-t border-border/30">
