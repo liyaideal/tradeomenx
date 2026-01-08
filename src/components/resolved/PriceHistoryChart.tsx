@@ -1,6 +1,7 @@
 import { useMemo, useState, useRef } from "react";
 import { PriceHistoryPoint } from "@/hooks/useResolvedEventDetail";
 import { format } from "date-fns";
+import { Check } from "lucide-react";
 
 interface PriceHistoryChartProps {
   priceHistory: Record<string, PriceHistoryPoint[]>;
@@ -246,9 +247,9 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Legend */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5">
         {options.map((option, index) => {
           const isVisible = visibleOptions.has(option.id);
           const color = OPTION_COLORS[index % OPTION_COLORS.length];
@@ -259,20 +260,24 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
             <button
               key={option.id}
               onClick={() => toggleOption(option.id)}
-              className={`flex items-center gap-2 transition-opacity ${
+              className={`flex items-center gap-1.5 transition-opacity ${
                 isVisible ? "opacity-100" : "opacity-40"
               }`}
             >
               <div 
-                className="w-3 h-3 rounded-full"
+                className="w-2.5 h-2.5 rounded-full"
                 style={{ backgroundColor: color }}
               />
               <span className={`text-sm ${
                 option.is_winner ? "text-foreground font-medium" : "text-muted-foreground"
               }`}>
                 {option.label}
-                {option.is_winner && " ✓"}
               </span>
+              {option.is_winner && (
+                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-trading-green/20">
+                  <Check className="w-2.5 h-2.5 text-trading-green" strokeWidth={3} />
+                </span>
+              )}
               <span className={`text-xs font-mono font-medium ${
                 isPositive ? "text-trading-green" : "text-trading-red"
               }`}>
