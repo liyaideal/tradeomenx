@@ -106,13 +106,13 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     }, {} as Record<string, { change: number; startPrice: number; endPrice: number }>);
   }, [chartData, options]);
 
-  // Chart dimensions - mobile optimized
-  const chartHeight = isMobile ? 160 : 220;
-  const chartWidth = isMobile ? 400 : 1000;
+  // Chart dimensions - mobile optimized with proper aspect ratio
+  const chartHeight = isMobile ? 180 : 220;
+  const chartWidth = isMobile ? 320 : 1000;
   const padding = { 
     top: 5, 
-    right: isMobile ? 40 : 70, 
-    bottom: isMobile ? 20 : 30, 
+    right: isMobile ? 32 : 70, 
+    bottom: isMobile ? 22 : 30, 
     left: 5 
   };
 
@@ -153,7 +153,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     const points = chartData[firstOptionId] || [];
     if (points.length === 0) return [];
     
-    const labelCount = isMobile ? 4 : 5;
+    const labelCount = isMobile ? 3 : 5;
     const step = Math.max(1, Math.floor((points.length - 1) / (labelCount - 1)));
     const labels: { index: number; date: string }[] = [];
     
