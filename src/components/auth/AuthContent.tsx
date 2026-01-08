@@ -115,7 +115,13 @@ export const AuthContent = ({
           console.error("Profile update error:", profileError);
         } else {
           // Invalidate profile cache to refresh the username
-          queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+          await queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        }
+
+        // Pre-fill form with generated values immediately (don't wait for query refresh)
+        setUsername(mockUsername);
+        if (mockEmail) {
+          setEmail(mockEmail);
         }
 
         toast.success(`Connected via ${method === "google" ? "Google" : method === "telegram" ? "Telegram" : "Wallet"}!`);
