@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 export interface ResolvedEventOption {
   id: string;
@@ -35,7 +35,7 @@ interface UseResolvedEventsOptions {
 }
 
 export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
-  const { user } = useAuth();
+  const { user } = useUserProfile();
   const { timeRange = "all", category = "all", search = "", sortBy = "settlement" } = options;
 
   return useQuery({
