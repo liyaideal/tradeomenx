@@ -1,11 +1,9 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   ArrowLeft, 
-  Share2, 
   Check, 
   X, 
   RefreshCw,
@@ -23,8 +21,6 @@ import { EventStatisticsCard } from "@/components/resolved/EventStatisticsCard";
 import { RelatedEventCard } from "@/components/resolved/RelatedEventCard";
 import { SettlementEvidenceCard } from "@/components/resolved/SettlementEvidenceCard";
 import { EventRulesCard } from "@/components/resolved/EventRulesCard";
-import { ShareModal } from "@/components/ShareModal";
-import { EventShareCard } from "@/components/resolved/EventShareCard";
 import { getCategoryInfo } from "@/lib/categoryUtils";
 import { format } from "date-fns";
 
@@ -32,15 +28,10 @@ const ResolvedEventDetail = () => {
   const navigate = useNavigate();
   const { eventId } = useParams<{ eventId: string }>();
   const isMobile = useIsMobile();
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const { data: event, isLoading, error } = useResolvedEventDetail({
     eventId: eventId || "",
   });
-
-  const handleShare = () => {
-    setIsShareModalOpen(true);
-  };
 
   const handleRelatedEventClick = (relatedEventId: string) => {
     navigate(`/resolved/${relatedEventId}`);
@@ -81,16 +72,11 @@ const ResolvedEventDetail = () => {
       <div className="min-h-screen pb-24" style={{ background: "hsl(222 47% 6%)" }}>
         {/* Header */}
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <Logo size="md" />
-            </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare}>
-              <Share2 className="h-4 w-4" />
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4" />
             </Button>
+            <Logo size="md" />
           </div>
         </header>
 
@@ -323,26 +309,6 @@ const ResolvedEventDetail = () => {
         </main>
 
         <BottomNav />
-        
-        {/* Share Modal */}
-        <ShareModal
-          isOpen={isShareModalOpen}
-          onClose={() => setIsShareModalOpen(false)}
-          title="Share Event Result"
-          subtitle="Share this resolved event with your friends"
-          shareText={`📊 ${event.name} - Result: ${winningOption?.label || 'N/A'}! Check out the final outcome on OMENX 🚀`}
-          shareUrl={window.location.href}
-          fileName={`omenx-event-${eventId}`}
-        >
-          <EventShareCard
-            eventName={event.name}
-            category={event.category}
-            settledAt={event.settled_at}
-            options={event.options}
-            userPnl={event.userPnl}
-            userParticipated={event.userParticipated}
-          />
-        </ShareModal>
       </div>
     );
   }
@@ -383,15 +349,9 @@ const ResolvedEventDetail = () => {
                 </Badge>
               </div>
               
-              <div className="flex items-start justify-between gap-4">
-                <h1 className="text-2xl font-bold text-foreground leading-tight">
-                  {event.name}
-                </h1>
-                <Button variant="outline" size="sm" className="gap-2" onClick={handleShare}>
-                  <Share2 className="h-4 w-4" />
-                  Share
-                </Button>
-              </div>
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                {event.name}
+              </h1>
 
               {event.description && (
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
@@ -560,26 +520,6 @@ const ResolvedEventDetail = () => {
           </div>
         </div>
       </main>
-      
-      {/* Share Modal */}
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        title="Share Event Result"
-        subtitle="Share this resolved event with your friends"
-        shareText={`📊 ${event.name} - Result: ${winningOption?.label || 'N/A'}! Check out the final outcome on OMENX 🚀`}
-        shareUrl={window.location.href}
-        fileName={`omenx-event-${eventId}`}
-      >
-        <EventShareCard
-          eventName={event.name}
-          category={event.category}
-          settledAt={event.settled_at}
-          options={event.options}
-          userPnl={event.userPnl}
-          userParticipated={event.userParticipated}
-        />
-      </ShareModal>
     </div>
   );
 };
