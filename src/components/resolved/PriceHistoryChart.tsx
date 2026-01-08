@@ -273,16 +273,16 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               }`}>
                 {option.label}
               </span>
-              {option.is_winner && (
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-trading-green bg-trading-green/15 px-1.5 py-0.5 rounded">
-                  Winner
-                </span>
-              )}
               <span className={`text-xs font-mono font-medium ${
                 isPositive ? "text-trading-green" : "text-trading-red"
               }`}>
                 {isPositive ? "+" : ""}{changeData.change.toFixed(1)}%
               </span>
+              {option.is_winner && (
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-trading-green bg-trading-green/15 px-1.5 py-0.5 rounded">
+                  Winner
+                </span>
+              )}
             </button>
           );
         })}
