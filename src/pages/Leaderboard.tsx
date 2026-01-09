@@ -11,7 +11,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
-import { MobileHeader } from "@/components/MobileHeader";
+// MobileHeader is NOT used here - Leaderboard is a marketing page with custom hero header
 import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -1058,26 +1058,24 @@ export default function Leaderboard() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[300px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
         
         {/* Content wrapper */}
-        <div className="relative z-10 px-4 pt-6">
-          {/* Header */}
+        <div className="relative z-10 px-4 pt-4">
+          {/* Custom Marketing Header - NOT using MobileHeader */}
           {isMobile && (
-            <MobileHeader
-              showLogo
-              rightContent={
-                <button 
-                  onClick={handleShareCard}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span className="text-xs font-medium">Share</span>
-                </button>
-              }
-            />
+            <div className="flex items-center justify-between mb-4">
+              <img src={omenxLogo} alt="OMENX" className="h-6" />
+              <button 
+                onClick={handleShareCard}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span className="text-xs font-medium">Share</span>
+              </button>
+            </div>
           )}
 
           {/* Logo + Title with Neon Effect */}
           <div className="text-center mb-4">
-            {/* Logo - only show on desktop since mobile has it in header */}
+            {/* Logo - only show on desktop since mobile has it above */}
             {!isMobile && (
               <div className="flex justify-center mb-2">
                 <img src={omenxLogo} alt="OMENX" className="h-6" />

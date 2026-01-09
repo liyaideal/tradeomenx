@@ -2620,7 +2620,7 @@ toast.promise(asyncFn(), {
             <Card className="p-6">
               <h3 className="text-base font-medium mb-4">概述</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                MobileHeader 是统一的移动端头部组件，用于所有移动端页面。它提供一致的导航体验，包括返回按钮、Logo、标题、和操作按钮。
+                MobileHeader 是统一的移动端头部组件，用于<strong>功能型页面</strong>。它提供一致的导航体验，包括返回按钮、Logo、标题、和操作按钮。
               </p>
               <div className="bg-muted/30 rounded-xl p-4">
                 <code className="text-xs font-mono text-muted-foreground">
@@ -2629,16 +2629,51 @@ toast.promise(asyncFn(), {
               </div>
             </Card>
 
+            {/* Page Type Classification */}
+            <Card className="p-6 border-trading-yellow/30 bg-trading-yellow/5">
+              <h3 className="text-base font-medium mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-trading-yellow" />
+                页面类型分类 (重要)
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-green mb-2">✓ 使用 MobileHeader 的页面</p>
+                  <p className="text-xs text-muted-foreground mb-2">功能型页面 - 标准化导航体验</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Events 列表页 (/events)</li>
+                    <li>Resolved 列表页 (/resolved)</li>
+                    <li>Trade 页面 (/trade, /trade/order)</li>
+                    <li>Portfolio 页面 (/portfolio)</li>
+                    <li>Settings 页面 (/settings)</li>
+                    <li>Wallet 页面 (/wallet)</li>
+                    <li>Event Detail 页面</li>
+                  </ul>
+                </div>
+                <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-red mb-2">✗ 不使用 MobileHeader 的页面</p>
+                  <p className="text-xs text-muted-foreground mb-2">运营/营销型页面 - 自定义视觉设计</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Leaderboard 页面 (/leaderboard)</li>
+                    <li>Landing/营销页面</li>
+                    <li>活动推广页面</li>
+                    <li>任何需要自定义Hero设计的页面</li>
+                  </ul>
+                  <p className="text-xs text-trading-yellow mt-3 p-2 bg-trading-yellow/10 rounded">
+                    ⚠️ 这些页面有独特的视觉设计，应自己实现header
+                  </p>
+                </div>
+              </div>
+            </Card>
+
             {/* Logo Rules */}
             <Card className="p-6">
-              <h3 className="text-base font-medium mb-4">Logo 显示规则</h3>
+              <h3 className="text-base font-medium mb-4">Logo 显示规则 (仅限功能型页面)</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-4">
                   <p className="text-sm font-medium text-trading-green mb-2">✓ 显示 Logo (showLogo=true)</p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                     <li>Events 列表页 (/events)</li>
                     <li>Resolved 列表页 (/resolved)</li>
-                    <li>Leaderboard 页面 (/leaderboard)</li>
                     <li>Portfolio 页面 (/portfolio)</li>
                     <li>Settings 页面 (/settings)</li>
                     <li>Wallet 页面 (/wallet)</li>
