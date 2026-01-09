@@ -224,60 +224,62 @@ const MobileHome = () => {
           <GuestWelcomeCard onLogin={() => setAuthOpen(true)} />
         )}
 
-        {/* My Positions Section */}
-        <section>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-foreground">My Positions ({positions.length})</h3>
-            <button 
-              onClick={() => navigate("/trade/order", { state: { tab: "Positions" } })}
-              className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
-            >
-              View All <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {positions.slice(0, 5).map((position, index) => {
-              const isProfit = position.pnl.startsWith("+");
-              return (
-                <div
-                  key={index}
-                  className="flex-shrink-0 w-[200px] trading-card p-3 space-y-2 cursor-pointer hover:bg-card-hover transition-colors"
-                  onClick={() => navigate("/trade/order", { state: { tab: "Positions", highlightPosition: index } })}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm text-foreground line-clamp-2 flex-1">{position.event}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      className={`text-xs px-2 py-0.5 ${
-                        position.type === "long" 
-                          ? "bg-trading-green/20 text-trading-green border-trading-green/30" 
-                          : "bg-trading-red/20 text-trading-red border-trading-red/30"
-                      }`}
-                    >
-                      {position.type === "long" ? "Long" : "Short"}
-                    </Badge>
-                    <span className="text-sm font-mono text-foreground">{position.option}</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                    <div>
-                      <span className="text-xs text-muted-foreground">Unrealized P&L</span>
-                      <div className={`text-sm font-medium ${isProfit ? "text-trading-green" : "text-trading-red"}`}>
-                        {position.pnl}
+        {/* My Positions Section - only show for logged-in users with positions */}
+        {user && positions.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-foreground">My Positions ({positions.length})</h3>
+              <button 
+                onClick={() => navigate("/trade/order", { state: { tab: "Positions" } })}
+                className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
+              >
+                View All <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {positions.slice(0, 5).map((position, index) => {
+                const isProfit = position.pnl.startsWith("+");
+                return (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 w-[200px] trading-card p-3 space-y-2 cursor-pointer hover:bg-card-hover transition-colors"
+                    onClick={() => navigate("/trade/order", { state: { tab: "Positions", highlightPosition: index } })}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm text-foreground line-clamp-2 flex-1">{position.event}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        className={`text-xs px-2 py-0.5 ${
+                          position.type === "long" 
+                            ? "bg-trading-green/20 text-trading-green border-trading-green/30" 
+                            : "bg-trading-red/20 text-trading-red border-trading-red/30"
+                        }`}
+                      >
+                        {position.type === "long" ? "Long" : "Short"}
+                      </Badge>
+                      <span className="text-sm font-mono text-foreground">{position.option}</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <div>
+                        <span className="text-xs text-muted-foreground">Unrealized P&L</span>
+                        <div className={`text-sm font-medium ${isProfit ? "text-trading-green" : "text-trading-red"}`}>
+                          {position.pnl}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs text-muted-foreground">ROI</span>
+                        <div className={`text-sm font-medium ${isProfit ? "text-trading-green" : "text-trading-red"}`}>
+                          {position.pnlPercent}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className="text-xs text-muted-foreground">ROI</span>
-                      <div className={`text-sm font-medium ${isProfit ? "text-trading-green" : "text-trading-red"}`}>
-                        {position.pnlPercent}
-                      </div>
-                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Hot Markets Section */}
         <section>
