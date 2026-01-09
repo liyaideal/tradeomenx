@@ -179,24 +179,28 @@ export const BottomNav = () => {
         </div>
 
         {/* Balance Card - Tappable to go to Wallet page */}
-        <button
+        <div 
           onClick={() => {
             setProfileSheetOpen(false);
             navigate("/wallet");
           }}
-          className="w-full mb-4 p-4 bg-trading-green/10 border border-trading-green/30 rounded-xl hover:bg-trading-green/20 transition-colors active:scale-[0.98] flex items-center justify-between"
+          role="button"
+          tabIndex={0}
+          className="w-full mb-4 p-4 bg-trading-green/10 border border-trading-green/30 rounded-xl hover:bg-trading-green/20 transition-colors active:scale-[0.98] cursor-pointer"
         >
-          <div className="flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-trading-green" />
-            <span className="text-sm text-muted-foreground">Trial Balance</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Wallet className="w-5 h-5 text-trading-green" />
+              <span className="text-sm text-muted-foreground">Trial Balance</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold text-trading-green font-mono">
+                ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-trading-green font-mono">
-              ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </div>
-        </button>
+        </div>
 
         {/* Menu Items */}
         <MobileDrawerList>
