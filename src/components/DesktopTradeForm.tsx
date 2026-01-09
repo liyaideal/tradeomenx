@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, Calculator } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 interface DesktopTradeFormProps {
   selectedPrice?: string;
@@ -197,7 +198,7 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
             <span className="font-mono">88,155.51</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Mark Price</span>
+            <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
             <span className="font-mono">88,132.18</span>
           </div>
         </div>

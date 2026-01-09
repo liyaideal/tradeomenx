@@ -256,11 +256,11 @@ export const PositionCard = ({
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Entry Price</span>
+                <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
                 <span className="font-mono">{entryPrice}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Mark Price</span>
+                <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
                 <span className="font-mono">{markPrice}</span>
               </div>
             </div>
@@ -396,11 +396,11 @@ export const PositionCard = ({
               <span className="font-mono">{size}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Entry Price</span>
+              <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
               <span className="font-mono">{entryPrice}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Mark Price</span>
+              <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
               <span className="font-mono">{markPrice}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
