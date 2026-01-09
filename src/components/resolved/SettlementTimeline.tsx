@@ -79,49 +79,44 @@ export const SettlementTimeline = ({
   };
 
   return (
-    <div className="flex items-center justify-between relative">
-      {/* Connecting line */}
-      <div className="absolute top-3.5 left-0 right-0 h-0.5 bg-border" />
-      <div 
-        className="absolute top-3.5 left-0 h-0.5 bg-trading-green transition-all"
-        style={{ width: getProgressWidth() }}
-      />
-      
-      {steps.map((step) => (
-        <div key={step.label} className="flex flex-col items-center relative z-10">
-          <div 
-            className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
-              step.completed 
-                ? "bg-trading-green border-trading-green" 
-                : "bg-background border-border"
-            }`}
-          >
-            {step.completed && <Check className="h-4 w-4 text-primary-foreground" />}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between relative">
+        {/* Connecting line */}
+        <div className="absolute top-3.5 left-0 right-0 h-0.5 bg-border" />
+        <div 
+          className="absolute top-3.5 left-0 h-0.5 bg-trading-green transition-all"
+          style={{ width: getProgressWidth() }}
+        />
+        
+        {steps.map((step) => (
+          <div key={step.label} className="flex flex-col items-center relative z-10">
+            <div 
+              className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
+                step.completed 
+                  ? "bg-trading-green border-trading-green" 
+                  : "bg-background border-border"
+              }`}
+            >
+              {step.completed && <Check className="h-4 w-4 text-primary-foreground" />}
+            </div>
+            <span className="text-xs text-muted-foreground mt-2 text-center">
+              {step.label}
+            </span>
+            <span className="text-sm font-medium text-foreground mt-0.5 text-center">
+              {formatDate(step.date)}
+            </span>
+            <span className="text-xs text-muted-foreground text-center">
+              {formatTime(step.date)}
+            </span>
           </div>
-          <span className="text-xs text-muted-foreground mt-2 text-center">
-            {step.label}
-          </span>
-          <span className="text-sm font-medium text-foreground mt-0.5 text-center">
-            {formatDate(step.date)}
-          </span>
-          <span className="text-xs text-muted-foreground text-center">
-            {formatTime(step.date)}
-          </span>
-        </div>
-      ))}
+        ))}
+      </div>
 
-      {/* Duration indicator for compact variant */}
+      {/* Duration info for compact variant - shown below timeline */}
       {isCompact && duration && (
-        <div className="flex flex-col items-center relative z-10">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center border-2 bg-muted/50 border-border">
-            <span className="text-[10px] font-medium text-muted-foreground">⏱</span>
-          </div>
-          <span className="text-xs text-muted-foreground mt-2 text-center">
-            Duration
-          </span>
-          <span className="text-sm font-medium text-foreground mt-0.5 text-center">
-            {duration}
-          </span>
+        <div className="flex items-center justify-center pt-2 border-t border-border/50">
+          <span className="text-xs text-muted-foreground mr-2">Duration</span>
+          <span className="text-sm font-medium text-foreground">{duration}</span>
         </div>
       )}
     </div>
