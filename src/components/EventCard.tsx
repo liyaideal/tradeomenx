@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Clock, Lock, TrendingUp, Zap, Users, BarChart3 } from "lucide-react";
+import { Clock, Lock, TrendingUp, Zap, Users, BarChart3, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { toast } from "sonner";
@@ -185,6 +185,11 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
   const [leverage, setLeverage] = useState<number>(5);
   const [quantity, setQuantity] = useState<string>("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [optionsExpanded, setOptionsExpanded] = useState(false);
+
+  // Max options to show before collapsing
+  const MAX_VISIBLE_OPTIONS = 3;
+  const hasMoreOptions = event.options.length > MAX_VISIBLE_OPTIONS;
 
   const selectedOptionData = event.options.find(o => o.id === selectedOption);
   const isLocked = event.status === "locked";
@@ -326,62 +331,87 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
 
         {/* Options List - Desktop: interactive, Mobile: display only */}
         <div className="space-y-1.5">
-          {optionsWithHistory.map((option, index) => (
-            isMobile ? (
-              // Mobile: non-interactive display
-              <div
-                key={option.id}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-muted/20 border border-transparent"
-              >
-                <div className="flex items-center gap-3">
+          {optionsWithHistory
+            .slice(0, optionsExpanded ? undefined : MAX_VISIBLE_OPTIONS)
+            .map((option, index) => (
+              isMobile ? (
+                // Mobile: non-interactive display
+                <div
+                  key={option.id}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-muted/20 border border-transparent"
+                >
+                  <div className="flex items-center gap-3">
+                    <span 
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                    />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {option.label}
+                    </span>
+                  </div>
                   <span 
-                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
-                  />
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {option.label}
+                    className="font-mono text-sm font-bold"
+                    style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
+                  >
+                    ${option.price}
                   </span>
                 </div>
-                <span 
-                  className="font-mono text-sm font-bold"
-                  style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
+              ) : (
+                // Desktop: interactive buttons
+                <button
+                  key={option.id}
+                  onClick={() => !isLocked && setSelectedOption(option.id)}
+                  disabled={isLocked}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
+                    selectedOption === option.id
+                      ? "bg-primary/10 border border-primary/30 shadow-[0_0_12px_hsl(260_65%_58%/0.15)]"
+                      : "bg-muted/20 border border-transparent hover:bg-muted/35 hover:border-border/30"
+                  } ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
-                  ${option.price}
-                </span>
-              </div>
-            ) : (
-              // Desktop: interactive buttons
-              <button
-                key={option.id}
-                onClick={() => !isLocked && setSelectedOption(option.id)}
-                disabled={isLocked}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
-                  selectedOption === option.id
-                    ? "bg-primary/10 border border-primary/30 shadow-[0_0_12px_hsl(260_65%_58%/0.15)]"
-                    : "bg-muted/20 border border-transparent hover:bg-muted/35 hover:border-border/30"
-                } ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
+                    <span 
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2 ring-offset-1 ring-offset-background"
+                      style={{ 
+                        backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+                        boxShadow: selectedOption === option.id ? `0 0 8px ${CHART_COLORS[index % CHART_COLORS.length]}` : 'none'
+                      }}
+                    />
+                    <span className={`text-sm font-medium ${selectedOption === option.id ? "text-foreground" : "text-muted-foreground"}`}>
+                      {option.label}
+                    </span>
+                  </div>
                   <span 
-                    className="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2 ring-offset-1 ring-offset-background"
-                    style={{ 
-                      backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
-                      boxShadow: selectedOption === option.id ? `0 0 8px ${CHART_COLORS[index % CHART_COLORS.length]}` : 'none'
-                    }}
-                  />
-                  <span className={`text-sm font-medium ${selectedOption === option.id ? "text-foreground" : "text-muted-foreground"}`}>
-                    {option.label}
+                    className="font-mono text-sm font-bold"
+                    style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
+                  >
+                    ${option.price}
                   </span>
-                </div>
-                <span 
-                  className="font-mono text-sm font-bold"
-                  style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
-                >
-                  ${option.price}
-                </span>
-              </button>
-            )
-          ))}
+                </button>
+              )
+            ))}
+          
+          {/* Expand/Collapse button when more than 3 options */}
+          {hasMoreOptions && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setOptionsExpanded(!optionsExpanded);
+              }}
+              className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {optionsExpanded ? (
+                <>
+                  <ChevronUp className="w-3.5 h-3.5" />
+                  <span>Show less</span>
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                  <span>+{event.options.length - MAX_VISIBLE_OPTIONS} more options</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
 
         {/* Stats Row - cleaner */}
