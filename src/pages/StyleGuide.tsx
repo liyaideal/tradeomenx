@@ -2673,24 +2673,53 @@ toast.promise(asyncFn(), {
               </p>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-4">
-                  <p className="text-sm font-medium text-trading-green mb-2">✓ 显示 Logo</p>
-                  <p className="text-xs text-muted-foreground mb-2">底部导航主入口页（无返回按钮）</p>
+                  <p className="text-sm font-medium text-trading-green mb-2">✓ 显示 Logo (主入口页)</p>
+                  <p className="text-xs text-muted-foreground mb-2">底部导航直接进入，无返回按钮</p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                    <li>Events 列表页 (/events)</li>
-                    <li>Resolved 列表页 (/resolved)</li>
+                    <li>Home 首页 (/) - rightContent: 图标按钮</li>
+                    <li>Events 列表页 (/events) - rightContent: 状态下拉</li>
+                    <li>Resolved 列表页 (/resolved) - rightContent: 状态下拉</li>
+                    <li>Portfolio 页面 (/portfolio) - rightContent: Tab下拉</li>
                   </ul>
                 </div>
                 <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-4">
-                  <p className="text-sm font-medium text-trading-red mb-2">✗ 不显示 Logo</p>
-                  <p className="text-xs text-muted-foreground mb-2">二级页面（有返回按钮，标题居中）</p>
+                  <p className="text-sm font-medium text-trading-red mb-2">✗ 不显示 Logo (二级页面)</p>
+                  <p className="text-xs text-muted-foreground mb-2">有返回按钮，标题居中</p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                     <li>Trade 页面 (/trade, /trade/order)</li>
                     <li>Order Preview 页面 (/order-preview)</li>
                     <li>Wallet 页面 (/wallet)</li>
-                    <li>Portfolio 页面 (/portfolio)</li>
                     <li>Settings 页面 (/settings)</li>
                     <li>Event Detail 页面</li>
                   </ul>
+                </div>
+              </div>
+            </Card>
+
+            {/* Right Content Rules */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">rightContent 规则 (主入口页专用)</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                主入口页使用 <code className="bg-muted px-1 py-0.5 rounded text-xs">rightContent</code> 放置右侧功能元素，不同页面有不同用途：
+              </p>
+              <div className="space-y-3">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">图标按钮组</p>
+                  <p className="text-xs text-muted-foreground mb-2">适用：Home 首页</p>
+                  <code className="text-xs font-mono text-muted-foreground block">
+                    rightContent={"{<div className=\"flex items-center gap-1\">"}
+                    <br />{"  <Button variant=\"ghost\" size=\"icon\">...</Button>"}
+                    <br />{"</div>}"}
+                  </code>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">状态/Tab 下拉选择器</p>
+                  <p className="text-xs text-muted-foreground mb-2">适用：Events, Resolved, Portfolio</p>
+                  <code className="text-xs font-mono text-muted-foreground block">
+                    rightContent={"{<MobileStatusDropdown ... />}"}
+                    <br />或
+                    <br />rightContent={"{<PortfolioTabDropdown ... />}"}
+                  </code>
                 </div>
               </div>
             </Card>
