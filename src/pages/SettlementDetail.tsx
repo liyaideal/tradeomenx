@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Share2, Trophy, TrendingUp, TrendingDown, Clock, Calendar, FileCheck, ExternalLink, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Share2, Trophy, TrendingUp, TrendingDown, Clock, Calendar, FileCheck, Check, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,65 +10,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { ShareModal } from "@/components/ShareModal";
 import { SettlementShareCard } from "@/components/settlement/SettlementShareCard";
 import { SettlementPriceChart } from "@/components/settlement/SettlementPriceChart";
+import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { format, formatDistanceStrict } from "date-fns";
-
-// Mock settlement data - will be replaced with real data from trades table
-const mockSettlementData = {
-  id: "1",
-  event: "Bitcoin price on December 31, 2025?",
-  option: "$95,000-$100,000",
-  side: "long" as const,
-  entryPrice: 0.32,
-  exitPrice: 1.0,
-  size: 2500,
-  leverage: 10,
-  margin: 80,
-  fee: 0.8,
-  pnl: 1700,
-  pnlPercent: 212.5,
-  settledAt: "2025-12-31T16:00:00Z",
-  openedAt: "2025-11-15T10:30:00Z",
-  result: "win" as const,
-  // Trade history - multiple trades that make up this position
-  trades: [
-    { id: "t1", time: "2025-11-15T10:30:00Z", action: "Open", qty: 1000, price: 0.32, total: 320 },
-    { id: "t2", time: "2025-11-18T14:15:00Z", action: "Add", qty: 500, price: 0.34, total: 490 },
-    { id: "t3", time: "2025-11-25T16:45:00Z", action: "Add", qty: 600, price: 0.35, total: 700 },
-    { id: "t4", time: "2025-12-05T10:20:00Z", action: "Add", qty: 400, price: 0.38, total: 852 },
-  ],
-  // Price history for chart (from first trade to settlement)
-  priceHistory: Array.from({ length: 46 }, (_, i) => {
-    const date = new Date("2025-11-15");
-    date.setDate(date.getDate() + i);
-    const basePrice = 0.32;
-    const trend = Math.min(i / 45, 1) * 0.68; // Gradual increase to 1.0
-    const noise = (Math.random() - 0.5) * 0.1;
-    return {
-      date: date.toISOString(),
-      price: Math.max(0.1, basePrice + trend + noise),
-    };
-  }),
-};
-
-interface Settlement {
-  id: string;
-  event: string;
-  option: string;
-  side: "long" | "short";
-  entryPrice: number;
-  exitPrice: number;
-  size: number;
-  leverage: number;
-  margin: number;
-  fee: number;
-  pnl: number;
-  pnlPercent: number;
-  settledAt: string;
-  openedAt: string;
-  result: "win" | "lose";
-  trades: { id: string; time: string; action: string; qty: number; price: number; total: number }[];
-  priceHistory: { date: string; price: number }[];
-}
 
 export default function SettlementDetail() {
   const { settlementId } = useParams();
@@ -77,15 +20,19 @@ export default function SettlementDetail() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showTradeHistory, setShowTradeHistory] = useState(false);
 
-  // In real implementation, fetch settlement data based on settlementId
-  const settlement: Settlement = mockSettlementData;
+  // Fetch real settlement data
+  const { data: settlement, isLoading, error } = useSettlementDetail({ settlementId });
 
-  const isWin = settlement.result === "win";
-  const isLong = settlement.side === "long";
+  const isWin = settlement?.result === "win";
+  const isLong = settlement?.side === "long";
 
   // Calculate P&L breakdown
   const pnlBreakdown = useMemo(() => {
-    const avgEntryPrice = settlement.trades.reduce((sum, t) => sum + t.price * t.qty, 0) / settlement.size;
+    if (!settlement) return { avgEntryPrice: 0, entryCost: 0, exitValue: 0, grossPnl: 0, fee: 0, netPnl: 0 };
+    
+    const avgEntryPrice = settlement.trades.length > 0 && settlement.size > 0
+      ? settlement.trades.reduce((sum, t) => sum + t.price * t.qty, 0) / settlement.size
+      : settlement.entryPrice;
     const entryCost = settlement.size * avgEntryPrice;
     const exitValue = settlement.size * settlement.exitPrice;
     const grossPnl = isLong ? exitValue - entryCost : entryCost - exitValue;
@@ -103,11 +50,13 @@ export default function SettlementDetail() {
 
   // Duration calculation
   const duration = useMemo(() => {
+    if (!settlement) return "";
     return formatDistanceStrict(new Date(settlement.settledAt), new Date(settlement.openedAt));
-  }, [settlement.openedAt, settlement.settledAt]);
+  }, [settlement]);
 
   // Generate certificate ID
   const certificateId = useMemo(() => {
+    if (!settlement) return "";
     const dateStr = format(new Date(settlement.settledAt), "yyMMdd");
     return `STL_${dateStr}_${settlement.id.substring(0, 6).toUpperCase()}`;
   }, [settlement]);
@@ -115,6 +64,47 @@ export default function SettlementDetail() {
   const handleBack = () => {
     navigate("/portfolio");
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "hsl(222 47% 6%)" }}
+      >
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <span className="text-muted-foreground text-sm">Loading settlement...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Error or not found state
+  if (error || !settlement) {
+    return (
+      <div 
+        className={`min-h-screen ${isMobile ? "pb-24" : ""}`}
+        style={{ background: "hsl(222 47% 6%)" }}
+      >
+        {isMobile ? (
+          <MobileHeader showBack backTo="/portfolio" title="Settlement Detail" />
+        ) : (
+          <EventsDesktopHeader />
+        )}
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+          <div className="text-muted-foreground text-center">
+            <p className="text-lg font-medium mb-2">Settlement not found</p>
+            <p className="text-sm">This settlement may not exist or you don't have access to it.</p>
+          </div>
+          <Button variant="outline" onClick={handleBack}>
+            Back to Portfolio
+          </Button>
+        </div>
+        {isMobile && <BottomNav />}
+      </div>
+    );
+  }
 
   return (
     <div 

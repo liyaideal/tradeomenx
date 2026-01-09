@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Filter, Info, Percent, AlertTriangle } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, Percent, AlertTriangle, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositionsStore } from "@/stores/usePositionsStore";
+import { useSettlements } from "@/hooks/useSettlements";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -72,57 +73,12 @@ const PortfolioTabDropdown = ({
   );
 };
 
-// Mock settlements data - to be replaced with real data later
-const mockSettlements = [
-  {
-    id: 1,
-    event: "Bitcoin price on December 31, 2025?",
-    option: "$95,000-$100,000",
-    side: "long" as const,
-    entryPrice: "$0.3200",
-    exitPrice: "$1.0000",
-    size: "2,500",
-    pnl: "+$1,700.00",
-    pnlPercent: "+212.5%",
-    leverage: "10x",
-    settledAt: "2025-12-31",
-    result: "win" as const,
-  },
-  {
-    id: 2,
-    event: "Fed interest rate December 2025?",
-    option: "25bp Cut",
-    side: "short" as const,
-    entryPrice: "$0.4500",
-    exitPrice: "$0.0000",
-    size: "1,500",
-    pnl: "-$675.00",
-    pnlPercent: "-100%",
-    leverage: "10x",
-    settledAt: "2025-12-18",
-    result: "lose" as const,
-  },
-  {
-    id: 3,
-    event: "Elon Musk tweets Dec 5-12?",
-    option: "180-199",
-    side: "long" as const,
-    entryPrice: "$0.2800",
-    exitPrice: "$1.0000",
-    size: "3,000",
-    pnl: "+$2,160.00",
-    pnlPercent: "+257.1%",
-    leverage: "10x",
-    settledAt: "2025-12-12",
-    result: "win" as const,
-  },
-];
-
 export default function Portfolio() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const { positions } = usePositionsStore();
+  const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
   const [activeTab, setActiveTab] = useState<TabType>("positions");
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -158,25 +114,25 @@ export default function Portfolio() {
     };
   }, [positions]);
 
-  // Calculate settlements stats
+  // Calculate settlements stats from real data
   const settlementsStats = useMemo(() => {
-    const totalPnl = mockSettlements.reduce((sum, s) => {
+    const totalPnl = settlements.reduce((sum, s) => {
       const pnlValue = parseFloat(s.pnl.replace(/[$,+]/g, "")) || 0;
       return sum + pnlValue;
     }, 0);
 
-    const winCount = mockSettlements.filter((s) => s.result === "win").length;
-    const winRate = mockSettlements.length > 0 
-      ? ((winCount / mockSettlements.length) * 100).toFixed(0)
+    const winCount = settlements.filter((s) => s.result === "win").length;
+    const winRate = settlements.length > 0 
+      ? ((winCount / settlements.length) * 100).toFixed(0)
       : "0";
 
     return {
       totalPnl,
       winCount,
       winRate,
-      totalCount: mockSettlements.length,
+      totalCount: settlements.length,
     };
-  }, []);
+  }, [settlements]);
 
   // Sort positions
   const sortedPositions = useMemo(() => {
@@ -204,9 +160,9 @@ export default function Portfolio() {
 
   // Sort settlements
   const sortedSettlements = useMemo(() => {
-    if (!sortField) return mockSettlements;
+    if (!sortField) return settlements;
 
-    return [...mockSettlements].sort((a, b) => {
+    return [...settlements].sort((a, b) => {
       let aValue: number, bValue: number;
 
       switch (sortField) {
@@ -224,7 +180,7 @@ export default function Portfolio() {
 
       return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
     });
-  }, [sortField, sortDirection]);
+  }, [settlements, sortField, sortDirection]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -247,7 +203,7 @@ export default function Portfolio() {
     }
   };
 
-  const handleSettlementAction = (id: number) => {
+  const handleSettlementAction = (id: string) => {
     navigate(`/portfolio/settlement/${id}`);
   };
 
@@ -273,7 +229,7 @@ export default function Portfolio() {
               activeTab={activeTab}
               onTabChange={setActiveTab}
               positionsCount={positions.length}
-              settlementsCount={mockSettlements.length}
+              settlementsCount={settlements.length}
             />
           }
         />
@@ -318,7 +274,7 @@ export default function Portfolio() {
                   : "text-muted-foreground"
               }`}
             >
-              Settlements ({mockSettlements.length})
+              Settlements ({settlements.length})
             </button>
           </div>
         )}
