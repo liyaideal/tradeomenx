@@ -4,6 +4,7 @@ import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { MobileHeader } from "@/components/MobileHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -492,6 +493,7 @@ const Settings = () => {
     return (
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
+        <MobileHeader title="Settings" showLogo />
         <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/30">
           <div className="flex items-center justify-center px-4 py-4">
             <h1 className="text-lg font-semibold">Settings</h1>

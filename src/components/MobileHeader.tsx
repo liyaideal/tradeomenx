@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { ChevronLeft, ChevronDown, Heart, Share2, ExternalLink } from "lucide-react";
 import { useNavigate, useNavigationType } from "react-router-dom";
 import {
@@ -7,14 +7,41 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
+import { Logo } from "@/components/Logo";
+
+/**
+ * Mobile Header Design Specification
+ * ==================================
+ * 
+ * LOGO RULES:
+ * - Show logo on all pages EXCEPT Trade pages (TradeOrder, TradingCharts)
+ * - Logo is positioned on the left side
+ * - Use showLogo prop to control (default: true)
+ * 
+ * BACK BUTTON RULES:
+ * - Show when navigationType === "PUSH" (user clicked a link to get here)
+ * - Hide when navigationType === "POP" or "REPLACE" (browser back, or direct URL)
+ * - Use showBack prop to force override
+ * - Style: Ghost button, h-9 w-9, no background frame
+ * 
+ * TITLE RULES:
+ * - Always centered
+ * - Subtitle or countdown displayed below title
+ * 
+ * RIGHT ACTIONS:
+ * - Optional favorite and share buttons via showActions prop
+ * - Custom right content via rightContent prop
+ */
 
 interface MobileHeaderProps {
   title: string;
   subtitle?: string;
-  endTime?: Date; // New prop for countdown
-  showBack?: boolean; // Force show/hide back button
+  endTime?: Date; // For countdown display
+  showBack?: boolean; // Force show/hide back button (default: auto based on navigationType)
   backTo?: string; // Custom back navigation path (default: navigate(-1))
-  showActions?: boolean;
+  showLogo?: boolean; // Show logo (default: true, set false for Trade pages)
+  showActions?: boolean; // Show favorite and share buttons
+  rightContent?: ReactNode; // Custom right side content (overrides showActions)
   tweetCount?: number;
   // Price-based event data
   currentPrice?: string;
@@ -22,9 +49,9 @@ interface MobileHeaderProps {
   sourceUrl?: string;
   sourceName?: string;
   period?: string;
-  onTitleClick?: () => void; // Optional callback when title is clicked
-  isFavorite?: boolean; // External favorite state
-  onFavoriteToggle?: () => void; // Callback to toggle favorite
+  onTitleClick?: () => void;
+  isFavorite?: boolean;
+  onFavoriteToggle?: () => void;
 }
 
 // Countdown hook
@@ -66,8 +93,10 @@ export const MobileHeader = ({
   subtitle, 
   endTime, 
   showBack, 
-  backTo, 
-  showActions = false, 
+  backTo,
+  showLogo = true,
+  showActions = false,
+  rightContent,
   tweetCount, 
   currentPrice,
   priceChange24h,
@@ -118,7 +147,6 @@ export const MobileHeader = ({
         toast("Link copied to clipboard", { duration: 2000 });
       }
     } catch (err) {
-      // User cancelled or error
       if ((err as Error).name !== "AbortError") {
         await navigator.clipboard.writeText(window.location.href);
         toast("Link copied to clipboard", { duration: 2000 });
@@ -126,29 +154,85 @@ export const MobileHeader = ({
     }
   };
 
-  return (
-    <header className="sticky top-0 bg-background z-40 px-4 py-1.5">
-      <div className="flex items-center">
-        {/* Left: Back button */}
-        {shouldShowBack ? (
+  // Determine what to show on the left
+  const renderLeft = () => {
+    if (shouldShowBack && showLogo) {
+      // Both back button and logo
+      return (
+        <div className="flex items-center gap-2">
           <button
             onClick={handleBack}
-            className="w-9 h-9 rounded-full bg-muted/80 flex items-center justify-center transition-all duration-200 active:scale-95"
+            className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-        ) : (
-          <div className="w-9" />
-        )}
+          <Logo size="md" />
+        </div>
+      );
+    } else if (shouldShowBack) {
+      // Only back button, no logo
+      return (
+        <button
+          onClick={handleBack}
+          className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
+        >
+          <ChevronLeft className="w-5 h-5 text-foreground" />
+        </button>
+      );
+    } else if (showLogo) {
+      // Only logo, no back button
+      return <Logo size="md" />;
+    } else {
+      // Neither - empty space for alignment
+      return <div className="w-9" />;
+    }
+  };
 
-        {/* Center: Title and countdown */}
+  // Determine what to show on the right
+  const renderRight = () => {
+    if (rightContent) {
+      return rightContent;
+    }
+    
+    if (showActions) {
+      return (
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={handleFavorite}
+            className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
+          >
+            <Heart 
+              className={`w-5 h-5 transition-colors ${isFavorite ? "text-trading-red fill-trading-red" : "text-muted-foreground"}`} 
+              strokeWidth={1.5} 
+            />
+          </button>
+          <button 
+            onClick={handleShare}
+            className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
+          >
+            <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+          </button>
+        </div>
+      );
+    }
+    
+    return <div className="w-9" />;
+  };
+
+  return (
+    <header className="sticky top-0 bg-background/95 backdrop-blur z-40 px-4 py-2 border-b border-border">
+      <div className="flex items-center justify-between">
+        {/* Left: Back button and/or Logo */}
+        {renderLeft()}
+
+        {/* Center: Title and countdown/subtitle */}
         <div 
           className={`flex-1 text-center px-2 ${onTitleClick ? "cursor-pointer" : ""}`}
           onClick={onTitleClick}
         >
           <div className="flex items-center justify-center gap-1">
-            <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-            {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+            <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
+            {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
           </div>
           {(displayTime || tweetCount !== undefined || currentPrice) && (
             <div className="flex items-center justify-center gap-4 mt-0.5">
@@ -262,28 +346,8 @@ export const MobileHeader = ({
           )}
         </div>
 
-        {/* Right: Action buttons */}
-        {showActions ? (
-          <div className="flex items-center gap-1">
-            <button 
-              onClick={handleFavorite}
-              className="w-9 h-9 flex items-center justify-center transition-all duration-200 active:scale-95"
-            >
-              <Heart 
-                className={`w-5 h-5 transition-colors ${isFavorite ? "text-trading-red fill-trading-red" : "text-muted-foreground"}`} 
-                strokeWidth={1.5} 
-              />
-            </button>
-            <button 
-              onClick={handleShare}
-              className="w-9 h-9 flex items-center justify-center transition-all duration-200 active:scale-95"
-            >
-              <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-            </button>
-          </div>
-        ) : (
-          <div className="w-9" />
-        )}
+        {/* Right: Action buttons or custom content */}
+        {renderRight()}
       </div>
     </header>
   );
