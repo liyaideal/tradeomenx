@@ -135,13 +135,9 @@ export default function SettlementDetail() {
       )}
 
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-4xl mx-auto"} space-y-6`}>
-        {/* Desktop: Back & Share buttons */}
+        {/* Desktop: Share button only - use browser back */}
         {!isMobile && (
-          <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Portfolio
-            </Button>
+          <div className="flex justify-end mb-6">
             <Button variant="outline" size="sm" onClick={() => setShowShareModal(true)} className="gap-2">
               <Share2 className="w-4 h-4" />
               Share
@@ -170,8 +166,9 @@ export default function SettlementDetail() {
                     : "border-trading-red/50 text-trading-red bg-trading-red/10"
                   }
                 >
-                  {isLong ? "Long" : "Short"} {settlement.leverage}x
+                  {isLong ? "Long" : "Short"}
                 </Badge>
+                <span className="text-xs text-muted-foreground">{settlement.leverage}x</span>
                 <span className="text-muted-foreground text-sm">{settlement.option}</span>
               </div>
             </div>

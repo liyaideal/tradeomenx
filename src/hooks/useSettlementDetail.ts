@@ -113,7 +113,7 @@ export const useSettlementDetail = ({ settlementId }: UseSettlementDetailOptions
         }
       }
 
-      // If no price history, generate mock data based on trade data
+      // If no price history, generate continuous mock data based on trade data
       if (priceHistory.length === 0) {
         const startDate = new Date(mainTrade.created_at);
         const endDate = mainTrade.closed_at ? new Date(mainTrade.closed_at) : new Date();
@@ -123,19 +123,29 @@ export const useSettlementDetail = ({ settlementId }: UseSettlementDetailOptions
         const isWin = Number(mainTrade.pnl) > 0;
         const exitPrice = isWin ? 1.0 : 0.0; // Binary outcome
         
+        // Generate smooth continuous path using bezier-like interpolation
+        let currentPrice = entryPrice;
         priceHistory = Array.from({ length: daysDiff }, (_, i) => {
           const date = new Date(startDate);
           date.setDate(date.getDate() + i);
           
-          // Create a realistic price path
+          // Create a realistic continuous price path
           const progress = i / (daysDiff - 1);
-          const targetPrice = isWin ? exitPrice : 0;
-          const basePrice = entryPrice + (targetPrice - entryPrice) * progress;
-          const noise = (Math.random() - 0.5) * 0.15;
+          const targetPrice = exitPrice;
+          
+          // Smooth transition with momentum - small step changes
+          const targetDelta = (targetPrice - currentPrice) * 0.15;
+          const noise = (Math.random() - 0.5) * 0.05;
+          currentPrice = Math.max(0.01, Math.min(0.99, currentPrice + targetDelta + noise));
+          
+          // On last point, set to exact exit price
+          if (i === daysDiff - 1) {
+            currentPrice = exitPrice;
+          }
           
           return {
             date: date.toISOString(),
-            price: Math.max(0.01, Math.min(1, basePrice + noise)),
+            price: currentPrice,
           };
         });
       }
