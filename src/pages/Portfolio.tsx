@@ -231,9 +231,15 @@ export default function Portfolio() {
   };
 
   const handlePositionAction = (index: number) => {
-    navigate("/trade/order", {
-      state: { tab: "Positions", highlightPosition: index },
-    });
+    if (isMobile) {
+      navigate("/trade/order", {
+        state: { tab: "Positions", highlightPosition: index },
+      });
+    } else {
+      navigate("/desktop-trading", {
+        state: { tab: "Positions", highlightPosition: index },
+      });
+    }
   };
 
   const handleSettlementAction = (id: number) => {
