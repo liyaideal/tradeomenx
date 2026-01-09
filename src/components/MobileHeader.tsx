@@ -1,6 +1,6 @@
 import { useState, useEffect, ReactNode } from "react";
 import { ChevronLeft, ChevronDown, Heart, Share2, ExternalLink } from "lucide-react";
-import { useNavigate, useNavigationType } from "react-router-dom";
+import { useNavigate, useNavigationType, useLocation } from "react-router-dom";
 import {
   Popover,
   PopoverContent,
@@ -19,6 +19,7 @@ import { Logo } from "@/components/Logo";
  * - Use showLogo prop to control (default: true)
  * 
  * BACK BUTTON RULES:
+ * - NEVER show on BottomNav entry pages: /, /events, /leaderboard, /trade, /portfolio
  * - Show when navigationType === "PUSH" (user clicked a link to get here)
  * - Hide when navigationType === "POP" or "REPLACE" (browser back, or direct URL)
  * - Use showBack prop to force override
@@ -109,11 +110,21 @@ export const MobileHeader = ({
 }: MobileHeaderProps) => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const location = useLocation();
   const countdown = useCountdown(endTime);
   const displayTime = endTime ? countdown : subtitle;
   
-  // Show back button: if explicitly set use that value, otherwise show only for PUSH navigation
-  const shouldShowBack = showBack !== undefined ? showBack : navigationType === "PUSH";
+  // BottomNav entry pages - should NEVER show back button
+  const BOTTOM_NAV_ROUTES = ['/', '/events', '/leaderboard', '/trade', '/portfolio'];
+  const isBottomNavPage = BOTTOM_NAV_ROUTES.includes(location.pathname);
+  
+  // Show back button: 
+  // 1. If explicitly set, use that value
+  // 2. Never show on BottomNav entry pages
+  // 3. Otherwise show only for PUSH navigation
+  const shouldShowBack = showBack !== undefined 
+    ? showBack 
+    : (!isBottomNavPage && navigationType === "PUSH");
 
   const handleBack = () => {
     if (backTo) {
