@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Share2, Trophy, TrendingUp, TrendingDown, Clock, Calendar, FileCheck, Check, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { ArrowLeft, Share2, Trophy, TrendingUp, TrendingDown, Clock, Calendar, FileCheck, Check, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,6 @@ export default function SettlementDetail() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showTradeHistory, setShowTradeHistory] = useState(false);
 
   // Fetch real settlement data
   const { data: settlement, isLoading, error } = useSettlementDetail({ settlementId });
@@ -216,54 +215,6 @@ export default function SettlementDetail() {
           />
         </div>
 
-        {/* Trade History */}
-        <div className={`bg-card rounded-2xl ${isMobile ? "p-4" : "p-6"}`}>
-          <button 
-            onClick={() => setShowTradeHistory(!showTradeHistory)}
-            className="w-full flex items-center justify-between"
-          >
-            <h2 className="font-semibold text-foreground flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              Trade History
-              <Badge variant="secondary" className="text-xs">{settlement.trades.length}</Badge>
-            </h2>
-            {showTradeHistory ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-          </button>
-          
-          {showTradeHistory && (
-            <div className="mt-4 space-y-0">
-              {/* Table Header */}
-              <div className={`grid ${isMobile ? "grid-cols-4" : "grid-cols-5"} gap-2 text-xs text-muted-foreground pb-2 border-b border-border`}>
-                <span>Time</span>
-                <span>Action</span>
-                <span className="text-right">Qty</span>
-                <span className="text-right">Price</span>
-                {!isMobile && <span className="text-right">Total</span>}
-              </div>
-              
-              {/* Table Rows */}
-              {settlement.trades.map((trade, idx) => (
-                <div 
-                  key={trade.id} 
-                  className={`grid ${isMobile ? "grid-cols-4" : "grid-cols-5"} gap-2 py-3 text-sm ${
-                    idx !== settlement.trades.length - 1 ? "border-b border-border/50" : ""
-                  }`}
-                >
-                  <span className="text-muted-foreground text-xs">
-                    {format(new Date(trade.time), isMobile ? "MM/dd HH:mm" : "MMM dd, HH:mm")}
-                  </span>
-                  <span className={trade.action === "Open" ? "text-trading-green font-medium" : "text-primary font-medium"}>
-                    {trade.action}
-                  </span>
-                  <span className="text-right font-mono">{trade.qty.toLocaleString()}</span>
-                  <span className="text-right font-mono">${trade.price.toFixed(3)}</span>
-                  {!isMobile && <span className="text-right font-mono">${trade.total.toLocaleString()}</span>}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* P&L Breakdown */}
         <div className={`bg-card rounded-2xl ${isMobile ? "p-4" : "p-6"}`}>
           <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -372,6 +323,46 @@ export default function SettlementDetail() {
                 <span className="text-sm font-medium">Verified</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Trade History - Always expanded, at the bottom */}
+        <div className={`bg-card rounded-2xl ${isMobile ? "p-4" : "p-6"}`}>
+          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-muted-foreground" />
+            Trade History
+            <Badge variant="secondary" className="text-xs">{settlement.trades.length}</Badge>
+          </h2>
+          
+          <div className="space-y-0">
+            {/* Table Header */}
+            <div className={`grid ${isMobile ? "grid-cols-4" : "grid-cols-5"} gap-2 text-xs text-muted-foreground pb-2 border-b border-border`}>
+              <span>Time</span>
+              <span>Action</span>
+              <span className="text-right">Qty</span>
+              <span className="text-right">Price</span>
+              {!isMobile && <span className="text-right">Total</span>}
+            </div>
+            
+            {/* Table Rows */}
+            {settlement.trades.map((trade, idx) => (
+              <div 
+                key={trade.id} 
+                className={`grid ${isMobile ? "grid-cols-4" : "grid-cols-5"} gap-2 py-3 text-sm ${
+                  idx !== settlement.trades.length - 1 ? "border-b border-border/50" : ""
+                }`}
+              >
+                <span className="text-muted-foreground text-xs">
+                  {format(new Date(trade.time), isMobile ? "MM/dd HH:mm" : "MMM dd, HH:mm")}
+                </span>
+                <span className={trade.action === "Open" ? "text-trading-green font-medium" : "text-primary font-medium"}>
+                  {trade.action}
+                </span>
+                <span className="text-right font-mono">{trade.qty.toLocaleString()}</span>
+                <span className="text-right font-mono">${trade.price.toFixed(3)}</span>
+                {!isMobile && <span className="text-right font-mono">${trade.total.toLocaleString()}</span>}
+              </div>
+            ))}
           </div>
         </div>
       </main>
