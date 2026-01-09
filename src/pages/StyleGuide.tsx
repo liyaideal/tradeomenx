@@ -18,7 +18,7 @@ import omenxLogo from "@/assets/omenx-logo.svg";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { CATEGORY_STYLES, getCategoryInfo, getCategoryFromName } from "@/lib/categoryUtils";
+import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 
 type DevicePreview = "auto" | "mobile" | "tablet" | "desktop";
 
@@ -1752,7 +1752,7 @@ const StyleGuide = () => {
                 <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"}`}>
                   {/* Social */}
                   <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
-                    <Badge className={`${CATEGORY_STYLES.Social} border-0`}>Social</Badge>
+                    <Badge className={`${CATEGORY_STYLES.Social.class} border-0`}>Social</Badge>
                     <div className="space-y-1">
                       <p className="text-xs font-medium text-foreground">Icons: 🐦</p>
                       <p className="text-xs text-muted-foreground">Twitter, social media events</p>
@@ -1764,7 +1764,7 @@ const StyleGuide = () => {
 
                   {/* Crypto */}
                   <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
-                    <Badge className={`${CATEGORY_STYLES.Crypto} border-0`}>Crypto</Badge>
+                    <Badge className={`${CATEGORY_STYLES.Crypto.class} border-0`}>Crypto</Badge>
                     <div className="space-y-1">
                       <p className="text-xs font-medium text-foreground">Icons: ₿ ⟠</p>
                       <p className="text-xs text-muted-foreground">Bitcoin, Ethereum, crypto prices</p>
@@ -1776,7 +1776,7 @@ const StyleGuide = () => {
 
                   {/* Finance */}
                   <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
-                    <Badge className={`${CATEGORY_STYLES.Finance} border-0`}>Finance</Badge>
+                    <Badge className={`${CATEGORY_STYLES.Finance.class} border-0`}>Finance</Badge>
                     <div className="space-y-1">
                       <p className="text-xs font-medium text-foreground">Icons: 🏦 📈</p>
                       <p className="text-xs text-muted-foreground">Fed rates, stock indices</p>
@@ -1788,7 +1788,7 @@ const StyleGuide = () => {
 
                   {/* Market */}
                   <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
-                    <Badge className={`${CATEGORY_STYLES.Market} border-0`}>Market</Badge>
+                    <Badge className={`${CATEGORY_STYLES.Market.class} border-0`}>Market</Badge>
                     <div className="space-y-1">
                       <p className="text-xs font-medium text-foreground">Default</p>
                       <p className="text-xs text-muted-foreground">Generic market events</p>
@@ -1805,20 +1805,20 @@ const StyleGuide = () => {
                 <h4 className="text-sm font-medium text-muted-foreground">Usage Examples</h4>
                 <div className="space-y-3">
                   <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
-                    <Badge className={`${getCategoryInfo("🐦").color} border-0`}>
-                      {getCategoryInfo("🐦").category}
+                    <Badge className={`${CATEGORY_STYLES.Social.class} border-0`}>
+                      Social
                     </Badge>
                     <span className="text-sm text-muted-foreground">Elon Musk # tweets January 2026</span>
                   </div>
                   <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
-                    <Badge className={`${getCategoryInfo("₿").color} border-0`}>
-                      {getCategoryInfo("₿").category}
+                    <Badge className={`${CATEGORY_STYLES.Crypto.class} border-0`}>
+                      Crypto
                     </Badge>
                     <span className="text-sm text-muted-foreground">Bitcoin price on January 31, 2026</span>
                   </div>
                   <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
-                    <Badge className={`${getCategoryInfo("🏦").color} border-0`}>
-                      {getCategoryInfo("🏦").category}
+                    <Badge className={`${CATEGORY_STYLES.Finance.class} border-0`}>
+                      Finance
                     </Badge>
                     <span className="text-sm text-muted-foreground">Fed interest rate decision</span>
                   </div>
@@ -1830,18 +1830,17 @@ const StyleGuide = () => {
                 <h4 className="text-sm font-medium text-muted-foreground">Code Usage</h4>
                 <div className="p-4 bg-background rounded-lg border border-border overflow-x-auto">
                   <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap">
-{`import { getCategoryInfo, getCategoryFromName } from "@/lib/categoryUtils";
+{`import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 
-// Using event category (recommended)
-const categoryInfo = getCategoryInfo(event.category);
-<Badge className={\`\${categoryInfo.color} border-0\`}>
+// Get category info from event name
+const categoryInfo = getCategoryFromName(event.name);
+
+// Use CATEGORY_STYLES with .class for Tailwind classes
+<Badge className={\`\${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class} border-0\`}>
   {categoryInfo.label}
 </Badge>
 
-// Using event name (fallback for legacy data)
-const categoryInfo = getCategoryFromName(event.title);
-
-// NOTE: event.icon is DEPRECATED - do not use`}
+// Available categories: Social, Crypto, Finance, Market, Politics, Tech, general`}
                   </pre>
                 </div>
               </div>
