@@ -71,8 +71,7 @@ export default function Wallet() {
         .eq("user_id", user.id)
         .eq("status", "Filled")
         .not("pnl", "is", null)
-        .order("closed_at", { ascending: false })
-        .limit(10);
+        .order("closed_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching trades:", error);
@@ -326,17 +325,9 @@ export default function Wallet() {
   // Transaction History Component
   const TransactionHistory = () => (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <History className="w-4 h-4 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">Recent Activity</h2>
-        </div>
-        <button 
-          onClick={() => navigate("/portfolio")}
-          className="text-sm text-primary hover:underline"
-        >
-          View All
-        </button>
+      <div className="flex items-center gap-2">
+        <History className="w-4 h-4 text-muted-foreground" />
+        <h2 className="text-lg font-semibold">Transaction History</h2>
       </div>
 
       {transactions.length === 0 ? (
