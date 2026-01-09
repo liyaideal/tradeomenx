@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { 
   Wallet as WalletIcon, 
   ArrowUpRight, 
@@ -9,7 +10,9 @@ import {
   Check, 
   Star,
   AlertTriangle,
-  ChevronRight
+  TrendingUp,
+  TrendingDown,
+  History
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +24,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { TopUpDialog } from "@/components/TopUpDialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   MobileDrawer,
   MobileDrawerList,
@@ -35,10 +39,18 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+interface Transaction {
+  id: string;
+  type: "deposit" | "withdraw" | "trade_profit" | "trade_loss";
+  amount: number;
+  description: string;
+  date: string;
+}
+
 export default function Wallet() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { balance } = useUserProfile();
+  const { balance, user } = useUserProfile();
   const { 
     wallets, 
     isLoading: walletsLoading, 
@@ -46,6 +58,40 @@ export default function Wallet() {
     removeWallet, 
     setPrimaryWallet 
   } = useWallets();
+
+  // Fetch recent trades for transaction history
+  const { data: recentTrades = [] } = useQuery({
+    queryKey: ["wallet-transactions", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from("trades")
+        .select("id, event_name, option_label, pnl, created_at, closed_at, status")
+        .eq("user_id", user.id)
+        .eq("status", "Filled")
+        .not("pnl", "is", null)
+        .order("closed_at", { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error("Error fetching trades:", error);
+        return [];
+      }
+
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Transform trades into transactions format
+  const transactions: Transaction[] = recentTrades.map((trade) => ({
+    id: trade.id,
+    type: (trade.pnl ?? 0) >= 0 ? "trade_profit" : "trade_loss",
+    amount: trade.pnl ?? 0,
+    description: `${trade.event_name} - ${trade.option_label}`,
+    date: trade.closed_at ? new Date(trade.closed_at).toLocaleDateString() : new Date(trade.created_at).toLocaleDateString(),
+  }));
   
   // Dialog states
   const [topUpOpen, setTopUpOpen] = useState(false);
@@ -277,6 +323,70 @@ export default function Wallet() {
     </div>
   );
 
+  // Transaction History Component
+  const TransactionHistory = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <History className="w-4 h-4 text-muted-foreground" />
+          <h2 className="text-lg font-semibold">Recent Activity</h2>
+        </div>
+        <button 
+          onClick={() => navigate("/portfolio")}
+          className="text-sm text-primary hover:underline"
+        >
+          View All
+        </button>
+      </div>
+
+      {transactions.length === 0 ? (
+        <div className="bg-card border border-border/50 rounded-xl p-6 text-center">
+          <History className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No recent activity</p>
+        </div>
+      ) : (
+        <div className="bg-card border border-border/50 rounded-xl divide-y divide-border/30">
+          {transactions.map((tx) => (
+            <div key={tx.id} className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  tx.type === "deposit" ? "bg-trading-green/20" :
+                  tx.type === "withdraw" ? "bg-trading-red/20" :
+                  tx.type === "trade_profit" ? "bg-trading-green/20" : "bg-trading-red/20"
+                }`}>
+                  {tx.type === "deposit" ? (
+                    <ArrowDownLeft className="w-5 h-5 text-trading-green" />
+                  ) : tx.type === "withdraw" ? (
+                    <ArrowUpRight className="w-5 h-5 text-trading-red" />
+                  ) : tx.type === "trade_profit" ? (
+                    <TrendingUp className="w-5 h-5 text-trading-green" />
+                  ) : (
+                    <TrendingDown className="w-5 h-5 text-trading-red" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate max-w-[180px] md:max-w-[300px]">
+                    {tx.type === "deposit" ? "Deposit" :
+                     tx.type === "withdraw" ? "Withdraw" :
+                     tx.description}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {tx.date}
+                  </div>
+                </div>
+              </div>
+              <div className={`text-sm font-semibold font-mono ${
+                tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
+              }`}>
+                {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   // Wallet Connection Dialog Content
   const WalletConnectionContent = () => {
     if (walletStep === "select") {
@@ -405,6 +515,7 @@ export default function Wallet() {
       <div className={`px-4 py-6 space-y-6 ${!isMobile ? "max-w-2xl mx-auto" : ""}`}>
         <BalanceCard />
         <WalletList />
+        <TransactionHistory />
       </div>
 
       {/* Bottom Navigation - Mobile only */}
