@@ -2978,11 +2978,33 @@ toast.promise(asyncFn(), {
                   </pre>
                 </div>
                 <div className="bg-muted/30 rounded-xl p-4">
-                  <p className="text-sm font-medium mb-2">详情页面</p>
+                  <p className="text-sm font-medium mb-2">详情页面 (基础)</p>
                   <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
 {`<MobileHeader 
-  title="Event Details"
+  title="Settlement Detail"
+  showBack
+  backTo="/portfolio/settlements"
   showLogo={false}
+/>`}
+                  </pre>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">详情页面 (带右侧操作按钮)</p>
+                  <p className="text-xs text-muted-foreground mb-2">注意：rightContent 按钮使用 h-9 w-9 尺寸，图标用 text-muted-foreground</p>
+                  <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`<MobileHeader 
+  title="Settlement Detail"
+  showBack
+  backTo="/portfolio/settlements"
+  showLogo={false}
+  rightContent={
+    <button
+      onClick={() => setShowShareModal(true)}
+      className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
+    >
+      <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+    </button>
+  }
 />`}
                   </pre>
                 </div>
