@@ -1,10 +1,12 @@
 import { Check } from "lucide-react";
-import { format } from "date-fns";
+import { format, formatDistanceStrict } from "date-fns";
 
 interface SettlementTimelineProps {
   startDate: string | null;
   endDate: string | null;
   settledAt: string | null;
+  /** If true, use simplified 2-step layout for settlement detail (Opened -> Settled + Duration) */
+  variant?: "full" | "compact";
 }
 
 interface TimelineStep {
@@ -13,28 +15,67 @@ interface TimelineStep {
   completed: boolean;
 }
 
-export const SettlementTimeline = ({ startDate, endDate, settledAt }: SettlementTimelineProps) => {
-  const steps: TimelineStep[] = [
-    {
-      label: "Market Opened",
-      date: startDate,
-      completed: !!startDate,
-    },
-    {
-      label: "Trading Ended",
-      date: endDate,
-      completed: !!endDate,
-    },
-    {
-      label: "Settled",
-      date: settledAt,
-      completed: !!settledAt,
-    },
-  ];
+export const SettlementTimeline = ({ 
+  startDate, 
+  endDate, 
+  settledAt,
+  variant = "full" 
+}: SettlementTimelineProps) => {
+  // Compact variant: Opened and Settled only (for settlement detail pages)
+  const isCompact = variant === "compact";
+  
+  const steps: TimelineStep[] = isCompact
+    ? [
+        {
+          label: "Opened",
+          date: startDate,
+          completed: !!startDate,
+        },
+        {
+          label: "Settled",
+          date: settledAt,
+          completed: !!settledAt,
+        },
+      ]
+    : [
+        {
+          label: "Market Opened",
+          date: startDate,
+          completed: !!startDate,
+        },
+        {
+          label: "Trading Ended",
+          date: endDate,
+          completed: !!endDate,
+        },
+        {
+          label: "Settled",
+          date: settledAt,
+          completed: !!settledAt,
+        },
+      ];
+
+  // Calculate duration for compact variant
+  const duration = isCompact && startDate && settledAt
+    ? formatDistanceStrict(new Date(settledAt), new Date(startDate))
+    : null;
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "—";
-    return format(new Date(dateStr), "MMM d, yyyy HH:mm");
+    return format(new Date(dateStr), "MMM d, yyyy");
+  };
+
+  const formatTime = (dateStr: string | null) => {
+    if (!dateStr) return "";
+    return format(new Date(dateStr), "HH:mm");
+  };
+
+  // Calculate progress width
+  const getProgressWidth = () => {
+    if (isCompact) {
+      return settledAt ? "100%" : startDate ? "50%" : "0%";
+    }
+    return settledAt ? "100%" : endDate ? "66%" : startDate ? "33%" : "0%";
   };
 
   return (
@@ -43,12 +84,10 @@ export const SettlementTimeline = ({ startDate, endDate, settledAt }: Settlement
       <div className="absolute top-3.5 left-0 right-0 h-0.5 bg-border" />
       <div 
         className="absolute top-3.5 left-0 h-0.5 bg-trading-green transition-all"
-        style={{ 
-          width: settledAt ? "100%" : endDate ? "66%" : startDate ? "33%" : "0%" 
-        }}
+        style={{ width: getProgressWidth() }}
       />
       
-      {steps.map((step, index) => (
+      {steps.map((step) => (
         <div key={step.label} className="flex flex-col items-center relative z-10">
           <div 
             className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
@@ -62,11 +101,29 @@ export const SettlementTimeline = ({ startDate, endDate, settledAt }: Settlement
           <span className="text-xs text-muted-foreground mt-2 text-center">
             {step.label}
           </span>
-          <span className="text-[10px] text-muted-foreground/70 mt-0.5 text-center font-mono">
+          <span className="text-sm font-medium text-foreground mt-0.5 text-center">
             {formatDate(step.date)}
+          </span>
+          <span className="text-xs text-muted-foreground text-center">
+            {formatTime(step.date)}
           </span>
         </div>
       ))}
+
+      {/* Duration indicator for compact variant */}
+      {isCompact && duration && (
+        <div className="flex flex-col items-center relative z-10">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center border-2 bg-muted/50 border-border">
+            <span className="text-[10px] font-medium text-muted-foreground">⏱</span>
+          </div>
+          <span className="text-xs text-muted-foreground mt-2 text-center">
+            Duration
+          </span>
+          <span className="text-sm font-medium text-foreground mt-0.5 text-center">
+            {duration}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
