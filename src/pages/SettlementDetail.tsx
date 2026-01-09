@@ -135,16 +135,6 @@ export default function SettlementDetail() {
       )}
 
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-4xl mx-auto"} space-y-6`}>
-        {/* Desktop: Share button only - use browser back */}
-        {!isMobile && (
-          <div className="flex justify-end mb-6">
-            <Button variant="outline" size="sm" onClick={() => setShowShareModal(true)} className="gap-2">
-              <Share2 className="w-4 h-4" />
-              Share
-            </Button>
-          </div>
-        )}
-
         {/* Core Info Card */}
         <div className={`bg-card rounded-2xl ${isMobile ? "p-4" : "p-6"} relative overflow-hidden`}>
           {/* Background glow for win */}
@@ -153,12 +143,23 @@ export default function SettlementDetail() {
           )}
           
           <div className="relative">
-            {/* Event & Option */}
+            {/* Event Title & Share Button */}
             <div className="mb-4">
-              <h1 className={`font-bold text-foreground leading-tight ${isMobile ? "text-lg" : "text-xl"} mb-2`}>
-                {settlement.event}
-              </h1>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-start justify-between gap-4">
+                <h1 className={`font-bold text-foreground leading-tight ${isMobile ? "text-lg" : "text-xl"} flex-1`}>
+                  {settlement.event}
+                </h1>
+                {!isMobile && (
+                  <Button variant="outline" size="sm" onClick={() => setShowShareModal(true)} className="gap-2 shrink-0">
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </Button>
+                )}
+              </div>
+              
+              {/* Position Info: Side / Leverage / Option */}
+              <div className="flex items-center gap-3 mt-3">
+                {/* Side Badge */}
                 <Badge 
                   variant="outline" 
                   className={isLong 
@@ -168,8 +169,24 @@ export default function SettlementDetail() {
                 >
                   {isLong ? "Long" : "Short"}
                 </Badge>
-                <span className="text-xs text-muted-foreground">{settlement.leverage}x</span>
-                <span className="text-muted-foreground text-sm">{settlement.option}</span>
+                
+                {/* Separator */}
+                <span className="text-border">|</span>
+                
+                {/* Leverage */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-muted-foreground">Leverage</span>
+                  <span className="text-sm font-medium text-foreground">{settlement.leverage}x</span>
+                </div>
+                
+                {/* Separator */}
+                <span className="text-border">|</span>
+                
+                {/* Option */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-muted-foreground">Option</span>
+                  <span className="text-sm font-medium text-foreground">{settlement.option}</span>
+                </div>
               </div>
             </div>
 
