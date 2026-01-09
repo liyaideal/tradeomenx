@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
+import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventCard, EventData } from "@/components/EventCard";
@@ -9,7 +9,7 @@ import { EventStatsOverview } from "@/components/EventStatsOverview";
 import { EventFilters, EventStatusFilter, MobileStatusDropdown, MobileFilterDrawer } from "@/components/EventFilters";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { activeEvents, eventOptionsMap } from "@/data/events";
-import { Logo } from "@/components/Logo";
+import { MobileHeader } from "@/components/MobileHeader";
 
 // Transform activeEvents to EventData format for EventCard
 const transformedEvents: EventData[] = activeEvents.map((event) => {
@@ -85,17 +85,9 @@ const EventsPage = () => {
     >
       {/* Header */}
       {isMobile ? (
-        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {showBackButton && (
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              )}
-              <Logo size="md" />
-            </div>
-            {/* Status dropdown - navigate to resolved page when selected */}
+        <MobileHeader
+          showLogo
+          rightContent={
             <MobileStatusDropdown
               statusFilter={statusFilter}
               onStatusFilterChange={(status) => {
@@ -106,8 +98,8 @@ const EventsPage = () => {
                 }
               }}
             />
-          </div>
-        </header>
+          }
+        />
       ) : (
         <EventsDesktopHeader />
       )}

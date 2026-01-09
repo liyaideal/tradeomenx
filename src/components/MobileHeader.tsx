@@ -34,7 +34,7 @@ import { Logo } from "@/components/Logo";
  */
 
 interface MobileHeaderProps {
-  title: string;
+  title?: string; // Optional - when not provided, title section is hidden
   subtitle?: string;
   endTime?: Date; // For countdown display
   showBack?: boolean; // Force show/hide back button (default: auto based on navigationType)
@@ -225,126 +225,130 @@ export const MobileHeader = ({
         {/* Left: Back button and/or Logo */}
         {renderLeft()}
 
-        {/* Center: Title and countdown/subtitle */}
-        <div 
-          className={`flex-1 text-center px-2 ${onTitleClick ? "cursor-pointer" : ""}`}
-          onClick={onTitleClick}
-        >
-          <div className="flex items-center justify-center gap-1">
-            <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
-            {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
-          </div>
-          {(displayTime || tweetCount !== undefined || currentPrice) && (
-            <div className="flex items-center justify-center gap-4 mt-0.5">
-              {displayTime && (
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Ends in</span>
-                  <span className="text-xs text-trading-red font-mono font-medium">{displayTime}</span>
-                </div>
-              )}
-              {tweetCount !== undefined && (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button 
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-                    >
-                      <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                      <span className="text-xs text-muted-foreground">Tweets</span>
-                      <span className="text-xs text-orange-500 font-mono font-medium">{tweetCount}</span>
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-3" align="center">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Tweet Count</span>
-                        <span className="text-lg font-bold text-orange-500">{tweetCount}</span>
-                      </div>
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <div className="flex justify-between">
-                          <span>Period</span>
-                          <span>{period || "N/A"}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Last updated</span>
-                          <span>Just now</span>
-                        </div>
-                      </div>
-                      {sourceUrl && (
-                        <a
-                          href={sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 text-xs text-primary hover:underline"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          {sourceName || "View Source"}
-                        </a>
-                      )}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              )}
-              {currentPrice && (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button 
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-                    >
-                      <span className="w-1.5 h-1.5 bg-trading-green rounded-full animate-pulse" />
-                      <span className="text-xs text-muted-foreground">Price</span>
-                      <span className="text-xs text-trading-green font-mono font-medium">{currentPrice}</span>
-                      {priceChange24h && (
-                        <span className={`text-xs font-mono ${priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
-                          {priceChange24h}
-                        </span>
-                      )}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-3" align="center">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Current Price</span>
-                        <span className="text-lg font-bold text-trading-green">{currentPrice}</span>
-                      </div>
-                      {priceChange24h && (
+        {/* Center: Title and countdown/subtitle - only show if title provided */}
+        {title ? (
+          <div 
+            className={`flex-1 text-center px-2 ${onTitleClick ? "cursor-pointer" : ""}`}
+            onClick={onTitleClick}
+          >
+            <div className="flex items-center justify-center gap-1">
+              <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
+              {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+            </div>
+            {(displayTime || tweetCount !== undefined || currentPrice) && (
+              <div className="flex items-center justify-center gap-4 mt-0.5">
+                {displayTime && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+                    <span className="text-xs text-muted-foreground">Ends in</span>
+                    <span className="text-xs text-trading-red font-mono font-medium">{displayTime}</span>
+                  </div>
+                )}
+                {tweetCount !== undefined && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button 
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                      >
+                        <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                        <span className="text-xs text-muted-foreground">Tweets</span>
+                        <span className="text-xs text-orange-500 font-mono font-medium">{tweetCount}</span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3" align="center">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">24h Change</span>
-                          <span className={`text-sm font-medium ${priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
+                          <span className="text-sm font-medium">Tweet Count</span>
+                          <span className="text-lg font-bold text-orange-500">{tweetCount}</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground space-y-1">
+                          <div className="flex justify-between">
+                            <span>Period</span>
+                            <span>{period || "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Last updated</span>
+                            <span>Just now</span>
+                          </div>
+                        </div>
+                        {sourceUrl && (
+                          <a
+                            href={sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            {sourceName || "View Source"}
+                          </a>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
+                {currentPrice && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button 
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                      >
+                        <span className="w-1.5 h-1.5 bg-trading-green rounded-full animate-pulse" />
+                        <span className="text-xs text-muted-foreground">Price</span>
+                        <span className="text-xs text-trading-green font-mono font-medium">{currentPrice}</span>
+                        {priceChange24h && (
+                          <span className={`text-xs font-mono ${priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
                             {priceChange24h}
                           </span>
+                        )}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3" align="center">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Current Price</span>
+                          <span className="text-lg font-bold text-trading-green">{currentPrice}</span>
                         </div>
-                      )}
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <div className="flex justify-between">
-                          <span>Period</span>
-                          <span>{period || "N/A"}</span>
+                        {priceChange24h && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">24h Change</span>
+                            <span className={`text-sm font-medium ${priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
+                              {priceChange24h}
+                            </span>
+                          </div>
+                        )}
+                        <div className="text-xs text-muted-foreground space-y-1">
+                          <div className="flex justify-between">
+                            <span>Period</span>
+                            <span>{period || "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Last updated</span>
+                            <span>Just now</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Last updated</span>
-                          <span>Just now</span>
-                        </div>
+                        {sourceUrl && (
+                          <a
+                            href={sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            {sourceName || "View Source"}
+                          </a>
+                        )}
                       </div>
-                      {sourceUrl && (
-                        <a
-                          href={sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 text-xs text-primary hover:underline"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          {sourceName || "View Source"}
-                        </a>
-                      )}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              )}
-            </div>
-          )}
-        </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* Right: Action buttons or custom content */}
         {renderRight()}

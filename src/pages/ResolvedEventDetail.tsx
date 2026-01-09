@@ -1,9 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
-  ArrowLeft, 
   Check, 
   X, 
   RefreshCw,
@@ -13,7 +12,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { Logo } from "@/components/Logo";
+import { MobileHeader } from "@/components/MobileHeader";
 import { useResolvedEventDetail } from "@/hooks/useResolvedEventDetail";
 import { SettlementTimeline } from "@/components/resolved/SettlementTimeline";
 import { PriceHistoryChart } from "@/components/resolved/PriceHistoryChart";
@@ -71,14 +70,7 @@ const ResolvedEventDetail = () => {
     return (
       <div className="min-h-screen pb-24" style={{ background: "hsl(222 47% 6%)" }}>
         {/* Header */}
-        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Logo size="md" />
-          </div>
-        </header>
+        <MobileHeader showLogo title="Event Details" />
 
         <main className="px-4 py-5 space-y-5">
           {/* ═══════════════════════════════════════════════════════════════
