@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Share2, Trophy, TrendingUp, TrendingDown, Clock, Calendar, FileCheck, Check, Loader2 } from "lucide-react";
+import { Share2, Trophy, TrendingUp, TrendingDown, Clock, FileCheck, Check, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { ShareModal } from "@/components/ShareModal";
 import { SettlementShareCard } from "@/components/settlement/SettlementShareCard";
 import { SettlementPriceChart } from "@/components/settlement/SettlementPriceChart";
+import { SettlementTimeline } from "@/components/resolved/SettlementTimeline";
 import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { format, formatDistanceStrict } from "date-fns";
 
@@ -292,29 +293,15 @@ export default function SettlementDetail() {
           </div>
         </div>
 
-        {/* Timeline */}
+        {/* Settlement Progress Timeline */}
         <div className={`bg-card rounded-2xl ${isMobile ? "p-4" : "p-6"}`}>
-          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-muted-foreground" />
-            Timeline
-          </h2>
-          
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <span className="text-xs text-muted-foreground block mb-1">Opened</span>
-              <span className="text-sm font-medium">{format(new Date(settlement.openedAt), "MMM d, yyyy")}</span>
-              <span className="text-xs text-muted-foreground block">{format(new Date(settlement.openedAt), "HH:mm")}</span>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground block mb-1">Settled</span>
-              <span className="text-sm font-medium">{format(new Date(settlement.settledAt), "MMM d, yyyy")}</span>
-              <span className="text-xs text-muted-foreground block">{format(new Date(settlement.settledAt), "HH:mm")}</span>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground block mb-1">Duration</span>
-              <span className="text-sm font-medium">{duration}</span>
-            </div>
-          </div>
+          <h2 className="font-semibold text-foreground mb-6">Settlement Progress</h2>
+          <SettlementTimeline 
+            startDate={settlement.openedAt}
+            endDate={null}
+            settledAt={settlement.settledAt}
+            variant="compact"
+          />
         </div>
 
         {/* Settlement Certificate */}
