@@ -76,8 +76,8 @@ export default function Portfolio() {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-  // Calculate stats
-  const stats = useMemo(() => {
+  // Calculate positions stats
+  const positionsStats = useMemo(() => {
     const totalPnl = positions.reduce((sum, pos) => {
       const pnlValue = parseFloat(pos.pnl.replace(/[$,+]/g, "")) || 0;
       return sum + pnlValue;
@@ -99,6 +99,38 @@ export default function Portfolio() {
       profitableCount,
     };
   }, [positions]);
+
+  // Calculate settlements stats
+  const settlementsStats = useMemo(() => {
+    const totalPnl = mockSettlements.reduce((sum, s) => {
+      const pnlValue = parseFloat(s.pnl.replace(/[$,+]/g, "")) || 0;
+      return sum + pnlValue;
+    }, 0);
+
+    const winCount = mockSettlements.filter((s) => s.result === "win").length;
+    const winRate = mockSettlements.length > 0 
+      ? ((winCount / mockSettlements.length) * 100).toFixed(0)
+      : "0";
+
+    // Find best trade (highest positive P&L)
+    const bestTrade = mockSettlements.reduce((best, s) => {
+      const pnlValue = parseFloat(s.pnl.replace(/[$,+]/g, "")) || 0;
+      const bestValue = parseFloat(best.pnl.replace(/[$,+]/g, "")) || 0;
+      return pnlValue > bestValue ? s : best;
+    }, mockSettlements[0]);
+
+    const bestTradePnl = bestTrade 
+      ? parseFloat(bestTrade.pnl.replace(/[$,+]/g, "")) || 0
+      : 0;
+
+    return {
+      totalPnl,
+      winCount,
+      winRate,
+      totalCount: mockSettlements.length,
+      bestTradePnl,
+    };
+  }, []);
 
   // Sort positions
   const sortedPositions = useMemo(() => {
@@ -216,53 +248,8 @@ export default function Portfolio() {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className={`grid gap-3 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>Unrealized P&L</span>
-            </div>
-            <div
-              className={`text-lg font-bold font-mono ${
-                stats.totalPnl >= 0 ? "text-trading-green" : "text-trading-red"
-              }`}
-            >
-              {stats.totalPnl >= 0 ? "+" : ""}${Math.abs(stats.totalPnl).toFixed(2)}
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Wallet className="w-3.5 h-3.5" />
-              <span>Total Margin</span>
-            </div>
-            <div className="text-lg font-bold font-mono">
-              ${stats.totalMargin.toFixed(2)}
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <BarChart3 className="w-3.5 h-3.5" />
-              <span>Open Positions</span>
-            </div>
-            <div className="text-lg font-bold">{stats.positionCount}</div>
-          </div>
-
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>Profitable</span>
-            </div>
-            <div className="text-lg font-bold text-trading-green">
-              {stats.profitableCount}/{stats.positionCount}
-            </div>
-          </div>
-        </div>
-
         {/* Tabs */}
-        <div className="flex border-b border-border mb-4">
+        <div className="flex border-b border-border">
           <button
             onClick={() => setActiveTab("positions")}
             className={`py-2 px-4 text-sm font-medium transition-all ${
@@ -288,6 +275,51 @@ export default function Portfolio() {
         {/* Content */}
         {activeTab === "positions" && (
           <>
+            {/* Positions Stats Cards */}
+            <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>Unrealized P&L</span>
+                </div>
+                <div
+                  className={`text-lg font-bold font-mono ${
+                    positionsStats.totalPnl >= 0 ? "text-trading-green" : "text-trading-red"
+                  }`}
+                >
+                  {positionsStats.totalPnl >= 0 ? "+" : ""}${Math.abs(positionsStats.totalPnl).toFixed(2)}
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <Wallet className="w-3.5 h-3.5" />
+                  <span>Total Margin</span>
+                </div>
+                <div className="text-lg font-bold font-mono">
+                  ${positionsStats.totalMargin.toFixed(2)}
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>Open Positions</span>
+                </div>
+                <div className="text-lg font-bold">{positionsStats.positionCount}</div>
+              </div>
+
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>Profitable</span>
+                </div>
+                <div className="text-lg font-bold text-trading-green">
+                  {positionsStats.profitableCount}/{positionsStats.positionCount}
+                </div>
+              </div>
+            </div>
+
             {isMobile ? (
               /* Mobile: Card View */
               <div className="space-y-3">
@@ -516,6 +548,51 @@ export default function Portfolio() {
 
         {activeTab === "settlements" && (
           <>
+            {/* Settlements Stats Cards */}
+            <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>Realized P&L</span>
+                </div>
+                <div
+                  className={`text-lg font-bold font-mono ${
+                    settlementsStats.totalPnl >= 0 ? "text-trading-green" : "text-trading-red"
+                  }`}
+                >
+                  {settlementsStats.totalPnl >= 0 ? "+" : ""}${Math.abs(settlementsStats.totalPnl).toFixed(2)}
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>Win Rate</span>
+                </div>
+                <div className="text-lg font-bold text-trading-green">
+                  {settlementsStats.winRate}%
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <Wallet className="w-3.5 h-3.5" />
+                  <span>Total Settlements</span>
+                </div>
+                <div className="text-lg font-bold">{settlementsStats.totalCount}</div>
+              </div>
+
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>Best Trade</span>
+                </div>
+                <div className="text-lg font-bold font-mono text-trading-green">
+                  +${settlementsStats.bestTradePnl.toFixed(2)}
+                </div>
+              </div>
+            </div>
+
             {isMobile ? (
               /* Mobile: Card View */
               <div className="space-y-3">
