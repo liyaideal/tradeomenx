@@ -236,7 +236,7 @@ export default function Portfolio() {
         state: { tab: "Positions", highlightPosition: index },
       });
     } else {
-      navigate("/desktop-trading", {
+      navigate("/trade", {
         state: { tab: "Positions", highlightPosition: index },
       });
     }
