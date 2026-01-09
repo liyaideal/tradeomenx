@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, Percent, AlertTriangle, Loader2, LogIn } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, Percent, AlertTriangle, Loader2 } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositionsStore } from "@/stores/usePositionsStore";
@@ -8,6 +8,7 @@ import { useSettlements } from "@/hooks/useSettlements";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
+import { LoginPrompt } from "@/components/LoginPrompt";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -187,44 +188,10 @@ export default function Portfolio() {
   // If not logged in, show login prompt
   if (!authLoading && !user) {
     return (
-      <div 
-        className={`min-h-screen ${isMobile ? "pb-24" : ""}`}
-        style={{
-          background: isMobile 
-            ? "hsl(222 47% 6%)" 
-            : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)"
-        }}
-      >
-        {isMobile ? (
-          <MobileHeader showLogo />
-        ) : (
-          <EventsDesktopHeader />
-        )}
-        
-        <main className={`${isMobile ? "px-4" : "px-8 max-w-7xl mx-auto"} flex items-center justify-center`} style={{ minHeight: "calc(100vh - 200px)" }}>
-          <div className="text-center space-y-6 max-w-md">
-            <div className="w-20 h-20 mx-auto rounded-full bg-secondary/50 flex items-center justify-center">
-              <LogIn className="w-10 h-10 text-muted-foreground" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">Sign in to view your portfolio</h2>
-              <p className="text-muted-foreground">
-                Track your open positions and settlement history by signing in to your account.
-              </p>
-            </div>
-            <Button 
-              size="lg" 
-              className="px-8"
-              onClick={() => navigate("/auth")}
-            >
-              <LogIn className="w-4 h-4 mr-2" />
-              Sign In
-            </Button>
-          </div>
-        </main>
-
-        {isMobile && <BottomNav />}
-      </div>
+      <LoginPrompt 
+        title="Sign in to view your portfolio"
+        description="Track your open positions and settlement history by signing in to your account."
+      />
     );
   }
 
