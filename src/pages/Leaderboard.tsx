@@ -350,13 +350,13 @@ const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortTyp
               <span className="text-xs font-medium text-muted-foreground">My Ranking</span>
               <ChevronUp className="w-4 h-4 text-primary animate-bounce" />
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 border border-primary/30">
                   <span className="text-sm font-bold text-primary">#{user.rank}</span>
                 </div>
-                <span className="font-semibold text-foreground">{user.username}</span>
               </div>
+              <span className="font-semibold text-foreground truncate">{user.username}</span>
             </div>
           </div>
 
@@ -577,8 +577,8 @@ const ShareableCard = ({
               <Crown className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 text-yellow-400 fill-yellow-400" />
             )}
           </div>
-          <div>
-            <h3 className="font-bold text-2xl text-foreground mb-1">{user.username}</h3>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-xl text-foreground mb-1 truncate max-w-[180px]">{user.username}</h3>
             <div className="flex items-center gap-2">
               <div className={`flex items-center justify-center px-3 py-1 rounded-full bg-gradient-to-br ${rankBadgeGradient}`}>
                 <span className="font-bold text-background text-sm">#{user.rank}</span>
