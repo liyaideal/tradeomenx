@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp } from "lucide-react";
+import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
@@ -7,8 +7,13 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { toast } from "sonner";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { activeEvents, eventOptionsMap } from "@/data/events";
-
 import { useUserProfile } from "@/hooks/useUserProfile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 // Helper to calculate countdown from endTime
 const getCountdown = (endTime: Date) => {
   const now = new Date();
@@ -40,8 +45,42 @@ const MobileHome = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header - 主入口页：Logo */}
-      <MobileHeader showLogo />
+      {/* Header - 主入口页：Logo + 右侧功能按钮 */}
+      <MobileHeader 
+        showLogo 
+        rightContent={
+          <div className="flex items-center gap-1">
+            {/* 语言切换 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-full hover:bg-muted/50 transition-colors">
+                  <Globe className="h-5 w-5 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[120px]">
+                <DropdownMenuItem onClick={() => toast("Language switched to English")}>
+                  🇺🇸 English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast("语言已切换为中文")}>
+                  🇨🇳 中文
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast("日本語に切り替えました")}>
+                  🇯🇵 日本語
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {/* 通知 */}
+            <button 
+              className="p-2 rounded-full hover:bg-muted/50 transition-colors relative"
+              onClick={() => toast("Notifications coming soon!")}
+            >
+              <Bell className="h-5 w-5 text-muted-foreground" />
+              {/* 未读红点 */}
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-trading-red rounded-full" />
+            </button>
+          </div>
+        }
+      />
 
       <main className="px-4 py-4 space-y-6">
         {/* User Stats Card */}
