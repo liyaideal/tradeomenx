@@ -2730,15 +2730,29 @@ toast.promise(asyncFn(), {
             <Card className="p-6">
               <h3 className="text-base font-medium mb-4">返回按钮规则</h3>
               <div className="space-y-3">
+                <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-red mb-2">⚠️ BottomNav 入口页永远不显示返回键</p>
+                  <p className="text-xs text-muted-foreground mb-2">无论通过何种方式导航到这些页面，都不应显示返回按钮</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Home 首页 (/)</li>
+                    <li>Events 列表页 (/events)</li>
+                    <li>Leaderboard 排行榜 (/leaderboard)</li>
+                    <li>Trade 交易页 (/trade)</li>
+                    <li>Portfolio 我的页 (/portfolio)</li>
+                  </ul>
+                  <p className="text-xs text-primary mt-2 font-mono">
+                    代码实现: MobileHeader 自动检测 BOTTOM_NAV_ROUTES
+                  </p>
+                </div>
                 <div className="bg-muted/30 rounded-xl p-4">
-                  <p className="text-sm font-medium mb-2">自动检测 (默认行为)</p>
+                  <p className="text-sm font-medium mb-2">二级页面 - 自动检测 (默认行为)</p>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• navigationType === "PUSH" → 显示返回按钮</li>
                     <li>• navigationType === "POP" / "REPLACE" → 隐藏返回按钮</li>
                   </ul>
                 </div>
                 <div className="bg-muted/30 rounded-xl p-4">
-                  <p className="text-sm font-medium mb-2">强制覆盖</p>
+                  <p className="text-sm font-medium mb-2">强制覆盖 (特殊场景)</p>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• showBack={"{true}"} → 强制显示</li>
                     <li>• showBack={"{false}"} → 强制隐藏</li>
