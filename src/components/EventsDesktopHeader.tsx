@@ -142,12 +142,15 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
           {user ? (
             <>
               {/* Balance - only show when logged in */}
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5">
+              <button 
+                onClick={() => navigate("/wallet")}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5 cursor-pointer"
+              >
                 <span className="text-sm text-muted-foreground">Balance:</span>
                 <span className="text-sm font-bold text-trading-green font-mono">
                   ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
-              </div>
+              </button>
 
               {/* Profile Avatar with Username - logged in */}
               <DropdownMenu>
