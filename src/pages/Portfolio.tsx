@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Filter } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Filter, Info, Percent, AlertTriangle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -24,6 +24,16 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 type SortField = "pnl" | "size" | "event" | null;
 type SortDirection = "asc" | "desc";
@@ -129,15 +139,22 @@ export default function Portfolio() {
       return sum + marginValue;
     }, 0);
 
-    const profitableCount = positions.filter(
-      (pos) => !pos.pnl.startsWith("-")
-    ).length;
+    // Calculate ROI: (Total Unrealized P&L / Total Margin) * 100
+    const roi = totalMargin > 0 ? (totalPnl / totalMargin) * 100 : 0;
+
+    // Calculate Liquidation Risk (mock: based on average margin utilization)
+    // In real scenario, this would be based on maintenance margin vs current margin
+    const avgLeverage = positions.length > 0
+      ? positions.reduce((sum, pos) => sum + (typeof pos.leverage === 'number' ? pos.leverage : 10), 0) / positions.length
+      : 0;
+    // Higher leverage = higher risk, scale to 0-100%
+    const liqRisk = Math.min(avgLeverage * 5, 100);
 
     return {
       totalPnl,
       totalMargin,
-      positionCount: positions.length,
-      profitableCount,
+      roi,
+      liqRisk,
     };
   }, [positions]);
 
@@ -153,23 +170,11 @@ export default function Portfolio() {
       ? ((winCount / mockSettlements.length) * 100).toFixed(0)
       : "0";
 
-    // Find best trade (highest positive P&L)
-    const bestTrade = mockSettlements.reduce((best, s) => {
-      const pnlValue = parseFloat(s.pnl.replace(/[$,+]/g, "")) || 0;
-      const bestValue = parseFloat(best.pnl.replace(/[$,+]/g, "")) || 0;
-      return pnlValue > bestValue ? s : best;
-    }, mockSettlements[0]);
-
-    const bestTradePnl = bestTrade 
-      ? parseFloat(bestTrade.pnl.replace(/[$,+]/g, "")) || 0
-      : 0;
-
     return {
       totalPnl,
       winCount,
       winRate,
       totalCount: mockSettlements.length,
-      bestTradePnl,
     };
   }, []);
 
@@ -324,10 +329,30 @@ export default function Portfolio() {
           <>
             {/* Positions Stats Cards */}
             <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+              {/* Unrealized P&L */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>Unrealized P&L</span>
+                  {isMobile ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </PopoverTrigger>
+                      <PopoverContent className="text-xs w-64">
+                        Total unrealized profit/loss across all open positions, calculated as (Mark Price - Entry Price) × Qty for each position.
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-64">
+                        Total unrealized profit/loss across all open positions, calculated as (Mark Price - Entry Price) × Qty for each position.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 <div
                   className={`text-lg font-bold font-mono ${
@@ -338,31 +363,98 @@ export default function Portfolio() {
                 </div>
               </div>
 
+              {/* Total Margin */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <Wallet className="w-3.5 h-3.5" />
                   <span>Total Margin</span>
+                  {isMobile ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </PopoverTrigger>
+                      <PopoverContent className="text-xs w-64">
+                        Sum of margin locked in all open positions. This is your capital at risk.
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-64">
+                        Sum of margin locked in all open positions. This is your capital at risk.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 <div className="text-lg font-bold font-mono">
                   ${positionsStats.totalMargin.toFixed(2)}
                 </div>
               </div>
 
+              {/* ROI % */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  <span>Open Positions</span>
+                  <Percent className="w-3.5 h-3.5" />
+                  <span>ROI %</span>
+                  {isMobile ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </PopoverTrigger>
+                      <PopoverContent className="text-xs w-64">
+                        Return on Investment. Calculated as (Unrealized P&L / Total Margin) × 100%. Shows the efficiency of your capital.
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-64">
+                        Return on Investment. Calculated as (Unrealized P&L / Total Margin) × 100%. Shows the efficiency of your capital.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
-                <div className="text-lg font-bold">{positionsStats.positionCount}</div>
+                <div className={`text-lg font-bold font-mono ${
+                  positionsStats.roi >= 0 ? "text-trading-green" : "text-trading-red"
+                }`}>
+                  {positionsStats.roi >= 0 ? "+" : ""}{positionsStats.roi.toFixed(2)}%
+                </div>
               </div>
 
+              {/* Liq. Risk */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span>Profitable</span>
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>Liq. Risk</span>
+                  {isMobile ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </PopoverTrigger>
+                      <PopoverContent className="text-xs w-64">
+                        Liquidation risk indicator based on average leverage. Higher leverage = higher risk of forced liquidation when price moves against you.
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-64">
+                        Liquidation risk indicator based on average leverage. Higher leverage = higher risk of forced liquidation when price moves against you.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
-                <div className="text-lg font-bold text-trading-green">
-                  {positionsStats.profitableCount}/{positionsStats.positionCount}
+                <div className={`text-lg font-bold ${
+                  positionsStats.liqRisk > 70 ? "text-trading-red" : 
+                  positionsStats.liqRisk > 40 ? "text-yellow-500" : "text-trading-green"
+                }`}>
+                  {positionsStats.liqRisk.toFixed(0)}%
                 </div>
               </div>
             </div>
@@ -596,11 +688,31 @@ export default function Portfolio() {
         {activeTab === "settlements" && (
           <>
             {/* Settlements Stats Cards */}
-            <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+            <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-2 max-w-lg"}`}>
+              {/* Realized P&L */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>Realized P&L</span>
+                  {isMobile ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </PopoverTrigger>
+                      <PopoverContent className="text-xs w-64">
+                        Total profit/loss from all settled (closed) positions. This is your actual realized gain or loss.
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-64">
+                        Total profit/loss from all settled (closed) positions. This is your actual realized gain or loss.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 <div
                   className={`text-lg font-bold font-mono ${
@@ -611,31 +723,33 @@ export default function Portfolio() {
                 </div>
               </div>
 
+              {/* Win Rate */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <BarChart3 className="w-3.5 h-3.5" />
                   <span>Win Rate</span>
+                  {isMobile ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </PopoverTrigger>
+                      <PopoverContent className="text-xs w-64">
+                        Percentage of winning trades. Calculated as (Winning Trades / Total Trades) × 100%.
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-64">
+                        Percentage of winning trades. Calculated as (Winning Trades / Total Trades) × 100%.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 <div className="text-lg font-bold text-trading-green">
                   {settlementsStats.winRate}%
-                </div>
-              </div>
-
-              <div className="bg-card rounded-xl p-4">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <Wallet className="w-3.5 h-3.5" />
-                  <span>Total Settlements</span>
-                </div>
-                <div className="text-lg font-bold">{settlementsStats.totalCount}</div>
-              </div>
-
-              <div className="bg-card rounded-xl p-4">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span>Best Trade</span>
-                </div>
-                <div className="text-lg font-bold font-mono text-trading-green">
-                  +${settlementsStats.bestTradePnl.toFixed(2)}
                 </div>
               </div>
             </div>
