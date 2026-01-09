@@ -38,27 +38,51 @@ export interface SettlementData {
 
 interface UseSettlementDetailOptions {
   settlementId?: string;
+  eventName?: string; // Support querying by event name
 }
 
-export const useSettlementDetail = ({ settlementId }: UseSettlementDetailOptions) => {
+export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDetailOptions) => {
   const { user } = useUserProfile();
 
   return useQuery({
-    queryKey: ["settlement-detail", settlementId, user?.id],
+    queryKey: ["settlement-detail", settlementId, eventName, user?.id],
     queryFn: async (): Promise<SettlementData | null> => {
-      if (!settlementId || !user) return null;
+      if ((!settlementId && !eventName) || !user) return null;
 
-      // Fetch the main trade (settlement)
-      const { data: mainTrade, error: tradeError } = await supabase
-        .from("trades")
-        .select("*")
-        .eq("id", settlementId)
-        .eq("user_id", user.id)
-        .maybeSingle();
+      let mainTrade: any = null;
 
-      if (tradeError) {
-        console.error("Error fetching settlement:", tradeError);
-        throw tradeError;
+      if (settlementId) {
+        // Try fetching by ID first
+        const { data, error } = await supabase
+          .from("trades")
+          .select("*")
+          .eq("id", settlementId)
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching settlement by id:", error);
+        }
+        mainTrade = data;
+      }
+
+      // If not found by ID, try by event name
+      if (!mainTrade && (eventName || settlementId)) {
+        const searchName = eventName || decodeURIComponent(settlementId || "");
+        const { data, error } = await supabase
+          .from("trades")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("event_name", searchName)
+          .not("closed_at", "is", null)
+          .order("closed_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching settlement by event name:", error);
+        }
+        mainTrade = data;
       }
 
       if (!mainTrade) {
