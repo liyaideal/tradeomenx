@@ -1272,6 +1272,9 @@ export default function Leaderboard() {
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
         )}
         <BottomNav />
+        
+        {/* Auth Sheet for non-logged in users */}
+        <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
       </>
     );
   }
