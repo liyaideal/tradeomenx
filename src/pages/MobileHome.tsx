@@ -194,7 +194,7 @@ const MobileHome = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 pr-3">
                       <h4 className="font-medium text-foreground">{event.name}</h4>
-                      <Badge className={`mt-1.5 text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.general.class}`}>
+                      <Badge className={`mt-1.5 text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.General.class}`}>
                         {categoryInfo.label}
                       </Badge>
                     </div>
@@ -266,7 +266,7 @@ const MobileHome = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1 pr-3">
                         <h4 className="font-medium text-foreground">{event.name}</h4>
-                        <Badge className={`mt-1.5 text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.general.class}`}>
+                        <Badge className={`mt-1.5 text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.General.class}`}>
                           {categoryInfo.label}
                         </Badge>
                       </div>
