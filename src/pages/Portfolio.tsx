@@ -248,8 +248,7 @@ export default function Portfolio() {
   };
 
   const handleSettlementAction = (id: number) => {
-    // TODO: Navigate to settlement detail page when designed
-    console.log("Settlement detail:", id);
+    navigate(`/portfolio/settlement/${id}`);
   };
 
   const isProfitable = (pnl: string) => !pnl.startsWith("-");
