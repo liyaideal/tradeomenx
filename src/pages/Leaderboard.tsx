@@ -981,6 +981,14 @@ export default function Leaderboard() {
   
   const isLoggedIn = !!user;
 
+  // Debug logging
+  console.log('[Leaderboard Debug]', {
+    user: user ? { id: user.id, email: user.email } : null,
+    isLoggedIn,
+    username,
+    avatarUrl,
+  });
+
   // Use actual user info if logged in, otherwise use mock data
   const currentUserUsername = user ? (username || "You") : MOCK_CURRENT_USER_USERNAME;
   const currentUserAvatar = user ? (avatarUrl || "") : "";
