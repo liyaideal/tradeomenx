@@ -108,17 +108,36 @@ export const SettlementPriceChart = ({
 
   // Map trades to chart positions
   const tradeMarkers = useMemo(() => {
-    return trades.map((trade) => {
-      const tradeDate = new Date(trade.time);
-      const historyIndex = priceHistory.findIndex((p) => new Date(p.date) >= tradeDate);
-      const index = historyIndex === -1 ? 0 : historyIndex;
-      return {
-        ...trade,
-        x: indexToX(index),
-        y: priceToY(trade.price),
-      };
-    });
-  }, [trades, priceHistory]);
+    return trades
+      .map((trade) => {
+        const tradeDate = new Date(trade.time);
+        // Find the closest price history point
+        let closestIndex = 0;
+        let closestDiff = Infinity;
+        
+        priceHistory.forEach((p, i) => {
+          const diff = Math.abs(new Date(p.date).getTime() - tradeDate.getTime());
+          if (diff < closestDiff) {
+            closestDiff = diff;
+            closestIndex = i;
+          }
+        });
+
+        const x = indexToX(closestIndex);
+        const y = priceToY(trade.price);
+        
+        // Only include if y is within chart bounds
+        const isWithinBounds = y >= padding.top && y <= chartHeight - padding.bottom;
+        
+        return {
+          ...trade,
+          x,
+          y,
+          isWithinBounds,
+        };
+      })
+      .filter((marker) => marker.isWithinBounds);
+  }, [trades, priceHistory, chartHeight]);
 
   // Create path
   const pathD = useMemo(() => {
