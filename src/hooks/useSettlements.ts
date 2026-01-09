@@ -83,8 +83,8 @@ export const useSettlements = () => {
           entryPrice: `$${avgEntryPrice.toFixed(4)}`,
           exitPrice: `$${exitPrice.toFixed(4)}`,
           size: totalQty.toLocaleString(),
-          pnl: `${totalPnl >= 0 ? "+" : ""}$${Math.abs(totalPnl).toFixed(2)}`,
-          pnlPercent: `${pnlPercent >= 0 ? "+" : ""}${pnlPercent.toFixed(1)}%`,
+          pnl: `${totalPnl >= 0 ? "+" : "-"}$${Math.abs(totalPnl).toFixed(2)}`,
+          pnlPercent: `(${pnlPercent >= 0 ? "+" : ""}${pnlPercent.toFixed(1)}%)`,
           leverage: `${firstTrade.leverage}x`,
           settledAt: settledAt.split("T")[0], // Just the date part
           result: isWin ? "win" : "lose",
