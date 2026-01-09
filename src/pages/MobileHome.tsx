@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell } from "lucide-react";
+import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell, Zap, Shield, Trophy, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 import { toast } from "sonner";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { activeEvents, eventOptionsMap } from "@/data/events";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAuth } from "@/hooks/useAuth";
 import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import {
   DropdownMenu,
@@ -15,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 // Helper to calculate countdown from endTime
 const getCountdown = (endTime: Date) => {
   const now = new Date();
@@ -29,16 +33,140 @@ const getCountdown = (endTime: Date) => {
   return `${hours}h ${minutes}m`;
 };
 
-const MobileHome = () => {
-  const navigate = useNavigate();
-  const { positions } = usePositionsStore();
-  const { profile, username } = useUserProfile();
+// Guest Welcome Card Component
+const GuestWelcomeCard = ({ onLogin }: { onLogin: () => void }) => {
+  const [showFeatures, setShowFeatures] = useState(false);
+  
+  const features = [
+    { icon: Zap, label: "Real-time Trading", desc: "Trade on live events" },
+    { icon: Shield, label: "Risk-Free Trial", desc: "$10,000 demo balance" },
+    { icon: Trophy, label: "Earn Rewards", desc: "Compete on leaderboard" },
+  ];
 
-  // Format balance for display
+  return (
+    <div className="trading-card p-4 space-y-4">
+      {/* Welcome Message */}
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Welcome to OMENX</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          The future of prediction markets
+        </p>
+      </div>
+
+      {/* Key Stats */}
+      <div className="flex items-center gap-4 py-2">
+        <div className="flex-1 text-center">
+          <div className="text-lg font-bold text-trading-green">$10K</div>
+          <div className="text-[10px] text-muted-foreground">Free Trial</div>
+        </div>
+        <div className="w-px h-8 bg-border" />
+        <div className="flex-1 text-center">
+          <div className="text-lg font-bold text-primary">50+</div>
+          <div className="text-[10px] text-muted-foreground">Markets</div>
+        </div>
+        <div className="w-px h-8 bg-border" />
+        <div className="flex-1 text-center">
+          <div className="text-lg font-bold text-trading-yellow">24/7</div>
+          <div className="text-[10px] text-muted-foreground">Trading</div>
+        </div>
+      </div>
+
+      {/* Expandable Features */}
+      <button 
+        onClick={() => setShowFeatures(!showFeatures)}
+        className="w-full flex items-center justify-between text-sm text-muted-foreground py-1"
+      >
+        <span>Why trade with us?</span>
+        {showFeatures ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      </button>
+      
+      {showFeatures && (
+        <div className="space-y-2 animate-fade-in">
+          {features.map((feature, idx) => (
+            <div key={idx} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <feature.icon className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-foreground">{feature.label}</div>
+                <div className="text-xs text-muted-foreground">{feature.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* CTA Buttons */}
+      <div className="flex gap-2 pt-2">
+        <Button 
+          className="flex-1 bg-trading-green hover:bg-trading-green/90 text-white font-medium"
+          onClick={onLogin}
+        >
+          Start Trading
+        </Button>
+        <Button 
+          variant="outline"
+          className="flex-1 border-border text-foreground hover:bg-muted/50"
+          onClick={onLogin}
+        >
+          Sign In
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// Logged-in User Stats Card Component
+const UserStatsCard = ({ 
+  username, 
+  balance,
+  weeklyPnL,
+  weeklyPnLPercent 
+}: { 
+  username: string | null;
+  balance: number | null | undefined;
+  weeklyPnL: string;
+  weeklyPnLPercent: string;
+}) => {
   const formatBalance = (balance: number | null | undefined) => {
     if (balance == null) return "$0.00";
     return `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
+
+  return (
+    <div className="trading-card p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Hello, {username || 'Trader'}!</h2>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-xs text-muted-foreground">7-Day P&L</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-bold text-trading-green">{weeklyPnL}</span>
+            <span className="text-sm text-trading-green">({weeklyPnLPercent})</span>
+          </div>
+        </div>
+      </div>
+      <div className="pt-2 border-t border-border">
+        <span className="text-xs text-muted-foreground">Available Balance</span>
+        <div className="text-2xl font-bold text-foreground">{formatBalance(balance)}</div>
+      </div>
+      <Button 
+        className="w-full bg-muted hover:bg-muted/80 text-foreground"
+        onClick={() => toast("Get ready! You'll soon be able to swap your earnings for points.")}
+      >
+        Redeem Points
+      </Button>
+    </div>
+  );
+};
+
+const MobileHome = () => {
+  const navigate = useNavigate();
+  const { positions } = usePositionsStore();
+  const { profile, username } = useUserProfile();
+  const { user } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
 
   // Mock P&L data (could be calculated from positions in the future)
   const weeklyPnL = "+$34.56";
@@ -84,31 +212,17 @@ const MobileHome = () => {
       />
 
       <main className="px-4 py-4 space-y-6">
-        {/* User Stats Card */}
-        <div className="trading-card p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Hello, {username || 'Trader'}!</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-muted-foreground">7-Day P&L</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-trading-green">{weeklyPnL}</span>
-                <span className="text-sm text-trading-green">({weeklyPnLPercent})</span>
-              </div>
-            </div>
-          </div>
-          <div className="pt-2 border-t border-border">
-            <span className="text-xs text-muted-foreground">Available Balance</span>
-            <div className="text-2xl font-bold text-foreground">{formatBalance(profile?.trial_balance)}</div>
-          </div>
-          <Button 
-            className="w-full bg-muted hover:bg-muted/80 text-foreground"
-            onClick={() => toast("Get ready! You'll soon be able to swap your earnings for points.")}
-          >
-            Redeem Points
-          </Button>
-        </div>
+        {/* Conditional Stats Card - Guest vs Logged-in */}
+        {user ? (
+          <UserStatsCard 
+            username={username}
+            balance={profile?.trial_balance}
+            weeklyPnL={weeklyPnL}
+            weeklyPnLPercent={weeklyPnLPercent}
+          />
+        ) : (
+          <GuestWelcomeCard onLogin={() => setAuthOpen(true)} />
+        )}
 
         {/* My Positions Section */}
         <section>
@@ -321,6 +435,9 @@ const MobileHome = () => {
       </main>
 
       <BottomNav />
+      
+      {/* Auth Sheet for guest users */}
+      <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 };
