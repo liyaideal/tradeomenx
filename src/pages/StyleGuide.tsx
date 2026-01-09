@@ -2685,6 +2685,7 @@ toast.promise(asyncFn(), {
                   <p className="text-xs text-muted-foreground mb-2">二级页面（有返回按钮，标题居中）</p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                     <li>Trade 页面 (/trade, /trade/order)</li>
+                    <li>Order Preview 页面 (/order-preview)</li>
                     <li>Wallet 页面 (/wallet)</li>
                     <li>Portfolio 页面 (/portfolio)</li>
                     <li>Settings 页面 (/settings)</li>
