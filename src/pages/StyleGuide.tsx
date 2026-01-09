@@ -1832,14 +1832,16 @@ const StyleGuide = () => {
                   <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap">
 {`import { getCategoryInfo, getCategoryFromName } from "@/lib/categoryUtils";
 
-// Using event icon
-const categoryInfo = getCategoryInfo(event.icon);
+// Using event category (recommended)
+const categoryInfo = getCategoryInfo(event.category);
 <Badge className={\`\${categoryInfo.color} border-0\`}>
-  {categoryInfo.category}
+  {categoryInfo.label}
 </Badge>
 
-// Using event name (fallback)
-const categoryInfo = getCategoryFromName(event.title);`}
+// Using event name (fallback for legacy data)
+const categoryInfo = getCategoryFromName(event.title);
+
+// NOTE: event.icon is DEPRECATED - do not use`}
                   </pre>
                 </div>
               </div>

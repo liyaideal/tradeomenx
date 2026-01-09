@@ -17,7 +17,7 @@ export interface EventStatistics {
 export interface RelatedEvent {
   id: string;
   name: string;
-  icon: string;
+  // NOTE: icon field deprecated - use category instead
   category: string;
   is_resolved: boolean;
   winning_option_label: string | null;
@@ -26,7 +26,7 @@ export interface RelatedEvent {
 export interface ResolvedEventDetail {
   id: string;
   name: string;
-  icon: string;
+  // NOTE: icon field deprecated - use category instead
   category: string;
   description: string | null;
   rules: string | null;
@@ -114,7 +114,7 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         const { data: relatedEventsData } = await supabase
           .from("events")
           .select(`
-            id, name, icon, category, is_resolved, winning_option_id,
+            id, name, category, is_resolved, winning_option_id,
             event_options (id, label, is_winner)
           `)
           .in("id", ids);
@@ -124,7 +124,6 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
           return {
             id: e.id,
             name: e.name,
-            icon: e.icon,
             category: e.category,
             is_resolved: e.is_resolved,
             winning_option_label: winningOption?.label || null,
@@ -177,7 +176,6 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
       return {
         id: event.id,
         name: event.name,
-        icon: event.icon,
         category: event.category,
         description: event.description,
         rules: event.rules,

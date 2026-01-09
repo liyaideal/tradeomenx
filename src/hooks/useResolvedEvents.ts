@@ -14,7 +14,7 @@ export interface ResolvedEventOption {
 export interface ResolvedEvent {
   id: string;
   name: string;
-  icon: string;
+  // NOTE: icon field deprecated - use category instead
   category: string;
   description: string | null;
   volume: string | null;
@@ -126,7 +126,6 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
         return {
           id: event.id,
           name: event.name,
-          icon: event.icon,
           category: event.category,
           description: event.description,
           volume: event.volume,
