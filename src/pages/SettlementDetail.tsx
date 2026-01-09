@@ -26,25 +26,70 @@ export default function SettlementDetail() {
   const isWin = settlement?.result === "win";
   const isLong = settlement?.side === "long";
 
-  // Calculate P&L breakdown
+  // Calculate P&L breakdown with leverage
   const pnlBreakdown = useMemo(() => {
-    if (!settlement) return { avgEntryPrice: 0, entryCost: 0, exitValue: 0, grossPnl: 0, fee: 0, netPnl: 0 };
+    if (!settlement) return { 
+      margin: 0, 
+      positionValue: 0,
+      avgEntryPrice: 0, 
+      entryCost: 0, 
+      exitValue: 0, 
+      grossPnl: 0, 
+      fundingFee: 0,
+      tradingFee: 0, 
+      netPnl: 0,
+      leveragedPnl: 0,
+      roi: 0,
+    };
     
     const avgEntryPrice = settlement.trades.length > 0 && settlement.size > 0
       ? settlement.trades.reduce((sum, t) => sum + t.price * t.qty, 0) / settlement.size
       : settlement.entryPrice;
+    
+    // Margin is the actual capital invested
+    const margin = settlement.margin;
+    // Position value = margin × leverage
+    const positionValue = margin * settlement.leverage;
+    
+    // Entry and exit based on position size
     const entryCost = settlement.size * avgEntryPrice;
     const exitValue = settlement.size * settlement.exitPrice;
+    
+    // Gross P&L (before fees)
     const grossPnl = isLong ? exitValue - entryCost : entryCost - exitValue;
-    const netPnl = grossPnl - settlement.fee;
+    
+    // Funding fee: 0.01% per 8 hours of holding
+    const holdingHours = (new Date(settlement.settledAt).getTime() - new Date(settlement.openedAt).getTime()) / (1000 * 60 * 60);
+    const fundingPeriods = Math.floor(holdingHours / 8);
+    const fundingRate = 0.0001; // 0.01% per 8h
+    const fundingFee = positionValue * fundingRate * fundingPeriods;
+    
+    // Trading fees
+    const tradingFee = settlement.fee;
+    
+    // Total fees
+    const totalFees = fundingFee + tradingFee;
+    
+    // Net P&L
+    const netPnl = grossPnl - totalFees;
+    
+    // ROI based on margin (actual capital)
+    const roi = margin > 0 ? (netPnl / margin) * 100 : 0;
     
     return {
+      margin,
+      positionValue,
       avgEntryPrice,
       entryCost,
       exitValue,
       grossPnl,
-      fee: settlement.fee,
+      fundingFee,
+      tradingFee,
       netPnl,
+      leveragedPnl: netPnl,
+      roi,
+      holdingHours,
+      fundingPeriods,
     };
   }, [settlement, isLong]);
 
@@ -241,6 +286,29 @@ export default function SettlementDetail() {
           </h2>
           
           <div className="space-y-3">
+            {/* Margin (Actual Investment) */}
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="text-muted-foreground text-sm">Margin</span>
+                <span className="text-xs text-muted-foreground ml-2">(Your Capital)</span>
+              </div>
+              <span className="font-mono text-foreground">${pnlBreakdown.margin.toFixed(2)}</span>
+            </div>
+            
+            {/* Position Value */}
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="text-muted-foreground text-sm">Position Value</span>
+                <span className="text-xs text-muted-foreground ml-2">
+                  (${pnlBreakdown.margin.toFixed(2)} × {settlement.leverage}x)
+                </span>
+              </div>
+              <span className="font-mono text-foreground">${pnlBreakdown.positionValue.toFixed(2)}</span>
+            </div>
+            
+            {/* Divider */}
+            <div className="border-t border-border/50" />
+            
             {/* Entry Cost */}
             <div className="flex justify-between items-center">
               <div>
@@ -274,10 +342,23 @@ export default function SettlementDetail() {
               </span>
             </div>
             
+            {/* Funding Fee */}
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="text-muted-foreground text-sm">Funding Fee</span>
+                <span className="text-xs text-muted-foreground ml-2">
+                  (0.01%/8h × {pnlBreakdown.fundingPeriods || 0} periods)
+                </span>
+              </div>
+              <span className="font-mono text-trading-red">
+                {pnlBreakdown.fundingFee > 0 ? `-$${pnlBreakdown.fundingFee.toFixed(2)}` : "$0.00"}
+              </span>
+            </div>
+            
             {/* Trading Fee */}
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground text-sm">Trading Fees</span>
-              <span className="font-mono text-trading-red">-${pnlBreakdown.fee.toFixed(2)}</span>
+              <span className="font-mono text-trading-red">-${pnlBreakdown.tradingFee.toFixed(2)}</span>
             </div>
             
             {/* Divider */}
@@ -285,7 +366,12 @@ export default function SettlementDetail() {
             
             {/* Net Profit */}
             <div className="flex justify-between items-center">
-              <span className="font-semibold">Net Profit</span>
+              <div>
+                <span className="font-semibold">Net Profit</span>
+                <span className={`text-xs ml-2 ${pnlBreakdown.roi >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                  ({pnlBreakdown.roi >= 0 ? "+" : ""}{pnlBreakdown.roi.toFixed(1)}% ROI)
+                </span>
+              </div>
               <span className={`font-mono font-bold text-lg ${pnlBreakdown.netPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
                 {pnlBreakdown.netPnl >= 0 ? "+" : ""}${pnlBreakdown.netPnl.toFixed(2)}
               </span>
