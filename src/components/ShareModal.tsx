@@ -12,6 +12,7 @@ interface ShareModalProps {
   shareUrl: string;
   fileName: string;
   children: ReactNode; // The content to be rendered as the share card
+  isDataReady?: boolean; // Optional flag to delay image generation until data is ready
 }
 
 export const ShareModal = ({ 
@@ -22,7 +23,8 @@ export const ShareModal = ({
   shareText,
   shareUrl,
   fileName,
-  children
+  children,
+  isDataReady = true,
 }: ShareModalProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
@@ -54,11 +56,13 @@ export const ShareModal = ({
   };
 
   useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(generateImage, 100);
+    if (isOpen && isDataReady) {
+      // Reset image blob when data changes
+      setImageBlob(null);
+      const timer = setTimeout(generateImage, 150);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, isDataReady]);
 
   if (!isOpen) return null;
 
