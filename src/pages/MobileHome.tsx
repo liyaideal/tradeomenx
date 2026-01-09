@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { activeEvents, eventOptionsMap } from "@/data/events";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -181,6 +182,7 @@ const MobileHome = () => {
             {activeEvents.slice(0, 4).map((event, index) => {
               const options = eventOptionsMap[event.id] || [];
               const countdown = getCountdown(event.endTime);
+              const categoryInfo = getCategoryFromName(event.name);
               
               return (
                 <div
@@ -190,7 +192,12 @@ const MobileHome = () => {
                   onClick={() => navigate(`/trade?event=${event.id}`)}
                 >
                   <div className="flex items-start justify-between">
-                    <h4 className="font-medium text-foreground flex-1 pr-3">{event.name}</h4>
+                    <div className="flex-1 pr-3">
+                      <h4 className="font-medium text-foreground">{event.name}</h4>
+                      <Badge className={`mt-1.5 text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.general.class}`}>
+                        {categoryInfo.label}
+                      </Badge>
+                    </div>
                     <Button 
                       size="sm" 
                       className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1 flex-shrink-0"
@@ -248,6 +255,7 @@ const MobileHome = () => {
               .map((event) => {
                 const options = eventOptionsMap[event.id] || [];
                 const countdown = getCountdown(event.endTime);
+                const categoryInfo = getCategoryFromName(event.name);
                 
                 return (
                   <div
@@ -256,7 +264,12 @@ const MobileHome = () => {
                     onClick={() => navigate(`/trade?event=${event.id}`)}
                   >
                     <div className="flex items-start justify-between">
-                      <h4 className="font-medium text-foreground flex-1 pr-3">{event.name}</h4>
+                      <div className="flex-1 pr-3">
+                        <h4 className="font-medium text-foreground">{event.name}</h4>
+                        <Badge className={`mt-1.5 text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.general.class}`}>
+                          {categoryInfo.label}
+                        </Badge>
+                      </div>
                       <Button 
                         size="sm" 
                         className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1 flex-shrink-0"
