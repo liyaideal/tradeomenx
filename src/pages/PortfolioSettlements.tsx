@@ -321,7 +321,7 @@ export default function PortfolioSettlements() {
                       </TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="sm">
-                          Details
+                          View
                           <ChevronRight className="w-4 h-4 ml-1" />
                         </Button>
                       </TableCell>
