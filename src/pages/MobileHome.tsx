@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Globe, Bell, ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp } from "lucide-react";
+import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
@@ -7,7 +7,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { toast } from "sonner";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { activeEvents, eventOptionsMap } from "@/data/events";
-import { getCategoryInfo } from "@/lib/categoryUtils";
+
 import { useUserProfile } from "@/hooks/useUserProfile";
 // Helper to calculate countdown from endTime
 const getCountdown = (endTime: Date) => {
@@ -40,21 +40,8 @@ const MobileHome = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header - 主入口页：Logo + 右侧功能图标 */}
-      <MobileHeader 
-        showLogo
-        rightContent={
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate("/style-guide")}>
-              <Globe className="h-5 w-5 text-muted-foreground" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-              <Bell className="h-5 w-5 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-trading-red rounded-full" />
-            </Button>
-          </div>
-        }
-      />
+      {/* Header - 主入口页：Logo */}
+      <MobileHeader showLogo />
 
       <main className="px-4 py-4 space-y-6">
         {/* User Stats Card */}
@@ -153,7 +140,6 @@ const MobileHome = () => {
           </div>
           <div className="space-y-3">
             {activeEvents.slice(0, 4).map((event, index) => {
-              const categoryInfo = getCategoryInfo(event.icon);
               const options = eventOptionsMap[event.id] || [];
               const countdown = getCountdown(event.endTime);
               
@@ -164,23 +150,20 @@ const MobileHome = () => {
                   style={{ animationDelay: `${index * 50}ms` }}
                   onClick={() => navigate(`/trade?event=${event.id}`)}
                 >
-                  <div className="flex items-start justify-between">
-                    <Badge className={`text-xs ${categoryInfo.color} border-0`}>
-                      {categoryInfo.category}
-                    </Badge>
-                    <Button 
-                      size="sm" 
-                      className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/trade?event=${event.id}`);
-                      }}
-                    >
-                      <TrendingUp className="h-3.5 w-3.5" />
-                      Trade
-                    </Button>
-                  </div>
-                  <h4 className="font-medium text-foreground">{event.name}</h4>
+                <div className="flex items-start justify-between">
+                  <Button 
+                    size="sm" 
+                    className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/trade?event=${event.id}`);
+                    }}
+                  >
+                    <TrendingUp className="h-3.5 w-3.5" />
+                    Trade
+                  </Button>
+                </div>
+                <h4 className="font-medium text-foreground">{event.name}</h4>
                   <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                     {options.map((option) => (
                       <div
@@ -224,7 +207,6 @@ const MobileHome = () => {
               .sort((a, b) => a.endTime.getTime() - b.endTime.getTime())
               .slice(0, 1)
               .map((event) => {
-                const categoryInfo = getCategoryInfo(event.icon);
                 const options = eventOptionsMap[event.id] || [];
                 const countdown = getCountdown(event.endTime);
                 
@@ -234,23 +216,20 @@ const MobileHome = () => {
                     className="trading-card p-4 space-y-3 border-trading-yellow/30 cursor-pointer hover:bg-card-hover transition-colors"
                     onClick={() => navigate(`/trade?event=${event.id}`)}
                   >
-                    <div className="flex items-start justify-between">
-                      <Badge className={`text-xs ${categoryInfo.color} border-0`}>
-                        {categoryInfo.category}
-                      </Badge>
-                      <Button 
-                        size="sm" 
-                        className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/trade?event=${event.id}`);
-                        }}
-                      >
-                        <TrendingUp className="h-3.5 w-3.5" />
-                        Trade
-                      </Button>
-                    </div>
-                    <h4 className="font-medium text-foreground">{event.name}</h4>
+                <div className="flex items-start justify-between">
+                  <Button 
+                    size="sm" 
+                    className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/trade?event=${event.id}`);
+                    }}
+                  >
+                    <TrendingUp className="h-3.5 w-3.5" />
+                    Trade
+                  </Button>
+                </div>
+                <h4 className="font-medium text-foreground">{event.name}</h4>
                     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                       {options.map((option) => (
                         <div
