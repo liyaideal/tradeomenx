@@ -160,9 +160,9 @@ export const BottomNav = () => {
       {/* Auth Sheet for mobile */}
       <AuthSheet open={authSheetOpen} onOpenChange={setAuthSheetOpen} />
 
-      {/* Profile Drawer for logged in users */}
+      {/* Profile Drawer for logged in users - updated */}
       <MobileDrawer open={profileSheetOpen} onOpenChange={setProfileSheetOpen} hideCloseButton>
-        {/* User Info */}
+        {/* User Info Section */}
         <div className="flex items-center gap-3 mb-4 p-3 bg-muted/30 rounded-xl">
           <Avatar className="w-12 h-12 border-2 border-primary/50">
             <AvatarImage src={avatarUrl || undefined} alt="User" />
