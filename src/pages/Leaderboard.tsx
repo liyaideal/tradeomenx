@@ -11,6 +11,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { MobileHeader } from "@/components/MobileHeader";
 import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -1060,18 +1061,18 @@ export default function Leaderboard() {
         <div className="relative z-10 px-4 pt-6">
           {/* Header */}
           {isMobile && (
-            <div className="flex items-center justify-between mb-4">
-              {/* Logo on the left */}
-              <img src={omenxLogo} alt="OMENX" className="h-5" />
-              {/* Share button - smaller on mobile */}
-              <button 
-                onClick={handleShareCard}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span className="text-xs font-medium">Share</span>
-              </button>
-            </div>
+            <MobileHeader
+              showLogo
+              rightContent={
+                <button 
+                  onClick={handleShareCard}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">Share</span>
+                </button>
+              }
+            />
           )}
 
           {/* Logo + Title with Neon Effect */}
