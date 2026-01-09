@@ -2813,6 +2813,20 @@ toast.promise(asyncFn(), {
                   <p className="text-xs text-muted-foreground">实时价格 (currentPrice prop)</p>
                 </div>
               </div>
+              <div className="mt-4 bg-primary/10 border border-primary/30 rounded-xl p-4">
+                <p className="text-sm font-medium text-primary mb-2">📌 核心规则：头部只显示一个最重要的值</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  每种实时数据在头部统计栏只展示一个核心值，其他详细数据放在 Popup 中：
+                </p>
+                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                  <li><strong>Price 价格</strong>：只显示当前价格，24h 变化百分比放在 Popup</li>
+                  <li><strong>Tweets 推文</strong>：只显示当前计数，统计周期等放在 Popup</li>
+                  <li><strong>比分/其他</strong>：只显示最关键数值，详情放在 Popup</li>
+                </ul>
+                <p className="text-xs text-primary/80 mt-2 italic">
+                  目的：保持头部简洁，避免信息过载，用户点击可查看详情
+                </p>
+              </div>
             </Card>
 
             {/* Action Buttons */}
