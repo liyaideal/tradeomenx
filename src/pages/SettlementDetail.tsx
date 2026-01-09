@@ -23,7 +23,7 @@ export default function SettlementDetail() {
   const [showShareModal, setShowShareModal] = useState(false);
 
   // Fetch user profile for share card
-  const { profile } = useUserProfile();
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
 
   // Fetch real settlement data
   const { data: settlement, isLoading, error } = useSettlementDetail({ settlementId });
@@ -473,6 +473,7 @@ export default function SettlementDetail() {
         shareText={`I just ${isWin ? "won" : "lost"} ${settlement.pnlPercent >= 0 ? "+" : ""}${settlement.pnlPercent.toFixed(1)}% on OMENX! ${isWin ? "🚀" : "💀"}`}
         shareUrl={`https://omenx.com/settlement/${settlementId}`}
         fileName={`omenx-settlement-${settlementId}`}
+        isDataReady={!isProfileLoading && !!profile}
       >
         <SettlementShareCard
           event={settlement.event}
