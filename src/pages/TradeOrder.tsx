@@ -50,6 +50,9 @@ function TradeOrderContent() {
   // Scroll to and highlight specific position when clicking a card
   useEffect(() => {
     if (highlightedPosition !== null && positionRefs.current[highlightedPosition]) {
+      // Mark as scrolled to prevent the section scroll from triggering later
+      hasScrolledToSection.current = true;
+      
       // Small delay to ensure DOM is ready
       setTimeout(() => {
         const element = positionRefs.current[highlightedPosition];
