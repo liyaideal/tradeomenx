@@ -2667,25 +2667,28 @@ toast.promise(asyncFn(), {
 
             {/* Logo Rules */}
             <Card className="p-6">
-              <h3 className="text-base font-medium mb-4">Logo 显示规则 (仅限功能型页面)</h3>
+              <h3 className="text-base font-medium mb-4">Logo 显示规则</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                <strong>原则：仅底部导航主入口页显示Logo</strong>，二级页面不显示Logo以保持标题居中。
+              </p>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-4">
-                  <p className="text-sm font-medium text-trading-green mb-2">✓ 显示 Logo (showLogo=true)</p>
+                  <p className="text-sm font-medium text-trading-green mb-2">✓ 显示 Logo</p>
+                  <p className="text-xs text-muted-foreground mb-2">底部导航主入口页（无返回按钮）</p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                     <li>Events 列表页 (/events)</li>
                     <li>Resolved 列表页 (/resolved)</li>
-                    <li>Portfolio 页面 (/portfolio)</li>
-                    <li>Settings 页面 (/settings)</li>
-                    <li>Wallet 页面 (/wallet)</li>
                   </ul>
                 </div>
                 <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-4">
-                  <p className="text-sm font-medium text-trading-red mb-2">✗ 不显示 Logo (showLogo=false)</p>
+                  <p className="text-sm font-medium text-trading-red mb-2">✗ 不显示 Logo</p>
+                  <p className="text-xs text-muted-foreground mb-2">二级页面（有返回按钮，标题居中）</p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                    <li>Trade 页面 (/trade)</li>
-                    <li>Trade Order 页面 (/trade/order)</li>
+                    <li>Trade 页面 (/trade, /trade/order)</li>
+                    <li>Wallet 页面 (/wallet)</li>
+                    <li>Portfolio 页面 (/portfolio)</li>
+                    <li>Settings 页面 (/settings)</li>
                     <li>Event Detail 页面</li>
-                    <li>任何需要最大化标题空间的页面</li>
                   </ul>
                 </div>
               </div>

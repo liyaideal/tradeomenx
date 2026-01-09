@@ -493,7 +493,7 @@ const Settings = () => {
     return (
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
-        <MobileHeader title="Settings" showLogo />
+        <MobileHeader title="Settings" />
         <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/30">
           <div className="flex items-center justify-center px-4 py-4">
             <h1 className="text-lg font-semibold">Settings</h1>
