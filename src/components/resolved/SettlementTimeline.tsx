@@ -79,7 +79,8 @@ export const SettlementTimeline = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="relative">
+      {/* Main timeline row */}
       <div className="flex items-center justify-between relative">
         {/* Connecting line */}
         <div className="absolute top-3.5 left-0 right-0 h-0.5 bg-border" />
@@ -110,15 +111,20 @@ export const SettlementTimeline = ({
             </span>
           </div>
         ))}
-      </div>
 
-      {/* Duration info for compact variant - shown below timeline */}
-      {isCompact && duration && (
-        <div className="flex items-center justify-center pt-2 border-t border-border/50">
-          <span className="text-xs text-muted-foreground mr-2">Duration</span>
-          <span className="text-sm font-medium text-foreground">{duration}</span>
-        </div>
-      )}
+        {/* Duration indicator in the middle - compact variant only */}
+        {isCompact && duration && (
+          <div className="absolute left-1/2 -translate-x-1/2 top-3.5 flex flex-col items-center z-20">
+            {/* Vertical line down from timeline */}
+            <div className="w-px h-4 bg-border" />
+            {/* Duration badge */}
+            <div className="mt-1 px-2.5 py-1 bg-card border border-border rounded-full">
+              <span className="text-xs text-muted-foreground mr-1">Duration</span>
+              <span className="text-xs font-medium text-foreground">{duration}</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
