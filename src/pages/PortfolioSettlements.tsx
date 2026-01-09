@@ -155,8 +155,8 @@ export default function PortfolioSettlements() {
           </div>
         )}
 
-        {/* Settlements Stats Cards */}
-        <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+        {/* Settlements Stats Cards - Only 2 cards */}
+        <div className={`grid gap-3 mb-6 grid-cols-2`}>
           {/* Realized P&L */}
           <div className="bg-card rounded-xl p-4">
             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
@@ -180,28 +180,6 @@ export default function PortfolioSettlements() {
             </div>
             <div className="text-lg font-bold font-mono text-foreground">
               {settlementsStats.winRate}%
-            </div>
-          </div>
-
-          {/* Wins */}
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>Wins</span>
-            </div>
-            <div className="text-lg font-bold font-mono text-trading-green">
-              {settlementsStats.winCount}
-            </div>
-          </div>
-
-          {/* Losses */}
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <TrendingDown className="w-3.5 h-3.5" />
-              <span>Losses</span>
-            </div>
-            <div className="text-lg font-bold font-mono text-trading-red">
-              {settlementsStats.totalCount - settlementsStats.winCount}
             </div>
           </div>
         </div>
