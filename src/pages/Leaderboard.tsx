@@ -1126,6 +1126,17 @@ export default function Leaderboard() {
             </div>
           </div>
 
+          {/* Sign in prompt banner for non-logged-in users */}
+          {!isLoggedIn && (
+            <button
+              onClick={() => setAuthOpen(true)}
+              className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/30 hover:border-primary/50 hover:from-primary/30 hover:to-primary/20 transition-all duration-300"
+            >
+              <User className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Sign in to track your rank</span>
+            </button>
+          )}
+
           {/* Sort Tabs with Period Dropdown on mobile */}
           <div className="flex justify-center items-center gap-2 mb-4">
             {/* Period Dropdown - Mobile only, inline with sort tabs */}
