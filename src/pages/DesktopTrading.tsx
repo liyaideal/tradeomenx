@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useNavigationType, useSearchParams } from "react-router-dom";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft } from "lucide-react";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
@@ -123,9 +123,16 @@ const formatTpSlDisplay = (value: string, mode: "%" | "$", isProfit: boolean) =>
   return `$${value}`;
 };
 
+interface LocationState {
+  tab?: string;
+  highlightPosition?: number;
+}
+
 export default function DesktopTrading() {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const location = useLocation();
+  const locationState = location.state as LocationState | null;
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || undefined;
   
@@ -136,8 +143,35 @@ export default function DesktopTrading() {
   useOrderSimulation();
   
   // selectedOption is now managed by useEvents hook
-  const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">("Orders");
+  const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">(
+    locationState?.tab === "Positions" ? "Positions" : "Orders"
+  );
   const [chartTab, setChartTab] = useState<"Chart" | "Event Info">("Chart");
+  
+  // Highlighted position state for scrolling and visual feedback
+  const [highlightedPosition, setHighlightedPosition] = useState<number | null>(
+    locationState?.highlightPosition ?? null
+  );
+  const positionRowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
+  
+  // Scroll to and highlight specific position when navigating from Portfolio
+  useEffect(() => {
+    if (highlightedPosition !== null && positionRowRefs.current[highlightedPosition]) {
+      setTimeout(() => {
+        const element = positionRowRefs.current[highlightedPosition];
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+      
+      // Clear highlight after animation
+      const timer = setTimeout(() => {
+        setHighlightedPosition(null);
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [highlightedPosition]);
   
   // Trade form state
   const [side, setSide] = useState<"buy" | "sell">("buy");
@@ -1022,7 +1056,15 @@ export default function DesktopTrading() {
                       </tr>
                     ) : (
                       positions.map((position, index) => (
-                        <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
+                        <tr 
+                          key={index} 
+                          ref={(el) => (positionRowRefs.current[index] = el)}
+                          className={`border-b border-border/30 hover:bg-muted/20 transition-all duration-500 ${
+                            highlightedPosition === index 
+                              ? "ring-2 ring-primary ring-inset bg-primary/10" 
+                              : ""
+                          }`}
+                        >
                           <td className="px-4 py-2">
                             <div className="text-sm font-medium">{position.option}</div>
                             <HoverCard>
