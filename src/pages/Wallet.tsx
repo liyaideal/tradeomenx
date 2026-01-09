@@ -531,51 +531,247 @@ export default function Wallet() {
     return null;
   };
 
-  return (
-    <div className="min-h-screen bg-background pb-24 md:pb-8">
-      {/* Header */}
-      {isMobile ? (
-        <MobileHeader title="Wallet" showLogo={false} />
-      ) : (
+  // Desktop Layout
+  if (!isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
         <EventsDesktopHeader />
-      )}
+        
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Page Title */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold">Wallet</h1>
+            <p className="text-muted-foreground">Manage your funds and connected wallets</p>
+          </div>
 
-      <div className={`px-4 py-6 space-y-6 ${!isMobile ? "max-w-2xl mx-auto" : ""}`}>
-        <BalanceCard />
-        <WalletList />
-        <TransactionHistory />
-      </div>
+          {/* Desktop Grid Layout */}
+          <div className="grid grid-cols-12 gap-6">
+            {/* Left Column - Balance & Actions */}
+            <div className="col-span-4 space-y-6">
+              {/* Balance Card - Enhanced for Desktop */}
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 p-6">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-trading-green/10 rounded-full blur-2xl" />
+                
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                      <WalletIcon className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <span className="text-sm text-muted-foreground">Available Balance</span>
+                      <div className="text-3xl font-bold font-mono">
+                        ${formatCurrency(balance)}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-muted-foreground mb-6">USDC</div>
+                  
+                  <div className="flex gap-3">
+                    <Button 
+                      className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-11"
+                      onClick={() => setTopUpOpen(true)}
+                    >
+                      <ArrowDownLeft className="w-4 h-4 mr-2" />
+                      Deposit
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="flex-1 border-border/50 hover:bg-muted/50 rounded-xl h-11"
+                      onClick={() => toast.info("Withdraw feature coming soon")}
+                    >
+                      <ArrowUpRight className="w-4 h-4 mr-2" />
+                      Withdraw
+                    </Button>
+                  </div>
+                </div>
+              </div>
 
-      {/* Bottom Navigation - Mobile only */}
-      {isMobile && <BottomNav />}
+              {/* Connected Wallets */}
+              <div className="trading-card p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold">Connected Wallets</h2>
+                  <span className="text-sm text-muted-foreground">
+                    {wallets.length} wallet{wallets.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
 
-      {/* Top Up Dialog */}
-      <TopUpDialog 
-        open={topUpOpen} 
-        onOpenChange={setTopUpOpen} 
-        currentBalance={balance}
-        onTopUp={(amount, method) => {
-          toast.success(`Deposited $${amount} via ${method}`);
-        }}
-      />
+                {walletsLoading ? (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <p>Loading wallets...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {wallets.map((wallet) => (
+                      <div 
+                        key={wallet.id} 
+                        className="bg-muted/30 rounded-xl p-4 hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-xl">
+                            {wallet.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-sm">{wallet.walletType}</span>
+                              {wallet.isPrimary && (
+                                <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+                                  Primary
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <code className="text-xs font-mono text-muted-foreground">{wallet.address}</code>
+                              <button
+                                onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
+                                className="text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                {copiedWalletId === wallet.id ? (
+                                  <Check className="w-3 h-3 text-trading-green" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                            </div>
+                            <span className="text-xs text-muted-foreground">{wallet.network}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-3 pt-3 border-t border-border/30 flex justify-end gap-2">
+                          {!wallet.isPrimary && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSetPrimaryWallet(wallet.id)}
+                              className="text-primary hover:text-primary hover:bg-primary/10 h-8 text-xs"
+                            >
+                              <Star className="w-3 h-3 mr-1" />
+                              Set Primary
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDisconnectWallet({ id: wallet.id, address: wallet.address })}
+                            className="text-muted-foreground hover:text-trading-red hover:bg-trading-red/10 h-8 text-xs"
+                          >
+                            Disconnect
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
 
-      {/* Wallet Connection - Mobile Drawer */}
-      {isMobile && (
-        <MobileDrawer
-          open={walletDialogOpen}
-          onOpenChange={handleWalletDialogClose}
-          title={
-            walletStep === "select" ? "Connect Wallet" :
-            walletStep === "connecting" ? "Connecting..." :
-            "Connected!"
-          }
-        >
-          <WalletConnectionContent />
-        </MobileDrawer>
-      )}
+                    <button 
+                      onClick={() => setWalletDialogOpen(true)}
+                      className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span className="font-medium">Connect New Wallet</span>
+                    </button>
 
-      {/* Wallet Connection - Desktop Dialog */}
-      {!isMobile && (
+                    {wallets.length === 0 && !walletsLoading && (
+                      <p className="text-center text-sm text-muted-foreground py-2">
+                        Connect a wallet to deposit and withdraw funds
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column - Transaction History */}
+            <div className="col-span-8">
+              <div className="trading-card p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <History className="w-5 h-5 text-muted-foreground" />
+                  <h2 className="text-lg font-semibold">Transaction History</h2>
+                </div>
+
+                {transactions.length === 0 ? (
+                  <div className="py-16 text-center">
+                    <History className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground">No transactions yet</p>
+                    <p className="text-sm text-muted-foreground mt-1">Your transaction history will appear here</p>
+                  </div>
+                ) : (
+                  <div className="overflow-hidden rounded-xl border border-border/50">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-border/50 bg-muted/30">
+                          <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Type</th>
+                          <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Description</th>
+                          <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
+                          <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/30">
+                        {transactions.map((tx) => (
+                          <tr key={tx.id} className="hover:bg-muted/20 transition-colors">
+                            <td className="py-4 px-4">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                                  tx.type === "deposit" || tx.type === "platform_credit" ? "bg-trading-green/20" :
+                                  tx.type === "withdraw" ? "bg-trading-red/20" :
+                                  tx.type === "trade_profit" ? "bg-trading-green/20" : "bg-trading-red/20"
+                                }`}>
+                                  {tx.type === "deposit" ? (
+                                    <ArrowDownLeft className="w-4 h-4 text-trading-green" />
+                                  ) : tx.type === "withdraw" ? (
+                                    <ArrowUpRight className="w-4 h-4 text-trading-red" />
+                                  ) : tx.type === "platform_credit" ? (
+                                    <WalletIcon className="w-4 h-4 text-trading-green" />
+                                  ) : tx.type === "trade_profit" ? (
+                                    <TrendingUp className="w-4 h-4 text-trading-green" />
+                                  ) : (
+                                    <TrendingDown className="w-4 h-4 text-trading-red" />
+                                  )}
+                                </div>
+                                <span className="text-sm font-medium capitalize">
+                                  {tx.type === "platform_credit" ? "Platform Credit" : 
+                                   tx.type === "trade_profit" ? "Trade Profit" :
+                                   tx.type === "trade_loss" ? "Trade Loss" :
+                                   tx.type}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className="text-sm text-muted-foreground truncate max-w-[300px] block">
+                                {tx.description}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className="text-sm text-muted-foreground">{tx.date}</span>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <span className={`text-sm font-semibold font-mono ${
+                                tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
+                              }`}>
+                                {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Top Up Dialog */}
+        <TopUpDialog 
+          open={topUpOpen} 
+          onOpenChange={setTopUpOpen} 
+          currentBalance={balance}
+          onTopUp={(amount, method) => {
+            toast.success(`Deposited $${amount} via ${method}`);
+          }}
+        />
+
+        {/* Wallet Connection Dialog */}
         <Dialog open={walletDialogOpen} onOpenChange={handleWalletDialogClose}>
           <DialogContent>
             <DialogHeader>
@@ -591,54 +787,20 @@ export default function Wallet() {
             <WalletConnectionContent />
           </DialogContent>
         </Dialog>
-      )}
 
-      {/* Disconnect Confirmation - Mobile */}
-      {isMobile && (
-        <MobileDrawer
-          open={disconnectDialogOpen}
-          onOpenChange={setDisconnectDialogOpen}
-          showHandle={true}
-        >
-          <MobileDrawerStatus
-            icon={<AlertTriangle className="w-8 h-8 text-trading-red" />}
-            title="Disconnect Wallet?"
-            description="Are you sure you want to disconnect this wallet? You can reconnect it anytime."
-            variant="error"
-          />
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setDisconnectDialogOpen(false)}
-              className="flex-1 h-12"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmDisconnect}
-              className="flex-1 h-12 bg-trading-red hover:bg-trading-red/90 text-white"
-            >
-              Disconnect
-            </Button>
-          </div>
-        </MobileDrawer>
-      )}
-
-      {/* Disconnect Confirmation - Desktop */}
-      {!isMobile && (
+        {/* Disconnect Confirmation Dialog */}
         <Dialog open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
           <DialogContent>
-            <div className="py-4 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-red/20 flex items-center justify-center">
-                <AlertTriangle className="w-8 h-8 text-trading-red" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Disconnect Wallet?</h3>
-              <p className="text-sm text-muted-foreground">
-                Are you sure you want to disconnect this wallet?<br />
-                You can reconnect it anytime.
-              </p>
-            </div>
-            <div className="flex gap-3 pt-2">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-trading-red" />
+                Disconnect Wallet?
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to disconnect {walletToDisconnect?.address}? You can reconnect it anytime.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-3 pt-4">
               <Button
                 variant="outline"
                 onClick={() => setDisconnectDialogOpen(false)}
@@ -655,7 +817,76 @@ export default function Wallet() {
             </div>
           </DialogContent>
         </Dialog>
-      )}
+      </div>
+    );
+  }
+
+  // Mobile Layout
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header */}
+      <MobileHeader title="Wallet" showLogo={false} />
+
+      <div className="px-4 py-6 space-y-6">
+        <BalanceCard />
+        <WalletList />
+        <TransactionHistory />
+      </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
+
+      {/* Top Up Dialog */}
+      <TopUpDialog 
+        open={topUpOpen} 
+        onOpenChange={setTopUpOpen} 
+        currentBalance={balance}
+        onTopUp={(amount, method) => {
+          toast.success(`Deposited $${amount} via ${method}`);
+        }}
+      />
+
+      {/* Wallet Connection - Mobile Drawer */}
+      <MobileDrawer
+        open={walletDialogOpen}
+        onOpenChange={handleWalletDialogClose}
+        title={
+          walletStep === "select" ? "Connect Wallet" :
+          walletStep === "connecting" ? "Connecting..." :
+          "Connected!"
+        }
+      >
+        <WalletConnectionContent />
+      </MobileDrawer>
+
+      {/* Disconnect Confirmation - Mobile */}
+      <MobileDrawer
+        open={disconnectDialogOpen}
+        onOpenChange={setDisconnectDialogOpen}
+        showHandle={true}
+      >
+        <MobileDrawerStatus
+          icon={<AlertTriangle className="w-8 h-8 text-trading-red" />}
+          title="Disconnect Wallet?"
+          description="Are you sure you want to disconnect this wallet? You can reconnect it anytime."
+          variant="error"
+        />
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setDisconnectDialogOpen(false)}
+            className="flex-1 h-12"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDisconnect}
+            className="flex-1 h-12 bg-trading-red hover:bg-trading-red/90 text-white"
+          >
+            Disconnect
+          </Button>
+        </div>
+      </MobileDrawer>
     </div>
   );
 }
