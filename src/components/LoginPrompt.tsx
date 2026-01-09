@@ -1,10 +1,12 @@
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { LogIn } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Button } from "@/components/ui/button";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 
 interface LoginPromptProps {
   title?: string;
@@ -16,7 +18,7 @@ export function LoginPrompt({
   description = "Please sign in to access this feature."
 }: LoginPromptProps) {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
+  const [authOpen, setAuthOpen] = useState(false);
 
   return (
     <div 
@@ -45,7 +47,7 @@ export function LoginPrompt({
           <Button 
             size="lg" 
             className="px-8"
-            onClick={() => navigate("/auth")}
+            onClick={() => setAuthOpen(true)}
           >
             <LogIn className="w-4 h-4 mr-2" />
             Sign In
@@ -54,6 +56,13 @@ export function LoginPrompt({
       </main>
 
       {isMobile && <BottomNav />}
+
+      {/* Auth Modal - use Sheet for mobile, Dialog for desktop */}
+      {isMobile ? (
+        <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+      ) : (
+        <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      )}
     </div>
   );
 }
