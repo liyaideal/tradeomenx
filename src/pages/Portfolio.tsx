@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 type SortField = "pnl" | "size" | "event" | null;
 type SortDirection = "asc" | "desc";
@@ -415,7 +416,7 @@ export default function Portfolio() {
                     <div className="grid grid-cols-4 gap-2 mb-3">
                       <div>
                         <span className="text-[10px] text-muted-foreground block">
-                          Size
+                          {TRADING_TERMS.QTY}
                         </span>
                         <span className="font-mono text-xs">{position.size}</span>
                       </div>
@@ -437,7 +438,7 @@ export default function Portfolio() {
                       </div>
                       <div>
                         <span className="text-[10px] text-muted-foreground block">
-                          Margin
+                          {TRADING_TERMS.MARGIN}
                         </span>
                         <span className="font-mono text-xs">{position.margin}</span>
                       </div>
@@ -462,31 +463,31 @@ export default function Portfolio() {
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="w-[200px]">Contract</TableHead>
-                      <TableHead>Side</TableHead>
+                      <TableHead className="w-[200px]">{TRADING_TERMS.CONTRACT}</TableHead>
+                      <TableHead>{TRADING_TERMS.SIDE}</TableHead>
                       <TableHead
                         className="cursor-pointer hover:text-foreground"
                         onClick={() => handleSort("size")}
                       >
                         <div className="flex items-center gap-1">
-                          Size
+                          {TRADING_TERMS.QTY}
                           <ArrowUpDown className="w-3 h-3" />
                         </div>
                       </TableHead>
-                      <TableHead>Entry Price</TableHead>
-                      <TableHead>Mark Price</TableHead>
-                      <TableHead>Margin</TableHead>
+                      <TableHead>{TRADING_TERMS.ENTRY_PRICE}</TableHead>
+                      <TableHead>{TRADING_TERMS.MARK_PRICE}</TableHead>
+                      <TableHead>{TRADING_TERMS.MARGIN}</TableHead>
                       <TableHead
                         className="cursor-pointer hover:text-foreground"
                         onClick={() => handleSort("pnl")}
                       >
                         <div className="flex items-center gap-1">
-                          P&L
+                          {TRADING_TERMS.PNL}
                           <ArrowUpDown className="w-3 h-3" />
                         </div>
                       </TableHead>
-                      <TableHead>TP/SL</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
+                      <TableHead>{TRADING_TERMS.TPSL}</TableHead>
+                      <TableHead className="text-right">{TRADING_TERMS.ACTION}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

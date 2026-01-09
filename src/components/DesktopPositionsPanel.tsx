@@ -26,6 +26,7 @@ import {
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { orderToPosition } from "@/lib/orderUtils";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 export const DesktopPositionsPanel = () => {
   const { orders, fillOrder, cancelOrder } = useOrdersStore();
@@ -54,27 +55,27 @@ export const DesktopPositionsPanel = () => {
   ];
 
   const positionColumns = [
-    "Contracts",
-    "Qty",
-    "Value",
-    "Entry Price",
-    "Mark Price",
-    "Margin",
-    "Unrealized P&L (%)",
-    "TP/SL",
-    "Action",
+    TRADING_TERMS.CONTRACTS,
+    TRADING_TERMS.QTY,
+    TRADING_TERMS.VALUE,
+    TRADING_TERMS.ENTRY_PRICE,
+    TRADING_TERMS.MARK_PRICE,
+    TRADING_TERMS.MARGIN,
+    `${TRADING_TERMS.UNREALIZED_PNL} (%)`,
+    TRADING_TERMS.TPSL,
+    TRADING_TERMS.ACTION,
   ];
 
   const orderColumns = [
-    "Contracts",
-    "Side",
-    "Type",
-    "Price",
-    "Qty",
-    "Value",
-    "Status",
-    "Time",
-    "Action",
+    TRADING_TERMS.CONTRACTS,
+    TRADING_TERMS.SIDE,
+    TRADING_TERMS.ORDER_TYPE,
+    TRADING_TERMS.PRICE,
+    TRADING_TERMS.QTY,
+    TRADING_TERMS.VALUE,
+    TRADING_TERMS.STATUS,
+    TRADING_TERMS.TIME,
+    TRADING_TERMS.ACTION,
   ];
 
   const handleEditTpSl = (index: number) => {
