@@ -578,7 +578,7 @@ const ShareableCard = ({
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-xl text-foreground mb-1 truncate max-w-[180px]">{user.username}</h3>
+            <h3 className="font-bold text-lg text-foreground mb-1 break-words leading-tight">{user.username}</h3>
             <div className="flex items-center gap-2">
               <div className={`flex items-center justify-center px-3 py-1 rounded-full bg-gradient-to-br ${rankBadgeGradient}`}>
                 <span className="font-bold text-background text-sm">#{user.rank}</span>
