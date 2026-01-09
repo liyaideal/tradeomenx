@@ -14,6 +14,7 @@ import ResolvedPage from "./pages/ResolvedPage";
 import ResolvedEventDetail from "./pages/ResolvedEventDetail";
 import Leaderboard from "./pages/Leaderboard";
 import Portfolio from "./pages/Portfolio";
+import Wallet from "./pages/Wallet";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/resolved" element={<ResolvedPage />} />
             <Route path="/resolved/:eventId" element={<ResolvedEventDetail />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/wallet" element={<Wallet />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/style-guide" element={<StyleGuide />} />

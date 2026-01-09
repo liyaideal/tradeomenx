@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BarChart3, TrendingUp, Trophy, User, LogOut, Settings, HelpCircle, Wallet } from "lucide-react";
+import { Home, BarChart3, TrendingUp, Trophy, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -178,18 +178,27 @@ export const BottomNav = () => {
           </div>
         </div>
 
-        {/* Balance Card */}
-        <div className="mb-4 p-4 bg-trading-green/10 border border-trading-green/30 rounded-xl">
+        {/* Balance Card - Tappable to go to Wallet page */}
+        <button
+          onClick={() => {
+            setProfileSheetOpen(false);
+            navigate("/wallet");
+          }}
+          className="w-full mb-4 p-4 bg-trading-green/10 border border-trading-green/30 rounded-xl hover:bg-trading-green/20 transition-colors active:scale-[0.98]"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Wallet className="w-5 h-5 text-trading-green" />
               <span className="text-sm text-muted-foreground">Trial Balance</span>
             </div>
-            <span className="text-lg font-bold text-trading-green font-mono">
-              ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold text-trading-green font-mono">
+                ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
           </div>
-        </div>
+        </button>
 
         {/* Menu Items */}
         <MobileDrawerList>
