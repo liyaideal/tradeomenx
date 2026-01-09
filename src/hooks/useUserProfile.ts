@@ -94,6 +94,32 @@ export const useUserProfile = () => {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  
+  // Track if we've already generated a username to prevent duplicates
+  const hasGeneratedUsername = useRef(false);
+
+  // Query for profile data - declare before effects
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: PROFILE_QUERY_KEY,
+    queryFn: () => user ? fetchProfile(user.id) : null,
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Mutation for updating profile - declare before effects
+  const updateMutation = useMutation({
+    mutationFn: (updates: Partial<Profile>) => 
+      updateProfileInDb({ userId: user!.id, updates }),
+    onSuccess: (newProfile) => {
+      // Update cache immediately
+      queryClient.setQueryData(PROFILE_QUERY_KEY, newProfile);
+    },
+  });
 
   // Listen for auth changes
   useEffect(() => {
@@ -126,22 +152,6 @@ export const useUserProfile = () => {
 
     return () => subscription.unsubscribe();
   }, [queryClient]);
-
-  // Query for profile data
-  const {
-    data: profile,
-    isLoading: isProfileLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: PROFILE_QUERY_KEY,
-    queryFn: () => user ? fetchProfile(user.id) : null,
-    enabled: !!user,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-
-  // Track if we've already generated a username to prevent duplicates
-  const hasGeneratedUsername = useRef(false);
 
   // Auto-generate username for old users who don't have one
   useEffect(() => {
@@ -177,16 +187,6 @@ export const useUserProfile = () => {
 
     generateUsernameForOldUser();
   }, [user, profile, isProfileLoading, queryClient]);
-
-  // Mutation for updating profile
-  const updateMutation = useMutation({
-    mutationFn: (updates: Partial<Profile>) => 
-      updateProfileInDb({ userId: user!.id, updates }),
-    onSuccess: (newProfile) => {
-      // Update cache immediately
-      queryClient.setQueryData(PROFILE_QUERY_KEY, newProfile);
-    },
-  });
 
   // Helper functions for specific updates
   const updateUsername = async (username: string) => {
