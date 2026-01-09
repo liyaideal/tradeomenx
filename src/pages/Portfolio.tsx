@@ -1,12 +1,19 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Filter } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -20,6 +27,39 @@ import { Badge } from "@/components/ui/badge";
 type SortField = "pnl" | "size" | "event" | null;
 type SortDirection = "asc" | "desc";
 type TabType = "positions" | "settlements";
+
+// Portfolio Tab 下拉组件 - 类似 Events 的 Active/Resolved 切换
+const PortfolioTabDropdown = ({
+  activeTab,
+  onTabChange,
+  positionsCount,
+  settlementsCount,
+}: {
+  activeTab: TabType;
+  onTabChange: (tab: TabType) => void;
+  positionsCount: number;
+  settlementsCount: number;
+}) => {
+  const tabOptions: { value: TabType; label: string }[] = [
+    { value: "positions", label: `Positions (${positionsCount})` },
+    { value: "settlements", label: `Settlements (${settlementsCount})` },
+  ];
+
+  return (
+    <Select value={activeTab} onValueChange={(v) => onTabChange(v as TabType)}>
+      <SelectTrigger className="w-[140px] bg-secondary border-border/50 h-9">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {tabOptions.map((opt) => (
+          <SelectItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
 
 // Mock settlements data - to be replaced with real data later
 const mockSettlements = [
@@ -213,9 +253,19 @@ export default function Portfolio() {
           : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)"
       }}
     >
-      {/* Header */}
+      {/* Header - 主入口页：Logo + Tab下拉切换 */}
       {isMobile ? (
-        <MobileHeader title="Portfolio" showLogo={false} />
+        <MobileHeader 
+          showLogo
+          rightContent={
+            <PortfolioTabDropdown
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              positionsCount={positions.length}
+              settlementsCount={mockSettlements.length}
+            />
+          }
+        />
       ) : (
         <EventsDesktopHeader />
       )}
@@ -236,29 +286,31 @@ export default function Portfolio() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-border">
-          <button
-            onClick={() => setActiveTab("positions")}
-            className={`py-2 px-4 text-sm font-medium transition-all ${
-              activeTab === "positions"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground"
-            }`}
-          >
-            Positions ({positions.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("settlements")}
-            className={`py-2 px-4 text-sm font-medium transition-all ${
-              activeTab === "settlements"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground"
-            }`}
-          >
-            Settlements ({mockSettlements.length})
-          </button>
-        </div>
+        {/* Desktop Tabs - 桌面端保留原有tabs */}
+        {!isMobile && (
+          <div className="flex border-b border-border">
+            <button
+              onClick={() => setActiveTab("positions")}
+              className={`py-2 px-4 text-sm font-medium transition-all ${
+                activeTab === "positions"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Positions ({positions.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("settlements")}
+              className={`py-2 px-4 text-sm font-medium transition-all ${
+                activeTab === "settlements"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Settlements ({mockSettlements.length})
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         {activeTab === "positions" && (

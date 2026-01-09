@@ -3,13 +3,12 @@ import { Globe, Bell, ChevronRight, BarChart3, Clock, GraduationCap, Users, Tren
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
+import { MobileHeader } from "@/components/MobileHeader";
 import { toast } from "sonner";
-import { Logo } from "@/components/Logo";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { activeEvents, eventOptionsMap } from "@/data/events";
 import { getCategoryInfo } from "@/lib/categoryUtils";
 import { useUserProfile } from "@/hooks/useUserProfile";
-
 // Helper to calculate countdown from endTime
 const getCountdown = (endTime: Date) => {
   const now = new Date();
@@ -41,14 +40,12 @@ const MobileHome = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div onClick={() => navigate("/style-guide")} className="cursor-pointer">
-            <Logo size="md" />
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="h-9 w-9">
+      {/* Header - 主入口页：Logo + 右侧功能图标 */}
+      <MobileHeader 
+        showLogo
+        rightContent={
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate("/style-guide")}>
               <Globe className="h-5 w-5 text-muted-foreground" />
             </Button>
             <Button variant="ghost" size="icon" className="h-9 w-9 relative">
@@ -56,8 +53,8 @@ const MobileHome = () => {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-trading-red rounded-full" />
             </Button>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <main className="px-4 py-4 space-y-6">
         {/* User Stats Card */}
