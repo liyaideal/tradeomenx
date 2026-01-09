@@ -12,6 +12,7 @@ import { SettlementShareCard } from "@/components/settlement/SettlementShareCard
 import { SettlementPriceChart } from "@/components/settlement/SettlementPriceChart";
 import { SettlementTimeline } from "@/components/resolved/SettlementTimeline";
 import { useSettlementDetail } from "@/hooks/useSettlementDetail";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { format, formatDistanceStrict } from "date-fns";
 
@@ -20,6 +21,9 @@ export default function SettlementDetail() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [showShareModal, setShowShareModal] = useState(false);
+
+  // Fetch user profile for share card
+  const { profile } = useUserProfile();
 
   // Fetch real settlement data
   const { data: settlement, isLoading, error } = useSettlementDetail({ settlementId });
@@ -464,9 +468,9 @@ export default function SettlementDetail() {
       <ShareModal
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
-        title="Share Your Win"
-        subtitle="Show off your trading success"
-        shareText={`I just ${isWin ? "won" : "lost"} ${settlement.pnlPercent >= 0 ? "+" : ""}${settlement.pnlPercent.toFixed(1)}% on OMENX! 🚀`}
+        title={isWin ? "Share Your Win 🏆" : "Share Your Trade"}
+        subtitle={isWin ? "Show off your trading success" : "We go again next time!"}
+        shareText={`I just ${isWin ? "won" : "lost"} ${settlement.pnlPercent >= 0 ? "+" : ""}${settlement.pnlPercent.toFixed(1)}% on OMENX! ${isWin ? "🚀" : "💀"}`}
         shareUrl={`https://omenx.com/settlement/${settlementId}`}
         fileName={`omenx-settlement-${settlementId}`}
       >
@@ -481,6 +485,9 @@ export default function SettlementDetail() {
           exitPrice={settlement.exitPrice}
           leverage={settlement.leverage}
           settledAt={settlement.settledAt}
+          username={profile?.username || "Trader"}
+          avatarUrl={profile?.avatar_url || undefined}
+          referralCode={profile?.username?.toUpperCase().slice(0, 8) || "OMENX2024"}
         />
       </ShareModal>
     </div>
