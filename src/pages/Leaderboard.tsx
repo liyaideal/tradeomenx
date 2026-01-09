@@ -1222,7 +1222,7 @@ export default function Leaderboard() {
               user={user} 
               sortType={sortType} 
               index={index}
-              isCurrentUser={user.username === currentUserUsername}
+              isCurrentUser={isLoggedIn && user.username === currentUserUsername}
             />
           ))}
         </div>
