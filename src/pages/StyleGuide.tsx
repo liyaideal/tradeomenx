@@ -60,6 +60,7 @@ const StyleGuide = () => {
     { id: "css-classes", title: "Custom CSS Classes", keywords: ["css", "class", "custom", "price", "chip", "tab", "scrollbar"] },
     { id: "mobile-patterns", title: "Mobile UI Patterns", keywords: ["mobile", "pattern", "button", "placement", "drawer", "spacing", "safe", "area"] },
     { id: "toast-notifications", title: "Toast & Notifications", keywords: ["toast", "notification", "alert", "message", "sonner", "success", "error", "warning"] },
+    { id: "mobile-header", title: "Mobile Header", keywords: ["header", "mobile", "navigation", "back", "logo", "title", "favorite", "share", "countdown"] },
   ];
 
   // Filter sections based on search query
@@ -2372,6 +2373,290 @@ toast.promise(asyncFn(), {
                     <li>• Error: "Failed to save", "Unable to connect"</li>
                   </ul>
                 </div>
+              </div>
+            </Card>
+          </div>
+        </section>
+        )}
+
+        {/* Mobile Header Section */}
+        {filterSection("mobile-header") && (
+        <section id="mobile-header" className="scroll-mt-20">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-8 w-1 bg-trading-purple rounded-full" />
+            <h2 className={`font-semibold ${isMobile ? "text-lg" : "text-xl"}`}>Mobile Header 设计规范</h2>
+          </div>
+          <div className="grid gap-4">
+            {/* Overview */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">概述</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                MobileHeader 是统一的移动端头部组件，用于所有移动端页面。它提供一致的导航体验，包括返回按钮、Logo、标题、和操作按钮。
+              </p>
+              <div className="bg-muted/30 rounded-xl p-4">
+                <code className="text-xs font-mono text-muted-foreground">
+                  import {"{ MobileHeader }"} from "@/components/MobileHeader";
+                </code>
+              </div>
+            </Card>
+
+            {/* Logo Rules */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Logo 显示规则</h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-green mb-2">✓ 显示 Logo (showLogo=true)</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Events 列表页 (/events)</li>
+                    <li>Resolved 列表页 (/resolved)</li>
+                    <li>Leaderboard 页面 (/leaderboard)</li>
+                    <li>Portfolio 页面 (/portfolio)</li>
+                    <li>Settings 页面 (/settings)</li>
+                    <li>Wallet 页面 (/wallet)</li>
+                  </ul>
+                </div>
+                <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-red mb-2">✗ 不显示 Logo (showLogo=false)</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Trade 页面 (/trade)</li>
+                    <li>Trade Order 页面 (/trade/order)</li>
+                    <li>Event Detail 页面</li>
+                    <li>任何需要最大化标题空间的页面</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            {/* Back Button Rules */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">返回按钮规则</h3>
+              <div className="space-y-3">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">自动检测 (默认行为)</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• navigationType === "PUSH" → 显示返回按钮</li>
+                    <li>• navigationType === "POP" / "REPLACE" → 隐藏返回按钮</li>
+                  </ul>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">强制覆盖</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• showBack={"{true}"} → 强制显示</li>
+                    <li>• showBack={"{false}"} → 强制隐藏</li>
+                    <li>• backTo="/path" → 自定义返回路径</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            {/* Title Rules */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">标题布局规则</h3>
+              <div className="space-y-3">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">基本规则</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 标题居中显示</li>
+                    <li>• 最多显示 2 行 (line-clamp-2)</li>
+                    <li>• 超长标题末尾显示省略号</li>
+                  </ul>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">可点击标题</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 传入 onTitleClick 时显示下拉箭头</li>
+                    <li>• 用于 Trade 页面的 Event 选择器</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            {/* Stats Row */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">统计信息行 (Trade 页面专用)</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                当存在统计数据时，会在标题下方显示独立的统计信息行：
+              </p>
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 bg-trading-red rounded-full" />
+                    <span className="text-sm font-medium">Ends in</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">倒计时 (endTime prop)</p>
+                </div>
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full" />
+                    <span className="text-sm font-medium">Tweets</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">推文计数 (tweetCount prop)</p>
+                </div>
+                <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 bg-trading-green rounded-full" />
+                    <span className="text-sm font-medium">Price</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">实时价格 (currentPrice prop)</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Action Buttons */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">右侧操作按钮</h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">showActions={"{true}"}</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 显示收藏按钮 (Heart)</li>
+                    <li>• 显示分享按钮 (Share2)</li>
+                    <li>• 需配合 isFavorite, onFavoriteToggle</li>
+                  </ul>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">rightContent</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 自定义右侧内容</li>
+                    <li>• 会覆盖 showActions</li>
+                    <li>• 用于状态下拉菜单等</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            {/* Usage Examples */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">使用示例</h3>
+              <div className="space-y-4">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">基础用法 (Events 页面)</p>
+                  <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`<MobileHeader 
+  showLogo 
+  rightContent={<MobileStatusDropdown />} 
+/>`}
+                  </pre>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">Trade 页面</p>
+                  <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`<MobileHeader 
+  title={selectedEvent.name}
+  endTime={selectedEvent.endTime}
+  showActions
+  showBack={true}
+  backTo={backTo}
+  showLogo={false}
+  tweetCount={selectedEvent.tweetCount}
+  currentPrice={selectedEvent.currentPrice}
+  priceChange24h={selectedEvent.priceChange24h}
+  onTitleClick={() => setEventSheetOpen(true)}
+  isFavorite={favorites.has(selectedEvent.id)}
+  onFavoriteToggle={() => toggleFavorite(selectedEvent.id)}
+/>`}
+                  </pre>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">详情页面</p>
+                  <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`<MobileHeader 
+  title="Event Details"
+  showLogo={false}
+/>`}
+                  </pre>
+                </div>
+              </div>
+            </Card>
+
+            {/* Props Reference */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Props 参考</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-2 font-medium">Prop</th>
+                      <th className="text-left py-2 px-2 font-medium">Type</th>
+                      <th className="text-left py-2 px-2 font-medium">Default</th>
+                      <th className="text-left py-2 px-2 font-medium">说明</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-muted-foreground">
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">title</td>
+                      <td className="py-2 px-2">string</td>
+                      <td className="py-2 px-2">-</td>
+                      <td className="py-2 px-2">标题文本</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">showLogo</td>
+                      <td className="py-2 px-2">boolean</td>
+                      <td className="py-2 px-2">true</td>
+                      <td className="py-2 px-2">是否显示 Logo</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">showBack</td>
+                      <td className="py-2 px-2">boolean</td>
+                      <td className="py-2 px-2">auto</td>
+                      <td className="py-2 px-2">强制显示/隐藏返回按钮</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">backTo</td>
+                      <td className="py-2 px-2">string</td>
+                      <td className="py-2 px-2">-</td>
+                      <td className="py-2 px-2">自定义返回路径</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">showActions</td>
+                      <td className="py-2 px-2">boolean</td>
+                      <td className="py-2 px-2">false</td>
+                      <td className="py-2 px-2">显示收藏/分享按钮</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">rightContent</td>
+                      <td className="py-2 px-2">ReactNode</td>
+                      <td className="py-2 px-2">-</td>
+                      <td className="py-2 px-2">自定义右侧内容</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">endTime</td>
+                      <td className="py-2 px-2">Date</td>
+                      <td className="py-2 px-2">-</td>
+                      <td className="py-2 px-2">倒计时结束时间</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">tweetCount</td>
+                      <td className="py-2 px-2">number</td>
+                      <td className="py-2 px-2">-</td>
+                      <td className="py-2 px-2">推文计数</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">currentPrice</td>
+                      <td className="py-2 px-2">string</td>
+                      <td className="py-2 px-2">-</td>
+                      <td className="py-2 px-2">当前价格</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">onTitleClick</td>
+                      <td className="py-2 px-2">function</td>
+                      <td className="py-2 px-2">-</td>
+                      <td className="py-2 px-2">标题点击回调</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-mono text-xs">isFavorite</td>
+                      <td className="py-2 px-2">boolean</td>
+                      <td className="py-2 px-2">false</td>
+                      <td className="py-2 px-2">是否已收藏</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-2 font-mono text-xs">onFavoriteToggle</td>
+                      <td className="py-2 px-2">function</td>
+                      <td className="py-2 px-2">-</td>
+                      <td className="py-2 px-2">收藏切换回调</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </Card>
           </div>
