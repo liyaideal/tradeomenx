@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell, Zap, Shield, Trophy, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell, Zap, Shield, Trophy, Sparkles, LineChart, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
@@ -35,66 +35,57 @@ const getCountdown = (endTime: Date) => {
 
 // Guest Welcome Card Component
 const GuestWelcomeCard = ({ onLogin }: { onLogin: () => void }) => {
-  const [showFeatures, setShowFeatures] = useState(false);
-  
   const features = [
-    { icon: Zap, label: "Real-time Trading", desc: "Trade on live events" },
-    { icon: Shield, label: "Risk-Free Trial", desc: "$10,000 demo balance" },
-    { icon: Trophy, label: "Earn Rewards", desc: "Compete on leaderboard" },
+    { 
+      icon: TrendingUp, 
+      label: "Up to 10x Leverage", 
+      desc: "Amplify your positions",
+      color: "text-trading-green",
+      bgColor: "bg-trading-green/20"
+    },
+    { 
+      icon: LineChart, 
+      label: "Pro Trading Tools", 
+      desc: "Charts, orderbook & more",
+      color: "text-primary",
+      bgColor: "bg-primary/20"
+    },
+    { 
+      icon: Sparkles, 
+      label: "Trending Events", 
+      desc: "Crypto, sports, politics & pop culture",
+      color: "text-trading-yellow",
+      bgColor: "bg-trading-yellow/20"
+    },
   ];
 
   return (
     <div className="trading-card p-4 space-y-4">
       {/* Welcome Message */}
       <div>
-        <h2 className="text-xl font-bold text-foreground">Welcome to OMENX</h2>
+        <h2 className="text-xl font-bold text-foreground">Trade the Future</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          The future of prediction markets
+          Predict outcomes. Maximize returns.
         </p>
       </div>
 
-      {/* Key Stats */}
-      <div className="flex items-center gap-4 py-2">
-        <div className="flex-1 text-center">
-          <div className="text-lg font-bold text-trading-green">$10K</div>
-          <div className="text-[10px] text-muted-foreground">Free Trial</div>
-        </div>
-        <div className="w-px h-8 bg-border" />
-        <div className="flex-1 text-center">
-          <div className="text-lg font-bold text-primary">50+</div>
-          <div className="text-[10px] text-muted-foreground">Markets</div>
-        </div>
-        <div className="w-px h-8 bg-border" />
-        <div className="flex-1 text-center">
-          <div className="text-lg font-bold text-trading-yellow">24/7</div>
-          <div className="text-[10px] text-muted-foreground">Trading</div>
-        </div>
-      </div>
-
-      {/* Expandable Features */}
-      <button 
-        onClick={() => setShowFeatures(!showFeatures)}
-        className="w-full flex items-center justify-between text-sm text-muted-foreground py-1"
-      >
-        <span>Why trade with us?</span>
-        {showFeatures ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-      </button>
-      
-      {showFeatures && (
-        <div className="space-y-2 animate-fade-in">
-          {features.map((feature, idx) => (
-            <div key={idx} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <feature.icon className="h-4 w-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-foreground">{feature.label}</div>
-                <div className="text-xs text-muted-foreground">{feature.desc}</div>
-              </div>
+      {/* Feature Cards - Always Visible */}
+      <div className="space-y-2">
+        {features.map((feature, idx) => (
+          <div 
+            key={idx} 
+            className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50"
+          >
+            <div className={`w-9 h-9 rounded-lg ${feature.bgColor} flex items-center justify-center flex-shrink-0`}>
+              <feature.icon className={`h-4.5 w-4.5 ${feature.color}`} />
             </div>
-          ))}
-        </div>
-      )}
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-foreground">{feature.label}</div>
+              <div className="text-xs text-muted-foreground">{feature.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* CTA Buttons */}
       <div className="flex gap-2 pt-2">
