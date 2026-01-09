@@ -174,15 +174,32 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         });
       }
 
-      // Build trade history
-      const trades: TradeRecord[] = (relatedTrades || [mainTrade]).map((trade, index) => ({
-        id: trade.id,
-        time: trade.created_at,
-        action: index === 0 ? "Open" : "Add",
-        qty: Number(trade.quantity),
-        price: Number(trade.price),
-        total: Number(trade.amount),
-      }));
+      // Build trade history with proper action labels
+      const allTrades = relatedTrades || [mainTrade];
+      const firstTradeSide = allTrades[0]?.side;
+      
+      const trades: TradeRecord[] = allTrades.map((trade, index) => {
+        let action: string;
+        
+        if (index === 0) {
+          action = "Open";
+        } else if (trade.side === firstTradeSide) {
+          // Same direction as initial trade = adding to position
+          action = "Add";
+        } else {
+          // Opposite direction = reducing position
+          action = "Reduce";
+        }
+        
+        return {
+          id: trade.id,
+          time: trade.created_at,
+          action,
+          qty: Number(trade.quantity),
+          price: Number(trade.price),
+          total: Number(trade.amount),
+        };
+      });
 
       // Calculate aggregated values
       const totalQty = trades.reduce((sum, t) => sum + t.qty, 0);
