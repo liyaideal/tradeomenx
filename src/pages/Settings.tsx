@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -399,94 +399,67 @@ const Settings = () => {
     </div>
   );
 
-  // Connected Wallets Card
-  const WalletsCard = () => (
-    <div className="trading-card p-4 md:p-6">
-      <h3 className="font-semibold mb-4">Connected Wallets</h3>
-      
-      <div className="space-y-4">
-        {walletsLoading ? (
-          <div className="text-center py-6 text-muted-foreground">
-            <p>Loading wallets...</p>
+  // Connected Wallets Card - Simplified redirect entry
+  const WalletsCard = () => {
+    const primaryWallet = connectedWallets.find(w => w.isPrimary) || connectedWallets[0];
+    
+    return (
+      <div className="trading-card p-4 md:p-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="font-semibold mb-1">Connected Wallets</h3>
+            <p className="text-sm text-muted-foreground">
+              {walletsLoading 
+                ? "Loading..." 
+                : connectedWallets.length === 0 
+                  ? "No wallets connected"
+                  : `${connectedWallets.length} wallet${connectedWallets.length > 1 ? 's' : ''} connected`
+              }
+            </p>
           </div>
-        ) : connectedWallets.map((wallet) => (
-          <div key={wallet.id} className="bg-muted/30 rounded-xl p-4">
-            {/* Wallet info row */}
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">{wallet.icon}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-medium">{wallet.address}</span>
-                  <button
-                    onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {copiedWalletId === wallet.id ? (
-                      <Check className="w-4 h-4 text-trading-green" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-sm text-muted-foreground">{wallet.network}</span>
-                  {wallet.isPrimary && (
-                    <Badge variant="outline" className="border-primary/50 text-primary text-xs h-5">
-                      Primary Wallet
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Connected: {wallet.connectedAt}
-                </p>
+          <Button
+            onClick={() => navigate("/wallet")}
+            className="btn-primary h-9 px-4"
+          >
+            Manage
+          </Button>
+        </div>
+        
+        {/* Show primary wallet preview if exists */}
+        {primaryWallet && !walletsLoading && (
+          <div 
+            onClick={() => navigate("/wallet")}
+            className="mt-4 bg-muted/30 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-muted/50 transition-colors"
+          >
+            <span className="text-2xl">{primaryWallet.icon}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-medium text-sm">{primaryWallet.address}</span>
+                {primaryWallet.isPrimary && (
+                  <Badge variant="outline" className="border-primary/50 text-primary text-xs h-5">
+                    Primary
+                  </Badge>
+                )}
               </div>
+              <span className="text-xs text-muted-foreground">{primaryWallet.network}</span>
             </div>
-            {/* Action buttons */}
-            <div className="mt-3 flex justify-end gap-2">
-              {!wallet.isPrimary && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSetPrimaryWallet(wallet.id)}
-                  className="border-primary/30 hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-                >
-                  <Star className="w-3 h-3 mr-1" />
-                  Set Primary
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDisconnectWallet({ id: wallet.id, address: wallet.address })}
-                className="border-border hover:bg-trading-red/10 hover:text-trading-red hover:border-trading-red/50"
-              >
-                Disconnect
-              </Button>
-            </div>
-          </div>
-        ))}
-
-        {!walletsLoading && connectedWallets.length === 0 && (
-          <div className="text-center py-6 text-muted-foreground">
-            <p>No wallets connected yet</p>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </div>
         )}
-
-        {/* Connect Other Wallet */}
-        <button 
-          onClick={() => setWalletDialogOpen(true)}
-          className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Connect Other Wallet</span>
-        </button>
         
-        <p className="text-center text-xs text-muted-foreground">
-          You can connect multiple wallets for different purposes
-        </p>
+        {/* Quick connect prompt if no wallets */}
+        {!walletsLoading && connectedWallets.length === 0 && (
+          <button 
+            onClick={() => navigate("/wallet")}
+            className="mt-4 w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Connect Wallet</span>
+          </button>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   // Mobile Layout
   if (isMobile) {
