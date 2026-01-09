@@ -828,7 +828,7 @@ export default function Portfolio() {
                         onClick={() => handleSort("size")}
                       >
                         <div className="flex items-center gap-1">
-                          Size
+                          {TRADING_TERMS.QTY}
                           <ArrowUpDown className="w-3 h-3" />
                         </div>
                       </TableHead>
