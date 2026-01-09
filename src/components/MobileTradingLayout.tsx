@@ -101,6 +101,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         showActions
         showBack={true}
         backTo={backTo}
+        showLogo={false} // Trade pages don't show logo per design spec
         tweetCount={selectedEvent.tweetCount}
         currentPrice={selectedEvent.currentPrice}
         priceChange24h={selectedEvent.priceChange24h}
