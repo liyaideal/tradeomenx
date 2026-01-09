@@ -2892,6 +2892,59 @@ toast.promise(asyncFn(), {
               </div>
             </Card>
 
+            {/* Desktop Navigation Rules */}
+            <Card className="p-6 border-2 border-primary/30 bg-primary/5">
+              <h3 className="text-base font-medium mb-4 flex items-center gap-2">
+                <Monitor className="w-4 h-4 text-primary" />
+                桌面端导航规范
+              </h3>
+              <div className="space-y-4">
+                <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-red mb-2">🚫 禁止：桌面端不显示返回按钮</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 桌面端用户使用<strong>浏览器自带的返回功能</strong></li>
+                    <li>• 不要在详情页左上角添加 "← Back to..." 按钮</li>
+                    <li>• 这是 Web 应用的标准用户体验</li>
+                  </ul>
+                </div>
+                <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-4">
+                  <p className="text-sm font-medium text-trading-green mb-2">✅ 正确做法</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 仅移动端显示返回按钮（使用 MobileHeader）</li>
+                    <li>• 桌面端保持页面顶部简洁</li>
+                    <li>• 功能按钮（如分享）右对齐显示</li>
+                  </ul>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">代码示例</p>
+                  <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`// ❌ 错误 - 桌面端不应该有返回按钮
+{!isMobile && (
+  <Button onClick={handleBack}>
+    <ArrowLeft /> Back to Portfolio
+  </Button>
+)}
+
+// ✅ 正确 - 仅移动端显示返回
+{isMobile ? (
+  <MobileHeader showBack backTo="/portfolio" title="Details" />
+) : (
+  <DesktopHeader />
+)}
+
+// ✅ 正确 - 桌面端只保留操作按钮
+{!isMobile && (
+  <div className="flex justify-end">
+    <Button onClick={() => setShowShareModal(true)}>
+      <Share2 /> Share
+    </Button>
+  </div>
+)}`}
+                  </pre>
+                </div>
+              </div>
+            </Card>
+
             {/* Usage Examples */}
             <Card className="p-6">
               <h3 className="text-base font-medium mb-4">使用示例</h3>
