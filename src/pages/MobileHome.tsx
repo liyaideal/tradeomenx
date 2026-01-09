@@ -87,22 +87,13 @@ const GuestWelcomeCard = ({ onLogin }: { onLogin: () => void }) => {
         ))}
       </div>
 
-      {/* CTA Buttons */}
-      <div className="flex gap-2 pt-2">
-        <Button 
-          className="flex-1 bg-trading-green hover:bg-trading-green/90 text-white font-medium"
-          onClick={onLogin}
-        >
-          Start Trading
-        </Button>
-        <Button 
-          variant="outline"
-          className="flex-1 border-border text-foreground hover:bg-muted/50"
-          onClick={onLogin}
-        >
-          Sign In
-        </Button>
-      </div>
+      {/* CTA Button */}
+      <Button 
+        className="w-full bg-trading-green hover:bg-trading-green/90 text-white font-medium h-11"
+        onClick={onLogin}
+      >
+        Start Trading
+      </Button>
     </div>
   );
 };
