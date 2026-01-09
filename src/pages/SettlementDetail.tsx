@@ -88,7 +88,7 @@ export default function SettlementDetail() {
         style={{ background: "hsl(222 47% 6%)" }}
       >
         {isMobile ? (
-          <MobileHeader showBack backTo="/portfolio/settlements" title="Settlement Detail" />
+          <MobileHeader showBack backTo="/portfolio/settlements" showLogo={false} title="Settlement Detail" />
         ) : (
           <EventsDesktopHeader />
         )}
@@ -120,13 +120,14 @@ export default function SettlementDetail() {
         <MobileHeader 
           showBack
           backTo="/portfolio/settlements"
+          showLogo={false}
           title="Settlement Detail"
           rightContent={
             <button
               onClick={() => setShowShareModal(true)}
-              className="p-2 rounded-full hover:bg-muted transition-colors"
+              className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
             >
-              <Share2 className="w-5 h-5 text-foreground" />
+              <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
             </button>
           }
         />
