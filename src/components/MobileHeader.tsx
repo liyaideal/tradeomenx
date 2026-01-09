@@ -231,15 +231,15 @@ export const MobileHeader = ({
           {renderLeft()}
         </div>
 
-        {/* Center: Title only - truncated */}
+        {/* Center: Title - allows 2 lines for long titles */}
         {title ? (
           <div 
             className={`flex-1 min-w-0 text-center ${onTitleClick ? "cursor-pointer" : ""}`}
             onClick={onTitleClick}
           >
             <div className="flex items-center justify-center gap-1">
-              <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
-              {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+              <h1 className="text-sm font-semibold text-foreground line-clamp-2 leading-tight">{title}</h1>
+              {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 self-start mt-0.5" />}
             </div>
           </div>
         ) : (
