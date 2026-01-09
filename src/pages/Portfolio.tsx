@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight } from "lucide-react";
+import { useNavigate, useNavigationType } from "react-router-dom";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, ArrowLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositionsStore } from "@/stores/usePositionsStore";
-import { MobileHeader } from "@/components/MobileHeader";
-import { DesktopHeader } from "@/components/DesktopHeader";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { Logo } from "@/components/Logo";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -15,7 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type SortField = "pnl" | "size" | "event" | null;
 type SortDirection = "asc" | "desc";
@@ -70,6 +70,7 @@ const mockSettlements = [
 export default function Portfolio() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const { positions } = usePositionsStore();
   const [activeTab, setActiveTab] = useState<TabType>("positions");
   const [sortField, setSortField] = useState<SortField>(null);
@@ -169,18 +170,54 @@ export default function Portfolio() {
 
   const isProfitable = (pnl: string) => !pnl.startsWith("-");
 
-  return (
-    <div className="min-h-screen bg-background">
-      {isMobile ? <MobileHeader title="Portfolio" /> : <DesktopHeader />}
+  const showBackButton = navigationType === "PUSH";
 
-      <main className={`${isMobile ? "px-4 pb-24 pt-4" : "px-6 py-6 max-w-7xl mx-auto"}`}>
+  return (
+    <div 
+      className={`min-h-screen ${isMobile ? "pb-24" : ""}`}
+      style={{
+        background: isMobile 
+          ? "hsl(222 47% 6%)" 
+          : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)"
+      }}
+    >
+      {/* Header */}
+      {isMobile ? (
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {showBackButton && (
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <Logo size="md" />
+            </div>
+            <span className="text-sm font-medium">Portfolio</span>
+          </div>
+        </header>
+      ) : (
+        <EventsDesktopHeader />
+      )}
+
+      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-8`}>
         {/* Page Title */}
-        <h1 className={`font-bold mb-4 ${isMobile ? "text-xl" : "text-2xl"}`}>
-          Portfolio
-        </h1>
+        <div className="relative">
+          {!isMobile && (
+            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
+          )}
+          <div>
+            <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
+              Portfolio
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
+              Track your open positions and settlement history
+            </p>
+          </div>
+        </div>
 
         {/* Stats Cards */}
-        <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+        <div className={`grid gap-3 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
           <div className="bg-card rounded-xl p-4">
             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
               <TrendingUp className="w-3.5 h-3.5" />
