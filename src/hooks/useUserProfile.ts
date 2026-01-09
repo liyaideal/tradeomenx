@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { User } from "@supabase/supabase-js";
+import sillyname from "sillyname";
 
 // Available avatar seeds for DiceBear adventurer-neutral style
 export const AVATAR_SEEDS = [
@@ -138,6 +139,44 @@ export const useUserProfile = () => {
     enabled: !!user,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
+
+  // Track if we've already generated a username to prevent duplicates
+  const hasGeneratedUsername = useRef(false);
+
+  // Auto-generate username for old users who don't have one
+  useEffect(() => {
+    const generateUsernameForOldUser = async () => {
+      if (
+        user && 
+        profile && 
+        !profile.username && 
+        !hasGeneratedUsername.current &&
+        !isProfileLoading
+      ) {
+        hasGeneratedUsername.current = true;
+        
+        // Generate a sillyname username
+        const rawUsername = sillyname();
+        const mockUsername = rawUsername.replace(/ /g, '_');
+        
+        try {
+          const { error } = await supabase
+            .from("profiles")
+            .update({ username: mockUsername })
+            .eq("user_id", user.id);
+
+          if (!error) {
+            // Refetch profile to get the updated username
+            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+          }
+        } catch (err) {
+          console.error("Failed to auto-generate username:", err);
+        }
+      }
+    };
+
+    generateUsernameForOldUser();
+  }, [user, profile, isProfileLoading, queryClient]);
 
   // Mutation for updating profile
   const updateMutation = useMutation({
