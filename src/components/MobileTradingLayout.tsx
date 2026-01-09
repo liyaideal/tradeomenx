@@ -26,14 +26,11 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || undefined;
   
-  // Check if navigation came from MobileHome with state
-  const fromMobileHome = !!(location.state as any)?.tab;
-  
   // Determine back navigation behavior:
-  // - If user came from MobileHome (via state), go back to home
-  // - If user navigated here via PUSH (from another page like /events), go back to previous page
-  // - If user came via bottom toolbar (REPLACE/POP), go back to home
-  const backTo = fromMobileHome ? "/" : (navigationType === "PUSH" ? undefined : "/");
+  // - If user navigated here via PUSH (from Events, Portfolio, etc.), use browser history (navigate(-1))
+  // - If user came via bottom toolbar (REPLACE/POP) or direct URL, go back to home
+  // Note: location.state?.tab is used by TradeOrder to show a specific section, not for routing
+  const backTo = navigationType === "PUSH" ? undefined : "/";
   
   const { 
     selectedEvent, 
