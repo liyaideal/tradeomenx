@@ -249,7 +249,7 @@ export default function SettlementDetail() {
                     {isWin ? "You Won!" : "You Lost"}
                   </span>
                   <div className={`font-mono font-bold ${isMobile ? "text-xl" : "text-2xl"} ${isWin ? "text-trading-green" : "text-trading-red"}`}>
-                    {isWin ? "+" : ""}{settlement.pnl >= 0 ? "+" : ""}${Math.abs(settlement.pnl).toFixed(2)}
+                    {settlement.pnl >= 0 ? "+" : ""}${Math.abs(settlement.pnl).toFixed(2)}
                   </div>
                 </div>
               </div>
