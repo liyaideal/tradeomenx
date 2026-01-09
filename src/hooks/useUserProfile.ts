@@ -101,11 +101,18 @@ export const useUserProfile = () => {
       setUser(currentUser);
       setIsAuthLoading(false);
       
-      // Invalidate profile query when auth changes
+      // Invalidate queries when auth changes
       if (currentUser) {
+        // Invalidate profile and all user-related queries
         queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        // Invalidate settlements and positions queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ["settlements"] });
+        queryClient.invalidateQueries({ queryKey: ["positions"] });
       } else {
         queryClient.setQueryData(PROFILE_QUERY_KEY, null);
+        // Clear user data on logout
+        queryClient.removeQueries({ queryKey: ["settlements"] });
+        queryClient.removeQueries({ queryKey: ["positions"] });
       }
     });
 
