@@ -41,10 +41,11 @@ import {
 
 interface Transaction {
   id: string;
-  type: "deposit" | "withdraw" | "trade_profit" | "trade_loss";
+  type: "deposit" | "withdraw" | "trade_profit" | "trade_loss" | "platform_credit";
   amount: number;
   description: string;
   date: string;
+  timestamp: number; // for sorting
 }
 
 export default function Wallet() {
@@ -61,7 +62,7 @@ export default function Wallet() {
 
   // Fetch recent trades for transaction history
   const { data: recentTrades = [] } = useQuery({
-    queryKey: ["wallet-transactions", user?.id],
+    queryKey: ["wallet-trades", user?.id],
     queryFn: async () => {
       if (!user) return [];
       
@@ -83,14 +84,50 @@ export default function Wallet() {
     enabled: !!user,
   });
 
-  // Transform trades into transactions format
-  const transactions: Transaction[] = recentTrades.map((trade) => ({
+  // Fetch deposit/withdraw/platform credit transactions
+  const { data: walletTransactions = [] } = useQuery({
+    queryKey: ["wallet-fund-transactions", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("id, type, amount, description, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching transactions:", error);
+        return [];
+      }
+
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Transform and merge all transactions
+  const tradeTransactions: Transaction[] = recentTrades.map((trade) => ({
     id: trade.id,
-    type: (trade.pnl ?? 0) >= 0 ? "trade_profit" : "trade_loss",
+    type: (trade.pnl ?? 0) >= 0 ? "trade_profit" : "trade_loss" as const,
     amount: trade.pnl ?? 0,
     description: `${trade.event_name} - ${trade.option_label}`,
     date: trade.closed_at ? new Date(trade.closed_at).toLocaleDateString() : new Date(trade.created_at).toLocaleDateString(),
+    timestamp: trade.closed_at ? new Date(trade.closed_at).getTime() : new Date(trade.created_at).getTime(),
   }));
+
+  const fundTransactions: Transaction[] = walletTransactions.map((tx) => ({
+    id: tx.id,
+    type: tx.type as "deposit" | "withdraw" | "platform_credit",
+    amount: tx.amount,
+    description: tx.description || (tx.type === "platform_credit" ? "Platform Credit" : tx.type === "deposit" ? "Deposit" : "Withdraw"),
+    date: new Date(tx.created_at).toLocaleDateString(),
+    timestamp: new Date(tx.created_at).getTime(),
+  }));
+
+  // Merge and sort by timestamp (newest first)
+  const transactions: Transaction[] = [...tradeTransactions, ...fundTransactions]
+    .sort((a, b) => b.timestamp - a.timestamp);
   
   // Dialog states
   const [topUpOpen, setTopUpOpen] = useState(false);
@@ -340,8 +377,8 @@ export default function Wallet() {
           {transactions.map((tx) => (
             <div key={tx.id} className="flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  tx.type === "deposit" ? "bg-trading-green/20" :
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  tx.type === "deposit" || tx.type === "platform_credit" ? "bg-trading-green/20" :
                   tx.type === "withdraw" ? "bg-trading-red/20" :
                   tx.type === "trade_profit" ? "bg-trading-green/20" : "bg-trading-red/20"
                 }`}>
@@ -349,6 +386,8 @@ export default function Wallet() {
                     <ArrowDownLeft className="w-5 h-5 text-trading-green" />
                   ) : tx.type === "withdraw" ? (
                     <ArrowUpRight className="w-5 h-5 text-trading-red" />
+                  ) : tx.type === "platform_credit" ? (
+                    <WalletIcon className="w-5 h-5 text-trading-green" />
                   ) : tx.type === "trade_profit" ? (
                     <TrendingUp className="w-5 h-5 text-trading-green" />
                   ) : (
@@ -357,9 +396,7 @@ export default function Wallet() {
                 </div>
                 <div className="min-w-0">
                   <div className="text-sm font-medium truncate max-w-[180px] md:max-w-[300px]">
-                    {tx.type === "deposit" ? "Deposit" :
-                     tx.type === "withdraw" ? "Withdraw" :
-                     tx.description}
+                    {tx.description}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {tx.date}
