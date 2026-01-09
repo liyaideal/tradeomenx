@@ -62,7 +62,7 @@ export default function SettlementDetail() {
   }, [settlement]);
 
   const handleBack = () => {
-    navigate("/portfolio");
+    navigate("/portfolio/settlements");
   };
 
   // Loading state
@@ -88,7 +88,7 @@ export default function SettlementDetail() {
         style={{ background: "hsl(222 47% 6%)" }}
       >
         {isMobile ? (
-          <MobileHeader showBack backTo="/portfolio" title="Settlement Detail" />
+          <MobileHeader showBack backTo="/portfolio/settlements" title="Settlement Detail" />
         ) : (
           <EventsDesktopHeader />
         )}
@@ -119,7 +119,7 @@ export default function SettlementDetail() {
       {isMobile ? (
         <MobileHeader 
           showBack
-          backTo="/portfolio"
+          backTo="/portfolio/settlements"
           title="Settlement Detail"
           rightContent={
             <button

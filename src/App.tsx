@@ -14,6 +14,7 @@ import ResolvedPage from "./pages/ResolvedPage";
 import ResolvedEventDetail from "./pages/ResolvedEventDetail";
 import Leaderboard from "./pages/Leaderboard";
 import Portfolio from "./pages/Portfolio";
+import PortfolioSettlements from "./pages/PortfolioSettlements";
 import SettlementDetail from "./pages/SettlementDetail";
 import Wallet from "./pages/Wallet";
 import Settings from "./pages/Settings";
@@ -65,6 +66,7 @@ const App = () => (
             <Route path="/resolved" element={<ResolvedPage />} />
             <Route path="/resolved/:eventId" element={<ResolvedEventDetail />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/portfolio/settlements" element={<PortfolioSettlements />} />
             <Route path="/portfolio/settlement/:settlementId" element={<SettlementDetail />} />
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
