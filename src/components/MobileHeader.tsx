@@ -326,11 +326,6 @@ export const MobileHeader = ({
                   <span className="w-1.5 h-1.5 bg-trading-green rounded-full animate-pulse" />
                   <span className="text-xs text-muted-foreground">Price</span>
                   <span className="text-xs text-trading-green font-mono font-medium">{currentPrice}</span>
-                  {priceChange24h && (
-                    <span className={`text-xs font-mono ${priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
-                      {priceChange24h}
-                    </span>
-                  )}
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-64 p-3" align="center">
