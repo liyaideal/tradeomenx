@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { User } from "@supabase/supabase-js";
 import sillyname from "sillyname";
 
@@ -46,6 +46,13 @@ export interface Profile {
 }
 
 const PROFILE_QUERY_KEY = ["user-profile"];
+const AUTH_USER_QUERY_KEY = ["auth-user"];
+
+// Fetch the current auth user - this will be cached by React Query
+const fetchAuthUser = async (): Promise<User | null> => {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user ?? null;
+};
 
 // Fetch profile from Supabase
 const fetchProfile = async (userId: string): Promise<Profile | null> => {
@@ -92,13 +99,24 @@ const updateProfileInDb = async ({
  */
 export const useUserProfile = () => {
   const queryClient = useQueryClient();
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
   
   // Track if we've already generated a username to prevent duplicates
   const hasGeneratedUsername = useRef(false);
 
-  // Query for profile data - declare before effects
+  // Query for auth user - cached globally across all components
+  const {
+    data: user,
+    isLoading: isAuthLoading,
+  } = useQuery({
+    queryKey: AUTH_USER_QUERY_KEY,
+    queryFn: fetchAuthUser,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+    refetchOnMount: false, // Don't refetch on every mount - use cached data
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+  });
+
+  // Query for profile data
   const {
     data: profile,
     isLoading: isProfileLoading,
@@ -109,9 +127,12 @@ export const useUserProfile = () => {
     queryFn: () => user ? fetchProfile(user.id) : null,
     enabled: !!user,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
+    refetchOnMount: false, // Use cached data
+    refetchOnWindowFocus: false,
   });
 
-  // Mutation for updating profile - declare before effects
+  // Mutation for updating profile
   const updateMutation = useMutation({
     mutationFn: (updates: Partial<Profile>) => 
       updateProfileInDb({ userId: user!.id, updates }),
@@ -121,18 +142,18 @@ export const useUserProfile = () => {
     },
   });
 
-  // Listen for auth changes
+  // Listen for auth changes and update cache
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setIsAuthLoading(false);
       
-      // Invalidate queries when auth changes
+      // Update the auth user cache
+      queryClient.setQueryData(AUTH_USER_QUERY_KEY, currentUser);
+      
+      // Handle auth state changes
       if (currentUser) {
         // Invalidate profile and all user-related queries
         queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
-        // Invalidate settlements and positions queries to refresh data
         queryClient.invalidateQueries({ queryKey: ["settlements"] });
         queryClient.invalidateQueries({ queryKey: ["positions"] });
       } else {
@@ -141,13 +162,6 @@ export const useUserProfile = () => {
         queryClient.removeQueries({ queryKey: ["settlements"] });
         queryClient.removeQueries({ queryKey: ["positions"] });
       }
-    });
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setIsAuthLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -252,7 +266,7 @@ export const useUserProfile = () => {
   return {
     // Profile data
     profile,
-    user,
+    user: user ?? null,
     
     // Loading states
     isLoading: isAuthLoading || isProfileLoading,
@@ -279,4 +293,4 @@ export const useUserProfile = () => {
 };
 
 // Export query key for external invalidation if needed
-export { PROFILE_QUERY_KEY };
+export { PROFILE_QUERY_KEY, AUTH_USER_QUERY_KEY };
