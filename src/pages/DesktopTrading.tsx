@@ -38,6 +38,7 @@ import {
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { TopUpDialog } from "@/components/TopUpDialog";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
@@ -927,15 +928,15 @@ export default function DesktopTrading() {
                 <table className="w-full">
                   <thead className="sticky top-0 bg-background">
                     <tr className="border-b border-border/30">
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Contracts</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Side</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Type</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Price</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Qty</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Value</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Status</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Time</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">Action</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.CONTRACTS}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.SIDE}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.ORDER_TYPE}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.PRICE}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.QTY}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.VALUE}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.STATUS}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.TIME}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">{TRADING_TERMS.ACTION}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1036,17 +1037,17 @@ export default function DesktopTrading() {
                 <table className="w-full">
                   <thead className="sticky top-0 bg-background">
                     <tr className="border-b border-border/30">
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Contracts</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Side</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Size</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Entry Price</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Mark Price</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Liq. Price</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Margin</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">Unrealized P&L</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">Leverage</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">TP/SL</th>
-                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">Action</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.CONTRACTS}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.SIDE}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.QTY}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.ENTRY_PRICE}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.MARK_PRICE}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.LIQ_PRICE}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.MARGIN}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-right">{TRADING_TERMS.UNREALIZED_PNL}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.LEVERAGE_FULL}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">{TRADING_TERMS.TPSL}</th>
+                      <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-center">{TRADING_TERMS.ACTION}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1720,7 +1721,7 @@ export default function DesktopTrading() {
                   <span className="text-xs text-muted-foreground truncate max-w-[200px]">{position.event}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Size</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.QTY}</span>
                   <span className="font-mono">{position.size}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">

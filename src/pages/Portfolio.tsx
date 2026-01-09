@@ -832,11 +832,11 @@ export default function Portfolio() {
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="w-[200px]">Contract</TableHead>
-                      <TableHead>Side</TableHead>
-                      <TableHead>Result</TableHead>
-                      <TableHead>Entry Price</TableHead>
-                      <TableHead>Exit Price</TableHead>
+                      <TableHead className="w-[200px]">{TRADING_TERMS.CONTRACT}</TableHead>
+                      <TableHead>{TRADING_TERMS.SIDE}</TableHead>
+                      <TableHead>{TRADING_TERMS.RESULT}</TableHead>
+                      <TableHead>{TRADING_TERMS.ENTRY_PRICE}</TableHead>
+                      <TableHead>{TRADING_TERMS.EXIT_PRICE}</TableHead>
                       <TableHead
                         className="cursor-pointer hover:text-foreground"
                         onClick={() => handleSort("size")}
@@ -851,12 +851,12 @@ export default function Portfolio() {
                         onClick={() => handleSort("pnl")}
                       >
                         <div className="flex items-center gap-1">
-                          P&L
+                          {TRADING_TERMS.PNL}
                           <ArrowUpDown className="w-3 h-3" />
                         </div>
                       </TableHead>
-                      <TableHead>Settled At</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
+                      <TableHead>{TRADING_TERMS.SETTLED_AT}</TableHead>
+                      <TableHead className="text-right">{TRADING_TERMS.ACTION}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

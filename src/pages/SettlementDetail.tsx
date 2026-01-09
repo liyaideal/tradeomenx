@@ -12,6 +12,7 @@ import { SettlementShareCard } from "@/components/settlement/SettlementShareCard
 import { SettlementPriceChart } from "@/components/settlement/SettlementPriceChart";
 import { SettlementTimeline } from "@/components/resolved/SettlementTimeline";
 import { useSettlementDetail } from "@/hooks/useSettlementDetail";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { format, formatDistanceStrict } from "date-fns";
 
 export default function SettlementDetail() {
@@ -427,11 +428,11 @@ export default function SettlementDetail() {
           <div className="space-y-0">
             {/* Table Header */}
             <div className={`grid ${isMobile ? "grid-cols-4" : "grid-cols-5"} gap-2 text-xs text-muted-foreground pb-2 border-b border-border`}>
-              <span>Time</span>
-              <span>Action</span>
-              <span className="text-right">Qty</span>
-              <span className="text-right">Price</span>
-              {!isMobile && <span className="text-right">Total</span>}
+              <span>{TRADING_TERMS.TIME}</span>
+              <span>{TRADING_TERMS.ACTION}</span>
+              <span className="text-right">{TRADING_TERMS.QTY}</span>
+              <span className="text-right">{TRADING_TERMS.PRICE}</span>
+              {!isMobile && <span className="text-right">{TRADING_TERMS.TOTAL}</span>}
             </div>
             
             {/* Table Rows */}
