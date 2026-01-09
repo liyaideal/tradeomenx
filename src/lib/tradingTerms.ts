@@ -66,7 +66,7 @@ export const TRADING_TERMS = {
   TOTAL: "Total",                    // 总计
   
   // 操作相关
-  ACTION: "Action",                  // 操作
+  ACTION: "View",                    // 查看/操作
   CLOSE: "Close",                    // 平仓
   
   // 可用余额
