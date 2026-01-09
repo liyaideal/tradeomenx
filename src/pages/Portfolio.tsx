@@ -504,7 +504,7 @@ export default function Portfolio() {
                       className="w-full text-xs"
                       onClick={() => handlePositionAction(index)}
                     >
-                      {TRADING_TERMS.ACTION}
+                      {TRADING_TERMS.VIEW}
                       <ChevronRight className="w-3 h-3 ml-1" />
                     </Button>
                   </div>
@@ -627,7 +627,7 @@ export default function Portfolio() {
                             className="text-xs"
                             onClick={() => handlePositionAction(index)}
                           >
-                            {TRADING_TERMS.ACTION}
+                            {TRADING_TERMS.VIEW}
                             <ChevronRight className="w-3 h-3 ml-1" />
                           </Button>
                         </TableCell>
@@ -806,7 +806,7 @@ export default function Portfolio() {
                       className="w-full text-xs"
                       onClick={() => handleSettlementAction(settlement.id)}
                     >
-                      {TRADING_TERMS.ACTION}
+                      {TRADING_TERMS.VIEW}
                       <ChevronRight className="w-3 h-3 ml-1" />
                     </Button>
                   </div>
@@ -920,7 +920,7 @@ export default function Portfolio() {
                             className="text-xs"
                             onClick={() => handleSettlementAction(settlement.id)}
                           >
-                            {TRADING_TERMS.ACTION}
+                            {TRADING_TERMS.VIEW}
                             <ChevronRight className="w-3 h-3 ml-1" />
                           </Button>
                         </TableCell>
