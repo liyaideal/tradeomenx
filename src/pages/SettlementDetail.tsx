@@ -158,33 +158,33 @@ export default function SettlementDetail() {
               </div>
               
               {/* Position Info: Side / Leverage / Option */}
-              <div className="flex items-center gap-3 mt-3">
+              <div className={`flex ${isMobile ? "flex-wrap" : ""} items-center gap-x-3 gap-y-2 mt-3`}>
                 {/* Side Badge */}
                 <Badge 
                   variant="outline" 
-                  className={isLong 
+                  className={`shrink-0 ${isLong 
                     ? "border-trading-green/50 text-trading-green bg-trading-green/10" 
                     : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                  }
+                  }`}
                 >
                   {isLong ? "Long" : "Short"}
                 </Badge>
                 
                 {/* Separator */}
-                <span className="text-border">|</span>
+                <span className="text-border shrink-0">|</span>
                 
                 {/* Leverage */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-xs text-muted-foreground">Leverage</span>
                   <span className="text-sm font-medium text-foreground">{settlement.leverage}x</span>
                 </div>
                 
-                {/* Separator */}
-                <span className="text-border">|</span>
+                {/* Separator - hide on mobile when wrapping to new line */}
+                <span className={`text-border shrink-0 ${isMobile ? "hidden sm:inline" : ""}`}>|</span>
                 
-                {/* Option */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-muted-foreground">Option</span>
+                {/* Option - can wrap on mobile */}
+                <div className={`flex items-center gap-1.5 ${isMobile ? "w-full sm:w-auto mt-1 sm:mt-0" : ""}`}>
+                  <span className="text-xs text-muted-foreground shrink-0">Option</span>
                   <span className="text-sm font-medium text-foreground">{settlement.option}</span>
                 </div>
               </div>
