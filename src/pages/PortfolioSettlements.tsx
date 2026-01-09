@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 type TabType = "positions" | "settlements";
 
@@ -271,7 +272,7 @@ export default function PortfolioSettlements() {
                   {/* Details */}
                   <div className="flex items-center justify-between pt-2 border-t border-border/50">
                     <div className="text-xs text-muted-foreground">
-                      Size: <span className="font-mono">{settlement.size}</span>
+                      {TRADING_TERMS.QTY}: <span className="font-mono">{settlement.size}</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </div>
@@ -286,7 +287,7 @@ export default function PortfolioSettlements() {
                     <TableHead className="text-muted-foreground">Event</TableHead>
                     <TableHead className="text-muted-foreground">Option</TableHead>
                     <TableHead className="text-muted-foreground">Result</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Size</TableHead>
+                    <TableHead className="text-muted-foreground text-right">{TRADING_TERMS.QTY}</TableHead>
                     <TableHead className="text-muted-foreground text-right">P&L</TableHead>
                     <TableHead className="text-muted-foreground text-right">Settled</TableHead>
                     <TableHead className="text-muted-foreground text-right">Action</TableHead>
