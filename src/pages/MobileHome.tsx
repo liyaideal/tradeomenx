@@ -150,20 +150,20 @@ const MobileHome = () => {
                   style={{ animationDelay: `${index * 50}ms` }}
                   onClick={() => navigate(`/trade?event=${event.id}`)}
                 >
-                <div className="flex items-start justify-between">
-                  <Button 
-                    size="sm" 
-                    className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/trade?event=${event.id}`);
-                    }}
-                  >
-                    <TrendingUp className="h-3.5 w-3.5" />
-                    Trade
-                  </Button>
-                </div>
-                <h4 className="font-medium text-foreground">{event.name}</h4>
+                  <div className="flex items-start justify-between">
+                    <h4 className="font-medium text-foreground flex-1 pr-3">{event.name}</h4>
+                    <Button 
+                      size="sm" 
+                      className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1 flex-shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/trade?event=${event.id}`);
+                      }}
+                    >
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      Trade
+                    </Button>
+                  </div>
                   <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                     {options.map((option) => (
                       <div
@@ -216,20 +216,20 @@ const MobileHome = () => {
                     className="trading-card p-4 space-y-3 border-trading-yellow/30 cursor-pointer hover:bg-card-hover transition-colors"
                     onClick={() => navigate(`/trade?event=${event.id}`)}
                   >
-                <div className="flex items-start justify-between">
-                  <Button 
-                    size="sm" 
-                    className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/trade?event=${event.id}`);
-                    }}
-                  >
-                    <TrendingUp className="h-3.5 w-3.5" />
-                    Trade
-                  </Button>
-                </div>
-                <h4 className="font-medium text-foreground">{event.name}</h4>
+                    <div className="flex items-start justify-between">
+                      <h4 className="font-medium text-foreground flex-1 pr-3">{event.name}</h4>
+                      <Button 
+                        size="sm" 
+                        className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1 flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/trade?event=${event.id}`);
+                        }}
+                      >
+                        <TrendingUp className="h-3.5 w-3.5" />
+                        Trade
+                      </Button>
+                    </div>
                     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                       {options.map((option) => (
                         <div
