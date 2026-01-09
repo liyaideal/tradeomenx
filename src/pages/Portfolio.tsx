@@ -215,7 +215,7 @@ export default function Portfolio() {
     >
       {/* Header */}
       {isMobile ? (
-        <MobileHeader title="Portfolio" />
+        <MobileHeader title="Portfolio" showLogo={false} />
       ) : (
         <EventsDesktopHeader />
       )}
