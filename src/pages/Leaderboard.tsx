@@ -1010,8 +1010,8 @@ export default function Leaderboard() {
   const topThree = sortedData.slice(0, 3);
   const restOfList = sortedData.slice(3);
   
-  // Find current user
-  const currentUser = sortedData.find(u => u.username === currentUserUsername);
+  // Find current user - only when logged in
+  const currentUser = isLoggedIn ? sortedData.find(u => u.username === currentUserUsername) : undefined;
   const isCurrentUserInTopThree = currentUser && currentUser.rank <= 3;
 
   const scrollToCurrentUser = () => {
