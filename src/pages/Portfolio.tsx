@@ -787,7 +787,7 @@ export default function Portfolio() {
                       </div>
                       <div>
                         <span className="text-[10px] text-muted-foreground block">
-                          Size
+                          {TRADING_TERMS.QTY}
                         </span>
                         <span className="font-mono text-xs">{settlement.size}</span>
                       </div>
