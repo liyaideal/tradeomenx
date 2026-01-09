@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 interface PositionCardProps {
   type: "long" | "short";
@@ -184,7 +185,7 @@ export const PositionCard = ({
         {/* Position Details */}
         <div className="grid grid-cols-4 gap-2 mb-2">
           <div>
-            <span className="text-[10px] text-muted-foreground block">Size</span>
+            <span className="text-[10px] text-muted-foreground block">{TRADING_TERMS.QTY}</span>
             <span className="font-mono text-xs">{size}</span>
           </div>
           <div>
@@ -196,14 +197,14 @@ export const PositionCard = ({
             <span className="font-mono text-xs">{markPrice}</span>
           </div>
           <div>
-            <span className="text-[10px] text-muted-foreground block">Margin</span>
+            <span className="text-[10px] text-muted-foreground block">{TRADING_TERMS.MARGIN}</span>
             <span className="font-mono text-xs">{margin}</span>
           </div>
         </div>
 
         {/* TP/SL Row - Always visible */}
         <div className="flex items-center justify-between py-2 mb-2 border-y border-border/30">
-          <span className="text-[10px] text-muted-foreground">TP/SL</span>
+          <span className="text-[10px] text-muted-foreground">{TRADING_TERMS.TPSL}</span>
           <button 
             onClick={handleOpenDialog}
             className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity"
@@ -227,7 +228,7 @@ export const PositionCard = ({
             onClick={handleOpenDialog}
             className="flex-1 py-1.5 text-[10px] font-medium bg-muted rounded-lg hover:bg-muted/80 transition-colors"
           >
-            {hasTpSl ? "Edit TP/SL" : "Add TP/SL"}
+            {hasTpSl ? `Edit ${TRADING_TERMS.TPSL}` : `Add ${TRADING_TERMS.TPSL}`}
           </button>
           <button 
             onClick={() => setCloseDialogOpen(true)}
@@ -242,7 +243,7 @@ export const PositionCard = ({
       <Dialog open={tpSlOpen} onOpenChange={setTpSlOpen}>
         <DialogContent className="max-w-sm bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-base">Edit TP/SL</DialogTitle>
+            <DialogTitle className="text-base">Edit {TRADING_TERMS.TPSL}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
@@ -387,11 +388,11 @@ export const PositionCard = ({
               </span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Contract</span>
+              <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
               <span className="font-medium">{option}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Size</span>
+              <span className="text-muted-foreground">{TRADING_TERMS.QTY}</span>
               <span className="font-mono">{size}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
@@ -403,7 +404,7 @@ export const PositionCard = ({
               <span className="font-mono">{markPrice}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Unrealized P&L</span>
+              <span className="text-muted-foreground">{TRADING_TERMS.UNREALIZED_PNL}</span>
               <span className={`font-mono font-medium ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>
                 {pnl} ({pnlPercent})
               </span>
