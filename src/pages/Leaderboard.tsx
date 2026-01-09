@@ -18,6 +18,8 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import * as htmlToImage from "html-to-image";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { QRCodeSVG } from "qrcode.react";
+import { AuthSheet } from "@/components/auth/AuthSheet";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 type SortType = "pnl" | "roi" | "volume";
 type PeriodType = "daily" | "7d" | "30d" | "180d";
@@ -974,7 +976,10 @@ export default function Leaderboard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [cardTheme, setCardTheme] = useState<CardTheme>("default");
   const [visibleStats, setVisibleStats] = useState<StatKey[]>(["pnl", "roi", "volume"]);
+  const [authOpen, setAuthOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  
+  const isLoggedIn = !!user;
 
   // Use actual user info if logged in, otherwise use mock data
   const currentUserUsername = user ? (username || "You") : MOCK_CURRENT_USER_USERNAME;
@@ -1022,6 +1027,12 @@ export default function Leaderboard() {
   };
 
   const handleShareCard = async () => {
+    // If not logged in, show auth dialog/sheet
+    if (!isLoggedIn) {
+      setAuthOpen(true);
+      return;
+    }
+
     if (!cardRef.current || isGenerating) return;
 
     setIsGenerating(true);
@@ -1302,10 +1313,17 @@ export default function Leaderboard() {
           </button>
         </div>
         {content}
-        {currentUser && !isCurrentUserInTopThree && (
+        {isLoggedIn && currentUser && !isCurrentUserInTopThree && (
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
         )}
       </div>
+
+      {/* Auth Dialog/Sheet for non-logged in users */}
+      {isMobile ? (
+        <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+      ) : (
+        <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      )}
     </>
   );
 }
