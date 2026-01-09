@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { OptionChips } from "@/components/OptionChips";
 import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download } from "lucide-react";
 import omenxLogo from "@/assets/omenx-logo.svg";
+import { MobileHeader } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CATEGORY_STYLES, getCategoryInfo, getCategoryFromName } from "@/lib/categoryUtils";
@@ -45,6 +46,7 @@ const StyleGuide = () => {
     { id: "tooltip-playground", title: "Tooltip Playground", keywords: ["tooltip", "hover", "hint", "help"] },
     { id: "popover-playground", title: "Popover Playground", keywords: ["popover", "popup", "overlay", "dropdown"] },
     { id: "dialog-playground", title: "Dialog / Modal Playground", keywords: ["dialog", "modal", "popup", "overlay", "confirm"] },
+    { id: "mobile-header-playground", title: "Mobile Header Playground", keywords: ["header", "mobile", "navigation", "back", "logo", "title", "favorite", "share"] },
     { id: "colors", title: "Colors", keywords: ["color", "palette", "theme", "hsl", "variable"] },
     { id: "trading-colors", title: "Trading Colors Usage", keywords: ["trading", "green", "red", "purple", "profit", "loss"] },
     { id: "category-labels", title: "Category Labels", keywords: ["category", "label", "social", "crypto", "finance", "market", "badge", "tag"] },
@@ -148,6 +150,19 @@ const StyleGuide = () => {
   const [dialogShowFooter, setDialogShowFooter] = useState(true);
   const [dialogAnimation, setDialogAnimation] = useState<"fade" | "scale" | "slide">("scale");
 
+  // Mobile Header Playground
+  const [headerTitle, setHeaderTitle] = useState("Bitcoin price on January 31, 2026?");
+  const [headerShowLogo, setHeaderShowLogo] = useState(false);
+  const [headerShowBack, setHeaderShowBack] = useState(true);
+  const [headerShowActions, setHeaderShowActions] = useState(true);
+  const [headerIsFavorite, setHeaderIsFavorite] = useState(false);
+  const [headerShowCountdown, setHeaderShowCountdown] = useState(true);
+  const [headerShowTweets, setHeaderShowTweets] = useState(false);
+  const [headerShowPrice, setHeaderShowPrice] = useState(true);
+  const [headerTweetCount, setHeaderTweetCount] = useState(156);
+  const [headerCurrentPrice, setHeaderCurrentPrice] = useState("$94,532.18");
+  const [headerPriceChange, setHeaderPriceChange] = useState("+2.34%");
+
   const getDialogSizeClass = () => {
     switch (dialogSize) {
       case "sm": return "max-w-sm";
@@ -207,6 +222,18 @@ const StyleGuide = () => {
     setDialogSize("md");
     setDialogShowFooter(true);
     setDialogAnimation("scale");
+    // Mobile Header
+    setHeaderTitle("Bitcoin price on January 31, 2026?");
+    setHeaderShowLogo(false);
+    setHeaderShowBack(true);
+    setHeaderShowActions(true);
+    setHeaderIsFavorite(false);
+    setHeaderShowCountdown(true);
+    setHeaderShowTweets(false);
+    setHeaderShowPrice(true);
+    setHeaderTweetCount(156);
+    setHeaderCurrentPrice("$94,532.18");
+    setHeaderPriceChange("+2.34%");
     toast.success("Playground reset!");
   };
 
@@ -1415,6 +1442,208 @@ const StyleGuide = () => {
               </CardContent>
             </Card>
           </div>
+        </section>
+        )}
+
+        {/* Mobile Header Playground */}
+        {filterSection("mobile-header-playground") && (
+        <section id="mobile-header-playground" className="scroll-mt-20">
+          <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Mobile Header Playground</h2>
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-trading-purple" />
+                Mobile Header Playground
+              </CardTitle>
+              <CardDescription>实时预览 MobileHeader 组件的各种配置</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Live Preview */}
+              <div className="bg-muted/30 rounded-xl overflow-hidden border border-border">
+                <div className="relative">
+                  <MobileHeader 
+                    title={headerTitle || undefined}
+                    showLogo={headerShowLogo}
+                    showBack={headerShowBack}
+                    showActions={headerShowActions}
+                    isFavorite={headerIsFavorite}
+                    onFavoriteToggle={() => setHeaderIsFavorite(!headerIsFavorite)}
+                    endTime={headerShowCountdown ? new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) : undefined}
+                    tweetCount={headerShowTweets ? headerTweetCount : undefined}
+                    currentPrice={headerShowPrice ? headerCurrentPrice : undefined}
+                    priceChange24h={headerShowPrice ? headerPriceChange : undefined}
+                    onTitleClick={() => toast.info("Title clicked - would open event selector")}
+                  />
+                </div>
+              </div>
+
+              {/* Controls */}
+              <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                {/* Left Column - Text Controls */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Title</Label>
+                    <Input 
+                      value={headerTitle} 
+                      onChange={(e) => setHeaderTitle(e.target.value)}
+                      placeholder="Enter title..."
+                    />
+                  </div>
+
+                  <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Current Price</Label>
+                      <Input 
+                        value={headerCurrentPrice} 
+                        onChange={(e) => setHeaderCurrentPrice(e.target.value)}
+                        placeholder="$94,532.18"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Price Change</Label>
+                      <Input 
+                        value={headerPriceChange} 
+                        onChange={(e) => setHeaderPriceChange(e.target.value)}
+                        placeholder="+2.34%"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Tweet Count</Label>
+                    <Input 
+                      type="number"
+                      value={headerTweetCount} 
+                      onChange={(e) => setHeaderTweetCount(parseInt(e.target.value) || 0)}
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column - Toggle Controls */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-2 border-b border-border/30">
+                    <div>
+                      <Label className="text-sm">Show Logo</Label>
+                      <p className="text-xs text-muted-foreground">Trade pages should hide logo</p>
+                    </div>
+                    <Switch checked={headerShowLogo} onCheckedChange={setHeaderShowLogo} />
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-b border-border/30">
+                    <div>
+                      <Label className="text-sm">Show Back Button</Label>
+                      <p className="text-xs text-muted-foreground">Navigation indicator</p>
+                    </div>
+                    <Switch checked={headerShowBack} onCheckedChange={setHeaderShowBack} />
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-b border-border/30">
+                    <div>
+                      <Label className="text-sm">Show Actions</Label>
+                      <p className="text-xs text-muted-foreground">Favorite & Share buttons</p>
+                    </div>
+                    <Switch checked={headerShowActions} onCheckedChange={setHeaderShowActions} />
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-b border-border/30">
+                    <div>
+                      <Label className="text-sm">Show Countdown</Label>
+                      <p className="text-xs text-muted-foreground">Ends in timer</p>
+                    </div>
+                    <Switch checked={headerShowCountdown} onCheckedChange={setHeaderShowCountdown} />
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-b border-border/30">
+                    <div>
+                      <Label className="text-sm">Show Tweet Count</Label>
+                      <p className="text-xs text-muted-foreground">Social metrics</p>
+                    </div>
+                    <Switch checked={headerShowTweets} onCheckedChange={setHeaderShowTweets} />
+                  </div>
+
+                  <div className="flex items-center justify-between py-2">
+                    <div>
+                      <Label className="text-sm">Show Price</Label>
+                      <p className="text-xs text-muted-foreground">Price-based events</p>
+                    </div>
+                    <Switch checked={headerShowPrice} onCheckedChange={setHeaderShowPrice} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Preset Configurations */}
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Quick Presets</Label>
+                <div className="flex flex-wrap gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setHeaderTitle("Bitcoin price on January 31, 2026?");
+                      setHeaderShowLogo(false);
+                      setHeaderShowBack(true);
+                      setHeaderShowActions(true);
+                      setHeaderShowCountdown(true);
+                      setHeaderShowTweets(false);
+                      setHeaderShowPrice(true);
+                    }}
+                  >
+                    Trade Page (Price)
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setHeaderTitle("Elon Musk # tweets January 10 - January 17, 2026");
+                      setHeaderShowLogo(false);
+                      setHeaderShowBack(true);
+                      setHeaderShowActions(true);
+                      setHeaderShowCountdown(true);
+                      setHeaderShowTweets(true);
+                      setHeaderShowPrice(false);
+                    }}
+                  >
+                    Trade Page (Tweets)
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setHeaderTitle("");
+                      setHeaderShowLogo(true);
+                      setHeaderShowBack(false);
+                      setHeaderShowActions(false);
+                      setHeaderShowCountdown(false);
+                      setHeaderShowTweets(false);
+                      setHeaderShowPrice(false);
+                    }}
+                  >
+                    Events List
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setHeaderTitle("Event Details");
+                      setHeaderShowLogo(false);
+                      setHeaderShowBack(true);
+                      setHeaderShowActions(false);
+                      setHeaderShowCountdown(false);
+                      setHeaderShowTweets(false);
+                      setHeaderShowPrice(false);
+                    }}
+                  >
+                    Detail Page
+                  </Button>
+                </div>
+              </div>
+
+              <CodePreview 
+                code={`<MobileHeader${headerTitle ? ` title="${headerTitle.substring(0, 30)}${headerTitle.length > 30 ? '...' : ''}"` : ''}${headerShowLogo ? '' : ' showLogo={false}'}${headerShowBack ? ' showBack' : ''}${headerShowActions ? ' showActions' : ''}${headerShowCountdown ? ' endTime={...}' : ''}${headerShowTweets ? ` tweetCount={${headerTweetCount}}` : ''}${headerShowPrice ? ` currentPrice="${headerCurrentPrice}"` : ''} />`}
+                id="mobile-header-code"
+              />
+            </CardContent>
+          </Card>
         </section>
         )}
 
