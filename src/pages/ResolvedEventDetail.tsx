@@ -37,7 +37,13 @@ const ResolvedEventDetail = () => {
   };
 
   const handleGoToPortfolio = () => {
-    navigate("/settings"); // Navigate to settings/portfolio page
+    // Navigate to settlement detail page with event name as ID
+    if (event?.name) {
+      const settlementId = encodeURIComponent(event.name);
+      navigate(`/portfolio/settlement/${settlementId}`);
+    } else {
+      navigate("/portfolio/settlements");
+    }
   };
 
   if (isLoading) {
