@@ -1572,15 +1572,15 @@ export default function DesktopTrading() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Contract</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
                   <span className="font-medium">{pos.option}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Entry Price</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
                   <span className="font-mono">{pos.entryPrice}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Mark Price</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
                   <span className="font-mono">{pos.markPrice}</span>
                 </div>
               </div>
@@ -1713,7 +1713,7 @@ export default function DesktopTrading() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Contract</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
                   <span className="font-medium">{position.option}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -1725,15 +1725,15 @@ export default function DesktopTrading() {
                   <span className="font-mono">{position.size}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Entry Price</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
                   <span className="font-mono">{position.entryPrice}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Mark Price</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
                   <span className="font-mono">{position.markPrice}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm border-t border-border/30 pt-2 mt-2">
-                  <span className="text-muted-foreground">Unrealized P&L</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.UNREALIZED_PNL}</span>
                   <span className={`font-mono font-medium ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>
                     {position.pnl} ({position.pnlPercent})
                   </span>

@@ -2,6 +2,7 @@ import { Trophy, TrendingDown, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import omenxLogo from "@/assets/omenx-logo.svg";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 interface SettlementShareCardProps {
   event: string;
@@ -116,11 +117,11 @@ export const SettlementShareCard = ({
       {/* Trade Details */}
       <div className="relative grid grid-cols-2 gap-3 mb-4">
         <div className="bg-muted/30 rounded-lg p-2.5">
-          <span className="text-[10px] text-muted-foreground block mb-0.5">Entry Price</span>
+          <span className="text-[10px] text-muted-foreground block mb-0.5">{TRADING_TERMS.ENTRY_PRICE}</span>
           <span className="font-mono text-sm font-medium">${entryPrice.toFixed(4)}</span>
         </div>
         <div className="bg-muted/30 rounded-lg p-2.5">
-          <span className="text-[10px] text-muted-foreground block mb-0.5">Exit Price</span>
+          <span className="text-[10px] text-muted-foreground block mb-0.5">{TRADING_TERMS.EXIT_PRICE}</span>
           <span className={`font-mono text-sm font-medium ${isWin ? "text-trading-green" : "text-trading-red"}`}>
             ${exitPrice.toFixed(4)}
           </span>

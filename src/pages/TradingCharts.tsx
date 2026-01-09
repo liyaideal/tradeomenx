@@ -8,6 +8,7 @@ import { PositionCard } from "@/components/PositionCard";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { generateOrderBookData, generateTradesHistory, tradingStats } from "@/lib/tradingUtils";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
@@ -52,7 +53,7 @@ function TradingChartsContent() {
             </span>
           </div>
           <div className="text-xs text-muted-foreground font-mono mt-0.5">
-            Mark Price {selectedOptionData.price}
+            {TRADING_TERMS.MARK_PRICE} {selectedOptionData.price}
           </div>
         </div>
 

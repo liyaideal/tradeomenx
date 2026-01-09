@@ -385,15 +385,15 @@ export const DesktopPositionsPanel = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Contract</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
                   <span className="font-medium">{editingPosition.option}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Entry Price</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
                   <span className="font-mono">{editingPosition.entryPrice}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Mark Price</span>
+                  <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
                   <span className="font-mono">{editingPosition.markPrice}</span>
                 </div>
               </div>
