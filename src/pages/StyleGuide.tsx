@@ -1749,78 +1749,119 @@ const StyleGuide = () => {
               {/* Category Examples */}
               <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground">Available Categories</h4>
-                <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"}`}>
+                <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"}`}>
                   {/* Social */}
-                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2">
                     <Badge className={`${CATEGORY_STYLES.Social.class} border-0`}>Social</Badge>
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-foreground">Icons: 🐦</p>
-                      <p className="text-xs text-muted-foreground">Twitter, social media events</p>
-                      <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono block mt-2">
-                        bg-primary/20 text-primary
-                      </code>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground">Twitter, influencers</p>
+                    <code className="text-[9px] bg-muted px-1 py-0.5 rounded font-mono block">
+                      bg-primary/20 text-primary
+                    </code>
                   </div>
 
                   {/* Crypto */}
-                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2">
                     <Badge className={`${CATEGORY_STYLES.Crypto.class} border-0`}>Crypto</Badge>
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-foreground">Icons: ₿ ⟠</p>
-                      <p className="text-xs text-muted-foreground">Bitcoin, Ethereum, crypto prices</p>
-                      <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono block mt-2">
-                        bg-trading-yellow/20 text-trading-yellow
-                      </code>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground">Bitcoin, Ethereum</p>
+                    <code className="text-[9px] bg-muted px-1 py-0.5 rounded font-mono block">
+                      bg-trading-yellow/20 text-trading-yellow
+                    </code>
                   </div>
 
                   {/* Finance */}
-                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2">
                     <Badge className={`${CATEGORY_STYLES.Finance.class} border-0`}>Finance</Badge>
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-foreground">Icons: 🏦 📈</p>
-                      <p className="text-xs text-muted-foreground">Fed rates, stock indices</p>
-                      <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono block mt-2">
-                        bg-trading-green/20 text-trading-green
-                      </code>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground">Fed rates, stocks</p>
+                    <code className="text-[9px] bg-muted px-1 py-0.5 rounded font-mono block">
+                      bg-trading-green/20 text-trading-green
+                    </code>
                   </div>
 
-                  {/* Market */}
-                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
-                    <Badge className={`${CATEGORY_STYLES.Market.class} border-0`}>Market</Badge>
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-foreground">Default</p>
-                      <p className="text-xs text-muted-foreground">Generic market events</p>
-                      <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono block mt-2">
-                        bg-muted text-foreground
-                      </code>
-                    </div>
+                  {/* Politics */}
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2">
+                    <Badge className={`${CATEGORY_STYLES.Politics.class} border-0`}>Politics</Badge>
+                    <p className="text-[10px] text-muted-foreground">Elections, government</p>
+                    <code className="text-[9px] bg-muted px-1 py-0.5 rounded font-mono block">
+                      bg-trading-red/20 text-trading-red
+                    </code>
+                  </div>
+
+                  {/* Tech */}
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2">
+                    <Badge className={`${CATEGORY_STYLES.Tech.class} border-0`}>Tech</Badge>
+                    <p className="text-[10px] text-muted-foreground">SpaceX, AI, Apple</p>
+                    <code className="text-[9px] bg-muted px-1 py-0.5 rounded font-mono block">
+                      bg-cyan-500/20 text-cyan-400
+                    </code>
+                  </div>
+
+                  {/* Entertainment */}
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2">
+                    <Badge className={`${CATEGORY_STYLES.Entertainment.class} border-0`}>Entertainment</Badge>
+                    <p className="text-[10px] text-muted-foreground">Oscar, Grammy, movies</p>
+                    <code className="text-[9px] bg-muted px-1 py-0.5 rounded font-mono block">
+                      bg-orange-500/20 text-orange-400
+                    </code>
+                  </div>
+
+                  {/* Sports */}
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2">
+                    <Badge className={`${CATEGORY_STYLES.Sports.class} border-0`}>Sports</Badge>
+                    <p className="text-[10px] text-muted-foreground">NBA, NFL, Olympics</p>
+                    <code className="text-[9px] bg-muted px-1 py-0.5 rounded font-mono block">
+                      bg-blue-500/20 text-blue-400
+                    </code>
+                  </div>
+
+                  {/* General */}
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2">
+                    <Badge className={`${CATEGORY_STYLES.General.class} border-0`}>General</Badge>
+                    <p className="text-[10px] text-muted-foreground">Fallback category</p>
+                    <code className="text-[9px] bg-muted px-1 py-0.5 rounded font-mono block">
+                      bg-muted text-foreground
+                    </code>
                   </div>
                 </div>
+              </div>
+
+              {/* Adding New Categories Guide */}
+              <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                <h4 className="text-sm font-medium text-primary mb-2">📌 添加新分类的规则</h4>
+                <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                  <li>每个分类必须有<strong className="text-foreground">独特颜色</strong>，不能与现有分类重复</li>
+                  <li>在 <code className="bg-muted px-1 rounded">CATEGORY_STYLES</code> 添加样式定义</li>
+                  <li>在 <code className="bg-muted px-1 rounded">getCategoryFromName</code> 添加关键词匹配</li>
+                  <li>更新 StyleGuide 文档</li>
+                </ol>
               </div>
 
               {/* Usage Examples */}
               <div className="mt-8 space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground">Usage Examples</h4>
-                <div className="space-y-3">
-                  <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
-                    <Badge className={`${CATEGORY_STYLES.Social.class} border-0`}>
-                      Social
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">Elon Musk # tweets January 2026</span>
+                <div className={`grid gap-2 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  <div className="p-2.5 bg-background rounded-lg border border-border flex items-center gap-2">
+                    <Badge className={`${CATEGORY_STYLES.Social.class} border-0`}>Social</Badge>
+                    <span className="text-xs text-muted-foreground truncate">Elon Musk # tweets</span>
                   </div>
-                  <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
-                    <Badge className={`${CATEGORY_STYLES.Crypto.class} border-0`}>
-                      Crypto
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">Bitcoin price on January 31, 2026</span>
+                  <div className="p-2.5 bg-background rounded-lg border border-border flex items-center gap-2">
+                    <Badge className={`${CATEGORY_STYLES.Crypto.class} border-0`}>Crypto</Badge>
+                    <span className="text-xs text-muted-foreground truncate">Bitcoin price on Jan 31</span>
                   </div>
-                  <div className="p-3 bg-background rounded-lg border border-border flex items-center gap-3">
-                    <Badge className={`${CATEGORY_STYLES.Finance.class} border-0`}>
-                      Finance
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">Fed interest rate decision</span>
+                  <div className="p-2.5 bg-background rounded-lg border border-border flex items-center gap-2">
+                    <Badge className={`${CATEGORY_STYLES.Tech.class} border-0`}>Tech</Badge>
+                    <span className="text-xs text-muted-foreground truncate">SpaceX Starship reach orbit</span>
+                  </div>
+                  <div className="p-2.5 bg-background rounded-lg border border-border flex items-center gap-2">
+                    <Badge className={`${CATEGORY_STYLES.Entertainment.class} border-0`}>Entertainment</Badge>
+                    <span className="text-xs text-muted-foreground truncate">Oscar Best Picture 2024</span>
+                  </div>
+                  <div className="p-2.5 bg-background rounded-lg border border-border flex items-center gap-2">
+                    <Badge className={`${CATEGORY_STYLES.Politics.class} border-0`}>Politics</Badge>
+                    <span className="text-xs text-muted-foreground truncate">Government shutdown end</span>
+                  </div>
+                  <div className="p-2.5 bg-background rounded-lg border border-border flex items-center gap-2">
+                    <Badge className={`${CATEGORY_STYLES.Sports.class} border-0`}>Sports</Badge>
+                    <span className="text-xs text-muted-foreground truncate">Super Bowl LVIII winner</span>
                   </div>
                 </div>
               </div>
@@ -1840,7 +1881,7 @@ const categoryInfo = getCategoryFromName(event.name);
   {categoryInfo.label}
 </Badge>
 
-// Available categories: Social, Crypto, Finance, Market, Politics, Tech, general`}
+// Available: Social, Crypto, Finance, Politics, Tech, Entertainment, Sports, General`}
                   </pre>
                 </div>
               </div>

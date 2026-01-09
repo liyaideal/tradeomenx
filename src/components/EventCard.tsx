@@ -301,7 +301,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
         </div>
         
         <div className="flex items-center gap-2 mt-2.5">
-          <Badge className={`text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.general.class}`}>
+          <Badge className={`text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.General.class}`}>
             {categoryInfo.label}
           </Badge>
           {event.hasMultipleOptions && (
