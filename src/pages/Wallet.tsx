@@ -35,7 +35,7 @@ export default function Wallet() {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <MobileHeader title="Wallet" />
+      <MobileHeader title="Wallet" showLogo={false} />
 
       <div className="px-4 py-6 space-y-6">
         {/* Main Balance Card */}
