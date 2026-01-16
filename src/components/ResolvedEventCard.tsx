@@ -154,12 +154,12 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
               {isExpanded ? (
                 <>
                   <ChevronUp className="h-3.5 w-3.5" />
-                  <span>收起</span>
+                  <span>Show Less</span>
                 </>
               ) : (
                 <>
                   <ChevronDown className="h-3.5 w-3.5" />
-                  <span>查看更多 ({hiddenCount})</span>
+                  <span>Show More ({hiddenCount})</span>
                 </>
               )}
             </button>
