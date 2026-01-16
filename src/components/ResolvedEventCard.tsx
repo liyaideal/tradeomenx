@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Check, X, BarChart3, Clock } from "lucide-react";
+import { Check, X, BarChart3, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ResolvedEvent, ResolvedEventOption } from "@/hooks/useResolvedEvents";
 import { getCategoryInfo } from "@/lib/categoryUtils";
@@ -54,14 +55,30 @@ const OptionItem = ({
   );
 };
 
+// Mobile collapsible threshold
+const MOBILE_COLLAPSE_THRESHOLD = 4;
+
 export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) => {
   const isMobile = useIsMobile();
+  const [isExpanded, setIsExpanded] = useState(false);
   
   const settledDate = event.settled_at 
     ? format(new Date(event.settled_at), "MMM d, yyyy")
     : "N/A";
   
   const categoryInfo = getCategoryInfo(event.category);
+
+  // For mobile: determine which options to show
+  const shouldCollapse = isMobile && event.options.length > MOBILE_COLLAPSE_THRESHOLD;
+  const visibleOptions = shouldCollapse && !isExpanded 
+    ? event.options.slice(0, MOBILE_COLLAPSE_THRESHOLD) 
+    : event.options;
+  const hiddenCount = event.options.length - MOBILE_COLLAPSE_THRESHOLD;
+
+  const handleExpandClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
 
   // Mobile layout - unified with Active card structure
   if (isMobile) {
@@ -118,19 +135,35 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
         </CardHeader>
 
         <CardContent className="space-y-3 pt-0">
-          {/* Options List - 2-column grid for >2 options, vertical for binary */}
-          <div className={`${
-            event.options.length > 2 
-              ? "grid grid-cols-2 gap-x-2 gap-y-1" 
-              : "space-y-2"
-          }`}>
-            {event.options.map((option) => (
+          {/* Options List - single column vertical layout for mobile */}
+          <div className="space-y-1.5">
+            {visibleOptions.map((option) => (
               <OptionItem 
                 key={option.id} 
                 option={option} 
               />
             ))}
           </div>
+
+          {/* Expand/Collapse Button */}
+          {shouldCollapse && (
+            <button
+              onClick={handleExpandClick}
+              className="flex items-center justify-center gap-1.5 w-full py-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="h-3.5 w-3.5" />
+                  <span>收起</span>
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-3.5 w-3.5" />
+                  <span>查看更多 ({hiddenCount})</span>
+                </>
+              )}
+            </button>
+          )}
 
           {/* Total Volume */}
           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-2 border-t border-border/30">
