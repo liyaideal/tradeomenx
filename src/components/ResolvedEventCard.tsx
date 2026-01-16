@@ -23,13 +23,42 @@ const formatVolume = (volume: string | null): string => {
 
 const OptionItem = ({ 
   option, 
-  isMobile 
+  isMobile,
+  compact = false
 }: { 
   option: ResolvedEventOption;
   isMobile: boolean;
+  compact?: boolean;
 }) => {
   const isWinner = option.is_winner;
   const displayPrice = option.final_price ?? option.price;
+  
+  // Compact mode for many options
+  if (compact) {
+    return (
+      <div
+        className={`flex items-center justify-between px-2 py-1.5 rounded-md transition-all ${
+          isWinner
+            ? "bg-trading-green/15 border border-trading-green/30"
+            : "bg-muted/20 border border-transparent"
+        }`}
+      >
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          {isWinner ? (
+            <Check className="h-3 w-3 text-trading-green flex-shrink-0" />
+          ) : (
+            <X className="h-3 w-3 text-trading-red/70 flex-shrink-0" />
+          )}
+          <span className={`text-xs truncate ${isWinner ? "text-trading-green font-medium" : "text-muted-foreground"}`}>
+            {option.label}
+          </span>
+        </div>
+        <span className={`font-mono text-xs font-semibold ml-1 flex-shrink-0 ${isWinner ? "text-trading-green" : "text-muted-foreground"}`}>
+          ${typeof displayPrice === 'number' ? displayPrice.toFixed(2) : displayPrice}
+        </span>
+      </div>
+    );
+  }
   
   return (
     <div
@@ -120,10 +149,19 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
         </CardHeader>
 
         <CardContent className="space-y-3 pt-0">
-          {/* Options List - vertical for mobile */}
-          <div className="space-y-2">
+          {/* Options List - compact grid for many options, vertical for few */}
+          <div className={`${
+            event.options.length > 4 
+              ? "grid grid-cols-2 gap-1.5" 
+              : "space-y-2"
+          }`}>
             {event.options.map((option) => (
-              <OptionItem key={option.id} option={option} isMobile={true} />
+              <OptionItem 
+                key={option.id} 
+                option={option} 
+                isMobile={true} 
+                compact={event.options.length > 4}
+              />
             ))}
           </div>
 
@@ -199,10 +237,21 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {/* Options - 2-column grid for multi-option, single column for binary */}
-        <div className={`gap-2 ${event.options.length > 2 ? "grid grid-cols-2" : "space-y-1.5"}`}>
+        {/* Options - 3-column compact for >4, 2-column for 3-4, single for binary */}
+        <div className={`gap-1.5 ${
+          event.options.length > 4 
+            ? "grid grid-cols-3" 
+            : event.options.length > 2 
+              ? "grid grid-cols-2 gap-2" 
+              : "space-y-1.5"
+        }`}>
           {event.options.map((option) => (
-            <OptionItem key={option.id} option={option} isMobile={false} />
+            <OptionItem 
+              key={option.id} 
+              option={option} 
+              isMobile={false} 
+              compact={event.options.length > 4}
+            />
           ))}
         </div>
 
