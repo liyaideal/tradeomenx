@@ -111,12 +111,13 @@ export const usePositionsStore = create<PositionsStore>()(
       clearPositions: () => set({ positions: [] }),
     }),
     {
-      name: 'positions-storage-v2', // New key to force clear old data with "No" positions
+      name: 'positions-storage-v3', // Force clear old data with "No" positions
     }
   )
 );
 
-// Clear old storage key on module load
+// Clear old storage keys on module load
 if (typeof window !== 'undefined') {
   localStorage.removeItem('positions-storage');
+  localStorage.removeItem('positions-storage-v2');
 }
