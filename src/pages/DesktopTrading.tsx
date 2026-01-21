@@ -1106,7 +1106,21 @@ export default function DesktopTrading() {
                           }`}
                         >
                           <td className="px-4 py-2">
-                            <div className="text-sm font-medium">{position.option}</div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm font-medium">{position.option}</span>
+                              {position.option.toLowerCase() === "yes" && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="w-3.5 h-3.5 text-trading-yellow cursor-help flex-shrink-0" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-[250px]">
+                                      <p className="text-xs">Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped.</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </div>
                             <HoverCard>
                               <HoverCardTrigger asChild>
                                 <div className="text-xs text-muted-foreground truncate max-w-[180px] cursor-help border-b border-dashed border-transparent hover:border-muted-foreground inline-block">
