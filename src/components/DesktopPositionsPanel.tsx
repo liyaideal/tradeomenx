@@ -17,12 +17,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, ExternalLink, CheckCircle, X } from "lucide-react";
+import { Pencil, ExternalLink, CheckCircle, X, Info } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { orderToPosition } from "@/lib/orderUtils";
@@ -197,6 +203,7 @@ export const DesktopPositionsPanel = () => {
                 ) : (
                   positions.map((position, index) => {
                     const isProfitable = position.pnl.startsWith("+");
+                    const isBinaryYesPosition = position.option.toLowerCase() === "yes";
                     return (
                       <tr key={index} className="border-b border-border/30 hover:bg-muted/30">
                         <td className="px-3 py-2 text-sm">
@@ -217,6 +224,11 @@ export const DesktopPositionsPanel = () => {
                               <HoverCardContent className="w-64 p-3" side="bottom" align="start">
                                 <p className="text-sm font-medium mb-1">{position.option}</p>
                                 <p className="text-xs text-muted-foreground mb-2">{position.event}</p>
+                                {isBinaryYesPosition && (
+                                  <p className="text-xs text-muted-foreground mb-2 border-t border-border/30 pt-2">
+                                    <span className="text-trading-yellow">💡</span> 二元事件仓位统一显示为 Yes。若您下单时选择了 No，则方向会自动翻转（No Long → Yes Short, No Short → Yes Long）。
+                                  </p>
+                                )}
                                 <a 
                                   href="#" 
                                   className="text-sm text-primary flex items-center gap-1.5 hover:underline"
