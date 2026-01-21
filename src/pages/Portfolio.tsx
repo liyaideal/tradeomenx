@@ -3,7 +3,7 @@ import { useNavigate, useNavigationType } from "react-router-dom";
 import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, Percent, AlertTriangle, Loader2 } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { usePositionsStore } from "@/stores/usePositionsStore";
+import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -81,7 +81,7 @@ export default function Portfolio() {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { positions } = usePositionsStore();
+  const { positions, isLoading: positionsLoading } = usePositions();
   const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
   const [activeTab, setActiveTab] = useState<TabType>("positions");
   const [sortField, setSortField] = useState<SortField>(null);
@@ -90,12 +90,12 @@ export default function Portfolio() {
   // Calculate positions stats
   const positionsStats = useMemo(() => {
     const totalPnl = positions.reduce((sum, pos) => {
-      const pnlValue = parseFloat(pos.pnl.replace(/[$,+]/g, "")) || 0;
+      const pnlValue = parseFloat(String(pos.pnl).replace(/[$,+]/g, "")) || 0;
       return sum + pnlValue;
     }, 0);
 
     const totalMargin = positions.reduce((sum, pos) => {
-      const marginValue = parseFloat(pos.margin.replace(/[$,]/g, "")) || 0;
+      const marginValue = parseFloat(String(pos.margin).replace(/[$,]/g, "")) || 0;
       return sum + marginValue;
     }, 0);
 
@@ -105,7 +105,7 @@ export default function Portfolio() {
     // Calculate Liquidation Risk (mock: based on average margin utilization)
     // In real scenario, this would be based on maintenance margin vs current margin
     const avgLeverage = positions.length > 0
-      ? positions.reduce((sum, pos) => sum + (typeof pos.leverage === 'number' ? pos.leverage : 10), 0) / positions.length
+      ? positions.reduce((sum, pos) => sum + (typeof pos.leverage === 'string' ? parseInt(pos.leverage) : pos.leverage || 10), 0) / positions.length
       : 0;
     // Higher leverage = higher risk, scale to 0-100%
     const liqRisk = Math.min(avgLeverage * 5, 100);
@@ -147,12 +147,12 @@ export default function Portfolio() {
 
       switch (sortField) {
         case "pnl":
-          aValue = parseFloat(a.pnl.replace(/[$,+]/g, "")) || 0;
-          bValue = parseFloat(b.pnl.replace(/[$,+]/g, "")) || 0;
+          aValue = parseFloat(String(a.pnl).replace(/[$,+]/g, "")) || 0;
+          bValue = parseFloat(String(b.pnl).replace(/[$,+]/g, "")) || 0;
           break;
         case "size":
-          aValue = parseFloat(a.size.replace(/,/g, "")) || 0;
-          bValue = parseFloat(b.size.replace(/,/g, "")) || 0;
+          aValue = parseFloat(String(a.size).replace(/,/g, "")) || 0;
+          bValue = parseFloat(String(b.size).replace(/,/g, "")) || 0;
           break;
         default:
           return 0;

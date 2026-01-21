@@ -30,17 +30,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useOrdersStore } from "@/stores/useOrdersStore";
+import { usePositions } from "@/hooks/usePositions";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { orderToPosition } from "@/lib/orderUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 export const DesktopPositionsPanel = () => {
   const { orders, fillOrder, cancelOrder } = useOrdersStore();
-  const { positions, addPosition, updatePositionTpSl, closePosition } = usePositionsStore();
+  const { positions, closePosition, updatePositionTpSl, isClosing, isUpdatingTpSl } = usePositions();
+  const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
   
   const [activeTab, setActiveTab] = useState("Positions");
   const [tpSlOpen, setTpSlOpen] = useState(false);
   const [editingPositionIndex, setEditingPositionIndex] = useState<number | null>(null);
+  const [editingPositionId, setEditingPositionId] = useState<string | null>(null);
   const [tpValue, setTpValue] = useState("");
   const [slValue, setSlValue] = useState("");
   const [tpMode, setTpMode] = useState<"%" | "$">("$");
@@ -84,9 +87,10 @@ export const DesktopPositionsPanel = () => {
     TRADING_TERMS.ACTION,
   ];
 
-  const handleEditTpSl = (index: number) => {
+  const handleEditTpSl = (index: number, positionId: string) => {
     const position = positions[index];
     setEditingPositionIndex(index);
+    setEditingPositionId(positionId);
     setTpValue(position.tp || "");
     setSlValue(position.sl || "");
     setTpMode(position.tpMode);
@@ -94,9 +98,9 @@ export const DesktopPositionsPanel = () => {
     setTpSlOpen(true);
   };
 
-  const handleSaveTpSl = () => {
-    if (editingPositionIndex !== null) {
-      updatePositionTpSl(editingPositionIndex, tpValue, slValue, tpMode, slMode);
+  const handleSaveTpSl = async () => {
+    if (editingPositionIndex !== null && editingPositionId !== null) {
+      await updatePositionTpSl(editingPositionId, editingPositionIndex, tpValue, slValue, tpMode, slMode);
       toast({
         title: "TP/SL Updated",
         description: `Take Profit: ${tpValue || "Not set"}, Stop Loss: ${slValue || "Not set"}`,
@@ -104,6 +108,7 @@ export const DesktopPositionsPanel = () => {
     }
     setTpSlOpen(false);
     setEditingPositionIndex(null);
+    setEditingPositionId(null);
   };
 
   const handleCancelTpSl = () => {
@@ -111,6 +116,7 @@ export const DesktopPositionsPanel = () => {
     setSlValue("");
     setTpSlOpen(false);
     setEditingPositionIndex(null);
+    setEditingPositionId(null);
   };
 
   const handleFillOrder = (index: number) => {
@@ -266,7 +272,7 @@ export const DesktopPositionsPanel = () => {
                         </td>
                         <td className="px-3 py-2 text-sm">
                           <button
-                            onClick={() => handleEditTpSl(index)}
+                            onClick={() => handleEditTpSl(index, position.id)}
                             className="flex items-center gap-1 px-2 py-1 rounded bg-muted hover:bg-muted/80 transition-colors group"
                           >
                             {position.tp || position.sl ? (
@@ -283,7 +289,7 @@ export const DesktopPositionsPanel = () => {
                         </td>
                         <td className="px-3 py-2 text-sm">
                           <button 
-                            onClick={() => closePosition(index)}
+                            onClick={() => closePosition(position.id, index)}
                             className="px-2 py-1 text-xs bg-trading-red/20 text-trading-red rounded hover:bg-trading-red/30"
                           >
                             Close

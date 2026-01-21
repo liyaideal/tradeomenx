@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft } from "lucide-react";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
-import { usePositionsStore } from "@/stores/usePositionsStore";
+import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
 import {
   Tooltip,
   TooltipContent,
@@ -196,12 +196,13 @@ export default function DesktopTrading() {
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   
-  // Positions state - using shared store
-  const { positions, closePosition: closePositionStore, updatePositionTpSl } = usePositionsStore();
+  // Positions state - using unified hook (Supabase for logged-in, local for guests)
+  const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing } = usePositions();
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
   const [editingPositionIndex, setEditingPositionIndex] = useState<number | null>(null);
+  const [editingPositionId, setEditingPositionId] = useState<string | null>(null);
   const [positionTpValue, setPositionTpValue] = useState("");
   const [positionSlValue, setPositionSlValue] = useState("");
   const [positionTpMode, setPositionTpMode] = useState<"%" | "$">("$");
@@ -210,22 +211,25 @@ export default function DesktopTrading() {
   // Close position dialog state
   const [closePositionOpen, setClosePositionOpen] = useState(false);
   const [closingPositionIndex, setClosingPositionIndex] = useState<number | null>(null);
+  const [closingPositionId, setClosingPositionId] = useState<string | null>(null);
   
-  const handleClosePositionClick = (index: number) => {
+  const handleClosePositionClick = (index: number, positionId: string) => {
     setClosingPositionIndex(index);
+    setClosingPositionId(positionId);
     setClosePositionOpen(true);
   };
   
-  const handleConfirmClosePosition = () => {
-    if (closingPositionIndex !== null) {
+  const handleConfirmClosePosition = async () => {
+    if (closingPositionIndex !== null && closingPositionId !== null) {
       const position = positions[closingPositionIndex];
-      closePositionStore(closingPositionIndex);
+      await closePositionFn(closingPositionId, closingPositionIndex);
       toast.success("Position Closed", {
         description: `Your ${position.type} position on ${position.option} has been closed.`,
       });
     }
     setClosePositionOpen(false);
     setClosingPositionIndex(null);
+    setClosingPositionId(null);
   };
   
   // Cancel order dialog state - using zustand store
@@ -250,9 +254,10 @@ export default function DesktopTrading() {
     setCancellingOrderIndex(null);
   };
   
-  const handleEditPositionTpSl = (index: number) => {
+  const handleEditPositionTpSl = (index: number, positionId: string) => {
     const position = positions[index];
     setEditingPositionIndex(index);
+    setEditingPositionId(positionId);
     setPositionTpValue(position.tp || "");
     setPositionSlValue(position.sl || "");
     setPositionTpMode(position.tpMode || "%");
@@ -260,9 +265,9 @@ export default function DesktopTrading() {
     setPositionTpSlOpen(true);
   };
   
-  const handleSavePositionTpSl = () => {
-    if (editingPositionIndex !== null) {
-      updatePositionTpSl(editingPositionIndex, positionTpValue, positionSlValue, positionTpMode, positionSlMode);
+  const handleSavePositionTpSl = async () => {
+    if (editingPositionIndex !== null && editingPositionId !== null) {
+      await updateTpSlFn(editingPositionId, editingPositionIndex, positionTpValue, positionSlValue, positionTpMode, positionSlMode);
     }
     const tpDisplay = positionTpValue ? (positionTpMode === "%" ? `+${positionTpValue}%` : `$${positionTpValue}`) : "Not set";
     const slDisplay = positionSlValue ? (positionSlMode === "%" ? `-${positionSlValue}%` : `$${positionSlValue}`) : "Not set";
@@ -271,6 +276,7 @@ export default function DesktopTrading() {
     });
     setPositionTpSlOpen(false);
     setEditingPositionIndex(null);
+    setEditingPositionId(null);
   };
   
   const handleCancelPositionTpSl = () => {
@@ -278,6 +284,7 @@ export default function DesktopTrading() {
     setPositionSlValue("");
     setPositionTpSlOpen(false);
     setEditingPositionIndex(null);
+    setEditingPositionId(null);
   };
   
   // Use events hook
@@ -1157,7 +1164,7 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-sm">{position.leverage}</td>
                           <td className="px-4 py-2 text-center">
                             <button
-                              onClick={() => handleEditPositionTpSl(index)}
+                              onClick={() => handleEditPositionTpSl(index, position.id)}
                               className="flex items-center gap-1 px-2 py-1 rounded bg-muted hover:bg-muted/80 transition-colors group mx-auto"
                             >
                               {position.tp || position.sl ? (
@@ -1174,7 +1181,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2 text-center">
                             <button 
-                              onClick={() => handleClosePositionClick(index)}
+                              onClick={() => handleClosePositionClick(index, position.id)}
                               className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted"
                             >
                               Close
