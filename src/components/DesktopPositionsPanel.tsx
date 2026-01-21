@@ -226,7 +226,7 @@ export const DesktopPositionsPanel = () => {
                                 <p className="text-xs text-muted-foreground mb-2">{position.event}</p>
                                 {isBinaryYesPosition && (
                                   <p className="text-xs text-muted-foreground mb-2 border-t border-border/30 pt-2">
-                                    <span className="text-trading-yellow">💡</span> 二元事件仓位统一显示为 Yes。若您下单时选择了 No，则方向会自动翻转（No Long → Yes Short, No Short → Yes Long）。
+                                    <span className="text-trading-yellow">💡</span> Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped (No Long → Yes Short, No Short → Yes Long).
                                   </p>
                                 )}
                                 <a 

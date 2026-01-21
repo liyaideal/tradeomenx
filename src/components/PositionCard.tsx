@@ -195,7 +195,7 @@ export const PositionCard = ({
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-3 text-xs" side="top" align="start">
                   <p className="text-muted-foreground">
-                    <span className="text-trading-yellow">💡</span> 二元事件仓位统一显示为 Yes。若您下单时选择了 No，则方向会自动翻转（No Long → Yes Short, No Short → Yes Long）。
+                    <span className="text-trading-yellow">💡</span> Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped (No Long → Yes Short, No Short → Yes Long).
                   </p>
                 </PopoverContent>
               </Popover>
