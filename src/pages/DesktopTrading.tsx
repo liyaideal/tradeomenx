@@ -415,7 +415,7 @@ export default function DesktopTrading() {
   }, [tpValue, slValue, tpMode, slMode, side, currentPrice, amount, leverage]);
 
   const orderDetails = useMemo(() => [
-    { label: "Event", value: selectedEvent.name },
+    { label: "Event", value: selectedEvent?.name || "" },
     { label: "Option", value: selectedOptionData.label },
     { label: "Side", value: side === "buy" ? "Buy | Long" : "Sell | Short", highlight: side === "buy" ? "green" : "red" as const },
     { label: "Margin type", value: marginType },
@@ -434,6 +434,7 @@ export default function DesktopTrading() {
   };
 
   const handleConfirmOrder = () => {
+    if (!selectedEvent) return;
     // Create new order and add to orders list
     const newOrder: Order = {
       type: side,
