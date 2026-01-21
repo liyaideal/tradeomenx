@@ -139,7 +139,16 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     }
 
     // Create corresponding position with validated data
-    const positionSide = validated.side === "buy" ? "long" : "short";
+    // For binary events: No Long → Yes Short, No Short → Yes Long
+    const isNoOption = validated.optionLabel.toLowerCase() === "no";
+    let positionSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
+    let positionOptionLabel = validated.optionLabel;
+    
+    if (isNoOption) {
+      // Convert No trades to Yes positions with opposite side
+      positionOptionLabel = "Yes";
+      positionSide = validated.side === "buy" ? "short" : "long";
+    }
     
     const { data: position, error: positionError } = await supabase
       .from("positions")
@@ -147,7 +156,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
         user_id: userId,
         trade_id: trade.id,
         event_name: validated.eventName,
-        option_label: validated.optionLabel,
+        option_label: positionOptionLabel,
         side: positionSide,
         entry_price: validated.price,
         mark_price: validated.price,
