@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
@@ -8,33 +8,17 @@ import { EventCard, EventData } from "@/components/EventCard";
 import { EventStatsOverview } from "@/components/EventStatsOverview";
 import { EventFilters, EventStatusFilter, MobileStatusDropdown, MobileFilterDrawer } from "@/components/EventFilters";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { activeEvents, eventOptionsMap } from "@/data/events";
 import { MobileHeader } from "@/components/MobileHeader";
-
-// Transform activeEvents to EventData format for EventCard
-const transformedEvents: EventData[] = activeEvents.map((event) => {
-  const options = eventOptionsMap[event.id] || [];
-  return {
-    id: event.id,
-    title: event.name,
-    status: event.endTime > new Date() ? "active" : "locked",
-    hasMultipleOptions: options.length > 2,
-    settlementDate: event.ends,
-    options: options.map(opt => ({
-      id: opt.id,
-      label: opt.label,
-      price: opt.price,
-    })),
-    totalVolume: event.volume,
-    volume24h: "$0.1M",
-    participants: Math.floor(Math.random() * 200 + 100),
-  };
-});
+import { useActiveEvents } from "@/hooks/useActiveEvents";
+import { format } from "date-fns";
 
 const EventsPage = () => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const isMobile = useIsMobile();
+  
+  // Fetch events from database
+  const { events: dbEvents, isLoading: isLoadingEvents, refetch } = useActiveEvents();
   
   // Show back button only if user navigated here (PUSH), not if they used bottom nav or direct URL
   const showBackButton = navigationType === "PUSH";
@@ -44,31 +28,63 @@ const EventsPage = () => {
   const [settlementFilter, setSettlementFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("volume");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Transform database events to EventData format for EventCard
+  const transformedEvents: EventData[] = useMemo(() => {
+    return dbEvents.map((event) => {
+      const endDate = event.end_date ? new Date(event.end_date) : new Date();
+      const isActive = endDate > new Date();
+      
+      return {
+        id: event.id,
+        title: event.name,
+        status: isActive ? "active" : "locked",
+        hasMultipleOptions: event.options.length > 2,
+        settlementDate: event.end_date ? format(new Date(event.end_date), "MMM d, yyyy") : "TBD",
+        options: event.options.map(opt => ({
+          id: opt.id,
+          label: opt.label,
+          price: opt.price.toFixed(2),
+        })),
+        totalVolume: event.volume || "$0",
+        volume24h: "$0.1M",
+        participants: Math.floor(Math.random() * 200 + 100),
+      };
+    });
+  }, [dbEvents]);
 
   // Filter events
-  const filteredEvents = transformedEvents.filter((event) => {
-    if (event.status !== statusFilter) {
-      return false;
-    }
-    // Add more filter logic here for settlement and category
-    return true;
-  });
+  const filteredEvents = useMemo(() => {
+    return transformedEvents.filter((event) => {
+      // For "active" filter, show only active events
+      if (statusFilter === "active" && event.status !== "active") {
+        return false;
+      }
+      // Category filter could be added here
+      return true;
+    });
+  }, [transformedEvents, statusFilter]);
 
   // Sort events
-  const sortedEvents = [...filteredEvents].sort((a, b) => {
-    if (sortBy === "volume") {
-      return parseFloat(b.totalVolume.replace(/[$M,]/g, "")) - parseFloat(a.totalVolume.replace(/[$M,]/g, ""));
-    }
-    if (sortBy === "participants") {
-      return b.participants - a.participants;
-    }
-    return 0;
-  });
+  const sortedEvents = useMemo(() => {
+    return [...filteredEvents].sort((a, b) => {
+      if (sortBy === "volume") {
+        const volA = parseFloat(a.totalVolume.replace(/[$M,]/g, "")) || 0;
+        const volB = parseFloat(b.totalVolume.replace(/[$M,]/g, "")) || 0;
+        return volB - volA;
+      }
+      if (sortBy === "participants") {
+        return b.participants - a.participants;
+      }
+      return 0;
+    });
+  }, [filteredEvents, sortBy]);
 
-  const handleLoadMore = () => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1000);
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
   };
 
   const handleEventClick = (eventId: string) => {
@@ -151,48 +167,58 @@ const EventsPage = () => {
           />
         )}
 
-        {/* Events Grid */}
-        <div className={`grid gap-5 ${isMobile ? "grid-cols-1" : "grid-cols-2 xl:grid-cols-2"}`}>
-          {sortedEvents.map((event, index) => (
-            <div 
-              key={event.id} 
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 80}ms` }}
-            >
-              <EventCard
-                event={event}
-                onEventClick={handleEventClick}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {sortedEvents.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
-              <RefreshCw className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">No events found</h3>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              Try adjusting your filters or check back later for new events.
-            </p>
+        {/* Loading State */}
+        {isLoadingEvents ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Loading events...</p>
           </div>
-        )}
+        ) : (
+          <>
+            {/* Events Grid */}
+            <div className={`grid gap-5 ${isMobile ? "grid-cols-1" : "grid-cols-2 xl:grid-cols-2"}`}>
+              {sortedEvents.map((event, index) => (
+                <div 
+                  key={event.id} 
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 80}ms` }}
+                >
+                  <EventCard
+                    event={event}
+                    onEventClick={handleEventClick}
+                  />
+                </div>
+              ))}
+            </div>
 
-        {/* Load More Button */}
-        {sortedEvents.length > 0 && (
-          <div className="flex justify-center pt-6">
-            <Button 
-              variant="outline" 
-              className="gap-2 border-border/50 hover:border-primary hover:text-primary transition-colors" 
-              onClick={handleLoadMore}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-              {isLoading ? "Loading..." : "Load More Events"}
-            </Button>
-          </div>
+            {/* Empty State */}
+            {sortedEvents.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+                  <RefreshCw className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-medium text-foreground mb-2">No events found</h3>
+                <p className="text-sm text-muted-foreground max-w-sm">
+                  Try adjusting your filters or check back later for new events.
+                </p>
+              </div>
+            )}
+
+            {/* Refresh Button */}
+            {sortedEvents.length > 0 && (
+              <div className="flex justify-center pt-6">
+                <Button 
+                  variant="outline" 
+                  className="gap-2 border-border/50 hover:border-primary hover:text-primary transition-colors" 
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                  {isRefreshing ? "Refreshing..." : "Refresh Events"}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </main>
 
