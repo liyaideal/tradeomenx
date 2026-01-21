@@ -15,6 +15,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { toast } from "sonner";
 import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
+import { LivePrice } from "@/components/LivePrice";
+import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 
 export type EventStatus = "active" | "locked" | "resolved";
 
@@ -180,6 +182,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { addOrder } = useOrdersStore();
+  const pricesContext = useRealtimePricesOptional();
   const [selectedOption, setSelectedOption] = useState<string | null>(null); // Default to null (show all)
   const [tradeSide, setTradeSide] = useState<"long" | "short">("long");
   const [leverage, setLeverage] = useState<number>(5);
@@ -195,10 +198,16 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
   const isLocked = event.status === "locked";
   const categoryInfo = getCategoryFromName(event.title);
 
+  // Helper to get live or fallback price
+  const getOptionPrice = (optionId: string, fallbackPrice: string): number => {
+    const livePrice = pricesContext?.getPrice(optionId);
+    return livePrice ?? parseFloat(fallbackPrice);
+  };
+
   // Calculate order details for confirmation
   const orderDetails = useMemo(() => {
     if (!selectedOptionData || !quantity) return null;
-    const price = parseFloat(selectedOptionData.price);
+    const price = getOptionPrice(selectedOptionData.id, selectedOptionData.price);
     const qty = parseFloat(quantity);
     const notionalValue = (price * qty).toFixed(2);
     const marginRequired = (price * qty / leverage).toFixed(2);
@@ -217,8 +226,9 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
       quantity: qty.toLocaleString(),
       potentialWin,
       liqPrice,
+      price: price.toFixed(2),
     };
-  }, [selectedOptionData, quantity, leverage, tradeSide]);
+  }, [selectedOptionData, quantity, leverage, tradeSide, pricesContext?.prices]);
 
   const handleTrade = () => {
     if (selectedOption && quantity) {
@@ -335,7 +345,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
             .slice(0, optionsExpanded ? undefined : MAX_VISIBLE_OPTIONS)
             .map((option, index) => (
               isMobile ? (
-                // Mobile: non-interactive display
+                // Mobile: non-interactive display with live price
                 <div
                   key={option.id}
                   className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-muted/20 border border-transparent"
@@ -349,15 +359,15 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                       {option.label}
                     </span>
                   </div>
-                  <span 
-                    className="font-mono text-sm font-bold"
-                    style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
-                  >
-                    ${option.price}
-                  </span>
+                  <LivePrice 
+                    optionId={option.id}
+                    fallbackPrice={option.price}
+                    className="text-sm font-bold"
+                    showChange
+                  />
                 </div>
               ) : (
-                // Desktop: interactive buttons
+                // Desktop: interactive buttons with live price
                 <button
                   key={option.id}
                   onClick={() => !isLocked && setSelectedOption(option.id)}
@@ -380,12 +390,12 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                       {option.label}
                     </span>
                   </div>
-                  <span 
-                    className="font-mono text-sm font-bold"
-                    style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}
-                  >
-                    ${option.price}
-                  </span>
+                  <LivePrice 
+                    optionId={option.id}
+                    fallbackPrice={option.price}
+                    className="text-sm font-bold"
+                    showChange
+                  />
                 </button>
               )
             ))}
