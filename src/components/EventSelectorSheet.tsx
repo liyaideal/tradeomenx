@@ -1,5 +1,5 @@
 import { Search, Star, X } from "lucide-react";
-import { TradingEvent } from "@/data/events";
+import { TradingEvent } from "@/hooks/useEvents";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 

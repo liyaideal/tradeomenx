@@ -1,10 +1,40 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { 
-  activeEvents, 
-  eventOptionsMap, 
-  type TradingEvent, 
-  type EventOption 
-} from "@/data/events";
+import { useActiveEvents, EventWithOptions, DatabaseEventOption } from "@/hooks/useActiveEvents";
+import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
+
+// Legacy types for compatibility
+export interface EventOption {
+  id: string;
+  label: string;
+  price: string;
+}
+
+export interface EventStats {
+  high24h?: string;
+  low24h?: string;
+  volume24h?: string;
+  marketCap?: string;
+}
+
+export interface TradingEvent {
+  id: string;
+  name: string;
+  icon: string;
+  ends: string;
+  endTime: Date;
+  period: string;
+  volume: string;
+  description: string;
+  rules: string[];
+  sourceUrl: string;
+  sourceName: string;
+  resolutionSource: string;
+  // Optional fields for specific event types
+  tweetCount?: number;
+  currentPrice?: string;
+  priceChange24h?: string;
+  stats?: EventStats;
+}
 
 // Local storage keys
 const STORAGE_KEYS = {
@@ -26,7 +56,7 @@ const getStoredFavorites = (): Set<string> => {
   } catch (e) {
     console.warn("Failed to parse stored favorites:", e);
   }
-  return new Set(["1"]); // Default favorites
+  return new Set();
 };
 
 const setStoredFavorites = (favorites: Set<string>): void => {
@@ -77,12 +107,65 @@ const setStoredLastOption = (eventId: string, optionId: string): void => {
   }
 };
 
+// Convert database event to TradingEvent format
+const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
+  const endDate = event.end_date ? new Date(event.end_date) : new Date();
+  const startDate = event.start_date ? new Date(event.start_date) : new Date();
+  
+  // Calculate period string
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+  
+  const period = event.start_date && event.end_date 
+    ? `${formatDate(startDate)} - ${formatDate(endDate)}`
+    : formatDate(endDate);
+
+  // Parse rules from string to array
+  let rulesArray: string[] = [];
+  if (event.rules) {
+    try {
+      rulesArray = event.rules.split('\n').filter(r => r.trim());
+    } catch {
+      rulesArray = [event.rules];
+    }
+  }
+
+  return {
+    id: event.id,
+    name: event.name,
+    icon: event.icon || "📊",
+    ends: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    endTime: endDate,
+    period,
+    volume: event.volume || "$0",
+    description: event.description || "",
+    rules: rulesArray,
+    sourceUrl: event.source_url || "",
+    sourceName: event.source_name || "Official Source",
+    resolutionSource: event.settlement_description || "Official settlement source",
+  };
+};
+
+// Convert database option to EventOption format
+const dbOptionToEventOption = (option: DatabaseEventOption, livePrice?: number): EventOption => {
+  const price = livePrice ?? option.price;
+  return {
+    id: option.id,
+    label: option.label,
+    price: price.toFixed(4),
+  };
+};
+
 interface UseEventsReturn {
+  // Loading state
+  isLoading: boolean;
+  
   // Event list
   events: TradingEvent[];
   
   // Selected event state
-  selectedEvent: TradingEvent;
+  selectedEvent: TradingEvent | null;
   setSelectedEvent: (event: TradingEvent) => void;
   selectEventById: (eventId: string) => void;
   
@@ -112,46 +195,69 @@ interface UseEventsReturn {
   getOptionsForEvent: (eventId: string) => EventOption[];
 }
 
-// Calculate initial values at module level to avoid hook issues
-const getInitialEventValue = (initialEventId?: string): TradingEvent => {
-  if (initialEventId) {
-    const event = activeEvents.find(e => e.id === initialEventId);
-    if (event) return event;
-  }
-  
-  try {
-    const storedEventId = getStoredLastEvent();
-    if (storedEventId) {
-      const event = activeEvents.find(e => e.id === storedEventId);
-      if (event) return event;
-    }
-  } catch {
-    // localStorage might not be available
-  }
-  
-  return activeEvents[0];
-};
-
-const getInitialOptionValue = (eventId: string): string => {
-  try {
-    const stored = getStoredLastOption(eventId);
-    return stored || "1";
-  } catch {
-    return "1";
-  }
-};
-
 export const useEvents = (initialEventId?: string): UseEventsReturn => {
-  // Calculate initial values before hooks
-  const computedInitialEvent = getInitialEventValue(initialEventId);
-  const computedInitialOption = getInitialOptionValue(computedInitialEvent.id);
-
-  // State - use lazy initialization properly
-  const [selectedEvent, setSelectedEventState] = useState<TradingEvent>(() => computedInitialEvent);
-  const [selectedOption, setSelectedOptionState] = useState<string>(() => computedInitialOption);
+  // Fetch events from database
+  const { events: dbEvents, isLoading } = useActiveEvents();
+  const pricesContext = useRealtimePricesOptional();
+  
+  // State
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(() => {
+    if (initialEventId) return initialEventId;
+    return getStoredLastEvent();
+  });
+  const [selectedOption, setSelectedOptionState] = useState<string>("");
   const [favorites, setFavorites] = useState<Set<string>>(getStoredFavorites);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
+
+  // Convert database events to TradingEvent format
+  const tradingEvents = useMemo(() => {
+    return dbEvents.map(dbEventToTradingEvent);
+  }, [dbEvents]);
+
+  // Build options map with live prices
+  const optionsMap = useMemo(() => {
+    const map: Record<string, EventOption[]> = {};
+    dbEvents.forEach(event => {
+      map[event.id] = event.options.map(opt => {
+        const livePrice = pricesContext?.getPrice(opt.id);
+        return dbOptionToEventOption(opt, livePrice);
+      });
+    });
+    return map;
+  }, [dbEvents, pricesContext]);
+
+  // Get selected event
+  const selectedEvent = useMemo(() => {
+    if (!selectedEventId || tradingEvents.length === 0) {
+      return tradingEvents[0] || null;
+    }
+    return tradingEvents.find(e => e.id === selectedEventId) || tradingEvents[0] || null;
+  }, [selectedEventId, tradingEvents]);
+
+  // Get options for selected event
+  const options = useMemo(() => {
+    if (!selectedEvent) return [];
+    return optionsMap[selectedEvent.id] || [];
+  }, [selectedEvent, optionsMap]);
+
+  // Initialize selected option when event changes or options load
+  useEffect(() => {
+    if (selectedEvent && options.length > 0) {
+      const storedOption = getStoredLastOption(selectedEvent.id);
+      const validOption = options.find(o => o.id === storedOption);
+      if (validOption) {
+        setSelectedOptionState(storedOption!);
+      } else {
+        setSelectedOptionState(options[0].id);
+      }
+    }
+  }, [selectedEvent?.id, options.length]);
+
+  // Get selected option data
+  const selectedOptionData = useMemo(() => {
+    return options.find(opt => opt.id === selectedOption) || options[0] || { id: "", label: "", price: "0" };
+  }, [options, selectedOption]);
 
   // Toggle show favorites only
   const toggleShowFavoritesOnly = useCallback(() => {
@@ -165,27 +271,21 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
 
   // Persist selected event to localStorage
   useEffect(() => {
-    setStoredLastEvent(selectedEvent.id);
-  }, [selectedEvent.id]);
+    if (selectedEvent) {
+      setStoredLastEvent(selectedEvent.id);
+    }
+  }, [selectedEvent?.id]);
 
   // Persist selected option to localStorage
   useEffect(() => {
-    setStoredLastOption(selectedEvent.id, selectedOption);
-  }, [selectedEvent.id, selectedOption]);
-
-  // Get options for current event
-  const options = useMemo(() => {
-    return eventOptionsMap[selectedEvent.id] || [];
-  }, [selectedEvent.id]);
-
-  // Get selected option data
-  const selectedOptionData = useMemo(() => {
-    return options.find(opt => opt.id === selectedOption) || options[0] || { id: "1", label: "", price: "0" };
-  }, [options, selectedOption]);
+    if (selectedEvent && selectedOption) {
+      setStoredLastOption(selectedEvent.id, selectedOption);
+    }
+  }, [selectedEvent?.id, selectedOption]);
 
   // Filter events by search query and favorites
   const filteredEvents = useMemo(() => {
-    let result = activeEvents;
+    let result = tradingEvents;
     
     // Filter by favorites first if enabled
     if (showFavoritesOnly) {
@@ -201,16 +301,11 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
     }
     
     return result;
-  }, [searchQuery, showFavoritesOnly, favorites]);
+  }, [tradingEvents, searchQuery, showFavoritesOnly, favorites]);
 
   // Select event by ID
   const selectEventById = useCallback((eventId: string) => {
-    const event = activeEvents.find(e => e.id === eventId);
-    if (event) {
-      setSelectedEventState(event);
-      const storedOption = getStoredLastOption(eventId);
-      setSelectedOptionState(storedOption || "1");
-    }
+    setSelectedEventId(eventId);
   }, []);
 
   // Toggle favorite
@@ -236,19 +331,17 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
 
   // Get event by ID
   const getEventById = useCallback((eventId: string) => {
-    return activeEvents.find(e => e.id === eventId);
-  }, []);
+    return tradingEvents.find(e => e.id === eventId);
+  }, [tradingEvents]);
 
   // Get options for any event
   const getOptionsForEvent = useCallback((eventId: string) => {
-    return eventOptionsMap[eventId] || [];
-  }, []);
+    return optionsMap[eventId] || [];
+  }, [optionsMap]);
 
-  // Handle selected event change with option restore
+  // Handle selected event change
   const handleSetSelectedEvent = useCallback((event: TradingEvent) => {
-    setSelectedEventState(event);
-    const storedOption = getStoredLastOption(event.id);
-    setSelectedOptionState(storedOption || "1");
+    setSelectedEventId(event.id);
   }, []);
 
   // Handle selected option change
@@ -257,7 +350,8 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
   }, []);
 
   return {
-    events: activeEvents,
+    isLoading,
+    events: tradingEvents,
     selectedEvent,
     setSelectedEvent: handleSetSelectedEvent,
     selectEventById,
