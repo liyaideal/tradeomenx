@@ -18,12 +18,12 @@ interface BinaryEventHintProps {
   className?: string;
 }
 
-// 三层提示文案
+// Three-tier hint copy
 const HINT_TEXTS = {
-  // 第一层：一句话版（默认展示）
-  brief: "Yes/No 属于同一事件，仓位会统一展示。",
-  // 第二层：解释版（hover/info）
-  detailed: "在二元事件中，Yes 和 No 是同一事件的相反结果。无论选择哪一边，仓位都会合并展示，以便统一计算盈亏和结算。",
+  // Layer 1: One-liner (default display)
+  brief: "Yes/No belong to the same event; positions are displayed together.",
+  // Layer 2: Explanation (hover/info)
+  detailed: "In a binary event, Yes and No are opposite outcomes of the same event. Regardless of which side you choose, positions are consolidated for unified P&L calculation and settlement.",
 };
 
 /**
@@ -38,7 +38,7 @@ export const BinaryEventHint = ({
 
   const DetailContent = () => (
     <div className="space-y-2 text-xs">
-      <p className="font-medium text-foreground">为什么这样显示？</p>
+      <p className="font-medium text-foreground">Why is it displayed this way?</p>
       <p className="text-muted-foreground leading-relaxed">{HINT_TEXTS.detailed}</p>
     </div>
   );
@@ -79,7 +79,7 @@ export const BinaryEventHint = ({
         <Popover>
           <PopoverTrigger asChild>
             <button className="text-primary hover:underline underline-offset-2">
-              了解更多
+              Learn more
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-72" side="top">
@@ -90,7 +90,7 @@ export const BinaryEventHint = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <button className="text-primary hover:underline underline-offset-2">
-              了解更多
+              Learn more
             </button>
           </TooltipTrigger>
           <TooltipContent className="w-72">
