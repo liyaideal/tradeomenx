@@ -12,39 +12,47 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BinaryEventHintProps {
-  /** 展示模式：inline=内联文字+图标, icon=仅图标 */
+  /** Display mode: inline=text+icon, icon=icon only */
   variant?: "inline" | "icon";
-  /** 自定义类名 */
+  /** The side user is betting: buy (Long) or sell (Short) */
+  side?: "buy" | "sell";
+  /** Custom class name */
   className?: string;
 }
 
-// Three-tier hint copy
-const HINT_TEXTS = {
-  // Layer 1: One-liner (default display)
-  brief: "Betting No? Shows as Yes here — don't worry, it's correct.",
-  // Layer 2: Explanation (hover/info)
-  detailed: "Yes and No are two sides of the same coin. Your P&L is calculated correctly either way.",
+/**
+ * Get dynamic hint text based on the side
+ * No Long → Yes Short, No Short → Yes Long
+ */
+const getHintTexts = (side?: "buy" | "sell") => {
+  const resultPosition = side === "buy" ? "Yes Short" : "Yes Long";
+  return {
+    brief: `This creates a ${resultPosition} position.`,
+    detailed: `No Long = Yes Short. No Short = Yes Long. Your P&L is calculated correctly.`,
+  };
 };
 
 /**
- * 二元事件仓位合并提示组件
- * 用于解释 Yes/No 仓位统一展示的逻辑
+ * Binary event position hint component
+ * Explains that No trades become Yes positions
  */
 export const BinaryEventHint = ({ 
   variant = "inline",
+  side,
   className = ""
 }: BinaryEventHintProps) => {
   const isMobile = useIsMobile();
+  const hintTexts = getHintTexts(side);
 
   const DetailContent = () => (
     <div className="space-y-2 text-xs">
-      <p className="font-medium text-foreground">Why is it displayed this way?</p>
-      <p className="text-muted-foreground leading-relaxed">{HINT_TEXTS.detailed}</p>
+      <p className="font-medium text-foreground">How does this work?</p>
+      <p className="text-muted-foreground leading-relaxed">{hintTexts.detailed}</p>
     </div>
   );
 
   if (variant === "icon") {
-    // 仅图标模式 - 用于空间有限的地方
+    // Icon only mode - for limited space
     return isMobile ? (
       <Popover>
         <PopoverTrigger asChild>
@@ -70,11 +78,11 @@ export const BinaryEventHint = ({
     );
   }
 
-  // 内联文字模式 - 完整展示第一层 + 可展开第二层
+  // Inline text mode - show brief + expandable detail
   return (
     <div className={`flex items-center gap-1.5 text-[11px] text-muted-foreground ${className}`}>
       <Info className="w-3 h-3 flex-shrink-0" />
-      <span>{HINT_TEXTS.brief}</span>
+      <span>{hintTexts.brief}</span>
       {isMobile ? (
         <Popover>
           <PopoverTrigger asChild>
@@ -103,9 +111,9 @@ export const BinaryEventHint = ({
 };
 
 /**
- * 检查一个事件是否为二元事件（只有 Yes/No 两个选项）
- * @param options 事件选项列表
- * @returns 是否为二元事件
+ * Check if an event is binary (only Yes/No options)
+ * @param options Event options list
+ * @returns Whether it's a binary event
  */
 export const isBinaryEvent = (options: { label: string }[]): boolean => {
   if (options.length !== 2) return false;
@@ -114,7 +122,7 @@ export const isBinaryEvent = (options: { label: string }[]): boolean => {
 };
 
 /**
- * 检查选项是否为 No 选项
+ * Check if option is a No option
  */
 export const isNoOption = (optionLabel: string): boolean => {
   return optionLabel.toLowerCase() === "no";

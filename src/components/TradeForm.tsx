@@ -412,7 +412,7 @@ export const TradeForm = ({
       {/* Binary Event Hint - 二元事件仓位合并提示 */}
       {showBinaryHint && (
         <div className="py-2">
-          <BinaryEventHint variant="inline" />
+          <BinaryEventHint variant="inline" side={side} />
         </div>
       )}
 
