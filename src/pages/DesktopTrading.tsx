@@ -281,6 +281,7 @@ export default function DesktopTrading() {
   
   // Use events hook
   const {
+    isLoading,
     events,
     selectedEvent,
     setSelectedEvent,
@@ -298,10 +299,10 @@ export default function DesktopTrading() {
     toggleShowFavoritesOnly,
   } = useEvents(eventId);
   
-  const countdown = useCountdown(selectedEvent.endTime);
+  const countdown = useCountdown(selectedEvent?.endTime);
 
   // Wrapper to update URL when switching events
-  const handleEventSelect = (event: typeof selectedEvent) => {
+  const handleEventSelect = (event: NonNullable<typeof selectedEvent>) => {
     setSelectedEvent(event);
     navigate(`/desktop-trading?event=${event.id}`, { replace: true });
   };
@@ -455,6 +456,36 @@ export default function DesktopTrading() {
     setTpsl(false);
     toast.success("Order placed successfully!");
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-muted-foreground">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No event found
+  if (!selectedEvent) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4 text-center px-4">
+          <p className="text-lg font-medium text-foreground">No events available</p>
+          <p className="text-sm text-muted-foreground">Please check back later for new trading events.</p>
+          <button 
+            onClick={() => navigate("/")}
+            className="text-primary hover:underline"
+          >
+            Return to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">

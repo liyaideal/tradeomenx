@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, useNavigationType, useLocation } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
-import { useEvents } from "@/hooks/useEvents";
-import { TradingEvent, EventOption } from "@/data/events";
+import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
 
 interface MobileTradingLayoutProps {
   activeTab: "Charts" | "Trade";
@@ -33,6 +33,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
   const backTo = navigationType === "PUSH" ? undefined : "/";
   
   const { 
+    isLoading,
     selectedEvent, 
     options, 
     selectedOption, 
@@ -61,11 +62,42 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
 
   const handleTabChange = (tab: "Charts" | "Trade") => {
     if (tab === activeTab) return;
+    if (!selectedEvent) return;
     const path = tab === "Charts" 
       ? `/trade?event=${selectedEvent.id}` 
       : `/trade/order?event=${selectedEvent.id}`;
     navigate(path);
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No event found
+  if (!selectedEvent) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center px-4">
+          <p className="text-lg font-medium text-foreground">No events available</p>
+          <p className="text-sm text-muted-foreground">Please check back later for new trading events.</p>
+          <button 
+            onClick={() => navigate("/")}
+            className="text-primary hover:underline"
+          >
+            Return to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Create context data for children
   const contextData: TradingContextData = {
