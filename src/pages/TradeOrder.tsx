@@ -105,7 +105,7 @@ function TradeOrderContent() {
           {/* Trade Form */}
           <TradeForm 
             selectedPrice={selectedOptionData.price} 
-            eventName={selectedEvent.name}
+            eventName={selectedEvent?.name || ""}
             optionLabel={selectedOptionData.label}
           />
         </div>
