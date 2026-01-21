@@ -138,10 +138,17 @@ export default function OrderPreview() {
       addOrder(newOrder);
 
       // Add position to local store
+      // Apply binary event conversion: No Long → Yes Short, No Short → Yes Long
+      const isNo = isNoOption(optionLabel);
+      const positionOption = isNo ? "Yes" : optionLabel;
+      const positionType: "long" | "short" = isNo 
+        ? (isBuy ? "short" : "long")  // Flip for No options
+        : (isBuy ? "long" : "short");
+      
       const newPosition: Position = {
-        type: isBuy ? "long" : "short",
+        type: positionType,
         event: eventName,
-        option: optionLabel,
+        option: positionOption,
         entryPrice: `$${orderData.price || "0.0000"}`,
         markPrice: `$${orderData.price || "0.0000"}`,
         size: parseInt(orderCalculations.quantity).toLocaleString(),
