@@ -203,7 +203,7 @@ export default function OrderPreview() {
           {/* Binary Event Hint - 二元事件仓位合并提示 */}
           {showBinaryHint && (
             <div className="mt-4 pt-3 border-t border-border/30">
-              <BinaryEventHint variant="inline" />
+              <BinaryEventHint variant="inline" side={orderData.side} />
             </div>
           )}
         </div>
