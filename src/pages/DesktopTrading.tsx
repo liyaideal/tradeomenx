@@ -1114,8 +1114,8 @@ export default function DesktopTrading() {
                                     <TooltipTrigger asChild>
                                       <Info className="w-3.5 h-3.5 text-trading-yellow cursor-help flex-shrink-0" />
                                     </TooltipTrigger>
-                                    <TooltipContent className="max-w-[250px]">
-                                      <p className="text-xs">Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped.</p>
+                                    <TooltipContent className="max-w-[280px]">
+                                      <p className="text-xs">Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped (No Long → Yes Short, No Short → Yes Long).</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
