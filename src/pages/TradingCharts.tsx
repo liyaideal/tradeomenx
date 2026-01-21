@@ -5,7 +5,7 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
-import { usePositionsStore } from "@/stores/usePositionsStore";
+import { usePositions } from "@/hooks/usePositions";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { generateOrderBookData, generateTradesHistory, tradingStats } from "@/lib/tradingUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
@@ -14,7 +14,7 @@ const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
 function TradingChartsContent() {
   const navigate = useNavigate();
-  const { positions } = usePositionsStore();
+  const { positions } = usePositions();
   const { orders } = useOrdersStore();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
@@ -137,7 +137,21 @@ function TradingChartsContent() {
       {bottomTab === "Positions" && (
         <div className="px-4 py-3 space-y-3">
           {positions.map((position, index) => (
-            <PositionCard key={index} {...position} />
+            <PositionCard 
+              key={position.id} 
+              type={position.type}
+              event={position.event}
+              option={position.option}
+              entryPrice={position.entryPrice}
+              markPrice={position.markPrice}
+              size={position.size}
+              margin={position.margin}
+              pnl={position.pnl}
+              pnlPercent={position.pnlPercent}
+              leverage={position.leverage}
+              takeProfit={position.tp}
+              stopLoss={position.sl}
+            />
           ))}
         </div>
       )}

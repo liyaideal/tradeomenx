@@ -7,7 +7,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { toast } from "sonner";
-import { usePositionsStore } from "@/stores/usePositionsStore";
+import { usePositions } from "@/hooks/usePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
@@ -145,7 +145,7 @@ const UserStatsCard = ({
 
 const MobileHome = () => {
   const navigate = useNavigate();
-  const { positions } = usePositionsStore();
+  const { positions } = usePositions();
   const { profile, username } = useUserProfile();
   const { user } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
