@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TrendingUp, TrendingDown, Pencil, AlertTriangle } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +16,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
-import { BinaryEventHint } from "@/components/BinaryEventHint";
 
 interface PositionCardProps {
   type: "long" | "short";
@@ -34,8 +38,6 @@ interface PositionCardProps {
   leverage: string;
   takeProfit?: string;
   stopLoss?: string;
-  /** 是否为二元事件仓位（Yes/No），显示合并提示 */
-  isBinaryPosition?: boolean;
 }
 
 export const PositionCard = ({
@@ -51,7 +53,6 @@ export const PositionCard = ({
   leverage,
   takeProfit: initialTp = "",
   stopLoss: initialSl = "",
-  isBinaryPosition = false,
 }: PositionCardProps) => {
   const isProfitable = !pnl.startsWith("-");
   const [tpSlOpen, setTpSlOpen] = useState(false);
@@ -185,7 +186,20 @@ export const PositionCard = ({
           <h3 className="font-medium text-foreground text-sm">{event}</h3>
           <div className="flex items-center gap-2">
             <p className="text-xs text-muted-foreground">{option}</p>
-            {isBinaryPosition && <BinaryEventHint variant="icon" />}
+            {option.toLowerCase() === "yes" && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="p-0.5 rounded hover:bg-muted/50 transition-colors">
+                    <Info className="w-3 h-3 text-trading-yellow" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3 text-xs" side="top" align="start">
+                  <p className="text-muted-foreground">
+                    <span className="text-trading-yellow">💡</span> 二元事件仓位统一显示为 Yes。若您下单时选择了 No，则方向会自动翻转（No Long → Yes Short, No Short → Yes Long）。
+                  </p>
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
         </div>
 
