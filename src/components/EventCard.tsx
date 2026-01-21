@@ -363,7 +363,6 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                     optionId={option.id}
                     fallbackPrice={option.price}
                     className="text-sm font-bold"
-                    showChange
                   />
                 </div>
               ) : (
@@ -394,7 +393,6 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                     optionId={option.id}
                     fallbackPrice={option.price}
                     className="text-sm font-bold"
-                    showChange
                   />
                 </button>
               )
