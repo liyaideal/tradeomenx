@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { BinaryEventHint } from "@/components/BinaryEventHint";
 
 interface PositionCardProps {
   type: "long" | "short";
@@ -33,6 +34,8 @@ interface PositionCardProps {
   leverage: string;
   takeProfit?: string;
   stopLoss?: string;
+  /** 是否为二元事件仓位（Yes/No），显示合并提示 */
+  isBinaryPosition?: boolean;
 }
 
 export const PositionCard = ({
@@ -48,6 +51,7 @@ export const PositionCard = ({
   leverage,
   takeProfit: initialTp = "",
   stopLoss: initialSl = "",
+  isBinaryPosition = false,
 }: PositionCardProps) => {
   const isProfitable = !pnl.startsWith("-");
   const [tpSlOpen, setTpSlOpen] = useState(false);
@@ -179,7 +183,10 @@ export const PositionCard = ({
         {/* Event Info */}
         <div className="mb-2">
           <h3 className="font-medium text-foreground text-sm">{event}</h3>
-          <p className="text-xs text-muted-foreground">{option}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-muted-foreground">{option}</p>
+            {isBinaryPosition && <BinaryEventHint variant="icon" />}
+          </div>
         </div>
 
         {/* Position Details */}

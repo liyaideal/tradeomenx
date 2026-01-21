@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MobileHeader } from "@/components/MobileHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -9,6 +9,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
 import { Loader2 } from "lucide-react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
+import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
 
 interface OrderDetail {
   label: string;
@@ -52,6 +53,15 @@ export default function OrderPreview() {
   const eventName = orderData.event || "Elon Musk # tweets December 12 - December 19, 2025?";
   const optionLabel = orderData.option || "200-219";
   const totalCost = parseFloat(orderCalculations.total) || 0;
+
+  // 检查是否为二元事件（Yes/No）- 如果选项是 Yes 或 No 则认为是二元事件
+  const isBinaryOrder = useMemo(() => {
+    const label = optionLabel.toLowerCase();
+    return label === "yes" || label === "no";
+  }, [optionLabel]);
+
+  // 如果是 No 选项，显示特殊提示
+  const showBinaryHint = isBinaryOrder && isNoOption(optionLabel);
 
   const orderDetails: OrderDetail[] = [
     { label: "Event", value: eventName },
@@ -189,6 +199,13 @@ export default function OrderPreview() {
               </div>
             ))}
           </div>
+          
+          {/* Binary Event Hint - 二元事件仓位合并提示 */}
+          {showBinaryHint && (
+            <div className="mt-4 pt-3 border-t border-border/30">
+              <BinaryEventHint variant="inline" />
+            </div>
+          )}
         </div>
       </div>
 

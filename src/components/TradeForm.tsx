@@ -5,21 +5,33 @@ import { Slider } from "@/components/ui/slider";
 import { TopUpDialog } from "@/components/TopUpDialog";
 import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
 
 interface TradeFormProps {
   selectedPrice?: string;
   eventName?: string;
   optionLabel?: string;
+  /** 当前事件的所有选项，用于判断是否为二元事件 */
+  eventOptions?: { label: string }[];
 }
 
 
 export const TradeForm = ({ 
   selectedPrice = "0.1234", 
   eventName = "Elon Musk # tweets December 12 - December 19, 2025?",
-  optionLabel = "200-219"
+  optionLabel = "200-219",
+  eventOptions = []
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance, user } = useUserProfile();
+
+  // 检查是否为二元事件且当前选择了 No 选项
+  const showBinaryHint = useMemo(() => {
+    if (eventOptions.length !== 2) return false;
+    const labels = eventOptions.map(o => o.label.toLowerCase());
+    const isBinary = labels.includes("yes") && labels.includes("no");
+    return isBinary && isNoOption(optionLabel);
+  }, [eventOptions, optionLabel]);
   
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [marginType, setMarginType] = useState("Cross");
@@ -396,6 +408,13 @@ export const TradeForm = ({
           </span>
         </div>
       </div>
+
+      {/* Binary Event Hint - 二元事件仓位合并提示 */}
+      {showBinaryHint && (
+        <div className="py-2">
+          <BinaryEventHint variant="inline" />
+        </div>
+      )}
 
       {/* Submit Button */}
       <button
