@@ -1,6 +1,11 @@
 import { Order } from "@/stores/useOrdersStore";
 import { Position } from "@/stores/usePositionsStore";
 
+// Check if option is "No" for binary events
+const isNoOption = (optionLabel: string): boolean => {
+  return optionLabel.toLowerCase() === "no";
+};
+
 // Convert an Order to a Position when the order is filled
 export function orderToPosition(order: Order): Position {
   // Parse the price value (remove $ and commas)
@@ -25,10 +30,17 @@ export function orderToPosition(order: Order): Position {
   const pnl = order.type === 'buy' ? priceDiff * size : -priceDiff * size;
   const pnlPercent = ((pnl / parseFloat(totalValue)) * 100);
   
+  // Apply binary event conversion: No Long → Yes Short, No Short → Yes Long
+  const isNo = isNoOption(order.option);
+  const positionOption = isNo ? "Yes" : order.option;
+  const positionType: "long" | "short" = isNo 
+    ? (order.type === 'buy' ? 'short' : 'long')  // Flip for No options
+    : (order.type === 'buy' ? 'long' : 'short');
+  
   return {
-    type: order.type === 'buy' ? 'long' : 'short',
+    type: positionType,
     event: order.event,
-    option: order.option,
+    option: positionOption,
     entryPrice: order.price,
     markPrice: `$${markPrice}`,
     size: order.amount,
