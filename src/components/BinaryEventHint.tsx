@@ -21,9 +21,9 @@ interface BinaryEventHintProps {
 // Three-tier hint copy
 const HINT_TEXTS = {
   // Layer 1: One-liner (default display)
-  brief: "Yes/No belong to the same event; positions are displayed together.",
+  brief: "Betting No? Shows as Yes here — don't worry, it's correct.",
   // Layer 2: Explanation (hover/info)
-  detailed: "In a binary event, Yes and No are opposite outcomes of the same event. Regardless of which side you choose, positions are consolidated for unified P&L calculation and settlement.",
+  detailed: "Yes and No are two sides of the same coin. Your P&L is calculated correctly either way.",
 };
 
 /**
