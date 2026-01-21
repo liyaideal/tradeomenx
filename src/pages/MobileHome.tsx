@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell, Zap, Shield, Trophy, Sparkles, LineChart, Target } from "lucide-react";
+import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell, Zap, Shield, Trophy, Sparkles, LineChart, Target, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
@@ -8,9 +8,9 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { toast } from "sonner";
 import { usePositionsStore } from "@/stores/usePositionsStore";
-import { activeEvents, eventOptionsMap } from "@/data/events";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import {
   DropdownMenu,
@@ -149,6 +149,9 @@ const MobileHome = () => {
   const { profile, username } = useUserProfile();
   const { user } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
+  
+  // Fetch events from database
+  const { events: dbEvents, isLoading: isLoadingEvents } = useActiveEvents();
 
   // Mock P&L data (could be calculated from positions in the future)
   const weeklyPnL = "+$34.56";
@@ -276,89 +279,23 @@ const MobileHome = () => {
               More <ChevronRight className="h-4 w-4" />
             </button>
           </div>
-          <div className="space-y-3">
-            {activeEvents.slice(0, 4).map((event, index) => {
-              const options = eventOptionsMap[event.id] || [];
-              const countdown = getCountdown(event.endTime);
-              const categoryInfo = getCategoryFromName(event.name);
-              
-              return (
-                <div
-                  key={event.id}
-                  className="trading-card p-4 space-y-3 animate-fade-in cursor-pointer hover:bg-card-hover transition-colors"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                  onClick={() => navigate(`/trade?event=${event.id}`)}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 pr-3">
-                      <h4 className="font-medium text-foreground">{event.name}</h4>
-                      <Badge className={`mt-1.5 text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.General.class}`}>
-                        {categoryInfo.label}
-                      </Badge>
-                    </div>
-                    <Button 
-                      size="sm" 
-                      className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1 flex-shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/trade?event=${event.id}`);
-                      }}
-                    >
-                      <TrendingUp className="h-3.5 w-3.5" />
-                      Trade
-                    </Button>
-                  </div>
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                    {options.map((option) => (
-                      <div
-                        key={option.id}
-                        className="flex-shrink-0 min-w-[100px] bg-muted/50 rounded-lg p-2.5"
-                      >
-                        <span className="text-[10px] text-muted-foreground line-clamp-1">{option.label}</span>
-                        <div className="text-base font-bold font-mono text-foreground">${option.price}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <BarChart3 className="h-3.5 w-3.5 text-primary" />
-                      <span>Volume: {event.volume}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-trading-yellow">
-                      <Clock className="h-3.5 w-3.5" />
-                      <span>{countdown}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Settlement Soon Section */}
-        <section>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">🚩</span>
-            <div>
-              <h3 className="font-semibold text-foreground">Settlement Soon</h3>
-              <p className="text-xs text-muted-foreground">Last chance to trade</p>
+          
+          {isLoadingEvents ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
-          </div>
-          <div className="space-y-3">
-            {/* Show the event closest to settlement */}
-            {activeEvents
-              .filter(e => e.endTime.getTime() > Date.now())
-              .sort((a, b) => a.endTime.getTime() - b.endTime.getTime())
-              .slice(0, 1)
-              .map((event) => {
-                const options = eventOptionsMap[event.id] || [];
-                const countdown = getCountdown(event.endTime);
+          ) : (
+            <div className="space-y-3">
+              {dbEvents.slice(0, 4).map((event, index) => {
+                const endDate = event.end_date ? new Date(event.end_date) : new Date();
+                const countdown = getCountdown(endDate);
                 const categoryInfo = getCategoryFromName(event.name);
                 
                 return (
                   <div
                     key={event.id}
-                    className="trading-card p-4 space-y-3 border-trading-yellow/30 cursor-pointer hover:bg-card-hover transition-colors"
+                    className="trading-card p-4 space-y-3 animate-fade-in cursor-pointer hover:bg-card-hover transition-colors"
+                    style={{ animationDelay: `${index * 50}ms` }}
                     onClick={() => navigate(`/trade?event=${event.id}`)}
                   >
                     <div className="flex items-start justify-between">
@@ -381,24 +318,104 @@ const MobileHome = () => {
                       </Button>
                     </div>
                     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                      {options.map((option) => (
+                      {event.options.map((option) => (
                         <div
                           key={option.id}
                           className="flex-shrink-0 min-w-[100px] bg-muted/50 rounded-lg p-2.5"
                         >
                           <span className="text-[10px] text-muted-foreground line-clamp-1">{option.label}</span>
-                          <div className="text-base font-bold font-mono text-foreground">${option.price}</div>
+                          <div className="text-base font-bold font-mono text-foreground">${option.price.toFixed(2)}</div>
                         </div>
                       ))}
                     </div>
-                    <div className="flex items-center gap-1.5 text-trading-yellow text-sm">
-                      <Clock className="h-3.5 w-3.5" />
-                      <span>Settles in {countdown}</span>
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                        <span>Volume: {event.volume || "$0"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-trading-yellow">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>{countdown}</span>
+                      </div>
                     </div>
                   </div>
                 );
               })}
+            </div>
+          )}
+        </section>
+
+        {/* Settlement Soon Section */}
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🚩</span>
+            <div>
+              <h3 className="font-semibold text-foreground">Settlement Soon</h3>
+              <p className="text-xs text-muted-foreground">Last chance to trade</p>
+            </div>
           </div>
+          
+          {isLoadingEvents ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Show the event closest to settlement */}
+              {dbEvents
+                .filter(e => e.end_date && new Date(e.end_date).getTime() > Date.now())
+                .sort((a, b) => new Date(a.end_date!).getTime() - new Date(b.end_date!).getTime())
+                .slice(0, 1)
+                .map((event) => {
+                  const endDate = new Date(event.end_date!);
+                  const countdown = getCountdown(endDate);
+                  const categoryInfo = getCategoryFromName(event.name);
+                  
+                  return (
+                    <div
+                      key={event.id}
+                      className="trading-card p-4 space-y-3 border-trading-yellow/30 cursor-pointer hover:bg-card-hover transition-colors"
+                      onClick={() => navigate(`/trade?event=${event.id}`)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 pr-3">
+                          <h4 className="font-medium text-foreground">{event.name}</h4>
+                          <Badge className={`mt-1.5 text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.General.class}`}>
+                            {categoryInfo.label}
+                          </Badge>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          className="bg-trading-green hover:bg-trading-green/90 text-white h-7 px-3 gap-1 flex-shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/trade?event=${event.id}`);
+                          }}
+                        >
+                          <TrendingUp className="h-3.5 w-3.5" />
+                          Trade
+                        </Button>
+                      </div>
+                      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                        {event.options.map((option) => (
+                          <div
+                            key={option.id}
+                            className="flex-shrink-0 min-w-[100px] bg-muted/50 rounded-lg p-2.5"
+                          >
+                            <span className="text-[10px] text-muted-foreground line-clamp-1">{option.label}</span>
+                            <div className="text-base font-bold font-mono text-foreground">${option.price.toFixed(2)}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-trading-yellow text-sm">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>Settles in {countdown}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </section>
 
         {/* Quick Actions */}
@@ -409,7 +426,10 @@ const MobileHome = () => {
             </div>
             <span className="text-sm font-medium text-foreground">Learning Center</span>
           </button>
-          <button className="trading-card p-4 flex flex-col items-center gap-2 hover:bg-card-hover transition-colors">
+          <button 
+            className="trading-card p-4 flex flex-col items-center gap-2 hover:bg-card-hover transition-colors"
+            onClick={() => toast("Referral program coming soon!")}
+          >
             <div className="w-10 h-10 rounded-full bg-trading-green/20 flex items-center justify-center">
               <Users className="h-5 w-5 text-trading-green" />
             </div>
@@ -420,7 +440,7 @@ const MobileHome = () => {
 
       <BottomNav />
       
-      {/* Auth Sheet for guest users */}
+      {/* Auth Sheet */}
       <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
