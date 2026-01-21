@@ -10,6 +10,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { LoginPrompt } from "@/components/LoginPrompt";
 import { Button } from "@/components/ui/button";
+import { BinaryEventHint } from "@/components/BinaryEventHint";
 import {
   Select,
   SelectContent,
@@ -160,6 +161,11 @@ export default function Portfolio() {
       return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
     });
   }, [positions, sortField, sortDirection]);
+
+  // Check if any position is from a binary event (option is "Yes")
+  const hasBinaryPositions = useMemo(() => {
+    return positions.some(pos => pos.option.toLowerCase() === "yes");
+  }, [positions]);
 
   // Sort settlements
   const sortedSettlements = useMemo(() => {
@@ -427,6 +433,13 @@ export default function Portfolio() {
                 </div>
               </div>
             </div>
+
+            {/* Binary Event Hint - show if any position is from binary event */}
+            {hasBinaryPositions && (
+              <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                <BinaryEventHint variant="inline" />
+              </div>
+            )}
 
             {isMobile ? (
               /* Mobile: Card View */
