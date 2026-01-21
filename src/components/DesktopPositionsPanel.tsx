@@ -239,6 +239,18 @@ export const DesktopPositionsPanel = () => {
                                 </a>
                               </HoverCardContent>
                             </HoverCard>
+                            {isBinaryYesPosition && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="w-3.5 h-3.5 text-trading-yellow cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-[250px]">
+                                    <p className="text-xs">Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                             <span className="text-xs text-muted-foreground">{position.leverage}</span>
                           </div>
                         </td>
