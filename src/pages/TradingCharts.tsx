@@ -80,19 +80,27 @@ function TradingChartsContent() {
 
       {/* Bottom Tabs */}
       <div className="flex px-4 mt-2 border-b border-border/30">
-        {bottomTabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setBottomTab(tab)}
-            className={`py-3 mr-4 text-sm font-medium whitespace-nowrap transition-all ${
-              bottomTab === tab
-                ? "text-foreground border-b-2 border-foreground"
-                : "text-muted-foreground"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+        {bottomTabs.map((tab) => {
+          const count = tab === "Orders" ? orders.length : tab === "Positions" ? positions.length : null;
+          return (
+            <button
+              key={tab}
+              onClick={() => setBottomTab(tab)}
+              className={`py-3 mr-4 text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                bottomTab === tab
+                  ? "text-foreground border-b-2 border-foreground"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {tab}
+              {count !== null && count > 0 && (
+                <span className="bg-primary/20 text-primary text-[10px] font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab Content */}
