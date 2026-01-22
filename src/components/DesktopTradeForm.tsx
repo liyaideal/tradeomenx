@@ -3,6 +3,8 @@ import { ChevronDown, Calculator } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { useAuth } from "@/hooks/useAuth";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 interface DesktopTradeFormProps {
   selectedPrice?: string;
@@ -11,14 +13,24 @@ interface DesktopTradeFormProps {
 
 export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: DesktopTradeFormProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [marginType, setMarginType] = useState("Cross");
   const [leverage, setLeverage] = useState("10.00x");
   const [orderType, setOrderType] = useState<"Limit" | "Market" | "Conditional">("Limit");
   const [price, setPrice] = useState(selectedPrice);
   const [quantity, setQuantity] = useState("");
   const [sliderValue, setSliderValue] = useState([0]);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDefaultTab, setAuthDefaultTab] = useState<"signin" | "signup">("signup");
 
   const handlePreview = (side: "buy" | "sell") => {
+    // Check if user is logged in first
+    if (!user) {
+      setAuthDefaultTab("signup");
+      setAuthDialogOpen(true);
+      return;
+    }
+    
     navigate("/order-preview", {
       state: {
         side,
@@ -29,6 +41,11 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
         price,
       },
     });
+  };
+
+  const handleAuth = (type: "signin" | "signup") => {
+    setAuthDefaultTab(type);
+    setAuthDialogOpen(true);
   };
 
   return (
@@ -159,21 +176,40 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
 
         {/* Action Buttons */}
         <div className="space-y-2 pt-2">
-          <button
-            onClick={() => handlePreview("buy")}
-            className="w-full py-2.5 rounded-lg font-semibold text-sm bg-trading-yellow text-background transition-all duration-200 hover:opacity-90"
-          >
-            Sign Up
-          </button>
-          <button
-            onClick={() => handlePreview("sell")}
-            className="w-full py-2.5 rounded-lg font-semibold text-sm bg-muted text-foreground border border-border/50 transition-all duration-200 hover:bg-muted/80"
-          >
-            Log In
-          </button>
-          <button className="w-full text-center text-sm text-trading-yellow hover:underline">
-            Demo Trading
-          </button>
+          {user ? (
+            <>
+              <button
+                onClick={() => handlePreview("buy")}
+                className="w-full py-2.5 rounded-lg font-semibold text-sm bg-trading-green text-trading-green-foreground transition-all duration-200 hover:opacity-90"
+              >
+                Buy Long
+              </button>
+              <button
+                onClick={() => handlePreview("sell")}
+                className="w-full py-2.5 rounded-lg font-semibold text-sm bg-trading-red text-foreground transition-all duration-200 hover:opacity-90"
+              >
+                Sell Short
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => handleAuth("signup")}
+                className="w-full py-2.5 rounded-lg font-semibold text-sm bg-trading-yellow text-background transition-all duration-200 hover:opacity-90"
+              >
+                Sign Up
+              </button>
+              <button
+                onClick={() => handleAuth("signin")}
+                className="w-full py-2.5 rounded-lg font-semibold text-sm bg-muted text-foreground border border-border/50 transition-all duration-200 hover:bg-muted/80"
+              >
+                Log In
+              </button>
+              <button className="w-full text-center text-sm text-trading-yellow hover:underline">
+                Demo Trading
+              </button>
+            </>
+          )}
         </div>
 
         {/* Calculator */}
@@ -207,6 +243,13 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
           <ChevronDown className="w-3 h-3" />
         </button>
       </div>
+
+      {/* Auth Dialog */}
+      <AuthDialog 
+        open={authDialogOpen} 
+        onOpenChange={setAuthDialogOpen}
+        defaultTab={authDefaultTab}
+      />
     </div>
   );
 };
