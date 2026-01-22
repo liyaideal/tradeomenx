@@ -20,8 +20,8 @@ function TradeOrderContent() {
   const state = location.state as LocationState | null;
   
   // Use unified hooks - Supabase for logged-in users, local for guests
-  const { orders } = useOrders();
-  const { positions } = usePositions();
+  const { orders, isLoading: ordersLoading } = useOrders();
+  const { positions, isLoading: positionsLoading } = usePositions();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
   // Enable order simulation for auto-filling
@@ -180,25 +180,41 @@ function TradeOrderContent() {
       </div>
 
       <div className="px-4 py-3 space-y-3">
-        {bottomTab === "Orders" && orders.map((order, index) => (
-          <OrderCard 
-            key={order.id || index} 
-            {...order} 
-          />
-        ))}
-        {bottomTab === "Positions" && positions.map((position, index) => (
-          <div 
-            key={index} 
-            ref={(el) => (positionRefs.current[index] = el)}
-            className={`transition-all duration-500 ${
-              highlightedPosition === index 
-                ? "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-lg" 
-                : ""
-            }`}
-          >
-            <PositionCard {...position} />
-          </div>
-        ))}
+        {bottomTab === "Orders" && (
+          ordersLoading ? (
+            <div className="text-center text-muted-foreground py-4">Loading orders...</div>
+          ) : orders.length === 0 ? (
+            <div className="text-center text-muted-foreground py-4">No open orders</div>
+          ) : (
+            orders.map((order, index) => (
+              <OrderCard 
+                key={order.id || index} 
+                {...order} 
+              />
+            ))
+          )
+        )}
+        {bottomTab === "Positions" && (
+          positionsLoading ? (
+            <div className="text-center text-muted-foreground py-4">Loading positions...</div>
+          ) : positions.length === 0 ? (
+            <div className="text-center text-muted-foreground py-4">No open positions</div>
+          ) : (
+            positions.map((position, index) => (
+              <div 
+                key={index} 
+                ref={(el) => (positionRefs.current[index] = el)}
+                className={`transition-all duration-500 ${
+                  highlightedPosition === index 
+                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-lg" 
+                    : ""
+                }`}
+              >
+                <PositionCard {...position} />
+              </div>
+            ))
+          )
+        )}
       </div>
     </div>
   );
