@@ -12,10 +12,12 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultTab?: "signin" | "signup";
 }
 
-export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
+export const AuthDialog = ({ open, onOpenChange, defaultTab = "signin" }: AuthDialogProps) => {
   const { user } = useAuth();
+  // "signup" and "signin" both start at login step (auth flow is unified)
   const [step, setStep] = useState<AuthStep>("login");
   const [isLoading, setIsLoading] = useState(false);
 
