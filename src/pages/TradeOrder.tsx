@@ -6,7 +6,7 @@ import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { useOrdersStore } from "@/stores/useOrdersStore";
-import { usePositionsStore } from "@/stores/usePositionsStore";
+import { usePositions } from "@/hooks/usePositions";
 import { generateOrderBookData } from "@/lib/tradingUtils";
 import { useOrderSimulation } from "@/hooks/useOrderSimulation";
 
@@ -20,7 +20,8 @@ function TradeOrderContent() {
   const state = location.state as LocationState | null;
   
   const { orders } = useOrdersStore();
-  const { positions } = usePositionsStore();
+  // Use unified positions hook - Supabase for logged-in users, local for guests
+  const { positions } = usePositions();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
   // Enable order simulation for auto-filling
