@@ -164,19 +164,27 @@ function TradeOrderContent() {
 
       {/* Orders/Positions Tabs */}
       <div ref={tabSectionRef} className="flex px-4 mt-2 border-b border-border/30">
-        {["Orders", "Positions"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setBottomTab(tab)}
-            className={`py-2 mr-6 text-sm font-medium transition-all ${
-              bottomTab === tab
-                ? "text-trading-purple border-b-2 border-trading-purple"
-                : "text-muted-foreground"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+        {["Orders", "Positions"].map((tab) => {
+          const count = tab === "Orders" ? orders.length : positions.length;
+          return (
+            <button
+              key={tab}
+              onClick={() => setBottomTab(tab)}
+              className={`py-2 mr-6 text-sm font-medium transition-all flex items-center gap-1.5 ${
+                bottomTab === tab
+                  ? "text-trading-purple border-b-2 border-trading-purple"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {tab}
+              {count > 0 && (
+                <span className="bg-primary/20 text-primary text-[10px] font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className="px-4 py-3 space-y-3">
