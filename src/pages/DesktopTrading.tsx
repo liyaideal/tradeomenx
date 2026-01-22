@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
 import {
@@ -44,6 +44,9 @@ import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
 import { useOrderSimulation } from "@/hooks/useOrderSimulation";
 import { BinaryEventHint, isBinaryEvent, isNoOption } from "@/components/BinaryEventHint";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { executeTrade } from "@/services/tradingService";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
@@ -195,6 +198,12 @@ export default function DesktopTrading() {
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDefaultTab, setAuthDefaultTab] = useState<"signin" | "signup">("signup");
+  
+  // User profile for balance and auth
+  const { user, balance, deductBalance } = useUserProfile();
   
   // Positions state - using unified hook (Supabase for logged-in, local for guests)
   const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing } = usePositions();
@@ -444,32 +453,91 @@ export default function DesktopTrading() {
   ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations]);
 
   const handlePreview = () => {
+    // Check if user is logged in first
+    if (!user) {
+      setAuthDefaultTab("signup");
+      setAuthDialogOpen(true);
+      return;
+    }
     setOrderPreviewOpen(true);
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
     if (!selectedEvent) return;
-    // Create new order and add to orders list
-    const newOrder: Order = {
-      type: side,
-      orderType: orderType,
-      event: selectedEvent.name,
-      option: selectedOptionData.label,
-      price: `$${selectedOptionData.price}`,
-      amount: parseInt(orderCalculations.quantity).toLocaleString(),
-      total: `$${orderCalculations.total}`,
-      time: "Just now",
-      status: "Pending",
-    };
-    addOrder(newOrder);
-    setOrderPreviewOpen(false);
-    // Reset form
-    setAmount("0.00");
-    setSliderValue([0]);
-    setTpValue("");
-    setSlValue("");
-    setTpsl(false);
-    toast.success("Order placed successfully!");
+    
+    // Check if user is logged in
+    if (!user) {
+      setOrderPreviewOpen(false);
+      setAuthDefaultTab("signup");
+      setAuthDialogOpen(true);
+      return;
+    }
+    
+    const totalCost = parseFloat(orderCalculations.total) || 0;
+    
+    // Check balance
+    if (balance < totalCost) {
+      toast.error(`Insufficient balance. You need ${totalCost.toFixed(2)} USDC but only have ${balance.toFixed(2)} USDC.`);
+      return;
+    }
+    
+    setIsSubmittingOrder(true);
+    
+    try {
+      // Execute trade in database
+      const tradeData = {
+        eventName: selectedEvent.name,
+        optionLabel: selectedOptionData.label,
+        side: side as "buy" | "sell",
+        orderType: orderType as "Market" | "Limit",
+        price: parseFloat(selectedOptionData.price) || 0,
+        amount: parseFloat(amount) || 0,
+        quantity: parseInt(orderCalculations.quantity) || 0,
+        leverage: leverage,
+        margin: parseFloat(orderCalculations.marginRequired) || 0,
+        fee: parseFloat(orderCalculations.estimatedFee) || 0,
+        tpValue: tpsl && tpValue ? parseFloat(tpslCalculations.tpPrice) : undefined,
+        tpMode: tpsl && tpValue ? "$" as const : undefined,
+        slValue: tpsl && slValue ? parseFloat(tpslCalculations.slPrice) : undefined,
+        slMode: tpsl && slValue ? "$" as const : undefined,
+      };
+
+      await executeTrade(user.id, tradeData);
+      
+      // Deduct balance
+      const deducted = await deductBalance(totalCost);
+      if (!deducted) {
+        throw new Error("Failed to deduct balance");
+      }
+      
+      // Also add to local orders store for immediate UI feedback
+      const newOrder: Order = {
+        type: side,
+        orderType: orderType,
+        event: selectedEvent.name,
+        option: selectedOptionData.label,
+        price: `$${selectedOptionData.price}`,
+        amount: parseInt(orderCalculations.quantity).toLocaleString(),
+        total: `$${orderCalculations.total}`,
+        time: "Just now",
+        status: "Filled",
+      };
+      addOrder(newOrder);
+      
+      setOrderPreviewOpen(false);
+      // Reset form
+      setAmount("0.00");
+      setSliderValue([0]);
+      setTpValue("");
+      setSlValue("");
+      setTpsl(false);
+      toast.success("Order executed successfully!");
+    } catch (error: any) {
+      console.error("Order execution error:", error);
+      toast.error(error.message || "Failed to execute order");
+    } finally {
+      setIsSubmittingOrder(false);
+    }
   };
 
   // Loading state
@@ -1568,11 +1636,21 @@ export default function DesktopTrading() {
 
           <button
             onClick={handleConfirmOrder}
-            className={`w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] mt-4 ${
+            disabled={isSubmittingOrder}
+            className={`w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] mt-4 flex items-center justify-center gap-2 ${
               side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
-            }`}
+            } ${isSubmittingOrder ? "opacity-70 cursor-not-allowed" : ""}`}
           >
-            {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+            {isSubmittingOrder ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+              </>
+            )}
           </button>
         </DialogContent>
       </Dialog>
@@ -1889,6 +1967,13 @@ export default function DesktopTrading() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Auth Dialog for login/signup */}
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={setAuthDialogOpen}
+        defaultTab={authDefaultTab}
+      />
     </div>
   );
 }
