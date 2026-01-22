@@ -14,9 +14,9 @@ const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
 function TradingChartsContent() {
   const navigate = useNavigate();
-  const { positions } = usePositions();
+  const { positions, isLoading: positionsLoading } = usePositions();
   // Use unified orders hook - Supabase for logged-in users, local for guests
-  const { orders } = useOrders();
+  const { orders, isLoading: ordersLoading } = useOrders();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
   const [bottomTab, setBottomTab] = useState("Order Book");
@@ -129,31 +129,43 @@ function TradingChartsContent() {
 
       {bottomTab === "Orders" && (
         <div className="px-4 py-3 space-y-3">
-          {orders.map((order, index) => (
-            <OrderCard key={index} {...order} />
-          ))}
+          {ordersLoading ? (
+            <div className="text-center text-muted-foreground py-4">Loading orders...</div>
+          ) : orders.length === 0 ? (
+            <div className="text-center text-muted-foreground py-4">No open orders</div>
+          ) : (
+            orders.map((order, index) => (
+              <OrderCard key={order.id || index} {...order} />
+            ))
+          )}
         </div>
       )}
 
       {bottomTab === "Positions" && (
         <div className="px-4 py-3 space-y-3">
-          {positions.map((position, index) => (
-            <PositionCard 
-              key={position.id} 
-              type={position.type}
-              event={position.event}
-              option={position.option}
-              entryPrice={position.entryPrice}
-              markPrice={position.markPrice}
-              size={position.size}
-              margin={position.margin}
-              pnl={position.pnl}
-              pnlPercent={position.pnlPercent}
-              leverage={position.leverage}
-              takeProfit={position.tp}
-              stopLoss={position.sl}
-            />
-          ))}
+          {positionsLoading ? (
+            <div className="text-center text-muted-foreground py-4">Loading positions...</div>
+          ) : positions.length === 0 ? (
+            <div className="text-center text-muted-foreground py-4">No open positions</div>
+          ) : (
+            positions.map((position, index) => (
+              <PositionCard 
+                key={position.id} 
+                type={position.type}
+                event={position.event}
+                option={position.option}
+                entryPrice={position.entryPrice}
+                markPrice={position.markPrice}
+                size={position.size}
+                margin={position.margin}
+                pnl={position.pnl}
+                pnlPercent={position.pnlPercent}
+                leverage={position.leverage}
+                takeProfit={position.tp}
+                stopLoss={position.sl}
+              />
+            ))
+          )}
         </div>
       )}
 
