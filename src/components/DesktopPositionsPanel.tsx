@@ -29,15 +29,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useOrdersStore } from "@/stores/useOrdersStore";
+import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { orderToPosition } from "@/lib/orderUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 export const DesktopPositionsPanel = () => {
-  const { orders, fillOrder, cancelOrder } = useOrdersStore();
-  const { positions, closePosition, updatePositionTpSl, isClosing, isUpdatingTpSl } = usePositions();
+  // Use unified hooks - Supabase for logged-in users, local for guests
+  const { orders, cancelOrder, fillOrder, isCancelling, isFilling } = useOrders();
+  const { positions, closePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
   const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
   
   const [activeTab, setActiveTab] = useState("Positions");
@@ -52,15 +53,13 @@ export const DesktopPositionsPanel = () => {
   const [fillDialogOpen, setFillDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedOrderIndex, setSelectedOrderIndex] = useState<number | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   
   const { toast } = useToast();
 
-  // Filter to show only pending orders
-  const pendingOrders = orders.filter(o => o.status === 'Pending' || o.status === 'Partial Filled');
-  
   const tabs = [
     { id: "Positions", label: "Positions", count: positions.length },
-    { id: "Orders", label: "Current Orders", count: pendingOrders.length },
+    { id: "Orders", label: "Current Orders", count: orders.length },
   ];
 
   const positionColumns = [
@@ -119,42 +118,75 @@ export const DesktopPositionsPanel = () => {
     setEditingPositionId(null);
   };
 
-  const handleFillOrder = (index: number) => {
+  const handleFillOrder = (index: number, orderId?: string) => {
     setSelectedOrderIndex(index);
+    setSelectedOrderId(orderId || null);
     setFillDialogOpen(true);
   };
 
-  const handleCancelOrder = (index: number) => {
+  const handleCancelOrder = (index: number, orderId?: string) => {
     setSelectedOrderIndex(index);
+    setSelectedOrderId(orderId || null);
     setCancelDialogOpen(true);
   };
 
-  const confirmFillOrder = () => {
+  const confirmFillOrder = async () => {
     if (selectedOrderIndex !== null) {
       const order = orders[selectedOrderIndex];
-      const position = orderToPosition(order);
-      addPosition(position);
-      fillOrder(selectedOrderIndex);
-      toast({
-        title: "Order Filled",
-        description: `${order.type === 'buy' ? 'Long' : 'Short'} position opened for ${order.option}`,
-      });
+      try {
+        if (selectedOrderId) {
+          // Supabase order - use id
+          await fillOrder(selectedOrderId);
+          refetchPositions();
+        } else {
+          // Local order - use index
+          const position = orderToPosition(order as any);
+          addPosition(position);
+          await fillOrder(selectedOrderIndex);
+        }
+        toast({
+          title: "Order Filled",
+          description: `${order.type === 'buy' ? 'Long' : 'Short'} position opened for ${order.option}`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fill order",
+          variant: "destructive",
+        });
+      }
     }
     setFillDialogOpen(false);
     setSelectedOrderIndex(null);
+    setSelectedOrderId(null);
   };
 
-  const confirmCancelOrder = () => {
+  const confirmCancelOrder = async () => {
     if (selectedOrderIndex !== null) {
       const order = orders[selectedOrderIndex];
-      cancelOrder(selectedOrderIndex);
-      toast({
-        title: "Order Cancelled",
-        description: `Your ${order.type} order for ${order.option} has been cancelled.`,
-      });
+      try {
+        if (selectedOrderId) {
+          // Supabase order - use id
+          await cancelOrder(selectedOrderId);
+        } else {
+          // Local order - use index
+          await cancelOrder(selectedOrderIndex);
+        }
+        toast({
+          title: "Order Cancelled",
+          description: `Your ${order.type} order for ${order.option} has been cancelled.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to cancel order",
+          variant: "destructive",
+        });
+      }
     }
     setCancelDialogOpen(false);
     setSelectedOrderIndex(null);
+    setSelectedOrderId(null);
   };
 
   const editingPosition = editingPositionIndex !== null ? positions[editingPositionIndex] : null;
@@ -320,49 +352,66 @@ export const DesktopPositionsPanel = () => {
                 </tr>
               </thead>
               <tbody>
-                {pendingOrders.length === 0 ? (
+                {orders.length === 0 ? (
                   <tr>
                     <td colSpan={orderColumns.length} className="px-3 py-8 text-center text-sm text-muted-foreground">
                       No open orders
                     </td>
                   </tr>
                 ) : (
-                  pendingOrders.map((order, displayIndex) => {
-                    // Find actual index in orders array
-                    const actualIndex = orders.findIndex(o => o === order);
-                    return (
-                      <tr key={actualIndex} className="border-b border-border/30 hover:bg-muted/30">
-                        <td className="px-3 py-2 text-sm">
-                          <div className="flex flex-col">
-                            <span className="font-medium max-w-[150px] truncate">{order.option}</span>
-                            <span className="text-xs text-muted-foreground max-w-[150px] truncate">{order.event}</span>
-                          </div>
-                        </td>
-                        <td className="px-3 py-2 text-sm">
-                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                            order.type === "buy"
-                              ? "bg-trading-green/20 text-trading-green"
-                              : "bg-trading-red/20 text-trading-red"
-                          }`}>
-                            {order.type === "buy" ? "Buy" : "Sell"}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-sm text-muted-foreground">{order.orderType}</td>
-                        <td className="px-3 py-2 text-sm font-mono">{order.price}</td>
-                        <td className="px-3 py-2 text-sm font-mono">{order.amount}</td>
-                        <td className="px-3 py-2 text-sm font-mono">{order.total}</td>
-                        <td className="px-3 py-2 text-sm">
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/20 text-amber-400">
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-sm text-muted-foreground">{order.time}</td>
-                        <td className="px-3 py-2 text-sm text-muted-foreground">
-                          —
-                        </td>
-                      </tr>
-                    );
-                  })
+                  orders.map((order, index) => (
+                    <tr key={order.id || index} className="border-b border-border/30 hover:bg-muted/30">
+                      <td className="px-3 py-2 text-sm">
+                        <div className="flex flex-col">
+                          <span className="font-medium max-w-[150px] truncate">{order.option}</span>
+                          <span className="text-xs text-muted-foreground max-w-[150px] truncate">{order.event}</span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-sm">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                          order.type === "buy"
+                            ? "bg-trading-green/20 text-trading-green"
+                            : "bg-trading-red/20 text-trading-red"
+                        }`}>
+                          {order.type === "buy" ? "Buy" : "Sell"}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground">{order.orderType}</td>
+                      <td className="px-3 py-2 text-sm font-mono">{order.price}</td>
+                      <td className="px-3 py-2 text-sm font-mono">{order.amount}</td>
+                      <td className="px-3 py-2 text-sm font-mono">{order.total}</td>
+                      <td className="px-3 py-2 text-sm">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/20 text-amber-400">
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground">{order.time}</td>
+                      <td className="px-3 py-2 text-sm">
+                        <div className="flex items-center gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleFillOrder(index, order.id)}
+                            disabled={isFilling}
+                            className="h-6 px-2 text-xs text-trading-green hover:bg-trading-green/10"
+                          >
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Fill
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleCancelOrder(index, order.id)}
+                            disabled={isCancelling}
+                            className="h-6 px-2 text-xs text-trading-red hover:bg-trading-red/10"
+                          >
+                            <X className="w-3 h-3 mr-1" />
+                            Cancel
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

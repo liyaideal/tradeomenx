@@ -109,6 +109,10 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       throw new Error("Stop loss mode is required when stop loss value is set");
     }
 
+    // Determine status based on order type
+    const isMarketOrder = validated.orderType === "Market";
+    const tradeStatus = isMarketOrder ? "Filled" : "Pending";
+
     // Insert trade record with validated data
     const { data: trade, error: tradeError } = await supabase
       .from("trades")
@@ -124,7 +128,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
         leverage: validated.leverage,
         margin: validated.margin,
         fee: validated.fee,
-        status: "Filled",
+        status: tradeStatus,
         tp_value: validated.tpValue,
         tp_mode: validated.tpMode,
         sl_value: validated.slValue,
@@ -138,7 +142,13 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       throw tradeError;
     }
 
-    // Create corresponding position with validated data
+    // Only create position for Market orders (immediate execution)
+    // Limit orders remain pending until filled
+    if (!isMarketOrder) {
+      return { trade, position: null };
+    }
+
+    // Create corresponding position with validated data (Market orders only)
     // For binary events: No Long → Yes Short, No Short → Yes Long
     const isNoOption = validated.optionLabel.toLowerCase() === "no";
     let positionSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
