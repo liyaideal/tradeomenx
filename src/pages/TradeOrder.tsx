@@ -5,7 +5,7 @@ import { MobileTradingLayout, useMobileTradingContext } from "@/components/Mobil
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
-import { useOrdersStore } from "@/stores/useOrdersStore";
+import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
 import { generateOrderBookData } from "@/lib/tradingUtils";
 import { useOrderSimulation } from "@/hooks/useOrderSimulation";
@@ -19,8 +19,8 @@ function TradeOrderContent() {
   const location = useLocation();
   const state = location.state as LocationState | null;
   
-  const { orders } = useOrdersStore();
-  // Use unified positions hook - Supabase for logged-in users, local for guests
+  // Use unified hooks - Supabase for logged-in users, local for guests
+  const { orders } = useOrders();
   const { positions } = usePositions();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
@@ -179,20 +179,13 @@ function TradeOrderContent() {
         ))}
       </div>
 
-      {/* Orders/Positions Content */}
       <div className="px-4 py-3 space-y-3">
-        {bottomTab === "Orders" && orders
-          .filter(order => order.status === 'Pending' || order.status === 'Partial Filled')
-          .map((order, displayIndex) => {
-            const actualIndex = orders.findIndex(o => o === order);
-            return (
-              <OrderCard 
-                key={actualIndex} 
-                {...order} 
-              />
-            );
-          })
-        }
+        {bottomTab === "Orders" && orders.map((order, index) => (
+          <OrderCard 
+            key={order.id || index} 
+            {...order} 
+          />
+        ))}
         {bottomTab === "Positions" && positions.map((position, index) => (
           <div 
             key={index} 

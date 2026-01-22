@@ -3,6 +3,7 @@ import { useNavigate, useNavigationType, useSearchParams, useLocation } from "re
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
+import { useOrders } from "@/hooks/useOrders";
 import {
   Tooltip,
   TooltipContent,
@@ -205,8 +206,9 @@ export default function DesktopTrading() {
   // User profile for balance and auth
   const { user, balance, deductBalance } = useUserProfile();
   
-  // Positions state - using unified hook (Supabase for logged-in, local for guests)
+  // Positions and Orders state - using unified hooks (Supabase for logged-in, local for guests)
   const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
+  const { refetch: refetchOrders } = useOrders();
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
@@ -510,15 +512,15 @@ export default function DesktopTrading() {
         throw new Error("Failed to deduct balance");
       }
       
-      // For Market orders: directly becomes a position, refetch positions
-      // For Limit orders: add to pending orders (not implemented yet - would need separate flow)
+      // Refetch based on order type
       if (orderType === "Market") {
-        // Market orders execute immediately, just refetch positions
+        // Market orders execute immediately, refetch positions
         refetchPositions();
+        toast.success("Order executed successfully!");
       } else {
-        // Limit orders would go to pending orders (future feature)
-        // For now, we treat all orders as market orders that execute immediately
-        refetchPositions();
+        // Limit orders go to pending orders
+        refetchOrders();
+        toast.success("Limit order placed successfully!");
       }
       
       setOrderPreviewOpen(false);
@@ -528,7 +530,6 @@ export default function DesktopTrading() {
       setTpValue("");
       setSlValue("");
       setTpsl(false);
-      toast.success("Order executed successfully!");
     } catch (error: any) {
       console.error("Order execution error:", error);
       toast.error(error.message || "Failed to execute order");
