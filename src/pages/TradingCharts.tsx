@@ -6,7 +6,7 @@ import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { usePositions } from "@/hooks/usePositions";
-import { useOrdersStore } from "@/stores/useOrdersStore";
+import { useOrders } from "@/hooks/useOrders";
 import { generateOrderBookData, generateTradesHistory, tradingStats } from "@/lib/tradingUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 
@@ -15,7 +15,8 @@ const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 function TradingChartsContent() {
   const navigate = useNavigate();
   const { positions } = usePositions();
-  const { orders } = useOrdersStore();
+  // Use unified orders hook - Supabase for logged-in users, local for guests
+  const { orders } = useOrders();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
   const [bottomTab, setBottomTab] = useState("Order Book");
