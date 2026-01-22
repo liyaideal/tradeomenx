@@ -243,26 +243,38 @@ export default function DesktopTrading() {
     setClosingPositionId(null);
   };
   
-  // Cancel order dialog state - using zustand store
-  const { orders, addOrder, cancelOrder } = useOrdersStore();
+  // Cancel order dialog state - using unified orders hook
+  const { orders: unifiedOrders, cancelOrder: cancelUnifiedOrder, isCancelling } = useOrders();
+  const { addOrder } = useOrdersStore(); // Keep for local guest fallback only
   const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
   const [cancellingOrderIndex, setCancellingOrderIndex] = useState<number | null>(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
   
-  const handleCancelOrderClick = (index: number) => {
+  const handleCancelOrderClick = (index: number, orderId?: string) => {
     setCancellingOrderIndex(index);
+    setCancellingOrderId(orderId || null);
     setCancelOrderOpen(true);
   };
   
-  const handleConfirmCancelOrder = () => {
+  const handleConfirmCancelOrder = async () => {
     if (cancellingOrderIndex !== null) {
-      const order = orders[cancellingOrderIndex];
-      cancelOrder(cancellingOrderIndex);
-      toast.success("Order Cancelled", {
-        description: `Your ${order.type} order for ${order.option} has been cancelled.`,
-      });
+      const order = unifiedOrders[cancellingOrderIndex];
+      try {
+        if (cancellingOrderId) {
+          await cancelUnifiedOrder(cancellingOrderId);
+        } else {
+          await cancelUnifiedOrder(cancellingOrderIndex);
+        }
+        toast.success("Order Cancelled", {
+          description: `Your ${order.type} order for ${order.option} has been cancelled.`,
+        });
+      } catch (error) {
+        toast.error("Failed to cancel order");
+      }
     }
     setCancelOrderOpen(false);
     setCancellingOrderIndex(null);
+    setCancellingOrderId(null);
   };
   
   const handleEditPositionTpSl = (index: number, positionId: string) => {
@@ -1029,7 +1041,7 @@ export default function DesktopTrading() {
                 >
                   {tab}
                   <span className="ml-1 text-muted-foreground">
-                    ({tab === "Current Orders" ? orders.length : positions.length})
+                    ({tab === "Current Orders" ? unifiedOrders.length : positions.length})
                   </span>
                 </button>
               ))}
@@ -1052,12 +1064,12 @@ export default function DesktopTrading() {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.length === 0 ? (
+                    {unifiedOrders.length === 0 ? (
                       <tr>
                         <td colSpan={9} className="px-4 py-6 text-center text-sm text-muted-foreground">No open orders</td>
                       </tr>
                     ) : (
-                      orders.map((order, index) => (
+                      unifiedOrders.map((order, index) => (
                         <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
                           <td className="px-4 py-2">
                             <div className="text-sm font-medium">{order.option}</div>
@@ -1910,8 +1922,8 @@ export default function DesktopTrading() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          {cancellingOrderIndex !== null && orders[cancellingOrderIndex] && (() => {
-            const order = orders[cancellingOrderIndex];
+          {cancellingOrderIndex !== null && unifiedOrders[cancellingOrderIndex] && (() => {
+            const order = unifiedOrders[cancellingOrderIndex];
             return (
               <div className="bg-muted/50 rounded-lg p-4 space-y-2 my-2">
                 <div className="flex items-center justify-between text-sm">
