@@ -206,7 +206,7 @@ export default function DesktopTrading() {
   const { user, balance, deductBalance } = useUserProfile();
   
   // Positions state - using unified hook (Supabase for logged-in, local for guests)
-  const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing } = usePositions();
+  const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
@@ -523,6 +523,9 @@ export default function DesktopTrading() {
         status: "Filled",
       };
       addOrder(newOrder);
+      
+      // Refetch positions to show the new position immediately
+      refetchPositions();
       
       setOrderPreviewOpen(false);
       // Reset form
