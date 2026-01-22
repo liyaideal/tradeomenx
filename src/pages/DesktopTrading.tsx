@@ -510,22 +510,16 @@ export default function DesktopTrading() {
         throw new Error("Failed to deduct balance");
       }
       
-      // Also add to local orders store for immediate UI feedback
-      const newOrder: Order = {
-        type: side,
-        orderType: orderType,
-        event: selectedEvent.name,
-        option: selectedOptionData.label,
-        price: `$${selectedOptionData.price}`,
-        amount: parseInt(orderCalculations.quantity).toLocaleString(),
-        total: `$${orderCalculations.total}`,
-        time: "Just now",
-        status: "Filled",
-      };
-      addOrder(newOrder);
-      
-      // Refetch positions to show the new position immediately
-      refetchPositions();
+      // For Market orders: directly becomes a position, refetch positions
+      // For Limit orders: add to pending orders (not implemented yet - would need separate flow)
+      if (orderType === "Market") {
+        // Market orders execute immediately, just refetch positions
+        refetchPositions();
+      } else {
+        // Limit orders would go to pending orders (future feature)
+        // For now, we treat all orders as market orders that execute immediately
+        refetchPositions();
+      }
       
       setOrderPreviewOpen(false);
       // Reset form
