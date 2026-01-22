@@ -85,6 +85,7 @@ export const usePositions = () => {
     updatePositionTpSl: updateSupabaseTpSl,
     isClosing,
     isUpdatingTpSl,
+    refetch: refetchSupabasePositions,
   } = useSupabasePositions();
   
   // Local positions for guests
@@ -101,6 +102,13 @@ export const usePositions = () => {
     }
     return localPositions.map(convertLocalPosition);
   }, [isLoggedIn, supabasePositions, localPositions]);
+  
+  // Refetch positions (for logged-in users)
+  const refetch = useCallback(() => {
+    if (isLoggedIn) {
+      refetchSupabasePositions();
+    }
+  }, [isLoggedIn, refetchSupabasePositions]);
   
   // Unified close position handler
   const closePosition = useCallback(
@@ -156,5 +164,6 @@ export const usePositions = () => {
     updatePositionTpSl,
     isClosing,
     isUpdatingTpSl,
+    refetch,
   };
 };

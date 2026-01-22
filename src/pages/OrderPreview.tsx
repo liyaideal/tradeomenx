@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositionsStore, Position } from "@/stores/usePositionsStore";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { usePositions } from "@/hooks/usePositions";
 import { executeTrade } from "@/services/tradingService";
 import { Loader2 } from "lucide-react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -33,6 +34,7 @@ export default function OrderPreview() {
   const { addOrder } = useOrdersStore();
   const { addPosition } = usePositionsStore();
   const { balance, user, deductBalance } = useUserProfile();
+  const { refetch: refetchPositions } = usePositions();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
 
@@ -162,6 +164,9 @@ export default function OrderPreview() {
         slMode: orderData.tpsl?.sl?.mode === "pct" ? "%" : "$",
       };
       addPosition(newPosition);
+      
+      // Refetch positions from Supabase to ensure UI is in sync
+      refetchPositions();
 
       toast.success("Order executed successfully!");
       navigate("/trade");
