@@ -131,6 +131,33 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
     }
   }
 
+  // Add specific stats for certain event types
+  let tweetCount: number | undefined;
+  let currentPrice: string | undefined;
+  let priceChange24h: string | undefined;
+
+  // Tweet-based events
+  if (event.id === 'elon-twitter-activity') {
+    tweetCount = 1847; // Mock current tweet count
+  }
+
+  // Crypto price-based events
+  if (event.id.includes('eth-') || event.id.includes('ethereum')) {
+    currentPrice = '$3,456.78';
+    priceChange24h = '+2.34%';
+  }
+
+  if (event.id.includes('btc-') || event.id.includes('bitcoin')) {
+    currentPrice = '$104,567.89';
+    priceChange24h = '+1.56%';
+  }
+
+  // Stock market events
+  if (event.id.includes('sp500')) {
+    currentPrice = '6,234.56';
+    priceChange24h = '+0.45%';
+  }
+
   return {
     id: event.id,
     name: event.name,
@@ -144,6 +171,9 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
     sourceUrl: event.source_url || "",
     sourceName: event.source_name || "Official Source",
     resolutionSource: event.settlement_description || "Official settlement source",
+    tweetCount,
+    currentPrice,
+    priceChange24h,
   };
 };
 
