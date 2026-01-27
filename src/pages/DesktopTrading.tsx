@@ -1277,10 +1277,10 @@ export default function DesktopTrading() {
           </div>
         </div>
 
-        {/* Right Section: Trade Form + Account Risk - separate container */}
-        <div className="w-[280px] flex-shrink-0 flex flex-col gap-1 m-1">
+        {/* Right Section: Trade Form + Account Risk - separate containers */}
+        <div className="w-[280px] flex-shrink-0 flex flex-col gap-2 m-1">
           {/* Trade Panel */}
-          <div className="flex-1 flex flex-col bg-background rounded border border-border/30 overflow-hidden">
+          <div className="flex flex-col bg-background rounded-lg border border-border/50 overflow-hidden">
             <div className="flex items-center px-4 py-2 border-b border-border/30">
               <span className="text-sm font-medium">Trade</span>
             </div>
@@ -1609,9 +1609,9 @@ export default function DesktopTrading() {
             </div>
           </div>
 
-          {/* Account Risk Indicator - separate panel below Trade */}
+          {/* Account Risk Indicator - completely separate panel */}
           {user && (
-            <div className="bg-background rounded border border-border/30 p-4">
+            <div className="bg-background rounded-lg border border-border/50">
               <AccountRiskIndicator variant="compact" />
             </div>
           )}

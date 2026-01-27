@@ -75,7 +75,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
 
   if (variant === "compact") {
     return (
-      <div className="bg-card/50 rounded-lg p-3 space-y-3 border border-border/30">
+      <div className="p-3 space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
