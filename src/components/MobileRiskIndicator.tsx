@@ -3,7 +3,12 @@ import { ShieldCheck, AlertTriangle, Ban, Zap, Eye, EyeOff, Info, ChevronRight }
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { useSupabasePositions } from "@/hooks/useSupabasePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { Progress } from "@/components/ui/progress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type RiskLevel = "SAFE" | "WARNING" | "RESTRICTION" | "LIQUIDATION";
 
@@ -171,9 +176,29 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
           >
             {showValues ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
           </button>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
-            <Info className="w-4 h-4" />
-          </button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Info className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[280px]">
+                <div className="space-y-2 text-xs">
+                  <p><strong>Risk Ratio</strong> = IM / Equity</p>
+                  <p><strong>IM (Initial Margin):</strong> Entry threshold - determines if you can open positions.</p>
+                  <p><strong>MM (Maintenance Margin):</strong> Survival line - determines if you'll be liquidated.</p>
+                  <p><strong>Equity:</strong> Your real wealth - determines how much you can still lose.</p>
+                  <div className="pt-1 border-t border-border/50 space-y-1">
+                    <p className="text-trading-green">SAFE: &lt;80% - Normal trading</p>
+                    <p className="text-trading-yellow">WARNING: 80-95% - Reduce positions</p>
+                    <p className="text-orange-500">RESTRICTION: 95-100% - Close only</p>
+                    <p className="text-trading-red">LIQUIDATION: ≥100% - Force close</p>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         {/* Margin Mode */}
