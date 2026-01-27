@@ -1,6 +1,5 @@
-import { useMemo } from "react";
-import { Eye, EyeOff, Info, ChevronRight } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { useMemo, useState } from "react";
+import { Eye, EyeOff, Info, ChevronRight, ShieldCheck, AlertTriangle, Ban, Zap } from "lucide-react";
 import { useSupabasePositions } from "@/hooks/useSupabasePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import {
@@ -9,7 +8,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState } from "react";
+
+type RiskLevel = "SAFE" | "WARNING" | "RESTRICTION" | "LIQUIDATION";
 
 interface AccountRiskIndicatorProps {
   variant?: "compact" | "full";
@@ -20,60 +20,114 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
   const { balance } = useUserProfile();
   const [showValues, setShowValues] = useState(true);
 
-  // Calculate account-level margin metrics
-  const marginMetrics = useMemo(() => {
-    // Sum up all position margins
-    const totalMarginUsed = positions.reduce((sum, pos) => sum + Number(pos.margin), 0);
+  // Calculate account-level margin metrics based on proper risk model
+  const riskMetrics = useMemo(() => {
+    // Total Assets = current balance (before any unrealized PnL)
+    const totalAssets = balance;
     
-    // Total account equity (balance + unrealized PnL)
+    // Calculate total exposure and margins from positions
+    const totalExposure = positions.reduce((sum, pos) => {
+      const size = Number(pos.size) || 0;
+      const entryPrice = Number(pos.entry_price) || 0;
+      return sum + (size * entryPrice);
+    }, 0);
+    
+    // Initial Margin (IM) = sum of all position margins
+    const imTotal = positions.reduce((sum, pos) => sum + (Number(pos.margin) || 0), 0);
+    
+    // Maintenance Margin (MM) = 50% of IM (standard ratio)
+    const mmTotal = imTotal * 0.5;
+    
+    // Unrealized PnL from all positions
     const unrealizedPnL = positions.reduce((sum, pos) => sum + (Number(pos.pnl) || 0), 0);
-    const totalEquity = balance + unrealizedPnL;
     
-    // Initial Margin (IM) - margin required to maintain current positions
-    // Typically 5-10% for leveraged positions
-    const initialMarginRequired = totalMarginUsed;
+    // Equity = Total Assets + Unrealized PnL
+    const equity = totalAssets + unrealizedPnL;
     
-    // Maintenance Margin (MM) - minimum margin before liquidation
-    // Typically 50% of initial margin
-    const maintenanceMargin = totalMarginUsed * 0.5;
+    // Risk Ratio = IM / Equity (as percentage)
+    // This is the key metric for determining risk level
+    const riskRatio = equity > 0 ? (imTotal / equity) * 100 : 0;
     
-    // Calculate usage percentages
-    const imUsage = totalEquity > 0 ? (initialMarginRequired / totalEquity) * 100 : 0;
-    const mmUsage = totalEquity > 0 ? (maintenanceMargin / totalEquity) * 100 : 0;
-    
-    // Risk level determination
-    let riskLevel: "safe" | "warning" | "danger" = "safe";
-    if (imUsage >= 80) {
-      riskLevel = "danger";
-    } else if (imUsage >= 50) {
-      riskLevel = "warning";
+    // Determine risk level based on risk ratio thresholds
+    let riskLevel: RiskLevel = "SAFE";
+    if (riskRatio >= 100) {
+      riskLevel = "LIQUIDATION";
+    } else if (riskRatio >= 95) {
+      riskLevel = "RESTRICTION";
+    } else if (riskRatio >= 80) {
+      riskLevel = "WARNING";
     }
     
+    // Available margin for new positions
+    const availableMargin = Math.max(equity - imTotal, 0);
+    
+    // Distance to liquidation (how much more can you lose)
+    const distanceToLiquidation = Math.max(equity - imTotal, 0);
+    
     return {
-      totalMarginUsed,
-      totalEquity,
-      initialMarginRequired,
-      maintenanceMargin,
-      imUsage: Math.min(imUsage, 100),
-      mmUsage: Math.min(mmUsage, 100),
+      totalAssets,
+      totalExposure,
+      equity,
+      imTotal,
+      mmTotal,
+      riskRatio: Math.min(riskRatio, 150), // Cap display at 150%
       riskLevel,
-      availableMargin: Math.max(totalEquity - initialMarginRequired, 0),
+      availableMargin,
+      distanceToLiquidation,
+      unrealizedPnL,
+      hasPositions: positions.length > 0,
     };
   }, [positions, balance]);
 
-  const getRiskColor = (usage: number) => {
-    if (usage >= 80) return "text-trading-red";
-    if (usage >= 50) return "text-trading-yellow";
-    return "text-trading-green";
+  // Get color based on risk level
+  const getRiskColor = (level: RiskLevel) => {
+    switch (level) {
+      case "SAFE": return "text-trading-green";
+      case "WARNING": return "text-trading-yellow";
+      case "RESTRICTION": return "text-orange-500";
+      case "LIQUIDATION": return "text-trading-red";
+    }
   };
 
-  const getProgressColor = (usage: number) => {
-    if (usage >= 80) return "bg-trading-red";
-    if (usage >= 50) return "bg-trading-yellow";
-    return "bg-trading-green";
+  const getRiskBgColor = (level: RiskLevel) => {
+    switch (level) {
+      case "SAFE": return "bg-trading-green";
+      case "WARNING": return "bg-trading-yellow";
+      case "RESTRICTION": return "bg-orange-500";
+      case "LIQUIDATION": return "bg-trading-red";
+    }
+  };
+
+  const getRiskIcon = (level: RiskLevel) => {
+    switch (level) {
+      case "SAFE": return <ShieldCheck className="w-3.5 h-3.5" />;
+      case "WARNING": return <AlertTriangle className="w-3.5 h-3.5" />;
+      case "RESTRICTION": return <Ban className="w-3.5 h-3.5" />;
+      case "LIQUIDATION": return <Zap className="w-3.5 h-3.5" />;
+    }
+  };
+
+  const getRiskMessage = (level: RiskLevel) => {
+    switch (level) {
+      case "SAFE": 
+        return { icon: "✅", text: "Normal trading available" };
+      case "WARNING": 
+        return { icon: "⚠️", text: "Opening restricted, consider reducing" };
+      case "RESTRICTION": 
+        return { icon: "🚨", text: "Close-only mode, no new positions" };
+      case "LIQUIDATION": 
+        return { icon: "💥", text: "Liquidation triggered!" };
+    }
+  };
+
+  // Calculate progress bar width - maps 0-100% risk ratio to visual width
+  const getProgressWidth = (ratio: number) => {
+    return Math.min(ratio, 100);
   };
 
   if (variant === "compact") {
+    const riskMessage = getRiskMessage(riskMetrics.riskLevel);
+    
     return (
       <div className="p-3 space-y-3">
         {/* Header */}
@@ -94,11 +148,19 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
                   <Info className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-[200px]">
-                <p className="text-xs">
-                  IM (Initial Margin): Required margin to open/maintain positions.
-                  MM (Maintenance Margin): Minimum margin before liquidation.
-                </p>
+              <TooltipContent side="left" className="max-w-[280px]">
+                <div className="space-y-2 text-xs">
+                  <p><strong>Risk Ratio</strong> = IM / Equity</p>
+                  <p><strong>IM (Initial Margin):</strong> Entry threshold - determines if you can open positions.</p>
+                  <p><strong>MM (Maintenance Margin):</strong> Survival line - determines if you'll be liquidated.</p>
+                  <p><strong>Equity:</strong> Your real wealth - determines how much you can still lose.</p>
+                  <div className="pt-1 border-t border-border/50 space-y-1">
+                    <p className="text-trading-green">SAFE: &lt;80% - Normal trading</p>
+                    <p className="text-trading-yellow">WARNING: 80-95% - Reduce positions</p>
+                    <p className="text-orange-500">RESTRICTION: 95-100% - Close only</p>
+                    <p className="text-trading-red">LIQUIDATION: ≥100% - Force close</p>
+                  </div>
+                </div>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -113,44 +175,96 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
           </button>
         </div>
 
-        {/* Initial Margin */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Initial Margin</span>
-            <span className={`text-xs font-mono ${getRiskColor(marginMetrics.imUsage)}`}>
-              {showValues ? `${marginMetrics.imUsage.toFixed(2)}%` : "****"}
+        {/* Account Equity */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Account Equity</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-mono text-foreground">
+              {showValues ? `$${riskMetrics.equity.toFixed(2)}` : "****"}
             </span>
-          </div>
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${getProgressColor(marginMetrics.imUsage)}`}
-              style={{ width: `${marginMetrics.imUsage}%` }}
-            />
+            {riskMetrics.unrealizedPnL !== 0 && showValues && (
+              <span className={`text-[10px] font-mono ${riskMetrics.unrealizedPnL >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+                ({riskMetrics.unrealizedPnL >= 0 ? '+' : ''}{riskMetrics.unrealizedPnL.toFixed(2)})
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Maintenance Margin */}
+        {/* Risk Ratio - Main Indicator */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Maintenance Margin</span>
-            <span className={`text-xs font-mono ${getRiskColor(marginMetrics.mmUsage)}`}>
-              {showValues ? `${marginMetrics.mmUsage.toFixed(2)}%` : "****"}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground">Risk Ratio</span>
+              <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded ${getRiskBgColor(riskMetrics.riskLevel)}/20 ${getRiskColor(riskMetrics.riskLevel)}`}>
+                {getRiskIcon(riskMetrics.riskLevel)}
+                {riskMetrics.riskLevel}
+              </span>
+            </div>
+            <span className={`text-xs font-mono font-semibold ${getRiskColor(riskMetrics.riskLevel)}`}>
+              {showValues ? `${riskMetrics.riskRatio.toFixed(2)}%` : "****"}
             </span>
           </div>
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${getProgressColor(marginMetrics.mmUsage)}`}
-              style={{ width: `${marginMetrics.mmUsage}%` }}
-            />
+          
+          {/* Risk Progress Bar with threshold markers */}
+          <div className="relative">
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-300 ${getRiskBgColor(riskMetrics.riskLevel)}`}
+                style={{ width: `${getProgressWidth(riskMetrics.riskRatio)}%` }}
+              />
+            </div>
+            {/* Threshold markers */}
+            <div className="absolute top-0 left-[80%] w-px h-2 bg-trading-yellow/50" />
+            <div className="absolute top-0 left-[95%] w-px h-2 bg-orange-500/50" />
+          </div>
+          
+          {/* Threshold labels */}
+          <div className="flex justify-between text-[9px] text-muted-foreground">
+            <span>0%</span>
+            <span className="text-trading-yellow">80%</span>
+            <span className="text-orange-500">95%</span>
+            <span className="text-trading-red">100%</span>
           </div>
         </div>
+
+        {/* IM & MM Summary */}
+        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/30">
+          <div>
+            <span className="text-[10px] text-muted-foreground">Initial Margin</span>
+            <p className="text-xs font-mono text-foreground">
+              {showValues ? `$${riskMetrics.imTotal.toFixed(2)}` : "****"}
+            </p>
+          </div>
+          <div>
+            <span className="text-[10px] text-muted-foreground">Maint. Margin</span>
+            <p className="text-xs font-mono text-foreground">
+              {showValues ? `$${riskMetrics.mmTotal.toFixed(2)}` : "****"}
+            </p>
+          </div>
+        </div>
+
+        {/* Risk Status Message - only show if not SAFE */}
+        {riskMetrics.riskLevel !== "SAFE" && riskMetrics.hasPositions && (
+          <div className={`flex items-center gap-2 p-2 rounded-lg text-xs ${
+            riskMetrics.riskLevel === "LIQUIDATION" 
+              ? "bg-trading-red/10 text-trading-red border border-trading-red/30"
+              : riskMetrics.riskLevel === "RESTRICTION"
+              ? "bg-orange-500/10 text-orange-500 border border-orange-500/30"
+              : "bg-trading-yellow/10 text-trading-yellow border border-trading-yellow/30"
+          }`}>
+            <span>{riskMessage.icon}</span>
+            <span>{riskMessage.text}</span>
+          </div>
+        )}
       </div>
     );
   }
 
-  // Full variant with more details
+  // Full variant with more details (for future use)
+  const riskMessage = getRiskMessage(riskMetrics.riskLevel);
+  
   return (
-    <div className="bg-card/50 rounded-lg p-4 space-y-4 border border-border/30">
+    <div className="p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -162,101 +276,90 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
             {showValues ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
           </button>
         </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="text-muted-foreground hover:text-foreground transition-colors">
-                <Info className="w-4 h-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-[250px]">
-              <div className="space-y-2 text-xs">
-                <p><strong>Initial Margin (IM):</strong> The margin required to open and maintain your current positions.</p>
-                <p><strong>Maintenance Margin (MM):</strong> The minimum margin required to avoid liquidation. If your equity falls below this, positions may be liquidated.</p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full ${getRiskBgColor(riskMetrics.riskLevel)}/20 ${getRiskColor(riskMetrics.riskLevel)}`}>
+          {getRiskIcon(riskMetrics.riskLevel)}
+          <span className="text-xs font-medium">{riskMetrics.riskLevel}</span>
+        </div>
       </div>
 
-      {/* Margin Mode */}
-      <div className="flex items-center justify-between py-2 border-b border-border/30">
-        <span className="text-sm text-muted-foreground">Margin Mode</span>
-        <button className="flex items-center gap-1 text-sm text-foreground hover:text-muted-foreground transition-colors">
-          Cross Margin
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Equity & Available */}
+      {/* Main Metrics */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <span className="text-xs text-muted-foreground">Account Equity</span>
+          <p className="text-lg font-mono font-semibold text-foreground">
+            {showValues ? `$${riskMetrics.equity.toFixed(2)}` : "****"}
+          </p>
+          {riskMetrics.unrealizedPnL !== 0 && showValues && (
+            <span className={`text-xs font-mono ${riskMetrics.unrealizedPnL >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+              {riskMetrics.unrealizedPnL >= 0 ? '+' : ''}{riskMetrics.unrealizedPnL.toFixed(2)} PnL
+            </span>
+          )}
+        </div>
+        <div>
+          <span className="text-xs text-muted-foreground">Risk Ratio (IM/Equity)</span>
+          <p className={`text-lg font-mono font-semibold ${getRiskColor(riskMetrics.riskLevel)}`}>
+            {showValues ? `${riskMetrics.riskRatio.toFixed(2)}%` : "****"}
+          </p>
+        </div>
+      </div>
+
+      {/* Risk Progress Bar */}
+      <div className="space-y-2">
+        <div className="relative">
+          <div className="h-3 bg-muted rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${getRiskBgColor(riskMetrics.riskLevel)}`}
+              style={{ width: `${getProgressWidth(riskMetrics.riskRatio)}%` }}
+            />
+          </div>
+          {/* Threshold markers */}
+          <div className="absolute top-0 left-[80%] w-0.5 h-3 bg-trading-yellow" />
+          <div className="absolute top-0 left-[95%] w-0.5 h-3 bg-orange-500" />
+        </div>
+        
+        <div className="flex justify-between text-[10px]">
+          <span className="text-trading-green">SAFE</span>
+          <span className="text-trading-yellow">WARNING (80%)</span>
+          <span className="text-orange-500">RESTRICT (95%)</span>
+          <span className="text-trading-red">LIQ (100%)</span>
+        </div>
+      </div>
+
+      {/* Margin Details */}
+      <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border/30">
+        <div>
+          <span className="text-xs text-muted-foreground">Initial Margin</span>
           <p className="text-sm font-mono text-foreground">
-            {showValues ? `$${marginMetrics.totalEquity.toFixed(2)}` : "****"}
+            {showValues ? `$${riskMetrics.imTotal.toFixed(2)}` : "****"}
           </p>
         </div>
         <div>
-          <span className="text-xs text-muted-foreground">Available Margin</span>
+          <span className="text-xs text-muted-foreground">Maint. Margin</span>
           <p className="text-sm font-mono text-foreground">
-            {showValues ? `$${marginMetrics.availableMargin.toFixed(2)}` : "****"}
+            {showValues ? `$${riskMetrics.mmTotal.toFixed(2)}` : "****"}
+          </p>
+        </div>
+        <div>
+          <span className="text-xs text-muted-foreground">Available</span>
+          <p className="text-sm font-mono text-foreground">
+            {showValues ? `$${riskMetrics.availableMargin.toFixed(2)}` : "****"}
           </p>
         </div>
       </div>
 
-      {/* Initial Margin */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Initial Margin (IM)</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground font-mono">
-              {showValues ? `$${marginMetrics.initialMarginRequired.toFixed(2)}` : "****"}
-            </span>
-            <span className={`text-sm font-mono font-medium ${getRiskColor(marginMetrics.imUsage)}`}>
-              {showValues ? `${marginMetrics.imUsage.toFixed(2)}%` : "****"}
-            </span>
-          </div>
-        </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-300 ${getProgressColor(marginMetrics.imUsage)}`}
-            style={{ width: `${marginMetrics.imUsage}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Maintenance Margin */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Maintenance Margin (MM)</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground font-mono">
-              {showValues ? `$${marginMetrics.maintenanceMargin.toFixed(2)}` : "****"}
-            </span>
-            <span className={`text-sm font-mono font-medium ${getRiskColor(marginMetrics.mmUsage)}`}>
-              {showValues ? `${marginMetrics.mmUsage.toFixed(2)}%` : "****"}
-            </span>
-          </div>
-        </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-300 ${getProgressColor(marginMetrics.mmUsage)}`}
-            style={{ width: `${marginMetrics.mmUsage}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Risk Warning */}
-      {marginMetrics.riskLevel !== "safe" && (
-        <div className={`p-2 rounded-lg text-xs ${
-          marginMetrics.riskLevel === "danger" 
-            ? "bg-trading-red/10 text-trading-red border border-trading-red/30" 
-            : "bg-trading-yellow/10 text-trading-yellow border border-trading-yellow/30"
+      {/* Risk Status Message */}
+      {riskMetrics.hasPositions && (
+        <div className={`flex items-center gap-2 p-3 rounded-lg text-sm ${
+          riskMetrics.riskLevel === "LIQUIDATION" 
+            ? "bg-trading-red/10 text-trading-red border border-trading-red/30"
+            : riskMetrics.riskLevel === "RESTRICTION"
+            ? "bg-orange-500/10 text-orange-500 border border-orange-500/30"
+            : riskMetrics.riskLevel === "WARNING"
+            ? "bg-trading-yellow/10 text-trading-yellow border border-trading-yellow/30"
+            : "bg-trading-green/10 text-trading-green border border-trading-green/30"
         }`}>
-          {marginMetrics.riskLevel === "danger" 
-            ? "⚠️ High risk! Consider reducing positions or adding margin."
-            : "⚡ Moderate risk. Monitor your margin levels closely."
-          }
+          <span className="text-lg">{riskMessage.icon}</span>
+          <span>{riskMessage.text}</span>
         </div>
       )}
     </div>
