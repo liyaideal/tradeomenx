@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download, ShieldCheck, AlertTriangle, Ban } from "lucide-react";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
@@ -63,6 +63,7 @@ const StyleGuide = () => {
     { id: "mobile-patterns", title: "Mobile UI Patterns", keywords: ["mobile", "pattern", "button", "placement", "drawer", "spacing", "safe", "area"] },
     { id: "toast-notifications", title: "Toast & Notifications", keywords: ["toast", "notification", "alert", "message", "sonner", "success", "error", "warning"] },
     { id: "mobile-header", title: "Mobile Header", keywords: ["header", "mobile", "navigation", "back", "logo", "title", "favorite", "share", "countdown"] },
+    { id: "account-risk-indicator", title: "Account Risk Indicator", keywords: ["risk", "margin", "account", "equity", "liquidation", "warning", "im", "mm", "cross margin", "trading"] },
   ];
 
   // Filter sections based on search query
@@ -3096,6 +3097,241 @@ toast.promise(asyncFn(), {
                       <td className="py-2 px-2">function</td>
                       <td className="py-2 px-2">-</td>
                       <td className="py-2 px-2">收藏切换回调</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </div>
+        </section>
+        )}
+
+        {/* Account Risk Indicator Section */}
+        {filterSection("account-risk-indicator") && (
+        <section id="account-risk-indicator" className="space-y-6">
+          <div className="border-b border-border pb-4">
+            <h2 className="text-xl font-semibold">Account Risk Indicator</h2>
+            <p className="text-muted-foreground text-sm mt-1">
+              Cross Margin account-level risk monitoring component with 4-tier risk model
+            </p>
+          </div>
+          
+          <div className="grid gap-6">
+            {/* Risk Model Overview */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Risk Model Overview</h3>
+              <div className="space-y-4">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-3">Core Metrics</p>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <p><strong className="text-foreground">Equity</strong> = Total Assets + Unrealized PnL (your real wealth)</p>
+                    <p><strong className="text-foreground">Initial Margin (IM)</strong> = Entry threshold - determines if you can open positions</p>
+                    <p><strong className="text-foreground">Maintenance Margin (MM)</strong> = Survival line - determines if you'll be liquidated (50% of IM)</p>
+                    <p><strong className="text-foreground">Risk Ratio</strong> = IM / Equity × 100% (the key risk indicator)</p>
+                  </div>
+                </div>
+                
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-3">Key Principle</p>
+                  <p className="text-sm text-muted-foreground italic">
+                    "In Cross Margin mode, IM and MM are account-level risk constraints that define the capital boundaries for entry and survival. Position-level leverage and margin are for display only and do not participate in liquidation or risk control decisions."
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* 4-Tier Risk Levels */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">4-Tier Risk Levels</h3>
+              <div className="space-y-3">
+                {/* SAFE */}
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-trading-green/10 border border-trading-green/30">
+                  <div className="flex items-center gap-2 min-w-[140px]">
+                    <ShieldCheck className="w-4 h-4 text-trading-green" />
+                    <span className="text-sm font-medium text-trading-green">SAFE</span>
+                    <span className="text-xs text-trading-green/70">&lt;80%</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p>Normal trading available ✅</p>
+                    <p className="text-xs mt-1">All operations permitted - open, close, modify positions</p>
+                  </div>
+                </div>
+
+                {/* WARNING */}
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-trading-yellow/10 border border-trading-yellow/30">
+                  <div className="flex items-center gap-2 min-w-[140px]">
+                    <AlertTriangle className="w-4 h-4 text-trading-yellow" />
+                    <span className="text-sm font-medium text-trading-yellow">WARNING</span>
+                    <span className="text-xs text-trading-yellow/70">80-95%</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p>Opening restricted, consider reducing ⚠️</p>
+                    <p className="text-xs mt-1">User should reduce position size or add funds</p>
+                  </div>
+                </div>
+
+                {/* RESTRICTION */}
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
+                  <div className="flex items-center gap-2 min-w-[140px]">
+                    <Ban className="w-4 h-4 text-orange-500" />
+                    <span className="text-sm font-medium text-orange-500">RESTRICTION</span>
+                    <span className="text-xs text-orange-500/70">95-100%</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p>Close-only mode, no new positions 🚨</p>
+                    <p className="text-xs mt-1">Only closing positions is allowed - urgent action required</p>
+                  </div>
+                </div>
+
+                {/* LIQUIDATION */}
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-trading-red/10 border border-trading-red/30">
+                  <div className="flex items-center gap-2 min-w-[140px]">
+                    <Zap className="w-4 h-4 text-trading-red" />
+                    <span className="text-sm font-medium text-trading-red">LIQUIDATION</span>
+                    <span className="text-xs text-trading-red/70">≥100%</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p>Liquidation triggered! 💥</p>
+                    <p className="text-xs mt-1">System force-closes positions when Equity ≤ IM</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Example Scenario */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Example Scenario</h3>
+              <div className="bg-muted/30 rounded-xl p-4">
+                <p className="text-sm font-medium mb-3">Account Setup</p>
+                <div className="grid grid-cols-3 gap-4 text-sm mb-4">
+                  <div>
+                    <p className="text-muted-foreground">Total Assets</p>
+                    <p className="font-mono">100 USDT</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Total Exposure</p>
+                    <p className="font-mono">500 USDT (5x)</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">IM / MM</p>
+                    <p className="font-mono">50 / 25 USDT</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-trading-green"></span>
+                    <span className="text-muted-foreground">Equity = 100 → Risk Ratio = 50% → SAFE</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-trading-yellow"></span>
+                    <span className="text-muted-foreground">Equity = 60 (loss -40) → Risk Ratio = 83.3% → WARNING</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                    <span className="text-muted-foreground">Equity = 52 → Risk Ratio = 96.2% → RESTRICTION</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-trading-red"></span>
+                    <span className="text-muted-foreground">Equity = 48 → Risk Ratio = 104.2% → LIQUIDATION</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Component Usage */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Component Usage</h3>
+              <div className="space-y-4">
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">Basic Usage</p>
+                  <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
+
+// Compact variant (for sidebars)
+<AccountRiskIndicator variant="compact" />
+
+// Full variant (for dedicated panels)
+<AccountRiskIndicator variant="full" />`}
+                  </pre>
+                </div>
+
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-sm font-medium mb-2">Integration in Desktop Trading</p>
+                  <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`{/* Account Risk Indicator - separate panel below Trade */}
+{user && (
+  <div className="bg-background rounded-lg border border-border/50">
+    <AccountRiskIndicator variant="compact" />
+  </div>
+)}`}
+                  </pre>
+                </div>
+              </div>
+            </Card>
+
+            {/* Design Tokens */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Risk Level Design Tokens</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-2 font-medium">Level</th>
+                      <th className="text-left py-2 px-2 font-medium">Text Color</th>
+                      <th className="text-left py-2 px-2 font-medium">Background</th>
+                      <th className="text-left py-2 px-2 font-medium">Icon</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-muted-foreground">
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 text-trading-green font-medium">SAFE</td>
+                      <td className="py-2 px-2 font-mono text-xs">text-trading-green</td>
+                      <td className="py-2 px-2 font-mono text-xs">bg-trading-green</td>
+                      <td className="py-2 px-2">ShieldCheck</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 text-trading-yellow font-medium">WARNING</td>
+                      <td className="py-2 px-2 font-mono text-xs">text-trading-yellow</td>
+                      <td className="py-2 px-2 font-mono text-xs">bg-trading-yellow</td>
+                      <td className="py-2 px-2">AlertTriangle</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 text-orange-500 font-medium">RESTRICTION</td>
+                      <td className="py-2 px-2 font-mono text-xs">text-orange-500</td>
+                      <td className="py-2 px-2 font-mono text-xs">bg-orange-500</td>
+                      <td className="py-2 px-2">Ban</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-2 text-trading-red font-medium">LIQUIDATION</td>
+                      <td className="py-2 px-2 font-mono text-xs">text-trading-red</td>
+                      <td className="py-2 px-2 font-mono text-xs">bg-trading-red</td>
+                      <td className="py-2 px-2">Zap</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            {/* Props Reference */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Props Reference</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-2 font-medium">Prop</th>
+                      <th className="text-left py-2 px-2 font-medium">Type</th>
+                      <th className="text-left py-2 px-2 font-medium">Default</th>
+                      <th className="text-left py-2 px-2 font-medium">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-muted-foreground">
+                    <tr>
+                      <td className="py-2 px-2 font-mono text-xs">variant</td>
+                      <td className="py-2 px-2">"compact" | "full"</td>
+                      <td className="py-2 px-2">"compact"</td>
+                      <td className="py-2 px-2">Display mode - compact for sidebars, full for dedicated panels</td>
                     </tr>
                   </tbody>
                 </table>
