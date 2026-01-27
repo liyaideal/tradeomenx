@@ -1277,13 +1277,15 @@ export default function DesktopTrading() {
           </div>
         </div>
 
-        {/* Right Section: Trade Form - separate container */}
-        <div className="w-[280px] flex-shrink-0 flex flex-col m-1 bg-background rounded border border-border/30">
-          <div className="flex items-center px-4 py-2 border-b border-border/30">
-            <span className="text-sm font-medium">Trade</span>
-          </div>
+        {/* Right Section: Trade Form + Account Risk - separate container */}
+        <div className="w-[280px] flex-shrink-0 flex flex-col gap-1 m-1">
+          {/* Trade Panel */}
+          <div className="flex-1 flex flex-col bg-background rounded border border-border/30 overflow-hidden">
+            <div className="flex items-center px-4 py-2 border-b border-border/30">
+              <span className="text-sm font-medium">Trade</span>
+            </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
             {/* Buy/Sell Toggle */}
             <div className="flex bg-muted rounded-lg p-0.5">
               <button
@@ -1604,14 +1606,15 @@ export default function DesktopTrading() {
             >
               {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             </button>
-
-            {/* Account Risk Indicator - only show for logged in users */}
-            {user && (
-              <div className="pt-4">
-                <AccountRiskIndicator variant="compact" />
-              </div>
-            )}
+            </div>
           </div>
+
+          {/* Account Risk Indicator - separate panel below Trade */}
+          {user && (
+            <div className="bg-background rounded border border-border/30 p-4">
+              <AccountRiskIndicator variant="compact" />
+            </div>
+          )}
         </div>
       </div>
 
