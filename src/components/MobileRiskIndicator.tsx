@@ -162,24 +162,18 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
       onOpenChange={onOpenChange}
     >
       <div className="space-y-4 pb-6">
-        {/* Title with icons and status badge */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-foreground">Unified Trading Account</span>
-            <button
-              onClick={() => setShowValues(!showValues)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showValues ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            </button>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="w-4 h-4" />
-            </button>
-          </div>
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getRiskBgColor(riskMetrics.riskLevel)}/20 ${getRiskColor(riskMetrics.riskLevel)}`}>
-            {getRiskIcon(riskMetrics.riskLevel)}
-            <span className="text-xs font-medium">{riskMetrics.riskLevel}</span>
-          </div>
+        {/* Title with icons */}
+        <div className="flex items-center gap-2">
+          <span className="text-lg font-semibold text-foreground">Unified Trading Account</span>
+          <button
+            onClick={() => setShowValues(!showValues)}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showValues ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          </button>
+          <button className="text-muted-foreground hover:text-foreground transition-colors">
+            <Info className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Margin Mode */}
