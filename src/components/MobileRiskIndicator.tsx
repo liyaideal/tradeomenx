@@ -4,11 +4,10 @@ import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { useSupabasePositions } from "@/hooks/useSupabasePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 type RiskLevel = "SAFE" | "WARNING" | "RESTRICTION" | "LIQUIDATION";
 
@@ -167,23 +166,23 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
       onOpenChange={onOpenChange}
     >
       <div className="space-y-4 pb-6">
-        {/* Title with icons */}
-        <div className="flex items-center gap-2">
+        {/* Title with icons on the right */}
+        <div className="flex items-center justify-between">
           <span className="text-lg font-semibold text-foreground">Unified Trading Account</span>
-          <button
-            onClick={() => setShowValues(!showValues)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {showValues ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-          </button>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowValues(!showValues)}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showValues ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            </button>
+            <Popover>
+              <PopoverTrigger asChild>
                 <button className="text-muted-foreground hover:text-foreground transition-colors">
                   <Info className="w-4 h-4" />
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-[280px]">
+              </PopoverTrigger>
+              <PopoverContent side="bottom" align="end" className="w-[280px] p-3">
                 <div className="space-y-2 text-xs">
                   <p><strong>Risk Ratio</strong> = IM / Equity</p>
                   <p><strong>IM (Initial Margin):</strong> Entry threshold - determines if you can open positions.</p>
@@ -196,9 +195,9 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
                     <p className="text-trading-red">LIQUIDATION: ≥100% - Force close</p>
                   </div>
                 </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
         {/* Margin Mode */}
