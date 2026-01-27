@@ -156,7 +156,6 @@ interface AccountRiskDrawerProps {
 
 function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawerProps) {
   const [showValues, setShowValues] = useState(true);
-  const riskMessage = getRiskMessage(riskMetrics.riskLevel);
 
   const getProgressWidth = (ratio: number) => Math.min(ratio, 100);
 
@@ -274,21 +273,6 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
           </div>
         </div>
 
-        {/* Risk Status Message */}
-        {riskMetrics.hasPositions && (
-          <div className={`flex items-center gap-2 p-3 rounded-lg text-sm ${
-            riskMetrics.riskLevel === "LIQUIDATION" 
-              ? "bg-trading-red/10 text-trading-red border border-trading-red/30"
-              : riskMetrics.riskLevel === "RESTRICTION"
-              ? "bg-orange-500/10 text-orange-500 border border-orange-500/30"
-              : riskMetrics.riskLevel === "WARNING"
-              ? "bg-trading-yellow/10 text-trading-yellow border border-trading-yellow/30"
-              : "bg-trading-green/10 text-trading-green border border-trading-green/30"
-          }`}>
-            <span className="text-lg">{riskMessage.icon}</span>
-            <span>{riskMessage.text}</span>
-          </div>
-        )}
       </div>
     </MobileDrawer>
   );
