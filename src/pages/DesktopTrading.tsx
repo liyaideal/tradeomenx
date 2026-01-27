@@ -1277,15 +1277,15 @@ export default function DesktopTrading() {
           </div>
         </div>
 
-        {/* Right Section: Trade Form + Account Risk - separate containers */}
-        <div className="w-[280px] flex-shrink-0 flex flex-col gap-2 m-1">
-          {/* Trade Panel */}
-          <div className="flex flex-col bg-background rounded-lg border border-border/50 overflow-hidden">
+        {/* Right Section: Trade Form + Account Risk - separate containers, no internal scroll */}
+        <div className="w-[280px] flex-shrink-0 flex flex-col gap-2 m-1 overflow-y-auto">
+          {/* Trade Panel - always fully expanded, no internal scroll */}
+          <div className="flex flex-col bg-background rounded-lg border border-border/50 flex-shrink-0">
             <div className="flex items-center px-4 py-2 border-b border-border/30">
               <span className="text-sm font-medium">Trade</span>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            <div className="px-4 py-3 space-y-3">
             {/* Buy/Sell Toggle */}
             <div className="flex bg-muted rounded-lg p-0.5">
               <button
@@ -1609,9 +1609,9 @@ export default function DesktopTrading() {
             </div>
           </div>
 
-          {/* Account Risk Indicator - completely separate panel */}
+          {/* Account Risk Indicator - follows Trade panel, no special height constraints */}
           {user && (
-            <div className="bg-background rounded-lg border border-border/50">
+            <div className="bg-background rounded-lg border border-border/50 flex-shrink-0">
               <AccountRiskIndicator variant="compact" />
             </div>
           )}
