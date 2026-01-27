@@ -17,6 +17,8 @@ interface RiskMetrics {
   equity: number;
   imTotal: number;
   mmTotal: number;
+  imRate: number;
+  mmRate: number;
   riskRatio: number;
   riskLevel: RiskLevel;
   availableMargin: number;
@@ -56,12 +58,20 @@ function useRiskMetrics(): RiskMetrics {
     const availableMargin = Math.max(equity - imTotal, 0);
     const distanceToLiquidation = Math.max(equity - imTotal, 0);
     
+    // IM Rate = IM / Equity (same as risk ratio)
+    const imRate = equity > 0 ? (imTotal / equity) * 100 : 0;
+    
+    // MM Rate = MM / Equity
+    const mmRate = equity > 0 ? (mmTotal / equity) * 100 : 0;
+    
     return {
       totalAssets,
       totalExposure,
       equity,
       imTotal,
       mmTotal,
+      imRate: Math.min(imRate, 150),
+      mmRate: Math.min(mmRate, 150),
       riskRatio: Math.min(riskRatio, 150),
       riskLevel,
       availableMargin,
@@ -257,19 +267,48 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
           </div>
         </div>
 
-        {/* IM & MM Summary */}
-        <div className="grid grid-cols-2 gap-4 pt-3 border-t border-border/30">
+        {/* IM & MM with Rate Progress Bars */}
+        <div className="space-y-4 pt-3 border-t border-border/30">
+          {/* Initial Margin Rate */}
           <div>
-            <span className="text-xs text-muted-foreground">Initial Margin</span>
-            <p className="text-base font-mono text-foreground">
-              {showValues ? `$${riskMetrics.imTotal.toFixed(2)}` : "****"}
-            </p>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-muted-foreground">Initial Margin Rate</span>
+              <span className="text-xs font-mono text-foreground">
+                {showValues ? `$${riskMetrics.imTotal.toFixed(2)}` : "****"}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-trading-green rounded-full transition-all duration-300"
+                  style={{ width: `${Math.min(riskMetrics.imRate, 100)}%` }}
+                />
+              </div>
+              <span className="text-sm font-mono text-trading-green min-w-[50px] text-right">
+                {showValues ? `${riskMetrics.imRate.toFixed(2)}%` : "****"}
+              </span>
+            </div>
           </div>
+
+          {/* Maintenance Margin Rate */}
           <div>
-            <span className="text-xs text-muted-foreground">Maint. Margin</span>
-            <p className="text-base font-mono text-foreground">
-              {showValues ? `$${riskMetrics.mmTotal.toFixed(2)}` : "****"}
-            </p>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-muted-foreground">Maintenance Margin Rate</span>
+              <span className="text-xs font-mono text-foreground">
+                {showValues ? `$${riskMetrics.mmTotal.toFixed(2)}` : "****"}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-trading-green rounded-full transition-all duration-300"
+                  style={{ width: `${Math.min(riskMetrics.mmRate, 100)}%` }}
+                />
+              </div>
+              <span className="text-sm font-mono text-trading-green min-w-[50px] text-right">
+                {showValues ? `${riskMetrics.mmRate.toFixed(2)}%` : "****"}
+              </span>
+            </div>
           </div>
         </div>
 
