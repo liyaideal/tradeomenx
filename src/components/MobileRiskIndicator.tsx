@@ -203,10 +203,7 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
         {/* Margin Mode */}
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Margin Mode</span>
-          <button className="flex items-center gap-1 text-sm text-foreground hover:text-muted-foreground transition-colors">
-            Cross Margin
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <span className="text-sm text-foreground">Cross Margin</span>
         </div>
 
         {/* Account Equity */}

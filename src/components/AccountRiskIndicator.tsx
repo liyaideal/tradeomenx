@@ -169,10 +169,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
         {/* Margin Mode */}
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">Margin Mode</span>
-          <button className="flex items-center gap-1 text-xs text-foreground hover:text-muted-foreground transition-colors">
-            Cross Margin
-            <ChevronRight className="w-3 h-3" />
-          </button>
+          <span className="text-xs text-foreground">Cross Margin</span>
         </div>
 
         {/* Account Equity */}
