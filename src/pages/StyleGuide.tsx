@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,7 @@ const StyleGuide = () => {
   // Define all searchable sections with their IDs and keywords
   const sections = [
     { id: "brand-logo", title: "Brand Logo", keywords: ["logo", "brand", "omenx", "identity", "mark"] },
+    { id: "account-risk-playground", title: "Account Risk Playground", keywords: ["risk", "playground", "margin", "equity", "liquidation", "simulator", "interactive"] },
     { id: "typography", title: "Typography", keywords: ["font", "text", "heading", "type", "scale", "inter", "mono"] },
     { id: "playground", title: "Component Playground", keywords: ["playground", "interactive", "test", "try"] },
     { id: "button-playground", title: "Button Playground", keywords: ["button", "click", "action", "variant", "size"] },
@@ -164,6 +165,36 @@ const StyleGuide = () => {
   const [headerCurrentPrice, setHeaderCurrentPrice] = useState("$94,532.18");
   const [headerPriceChange, setHeaderPriceChange] = useState("+2.34%");
 
+  // Account Risk Indicator Playground
+  const [riskTotalAssets, setRiskTotalAssets] = useState(100);
+  const [riskUnrealizedPnL, setRiskUnrealizedPnL] = useState(0);
+  const [riskIMTotal, setRiskIMTotal] = useState(50);
+  const [riskShowValues, setRiskShowValues] = useState(true);
+
+  // Calculate risk metrics for playground
+  const playgroundRiskMetrics = useMemo(() => {
+    const equity = riskTotalAssets + riskUnrealizedPnL;
+    const mmTotal = riskIMTotal * 0.5;
+    const riskRatio = equity > 0 ? (riskIMTotal / equity) * 100 : 0;
+    
+    let riskLevel: "SAFE" | "WARNING" | "RESTRICTION" | "LIQUIDATION" = "SAFE";
+    if (riskRatio >= 100) {
+      riskLevel = "LIQUIDATION";
+    } else if (riskRatio >= 95) {
+      riskLevel = "RESTRICTION";
+    } else if (riskRatio >= 80) {
+      riskLevel = "WARNING";
+    }
+    
+    return {
+      equity,
+      mmTotal,
+      riskRatio: Math.min(riskRatio, 150),
+      riskLevel,
+      availableMargin: Math.max(equity - riskIMTotal, 0),
+    };
+  }, [riskTotalAssets, riskUnrealizedPnL, riskIMTotal]);
+
   const getDialogSizeClass = () => {
     switch (dialogSize) {
       case "sm": return "max-w-sm";
@@ -235,6 +266,11 @@ const StyleGuide = () => {
     setHeaderTweetCount(156);
     setHeaderCurrentPrice("$94,532.18");
     setHeaderPriceChange("+2.34%");
+    // Risk Indicator
+    setRiskTotalAssets(100);
+    setRiskUnrealizedPnL(0);
+    setRiskIMTotal(50);
+    setRiskShowValues(true);
     toast.success("Playground reset!");
   };
 
@@ -1642,6 +1678,232 @@ const StyleGuide = () => {
               <CodePreview 
                 code={`<MobileHeader${headerTitle ? ` title="${headerTitle.substring(0, 30)}${headerTitle.length > 30 ? '...' : ''}"` : ''}${headerShowLogo ? '' : ' showLogo={false}'}${headerShowBack ? ' showBack' : ''}${headerShowActions ? ' showActions' : ''}${headerShowCountdown ? ' endTime={...}' : ''}${headerShowTweets ? ` tweetCount={${headerTweetCount}}` : ''}${headerShowPrice ? ` currentPrice="${headerCurrentPrice}"` : ''} />`}
                 id="mobile-header-code"
+              />
+            </CardContent>
+          </Card>
+        </section>
+        )}
+
+        {/* Account Risk Indicator Playground */}
+        {filterSection("account-risk-playground") && (
+        <section id="account-risk-playground" className="scroll-mt-20">
+          <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Account Risk Playground</h2>
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-trading-purple" />
+                Risk Level Simulator
+              </CardTitle>
+              <CardDescription>Simulate different account states to see how risk levels change</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Live Preview */}
+              <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                {/* Risk Level Display */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">Unified Trading Account</span>
+                    <button
+                      onClick={() => setRiskShowValues(!riskShowValues)}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {riskShowValues ? <Info className="w-4 h-4" /> : <HelpCircle className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full ${
+                    playgroundRiskMetrics.riskLevel === "SAFE" ? "bg-trading-green/20 text-trading-green" :
+                    playgroundRiskMetrics.riskLevel === "WARNING" ? "bg-trading-yellow/20 text-trading-yellow" :
+                    playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "bg-orange-500/20 text-orange-500" :
+                    "bg-trading-red/20 text-trading-red"
+                  }`}>
+                    {playgroundRiskMetrics.riskLevel === "SAFE" && <ShieldCheck className="w-3.5 h-3.5" />}
+                    {playgroundRiskMetrics.riskLevel === "WARNING" && <AlertTriangle className="w-3.5 h-3.5" />}
+                    {playgroundRiskMetrics.riskLevel === "RESTRICTION" && <Ban className="w-3.5 h-3.5" />}
+                    {playgroundRiskMetrics.riskLevel === "LIQUIDATION" && <Zap className="w-3.5 h-3.5" />}
+                    <span className="text-xs font-medium">{playgroundRiskMetrics.riskLevel}</span>
+                  </div>
+                </div>
+
+                {/* Metrics Display */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <span className="text-xs text-muted-foreground">Account Equity</span>
+                    <p className="text-lg font-mono font-semibold text-foreground">
+                      {riskShowValues ? `$${playgroundRiskMetrics.equity.toFixed(2)}` : "****"}
+                    </p>
+                    {riskUnrealizedPnL !== 0 && riskShowValues && (
+                      <span className={`text-xs font-mono ${riskUnrealizedPnL >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+                        {riskUnrealizedPnL >= 0 ? '+' : ''}{riskUnrealizedPnL.toFixed(2)} PnL
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Risk Ratio (IM/Equity)</span>
+                    <p className={`text-lg font-mono font-semibold ${
+                      playgroundRiskMetrics.riskLevel === "SAFE" ? "text-trading-green" :
+                      playgroundRiskMetrics.riskLevel === "WARNING" ? "text-trading-yellow" :
+                      playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "text-orange-500" :
+                      "text-trading-red"
+                    }`}>
+                      {riskShowValues ? `${playgroundRiskMetrics.riskRatio.toFixed(2)}%` : "****"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Risk Progress Bar */}
+                <div className="space-y-2">
+                  <div className="relative">
+                    <div className="h-3 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          playgroundRiskMetrics.riskLevel === "SAFE" ? "bg-trading-green" :
+                          playgroundRiskMetrics.riskLevel === "WARNING" ? "bg-trading-yellow" :
+                          playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "bg-orange-500" :
+                          "bg-trading-red"
+                        }`}
+                        style={{ width: `${Math.min(playgroundRiskMetrics.riskRatio, 100)}%` }}
+                      />
+                    </div>
+                    {/* Threshold markers */}
+                    <div className="absolute top-0 left-[80%] w-0.5 h-3 bg-trading-yellow" />
+                    <div className="absolute top-0 left-[95%] w-0.5 h-3 bg-orange-500" />
+                  </div>
+                  
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-trading-green">SAFE</span>
+                    <span className="text-trading-yellow">WARNING (80%)</span>
+                    <span className="text-orange-500">RESTRICT (95%)</span>
+                    <span className="text-trading-red">LIQ (100%)</span>
+                  </div>
+                </div>
+
+                {/* IM & MM Display */}
+                <div className="grid grid-cols-3 gap-3 pt-3 mt-3 border-t border-border/30">
+                  <div>
+                    <span className="text-xs text-muted-foreground">Initial Margin</span>
+                    <p className="text-sm font-mono text-foreground">${riskIMTotal.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Maint. Margin</span>
+                    <p className="text-sm font-mono text-foreground">${playgroundRiskMetrics.mmTotal.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Available</span>
+                    <p className="text-sm font-mono text-foreground">${playgroundRiskMetrics.availableMargin.toFixed(2)}</p>
+                  </div>
+                </div>
+
+                {/* Risk Status Message */}
+                {playgroundRiskMetrics.riskLevel !== "SAFE" && (
+                  <div className={`flex items-center gap-2 p-3 rounded-lg text-sm mt-3 ${
+                    playgroundRiskMetrics.riskLevel === "LIQUIDATION" 
+                      ? "bg-trading-red/10 text-trading-red border border-trading-red/30"
+                      : playgroundRiskMetrics.riskLevel === "RESTRICTION"
+                      ? "bg-orange-500/10 text-orange-500 border border-orange-500/30"
+                      : "bg-trading-yellow/10 text-trading-yellow border border-trading-yellow/30"
+                  }`}>
+                    <span className="text-lg">
+                      {playgroundRiskMetrics.riskLevel === "LIQUIDATION" ? "💥" :
+                       playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "🚨" : "⚠️"}
+                    </span>
+                    <span>
+                      {playgroundRiskMetrics.riskLevel === "LIQUIDATION" ? "Liquidation triggered!" :
+                       playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "Close-only mode, no new positions" :
+                       "Opening restricted, consider reducing"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Controls */}
+              <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                {/* Left Column - Asset Controls */}
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm mb-2 block">Total Assets: ${riskTotalAssets}</Label>
+                    <Slider
+                      value={[riskTotalAssets]}
+                      onValueChange={(v) => setRiskTotalAssets(v[0])}
+                      min={10}
+                      max={200}
+                      step={1}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm mb-2 block">Unrealized PnL: {riskUnrealizedPnL >= 0 ? '+' : ''}{riskUnrealizedPnL}</Label>
+                    <Slider
+                      value={[riskUnrealizedPnL]}
+                      onValueChange={(v) => setRiskUnrealizedPnL(v[0])}
+                      min={-80}
+                      max={50}
+                      step={1}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm mb-2 block">Initial Margin (IM): ${riskIMTotal}</Label>
+                    <Slider
+                      value={[riskIMTotal]}
+                      onValueChange={(v) => setRiskIMTotal(v[0])}
+                      min={10}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column - Preset Scenarios */}
+                <div className="space-y-4">
+                  <Label className="text-sm block">Quick Scenarios</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start text-trading-green border-trading-green/30 hover:bg-trading-green/10"
+                      onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(0); setRiskIMTotal(50); }}
+                    >
+                      <ShieldCheck className="w-4 h-4 mr-2" />
+                      SAFE (50%)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start text-trading-yellow border-trading-yellow/30 hover:bg-trading-yellow/10"
+                      onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(-40); setRiskIMTotal(50); }}
+                    >
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      WARNING (83%)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start text-orange-500 border-orange-500/30 hover:bg-orange-500/10"
+                      onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(-48); setRiskIMTotal(50); }}
+                    >
+                      <Ban className="w-4 h-4 mr-2" />
+                      RESTRICT (96%)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start text-trading-red border-trading-red/30 hover:bg-trading-red/10"
+                      onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(-52); setRiskIMTotal(50); }}
+                    >
+                      <Zap className="w-4 h-4 mr-2" />
+                      LIQUIDATION (104%)
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Code Preview */}
+              <CodePreview
+                code={`<AccountRiskIndicator variant="compact" />
+
+// Risk calculation logic:
+const equity = totalAssets + unrealizedPnL; // ${riskTotalAssets} + ${riskUnrealizedPnL} = ${playgroundRiskMetrics.equity}
+const riskRatio = (IM / equity) * 100;      // (${riskIMTotal} / ${playgroundRiskMetrics.equity}) * 100 = ${playgroundRiskMetrics.riskRatio.toFixed(2)}%
+// Risk Level: ${playgroundRiskMetrics.riskLevel}`}
+                id="account-risk-code"
               />
             </CardContent>
           </Card>
