@@ -335,7 +335,8 @@ export default function DesktopTrading() {
   // Wrapper to update URL when switching events
   const handleEventSelect = (event: NonNullable<typeof selectedEvent>) => {
     setSelectedEvent(event);
-    navigate(`/desktop-trading?event=${event.id}`, { replace: true });
+    // Stay on /trade route (desktop renders here via TradingPage component)
+    navigate(`/trade?event=${event.id}`, { replace: true });
   };
 
   const toggleFavorite = (eventId: string, e: React.MouseEvent) => {
