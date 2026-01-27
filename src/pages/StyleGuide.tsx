@@ -1696,11 +1696,11 @@ const StyleGuide = () => {
               </CardTitle>
               <CardDescription>Simulate different account states to see how risk levels change</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Live Preview */}
-              <div className="bg-muted/30 rounded-xl p-4 border border-border">
-                {/* Risk Level Display */}
-                <div className="flex items-center justify-between mb-4">
+            <CardContent className="space-y-4 md:space-y-6">
+              {/* Live Preview - Compact on mobile */}
+              <div className="bg-muted/30 rounded-xl p-3 md:p-4 border border-border">
+                {/* Risk Level Display - Stack on mobile */}
+                <div className={`flex ${isMobile ? "flex-col gap-2" : "items-center justify-between"} mb-3 md:mb-4`}>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">Unified Trading Account</span>
                     <button
@@ -1710,7 +1710,7 @@ const StyleGuide = () => {
                       {riskShowValues ? <Info className="w-4 h-4" /> : <HelpCircle className="w-4 h-4" />}
                     </button>
                   </div>
-                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full ${
+                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full ${isMobile ? "self-start" : ""} ${
                     playgroundRiskMetrics.riskLevel === "SAFE" ? "bg-trading-green/20 text-trading-green" :
                     playgroundRiskMetrics.riskLevel === "WARNING" ? "bg-trading-yellow/20 text-trading-yellow" :
                     playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "bg-orange-500/20 text-orange-500" :
@@ -1725,21 +1725,21 @@ const StyleGuide = () => {
                 </div>
 
                 {/* Metrics Display */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-2 gap-3 md:gap-4 mb-3 md:mb-4">
                   <div>
-                    <span className="text-xs text-muted-foreground">Account Equity</span>
-                    <p className="text-lg font-mono font-semibold text-foreground">
+                    <span className="text-[11px] md:text-xs text-muted-foreground">Account Equity</span>
+                    <p className={`${isMobile ? "text-base" : "text-lg"} font-mono font-semibold text-foreground`}>
                       {riskShowValues ? `$${playgroundRiskMetrics.equity.toFixed(2)}` : "****"}
                     </p>
                     {riskUnrealizedPnL !== 0 && riskShowValues && (
-                      <span className={`text-xs font-mono ${riskUnrealizedPnL >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+                      <span className={`text-[10px] md:text-xs font-mono ${riskUnrealizedPnL >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
                         {riskUnrealizedPnL >= 0 ? '+' : ''}{riskUnrealizedPnL.toFixed(2)} PnL
                       </span>
                     )}
                   </div>
                   <div>
-                    <span className="text-xs text-muted-foreground">Risk Ratio (IM/Equity)</span>
-                    <p className={`text-lg font-mono font-semibold ${
+                    <span className="text-[11px] md:text-xs text-muted-foreground">Risk Ratio (IM/Equity)</span>
+                    <p className={`${isMobile ? "text-base" : "text-lg"} font-mono font-semibold ${
                       playgroundRiskMetrics.riskLevel === "SAFE" ? "text-trading-green" :
                       playgroundRiskMetrics.riskLevel === "WARNING" ? "text-trading-yellow" :
                       playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "text-orange-500" :
@@ -1751,9 +1751,9 @@ const StyleGuide = () => {
                 </div>
 
                 {/* Risk Progress Bar */}
-                <div className="space-y-2">
+                <div className="space-y-1.5 md:space-y-2">
                   <div className="relative">
-                    <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div className={`${isMobile ? "h-2" : "h-3"} bg-muted rounded-full overflow-hidden`}>
                       <div
                         className={`h-full rounded-full transition-all duration-300 ${
                           playgroundRiskMetrics.riskLevel === "SAFE" ? "bg-trading-green" :
@@ -1765,62 +1765,62 @@ const StyleGuide = () => {
                       />
                     </div>
                     {/* Threshold markers */}
-                    <div className="absolute top-0 left-[80%] w-0.5 h-3 bg-trading-yellow" />
-                    <div className="absolute top-0 left-[95%] w-0.5 h-3 bg-orange-500" />
+                    <div className={`absolute top-0 left-[80%] w-px ${isMobile ? "h-2" : "h-3"} bg-trading-yellow/50`} />
+                    <div className={`absolute top-0 left-[95%] w-px ${isMobile ? "h-2" : "h-3"} bg-orange-500/50`} />
                   </div>
                   
-                  <div className="flex justify-between text-[10px]">
+                  <div className={`flex justify-between ${isMobile ? "text-[8px]" : "text-[10px]"}`}>
                     <span className="text-trading-green">SAFE</span>
-                    <span className="text-trading-yellow">WARNING (80%)</span>
-                    <span className="text-orange-500">RESTRICT (95%)</span>
-                    <span className="text-trading-red">LIQ (100%)</span>
+                    <span className="text-trading-yellow">{isMobile ? "80%" : "WARNING (80%)"}</span>
+                    <span className="text-orange-500">{isMobile ? "95%" : "RESTRICT (95%)"}</span>
+                    <span className="text-trading-red">{isMobile ? "100%" : "LIQ (100%)"}</span>
                   </div>
                 </div>
 
                 {/* IM & MM Display */}
-                <div className="grid grid-cols-3 gap-3 pt-3 mt-3 border-t border-border/30">
+                <div className="grid grid-cols-3 gap-2 md:gap-3 pt-2 md:pt-3 mt-2 md:mt-3 border-t border-border/30">
                   <div>
-                    <span className="text-xs text-muted-foreground">Initial Margin</span>
-                    <p className="text-sm font-mono text-foreground">${riskIMTotal.toFixed(2)}</p>
+                    <span className="text-[10px] md:text-xs text-muted-foreground">{isMobile ? "IM" : "Initial Margin"}</span>
+                    <p className={`${isMobile ? "text-xs" : "text-sm"} font-mono text-foreground`}>${riskIMTotal.toFixed(2)}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-muted-foreground">Maint. Margin</span>
-                    <p className="text-sm font-mono text-foreground">${playgroundRiskMetrics.mmTotal.toFixed(2)}</p>
+                    <span className="text-[10px] md:text-xs text-muted-foreground">{isMobile ? "MM" : "Maint. Margin"}</span>
+                    <p className={`${isMobile ? "text-xs" : "text-sm"} font-mono text-foreground`}>${playgroundRiskMetrics.mmTotal.toFixed(2)}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-muted-foreground">Available</span>
-                    <p className="text-sm font-mono text-foreground">${playgroundRiskMetrics.availableMargin.toFixed(2)}</p>
+                    <span className="text-[10px] md:text-xs text-muted-foreground">{isMobile ? "Avail." : "Available"}</span>
+                    <p className={`${isMobile ? "text-xs" : "text-sm"} font-mono text-foreground`}>${playgroundRiskMetrics.availableMargin.toFixed(2)}</p>
                   </div>
                 </div>
 
-                {/* Risk Status Message */}
+                {/* Risk Status Message - Compact on mobile */}
                 {playgroundRiskMetrics.riskLevel !== "SAFE" && (
-                  <div className={`flex items-center gap-2 p-3 rounded-lg text-sm mt-3 ${
+                  <div className={`flex items-center gap-2 ${isMobile ? "p-2 text-xs" : "p-3 text-sm"} rounded-lg mt-2 md:mt-3 ${
                     playgroundRiskMetrics.riskLevel === "LIQUIDATION" 
                       ? "bg-trading-red/10 text-trading-red border border-trading-red/30"
                       : playgroundRiskMetrics.riskLevel === "RESTRICTION"
                       ? "bg-orange-500/10 text-orange-500 border border-orange-500/30"
                       : "bg-trading-yellow/10 text-trading-yellow border border-trading-yellow/30"
                   }`}>
-                    <span className="text-lg">
+                    <span className={isMobile ? "text-sm" : "text-lg"}>
                       {playgroundRiskMetrics.riskLevel === "LIQUIDATION" ? "💥" :
                        playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "🚨" : "⚠️"}
                     </span>
-                    <span>
+                    <span className={isMobile ? "leading-tight" : ""}>
                       {playgroundRiskMetrics.riskLevel === "LIQUIDATION" ? "Liquidation triggered!" :
-                       playgroundRiskMetrics.riskLevel === "RESTRICTION" ? "Close-only mode, no new positions" :
-                       "Opening restricted, consider reducing"}
+                       playgroundRiskMetrics.riskLevel === "RESTRICTION" ? (isMobile ? "Close-only mode" : "Close-only mode, no new positions") :
+                       (isMobile ? "Opening restricted" : "Opening restricted, consider reducing")}
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* Controls */}
-              <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-                {/* Left Column - Asset Controls */}
-                <div className="space-y-4">
+              {/* Controls - Stacked on mobile */}
+              <div className="space-y-4">
+                {/* Sliders */}
+                <div className="space-y-3 md:space-y-4">
                   <div>
-                    <Label className="text-sm mb-2 block">Total Assets: ${riskTotalAssets}</Label>
+                    <Label className="text-xs md:text-sm mb-2 block">Total Assets: ${riskTotalAssets}</Label>
                     <Slider
                       value={[riskTotalAssets]}
                       onValueChange={(v) => setRiskTotalAssets(v[0])}
@@ -1830,7 +1830,7 @@ const StyleGuide = () => {
                     />
                   </div>
                   <div>
-                    <Label className="text-sm mb-2 block">Unrealized PnL: {riskUnrealizedPnL >= 0 ? '+' : ''}{riskUnrealizedPnL}</Label>
+                    <Label className="text-xs md:text-sm mb-2 block">Unrealized PnL: {riskUnrealizedPnL >= 0 ? '+' : ''}{riskUnrealizedPnL}</Label>
                     <Slider
                       value={[riskUnrealizedPnL]}
                       onValueChange={(v) => setRiskUnrealizedPnL(v[0])}
@@ -1840,7 +1840,7 @@ const StyleGuide = () => {
                     />
                   </div>
                   <div>
-                    <Label className="text-sm mb-2 block">Initial Margin (IM): ${riskIMTotal}</Label>
+                    <Label className="text-xs md:text-sm mb-2 block">Initial Margin (IM): ${riskIMTotal}</Label>
                     <Slider
                       value={[riskIMTotal]}
                       onValueChange={(v) => setRiskIMTotal(v[0])}
@@ -1851,60 +1851,62 @@ const StyleGuide = () => {
                   </div>
                 </div>
 
-                {/* Right Column - Preset Scenarios */}
-                <div className="space-y-4">
-                  <Label className="text-sm block">Quick Scenarios</Label>
+                {/* Quick Scenarios */}
+                <div className="space-y-2 md:space-y-3">
+                  <Label className="text-xs md:text-sm block">Quick Scenarios</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="justify-start text-trading-green border-trading-green/30 hover:bg-trading-green/10"
+                      size={isMobile ? "sm" : "default"}
+                      className={`${isMobile ? "text-xs px-2 py-1.5 h-auto" : "justify-start"} text-trading-green border-trading-green/30 hover:bg-trading-green/10`}
                       onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(0); setRiskIMTotal(50); }}
                     >
-                      <ShieldCheck className="w-4 h-4 mr-2" />
-                      SAFE (50%)
+                      <ShieldCheck className={`${isMobile ? "w-3 h-3 mr-1" : "w-4 h-4 mr-2"}`} />
+                      {isMobile ? "SAFE" : "SAFE (50%)"}
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="justify-start text-trading-yellow border-trading-yellow/30 hover:bg-trading-yellow/10"
+                      size={isMobile ? "sm" : "default"}
+                      className={`${isMobile ? "text-xs px-2 py-1.5 h-auto" : "justify-start"} text-trading-yellow border-trading-yellow/30 hover:bg-trading-yellow/10`}
                       onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(-40); setRiskIMTotal(50); }}
                     >
-                      <AlertTriangle className="w-4 h-4 mr-2" />
-                      WARNING (83%)
+                      <AlertTriangle className={`${isMobile ? "w-3 h-3 mr-1" : "w-4 h-4 mr-2"}`} />
+                      {isMobile ? "WARNING" : "WARNING (83%)"}
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="justify-start text-orange-500 border-orange-500/30 hover:bg-orange-500/10"
+                      size={isMobile ? "sm" : "default"}
+                      className={`${isMobile ? "text-xs px-2 py-1.5 h-auto" : "justify-start"} text-orange-500 border-orange-500/30 hover:bg-orange-500/10`}
                       onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(-48); setRiskIMTotal(50); }}
                     >
-                      <Ban className="w-4 h-4 mr-2" />
-                      RESTRICT (96%)
+                      <Ban className={`${isMobile ? "w-3 h-3 mr-1" : "w-4 h-4 mr-2"}`} />
+                      {isMobile ? "RESTRICT" : "RESTRICT (96%)"}
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="justify-start text-trading-red border-trading-red/30 hover:bg-trading-red/10"
+                      size={isMobile ? "sm" : "default"}
+                      className={`${isMobile ? "text-xs px-2 py-1.5 h-auto" : "justify-start"} text-trading-red border-trading-red/30 hover:bg-trading-red/10`}
                       onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(-52); setRiskIMTotal(50); }}
                     >
-                      <Zap className="w-4 h-4 mr-2" />
-                      LIQUIDATION (104%)
+                      <Zap className={`${isMobile ? "w-3 h-3 mr-1" : "w-4 h-4 mr-2"}`} />
+                      {isMobile ? "LIQUIDATION" : "LIQUIDATION (104%)"}
                     </Button>
                   </div>
                 </div>
               </div>
 
-              {/* Code Preview */}
-              <CodePreview
-                code={`<AccountRiskIndicator variant="compact" />
+              {/* Code Preview - Hide on mobile for cleaner UX */}
+              {!isMobile && (
+                <CodePreview
+                  code={`<AccountRiskIndicator variant="compact" />
 
 // Risk calculation logic:
 const equity = totalAssets + unrealizedPnL; // ${riskTotalAssets} + ${riskUnrealizedPnL} = ${playgroundRiskMetrics.equity}
 const riskRatio = (IM / equity) * 100;      // (${riskIMTotal} / ${playgroundRiskMetrics.equity}) * 100 = ${playgroundRiskMetrics.riskRatio.toFixed(2)}%
 // Risk Level: ${playgroundRiskMetrics.riskLevel}`}
-                id="account-risk-code"
-              />
+                  id="account-risk-code"
+                />
+              )}
             </CardContent>
           </Card>
         </section>
