@@ -6,8 +6,7 @@ import { TopUpDialog } from "@/components/TopUpDialog";
 import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
-import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
-import { useAuth } from "@/hooks/useAuth";
+
 interface TradeFormProps {
   selectedPrice?: string;
   eventName?: string;
@@ -25,7 +24,6 @@ export const TradeForm = ({
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance } = useUserProfile();
-  const { user } = useAuth();
 
   // 检查是否为二元事件且当前选择了 No 选项
   const showBinaryHint = useMemo(() => {
@@ -410,11 +408,6 @@ export const TradeForm = ({
           </span>
         </div>
       </div>
-
-      {/* Account Risk Indicator - only show for logged in users */}
-      {user && (
-        <AccountRiskIndicator variant="compact" />
-      )}
 
       {/* Binary Event Hint - 二元事件仓位合并提示 */}
       {showBinaryHint && (
