@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, Percent, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2 } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
@@ -87,34 +87,37 @@ export default function Portfolio() {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-  // Calculate positions stats
+  // Calculate positions stats - aligned with Account Risk module
   const positionsStats = useMemo(() => {
-    const totalPnl = positions.reduce((sum, pos) => {
+    // Unrealized P&L from all positions
+    const unrealizedPnL = positions.reduce((sum, pos) => {
       const pnlValue = parseFloat(String(pos.pnl).replace(/[$,+]/g, "")) || 0;
       return sum + pnlValue;
     }, 0);
 
-    const totalMargin = positions.reduce((sum, pos) => {
+    // Initial Margin (IM) = sum of all position margins
+    const imTotal = positions.reduce((sum, pos) => {
       const marginValue = parseFloat(String(pos.margin).replace(/[$,]/g, "")) || 0;
       return sum + marginValue;
     }, 0);
 
-    // Calculate ROI: (Total Unrealized P&L / Total Margin) * 100
-    const roi = totalMargin > 0 ? (totalPnl / totalMargin) * 100 : 0;
+    // Maintenance Margin (MM) = 50% of IM (standard ratio)
+    const mmTotal = imTotal * 0.5;
 
-    // Calculate Liquidation Risk (mock: based on average margin utilization)
-    // In real scenario, this would be based on maintenance margin vs current margin
-    const avgLeverage = positions.length > 0
-      ? positions.reduce((sum, pos) => sum + (typeof pos.leverage === 'string' ? parseInt(pos.leverage) : pos.leverage || 10), 0) / positions.length
-      : 0;
-    // Higher leverage = higher risk, scale to 0-100%
-    const liqRisk = Math.min(avgLeverage * 5, 100);
+    // Calculate ROI: (Unrealized P&L / IM) * 100
+    const roi = imTotal > 0 ? (unrealizedPnL / imTotal) * 100 : 0;
+
+    // Risk Ratio = IM / Equity (as percentage)
+    // For portfolio view, we approximate equity as IM + unrealizedPnL
+    const equity = imTotal + unrealizedPnL;
+    const riskRatio = equity > 0 ? (imTotal / equity) * 100 : 0;
 
     return {
-      totalPnl,
-      totalMargin,
+      unrealizedPnL,
+      imTotal,
+      mmTotal,
       roi,
-      liqRisk,
+      riskRatio: Math.min(riskRatio, 150), // Cap display at 150%
     };
   }, [positions]);
 
@@ -302,9 +305,9 @@ export default function Portfolio() {
         {/* Content */}
         {activeTab === "positions" && (
           <>
-            {/* Positions Stats Cards */}
+            {/* Positions Stats Cards - aligned with Account Risk module */}
             <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
-              {/* Unrealized P&L */}
+              {/* Unrealized P&L + ROI % */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <TrendingUp className="w-3.5 h-3.5" />
@@ -329,27 +332,36 @@ export default function Portfolio() {
                     </Tooltip>
                   )}
                 </div>
-                <div
-                  className={`text-lg font-bold font-mono ${
-                    positionsStats.totalPnl >= 0 ? "text-trading-green" : "text-trading-red"
-                  }`}
-                >
-                  {positionsStats.totalPnl >= 0 ? "+" : ""}${Math.abs(positionsStats.totalPnl).toFixed(2)}
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className={`text-lg font-bold font-mono ${
+                      positionsStats.unrealizedPnL >= 0 ? "text-trading-green" : "text-trading-red"
+                    }`}
+                  >
+                    {positionsStats.unrealizedPnL >= 0 ? "+" : ""}${Math.abs(positionsStats.unrealizedPnL).toFixed(2)}
+                  </span>
+                  <span
+                    className={`text-xs font-mono ${
+                      positionsStats.roi >= 0 ? "text-trading-green" : "text-trading-red"
+                    }`}
+                  >
+                    ({positionsStats.roi >= 0 ? "+" : ""}{positionsStats.roi.toFixed(2)}%)
+                  </span>
                 </div>
               </div>
 
-              {/* Total Margin */}
+              {/* Initial Margin */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <Wallet className="w-3.5 h-3.5" />
-                  <span>Total Margin</span>
+                  <span>Initial Margin</span>
                   {isMobile ? (
                     <Popover>
                       <PopoverTrigger asChild>
                         <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
                       </PopoverTrigger>
                       <PopoverContent className="text-xs w-64">
-                        Sum of margin locked in all open positions. This is your capital at risk.
+                        Entry threshold - determines if you can open positions. Sum of margin locked in all open positions.
                       </PopoverContent>
                     </Popover>
                   ) : (
@@ -358,28 +370,28 @@ export default function Portfolio() {
                         <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
                       </TooltipTrigger>
                       <TooltipContent className="text-xs max-w-64">
-                        Sum of margin locked in all open positions. This is your capital at risk.
+                        Entry threshold - determines if you can open positions. Sum of margin locked in all open positions.
                       </TooltipContent>
                     </Tooltip>
                   )}
                 </div>
                 <div className="text-lg font-bold font-mono">
-                  ${positionsStats.totalMargin.toFixed(2)}
+                  ${positionsStats.imTotal.toFixed(2)}
                 </div>
               </div>
 
-              {/* ROI % */}
+              {/* Maintenance Margin */}
               <div className="bg-card rounded-xl p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <Percent className="w-3.5 h-3.5" />
-                  <span>ROI %</span>
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>Maint. Margin</span>
                   {isMobile ? (
                     <Popover>
                       <PopoverTrigger asChild>
                         <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
                       </PopoverTrigger>
                       <PopoverContent className="text-xs w-64">
-                        Return on Investment. Calculated as (Unrealized P&L / Total Margin) × 100%. Shows the efficiency of your capital.
+                        Survival line - determines if you'll be liquidated. Typically 50% of Initial Margin.
                       </PopoverContent>
                     </Popover>
                   ) : (
@@ -388,48 +400,59 @@ export default function Portfolio() {
                         <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
                       </TooltipTrigger>
                       <TooltipContent className="text-xs max-w-64">
-                        Return on Investment. Calculated as (Unrealized P&L / Total Margin) × 100%. Shows the efficiency of your capital.
+                        Survival line - determines if you'll be liquidated. Typically 50% of Initial Margin.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+                <div className="text-lg font-bold font-mono">
+                  ${positionsStats.mmTotal.toFixed(2)}
+                </div>
+              </div>
+
+              {/* Risk Ratio */}
+              <div className="bg-card rounded-xl p-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>Risk Ratio</span>
+                  {isMobile ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </PopoverTrigger>
+                      <PopoverContent className="text-xs w-64">
+                        <p className="mb-2"><strong>Risk Ratio</strong> = IM / Equity</p>
+                        <div className="space-y-1">
+                          <p className="text-trading-green">SAFE: &lt;80%</p>
+                          <p className="text-trading-yellow">WARNING: 80-95%</p>
+                          <p className="text-orange-500">RESTRICTION: 95-100%</p>
+                          <p className="text-trading-red">LIQUIDATION: ≥100%</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-64">
+                        <p className="mb-2"><strong>Risk Ratio</strong> = IM / Equity</p>
+                        <div className="space-y-1">
+                          <p className="text-trading-green">SAFE: &lt;80%</p>
+                          <p className="text-trading-yellow">WARNING: 80-95%</p>
+                          <p className="text-orange-500">RESTRICTION: 95-100%</p>
+                          <p className="text-trading-red">LIQUIDATION: ≥100%</p>
+                        </div>
                       </TooltipContent>
                     </Tooltip>
                   )}
                 </div>
                 <div className={`text-lg font-bold font-mono ${
-                  positionsStats.roi >= 0 ? "text-trading-green" : "text-trading-red"
+                  positionsStats.riskRatio >= 100 ? "text-trading-red" : 
+                  positionsStats.riskRatio >= 95 ? "text-orange-500" : 
+                  positionsStats.riskRatio >= 80 ? "text-trading-yellow" : "text-trading-green"
                 }`}>
-                  {positionsStats.roi >= 0 ? "+" : ""}{positionsStats.roi.toFixed(2)}%
-                </div>
-              </div>
-
-              {/* Liq. Risk */}
-              <div className="bg-card rounded-xl p-4">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Liq. Risk</span>
-                  {isMobile ? (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
-                      </PopoverTrigger>
-                      <PopoverContent className="text-xs w-64">
-                        Liquidation risk indicator based on average leverage. Higher leverage = higher risk of forced liquidation when price moves against you.
-                      </PopoverContent>
-                    </Popover>
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="w-3 h-3 cursor-pointer hover:text-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent className="text-xs max-w-64">
-                        Liquidation risk indicator based on average leverage. Higher leverage = higher risk of forced liquidation when price moves against you.
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
-                <div className={`text-lg font-bold ${
-                  positionsStats.liqRisk > 70 ? "text-trading-red" : 
-                  positionsStats.liqRisk > 40 ? "text-yellow-500" : "text-trading-green"
-                }`}>
-                  {positionsStats.liqRisk.toFixed(0)}%
+                  {positionsStats.riskRatio.toFixed(2)}%
                 </div>
               </div>
             </div>
