@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthDialog } from "@/components/auth/AuthDialog";
-
+import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 interface DesktopTradeFormProps {
   selectedPrice?: string;
   symbol?: string;
@@ -217,6 +217,13 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
           <Calculator className="w-4 h-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">Calculator</span>
         </div>
+
+        {/* Account Risk Indicator - only show for logged in users */}
+        {user && (
+          <div className="pt-4">
+            <AccountRiskIndicator variant="compact" />
+          </div>
+        )}
       </div>
 
       {/* Contract Details */}
