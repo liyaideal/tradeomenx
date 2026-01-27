@@ -48,6 +48,7 @@ import { BinaryEventHint, isBinaryEvent, isNoOption } from "@/components/BinaryE
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
@@ -1603,6 +1604,13 @@ export default function DesktopTrading() {
             >
               {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             </button>
+
+            {/* Account Risk Indicator - only show for logged in users */}
+            {user && (
+              <div className="pt-4">
+                <AccountRiskIndicator variant="compact" />
+              </div>
+            )}
           </div>
         </div>
       </div>
