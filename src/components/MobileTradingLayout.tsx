@@ -5,6 +5,8 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
 import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
+import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
+import { useAuth } from "@/hooks/useAuth";
 
 interface MobileTradingLayoutProps {
   activeTab: "Charts" | "Trade";
@@ -25,6 +27,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || undefined;
+  const { user } = useAuth();
   
   // Determine back navigation behavior:
   // - If user navigated here via PUSH (from Events, Portfolio, etc.), use browser history (navigate(-1))
@@ -149,21 +152,26 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         onSelect={setSelectedOption}
       />
 
-      {/* Charts/Trade Tabs */}
-      <div className="flex px-4 border-b border-border/30">
-        {(["Charts", "Trade"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => handleTabChange(tab)}
-            className={`py-2 mr-6 text-sm font-medium transition-all ${
-              activeTab === tab
-                ? "text-trading-purple border-b-2 border-trading-purple"
-                : "text-muted-foreground"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      {/* Charts/Trade Tabs with MM Indicator */}
+      <div className="flex items-center justify-between px-4 border-b border-border/30">
+        <div className="flex">
+          {(["Charts", "Trade"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => handleTabChange(tab)}
+              className={`py-2 mr-6 text-sm font-medium transition-all ${
+                activeTab === tab
+                  ? "text-trading-purple border-b-2 border-trading-purple"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        
+        {/* MM Indicator - only show for logged in users */}
+        {user && <MobileRiskIndicator />}
       </div>
 
       {/* Render children with context */}
