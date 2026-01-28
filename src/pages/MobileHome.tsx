@@ -243,7 +243,7 @@ const MobileHome = () => {
                       >
                         {position.type === "long" ? "Long" : "Short"}
                       </Badge>
-                      <span className="text-sm font-mono text-foreground">{position.option}</span>
+                      <span className="text-sm font-medium text-foreground">{position.option}</span>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-border/50">
                       <div>
