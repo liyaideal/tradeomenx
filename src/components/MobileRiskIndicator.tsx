@@ -1,125 +1,30 @@
-import { useState, useMemo } from "react";
-import { ShieldCheck, AlertTriangle, Ban, Zap, Eye, EyeOff, Info, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { ShieldCheck, AlertTriangle, Ban, Zap, Eye, EyeOff, Info } from "lucide-react";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
-import { useSupabasePositions } from "@/hooks/useSupabasePositions";
-import { useUserProfile } from "@/hooks/useUserProfile";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-type RiskLevel = "SAFE" | "WARNING" | "RESTRICTION" | "LIQUIDATION";
-
-interface RiskMetrics {
-  totalAssets: number;
-  totalExposure: number;
-  equity: number;
-  imTotal: number;
-  mmTotal: number;
-  imRate: number;
-  mmRate: number;
-  riskRatio: number;
-  riskLevel: RiskLevel;
-  availableMargin: number;
-  distanceToLiquidation: number;
-  unrealizedPnL: number;
-  hasPositions: boolean;
-}
-
-function useRiskMetrics(): RiskMetrics {
-  const { positions } = useSupabasePositions();
-  const { balance } = useUserProfile();
-
-  return useMemo(() => {
-    const totalAssets = balance;
-    
-    const totalExposure = positions.reduce((sum, pos) => {
-      const size = Number(pos.size) || 0;
-      const entryPrice = Number(pos.entry_price) || 0;
-      return sum + (size * entryPrice);
-    }, 0);
-    
-    const imTotal = positions.reduce((sum, pos) => sum + (Number(pos.margin) || 0), 0);
-    const mmTotal = imTotal * 0.5;
-    const unrealizedPnL = positions.reduce((sum, pos) => sum + (Number(pos.pnl) || 0), 0);
-    const equity = totalAssets + unrealizedPnL;
-    const riskRatio = equity > 0 ? (imTotal / equity) * 100 : 0;
-    
-    let riskLevel: RiskLevel = "SAFE";
-    if (riskRatio >= 100) {
-      riskLevel = "LIQUIDATION";
-    } else if (riskRatio >= 95) {
-      riskLevel = "RESTRICTION";
-    } else if (riskRatio >= 80) {
-      riskLevel = "WARNING";
-    }
-    
-    const availableMargin = Math.max(equity - imTotal, 0);
-    const distanceToLiquidation = Math.max(equity - imTotal, 0);
-    
-    // IM Rate = IM / Equity (same as risk ratio)
-    const imRate = equity > 0 ? (imTotal / equity) * 100 : 0;
-    
-    // MM Rate = MM / Equity
-    const mmRate = equity > 0 ? (mmTotal / equity) * 100 : 0;
-    
-    return {
-      totalAssets,
-      totalExposure,
-      equity,
-      imTotal,
-      mmTotal,
-      imRate: Math.min(imRate, 150),
-      mmRate: Math.min(mmRate, 150),
-      riskRatio: Math.min(riskRatio, 150),
-      riskLevel,
-      availableMargin,
-      distanceToLiquidation,
-      unrealizedPnL,
-      hasPositions: positions.length > 0,
-    };
-  }, [positions, balance]);
-}
-
-// Get color based on risk level
-const getRiskColor = (level: RiskLevel) => {
-  switch (level) {
-    case "SAFE": return "text-trading-green";
-    case "WARNING": return "text-trading-yellow";
-    case "RESTRICTION": return "text-orange-500";
-    case "LIQUIDATION": return "text-trading-red";
-  }
-};
-
-const getRiskBgColor = (level: RiskLevel) => {
-  switch (level) {
-    case "SAFE": return "bg-trading-green";
-    case "WARNING": return "bg-trading-yellow";
-    case "RESTRICTION": return "bg-orange-500";
-    case "LIQUIDATION": return "bg-trading-red";
-  }
-};
+import {
+  useRealtimeRiskMetrics,
+  getRiskColor,
+  getRiskBgColor,
+  getRiskMessage,
+  type RiskLevel,
+  type RiskMetrics,
+} from "@/hooks/useRealtimeRiskMetrics";
 
 const getRiskIcon = (level: RiskLevel) => {
   switch (level) {
-    case "SAFE": return <ShieldCheck className="w-3 h-3" />;
-    case "WARNING": return <AlertTriangle className="w-3 h-3" />;
-    case "RESTRICTION": return <Ban className="w-3 h-3" />;
-    case "LIQUIDATION": return <Zap className="w-3 h-3" />;
-  }
-};
-
-const getRiskMessage = (level: RiskLevel) => {
-  switch (level) {
-    case "SAFE": 
-      return { icon: "✅", text: "Normal trading available" };
-    case "WARNING": 
-      return { icon: "⚠️", text: "Opening restricted, consider reducing" };
-    case "RESTRICTION": 
-      return { icon: "🚨", text: "Close-only mode, no new positions" };
-    case "LIQUIDATION": 
-      return { icon: "💥", text: "Liquidation triggered!" };
+    case "SAFE":
+      return <ShieldCheck className="w-3 h-3" />;
+    case "WARNING":
+      return <AlertTriangle className="w-3 h-3" />;
+    case "RESTRICTION":
+      return <Ban className="w-3 h-3" />;
+    case "LIQUIDATION":
+      return <Zap className="w-3 h-3" />;
   }
 };
 
@@ -128,11 +33,11 @@ const getRiskMessage = (level: RiskLevel) => {
  */
 export function MobileRiskIndicator() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const riskMetrics = useRiskMetrics();
+  const riskMetrics = useRealtimeRiskMetrics();
 
   // MM ratio = MM / Equity
-  const mmRatio = riskMetrics.equity > 0 
-    ? (riskMetrics.mmTotal / riskMetrics.equity) * 100 
+  const mmRatio = riskMetrics.equity > 0
+    ? (riskMetrics.mmTotal / riskMetrics.equity) * 100
     : 0;
 
   return (
@@ -149,9 +54,9 @@ export function MobileRiskIndicator() {
       </button>
 
       {/* Full Account Risk Drawer */}
-      <AccountRiskDrawer 
-        open={drawerOpen} 
-        onOpenChange={setDrawerOpen} 
+      <AccountRiskDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
         riskMetrics={riskMetrics}
       />
     </>
@@ -170,10 +75,7 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
   const getProgressWidth = (ratio: number) => Math.min(ratio, 100);
 
   return (
-    <MobileDrawer
-      open={open}
-      onOpenChange={onOpenChange}
-    >
+    <MobileDrawer open={open} onOpenChange={onOpenChange}>
       <div className="space-y-4 pb-6">
         {/* Title with icons on the right */}
         <div className="flex items-center justify-between">
@@ -244,7 +146,7 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
               {showValues ? `${riskMetrics.riskRatio.toFixed(2)}%` : "****"}
             </span>
           </div>
-          
+
           {/* Risk Progress Bar with threshold markers */}
           <div className="relative">
             <div className="h-2.5 bg-muted rounded-full overflow-hidden">
@@ -257,7 +159,7 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
             <div className="absolute top-0 left-[80%] w-px h-2.5 bg-trading-yellow/70" />
             <div className="absolute top-0 left-[95%] w-px h-2.5 bg-orange-500/70" />
           </div>
-          
+
           {/* Threshold labels */}
           <div className="flex justify-between text-[10px] text-muted-foreground">
             <span>0%</span>
@@ -311,7 +213,6 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
             </div>
           </div>
         </div>
-
       </div>
     </MobileDrawer>
   );
