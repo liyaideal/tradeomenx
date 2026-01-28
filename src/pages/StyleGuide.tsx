@@ -609,35 +609,260 @@ const StyleGuide = () => {
         {filterSection("typography") && (
         <section id="typography">
           <h2 className="text-xl font-semibold mb-6 text-foreground border-b border-border pb-2">Typography</h2>
-          <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-            <Card className="trading-card">
-              <CardHeader>
-                <CardTitle className="text-lg">Font Families</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Sans (Inter) - Primary</p>
-                  <p className="text-2xl font-sans">The quick brown fox jumps</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Mono (JetBrains Mono) - Numbers/Prices</p>
-                  <p className="text-2xl font-mono">$1,234.56 (+12.34%)</p>
-                </div>
-              </CardContent>
-            </Card>
+          
+          <div className="space-y-6">
+            {/* Font Families Overview */}
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              <Card className="trading-card">
+                <CardHeader>
+                  <CardTitle className="text-lg">Font Families</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Sans (Inter) - Primary</p>
+                    <p className="text-2xl font-sans">The quick brown fox jumps</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Mono (JetBrains Mono) - Numbers/Prices</p>
+                    <p className="text-2xl font-mono">$1,234.56 (+12.34%)</p>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card className="trading-card">
+              <Card className="trading-card">
+                <CardHeader>
+                  <CardTitle className="text-lg">Type Scale</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-xs text-muted-foreground">text-xs (12px)</p>
+                  <p className="text-sm text-muted-foreground">text-sm (14px)</p>
+                  <p className="text-base">text-base (16px)</p>
+                  <p className="text-lg">text-lg (18px)</p>
+                  <p className="text-xl font-semibold">text-xl (20px)</p>
+                  <p className="text-2xl font-semibold">text-2xl (24px)</p>
+                  <p className="text-3xl font-bold">text-3xl (30px)</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Font Usage Guidelines - Key Section */}
+            <Card className="trading-card border-primary/30">
               <CardHeader>
-                <CardTitle className="text-lg">Type Scale</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-primary" />
+                  Font Usage Guidelines
+                </CardTitle>
+                <CardDescription>When to use font-mono vs font-sans (Inter)</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-xs text-muted-foreground">text-xs (12px)</p>
-                <p className="text-sm text-muted-foreground">text-sm (14px)</p>
-                <p className="text-base">text-base (16px)</p>
-                <p className="text-lg">text-lg (18px)</p>
-                <p className="text-xl font-semibold">text-xl (20px)</p>
-                <p className="text-2xl font-semibold">text-2xl (24px)</p>
-                <p className="text-3xl font-bold">text-3xl (30px)</p>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* font-mono Usage */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-border">
+                      <span className="w-3 h-3 rounded-full bg-trading-green" />
+                      <h4 className="font-semibold text-trading-green">✓ Use font-mono</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">For numeric values that change or need precise alignment</p>
+                    <div className="space-y-3 bg-muted/30 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Prices</span>
+                        <span className="font-mono text-sm">$94,532.18</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Percentages</span>
+                        <span className="font-mono text-sm text-trading-green">+12.34%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">P&L Values</span>
+                        <span className="font-mono text-sm text-trading-red">-$245.67</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Quantities</span>
+                        <span className="font-mono text-sm">1,250</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Leverage</span>
+                        <span className="font-mono text-sm">10x</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Wallet Address</span>
+                        <span className="font-mono text-sm">0x1a2b...3c4d</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Order Book</span>
+                        <span className="font-mono text-sm">0.5234</span>
+                      </div>
+                    </div>
+                    <CodePreview 
+                      code={`<span className="font-mono">$1,234.56</span>`}
+                      id="font-mono-code"
+                    />
+                  </div>
+
+                  {/* font-sans Usage */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-border">
+                      <span className="w-3 h-3 rounded-full bg-primary" />
+                      <h4 className="font-semibold text-primary">✓ Use font-sans (default)</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">For all text content, labels, and UI elements</p>
+                    <div className="space-y-3 bg-muted/30 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Event Names</span>
+                        <span className="text-sm font-medium">Will Bitcoin reach $100K?</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Option Labels</span>
+                        <span className="text-sm font-medium">OpenAI (GPT)</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Button Text</span>
+                        <span className="text-sm font-medium">Trade Now</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Category Labels</span>
+                        <Badge variant="outline" className="text-xs">Crypto</Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Status Text</span>
+                        <span className="text-sm">Long Position</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Section Headers</span>
+                        <span className="text-sm font-semibold">My Positions</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Descriptions</span>
+                        <span className="text-sm text-muted-foreground">Ends in 2 days</span>
+                      </div>
+                    </div>
+                    <CodePreview 
+                      code={`<span className="font-medium">{option.label}</span>`}
+                      id="font-sans-code"
+                    />
+                  </div>
+                </div>
+
+                {/* Common Mistakes */}
+                <div className="mt-6 pt-6 border-t border-border">
+                  <h4 className="text-sm font-semibold text-trading-red flex items-center gap-2 mb-4">
+                    <Ban className="h-4 w-4" />
+                    Common Mistakes to Avoid
+                  </h4>
+                  <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                    <div className="bg-trading-red/10 border border-trading-red/30 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <X className="h-4 w-4 text-trading-red" />
+                        <span className="text-xs font-medium text-trading-red">Wrong</span>
+                      </div>
+                      <code className="text-xs text-muted-foreground block">
+                        {"<span className=\"font-mono\">{position.option}</span>"}
+                      </code>
+                      <p className="text-xs text-muted-foreground">Option labels are text, not numbers</p>
+                    </div>
+                    <div className="bg-trading-green/10 border border-trading-green/30 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-trading-green" />
+                        <span className="text-xs font-medium text-trading-green">Correct</span>
+                      </div>
+                      <code className="text-xs text-muted-foreground block">
+                        {"<span className=\"font-medium\">{position.option}</span>"}
+                      </code>
+                      <p className="text-xs text-muted-foreground">Use default sans-serif for text labels</p>
+                    </div>
+                    <div className="bg-trading-red/10 border border-trading-red/30 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <X className="h-4 w-4 text-trading-red" />
+                        <span className="text-xs font-medium text-trading-red">Wrong</span>
+                      </div>
+                      <code className="text-xs text-muted-foreground block">
+                        {"<h3 className=\"font-mono\">Event Title</h3>"}
+                      </code>
+                      <p className="text-xs text-muted-foreground">Headlines should never use monospace</p>
+                    </div>
+                    <div className="bg-trading-green/10 border border-trading-green/30 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-trading-green" />
+                        <span className="text-xs font-medium text-trading-green">Correct</span>
+                      </div>
+                      <code className="text-xs text-muted-foreground block">
+                        {"<h3 className=\"font-semibold\">Event Title</h3>"}
+                      </code>
+                      <p className="text-xs text-muted-foreground">Use font-weight for emphasis, not font-family</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Reference */}
+                <div className="mt-6 pt-6 border-t border-border">
+                  <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-trading-yellow" />
+                    Quick Reference
+                  </h4>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left py-2 text-muted-foreground font-medium">Content Type</th>
+                          <th className="text-left py-2 text-muted-foreground font-medium">Font</th>
+                          <th className="text-left py-2 text-muted-foreground font-medium">Class</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/50">
+                        <tr>
+                          <td className="py-2">Prices & Currency</td>
+                          <td className="py-2 font-mono">JetBrains Mono</td>
+                          <td className="py-2"><code className="text-primary">font-mono</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Percentages & ROI</td>
+                          <td className="py-2 font-mono">JetBrains Mono</td>
+                          <td className="py-2"><code className="text-primary">font-mono</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Quantities & Counts</td>
+                          <td className="py-2 font-mono">JetBrains Mono</td>
+                          <td className="py-2"><code className="text-primary">font-mono</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Leverage (e.g., 10x)</td>
+                          <td className="py-2 font-mono">JetBrains Mono</td>
+                          <td className="py-2"><code className="text-primary">font-mono</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Wallet Addresses</td>
+                          <td className="py-2 font-mono">JetBrains Mono</td>
+                          <td className="py-2"><code className="text-primary">font-mono</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Titles & Headlines</td>
+                          <td className="py-2">Inter</td>
+                          <td className="py-2"><code className="text-muted-foreground">(default)</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Body Text</td>
+                          <td className="py-2">Inter</td>
+                          <td className="py-2"><code className="text-muted-foreground">(default)</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Labels & Options</td>
+                          <td className="py-2">Inter</td>
+                          <td className="py-2"><code className="text-muted-foreground">(default)</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Buttons & CTAs</td>
+                          <td className="py-2">Inter</td>
+                          <td className="py-2"><code className="text-muted-foreground">(default)</code></td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Categories & Tags</td>
+                          <td className="py-2">Inter</td>
+                          <td className="py-2"><code className="text-muted-foreground">(default)</code></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
