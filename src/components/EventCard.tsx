@@ -278,28 +278,17 @@ const MiniChart = ({
           
           {/* SVG Chart */}
           <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full" preserveAspectRatio="none">
-            {visiblePaths.map(({ id, path, color, lastPoint }) => (
-              <g key={id}>
-                {/* Main line - smooth bezier curve */}
-                <path
-                  d={path}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth="0.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ filter: 'drop-shadow(0 0 1px rgba(0,0,0,0.3))' }}
-                />
-                {/* Current price dot at end of line */}
-                {lastPoint && (
-                  <circle
-                    cx={lastPoint.x}
-                    cy={lastPoint.y}
-                    r="1"
-                    fill={color}
-                  />
-                )}
-              </g>
+            {visiblePaths.map(({ id, path, color }) => (
+              <path
+                key={id}
+                d={path}
+                fill="none"
+                stroke={color}
+                strokeWidth="0.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ filter: 'drop-shadow(0 0 1px rgba(0,0,0,0.3))' }}
+              />
             ))}
           </svg>
         </div>
