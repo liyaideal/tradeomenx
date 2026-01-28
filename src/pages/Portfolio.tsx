@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
+import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -85,42 +86,25 @@ export default function Portfolio() {
   const { positions, isLoading: positionsLoading } = usePositions();
   const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
+  // Use the same risk metrics as the Account Risk module in /trade
+  const riskMetrics = useRealtimeRiskMetrics();
   const [activeTab, setActiveTab] = useState<TabType>("positions");
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-  // Calculate positions stats - aligned with Account Risk module (with realtime PnL)
+  // Use centralized risk metrics from useRealtimeRiskMetrics (same as Account Risk module)
   const positionsStats = useMemo(() => {
-    // Calculate realtime PnL for each position
-    let unrealizedPnL = 0;
-    let imTotal = 0;
-
-    positions.forEach((pos) => {
-      const realtimePnL = calculateRealtimePnL(pos);
-      unrealizedPnL += realtimePnL.pnl;
-      const marginValue = parseFloat(String(pos.margin).replace(/[$,]/g, "")) || 0;
-      imTotal += marginValue;
-    });
-
-    // Maintenance Margin (MM) = 50% of IM (standard ratio)
-    const mmTotal = imTotal * 0.5;
-
     // Calculate ROI: (Unrealized P&L / IM) * 100
-    const roi = imTotal > 0 ? (unrealizedPnL / imTotal) * 100 : 0;
-
-    // Risk Ratio = IM / Equity (as percentage)
-    // For portfolio view, we approximate equity as IM + unrealizedPnL
-    const equity = imTotal + unrealizedPnL;
-    const riskRatio = equity > 0 ? (imTotal / equity) * 100 : 0;
+    const roi = riskMetrics.imTotal > 0 ? (riskMetrics.unrealizedPnL / riskMetrics.imTotal) * 100 : 0;
 
     return {
-      unrealizedPnL,
-      imTotal,
-      mmTotal,
+      unrealizedPnL: riskMetrics.unrealizedPnL,
+      imTotal: riskMetrics.imTotal,
+      mmTotal: riskMetrics.mmTotal,
       roi,
-      riskRatio: Math.min(riskRatio, 150), // Cap display at 150%
+      riskRatio: riskMetrics.riskRatio,
     };
-  }, [positions, calculateRealtimePnL]);
+  }, [riskMetrics]);
 
   // Calculate settlements stats from real data
   const settlementsStats = useMemo(() => {
