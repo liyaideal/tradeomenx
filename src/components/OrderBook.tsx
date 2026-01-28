@@ -14,9 +14,9 @@ interface OrderBookProps {
   compact?: boolean;
 }
 
-// Track price changes for flash animation
+// Track which rows have changed for flash animation
 interface PriceFlash {
-  [key: string]: "up" | "down" | null;
+  [key: string]: boolean;
 }
 
 // Parse amount string to number for comparison
@@ -67,24 +67,20 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
       setVisibleAsks(asks);
       setVisibleBids(bids);
       
-      // Detect price changes and trigger flash
+      // Detect price changes and trigger flash (just mark as changed, color based on type)
       const newFlashes: PriceFlash = {};
       
       asks.forEach((ask, idx) => {
         const prevAsk = prevAsksRef.current[idx];
         if (prevAsk && prevAsk.amount !== ask.amount) {
-          const prevAmount = parseAmount(prevAsk.amount);
-          const newAmount = parseAmount(ask.amount);
-          newFlashes[`ask-${idx}`] = newAmount > prevAmount ? "up" : "down";
+          newFlashes[`ask-${idx}`] = true;
         }
       });
       
       bids.forEach((bid, idx) => {
         const prevBid = prevBidsRef.current[idx];
         if (prevBid && prevBid.amount !== bid.amount) {
-          const prevAmount = parseAmount(prevBid.amount);
-          const newAmount = parseAmount(bid.amount);
-          newFlashes[`bid-${idx}`] = newAmount > prevAmount ? "up" : "down";
+          newFlashes[`bid-${idx}`] = true;
         }
       });
       
@@ -126,10 +122,10 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
         </div>
       )}
 
-      {/* Asks (Sell orders) */}
+      {/* Asks (Sell orders) - always flash red */}
       <div className={`${compact ? "max-h-[200px]" : ""} overflow-y-auto scrollbar-hide`}>
         {visibleAsks.map((ask, index) => {
-          const flashState = priceFlash[`ask-${index}`];
+          const isFlashing = priceFlash[`ask-${index}`];
           const depthPercent = getDepthPercent(ask, maxAskAmount);
           return (
             <div
@@ -137,8 +133,7 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
               className={cn(
                 "grid grid-cols-3 text-xs px-4 py-1.5 transition-all duration-200 relative",
                 "animate-fade-in",
-                flashState === "up" && "bg-trading-green/20",
-                flashState === "down" && "bg-trading-red/20"
+                isFlashing && "bg-trading-red/30"
               )}
               style={{
                 animationDelay: isInitialMount.current ? `${(asks.length - 1 - index) * 30}ms` : "0ms",
@@ -152,7 +147,7 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
               <span className="price-red font-mono relative z-10">{ask.price}</span>
               <span className={cn(
                 "text-center text-muted-foreground font-mono transition-colors duration-200 relative z-10",
-                flashState && "text-foreground"
+                isFlashing && "text-trading-red"
               )}>
                 {ask.amount}
               </span>
@@ -179,10 +174,10 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
         </div>
       </div>
 
-      {/* Bids (Buy orders) */}
+      {/* Bids (Buy orders) - always flash green */}
       <div className={`${compact ? "max-h-[200px]" : ""} overflow-y-auto scrollbar-hide`}>
         {visibleBids.map((bid, index) => {
-          const flashState = priceFlash[`bid-${index}`];
+          const isFlashing = priceFlash[`bid-${index}`];
           const depthPercent = getDepthPercent(bid, maxBidAmount);
           return (
             <div
@@ -190,8 +185,7 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
               className={cn(
                 "grid grid-cols-3 text-xs px-4 py-1.5 transition-all duration-200 relative",
                 "animate-fade-in",
-                flashState === "up" && "bg-trading-green/20",
-                flashState === "down" && "bg-trading-red/20"
+                isFlashing && "bg-trading-green/30"
               )}
               style={{
                 animationDelay: isInitialMount.current ? `${index * 30}ms` : "0ms",
@@ -205,7 +199,7 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
               <span className="price-green font-mono relative z-10">{bid.price}</span>
               <span className={cn(
                 "text-center text-muted-foreground font-mono transition-colors duration-200 relative z-10",
-                flashState && "text-foreground"
+                isFlashing && "text-trading-green"
               )}>
                 {bid.amount}
               </span>
