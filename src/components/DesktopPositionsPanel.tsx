@@ -300,7 +300,7 @@ export const DesktopPositionsPanel = () => {
                             <span className="text-xs text-muted-foreground">{position.leverage}</span>
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-sm font-mono">{position.size}</td>
+                        <td className="px-3 py-2 text-sm font-mono">{position.sizeDisplay}</td>
                         <td className="px-3 py-2 text-sm font-mono">{position.margin}</td>
                         <td className="px-3 py-2 text-sm font-mono">{position.entryPrice}</td>
                         <td className="px-3 py-2 text-sm font-mono">{displayMarkPrice}</td>

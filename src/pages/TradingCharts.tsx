@@ -195,7 +195,7 @@ function TradingChartsContent() {
                 option={position.option}
                 entryPrice={position.entryPrice}
                 markPrice={position.markPrice}
-                size={position.size}
+                size={position.sizeDisplay}
                 margin={position.margin}
                 pnl={position.pnl}
                 pnlPercent={position.pnlPercent}

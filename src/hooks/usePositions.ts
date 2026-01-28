@@ -12,7 +12,8 @@ export interface UnifiedPosition {
   optionId?: string | null; // Direct reference to event_options for realtime price lookup
   entryPrice: string;
   markPrice: string;
-  size: string;
+  size: string;           // Raw numeric string for calculations (no commas)
+  sizeDisplay: string;    // Formatted string for display (with commas)
   margin: string;
   pnl: string;
   pnlPercent: string;
@@ -30,16 +31,18 @@ export interface UnifiedPosition {
 const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
   const pnlValue = Number(pos.pnl) || 0;
   const pnlPercentValue = Number(pos.pnl_percent) || 0;
+  const sizeNum = Number(pos.size);
   
   return {
     id: pos.id,
     type: pos.side as "long" | "short",
     event: pos.event_name,
     option: pos.option_label,
-    optionId: (pos as any).option_id || null, // Direct reference for realtime prices
+    optionId: pos.option_id || null, // Direct reference for realtime prices
     entryPrice: `$${Number(pos.entry_price).toFixed(4)}`,
     markPrice: `$${Number(pos.mark_price).toFixed(4)}`,
-    size: Number(pos.size).toLocaleString(),
+    size: String(sizeNum), // Raw number for calculations
+    sizeDisplay: sizeNum.toLocaleString(), // Formatted for display
     margin: `$${Number(pos.margin).toFixed(2)}`,
     pnl: `${pnlValue >= 0 ? "+" : ""}$${Math.abs(pnlValue).toFixed(2)}`,
     pnlPercent: `${pnlPercentValue >= 0 ? "+" : ""}${pnlPercentValue.toFixed(1)}%`,
@@ -55,6 +58,9 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
 
 // Convert local position to unified format
 const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPosition => {
+  const sizeStr = pos.size.replace(/,/g, "");
+  const sizeNum = parseFloat(sizeStr) || 0;
+  
   return {
     id: `local-${index}`,
     type: pos.type,
@@ -62,7 +68,8 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
     option: pos.option,
     entryPrice: pos.entryPrice,
     markPrice: pos.markPrice,
-    size: pos.size,
+    size: String(sizeNum), // Raw number for calculations
+    sizeDisplay: sizeNum.toLocaleString(), // Formatted for display
     margin: pos.margin,
     pnl: pos.pnl,
     pnlPercent: pos.pnlPercent,
