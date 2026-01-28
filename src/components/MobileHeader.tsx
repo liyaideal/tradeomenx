@@ -47,6 +47,7 @@ interface MobileHeaderProps {
   // Price-based event data
   currentPrice?: string;
   priceChange24h?: string;
+  priceLabel?: string; // Dynamic label for the asset (e.g., "BTC/USD", "S&P 500")
   sourceUrl?: string;
   sourceName?: string;
   period?: string;
@@ -101,6 +102,7 @@ export const MobileHeader = ({
   tweetCount, 
   currentPrice,
   priceChange24h,
+  priceLabel,
   sourceUrl,
   sourceName,
   period,
@@ -331,7 +333,7 @@ export const MobileHeader = ({
               <PopoverContent className="w-64 p-3" align="center">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Current Price</span>
+                    <span className="text-sm font-medium">{priceLabel || "Current Price"}</span>
                     <span className="text-lg font-bold text-trading-green">{currentPrice}</span>
                   </div>
                   {priceChange24h && (
