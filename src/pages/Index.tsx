@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, BarChart3, Zap } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { usePositions } from "@/hooks/usePositions";
 
 const featuredEvents = [
   {
@@ -31,6 +33,8 @@ const featuredEvents = [
 
 export default function Index() {
   const navigate = useNavigate();
+  const { balance } = useUserProfile();
+  const { positions } = usePositions();
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -46,7 +50,7 @@ export default function Index() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-trading-green mb-1">
               <TrendingUp className="w-4 h-4" />
-              <span className="text-sm font-medium">$2,453.42</span>
+              <span className="text-sm font-medium">${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <span className="text-xs text-muted-foreground">Available</span>
           </div>
@@ -54,7 +58,7 @@ export default function Index() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-trading-purple mb-1">
               <BarChart3 className="w-4 h-4" />
-              <span className="text-sm font-medium">3</span>
+              <span className="text-sm font-medium">{positions.length}</span>
             </div>
             <span className="text-xs text-muted-foreground">Positions</span>
           </div>
