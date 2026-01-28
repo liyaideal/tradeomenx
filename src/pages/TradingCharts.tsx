@@ -8,8 +8,10 @@ import { PositionCard } from "@/components/PositionCard";
 import { usePositions } from "@/hooks/usePositions";
 import { useOrders } from "@/hooks/useOrders";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
-import { generateTradesHistory, tradingStats } from "@/lib/tradingUtils";
+import { useAnimatedTradesHistory } from "@/hooks/useAnimatedTradesHistory";
+import { tradingStats } from "@/lib/tradingUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { cn } from "@/lib/utils";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
@@ -30,11 +32,12 @@ function TradingChartsContent() {
     volatility: 0.25,
   });
 
-  // Generate trades history data
-  const tradesHistory = useMemo(() => {
-    const basePrice = parseFloat(selectedOptionData.price);
-    return generateTradesHistory(basePrice);
-  }, [selectedOptionData.price]);
+  // Use animated trades history with live updates
+  const { trades: tradesHistory, newTradeIndex } = useAnimatedTradesHistory({
+    basePrice: parseFloat(selectedOptionData.price),
+    initialCount: 20,
+    newTradeInterval: 1200,
+  });
 
   // Calculate price change (mock data)
   const priceChange = useMemo(() => {
@@ -126,12 +129,35 @@ function TradingChartsContent() {
           {/* Trades List */}
           <div className="space-y-0">
             {tradesHistory.map((trade, index) => (
-              <div key={index} className="grid grid-cols-3 text-xs py-1.5">
-                <span className={`font-mono ${trade.isBuy ? "text-trading-green" : "text-trading-red"}`}>
+              <div 
+                key={`${trade.time}-${index}`} 
+                className={cn(
+                  "grid grid-cols-3 text-xs py-1.5 transition-all duration-300",
+                  index === newTradeIndex && (trade.isBuy 
+                    ? "bg-trading-green/25 animate-fade-in" 
+                    : "bg-trading-red/25 animate-fade-in"
+                  )
+                )}
+              >
+                <span className={cn(
+                  "font-mono transition-all duration-200",
+                  trade.isBuy ? "text-trading-green" : "text-trading-red",
+                  index === newTradeIndex && "font-semibold"
+                )}>
                   {trade.price}
                 </span>
-                <span className="text-center text-muted-foreground font-mono">{trade.amount}</span>
-                <span className="text-right text-muted-foreground font-mono">{trade.time}</span>
+                <span className={cn(
+                  "text-center font-mono transition-all duration-200",
+                  index === newTradeIndex ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {trade.amount}
+                </span>
+                <span className={cn(
+                  "text-right font-mono transition-all duration-200",
+                  index === newTradeIndex ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {trade.time}
+                </span>
               </div>
             ))}
           </div>
