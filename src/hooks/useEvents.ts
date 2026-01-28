@@ -136,7 +136,8 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
   let tweetCount: number | undefined;
   let currentPrice: string | undefined;
   let priceChange24h: string | undefined;
-  let priceLabel: string | undefined; // Dynamic label for the asset
+  // Use database price_label if available, otherwise fall back to code-based detection
+  let priceLabel: string | undefined = event.price_label || undefined;
 
   // Tweet-based events
   if (event.id === 'elon-twitter-activity' || event.name.toLowerCase().includes('tweet')) {
@@ -147,21 +148,21 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
   if (event.id.includes('eth-') || event.id.includes('ethereum') || event.name.toLowerCase().includes('eth')) {
     currentPrice = '$3,456.78';
     priceChange24h = '+2.34%';
-    priceLabel = 'ETH/USD';
+    if (!priceLabel) priceLabel = 'ETH/USD';
   }
 
   // Crypto price-based events - BTC
   if (event.id.includes('btc-') || event.id.includes('bitcoin') || event.name.toLowerCase().includes('bitcoin')) {
     currentPrice = '$104,567.89';
     priceChange24h = '+1.56%';
-    priceLabel = 'BTC/USD';
+    if (!priceLabel) priceLabel = 'BTC/USD';
   }
 
   // Stock market events - S&P 500
   if (event.id.includes('sp500') || event.name.toLowerCase().includes('s&p')) {
     currentPrice = '6,234.56';
     priceChange24h = '+0.45%';
-    priceLabel = 'S&P 500';
+    if (!priceLabel) priceLabel = 'S&P 500';
   }
 
   return {

@@ -14,6 +14,7 @@ export interface DatabaseEvent {
   source_name: string | null;
   source_url: string | null;
   settlement_description: string | null;
+  price_label: string | null; // Dynamic label for price-based events
   is_resolved: boolean;
   winning_option_id: string | null;
   settled_at: string | null;
