@@ -12,6 +12,7 @@ import { useAnimatedTradesHistory } from "@/hooks/useAnimatedTradesHistory";
 import { tradingStats } from "@/lib/tradingUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { cn } from "@/lib/utils";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
@@ -21,6 +22,7 @@ function TradingChartsContent() {
   // Use unified orders hook - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
   const { selectedEvent, selectedOptionData } = useMobileTradingContext();
+  const { profile } = useUserProfile();
   
   const [bottomTab, setBottomTab] = useState("Order Book");
 
@@ -209,7 +211,7 @@ function TradingChartsContent() {
       {/* Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border/30 px-4 py-3 z-50">
         <div className="text-center text-xs text-muted-foreground mb-2">
-          Available 2,453.42 USDC
+          Available {profile?.trial_balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'} USDC
         </div>
         <div className="flex gap-3">
           <button
