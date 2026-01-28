@@ -207,7 +207,7 @@ function TradingChartsContent() {
       )}
 
       {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 px-4 py-3">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border/30 px-4 py-3 z-50">
         <div className="text-center text-xs text-muted-foreground mb-2">
           Available 2,453.42 USDC
         </div>
