@@ -504,6 +504,7 @@ export default function DesktopTrading() {
       const tradeData = {
         eventName: selectedEvent.name,
         optionLabel: selectedOptionData.label,
+        optionId: selectedOptionData.id, // Direct reference for realtime price lookup
         side: side as "buy" | "sell",
         orderType: orderType as "Market" | "Limit",
         price: parseFloat(selectedOptionData.price) || 0,

@@ -9,6 +9,7 @@ export interface UnifiedPosition {
   type: "long" | "short";
   event: string;
   option: string;
+  optionId?: string | null; // Direct reference to event_options for realtime price lookup
   entryPrice: string;
   markPrice: string;
   size: string;
@@ -35,6 +36,7 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
     type: pos.side as "long" | "short",
     event: pos.event_name,
     option: pos.option_label,
+    optionId: (pos as any).option_id || null, // Direct reference for realtime prices
     entryPrice: `$${Number(pos.entry_price).toFixed(4)}`,
     markPrice: `$${Number(pos.mark_price).toFixed(4)}`,
     size: Number(pos.size).toLocaleString(),

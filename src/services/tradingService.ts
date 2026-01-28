@@ -27,6 +27,7 @@ const TradeDataSchema = z.object({
 export interface TradeData {
   eventName: string;
   optionLabel: string;
+  optionId?: string; // Direct reference to event_options table
   side: "buy" | "sell";
   orderType: "Market" | "Limit";
   price: number;
@@ -224,7 +225,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       
       position = updatedPosition;
     } else {
-      // Create new position
+      // Create new position with option_id for direct price lookup
       const { data: newPosition, error: positionError } = await supabase
         .from("positions")
         .insert({
@@ -232,6 +233,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
           trade_id: trade.id,
           event_name: validated.eventName,
           option_label: positionOptionLabel,
+          option_id: tradeData.optionId || null, // Store direct reference to event_options
           side: positionSide,
           entry_price: validated.price,
           mark_price: validated.price,
