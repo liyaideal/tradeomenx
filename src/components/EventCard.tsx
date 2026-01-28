@@ -70,6 +70,41 @@ const generateDateLabels = () => {
   return labels;
 };
 
+// Generate realistic price history with momentum and trends
+const generateRealisticPriceHistory = (basePrice: number, length: number, seed: number): number[] => {
+  const result: number[] = [];
+  // Use seed to create deterministic but varied starting conditions
+  const seededRandom = () => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
+  
+  // Start at the current price (scaled to 0-100 for chart)
+  let price = basePrice * 100;
+  let momentum = 0;
+  let trend = (seededRandom() - 0.5) * 0.3; // Slight overall trend
+  
+  for (let i = 0; i < length; i++) {
+    result.push(Math.max(5, Math.min(95, price)));
+    
+    // Add small random changes with momentum
+    const noise = (seededRandom() - 0.5) * 2;
+    momentum = momentum * 0.85 + noise * 0.15; // Smooth momentum
+    
+    // Occasional trend changes
+    if (seededRandom() < 0.02) {
+      trend = (seededRandom() - 0.5) * 0.4;
+    }
+    
+    // Mean reversion to keep prices in reasonable range
+    const meanReversion = (50 - price) * 0.002;
+    
+    price += momentum + trend + meanReversion;
+  }
+  
+  return result;
+};
+
 // Multi-line chart component matching the design reference
 const MiniChart = ({ 
   options, 
@@ -82,13 +117,19 @@ const MiniChart = ({
 }) => {
   const dateLabels = useMemo(() => generateDateLabels(), []);
   
-  // Memoize the generated price data to prevent regeneration on each render
+  // Memoize the generated price data with realistic patterns
   const optionsWithData = useMemo(() => {
-    return options.map((option, index) => ({
-      ...option,
-      data: option.priceHistory || Array.from({ length: 1500 }, () => 20 + Math.random() * 60),
-      color: CHART_COLORS[index % CHART_COLORS.length],
-    }));
+    return options.map((option, index) => {
+      // Parse price and create a seed from option id for consistency
+      const priceValue = parseFloat(option.price.replace('$', '')) || 0.5;
+      const seed = option.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), index * 1000);
+      
+      return {
+        ...option,
+        data: option.priceHistory || generateRealisticPriceHistory(priceValue, 150, seed),
+        color: CHART_COLORS[index % CHART_COLORS.length],
+      };
+    });
   }, [options]);
   
   const chartWidth = 100;
@@ -273,12 +314,19 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
     }
   };
 
-  // Generate mock price history for options if not provided
-  const optionsWithHistory = event.options.map((option, index) => ({
-    ...option,
-    color: CHART_COLORS[index % CHART_COLORS.length],
-    priceHistory: option.priceHistory || Array.from({ length: 20 }, () => 20 + Math.random() * 60),
-  }));
+  // Generate realistic price history for options if not provided
+  const optionsWithHistory = useMemo(() => {
+    return event.options.map((option, index) => {
+      const priceValue = parseFloat(option.price.replace('$', '')) || 0.5;
+      const seed = option.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), index * 1000);
+      
+      return {
+        ...option,
+        color: CHART_COLORS[index % CHART_COLORS.length],
+        priceHistory: option.priceHistory || generateRealisticPriceHistory(priceValue, 150, seed),
+      };
+    });
+  }, [event.options]);
 
   return (
     <>
