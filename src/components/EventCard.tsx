@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { LivePrice } from "@/components/LivePrice";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
+import { usePriceHistory } from "@/hooks/usePriceHistory";
 
 export type EventStatus = "active" | "locked" | "resolved";
 
@@ -236,6 +237,10 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [optionsExpanded, setOptionsExpanded] = useState(false);
 
+  // Fetch real price history from database
+  const optionIds = useMemo(() => event.options.map(o => o.id), [event.options]);
+  const { priceHistories } = usePriceHistory(optionIds);
+
   // Max options to show before collapsing
   const MAX_VISIBLE_OPTIONS = 3;
   const hasMoreOptions = event.options.length > MAX_VISIBLE_OPTIONS;
@@ -319,19 +324,25 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
     }
   };
 
-  // Generate realistic price history for options if not provided
+  // Use real price history from database, fallback to generated if not available
   const optionsWithHistory = useMemo(() => {
     return event.options.map((option, index) => {
       const priceValue = parseFloat(option.price.replace('$', '')) || 0.5;
       const seed = option.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), index * 1000);
       
+      // Use real history from database if available
+      const realHistory = priceHistories.get(option.id);
+      const historyData = realHistory && realHistory.length >= 10
+        ? realHistory
+        : generateRealisticPriceHistory(priceValue, 150, seed);
+      
       return {
         ...option,
         color: CHART_COLORS[index % CHART_COLORS.length],
-        priceHistory: option.priceHistory || generateRealisticPriceHistory(priceValue, 150, seed),
+        priceHistory: historyData,
       };
     });
-  }, [event.options]);
+  }, [event.options, priceHistories]);
 
   return (
     <>
