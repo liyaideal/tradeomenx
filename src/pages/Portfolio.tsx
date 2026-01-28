@@ -313,16 +313,16 @@ export default function Portfolio() {
                     </Tooltip>
                   )}
                 </div>
-                <div className="flex items-baseline gap-2">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                   <span
-                    className={`text-lg font-bold font-mono ${
+                    className={`text-lg font-bold font-mono truncate ${
                       positionsStats.unrealizedPnL >= 0 ? "text-trading-green" : "text-trading-red"
                     }`}
                   >
                     {positionsStats.unrealizedPnL >= 0 ? "+" : ""}${Math.abs(positionsStats.unrealizedPnL).toFixed(2)}
                   </span>
                   <span
-                    className={`text-xs font-mono ${
+                    className={`text-xs font-mono whitespace-nowrap ${
                       positionsStats.roi >= 0 ? "text-trading-green" : "text-trading-red"
                     }`}
                   >
