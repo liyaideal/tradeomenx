@@ -137,6 +137,51 @@ const MiniChart = ({
       };
     });
   }, [options]);
+
+  // Calculate dynamic Y-axis range based on all options' price data
+  const { minPrice, maxPrice, yLabels } = useMemo(() => {
+    // Get all price values from all options' history data (values are 0-100, representing $0.00-$1.00)
+    const allPrices: number[] = [];
+    optionsWithData.forEach(option => {
+      if (option.data && option.data.length > 0) {
+        allPrices.push(...option.data);
+      }
+    });
+    
+    if (allPrices.length === 0) {
+      return { minPrice: 0, maxPrice: 100, yLabels: ["$1.00", "$0.75", "$0.50", "$0.25", "$0.00"] };
+    }
+    
+    // Find actual min/max
+    const dataMin = Math.min(...allPrices);
+    const dataMax = Math.max(...allPrices);
+    
+    // Add padding (10% of range on each side)
+    const range = dataMax - dataMin;
+    const padding = Math.max(range * 0.1, 2); // At least 2 units of padding
+    
+    let min = Math.max(0, dataMin - padding);
+    let max = Math.min(100, dataMax + padding);
+    
+    // Ensure minimum range of 10 units for readability
+    if (max - min < 10) {
+      const center = (max + min) / 2;
+      min = Math.max(0, center - 5);
+      max = Math.min(100, center + 5);
+    }
+    
+    // Generate 5 evenly spaced labels
+    const step = (max - min) / 4;
+    const labels = [
+      `$${(max / 100).toFixed(2)}`,
+      `$${((max - step) / 100).toFixed(2)}`,
+      `$${((max - step * 2) / 100).toFixed(2)}`,
+      `$${((max - step * 3) / 100).toFixed(2)}`,
+      `$${(min / 100).toFixed(2)}`,
+    ];
+    
+    return { minPrice: min, maxPrice: max, yLabels: labels };
+  }, [optionsWithData]);
   
   const chartWidth = 100;
   const chartHeight = 100;
@@ -148,15 +193,20 @@ const MiniChart = ({
   const innerWidth = chartWidth - paddingLeft - paddingRight;
   const innerHeight = chartHeight - paddingTop - paddingBottom;
 
+  // Generate path with dynamic Y-axis scaling
   const generatePath = useMemo(() => (data: number[]) => {
     if (!data || data.length === 0) return "";
     
+    const priceRange = maxPrice - minPrice;
+    
     return data.map((value, index) => {
       const x = paddingLeft + (index / (data.length - 1)) * innerWidth;
-      const y = paddingTop + (1 - value / 100) * innerHeight;
+      // Scale value based on dynamic min/max range
+      const normalizedValue = (value - minPrice) / priceRange;
+      const y = paddingTop + (1 - normalizedValue) * innerHeight;
       return `${index === 0 ? 'M' : 'L'} ${x},${y}`;
     }).join(" ");
-  }, [innerWidth, innerHeight]);
+  }, [innerWidth, innerHeight, minPrice, maxPrice]);
 
   // Memoize the paths for each option
   const paths = useMemo(() => {
@@ -173,9 +223,6 @@ const MiniChart = ({
     return paths.filter(p => p.id === selectedOptionId);
   }, [paths, selectedOptionId]);
 
-  // Y-axis price labels ($0.00 to $1.00)
-  const yLabels = ["$1.00", "$0.75", "$0.50", "$0.25", "$0.00"];
-
   return (
     <div 
       className="w-full bg-muted/20 rounded-xl p-4 relative cursor-pointer hover:bg-muted/30 transition-colors"
@@ -184,8 +231,8 @@ const MiniChart = ({
       <div className="relative h-32">
         {/* Y-axis labels */}
         <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between text-[10px] text-muted-foreground font-mono w-10 text-right pr-1">
-          {yLabels.map((label) => (
-            <span key={label}>{label}</span>
+          {yLabels.map((label, i) => (
+            <span key={i}>{label}</span>
           ))}
         </div>
         
