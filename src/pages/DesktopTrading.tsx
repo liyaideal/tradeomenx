@@ -646,7 +646,7 @@ export default function DesktopTrading() {
                   {/* Header with title and value */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
-                      {selectedEvent.currentPrice ? "BTC/USD" : "Tweet Count"}
+                      {selectedEvent.currentPrice ? (selectedEvent.priceLabel || "Current Price") : "Tweet Count"}
                     </span>
                     <div className="text-right">
                       <div className="text-lg font-bold text-indicator">
