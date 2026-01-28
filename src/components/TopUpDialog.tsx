@@ -8,8 +8,11 @@ import {
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Wallet, CreditCard, Copy, Check } from "lucide-react";
+import { Wallet, CreditCard, Copy, Check, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface TopUpDialogProps {
   open: boolean;
@@ -31,7 +34,9 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
   const [amount, setAmount] = useState<string>("");
   const [selectedMethod, setSelectedMethod] = useState<string>("crypto");
   const [copied, setCopied] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const isMobile = useIsMobile();
+  const { user, addBalance, refetchProfile } = useUserProfile();
 
   const handleQuickAmount = (value: number) => {
     setAmount(value.toString());
@@ -43,12 +48,63 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleTopUp = () => {
+  const handleTopUp = async () => {
     const numAmount = parseFloat(amount);
-    if (numAmount > 0 && onTopUp) {
-      onTopUp(numAmount, selectedMethod);
-      setAmount("");
-      onOpenChange(false);
+    if (numAmount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    if (!user) {
+      toast.error("Please log in to top up");
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      // Calculate the amount after fee (2.5% fee for card payments)
+      const feePercent = 0.025;
+      const receivedAmount = numAmount * (1 - feePercent);
+      
+      // Add balance to user profile
+      const success = await addBalance(receivedAmount);
+      
+      if (success) {
+        // Record the transaction
+        const { error: txError } = await supabase
+          .from("transactions")
+          .insert({
+            user_id: user.id,
+            type: "card_deposit",
+            amount: receivedAmount,
+            description: `Card deposit of $${numAmount.toFixed(2)} (Fee: $${(numAmount * feePercent).toFixed(2)})`
+          });
+
+        if (txError) {
+          console.error("Failed to record transaction:", txError);
+        }
+
+        // Refetch profile to update UI
+        await refetchProfile();
+        
+        toast.success(`Successfully added $${receivedAmount.toFixed(2)} USDC to your balance`);
+        
+        // Call optional callback
+        if (onTopUp) {
+          onTopUp(receivedAmount, selectedMethod);
+        }
+        
+        setAmount("");
+        onOpenChange(false);
+      } else {
+        toast.error("Failed to add balance. Please try again.");
+      }
+    } catch (error) {
+      console.error("Top up error:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -184,10 +240,17 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
           {/* Submit Button - Full width, prominent */}
           <Button
             onClick={handleTopUp}
-            disabled={!amount || parseFloat(amount) <= 0}
+            disabled={!amount || parseFloat(amount) <= 0 || isProcessing}
             className="w-full h-14 bg-trading-green hover:bg-trading-green/90 text-background font-semibold text-base rounded-xl"
           >
-            Pay with Card
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Pay with Card"
+            )}
           </Button>
         </div>
       )}
