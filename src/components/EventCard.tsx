@@ -193,29 +193,60 @@ const MiniChart = ({
   const innerWidth = chartWidth - paddingLeft - paddingRight;
   const innerHeight = chartHeight - paddingTop - paddingBottom;
 
-  // Generate path with dynamic Y-axis scaling
-  const generatePath = useMemo(() => (data: number[]) => {
+  // Generate smooth bezier curve path with dynamic Y-axis scaling
+  const generateSmoothPath = useMemo(() => (data: number[]) => {
     if (!data || data.length === 0) return "";
     
     const priceRange = maxPrice - minPrice;
     
-    return data.map((value, index) => {
-      const x = paddingLeft + (index / (data.length - 1)) * innerWidth;
-      // Scale value based on dynamic min/max range
+    // Sample data points to reduce complexity (take every nth point)
+    const sampleRate = Math.max(1, Math.floor(data.length / 60));
+    const sampledData = data.filter((_, i) => i % sampleRate === 0 || i === data.length - 1);
+    
+    // Convert data to coordinates
+    const points = sampledData.map((value, index) => {
+      const x = paddingLeft + (index / (sampledData.length - 1)) * innerWidth;
       const normalizedValue = (value - minPrice) / priceRange;
       const y = paddingTop + (1 - normalizedValue) * innerHeight;
-      return `${index === 0 ? 'M' : 'L'} ${x},${y}`;
-    }).join(" ");
-  }, [innerWidth, innerHeight, minPrice, maxPrice]);
+      return { x, y };
+    });
+    
+    if (points.length < 2) return "";
+    
+    // Generate smooth cubic bezier curve
+    let path = `M ${points[0].x},${points[0].y}`;
+    
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[Math.max(0, i - 1)];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[Math.min(points.length - 1, i + 2)];
+      
+      // Calculate control points using Catmull-Rom to Bezier conversion
+      const tension = 0.3;
+      const cp1x = p1.x + (p2.x - p0.x) * tension;
+      const cp1y = p1.y + (p2.y - p0.y) * tension;
+      const cp2x = p2.x - (p3.x - p1.x) * tension;
+      const cp2y = p2.y - (p3.y - p1.y) * tension;
+      
+      path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+    
+    return path;
+  }, [innerWidth, innerHeight, minPrice, maxPrice, paddingLeft, paddingTop]);
 
   // Memoize the paths for each option
   const paths = useMemo(() => {
     return optionsWithData.map(option => ({
       id: option.id,
-      path: generatePath(option.data),
+      path: generateSmoothPath(option.data),
       color: option.color,
+      lastPoint: option.data && option.data.length > 0 ? {
+        x: innerWidth,
+        y: paddingTop + (1 - (option.data[option.data.length - 1] - minPrice) / (maxPrice - minPrice)) * innerHeight
+      } : null,
     }));
-  }, [optionsWithData, generatePath]);
+  }, [optionsWithData, generateSmoothPath, innerWidth, innerHeight, minPrice, maxPrice, paddingTop]);
 
   // Filter paths based on selected option
   const visiblePaths = useMemo(() => {
@@ -238,25 +269,37 @@ const MiniChart = ({
         
         {/* Chart area */}
         <div className="absolute left-0 right-10 top-0 bottom-0">
-          {/* Horizontal grid lines */}
+          {/* Horizontal grid lines - more subtle */}
           <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
             {yLabels.map((_, i) => (
-              <div key={i} className="border-t border-dashed border-border/30" />
+              <div key={i} className="border-t border-border/20" />
             ))}
           </div>
           
           {/* SVG Chart */}
           <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full" preserveAspectRatio="none">
-            {visiblePaths.map(({ id, path, color }) => (
-              <path
-                key={id}
-                d={path}
-                fill="none"
-                stroke={color}
-                strokeWidth="0.35"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+            {visiblePaths.map(({ id, path, color, lastPoint }) => (
+              <g key={id}>
+                {/* Main line - smooth bezier curve */}
+                <path
+                  d={path}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth="0.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ filter: 'drop-shadow(0 0 1px rgba(0,0,0,0.3))' }}
+                />
+                {/* Current price dot at end of line */}
+                {lastPoint && (
+                  <circle
+                    cx={lastPoint.x}
+                    cy={lastPoint.y}
+                    r="1"
+                    fill={color}
+                  />
+                )}
+              </g>
             ))}
           </svg>
         </div>
