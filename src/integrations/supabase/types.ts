@@ -152,6 +152,7 @@ export type Database = {
           leverage: number
           margin: number
           mark_price: number
+          option_id: string | null
           option_label: string
           pnl: number | null
           pnl_percent: number | null
@@ -175,6 +176,7 @@ export type Database = {
           leverage?: number
           margin: number
           mark_price: number
+          option_id?: string | null
           option_label: string
           pnl?: number | null
           pnl_percent?: number | null
@@ -198,6 +200,7 @@ export type Database = {
           leverage?: number
           margin?: number
           mark_price?: number
+          option_id?: string | null
           option_label?: string
           pnl?: number | null
           pnl_percent?: number | null
@@ -213,6 +216,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "positions_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "event_options"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "positions_trade_id_fkey"
             columns: ["trade_id"]

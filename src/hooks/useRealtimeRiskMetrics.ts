@@ -51,6 +51,7 @@ export function useRealtimeRiskMetrics(): RiskMetrics {
       const positionData = {
         event: pos.event_name,
         option: pos.option_label,
+        optionId: (pos as any).option_id, // Use direct option_id if available
         type: pos.side as "long" | "short",
         entryPrice: `$${pos.entry_price}`,
         size: String(pos.size),
