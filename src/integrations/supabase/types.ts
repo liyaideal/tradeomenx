@@ -92,6 +92,7 @@ export type Database = {
           id: string
           is_resolved: boolean
           name: string
+          price_label: string | null
           rules: string | null
           settled_at: string | null
           settlement_description: string | null
@@ -111,6 +112,7 @@ export type Database = {
           id: string
           is_resolved?: boolean
           name: string
+          price_label?: string | null
           rules?: string | null
           settled_at?: string | null
           settlement_description?: string | null
@@ -130,6 +132,7 @@ export type Database = {
           id?: string
           is_resolved?: boolean
           name?: string
+          price_label?: string | null
           rules?: string | null
           settled_at?: string | null
           settlement_description?: string | null
