@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 interface OrderBookEntry {
@@ -19,6 +19,11 @@ interface PriceFlash {
   [key: string]: "up" | "down" | null;
 }
 
+// Parse amount string to number for comparison
+const parseAmount = (amount: string): number => {
+  return parseInt(amount.replace(/,/g, ""), 10) || 0;
+};
+
 export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBookProps) => {
   const [visibleAsks, setVisibleAsks] = useState<OrderBookEntry[]>([]);
   const [visibleBids, setVisibleBids] = useState<OrderBookEntry[]>([]);
@@ -28,6 +33,16 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
   const prevAsksRef = useRef<OrderBookEntry[]>([]);
   const prevBidsRef = useRef<OrderBookEntry[]>([]);
   const isInitialMount = useRef(true);
+
+  // Calculate max amounts for depth bar scaling
+  const { maxAskAmount, maxBidAmount } = useMemo(() => {
+    const askAmounts = asks.map(a => parseAmount(a.total || a.amount));
+    const bidAmounts = bids.map(b => parseAmount(b.total || b.amount));
+    return {
+      maxAskAmount: Math.max(...askAmounts, 1),
+      maxBidAmount: Math.max(...bidAmounts, 1),
+    };
+  }, [asks, bids]);
 
   // Animate entries on mount and data change
   useEffect(() => {
@@ -58,8 +73,8 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
       asks.forEach((ask, idx) => {
         const prevAsk = prevAsksRef.current[idx];
         if (prevAsk && prevAsk.amount !== ask.amount) {
-          const prevAmount = parseInt(prevAsk.amount.replace(/,/g, ""));
-          const newAmount = parseInt(ask.amount.replace(/,/g, ""));
+          const prevAmount = parseAmount(prevAsk.amount);
+          const newAmount = parseAmount(ask.amount);
           newFlashes[`ask-${idx}`] = newAmount > prevAmount ? "up" : "down";
         }
       });
@@ -67,8 +82,8 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
       bids.forEach((bid, idx) => {
         const prevBid = prevBidsRef.current[idx];
         if (prevBid && prevBid.amount !== bid.amount) {
-          const prevAmount = parseInt(prevBid.amount.replace(/,/g, ""));
-          const newAmount = parseInt(bid.amount.replace(/,/g, ""));
+          const prevAmount = parseAmount(prevBid.amount);
+          const newAmount = parseAmount(bid.amount);
           newFlashes[`bid-${idx}`] = newAmount > prevAmount ? "up" : "down";
         }
       });
@@ -95,6 +110,12 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
     }
   }, [currentPrice]);
 
+  // Calculate depth percentage for a given entry
+  const getDepthPercent = (entry: OrderBookEntry, maxAmount: number): number => {
+    const amount = parseAmount(entry.total || entry.amount);
+    return Math.min((amount / maxAmount) * 100, 100);
+  };
+
   return (
     <div className="w-full">
       {!compact && (
@@ -109,11 +130,12 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
       <div className={`${compact ? "max-h-[200px]" : ""} overflow-y-auto scrollbar-hide`}>
         {visibleAsks.map((ask, index) => {
           const flashState = priceFlash[`ask-${index}`];
+          const depthPercent = getDepthPercent(ask, maxAskAmount);
           return (
             <div
               key={`ask-${index}`}
               className={cn(
-                "grid grid-cols-3 text-xs px-4 py-1.5 transition-all duration-200",
+                "grid grid-cols-3 text-xs px-4 py-1.5 transition-all duration-200 relative",
                 "animate-fade-in",
                 flashState === "up" && "bg-trading-green/20",
                 flashState === "down" && "bg-trading-red/20"
@@ -122,14 +144,19 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
                 animationDelay: isInitialMount.current ? `${(asks.length - 1 - index) * 30}ms` : "0ms",
               }}
             >
-              <span className="price-red font-mono">{ask.price}</span>
+              {/* Depth bar - grows from right to left for asks */}
+              <div 
+                className="absolute inset-y-0 right-0 bg-trading-red/15 transition-all duration-300 ease-out"
+                style={{ width: `${depthPercent}%` }}
+              />
+              <span className="price-red font-mono relative z-10">{ask.price}</span>
               <span className={cn(
-                "text-center text-muted-foreground font-mono transition-colors duration-200",
+                "text-center text-muted-foreground font-mono transition-colors duration-200 relative z-10",
                 flashState && "text-foreground"
               )}>
                 {ask.amount}
               </span>
-              <span className="text-right text-muted-foreground font-mono">{ask.total || ask.amount}</span>
+              <span className="text-right text-muted-foreground font-mono relative z-10">{ask.total || ask.amount}</span>
             </div>
           );
         })}
@@ -156,11 +183,12 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
       <div className={`${compact ? "max-h-[200px]" : ""} overflow-y-auto scrollbar-hide`}>
         {visibleBids.map((bid, index) => {
           const flashState = priceFlash[`bid-${index}`];
+          const depthPercent = getDepthPercent(bid, maxBidAmount);
           return (
             <div
               key={`bid-${index}`}
               className={cn(
-                "grid grid-cols-3 text-xs px-4 py-1.5 transition-all duration-200",
+                "grid grid-cols-3 text-xs px-4 py-1.5 transition-all duration-200 relative",
                 "animate-fade-in",
                 flashState === "up" && "bg-trading-green/20",
                 flashState === "down" && "bg-trading-red/20"
@@ -169,14 +197,19 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
                 animationDelay: isInitialMount.current ? `${index * 30}ms` : "0ms",
               }}
             >
-              <span className="price-green font-mono">{bid.price}</span>
+              {/* Depth bar - grows from right to left for bids */}
+              <div 
+                className="absolute inset-y-0 right-0 bg-trading-green/15 transition-all duration-300 ease-out"
+                style={{ width: `${depthPercent}%` }}
+              />
+              <span className="price-green font-mono relative z-10">{bid.price}</span>
               <span className={cn(
-                "text-center text-muted-foreground font-mono transition-colors duration-200",
+                "text-center text-muted-foreground font-mono transition-colors duration-200 relative z-10",
                 flashState && "text-foreground"
               )}>
                 {bid.amount}
               </span>
-              <span className="text-right text-muted-foreground font-mono">{bid.total || bid.amount}</span>
+              <span className="text-right text-muted-foreground font-mono relative z-10">{bid.total || bid.amount}</span>
             </div>
           );
         })}
