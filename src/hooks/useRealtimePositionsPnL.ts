@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -9,25 +9,19 @@ interface OptionMapping {
   eventName: string;
 }
 
-// Cache for option lookups - maps various keys to optionId
-let optionMappingsCache: Map<string, OptionMapping> = new Map();
-// Secondary index: just option label -> optionId (for fuzzy matching)
-let labelOnlyCache: Map<string, OptionMapping[]> = new Map();
-
 export const useRealtimePositionsPnL = () => {
   const pricesContext = useRealtimePricesOptional();
-  const [optionMappings, setOptionMappings] = useState<Map<string, OptionMapping>>(optionMappingsCache);
-  const [labelMappings, setLabelMappings] = useState<Map<string, OptionMapping[]>>(labelOnlyCache);
-  const [isLoading, setIsLoading] = useState(optionMappingsCache.size === 0);
+  const [optionMappings, setOptionMappings] = useState<Map<string, OptionMapping>>(new Map());
+  const [labelMappings, setLabelMappings] = useState<Map<string, OptionMapping[]>>(new Map());
+  const [isLoading, setIsLoading] = useState(true);
+  const hasFetched = useRef(false);
 
   // Fetch option mappings (event_name + option_label -> option_id)
   useEffect(() => {
-    const fetchMappings = async () => {
-      if (optionMappingsCache.size > 0) {
-        setIsLoading(false);
-        return;
-      }
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
+    const fetchMappings = async () => {
       try {
         const { data, error } = await supabase
           .from("event_options")
@@ -40,6 +34,7 @@ export const useRealtimePositionsPnL = () => {
 
         if (error) {
           console.error("Error fetching option mappings:", error);
+          setIsLoading(false);
           return;
         }
 
@@ -68,8 +63,6 @@ export const useRealtimePositionsPnL = () => {
             labelMap.get(labelKey)!.push(mapping);
           });
           
-          optionMappingsCache = mappings;
-          labelOnlyCache = labelMap;
           setOptionMappings(mappings);
           setLabelMappings(labelMap);
         }
@@ -178,9 +171,8 @@ export const useRealtimePositionsPnL = () => {
     }
 
     // Fallback: use stored values if no realtime price available
-    const storedMarkPrice = parseFloat(position.entryPrice.replace(/[$,]/g, ""));
     return {
-      markPrice: storedMarkPrice,
+      markPrice: entryPrice,
       pnl: 0,
       pnlPercent: 0,
       hasRealtimePrice: false,
