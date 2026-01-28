@@ -172,8 +172,8 @@ const MiniChart = ({
     return paths.filter(p => p.id === selectedOptionId);
   }, [paths, selectedOptionId]);
 
-  // Y-axis percentage labels
-  const yLabels = [100, 75, 50, 25, 0];
+  // Y-axis price labels ($0.00 to $1.00)
+  const yLabels = ["$1.00", "$0.75", "$0.50", "$0.25", "$0.00"];
 
   return (
     <div 
@@ -182,9 +182,9 @@ const MiniChart = ({
     >
       <div className="relative h-32">
         {/* Y-axis labels */}
-        <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between text-[10px] text-muted-foreground font-mono w-8 text-right pr-1">
+        <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between text-[10px] text-muted-foreground font-mono w-10 text-right pr-1">
           {yLabels.map((label) => (
-            <span key={label}>{label}%</span>
+            <span key={label}>{label}</span>
           ))}
         </div>
         
