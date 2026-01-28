@@ -5,6 +5,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -83,23 +84,23 @@ export default function Portfolio() {
   const { user, isLoading: authLoading } = useUserProfile();
   const { positions, isLoading: positionsLoading } = usePositions();
   const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
+  const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   const [activeTab, setActiveTab] = useState<TabType>("positions");
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-  // Calculate positions stats - aligned with Account Risk module
+  // Calculate positions stats - aligned with Account Risk module (with realtime PnL)
   const positionsStats = useMemo(() => {
-    // Unrealized P&L from all positions
-    const unrealizedPnL = positions.reduce((sum, pos) => {
-      const pnlValue = parseFloat(String(pos.pnl).replace(/[$,+]/g, "")) || 0;
-      return sum + pnlValue;
-    }, 0);
+    // Calculate realtime PnL for each position
+    let unrealizedPnL = 0;
+    let imTotal = 0;
 
-    // Initial Margin (IM) = sum of all position margins
-    const imTotal = positions.reduce((sum, pos) => {
+    positions.forEach((pos) => {
+      const realtimePnL = calculateRealtimePnL(pos);
+      unrealizedPnL += realtimePnL.pnl;
       const marginValue = parseFloat(String(pos.margin).replace(/[$,]/g, "")) || 0;
-      return sum + marginValue;
-    }, 0);
+      imTotal += marginValue;
+    });
 
     // Maintenance Margin (MM) = 50% of IM (standard ratio)
     const mmTotal = imTotal * 0.5;
@@ -119,7 +120,7 @@ export default function Portfolio() {
       roi,
       riskRatio: Math.min(riskRatio, 150), // Cap display at 150%
     };
-  }, [positions]);
+  }, [positions, calculateRealtimePnL]);
 
   // Calculate settlements stats from real data
   const settlementsStats = useMemo(() => {
@@ -467,98 +468,108 @@ export default function Portfolio() {
             {isMobile ? (
               /* Mobile: Card View */
               <div className="space-y-3">
-                {sortedPositions.map((position, index) => (
-                  <div
-                    key={index}
-                    className="bg-card rounded-xl p-3"
-                  >
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] ${
-                            position.type === "long"
-                              ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                              : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                {sortedPositions.map((position, index) => {
+                  // Calculate realtime PnL for this position
+                  const realtimePnL = calculateRealtimePnL(position);
+                  const { pnlStr, pnlPercentStr } = formatPnL(realtimePnL.pnl, realtimePnL.pnlPercent);
+                  const displayMarkPrice = realtimePnL.hasRealtimePrice 
+                    ? formatMarkPrice(realtimePnL.markPrice) 
+                    : position.markPrice;
+                  const isPositionProfitable = realtimePnL.pnl >= 0;
+
+                  return (
+                    <div
+                      key={index}
+                      className="bg-card rounded-xl p-3"
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] ${
+                              position.type === "long"
+                                ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                            }`}
+                          >
+                            {position.type === "long" ? "Long" : "Short"}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {position.leverage}
+                          </span>
+                        </div>
+                        <div
+                          className={`flex items-center gap-1 text-xs font-semibold ${
+                            isPositionProfitable
+                              ? "text-trading-green"
+                              : "text-trading-red"
                           }`}
                         >
-                          {position.type === "long" ? "Long" : "Short"}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {position.leverage}
-                        </span>
+                          {isPositionProfitable ? (
+                            <TrendingUp className="w-3 h-3" />
+                          ) : (
+                            <TrendingDown className="w-3 h-3" />
+                          )}
+                          {pnlStr} ({pnlPercentStr})
+                        </div>
                       </div>
-                      <div
-                        className={`flex items-center gap-1 text-xs font-semibold ${
-                          isProfitable(position.pnl)
-                            ? "text-trading-green"
-                            : "text-trading-red"
-                        }`}
+
+                      {/* Event Info */}
+                      <div className="mb-2">
+                        <h3 className="font-medium text-sm line-clamp-1">
+                          {position.event}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {position.option}
+                        </p>
+                      </div>
+
+                      {/* Details Grid */}
+                      <div className="grid grid-cols-4 gap-2 mb-3">
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block">
+                            {TRADING_TERMS.QTY}
+                          </span>
+                          <span className="font-mono text-xs">{position.size}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block">
+                            Entry
+                          </span>
+                          <span className="font-mono text-xs">
+                            {position.entryPrice}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block">
+                            Mark
+                          </span>
+                          <span className="font-mono text-xs">
+                            {displayMarkPrice}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block">
+                            {TRADING_TERMS.MARGIN}
+                          </span>
+                          <span className="font-mono text-xs">{position.margin}</span>
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs"
+                        onClick={() => handlePositionAction(index)}
                       >
-                        {isProfitable(position.pnl) ? (
-                          <TrendingUp className="w-3 h-3" />
-                        ) : (
-                          <TrendingDown className="w-3 h-3" />
-                        )}
-                        {position.pnl} ({position.pnlPercent})
-                      </div>
+                        {TRADING_TERMS.VIEW}
+                        <ChevronRight className="w-3 h-3 ml-1" />
+                      </Button>
                     </div>
-
-                    {/* Event Info */}
-                    <div className="mb-2">
-                      <h3 className="font-medium text-sm line-clamp-1">
-                        {position.event}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {position.option}
-                      </p>
-                    </div>
-
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-4 gap-2 mb-3">
-                      <div>
-                        <span className="text-[10px] text-muted-foreground block">
-                          {TRADING_TERMS.QTY}
-                        </span>
-                        <span className="font-mono text-xs">{position.size}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-muted-foreground block">
-                          Entry
-                        </span>
-                        <span className="font-mono text-xs">
-                          {position.entryPrice}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-muted-foreground block">
-                          Mark
-                        </span>
-                        <span className="font-mono text-xs">
-                          {position.markPrice}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-muted-foreground block">
-                          {TRADING_TERMS.MARGIN}
-                        </span>
-                        <span className="font-mono text-xs">{position.margin}</span>
-                      </div>
-                    </div>
-
-                    {/* Action Button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full text-xs"
-                      onClick={() => handlePositionAction(index)}
-                    >
-                      {TRADING_TERMS.VIEW}
-                      <ChevronRight className="w-3 h-3 ml-1" />
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               /* Desktop: Table View */
@@ -594,95 +605,105 @@ export default function Portfolio() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedPositions.map((position, index) => (
-                      <TableRow key={index} className="cursor-pointer">
-                        <TableCell>
-                          <div>
-                            <div className="font-medium text-sm line-clamp-1">
-                              {position.option}
+                    {sortedPositions.map((position, index) => {
+                      // Calculate realtime PnL for this position
+                      const realtimePnL = calculateRealtimePnL(position);
+                      const { pnlStr, pnlPercentStr } = formatPnL(realtimePnL.pnl, realtimePnL.pnlPercent);
+                      const displayMarkPrice = realtimePnL.hasRealtimePrice 
+                        ? formatMarkPrice(realtimePnL.markPrice) 
+                        : position.markPrice;
+                      const isPositionProfitable = realtimePnL.pnl >= 0;
+
+                      return (
+                        <TableRow key={index} className="cursor-pointer">
+                          <TableCell>
+                            <div>
+                              <div className="font-medium text-sm line-clamp-1">
+                                {position.option}
+                              </div>
+                              <div className="text-xs text-muted-foreground line-clamp-1">
+                                {position.event}
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground line-clamp-1">
-                              {position.event}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1.5">
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] ${
+                                  position.type === "long"
+                                    ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                    : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                                }`}
+                              >
+                                {position.type === "long" ? "Long" : "Short"}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {position.leverage}
+                              </span>
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1.5">
-                            <Badge
-                              variant="outline"
-                              className={`text-[10px] ${
-                                position.type === "long"
-                                  ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                                  : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {position.size}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {position.entryPrice}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {displayMarkPrice}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {position.margin}
+                          </TableCell>
+                          <TableCell>
+                            <div
+                              className={`font-mono text-sm font-medium ${
+                                isPositionProfitable
+                                  ? "text-trading-green"
+                                  : "text-trading-red"
                               }`}
                             >
-                              {position.type === "long" ? "Long" : "Short"}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {position.leverage}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {position.size}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {position.entryPrice}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {position.markPrice}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {position.margin}
-                        </TableCell>
-                        <TableCell>
-                          <div
-                            className={`font-mono text-sm font-medium ${
-                              isProfitable(position.pnl)
-                                ? "text-trading-green"
-                                : "text-trading-red"
-                            }`}
-                          >
-                            {position.pnl}
-                            <span className="text-xs ml-1 opacity-70">
-                              ({position.pnlPercent})
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs font-mono">
-                            {position.tp || position.sl ? (
-                              <span>
-                                {position.tp && (
-                                  <span className="text-trading-green">
-                                    {position.tpMode === "%" ? `+${position.tp}%` : `$${position.tp}`}
-                                  </span>
-                                )}
-                                {position.tp && position.sl && " / "}
-                                {position.sl && (
-                                  <span className="text-trading-red">
-                                    {position.slMode === "%" ? `-${position.sl}%` : `$${position.sl}`}
-                                  </span>
-                                )}
+                              {pnlStr}
+                              <span className="text-xs ml-1 opacity-70">
+                                ({pnlPercentStr})
                               </span>
-                            ) : (
-                              <span className="text-muted-foreground">--</span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-xs"
-                            onClick={() => handlePositionAction(index)}
-                          >
-                            {TRADING_TERMS.VIEW}
-                            <ChevronRight className="w-3 h-3 ml-1" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-xs font-mono">
+                              {position.tp || position.sl ? (
+                                <span>
+                                  {position.tp && (
+                                    <span className="text-trading-green">
+                                      {position.tpMode === "%" ? `+${position.tp}%` : `$${position.tp}`}
+                                    </span>
+                                  )}
+                                  {position.tp && position.sl && " / "}
+                                  {position.sl && (
+                                    <span className="text-trading-red">
+                                      {position.slMode === "%" ? `-${position.sl}%` : `$${position.sl}`}
+                                    </span>
+                                  )}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">--</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                              onClick={() => handlePositionAction(index)}
+                            >
+                              {TRADING_TERMS.VIEW}
+                              <ChevronRight className="w-3 h-3 ml-1" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
