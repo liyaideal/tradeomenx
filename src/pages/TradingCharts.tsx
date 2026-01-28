@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { MobileTradingLayout, useMobileTradingContext } from "@/components/MobileTradingLayout";
+import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
@@ -16,12 +16,16 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
-function TradingChartsContent() {
+interface TradingChartsContentProps {
+  selectedEvent: TradingContextData['selectedEvent'];
+  selectedOptionData: TradingContextData['selectedOptionData'];
+}
+
+function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChartsContentProps) {
   const navigate = useNavigate();
   const { positions, isLoading: positionsLoading } = usePositions();
   // Use unified orders hook - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
-  const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   const { profile } = useUserProfile();
   
   const [bottomTab, setBottomTab] = useState("Order Book");
@@ -235,7 +239,12 @@ function TradingChartsContent() {
 export default function TradingCharts() {
   return (
     <MobileTradingLayout activeTab="Charts">
-      <TradingChartsContent />
+      {(context) => (
+        <TradingChartsContent 
+          selectedEvent={context.selectedEvent} 
+          selectedOptionData={context.selectedOptionData} 
+        />
+      )}
     </MobileTradingLayout>
   );
 }

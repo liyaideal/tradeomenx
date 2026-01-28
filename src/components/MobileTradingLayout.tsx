@@ -8,17 +8,17 @@ import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { useAuth } from "@/hooks/useAuth";
 
-interface MobileTradingLayoutProps {
-  activeTab: "Charts" | "Trade";
-  children: React.ReactNode;
-}
-
 // Context for sharing trading state with child components
-interface TradingContextData {
+export interface TradingContextData {
   selectedEvent: TradingEvent;
   selectedOption: string;
   selectedOptionData: EventOption;
   options: EventOption[];
+}
+
+interface MobileTradingLayoutProps {
+  activeTab: "Charts" | "Trade";
+  children: React.ReactNode | ((data: TradingContextData) => React.ReactNode);
 }
 
 export function MobileTradingLayout({ activeTab, children }: MobileTradingLayoutProps) {
