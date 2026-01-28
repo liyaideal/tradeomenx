@@ -142,13 +142,13 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       throw tradeError;
     }
 
-    // Only create position for Market orders (immediate execution)
+    // Only create/update position for Market orders (immediate execution)
     // Limit orders remain pending until filled
     if (!isMarketOrder) {
       return { trade, position: null };
     }
 
-    // Create corresponding position with validated data (Market orders only)
+    // Create or update corresponding position with validated data (Market orders only)
     // For binary events: No Long → Yes Short, No Short → Yes Long
     const isNoOption = validated.optionLabel.toLowerCase() === "no";
     let positionSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
@@ -160,33 +160,101 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       positionSide = validated.side === "buy" ? "short" : "long";
     }
     
-    const { data: position, error: positionError } = await supabase
+    // Check if there's an existing open position with same event + option + side
+    const { data: existingPosition, error: findError } = await supabase
       .from("positions")
-      .insert({
-        user_id: userId,
-        trade_id: trade.id,
-        event_name: validated.eventName,
-        option_label: positionOptionLabel,
-        side: positionSide,
-        entry_price: validated.price,
-        mark_price: validated.price,
-        size: validated.quantity,
-        margin: validated.margin,
-        leverage: validated.leverage,
-        pnl: 0,
-        pnl_percent: 0,
-        tp_value: validated.tpValue,
-        tp_mode: validated.tpMode,
-        sl_value: validated.slValue,
-        sl_mode: validated.slMode,
-        status: "Open",
-      })
-      .select()
-      .single();
+      .select("*")
+      .eq("user_id", userId)
+      .eq("event_name", validated.eventName)
+      .eq("option_label", positionOptionLabel)
+      .eq("side", positionSide)
+      .eq("status", "Open")
+      .maybeSingle();
 
-    if (positionError) {
-      console.error("Position error:", positionError);
-      throw positionError;
+    if (findError) {
+      console.error("Find position error:", findError);
+      throw findError;
+    }
+
+    let position;
+
+    if (existingPosition) {
+      // Merge into existing position with weighted average entry price
+      const newSize = existingPosition.size + validated.quantity;
+      const newMargin = existingPosition.margin + validated.margin;
+      
+      // Calculate weighted average entry price
+      // (oldSize * oldEntry + newSize * newEntry) / totalSize
+      const weightedEntryPrice = 
+        (existingPosition.size * existingPosition.entry_price + validated.quantity * validated.price) / newSize;
+      
+      // Recalculate PnL based on new weighted entry price
+      const currentMarkPrice = existingPosition.mark_price;
+      let newPnl = 0;
+      if (positionSide === "long") {
+        newPnl = (currentMarkPrice - weightedEntryPrice) * newSize;
+      } else {
+        newPnl = (weightedEntryPrice - currentMarkPrice) * newSize;
+      }
+      const newPnlPercent = newMargin > 0 ? (newPnl / newMargin) * 100 : 0;
+
+      const { data: updatedPosition, error: updateError } = await supabase
+        .from("positions")
+        .update({
+          size: newSize,
+          margin: newMargin,
+          entry_price: weightedEntryPrice,
+          pnl: newPnl,
+          pnl_percent: newPnlPercent,
+          // Keep existing TP/SL unless new ones are provided
+          tp_value: validated.tpValue ?? existingPosition.tp_value,
+          tp_mode: validated.tpMode ?? existingPosition.tp_mode,
+          sl_value: validated.slValue ?? existingPosition.sl_value,
+          sl_mode: validated.slMode ?? existingPosition.sl_mode,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", existingPosition.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error("Update position error:", updateError);
+        throw updateError;
+      }
+      
+      position = updatedPosition;
+    } else {
+      // Create new position
+      const { data: newPosition, error: positionError } = await supabase
+        .from("positions")
+        .insert({
+          user_id: userId,
+          trade_id: trade.id,
+          event_name: validated.eventName,
+          option_label: positionOptionLabel,
+          side: positionSide,
+          entry_price: validated.price,
+          mark_price: validated.price,
+          size: validated.quantity,
+          margin: validated.margin,
+          leverage: validated.leverage,
+          pnl: 0,
+          pnl_percent: 0,
+          tp_value: validated.tpValue,
+          tp_mode: validated.tpMode,
+          sl_value: validated.slValue,
+          sl_mode: validated.slMode,
+          status: "Open",
+        })
+        .select()
+        .single();
+
+      if (positionError) {
+        console.error("Position error:", positionError);
+        throw positionError;
+      }
+      
+      position = newPosition;
     }
 
     return { trade, position };
