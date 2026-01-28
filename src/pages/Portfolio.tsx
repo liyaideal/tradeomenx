@@ -531,7 +531,7 @@ export default function Portfolio() {
                           <span className="text-[10px] text-muted-foreground block">
                             {TRADING_TERMS.QTY}
                           </span>
-                          <span className="font-mono text-xs">{position.size}</span>
+                          <span className="font-mono text-xs">{position.sizeDisplay}</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-muted-foreground block">
@@ -644,7 +644,7 @@ export default function Portfolio() {
                             </div>
                           </TableCell>
                           <TableCell className="font-mono text-sm">
-                            {position.size}
+                            {position.sizeDisplay}
                           </TableCell>
                           <TableCell className="font-mono text-sm">
                             {position.entryPrice}

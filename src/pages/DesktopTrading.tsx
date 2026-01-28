@@ -49,6 +49,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
@@ -210,6 +211,9 @@ export default function DesktopTrading() {
   // Positions and Orders state - using unified hooks (Supabase for logged-in, local for guests)
   const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
   const { refetch: refetchOrders } = useOrders();
+  
+  // Realtime PnL calculation hook
+  const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
@@ -1183,7 +1187,16 @@ export default function DesktopTrading() {
                         <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">No open positions</td>
                       </tr>
                     ) : (
-                      positions.map((position, index) => (
+                      positions.map((position, index) => {
+                        // Calculate realtime PnL
+                        const realtimePnL = calculateRealtimePnL(position);
+                        const { pnlStr, pnlPercentStr } = formatPnL(realtimePnL.pnl, realtimePnL.pnlPercent);
+                        const displayMarkPrice = realtimePnL.hasRealtimePrice 
+                          ? formatMarkPrice(realtimePnL.markPrice) 
+                          : position.markPrice;
+                        const isProfitable = realtimePnL.pnl >= 0;
+                        
+                        return (
                         <tr 
                           key={index} 
                           ref={(el) => (positionRowRefs.current[index] = el)}
@@ -1233,14 +1246,14 @@ export default function DesktopTrading() {
                               {position.type === "long" ? "Long" : "Short"}
                             </span>
                           </td>
-                          <td className="px-4 py-2 text-sm font-mono text-right">{position.size}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{position.sizeDisplay}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.entryPrice}</td>
-                          <td className="px-4 py-2 text-sm font-mono text-right">{position.markPrice}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{displayMarkPrice}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.margin}</td>
                           <td className="px-4 py-2 text-right">
-                            <span className={`text-sm font-mono ${position.pnl.startsWith("+") ? "text-trading-green" : "text-trading-red"}`}>{position.pnl}</span>
-                            <span className={`text-xs ml-1 ${position.pnlPercent.startsWith("+") ? "text-trading-green" : "text-trading-red"}`}>({position.pnlPercent})</span>
+                            <span className={`text-sm font-mono ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>{pnlStr}</span>
+                            <span className={`text-xs ml-1 ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>({pnlPercentStr})</span>
                           </td>
                           <td className="px-4 py-2 text-sm">{position.leverage}</td>
                           <td className="px-4 py-2 text-center">
@@ -1269,7 +1282,8 @@ export default function DesktopTrading() {
                             </button>
                           </td>
                         </tr>
-                      ))
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -1890,7 +1904,7 @@ export default function DesktopTrading() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{TRADING_TERMS.QTY}</span>
-                  <span className="font-mono">{position.size}</span>
+                  <span className="font-mono">{position.sizeDisplay}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
