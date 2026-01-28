@@ -70,39 +70,44 @@ const generateDateLabels = () => {
   return labels;
 };
 
-// Generate realistic price history with momentum and trends
-const generateRealisticPriceHistory = (basePrice: number, length: number, seed: number): number[] => {
+// Generate realistic price history centered around the current price
+const generateRealisticPriceHistory = (currentPrice: number, length: number, seed: number): number[] => {
   const result: number[] = [];
-  // Use seed to create deterministic but varied starting conditions
+  // Use seed to create deterministic but varied conditions
   const seededRandom = () => {
     seed = (seed * 1103515245 + 12345) & 0x7fffffff;
     return seed / 0x7fffffff;
   };
   
-  // Start at the current price (scaled to 0-100 for chart)
-  let price = basePrice * 100;
+  // Work backwards from current price (currentPrice is 0-1, we want 0-100 for chart)
+  const targetPrice = currentPrice * 100;
+  let price = targetPrice + (seededRandom() - 0.5) * 10; // Start near target with some variance
   let momentum = 0;
-  let trend = (seededRandom() - 0.5) * 0.3; // Slight overall trend
   
+  // Generate history going forward, ending at current price
+  const history: number[] = [];
   for (let i = 0; i < length; i++) {
-    result.push(Math.max(5, Math.min(95, price)));
+    history.push(Math.max(1, Math.min(99, price)));
     
-    // Add small random changes with momentum
-    const noise = (seededRandom() - 0.5) * 2;
-    momentum = momentum * 0.85 + noise * 0.15; // Smooth momentum
+    // Small random changes with momentum for smooth movement
+    const noise = (seededRandom() - 0.5) * 1.5;
+    momentum = momentum * 0.8 + noise * 0.2;
     
-    // Occasional trend changes
-    if (seededRandom() < 0.02) {
-      trend = (seededRandom() - 0.5) * 0.4;
-    }
+    // Mean reversion towards target price (current price)
+    const meanReversion = (targetPrice - price) * 0.03;
     
-    // Mean reversion to keep prices in reasonable range
-    const meanReversion = (50 - price) * 0.002;
-    
-    price += momentum + trend + meanReversion;
+    price += momentum + meanReversion;
   }
   
-  return result;
+  // Ensure the last point is close to current price
+  const lastIndex = history.length - 1;
+  const adjustment = (targetPrice - history[lastIndex]) / 10;
+  for (let i = Math.max(0, lastIndex - 10); i <= lastIndex; i++) {
+    const progress = (i - (lastIndex - 10)) / 10;
+    history[i] += adjustment * progress * 10;
+  }
+  
+  return history;
 };
 
 // Multi-line chart component matching the design reference
