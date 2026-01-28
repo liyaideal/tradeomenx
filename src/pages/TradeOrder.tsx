@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { MobileTradingLayout, useMobileTradingContext } from "@/components/MobileTradingLayout";
@@ -7,7 +7,7 @@ import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
-import { generateOrderBookData } from "@/lib/tradingUtils";
+import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
 import { useOrderSimulation } from "@/hooks/useOrderSimulation";
 
 interface LocationState {
@@ -74,11 +74,13 @@ function TradeOrderContent() {
     }
   }, [highlightedPosition]);
 
-  // Generate order book data based on selected option's price
-  const orderBookData = useMemo(() => {
-    const basePrice = parseFloat(selectedOptionData.price);
-    return generateOrderBookData(basePrice, 10);
-  }, [selectedOptionData.price]);
+  // Use animated order book with live updates
+  const orderBookData = useAnimatedOrderBook({
+    basePrice: parseFloat(selectedOptionData.price),
+    depth: 10,
+    updateInterval: 500,
+    volatility: 0.3,
+  });
 
   return (
     <div className="pb-8 overflow-x-hidden">

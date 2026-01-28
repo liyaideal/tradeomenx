@@ -7,7 +7,8 @@ import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { usePositions } from "@/hooks/usePositions";
 import { useOrders } from "@/hooks/useOrders";
-import { generateOrderBookData, generateTradesHistory, tradingStats } from "@/lib/tradingUtils";
+import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
+import { generateTradesHistory, tradingStats } from "@/lib/tradingUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
@@ -21,11 +22,13 @@ function TradingChartsContent() {
   
   const [bottomTab, setBottomTab] = useState("Order Book");
 
-  // Generate order book data based on selected option's price
-  const orderBookData = useMemo(() => {
-    const basePrice = parseFloat(selectedOptionData.price);
-    return generateOrderBookData(basePrice);
-  }, [selectedOptionData.price]);
+  // Use animated order book with live updates
+  const orderBookData = useAnimatedOrderBook({
+    basePrice: parseFloat(selectedOptionData.price),
+    depth: 8,
+    updateInterval: 600,
+    volatility: 0.25,
+  });
 
   // Generate trades history data
   const tradesHistory = useMemo(() => {
