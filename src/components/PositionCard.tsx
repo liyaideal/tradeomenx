@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info } from "lucide-react";
 import {
   Dialog,
@@ -24,14 +24,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 
 interface PositionCardProps {
   type: "long" | "short";
   event: string;
   option: string;
+  optionId?: string | null;
   entryPrice: string;
   markPrice: string;
   size: string;
+  sizeDisplay?: string;
   margin: string;
   pnl: string;
   pnlPercent: string;
@@ -44,9 +47,11 @@ export const PositionCard = ({
   type,
   event,
   option,
+  optionId,
   entryPrice,
   markPrice,
   size,
+  sizeDisplay,
   margin,
   pnl,
   pnlPercent,
@@ -54,7 +59,39 @@ export const PositionCard = ({
   takeProfit: initialTp = "",
   stopLoss: initialSl = "",
 }: PositionCardProps) => {
-  const isProfitable = !pnl.startsWith("-");
+  // Calculate real-time P&L using live market prices
+  const { calculateRealtimePnL } = useRealtimePositionsPnL();
+  
+  const realtimeData = useMemo(() => {
+    if (optionId) {
+      return calculateRealtimePnL({
+        event,
+        option,
+        optionId,
+        type,
+        entryPrice,
+        size,
+        margin,
+      });
+    }
+    return null;
+  }, [optionId, event, option, type, entryPrice, size, margin, calculateRealtimePnL]);
+  
+  // Use realtime values if available, otherwise fall back to props
+  const displayPnl = realtimeData?.hasRealtimePrice 
+    ? `${realtimeData.pnl >= 0 ? "+" : ""}$${Math.abs(realtimeData.pnl).toFixed(2)}`
+    : pnl;
+  const displayPnlPercent = realtimeData?.hasRealtimePrice
+    ? `${realtimeData.pnlPercent >= 0 ? "+" : ""}${realtimeData.pnlPercent.toFixed(1)}%`
+    : pnlPercent;
+  const displayMarkPrice = realtimeData?.hasRealtimePrice
+    ? `$${realtimeData.markPrice.toFixed(4)}`
+    : markPrice;
+  
+  const isProfitable = realtimeData?.hasRealtimePrice
+    ? realtimeData.pnl >= 0
+    : !pnl.startsWith("-");
+  
   const [tpSlOpen, setTpSlOpen] = useState(false);
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   // Use saved state to persist values after dialog closes
@@ -177,7 +214,7 @@ export const PositionCard = ({
             isProfitable ? "text-trading-green" : "text-trading-red"
           }`}>
             {isProfitable ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-            {pnl} ({pnlPercent})
+            {displayPnl} ({displayPnlPercent})
           </div>
         </div>
 
@@ -207,7 +244,7 @@ export const PositionCard = ({
         <div className="grid grid-cols-4 gap-2 mb-2">
           <div>
             <span className="text-[10px] text-muted-foreground block">{TRADING_TERMS.QTY}</span>
-            <span className="font-mono text-xs">{size}</span>
+            <span className="font-mono text-xs">{sizeDisplay || size}</span>
           </div>
           <div>
             <span className="text-[10px] text-muted-foreground block">Entry</span>
@@ -215,7 +252,7 @@ export const PositionCard = ({
           </div>
           <div>
             <span className="text-[10px] text-muted-foreground block">Mark</span>
-            <span className="font-mono text-xs">{markPrice}</span>
+            <span className="font-mono text-xs">{displayMarkPrice}</span>
           </div>
           <div>
             <span className="text-[10px] text-muted-foreground block">{TRADING_TERMS.MARGIN}</span>
@@ -422,12 +459,12 @@ export const PositionCard = ({
             </div>
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
-              <span className="font-mono">{markPrice}</span>
+              <span className="font-mono">{displayMarkPrice}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{TRADING_TERMS.UNREALIZED_PNL}</span>
               <span className={`font-mono font-medium ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>
-                {pnl} ({pnlPercent})
+                {displayPnl} ({displayPnlPercent})
               </span>
             </div>
           </div>

@@ -220,7 +220,12 @@ function TradeOrderContent() {
                     : ""
                 }`}
               >
-                <PositionCard {...position} />
+                <PositionCard 
+                  {...position}
+                  size={position.size}
+                  sizeDisplay={position.sizeDisplay}
+                  optionId={position.optionId}
+                />
               </div>
             ))
           )
