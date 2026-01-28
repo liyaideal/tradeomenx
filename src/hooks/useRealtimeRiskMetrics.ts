@@ -48,22 +48,26 @@ export function useRealtimeRiskMetrics(): RiskMetrics {
 
     // Calculate realtime unrealized PnL using live prices
     const unrealizedPnL = positions.reduce((sum, pos) => {
-      const positionData = {
-        event: pos.event_name,
-        option: pos.option_label,
-        optionId: (pos as any).option_id, // Use direct option_id if available
-        type: pos.side as "long" | "short",
-        entryPrice: `$${pos.entry_price}`,
-        size: String(pos.size),
-        margin: `$${pos.margin}`,
-      };
+      // If position has option_id, try realtime calculation
+      if (pos.option_id) {
+        const positionData = {
+          event: pos.event_name,
+          option: pos.option_label,
+          optionId: pos.option_id,
+          type: pos.side as "long" | "short",
+          entryPrice: `$${pos.entry_price}`,
+          size: String(pos.size),
+          margin: `$${pos.margin}`,
+        };
 
-      const { pnl, hasRealtimePrice } = calculateRealtimePnL(positionData);
+        const { pnl, hasRealtimePrice } = calculateRealtimePnL(positionData);
 
-      // Use realtime PnL if available, otherwise fall back to database value
-      if (hasRealtimePrice) {
-        return sum + pnl;
+        if (hasRealtimePrice) {
+          return sum + pnl;
+        }
       }
+      
+      // Fall back to database PnL value
       return sum + (Number(pos.pnl) || 0);
     }, 0);
 
