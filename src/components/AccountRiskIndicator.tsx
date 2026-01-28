@@ -1,124 +1,39 @@
-import { useMemo, useState } from "react";
-import { Eye, EyeOff, Info, ChevronRight, ShieldCheck, AlertTriangle, Ban, Zap } from "lucide-react";
-import { useSupabasePositions } from "@/hooks/useSupabasePositions";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useState } from "react";
+import { Eye, EyeOff, Info, ShieldCheck, AlertTriangle, Ban, Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-type RiskLevel = "SAFE" | "WARNING" | "RESTRICTION" | "LIQUIDATION";
+import {
+  useRealtimeRiskMetrics,
+  getRiskColor,
+  getRiskBgColor,
+  getRiskMessage,
+  type RiskLevel,
+} from "@/hooks/useRealtimeRiskMetrics";
 
 interface AccountRiskIndicatorProps {
   variant?: "compact" | "full";
 }
 
+const getRiskIcon = (level: RiskLevel) => {
+  switch (level) {
+    case "SAFE":
+      return <ShieldCheck className="w-3.5 h-3.5" />;
+    case "WARNING":
+      return <AlertTriangle className="w-3.5 h-3.5" />;
+    case "RESTRICTION":
+      return <Ban className="w-3.5 h-3.5" />;
+    case "LIQUIDATION":
+      return <Zap className="w-3.5 h-3.5" />;
+  }
+};
+
 export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicatorProps) => {
-  const { positions } = useSupabasePositions();
-  const { balance } = useUserProfile();
+  const riskMetrics = useRealtimeRiskMetrics();
   const [showValues, setShowValues] = useState(true);
-
-  // Calculate account-level margin metrics based on proper risk model
-  const riskMetrics = useMemo(() => {
-    // Total Assets = current balance (before any unrealized PnL)
-    const totalAssets = balance;
-    
-    // Calculate total exposure and margins from positions
-    const totalExposure = positions.reduce((sum, pos) => {
-      const size = Number(pos.size) || 0;
-      const entryPrice = Number(pos.entry_price) || 0;
-      return sum + (size * entryPrice);
-    }, 0);
-    
-    // Initial Margin (IM) = sum of all position margins
-    const imTotal = positions.reduce((sum, pos) => sum + (Number(pos.margin) || 0), 0);
-    
-    // Maintenance Margin (MM) = 50% of IM (standard ratio)
-    const mmTotal = imTotal * 0.5;
-    
-    // Unrealized PnL from all positions
-    const unrealizedPnL = positions.reduce((sum, pos) => sum + (Number(pos.pnl) || 0), 0);
-    
-    // Equity = Total Assets + Unrealized PnL
-    const equity = totalAssets + unrealizedPnL;
-    
-    // Risk Ratio = IM / Equity (as percentage)
-    // This is the key metric for determining risk level
-    const riskRatio = equity > 0 ? (imTotal / equity) * 100 : 0;
-    
-    // Determine risk level based on risk ratio thresholds
-    let riskLevel: RiskLevel = "SAFE";
-    if (riskRatio >= 100) {
-      riskLevel = "LIQUIDATION";
-    } else if (riskRatio >= 95) {
-      riskLevel = "RESTRICTION";
-    } else if (riskRatio >= 80) {
-      riskLevel = "WARNING";
-    }
-    
-    // Available margin for new positions
-    const availableMargin = Math.max(equity - imTotal, 0);
-    
-    // Distance to liquidation (how much more can you lose)
-    const distanceToLiquidation = Math.max(equity - imTotal, 0);
-    
-    return {
-      totalAssets,
-      totalExposure,
-      equity,
-      imTotal,
-      mmTotal,
-      riskRatio: Math.min(riskRatio, 150), // Cap display at 150%
-      riskLevel,
-      availableMargin,
-      distanceToLiquidation,
-      unrealizedPnL,
-      hasPositions: positions.length > 0,
-    };
-  }, [positions, balance]);
-
-  // Get color based on risk level
-  const getRiskColor = (level: RiskLevel) => {
-    switch (level) {
-      case "SAFE": return "text-trading-green";
-      case "WARNING": return "text-trading-yellow";
-      case "RESTRICTION": return "text-orange-500";
-      case "LIQUIDATION": return "text-trading-red";
-    }
-  };
-
-  const getRiskBgColor = (level: RiskLevel) => {
-    switch (level) {
-      case "SAFE": return "bg-trading-green";
-      case "WARNING": return "bg-trading-yellow";
-      case "RESTRICTION": return "bg-orange-500";
-      case "LIQUIDATION": return "bg-trading-red";
-    }
-  };
-
-  const getRiskIcon = (level: RiskLevel) => {
-    switch (level) {
-      case "SAFE": return <ShieldCheck className="w-3.5 h-3.5" />;
-      case "WARNING": return <AlertTriangle className="w-3.5 h-3.5" />;
-      case "RESTRICTION": return <Ban className="w-3.5 h-3.5" />;
-      case "LIQUIDATION": return <Zap className="w-3.5 h-3.5" />;
-    }
-  };
-
-  const getRiskMessage = (level: RiskLevel) => {
-    switch (level) {
-      case "SAFE": 
-        return { icon: "✅", text: "Normal trading available" };
-      case "WARNING": 
-        return { icon: "⚠️", text: "Opening restricted, consider reducing" };
-      case "RESTRICTION": 
-        return { icon: "🚨", text: "Close-only mode, no new positions" };
-      case "LIQUIDATION": 
-        return { icon: "💥", text: "Liquidation triggered!" };
-    }
-  };
 
   // Calculate progress bar width - maps 0-100% risk ratio to visual width
   const getProgressWidth = (ratio: number) => {
@@ -127,7 +42,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
 
   if (variant === "compact") {
     const riskMessage = getRiskMessage(riskMetrics.riskLevel);
-    
+
     return (
       <div className="p-3 space-y-3">
         {/* Header */}
@@ -201,7 +116,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
               {showValues ? `${riskMetrics.riskRatio.toFixed(2)}%` : "****"}
             </span>
           </div>
-          
+
           {/* Risk Progress Bar with threshold markers */}
           <div className="relative">
             <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -214,7 +129,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
             <div className="absolute top-0 left-[80%] w-px h-2 bg-trading-yellow/50" />
             <div className="absolute top-0 left-[95%] w-px h-2 bg-orange-500/50" />
           </div>
-          
+
           {/* Threshold labels */}
           <div className="flex justify-between text-[9px] text-muted-foreground">
             <span>0%</span>
@@ -243,7 +158,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
         {/* Risk Status Message - only show if not SAFE */}
         {riskMetrics.riskLevel !== "SAFE" && riskMetrics.hasPositions && (
           <div className={`flex items-center gap-2 p-2 rounded-lg text-xs ${
-            riskMetrics.riskLevel === "LIQUIDATION" 
+            riskMetrics.riskLevel === "LIQUIDATION"
               ? "bg-trading-red/10 text-trading-red border border-trading-red/30"
               : riskMetrics.riskLevel === "RESTRICTION"
               ? "bg-orange-500/10 text-orange-500 border border-orange-500/30"
@@ -257,9 +172,9 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
     );
   }
 
-  // Full variant with more details (for future use)
+  // Full variant with more details
   const riskMessage = getRiskMessage(riskMetrics.riskLevel);
-  
+
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
@@ -313,7 +228,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
           <div className="absolute top-0 left-[80%] w-0.5 h-3 bg-trading-yellow" />
           <div className="absolute top-0 left-[95%] w-0.5 h-3 bg-orange-500" />
         </div>
-        
+
         <div className="flex justify-between text-[10px]">
           <span className="text-trading-green">SAFE</span>
           <span className="text-trading-yellow">WARNING (80%)</span>
@@ -347,7 +262,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
       {/* Risk Status Message */}
       {riskMetrics.hasPositions && (
         <div className={`flex items-center gap-2 p-3 rounded-lg text-sm ${
-          riskMetrics.riskLevel === "LIQUIDATION" 
+          riskMetrics.riskLevel === "LIQUIDATION"
             ? "bg-trading-red/10 text-trading-red border border-trading-red/30"
             : riskMetrics.riskLevel === "RESTRICTION"
             ? "bg-orange-500/10 text-orange-500 border border-orange-500/30"
