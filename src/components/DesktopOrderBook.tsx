@@ -543,13 +543,29 @@ export const DesktopOrderBook = ({
             {recentTrades.map((trade, index) => (
               <div
                 key={`trade-${trade.time}-${index}`}
-                className={`grid grid-cols-3 text-xs px-3 py-1 hover:bg-muted/30 cursor-pointer ${trade.isNew ? 'flash-new-trade' : ''}`}
+                className={`grid grid-cols-3 text-xs px-3 py-1 hover:bg-muted/30 cursor-pointer transition-all duration-300 ${
+                  trade.isNew 
+                    ? trade.side === "buy" 
+                      ? "bg-trading-green/25 animate-fade-in" 
+                      : "bg-trading-red/25 animate-fade-in"
+                    : ""
+                }`}
               >
-                <span className={trade.side === "buy" ? "price-green" : "price-red"}>
+                <span className={`font-mono transition-all duration-200 ${
+                  trade.side === "buy" ? "text-trading-green" : "text-trading-red"
+                } ${trade.isNew ? "font-semibold" : ""}`}>
                   {trade.price}
                 </span>
-                <span className="text-right text-muted-foreground font-mono">{trade.amount}</span>
-                <span className="text-right text-muted-foreground font-mono">{trade.time}</span>
+                <span className={`text-right font-mono transition-all duration-200 ${
+                  trade.isNew ? "text-foreground" : "text-muted-foreground"
+                }`}>
+                  {trade.amount}
+                </span>
+                <span className={`text-right font-mono transition-all duration-200 ${
+                  trade.isNew ? "text-foreground" : "text-muted-foreground"
+                }`}>
+                  {trade.time}
+                </span>
               </div>
             ))}
           </div>
