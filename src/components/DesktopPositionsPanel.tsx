@@ -34,12 +34,14 @@ import { usePositions } from "@/hooks/usePositions";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { orderToPosition } from "@/lib/orderUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 
 export const DesktopPositionsPanel = () => {
   // Use unified hooks - Supabase for logged-in users, local for guests
   const { orders, cancelOrder, fillOrder, isCancelling, isFilling } = useOrders();
   const { positions, closePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
   const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
+  const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   
   const [activeTab, setActiveTab] = useState("Positions");
   const [tpSlOpen, setTpSlOpen] = useState(false);
@@ -240,7 +242,13 @@ export const DesktopPositionsPanel = () => {
                   </tr>
                 ) : (
                   positions.map((position, index) => {
-                    const isProfitable = position.pnl.startsWith("+");
+                    // Calculate realtime PnL
+                    const realtimePnL = calculateRealtimePnL(position);
+                    const { pnlStr, pnlPercentStr } = formatPnL(realtimePnL.pnl, realtimePnL.pnlPercent);
+                    const displayMarkPrice = realtimePnL.hasRealtimePrice 
+                      ? formatMarkPrice(realtimePnL.markPrice) 
+                      : position.markPrice;
+                    const isProfitable = realtimePnL.pnl >= 0;
                     const isBinaryYesPosition = position.option.toLowerCase() === "yes";
                     return (
                       <tr key={index} className="border-b border-border/30 hover:bg-muted/30">
@@ -295,12 +303,12 @@ export const DesktopPositionsPanel = () => {
                         <td className="px-3 py-2 text-sm font-mono">{position.size}</td>
                         <td className="px-3 py-2 text-sm font-mono">{position.margin}</td>
                         <td className="px-3 py-2 text-sm font-mono">{position.entryPrice}</td>
-                        <td className="px-3 py-2 text-sm font-mono">{position.markPrice}</td>
+                        <td className="px-3 py-2 text-sm font-mono">{displayMarkPrice}</td>
                         <td className="px-3 py-2 text-sm font-mono">{position.margin}</td>
                         <td className={`px-3 py-2 text-sm font-mono ${
                           isProfitable ? "text-trading-green" : "text-trading-red"
                         }`}>
-                          {position.pnl} ({position.pnlPercent})
+                          {pnlStr} ({pnlPercentStr})
                         </td>
                         <td className="px-3 py-2 text-sm">
                           <button
