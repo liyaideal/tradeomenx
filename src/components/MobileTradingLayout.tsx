@@ -137,6 +137,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         tweetCount={selectedEvent.tweetCount}
         currentPrice={selectedEvent.currentPrice}
         priceChange24h={selectedEvent.priceChange24h}
+        priceLabel={selectedEvent.priceLabel}
         sourceUrl={selectedEvent.sourceUrl}
         sourceName={selectedEvent.sourceName}
         period={selectedEvent.period}

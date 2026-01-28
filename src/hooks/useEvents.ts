@@ -33,6 +33,7 @@ export interface TradingEvent {
   tweetCount?: number;
   currentPrice?: string;
   priceChange24h?: string;
+  priceLabel?: string; // Dynamic label for the asset (e.g., "BTC/USD", "S&P 500")
   stats?: EventStats;
 }
 
@@ -135,27 +136,32 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
   let tweetCount: number | undefined;
   let currentPrice: string | undefined;
   let priceChange24h: string | undefined;
+  let priceLabel: string | undefined; // Dynamic label for the asset
 
   // Tweet-based events
-  if (event.id === 'elon-twitter-activity') {
+  if (event.id === 'elon-twitter-activity' || event.name.toLowerCase().includes('tweet')) {
     tweetCount = 1847; // Mock current tweet count
   }
 
-  // Crypto price-based events
-  if (event.id.includes('eth-') || event.id.includes('ethereum')) {
+  // Crypto price-based events - ETH
+  if (event.id.includes('eth-') || event.id.includes('ethereum') || event.name.toLowerCase().includes('eth')) {
     currentPrice = '$3,456.78';
     priceChange24h = '+2.34%';
+    priceLabel = 'ETH/USD';
   }
 
-  if (event.id.includes('btc-') || event.id.includes('bitcoin')) {
+  // Crypto price-based events - BTC
+  if (event.id.includes('btc-') || event.id.includes('bitcoin') || event.name.toLowerCase().includes('bitcoin')) {
     currentPrice = '$104,567.89';
     priceChange24h = '+1.56%';
+    priceLabel = 'BTC/USD';
   }
 
-  // Stock market events
-  if (event.id.includes('sp500')) {
+  // Stock market events - S&P 500
+  if (event.id.includes('sp500') || event.name.toLowerCase().includes('s&p')) {
     currentPrice = '6,234.56';
     priceChange24h = '+0.45%';
+    priceLabel = 'S&P 500';
   }
 
   return {
@@ -174,6 +180,7 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
     tweetCount,
     currentPrice,
     priceChange24h,
+    priceLabel,
   };
 };
 
