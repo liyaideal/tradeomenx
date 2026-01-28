@@ -1,3 +1,6 @@
+import { useEffect, useState, useRef } from "react";
+import { cn } from "@/lib/utils";
+
 interface OrderBookEntry {
   price: string;
   amount: string;
@@ -11,7 +14,87 @@ interface OrderBookProps {
   compact?: boolean;
 }
 
+// Track price changes for flash animation
+interface PriceFlash {
+  [key: string]: "up" | "down" | null;
+}
+
 export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBookProps) => {
+  const [visibleAsks, setVisibleAsks] = useState<OrderBookEntry[]>([]);
+  const [visibleBids, setVisibleBids] = useState<OrderBookEntry[]>([]);
+  const [priceFlash, setPriceFlash] = useState<PriceFlash>({});
+  const [priceChange, setPriceChange] = useState<"up" | "down" | null>(null);
+  const prevPriceRef = useRef<string>(currentPrice);
+  const prevAsksRef = useRef<OrderBookEntry[]>([]);
+  const prevBidsRef = useRef<OrderBookEntry[]>([]);
+  const isInitialMount = useRef(true);
+
+  // Animate entries on mount and data change
+  useEffect(() => {
+    if (isInitialMount.current) {
+      // Staggered entry animation on initial mount
+      const animateEntries = async () => {
+        // Animate asks from bottom to top (closest to price first)
+        for (let i = asks.length - 1; i >= 0; i--) {
+          await new Promise(resolve => setTimeout(resolve, 30));
+          setVisibleAsks(prev => [asks[i], ...prev]);
+        }
+        // Animate bids from top to bottom (closest to price first)
+        for (let i = 0; i < bids.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, 30));
+          setVisibleBids(prev => [...prev, bids[i]]);
+        }
+      };
+      animateEntries();
+      isInitialMount.current = false;
+    } else {
+      // On subsequent updates, just update directly
+      setVisibleAsks(asks);
+      setVisibleBids(bids);
+      
+      // Detect price changes and trigger flash
+      const newFlashes: PriceFlash = {};
+      
+      asks.forEach((ask, idx) => {
+        const prevAsk = prevAsksRef.current[idx];
+        if (prevAsk && prevAsk.amount !== ask.amount) {
+          const prevAmount = parseInt(prevAsk.amount.replace(/,/g, ""));
+          const newAmount = parseInt(ask.amount.replace(/,/g, ""));
+          newFlashes[`ask-${idx}`] = newAmount > prevAmount ? "up" : "down";
+        }
+      });
+      
+      bids.forEach((bid, idx) => {
+        const prevBid = prevBidsRef.current[idx];
+        if (prevBid && prevBid.amount !== bid.amount) {
+          const prevAmount = parseInt(prevBid.amount.replace(/,/g, ""));
+          const newAmount = parseInt(bid.amount.replace(/,/g, ""));
+          newFlashes[`bid-${idx}`] = newAmount > prevAmount ? "up" : "down";
+        }
+      });
+      
+      if (Object.keys(newFlashes).length > 0) {
+        setPriceFlash(newFlashes);
+        setTimeout(() => setPriceFlash({}), 300);
+      }
+    }
+    
+    prevAsksRef.current = asks;
+    prevBidsRef.current = bids;
+  }, [asks, bids]);
+
+  // Detect current price changes
+  useEffect(() => {
+    if (prevPriceRef.current !== currentPrice) {
+      const prevPrice = parseFloat(prevPriceRef.current.replace(/[$,]/g, ""));
+      const newPrice = parseFloat(currentPrice.replace(/[$,]/g, ""));
+      setPriceChange(newPrice > prevPrice ? "up" : "down");
+      prevPriceRef.current = currentPrice;
+      
+      setTimeout(() => setPriceChange(null), 500);
+    }
+  }, [currentPrice]);
+
   return (
     <div className="w-full">
       {!compact && (
@@ -24,38 +107,79 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
 
       {/* Asks (Sell orders) */}
       <div className={`${compact ? "max-h-[200px]" : ""} overflow-y-auto scrollbar-hide`}>
-        {asks.map((ask, index) => (
-          <div
-            key={`ask-${index}`}
-            className="grid grid-cols-3 text-xs px-4 py-1.5"
-          >
-            <span className="price-red">{ask.price}</span>
-            <span className="text-center text-muted-foreground font-mono">{ask.amount}</span>
-            <span className="text-right text-muted-foreground font-mono">{ask.total || ask.amount}</span>
-          </div>
-        ))}
+        {visibleAsks.map((ask, index) => {
+          const flashState = priceFlash[`ask-${index}`];
+          return (
+            <div
+              key={`ask-${index}`}
+              className={cn(
+                "grid grid-cols-3 text-xs px-4 py-1.5 transition-all duration-200",
+                "animate-fade-in",
+                flashState === "up" && "bg-trading-green/20",
+                flashState === "down" && "bg-trading-red/20"
+              )}
+              style={{
+                animationDelay: isInitialMount.current ? `${(asks.length - 1 - index) * 30}ms` : "0ms",
+              }}
+            >
+              <span className="price-red font-mono">{ask.price}</span>
+              <span className={cn(
+                "text-center text-muted-foreground font-mono transition-colors duration-200",
+                flashState && "text-foreground"
+              )}>
+                {ask.amount}
+              </span>
+              <span className="text-right text-muted-foreground font-mono">{ask.total || ask.amount}</span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Current Price */}
       <div className="px-4 py-3">
-        <div className="text-center">
-          <span className="text-xl font-bold font-mono text-foreground">${currentPrice}</span>
+        <div className="text-center relative">
+          <span 
+            className={cn(
+              "text-xl font-bold font-mono transition-all duration-300",
+              priceChange === "up" && "text-trading-green animate-pulse",
+              priceChange === "down" && "text-trading-red animate-pulse",
+              !priceChange && "text-foreground"
+            )}
+          >
+            ${currentPrice}
+          </span>
           <div className="text-xs text-muted-foreground mt-0.5">Current Price</div>
         </div>
       </div>
 
       {/* Bids (Buy orders) */}
       <div className={`${compact ? "max-h-[200px]" : ""} overflow-y-auto scrollbar-hide`}>
-        {bids.map((bid, index) => (
-          <div
-            key={`bid-${index}`}
-            className="grid grid-cols-3 text-xs px-4 py-1.5"
-          >
-            <span className="price-green">{bid.price}</span>
-            <span className="text-center text-muted-foreground font-mono">{bid.amount}</span>
-            <span className="text-right text-muted-foreground font-mono">{bid.total || bid.amount}</span>
-          </div>
-        ))}
+        {visibleBids.map((bid, index) => {
+          const flashState = priceFlash[`bid-${index}`];
+          return (
+            <div
+              key={`bid-${index}`}
+              className={cn(
+                "grid grid-cols-3 text-xs px-4 py-1.5 transition-all duration-200",
+                "animate-fade-in",
+                flashState === "up" && "bg-trading-green/20",
+                flashState === "down" && "bg-trading-red/20"
+              )}
+              style={{
+                animationDelay: isInitialMount.current ? `${index * 30}ms` : "0ms",
+              }}
+            >
+              <span className="price-green font-mono">{bid.price}</span>
+              <span className={cn(
+                "text-center text-muted-foreground font-mono transition-colors duration-200",
+                flashState && "text-foreground"
+              )}>
+                {bid.amount}
+              </span>
+              <span className="text-right text-muted-foreground font-mono">{bid.total || bid.amount}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
