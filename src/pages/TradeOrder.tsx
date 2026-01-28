@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { ExternalLink, ChevronDown } from "lucide-react";
-import { MobileTradingLayout, useMobileTradingContext } from "@/components/MobileTradingLayout";
+import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
@@ -15,14 +15,18 @@ interface LocationState {
   highlightPosition?: number;
 }
 
-function TradeOrderContent() {
+interface TradeOrderContentProps {
+  selectedEvent: TradingContextData['selectedEvent'];
+  selectedOptionData: TradingContextData['selectedOptionData'];
+}
+
+function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderContentProps) {
   const location = useLocation();
   const state = location.state as LocationState | null;
   
   // Use unified hooks - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
   const { positions, isLoading: positionsLoading } = usePositions();
-  const { selectedEvent, selectedOptionData } = useMobileTradingContext();
   
   // Enable order simulation for auto-filling
   useOrderSimulation();
@@ -238,7 +242,12 @@ function TradeOrderContent() {
 export default function TradeOrder() {
   return (
     <MobileTradingLayout activeTab="Trade">
-      <TradeOrderContent />
+      {(context) => (
+        <TradeOrderContent 
+          selectedEvent={context.selectedEvent} 
+          selectedOptionData={context.selectedOptionData} 
+        />
+      )}
     </MobileTradingLayout>
   );
 }
