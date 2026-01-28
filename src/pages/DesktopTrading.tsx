@@ -349,7 +349,7 @@ export default function DesktopTrading() {
     }
   };
   
-  const available = 2453.42;
+  const available = balance;
   const feeRate = 0.0005; // 0.05% trading fee
 
   // 检查是否为二元事件且当前选择了 No 选项
