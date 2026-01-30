@@ -8,7 +8,7 @@ import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
-import StyleGuide from "./pages/StyleGuide";
+import StyleGuide from "./pages/StyleGuide/index";
 import EventsPage from "./pages/EventsPage";
 import ResolvedPage from "./pages/ResolvedPage";
 import ResolvedEventDetail from "./pages/ResolvedEventDetail";
