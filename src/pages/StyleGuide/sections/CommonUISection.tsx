@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { RotateCcw } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RotateCcw, Info, HelpCircle, Settings, Bell, User } from "lucide-react";
 import { toast } from "sonner";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
@@ -49,6 +51,17 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
   // Dialog Playground
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // Tooltip Playground
+  const [tooltipSide, setTooltipSide] = useState<"top" | "right" | "bottom" | "left">("top");
+  const [tooltipDelay, setTooltipDelay] = useState(200);
+
+  // Popover Playground
+  const [popoverSide, setPopoverSide] = useState<"top" | "right" | "bottom" | "left">("bottom");
+  const [popoverAlign, setPopoverAlign] = useState<"start" | "center" | "end">("center");
+
+  // Card Playground
+  const [cardStyle, setCardStyle] = useState<"default" | "trading">("default");
+
   const resetPlayground = () => {
     setButtonVariant("default");
     setButtonSize("default");
@@ -59,6 +72,11 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
     setProgressValue(65);
     setSwitchChecked(false);
     setSliderValue([50]);
+    setTooltipSide("top");
+    setTooltipDelay(200);
+    setPopoverSide("bottom");
+    setPopoverAlign("center");
+    setCardStyle("default");
     toast.success("Playground reset!");
   };
 
@@ -189,6 +207,280 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
             <Badge className="bg-trading-purple/10 text-trading-purple border-trading-purple/20">Active</Badge>
             <Badge className="bg-trading-yellow/10 text-trading-yellow border-trading-yellow/20">Pending</Badge>
           </div>
+        </div>
+      </SectionWrapper>
+
+      {/* Tooltip */}
+      <SectionWrapper
+        id="tooltip"
+        title="Tooltip"
+        platform="shared"
+        description="Contextual information on hover"
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Tooltip Playground</CardTitle>
+            <CardDescription>Hover over the icon to see the tooltip</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              <div className="bg-muted/30 rounded-xl p-8 flex items-center justify-center min-h-[150px]">
+                <TooltipProvider delayDuration={tooltipDelay}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <HelpCircle className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side={tooltipSide}>
+                      <p>This is a helpful tooltip!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs">Side</Label>
+                  <Select value={tooltipSide} onValueChange={(v) => setTooltipSide(v as typeof tooltipSide)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["top", "right", "bottom", "left"].map(s => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Delay Duration (ms)</Label>
+                  <div className="flex items-center gap-4">
+                    <Slider 
+                      value={[tooltipDelay]} 
+                      onValueChange={([v]) => setTooltipDelay(v)} 
+                      min={0} 
+                      max={1000} 
+                      step={50}
+                      className="flex-1"
+                    />
+                    <span className="text-xs font-mono w-12">{tooltipDelay}ms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <CodePreview 
+              code={`<TooltipProvider delayDuration={${tooltipDelay}}>
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button variant="outline" size="icon">
+        <HelpCircle className="h-4 w-4" />
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent side="${tooltipSide}">
+      <p>This is a helpful tooltip!</p>
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>`}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Tooltip Examples */}
+        <div className="mt-6">
+          <h4 className="text-sm font-medium mb-3">Common Tooltip Patterns</h4>
+          <div className="flex flex-wrap gap-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-1.5">
+                    <Info className="h-3.5 w-3.5" />
+                    Info Icon
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Additional information here</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Settings</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Notifications</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+      </SectionWrapper>
+
+      {/* Popover */}
+      <SectionWrapper
+        id="popover"
+        title="Popover"
+        platform="shared"
+        description="Rich content overlay triggered by click"
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Popover Playground</CardTitle>
+            <CardDescription>Click the button to open the popover</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              <div className="bg-muted/30 rounded-xl p-8 flex items-center justify-center min-h-[150px]">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline">Open Popover</Button>
+                  </PopoverTrigger>
+                  <PopoverContent side={popoverSide} align={popoverAlign} className="w-72">
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm">Popover Title</h4>
+                      <p className="text-xs text-muted-foreground">
+                        This is a popover with rich content. You can put forms, lists, or any other content here.
+                      </p>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">Cancel</Button>
+                        <Button size="sm">Confirm</Button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Side</Label>
+                    <Select value={popoverSide} onValueChange={(v) => setPopoverSide(v as typeof popoverSide)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {["top", "right", "bottom", "left"].map(s => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Align</Label>
+                    <Select value={popoverAlign} onValueChange={(v) => setPopoverAlign(v as typeof popoverAlign)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {["start", "center", "end"].map(a => (
+                          <SelectItem key={a} value={a}>{a}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <CodePreview 
+              code={`<Popover>
+  <PopoverTrigger asChild>
+    <Button variant="outline">Open Popover</Button>
+  </PopoverTrigger>
+  <PopoverContent side="${popoverSide}" align="${popoverAlign}">
+    <div className="space-y-3">
+      <h4 className="font-medium">Title</h4>
+      <p className="text-sm text-muted-foreground">Content...</p>
+    </div>
+  </PopoverContent>
+</Popover>`}
+            />
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
+      {/* Card Styles */}
+      <SectionWrapper
+        id="cards"
+        title="Card Styles"
+        platform="shared"
+        description="Container components with different visual treatments"
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Card Playground</CardTitle>
+            <CardDescription>Toggle between default and trading card styles</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[180px]">
+                <Card className={cardStyle === "trading" ? "trading-card w-full max-w-[280px]" : "w-full max-w-[280px]"}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Sample Card</CardTitle>
+                    <CardDescription className="text-xs">Card description text</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">Card content goes here</p>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs">Card Style</Label>
+                  <Select value={cardStyle} onValueChange={(v) => setCardStyle(v as typeof cardStyle)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">Default</SelectItem>
+                      <SelectItem value="trading">Trading Card</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="text-xs text-muted-foreground space-y-2">
+                  <p><strong>Default:</strong> Standard shadcn/ui card with subtle border</p>
+                  <p><strong>Trading:</strong> Enhanced card with gradient background and glow effects</p>
+                </div>
+              </div>
+            </div>
+            <CodePreview 
+              code={cardStyle === "trading" 
+                ? `<Card className="trading-card">
+  <CardHeader>
+    <CardTitle>Title</CardTitle>
+    <CardDescription>Description</CardDescription>
+  </CardHeader>
+  <CardContent>Content</CardContent>
+</Card>`
+                : `<Card>
+  <CardHeader>
+    <CardTitle>Title</CardTitle>
+    <CardDescription>Description</CardDescription>
+  </CardHeader>
+  <CardContent>Content</CardContent>
+</Card>`}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Card Examples Side by Side */}
+        <div className={`grid gap-6 mt-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Default Card</CardTitle>
+              <CardDescription className="text-xs">Standard border styling</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Use for general content containers</p>
+            </CardContent>
+          </Card>
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-base">Trading Card</CardTitle>
+              <CardDescription className="text-xs">Enhanced gradient styling</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Use for trading-specific content</p>
+            </CardContent>
+          </Card>
         </div>
       </SectionWrapper>
 
