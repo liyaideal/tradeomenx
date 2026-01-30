@@ -107,8 +107,8 @@ interface TokenListItemProps {
 }
 
 const TokenListItem = ({ token, onClick }: TokenListItemProps) => {
-  const formattedBalance = (token.balance ?? 0).toFixed(2);
-  const formattedBalanceUsd = (token.balanceUsd ?? 0).toFixed(2);
+  const formattedBalance = token.balance?.toFixed(token.decimals > 8 ? 4 : 2) ?? '0.00';
+  const formattedBalanceUsd = token.balanceUsd?.toFixed(2) ?? '0.00';
 
   return (
     <button
@@ -121,7 +121,7 @@ const TokenListItem = ({ token, onClick }: TokenListItemProps) => {
           {token.icon}
         </div>
         
-        {/* Token Name */}
+        {/* Token Info */}
         <div className="text-left">
           <div className="font-medium group-hover:text-primary transition-colors">
             {token.name}
@@ -132,8 +132,7 @@ const TokenListItem = ({ token, onClick }: TokenListItemProps) => {
       {/* Balance */}
       <div className="text-right">
         <div className="font-mono font-medium">
-          <span>{formattedBalance}</span>{' '}
-          <span className="text-muted-foreground">{token.symbol}</span>
+          {formattedBalance} <span className="text-muted-foreground">{token.symbol}</span>
         </div>
         <div className="text-xs text-muted-foreground font-mono">
           {formattedBalanceUsd} USD
