@@ -157,12 +157,73 @@ const style = CATEGORY_STYLES[category];
       <SectionWrapper
         id="account-risk"
         title="Account Risk Indicator"
-        platform="desktop"
-        description="Visual indicator for margin and liquidation risk"
+        platform="shared"
+        description="4-tier risk classification based on Risk Ratio (IM / Equity × 100)"
       >
+        {/* Risk Model Documentation */}
+        <Card className="trading-card mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Risk Model Overview</CardTitle>
+            <CardDescription>Equity = Balance + Unrealized PnL | Risk Ratio = Initial Margin / Equity × 100</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+              <div className="p-4 bg-trading-green/10 border border-trading-green/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldCheck className="h-4 w-4 text-trading-green" />
+                  <span className="text-sm font-medium text-trading-green">SAFE</span>
+                </div>
+                <p className="text-2xl font-mono font-bold text-trading-green">&lt; 80%</p>
+                <p className="text-xs text-muted-foreground mt-1">Normal trading allowed</p>
+              </div>
+              <div className="p-4 bg-trading-yellow/10 border border-trading-yellow/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-4 w-4 text-trading-yellow" />
+                  <span className="text-sm font-medium text-trading-yellow">WARNING</span>
+                </div>
+                <p className="text-2xl font-mono font-bold text-trading-yellow">80-95%</p>
+                <p className="text-xs text-muted-foreground mt-1">Reduce positions suggested</p>
+              </div>
+              <div className="p-4 bg-trading-red/10 border border-trading-red/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Ban className="h-4 w-4 text-trading-red" />
+                  <span className="text-sm font-medium text-trading-red">RESTRICTION</span>
+                </div>
+                <p className="text-2xl font-mono font-bold text-trading-red">95-100%</p>
+                <p className="text-xs text-muted-foreground mt-1">Close-only mode</p>
+              </div>
+              <div className="p-4 bg-trading-red/20 border border-trading-red/50 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-4 w-4 text-trading-red animate-pulse" />
+                  <span className="text-sm font-medium text-trading-red">LIQUIDATION</span>
+                </div>
+                <p className="text-2xl font-mono font-bold text-trading-red">≥ 100%</p>
+                <p className="text-xs text-muted-foreground mt-1">Forced liquidation triggered</p>
+              </div>
+            </div>
+            
+            {/* Margin Terms */}
+            <div className="mt-6 p-4 bg-muted/30 rounded-lg">
+              <h4 className="text-sm font-medium mb-3">Key Terms</h4>
+              <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                <div>
+                  <p className="text-xs text-muted-foreground">Initial Margin (IM)</p>
+                  <p className="text-sm">Entry threshold - margin required to open a position</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Maintenance Margin (MM)</p>
+                  <p className="text-sm">Survival line - minimum margin to keep position open</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Interactive Simulator */}
         <Card className="trading-card">
           <CardHeader>
-            <CardTitle className="text-lg">Risk Level Visualization</CardTitle>
+            <CardTitle className="text-lg">Risk Level Simulator</CardTitle>
+            <CardDescription>Adjust values to test risk tier transitions</CardDescription>
           </CardHeader>
           <CardContent>
             <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
@@ -199,6 +260,18 @@ const style = CATEGORY_STYLES[category];
                     <span>Risk Ratio</span>
                     <span className="font-mono">{playgroundRiskMetrics.riskRatio.toFixed(1)}%</span>
                   </div>
+                  
+                  {/* Calculated Values */}
+                  <div className="mt-4 pt-4 border-t border-border/50 grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-muted-foreground">Equity</span>
+                      <p className="font-mono font-medium">${playgroundRiskMetrics.equity.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Formula</span>
+                      <p className="font-mono text-muted-foreground">{riskIMTotal} / {playgroundRiskMetrics.equity.toFixed(0)} × 100</p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Risk Level Legend */}
@@ -225,16 +298,43 @@ const style = CATEGORY_STYLES[category];
               {/* Controls */}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-xs">Total Assets: ${riskTotalAssets}</Label>
+                  <div className="flex justify-between">
+                    <Label className="text-xs">Total Assets</Label>
+                    <span className="text-xs font-mono">${riskTotalAssets}</span>
+                  </div>
                   <Slider value={[riskTotalAssets]} onValueChange={([v]) => setRiskTotalAssets(v)} min={10} max={500} />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs">Unrealized PnL: ${riskUnrealizedPnL}</Label>
+                  <div className="flex justify-between">
+                    <Label className="text-xs">Unrealized PnL</Label>
+                    <span className={cn("text-xs font-mono", riskUnrealizedPnL >= 0 ? "text-trading-green" : "text-trading-red")}>
+                      {riskUnrealizedPnL >= 0 ? "+" : ""}${riskUnrealizedPnL}
+                    </span>
+                  </div>
                   <Slider value={[riskUnrealizedPnL]} onValueChange={([v]) => setRiskUnrealizedPnL(v)} min={-100} max={100} />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs">Initial Margin: ${riskIMTotal}</Label>
+                  <div className="flex justify-between">
+                    <Label className="text-xs">Initial Margin (IM)</Label>
+                    <span className="text-xs font-mono">${riskIMTotal}</span>
+                  </div>
                   <Slider value={[riskIMTotal]} onValueChange={([v]) => setRiskIMTotal(v)} min={0} max={200} />
+                </div>
+                
+                {/* Quick Presets */}
+                <div className="pt-4 border-t border-border/50">
+                  <Label className="text-xs mb-2 block">Quick Presets</Label>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" className="text-xs" onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(20); setRiskIMTotal(50); }}>
+                      Safe Example
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-xs" onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(-10); setRiskIMTotal(75); }}>
+                      Warning Example
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-xs" onClick={() => { setRiskTotalAssets(100); setRiskUnrealizedPnL(-20); setRiskIMTotal(85); }}>
+                      Liquidation Risk
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -208,6 +208,266 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
           </Card>
         </div>
       </SectionWrapper>
+
+      {/* Animations */}
+      <SectionWrapper 
+        id="animations" 
+        title="Animations" 
+        platform="shared"
+        description="CSS keyframe animations defined in tailwind.config.ts"
+      >
+        <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+          {/* Fade Animations */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Fade Animations</CardTitle>
+              <CardDescription>Smooth opacity + transform transitions</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-muted/30 rounded-lg text-center">
+                  <div className="w-12 h-12 bg-primary rounded-lg mx-auto mb-2 animate-fade-in" />
+                  <code className="text-xs">animate-fade-in</code>
+                </div>
+                <div className="p-4 bg-muted/30 rounded-lg text-center">
+                  <div className="w-12 h-12 bg-primary rounded-lg mx-auto mb-2 animate-[fade-in_0.3s_ease-out_infinite_alternate]" />
+                  <code className="text-xs">fade-in loop</code>
+                </div>
+              </div>
+              <CodePreview 
+                code={`// Fade in with upward motion
+<div className="animate-fade-in">Content</div>
+
+// Custom duration
+<div className="animate-[fade-in_0.5s_ease-out]">Content</div>`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Scale Animations */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Scale Animations</CardTitle>
+              <CardDescription>Scale + opacity for emphasis</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-muted/30 rounded-lg text-center">
+                  <div className="w-12 h-12 bg-trading-purple rounded-lg mx-auto mb-2 animate-scale-in" />
+                  <code className="text-xs">animate-scale-in</code>
+                </div>
+                <div className="p-4 bg-muted/30 rounded-lg text-center">
+                  <div className="w-12 h-12 bg-trading-purple rounded-lg mx-auto mb-2 animate-[scale-in_0.2s_ease-out_infinite_alternate]" />
+                  <code className="text-xs">scale-in loop</code>
+                </div>
+              </div>
+              <CodePreview 
+                code={`<div className="animate-scale-in">Modal</div>
+<div className="animate-enter">Combined fade+scale</div>`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Slide Animations */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Slide Animations</CardTitle>
+              <CardDescription>For sidebars, drawers, sheets</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 bg-muted/30 rounded-lg overflow-hidden">
+                <div className="w-16 h-16 bg-trading-green rounded-lg animate-[slide-in-right_0.5s_ease-out_infinite_alternate]" />
+              </div>
+              <CodePreview 
+                code={`<Sheet>
+  <SheetContent className="animate-slide-in-right">
+    Sidebar content
+  </SheetContent>
+</Sheet>`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Accordion Animations */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Accordion Animations</CardTitle>
+              <CardDescription>Height + opacity for expandable content</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-xs text-muted-foreground">
+                Used automatically by Radix Accordion component
+              </div>
+              <CodePreview 
+                code={`// Applied automatically by shadcn Accordion
+<AccordionContent>
+  Animates with accordion-down/up
+</AccordionContent>`}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </SectionWrapper>
+
+      {/* Custom CSS Classes */}
+      <SectionWrapper 
+        id="custom-classes" 
+        title="Custom CSS Classes" 
+        platform="shared"
+        description="Utility classes defined in index.css and tailwind.config.ts"
+      >
+        <div className="space-y-6">
+          {/* Interactive Effects */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Interactive Effects</CardTitle>
+              <CardDescription>Hover and interaction utilities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
+                {/* Hover Scale */}
+                <div className="p-4 bg-muted/30 rounded-lg text-center">
+                  <div className="w-16 h-16 bg-primary rounded-lg mx-auto mb-3 hover-scale cursor-pointer" />
+                  <code className="text-xs">.hover-scale</code>
+                  <p className="text-xs text-muted-foreground mt-1">Hover to see effect</p>
+                </div>
+
+                {/* Story Link */}
+                <div className="p-4 bg-muted/30 rounded-lg text-center">
+                  <a href="#" className="story-link text-primary font-medium" onClick={(e) => e.preventDefault()}>
+                    Hover me
+                  </a>
+                  <div className="mt-3">
+                    <code className="text-xs">.story-link</code>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Underline animation</p>
+                </div>
+
+                {/* Pulse */}
+                <div className="p-4 bg-muted/30 rounded-lg text-center">
+                  <div className="w-4 h-4 bg-trading-red rounded-full mx-auto mb-3 pulse" />
+                  <code className="text-xs">.pulse</code>
+                  <p className="text-xs text-muted-foreground mt-1">Attention indicator</p>
+                </div>
+              </div>
+              <CodePreview 
+                code={`// Scale on hover
+<Card className="hover-scale">Hover me</Card>
+
+// Animated underline link
+<a className="story-link">Learn more</a>
+
+// Pulsing indicator
+<span className="pulse bg-red-500 rounded-full" />`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Trading Card Style */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Trading Card</CardTitle>
+              <CardDescription>Gradient background with proper borders</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Default Card</p>
+                  <Card className="p-4">
+                    <p className="text-sm">Standard card styling</p>
+                  </Card>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Trading Card</p>
+                  <Card className="trading-card p-4">
+                    <p className="text-sm">Enhanced trading card</p>
+                  </Card>
+                </div>
+              </div>
+              <CodePreview 
+                code={`<Card className="trading-card">
+  <CardContent>
+    Trading-specific card with gradient
+  </CardContent>
+</Card>`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Price Flash Effects */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Price Flash Effects</CardTitle>
+              <CardDescription>Used in OrderBook and TradesHistory for real-time updates</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
+                <div className="p-3 bg-trading-green/20 rounded-lg text-center border border-trading-green/30">
+                  <span className="text-trading-green font-mono">$1,234.56</span>
+                  <p className="text-xs text-muted-foreground mt-1">Price Up</p>
+                </div>
+                <div className="p-3 bg-trading-red/20 rounded-lg text-center border border-trading-red/30">
+                  <span className="text-trading-red font-mono">$1,234.56</span>
+                  <p className="text-xs text-muted-foreground mt-1">Price Down</p>
+                </div>
+                <div className="p-3 rounded-lg text-center border border-border">
+                  <span className="text-foreground font-mono">$1,234.56</span>
+                  <p className="text-xs text-muted-foreground mt-1">Neutral</p>
+                </div>
+                <div className="p-3 bg-trading-yellow/20 rounded-lg text-center border border-trading-yellow/30">
+                  <span className="text-trading-yellow font-mono">Pending</span>
+                  <p className="text-xs text-muted-foreground mt-1">Warning</p>
+                </div>
+              </div>
+              <CodePreview 
+                code={`// Price increase flash
+<span className="bg-trading-green/20 text-trading-green">
+  $1,234.56
+</span>
+
+// Price decrease flash
+<span className="bg-trading-red/20 text-trading-red">
+  $1,234.56
+</span>`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Scrollbar Utilities */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Scrollbar Utilities</CardTitle>
+              <CardDescription>Custom scrollbar styling</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Hidden Scrollbar</p>
+                  <div className="h-24 overflow-auto scrollbar-hide bg-muted/30 rounded-lg p-2">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                      <p key={i} className="text-xs py-1">Scrollable content line {i + 1}</p>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Default Scrollbar</p>
+                  <div className="h-24 overflow-auto bg-muted/30 rounded-lg p-2">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                      <p key={i} className="text-xs py-1">Scrollable content line {i + 1}</p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <CodePreview 
+                code={`// Hide scrollbar but keep functionality
+<div className="overflow-auto scrollbar-hide">
+  Scrollable content
+</div>`}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </SectionWrapper>
     </div>
   );
 };
