@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download, ShieldCheck, AlertTriangle, Ban, Type } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download, ShieldCheck, AlertTriangle, Ban, Type, Clock, Loader2, ExternalLink } from "lucide-react";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
@@ -67,6 +67,9 @@ const StyleGuide = () => {
     { id: "toast-notifications", title: "Toast & Notifications", keywords: ["toast", "notification", "alert", "message", "sonner", "success", "error", "warning"] },
     { id: "mobile-header", title: "Mobile Header", keywords: ["header", "mobile", "navigation", "back", "logo", "title", "favorite", "share", "countdown"] },
     { id: "account-risk-indicator", title: "Account Risk Indicator", keywords: ["risk", "margin", "account", "equity", "liquidation", "warning", "im", "mm", "cross margin", "trading"] },
+    { id: "transaction-status", title: "Transaction Status Badges", keywords: ["transaction", "status", "badge", "pending", "processing", "completed", "failed", "deposit", "withdraw"] },
+    { id: "stepper-timeline", title: "Stepper / Progress Timeline", keywords: ["stepper", "timeline", "progress", "steps", "wizard", "withdraw", "deposit", "confirmation"] },
+    { id: "explorer-links", title: "Blockchain Explorer Links", keywords: ["explorer", "blockchain", "txhash", "address", "link", "external", "etherscan", "bscscan"] },
   ];
 
   // Filter sections based on search query
@@ -4241,6 +4244,557 @@ toast.promise(asyncFn(), {
                     </tr>
                   </tbody>
                 </table>
+              </div>
+            </Card>
+          </div>
+        </section>
+        )}
+
+        {/* Transaction Status Badges Section */}
+        {filterSection("transaction-status") && (
+        <section id="transaction-status" className="space-y-6">
+          <div className="border-b border-border pb-4">
+            <h2 className="text-xl font-semibold">Transaction Status Badges</h2>
+            <p className="text-muted-foreground text-sm mt-1">
+              Consistent status indicators for deposits, withdrawals, and transactions
+            </p>
+          </div>
+          
+          <div className="grid gap-6">
+            {/* Status Overview */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Transaction Status Types</h3>
+              <div className="space-y-3">
+                {/* Pending */}
+                <div className="flex items-center gap-4 p-3 rounded-lg bg-trading-yellow/10 border border-trading-yellow/30">
+                  <Badge variant="outline" className="flex items-center gap-1 bg-trading-yellow/20 text-trading-yellow border-trading-yellow/30">
+                    <Clock className="w-3 h-3" />
+                    Pending
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">Transaction detected, awaiting confirmations</span>
+                </div>
+
+                {/* Processing */}
+                <div className="flex items-center gap-4 p-3 rounded-lg bg-primary/10 border border-primary/30">
+                  <Badge variant="outline" className="flex items-center gap-1 bg-primary/20 text-primary border-primary/30">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Processing
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">Transaction being processed by system</span>
+                </div>
+
+                {/* Completed */}
+                <div className="flex items-center gap-4 p-3 rounded-lg bg-trading-green/10 border border-trading-green/30">
+                  <Badge variant="outline" className="flex items-center gap-1 bg-trading-green/20 text-trading-green border-trading-green/30">
+                    <Check className="w-3 h-3" />
+                    Completed
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">Transaction successfully completed</span>
+                </div>
+
+                {/* Failed */}
+                <div className="flex items-center gap-4 p-3 rounded-lg bg-trading-red/10 border border-trading-red/30">
+                  <Badge variant="outline" className="flex items-center gap-1 bg-trading-red/20 text-trading-red border-trading-red/30">
+                    <X className="w-3 h-3" />
+                    Failed
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">Transaction failed or rejected</span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Deposit-Specific Statuses */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Deposit Status Lifecycle</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/30 border border-border">
+                  <Badge variant="outline" className="flex items-center gap-1 bg-muted text-muted-foreground border-border">
+                    <Clock className="w-3 h-3" />
+                    Waiting
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">PENDING_TX - Waiting for transaction on chain</span>
+                </div>
+                
+                <div className="flex items-center gap-4 p-3 rounded-lg bg-primary/10 border border-primary/30">
+                  <Badge variant="outline" className="flex items-center gap-1 bg-primary/20 text-primary border-primary/30">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    3/15
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">CONFIRMING - Block confirmations in progress</span>
+                </div>
+
+                <div className="flex items-center gap-4 p-3 rounded-lg bg-trading-yellow/10 border border-trading-yellow/30">
+                  <Badge variant="outline" className="flex items-center gap-1 bg-trading-yellow/20 text-trading-yellow border-trading-yellow/30">
+                    <AlertTriangle className="w-3 h-3" />
+                    Claim Required
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">PENDING_CLAIM - Small deposit needs manual claim</span>
+                </div>
+
+                <div className="flex items-center gap-4 p-3 rounded-lg bg-trading-green/10 border border-trading-green/30">
+                  <Badge variant="outline" className="flex items-center gap-1 bg-trading-green/20 text-trading-green border-trading-green/30">
+                    <Check className="w-3 h-3" />
+                    Credited
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">CREDITED - Funds added to account balance</span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Design Tokens Table */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Status Design Tokens</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-2 font-medium">Status</th>
+                      <th className="text-left py-2 px-2 font-medium">Text Color</th>
+                      <th className="text-left py-2 px-2 font-medium">Background</th>
+                      <th className="text-left py-2 px-2 font-medium">Border</th>
+                      <th className="text-left py-2 px-2 font-medium">Icon</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-muted-foreground">
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 text-trading-yellow font-medium">Pending</td>
+                      <td className="py-2 px-2 font-mono text-xs">text-trading-yellow</td>
+                      <td className="py-2 px-2 font-mono text-xs">bg-trading-yellow/20</td>
+                      <td className="py-2 px-2 font-mono text-xs">border-trading-yellow/30</td>
+                      <td className="py-2 px-2">Clock</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 text-primary font-medium">Processing</td>
+                      <td className="py-2 px-2 font-mono text-xs">text-primary</td>
+                      <td className="py-2 px-2 font-mono text-xs">bg-primary/20</td>
+                      <td className="py-2 px-2 font-mono text-xs">border-primary/30</td>
+                      <td className="py-2 px-2">Loader2 (animate-spin)</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 text-trading-green font-medium">Completed</td>
+                      <td className="py-2 px-2 font-mono text-xs">text-trading-green</td>
+                      <td className="py-2 px-2 font-mono text-xs">bg-trading-green/20</td>
+                      <td className="py-2 px-2 font-mono text-xs">border-trading-green/30</td>
+                      <td className="py-2 px-2">Check / CheckCircle2</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-2 text-trading-red font-medium">Failed</td>
+                      <td className="py-2 px-2 font-mono text-xs">text-trading-red</td>
+                      <td className="py-2 px-2 font-mono text-xs">bg-trading-red/20</td>
+                      <td className="py-2 px-2 font-mono text-xs">border-trading-red/30</td>
+                      <td className="py-2 px-2">X / XCircle</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            {/* Code Example */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Implementation Example</h3>
+              <div className="bg-muted/30 rounded-xl p-4">
+                <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`const STATUS_CONFIG = {
+  pending: { 
+    icon: Clock, 
+    color: 'text-trading-yellow', 
+    label: 'Pending' 
+  },
+  processing: { 
+    icon: Loader2, 
+    color: 'text-primary', 
+    label: 'Processing' 
+  },
+  completed: { 
+    icon: CheckCircle2, 
+    color: 'text-trading-green', 
+    label: 'Completed' 
+  },
+  failed: { 
+    icon: XCircle, 
+    color: 'text-trading-red', 
+    label: 'Failed' 
+  },
+};
+
+// Usage
+<Badge 
+  variant="outline" 
+  className={\`flex items-center gap-1 
+    bg-\${statusColor}/20 
+    text-\${statusColor} 
+    border-\${statusColor}/30\`}
+>
+  <StatusIcon className={cn(
+    "w-3 h-3",
+    status === 'processing' && "animate-spin"
+  )} />
+  {statusLabel}
+</Badge>`}
+                </pre>
+              </div>
+            </Card>
+          </div>
+        </section>
+        )}
+
+        {/* Stepper / Progress Timeline Section */}
+        {filterSection("stepper-timeline") && (
+        <section id="stepper-timeline" className="space-y-6">
+          <div className="border-b border-border pb-4">
+            <h2 className="text-xl font-semibold">Stepper / Progress Timeline</h2>
+            <p className="text-muted-foreground text-sm mt-1">
+              Multi-step progress indicators for withdrawal, deposit, and other workflows
+            </p>
+          </div>
+          
+          <div className="grid gap-6">
+            {/* Vertical Stepper Example */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Vertical Stepper (Withdrawal Flow)</h3>
+              <div className="max-w-md mx-auto py-4">
+                <div className="space-y-1">
+                  {/* Step 1 - Completed */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 bg-trading-green border-trading-green">
+                        <Check className="w-4 h-4 text-background" />
+                      </div>
+                      <div className="w-0.5 h-8 bg-trading-green" />
+                    </div>
+                    <div className="pt-1">
+                      <div className="font-medium text-trading-green">Requested</div>
+                      <div className="text-sm text-muted-foreground">Withdrawal request submitted</div>
+                    </div>
+                  </div>
+
+                  {/* Step 2 - Completed */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 bg-trading-green border-trading-green">
+                        <Check className="w-4 h-4 text-background" />
+                      </div>
+                      <div className="w-0.5 h-8 bg-trading-green" />
+                    </div>
+                    <div className="pt-1">
+                      <div className="font-medium text-trading-green">Approved</div>
+                      <div className="text-sm text-muted-foreground">Risk check passed</div>
+                    </div>
+                  </div>
+
+                  {/* Step 3 - Current */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-primary bg-primary/20">
+                        <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                      </div>
+                      <div className="w-0.5 h-8 bg-border" />
+                    </div>
+                    <div className="pt-1">
+                      <div className="font-medium text-primary">Sending</div>
+                      <div className="text-sm text-muted-foreground">Transaction sent to chain</div>
+                    </div>
+                  </div>
+
+                  {/* Step 4 - Pending */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-border bg-muted/30">
+                        <Clock className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                    <div className="pt-1">
+                      <div className="font-medium text-muted-foreground">Confirmed</div>
+                      <div className="text-sm text-muted-foreground">Transaction confirmed</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Step States */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Step States</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Completed */}
+                <div className="p-4 bg-trading-green/10 border border-trading-green/30 rounded-xl text-center">
+                  <div className="w-10 h-10 mx-auto rounded-full flex items-center justify-center border-2 bg-trading-green border-trading-green mb-3">
+                    <Check className="w-5 h-5 text-background" />
+                  </div>
+                  <p className="font-medium text-trading-green">Completed</p>
+                  <p className="text-xs text-muted-foreground mt-1">bg-trading-green + Check icon</p>
+                </div>
+
+                {/* Current */}
+                <div className="p-4 bg-primary/10 border border-primary/30 rounded-xl text-center">
+                  <div className="w-10 h-10 mx-auto rounded-full flex items-center justify-center border-2 border-primary bg-primary/20 mb-3">
+                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                  </div>
+                  <p className="font-medium text-primary">In Progress</p>
+                  <p className="text-xs text-muted-foreground mt-1">border-primary + Loader2</p>
+                </div>
+
+                {/* Pending */}
+                <div className="p-4 bg-muted/30 border border-border rounded-xl text-center">
+                  <div className="w-10 h-10 mx-auto rounded-full flex items-center justify-center border-2 border-border bg-muted/30 mb-3">
+                    <Clock className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <p className="font-medium text-muted-foreground">Pending</p>
+                  <p className="text-xs text-muted-foreground mt-1">border-border + Clock icon</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Block Confirmations Progress */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Block Confirmation Progress</h3>
+              <div className="max-w-md mx-auto space-y-4">
+                <div className="p-4 bg-trading-yellow/5 border border-trading-yellow/30 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Confirmations</span>
+                    <span className="text-sm font-mono text-trading-yellow">8/15</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-trading-yellow rounded-full transition-all duration-300" style={{ width: '53%' }} />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">~3 min 30 sec remaining</p>
+                </div>
+
+                <div className="p-4 bg-trading-green/5 border border-trading-green/30 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Confirmations</span>
+                    <span className="text-sm font-mono text-trading-green">15/15</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-trading-green rounded-full" style={{ width: '100%' }} />
+                  </div>
+                  <p className="text-xs text-trading-green mt-2 flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Confirmed
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Code Example */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Stepper Implementation</h3>
+              <div className="bg-muted/30 rounded-xl p-4">
+                <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`const STATUS_STEPS = [
+  { status: 'REQUESTED', label: 'Requested', description: 'Request submitted' },
+  { status: 'APPROVED', label: 'Approved', description: 'Risk check passed' },
+  { status: 'SENT', label: 'Sending', description: 'Transaction sent' },
+  { status: 'CONFIRMED', label: 'Confirmed', description: 'Transaction confirmed' },
+];
+
+{STATUS_STEPS.map((step, index) => {
+  const isCompleted = index < currentIndex;
+  const isCurrent = index === currentIndex;
+  const isPending = index > currentIndex;
+
+  return (
+    <div key={step.status} className="flex items-start gap-3">
+      <div className="flex flex-col items-center">
+        <div className={cn(
+          "w-8 h-8 rounded-full flex items-center justify-center border-2",
+          isCompleted && "bg-trading-green border-trading-green",
+          isCurrent && "border-primary bg-primary/20",
+          isPending && "border-border bg-muted/30"
+        )}>
+          {isCompleted ? (
+            <Check className="w-4 h-4 text-background" />
+          ) : isCurrent ? (
+            <Loader2 className="w-4 h-4 text-primary animate-spin" />
+          ) : (
+            <Clock className="w-4 h-4 text-muted-foreground" />
+          )}
+        </div>
+        {index < STATUS_STEPS.length - 1 && (
+          <div className={cn(
+            "w-0.5 h-8",
+            isCompleted ? "bg-trading-green" : "bg-border"
+          )} />
+        )}
+      </div>
+      <div className="pt-1">
+        <div className={cn(
+          "font-medium",
+          isCompleted && "text-trading-green",
+          isCurrent && "text-primary",
+          isPending && "text-muted-foreground"
+        )}>
+          {step.label}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {step.description}
+        </div>
+      </div>
+    </div>
+  );
+})}`}
+                </pre>
+              </div>
+            </Card>
+          </div>
+        </section>
+        )}
+
+        {/* Blockchain Explorer Links Section */}
+        {filterSection("explorer-links") && (
+        <section id="explorer-links" className="space-y-6">
+          <div className="border-b border-border pb-4">
+            <h2 className="text-xl font-semibold">Blockchain Explorer Links</h2>
+            <p className="text-muted-foreground text-sm mt-1">
+              Patterns for displaying and linking to blockchain addresses and transaction hashes
+            </p>
+          </div>
+          
+          <div className="grid gap-6">
+            {/* TxHash Display */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Transaction Hash Display</h3>
+              <div className="space-y-4">
+                {/* Inline Style */}
+                <div className="p-4 bg-muted/30 rounded-xl">
+                  <p className="text-sm text-muted-foreground mb-2">Inline with metadata</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>Jan 30, 2026</span>
+                    <span>•</span>
+                    <a 
+                      href="https://bscscan.com/tx/0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-primary hover:underline font-mono"
+                    >
+                      0x123456...abcdef
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Card Style */}
+                <div className="p-4 bg-muted/30 rounded-xl">
+                  <p className="text-sm text-muted-foreground mb-2">Card with full hash</p>
+                  <div className="p-3 bg-muted/20 rounded-lg">
+                    <LabelText size="xs" muted className="mb-1 block">Transaction Hash</LabelText>
+                    <a
+                      href="https://bscscan.com/tx/0x1234567890abcdef"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-primary hover:underline"
+                    >
+                      <MonoText className="text-sm truncate">0x1234567890abcdef1234567890abcdef1234567890abcdef</MonoText>
+                      <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Address Display */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Wallet Address Display</h3>
+              <div className="space-y-4">
+                {/* Truncated */}
+                <div className="p-4 bg-muted/30 rounded-xl">
+                  <p className="text-sm text-muted-foreground mb-2">Truncated (default)</p>
+                  <div className="flex items-center gap-2">
+                    <AddressText address="0x1234567890abcdef1234567890abcdef12345678" truncate />
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Full with copy */}
+                <div className="p-4 bg-muted/30 rounded-xl">
+                  <p className="text-sm text-muted-foreground mb-2">Full address (break-all)</p>
+                  <MonoText className="text-sm break-all">0x1234567890abcdef1234567890abcdef12345678</MonoText>
+                </div>
+              </div>
+            </Card>
+
+            {/* Explorer URLs */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Supported Explorer URLs</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-2 font-medium">Network</th>
+                      <th className="text-left py-2 px-2 font-medium">Explorer Base URL</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-muted-foreground font-mono text-xs">
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-sans">Ethereum</td>
+                      <td className="py-2 px-2">https://etherscan.io/tx/</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-sans">BNB Smart Chain</td>
+                      <td className="py-2 px-2">https://bscscan.com/tx/</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-sans">Polygon</td>
+                      <td className="py-2 px-2">https://polygonscan.com/tx/</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-sans">Arbitrum One</td>
+                      <td className="py-2 px-2">https://arbiscan.io/tx/</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2 font-sans">Solana</td>
+                      <td className="py-2 px-2">https://solscan.io/tx/</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-2 font-sans">Tron (TRC20)</td>
+                      <td className="py-2 px-2">https://tronscan.org/#/transaction/</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            {/* Code Example */}
+            <Card className="p-6">
+              <h3 className="text-base font-medium mb-4">Implementation</h3>
+              <div className="bg-muted/30 rounded-xl p-4">
+                <pre className="text-xs font-mono text-muted-foreground overflow-x-auto">
+{`// Explorer URL mapping
+const EXPLORER_URLS: Record<string, string> = {
+  'Ethereum': 'https://etherscan.io/tx/',
+  'BNB Smart Chain (BEP20)': 'https://bscscan.com/tx/',
+  'Polygon': 'https://polygonscan.com/tx/',
+  'Arbitrum One': 'https://arbiscan.io/tx/',
+  'Solana': 'https://solscan.io/tx/',
+  'Tron (TRC20)': 'https://tronscan.org/#/transaction/',
+};
+
+// Get explorer URL
+const getExplorerUrl = (network: string, txHash: string): string | null => {
+  const baseUrl = EXPLORER_URLS[network];
+  return baseUrl ? \`\${baseUrl}\${txHash}\` : null;
+};
+
+// Truncate hash for display
+const truncateTxHash = (hash: string): string => {
+  if (hash.length <= 16) return hash;
+  return \`\${hash.slice(0, 8)}...\${hash.slice(-6)}\`;
+};
+
+// Usage in component
+{txHash && explorerUrl && (
+  <a 
+    href={explorerUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center gap-1 text-primary hover:underline font-mono"
+  >
+    {truncateTxHash(txHash)}
+    <ExternalLink className="w-3 h-3" />
+  </a>
+)}`}
+                </pre>
               </div>
             </Card>
           </div>
