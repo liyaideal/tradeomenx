@@ -1,13 +1,20 @@
 import { useState } from 'react';
-import { Copy, Check, MoreHorizontal, AlertTriangle, Loader2 } from 'lucide-react';
+import { Copy, Check, MoreHorizontal, AlertTriangle, Loader2, RefreshCw, Eye } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { TokenConfig, getCustodyAddress } from '@/types/deposit';
 import { LabelText, MonoText } from '@/components/typography';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useDeposit } from '@/hooks/useDeposit';
 import { cn } from '@/lib/utils';
+import { FullAddressSheet } from './FullAddressSheet';
 
 interface DepositDetailsProps {
   token: TokenConfig;
@@ -17,6 +24,8 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [showFullAddress, setShowFullAddress] = useState(false);
+  const [isGeneratingAddress, setIsGeneratingAddress] = useState(false);
   
   const {
     pendingClaims,
@@ -49,6 +58,18 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
 
   const handleDone = () => {
     navigate('/wallet');
+  };
+
+  const handleGenerateNewAddress = async () => {
+    setIsGeneratingAddress(true);
+    // TODO: Replace with actual API call to generate new address
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    toast.success('New deposit address generated');
+    setIsGeneratingAddress(false);
+  };
+
+  const handleViewFullAddress = () => {
+    setShowFullAddress(true);
   };
 
   // Filter pending claims for this token
@@ -98,14 +119,39 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
             </>
           )}
         </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12 rounded-xl border-border/50"
-        >
-          <MoreHorizontal className="w-5 h-5" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 rounded-xl border-border/50"
+            >
+              <MoreHorizontal className="w-5 h-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem 
+              onClick={handleGenerateNewAddress}
+              disabled={isGeneratingAddress}
+            >
+              <RefreshCw className={cn("w-4 h-4 mr-2", isGeneratingAddress && "animate-spin")} />
+              Generate new address
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleViewFullAddress}>
+              <Eye className="w-4 h-4 mr-2" />
+              View full address
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
+      {/* Full Address Sheet */}
+      <FullAddressSheet
+        open={showFullAddress}
+        onOpenChange={setShowFullAddress}
+        address={custodyAddress}
+        tokenSymbol={token.symbol}
+      />
 
       {/* Info Table */}
       <div className="space-y-4 pt-4">
