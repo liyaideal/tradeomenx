@@ -12,7 +12,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { RotateCcw, Info, HelpCircle, Settings, Bell, User } from "lucide-react";
+import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
@@ -990,6 +991,303 @@ toast.dismiss();`}
           </Card>
         </div>
       </SectionWrapper>
+
+      {/* Desktop Navigation Specification */}
+      <DesktopNavigationSection isMobile={isMobile} />
     </div>
+  );
+};
+
+// Desktop Navigation Section Component
+const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
+  const [desktopPreset, setDesktopPreset] = useState<"events" | "trade" | "detail">("events");
+
+  const presetConfigs = {
+    events: {
+      activeTab: "Events",
+      showBalance: true,
+      showProfile: true,
+      rightContent: null,
+    },
+    trade: {
+      activeTab: "Events",
+      showBalance: true,
+      showProfile: true,
+      rightContent: "Trade Form",
+    },
+    detail: {
+      activeTab: "Events",
+      showBalance: true,
+      showProfile: true,
+      rightContent: "Share Button",
+    },
+  };
+
+  const currentConfig = presetConfigs[desktopPreset];
+
+  return (
+    <SectionWrapper
+      id="desktop-nav-specs"
+      title="Desktop Navigation Specification"
+      platform="desktop"
+      description="Layout and component rules for the main desktop navigation header (EventsDesktopHeader)"
+    >
+      {/* Desktop Header Preview */}
+      <Card className="trading-card mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Monitor className="h-4 w-4" />
+            EventsDesktopHeader Layout
+          </CardTitle>
+          <CardDescription>
+            The primary navigation header used on desktop for Events, Portfolio, and other main pages
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Preset Switcher */}
+          <div className="flex items-center gap-2 mb-6">
+            <span className="text-xs text-muted-foreground">Presets:</span>
+            <div className="flex gap-2">
+              <Badge 
+                variant={desktopPreset === "events" ? "default" : "outline"} 
+                className="cursor-pointer hover:bg-primary/80"
+                onClick={() => setDesktopPreset("events")}
+              >
+                Home Page
+              </Badge>
+              <Badge 
+                variant={desktopPreset === "trade" ? "default" : "outline"} 
+                className="cursor-pointer hover:bg-primary/80"
+                onClick={() => setDesktopPreset("trade")}
+              >
+                Trade Page
+              </Badge>
+              <Badge 
+                variant={desktopPreset === "detail" ? "default" : "outline"} 
+                className="cursor-pointer hover:bg-primary/80"
+                onClick={() => setDesktopPreset("detail")}
+              >
+                Detail Page
+              </Badge>
+            </div>
+          </div>
+
+          {/* Visual Preview */}
+          <div className="bg-background rounded-lg border border-border overflow-hidden mb-6">
+            {/* Accent line */}
+            <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+            
+            <div className="flex items-center justify-between px-6 py-3">
+              {/* Left: Logo + Navigation */}
+              <div className="flex items-center gap-8">
+                {/* Logo */}
+                <Logo size="xl" />
+                
+                {/* Navigation Tabs */}
+                <nav className="flex items-center gap-1">
+                  {["Events", "Resolved", "Portfolio"].map((tab) => (
+                    <button
+                      key={tab}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                        currentConfig.activeTab === tab
+                          ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(260_60%_55%/0.3)]"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                  <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 border border-primary/30 hover:border-primary/50 ml-1">
+                    <Trophy className="w-4 h-4" />
+                    Leaderboard
+                  </button>
+                </nav>
+              </div>
+
+              {/* Right: Custom Content + Language + Balance + Profile */}
+              <div className="flex items-center gap-4">
+                {/* Custom Right Content */}
+                {desktopPreset === "trade" && (
+                  <div className="px-3 py-1.5 bg-muted/50 rounded-lg border border-dashed border-border text-xs text-muted-foreground">
+                    rightContent slot
+                  </div>
+                )}
+                {desktopPreset === "detail" && (
+                  <Button variant="outline" size="sm" className="gap-1.5">
+                    <Share2 className="h-3.5 w-3.5" />
+                    Share
+                  </Button>
+                )}
+
+                {/* Language */}
+                <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-muted/30">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">EN</span>
+                </button>
+                
+                {/* Balance */}
+                {currentConfig.showBalance && (
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 hover:border-trading-green/30">
+                    <span className="text-sm text-muted-foreground">Balance:</span>
+                    <span className="text-sm font-bold text-trading-green font-mono">$10,000.00</span>
+                  </button>
+                )}
+                
+                {/* Profile */}
+                {currentConfig.showProfile && (
+                  <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-muted/50">
+                    <div className="w-9 h-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center">
+                      <span className="text-sm text-primary font-medium">U</span>
+                    </div>
+                    <span className="text-sm font-medium">Username</span>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Component Specifications */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-2 text-muted-foreground font-medium">Component</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Spec</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Notes</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                <tr>
+                  <td className="py-2 font-medium flex items-center gap-2">
+                    <Logo size="sm" /> Logo
+                  </td>
+                  <td className="py-2 font-mono text-primary">size="xl" (h-8)</td>
+                  <td className="py-2 text-muted-foreground">Left-aligned, clickable to StyleGuide (dev)</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Nav Tabs</td>
+                  <td className="py-2 font-mono">px-4 py-2 rounded-lg text-sm</td>
+                  <td className="py-2 text-muted-foreground">Active: bg-primary + shadow glow</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Leaderboard Button</td>
+                  <td className="py-2 font-mono">border border-primary/30</td>
+                  <td className="py-2 text-muted-foreground">Featured style with icon + hover effect</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Language Selector</td>
+                  <td className="py-2 font-mono">Dropdown with Globe icon</td>
+                  <td className="py-2 text-muted-foreground">EN, CN, JP options</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Balance Display</td>
+                  <td className="py-2 font-mono">font-mono text-trading-green</td>
+                  <td className="py-2 text-muted-foreground">Clickable → /wallet, hover highlight</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Profile Avatar</td>
+                  <td className="py-2 font-mono">h-9 w-9 border-2 border-primary/50</td>
+                  <td className="py-2 text-muted-foreground">Dropdown: Portfolio, Settings, Sign Out</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Sign In Button</td>
+                  <td className="py-2 font-mono">btn-primary</td>
+                  <td className="py-2 text-muted-foreground">Shown when not logged in</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">rightContent</td>
+                  <td className="py-2 font-mono">ReactNode (optional)</td>
+                  <td className="py-2 text-muted-foreground">Custom content slot before language selector</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <CodePreview 
+            code={`import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+
+// Standard usage (Home/Events page)
+<EventsDesktopHeader />
+
+// With custom right content (Trade/Detail page)
+<EventsDesktopHeader 
+  rightContent={<Button>Share</Button>}
+/>
+
+// Header structure:
+// - Logo (size="xl") → clickable
+// - Nav tabs: Events, Resolved, Portfolio
+// - Leaderboard button (featured style)
+// - [rightContent slot] ← custom content
+// - Language selector dropdown
+// - Balance display → navigates to /wallet
+// - Profile avatar with dropdown menu`}
+            collapsible
+            defaultExpanded={false}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Mobile vs Desktop Comparison */}
+      <Card className="trading-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Mobile vs Desktop Navigation</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-2 text-muted-foreground font-medium">Aspect</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">
+                    <div className="flex items-center gap-1">
+                      <Smartphone className="h-3 w-3" /> Mobile
+                    </div>
+                  </th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">
+                    <div className="flex items-center gap-1">
+                      <Monitor className="h-3 w-3" /> Desktop
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                <tr>
+                  <td className="py-2 font-medium">Primary Navigation</td>
+                  <td className="py-2">BottomNav (fixed)</td>
+                  <td className="py-2">Top header nav tabs</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Logo Size</td>
+                  <td className="py-2">size="md" (h-5)</td>
+                  <td className="py-2">size="xl" (h-8)</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Header Component</td>
+                  <td className="py-2">MobileHeader</td>
+                  <td className="py-2">EventsDesktopHeader</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Balance Display</td>
+                  <td className="py-2">In Wallet page only</td>
+                  <td className="py-2">Always visible in header</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Profile Access</td>
+                  <td className="py-2">BottomNav → Portfolio</td>
+                  <td className="py-2">Avatar dropdown menu</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">Language</td>
+                  <td className="py-2">In Settings page</td>
+                  <td className="py-2">Dropdown in header</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </SectionWrapper>
   );
 };
