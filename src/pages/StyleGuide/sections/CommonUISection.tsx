@@ -47,9 +47,15 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
 
   // Tabs Playground
   const [tabsCount, setTabsCount] = useState(3);
+  const [tabsStyle, setTabsStyle] = useState<"default" | "fullWidth">("default");
+  const [tabLabels, setTabLabels] = useState(["Overview", "Analytics", "Settings"]);
 
   // Dialog Playground
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogSize, setDialogSize] = useState<"sm" | "md" | "lg" | "xl" | "full">("md");
+  const [dialogShowFooter, setDialogShowFooter] = useState(true);
+  const [dialogTitle, setDialogTitle] = useState("Dialog Title");
+  const [dialogDescription, setDialogDescription] = useState("This is a dialog description that explains what this dialog is for.");
 
   // Tooltip Playground
   const [tooltipSide, setTooltipSide] = useState<"top" | "right" | "bottom" | "left">("top");
@@ -577,27 +583,92 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
         <Card className="trading-card">
           <CardHeader>
             <CardTitle className="text-lg">Tabs Playground</CardTitle>
+            <CardDescription>Configure tab count, style, and labels</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="tab1" className="w-full">
-              <TabsList className="w-full">
-                {Array.from({ length: tabsCount }).map((_, i) => (
-                  <TabsTrigger key={i} value={`tab${i + 1}`} className="flex-1">
-                    Tab {i + 1}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {Array.from({ length: tabsCount }).map((_, i) => (
-                <TabsContent key={i} value={`tab${i + 1}`} className="p-4 bg-muted/20 rounded-lg mt-2">
-                  Content for Tab {i + 1}
-                </TabsContent>
-              ))}
-            </Tabs>
-            <div className="flex items-center gap-4 mt-4">
-              <Label className="text-xs">Tab Count</Label>
-              <Slider value={[tabsCount]} onValueChange={([v]) => setTabsCount(v)} min={2} max={5} className="w-32" />
-              <span className="text-xs font-mono">{tabsCount}</span>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              {/* Preview */}
+              <div className="bg-muted/30 rounded-xl p-4">
+                <Tabs defaultValue="tab0" className="w-full">
+                  <TabsList className={tabsStyle === "fullWidth" ? "w-full" : ""}>
+                    {Array.from({ length: tabsCount }).map((_, i) => (
+                      <TabsTrigger 
+                        key={i} 
+                        value={`tab${i}`} 
+                        className={tabsStyle === "fullWidth" ? "flex-1" : ""}
+                      >
+                        {tabLabels[i] || `Tab ${i + 1}`}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  {Array.from({ length: tabsCount }).map((_, i) => (
+                    <TabsContent key={i} value={`tab${i}`} className="p-4 bg-background/50 rounded-lg mt-2">
+                      Content for {tabLabels[i] || `Tab ${i + 1}`}
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </div>
+
+              {/* Controls */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Tab Count</Label>
+                    <div className="flex items-center gap-2">
+                      <Slider 
+                        value={[tabsCount]} 
+                        onValueChange={([v]) => {
+                          setTabsCount(v);
+                          if (tabLabels.length < v) {
+                            setTabLabels([...tabLabels, ...Array(v - tabLabels.length).fill("")]);
+                          }
+                        }} 
+                        min={2} 
+                        max={5} 
+                        className="flex-1" 
+                      />
+                      <span className="text-xs font-mono w-4">{tabsCount}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Style</Label>
+                    <Select value={tabsStyle} onValueChange={(v) => setTabsStyle(v as typeof tabsStyle)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Default (Inline)</SelectItem>
+                        <SelectItem value="fullWidth">Full Width</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Tab Labels</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Array.from({ length: tabsCount }).map((_, i) => (
+                      <Input 
+                        key={i}
+                        placeholder={`Tab ${i + 1}`}
+                        value={tabLabels[i] || ""}
+                        onChange={(e) => {
+                          const newLabels = [...tabLabels];
+                          newLabels[i] = e.target.value;
+                          setTabLabels(newLabels);
+                        }}
+                        className="text-xs"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
+            <CodePreview 
+              code={`<Tabs defaultValue="tab0">
+  <TabsList${tabsStyle === "fullWidth" ? ' className="w-full"' : ""}>
+${Array.from({ length: tabsCount }).map((_, i) => `    <TabsTrigger value="tab${i}"${tabsStyle === "fullWidth" ? ' className="flex-1"' : ""}>${tabLabels[i] || `Tab ${i + 1}`}</TabsTrigger>`).join("\n")}
+  </TabsList>
+${Array.from({ length: tabsCount }).map((_, i) => `  <TabsContent value="tab${i}">Content</TabsContent>`).join("\n")}
+</Tabs>`}
+            />
           </CardContent>
         </Card>
       </SectionWrapper>
@@ -612,48 +683,120 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
         <Card className="trading-card">
           <CardHeader>
             <CardTitle className="text-lg">Dialog Playground</CardTitle>
+            <CardDescription>Configure size, content, and footer visibility</CardDescription>
           </CardHeader>
           <CardContent>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>Open Dialog</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Dialog Title</DialogTitle>
-                  <DialogDescription>
-                    This is a dialog description that explains what this dialog is for.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
-                  <p className="text-sm text-muted-foreground">Dialog content goes here.</p>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              {/* Trigger */}
+              <div className="bg-muted/30 rounded-xl p-8 flex items-center justify-center">
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>Open Dialog</Button>
+                  </DialogTrigger>
+                  <DialogContent className={
+                    dialogSize === "sm" ? "max-w-sm" :
+                    dialogSize === "md" ? "max-w-lg" :
+                    dialogSize === "lg" ? "max-w-2xl" :
+                    dialogSize === "xl" ? "max-w-4xl" :
+                    "max-w-[95vw] w-full h-[90vh]"
+                  }>
+                    <DialogHeader>
+                      <DialogTitle>{dialogTitle}</DialogTitle>
+                      <DialogDescription>{dialogDescription}</DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                      <p className="text-sm text-muted-foreground">
+                        Dialog content goes here. Current size: <code className="text-xs bg-muted px-1 rounded">{dialogSize}</code>
+                      </p>
+                    </div>
+                    {dialogShowFooter && (
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={() => { setDialogOpen(false); toast.success("Confirmed!"); }}>Confirm</Button>
+                      </DialogFooter>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              {/* Controls */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs">Size</Label>
+                  <Select value={dialogSize} onValueChange={(v) => setDialogSize(v as typeof dialogSize)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sm">Small (max-w-sm)</SelectItem>
+                      <SelectItem value="md">Medium (max-w-lg)</SelectItem>
+                      <SelectItem value="lg">Large (max-w-2xl)</SelectItem>
+                      <SelectItem value="xl">Extra Large (max-w-4xl)</SelectItem>
+                      <SelectItem value="full">Full Screen</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                  <Button onClick={() => setDialogOpen(false)}>Confirm</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                <div className="space-y-2">
+                  <Label className="text-xs">Title</Label>
+                  <Input value={dialogTitle} onChange={(e) => setDialogTitle(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Description</Label>
+                  <Input value={dialogDescription} onChange={(e) => setDialogDescription(e.target.value)} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Show Footer</Label>
+                  <Switch checked={dialogShowFooter} onCheckedChange={setDialogShowFooter} />
+                </div>
+              </div>
+            </div>
             <CodePreview 
               code={`<Dialog>
   <DialogTrigger asChild>
     <Button>Open Dialog</Button>
   </DialogTrigger>
-  <DialogContent>
+  <DialogContent className="${
+    dialogSize === "sm" ? "max-w-sm" :
+    dialogSize === "md" ? "max-w-lg" :
+    dialogSize === "lg" ? "max-w-2xl" :
+    dialogSize === "xl" ? "max-w-4xl" :
+    "max-w-[95vw] w-full h-[90vh]"
+  }">
     <DialogHeader>
-      <DialogTitle>Title</DialogTitle>
-      <DialogDescription>Description</DialogDescription>
+      <DialogTitle>${dialogTitle}</DialogTitle>
+      <DialogDescription>${dialogDescription}</DialogDescription>
     </DialogHeader>
-    {/* Content */}
+    {/* Content */}${dialogShowFooter ? `
     <DialogFooter>
       <Button variant="outline">Cancel</Button>
       <Button>Confirm</Button>
-    </DialogFooter>
+    </DialogFooter>` : ""}
   </DialogContent>
 </Dialog>`}
             />
           </CardContent>
         </Card>
+
+        {/* Size Reference */}
+        <div className="mt-6">
+          <h4 className="text-sm font-medium mb-3">Size Reference</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-2 text-muted-foreground font-medium">Size</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Class</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Use Case</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                <tr><td className="py-2 font-mono">sm</td><td className="py-2">max-w-sm</td><td className="py-2 text-muted-foreground">Confirmations, alerts</td></tr>
+                <tr><td className="py-2 font-mono">md</td><td className="py-2">max-w-lg</td><td className="py-2 text-muted-foreground">Forms, settings (default)</td></tr>
+                <tr><td className="py-2 font-mono">lg</td><td className="py-2">max-w-2xl</td><td className="py-2 text-muted-foreground">Complex forms, previews</td></tr>
+                <tr><td className="py-2 font-mono">xl</td><td className="py-2">max-w-4xl</td><td className="py-2 text-muted-foreground">Data tables, large content</td></tr>
+                <tr><td className="py-2 font-mono">full</td><td className="py-2">max-w-[95vw]</td><td className="py-2 text-muted-foreground">Full-screen experiences</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </SectionWrapper>
 
       {/* Toast Notifications */}
@@ -663,35 +806,189 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
         platform="shared"
         description="Non-blocking feedback messages using Sonner"
       >
-        <Card className="trading-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Toast Examples</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="outline" onClick={() => toast.success("Success message!")}>
-                Success Toast
-              </Button>
-              <Button variant="outline" onClick={() => toast.error("Error message!")}>
-                Error Toast
-              </Button>
-              <Button variant="outline" onClick={() => toast.warning("Warning message!")}>
-                Warning Toast
-              </Button>
-              <Button variant="outline" onClick={() => toast.info("Info message!")}>
-                Info Toast
-              </Button>
-            </div>
-            <CodePreview 
-              code={`import { toast } from "sonner";
+        <div className="space-y-6">
+          {/* Basic Toasts */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Basic Toast Types</CardTitle>
+              <CardDescription>Standard notification styles</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                <Button variant="outline" size="sm" onClick={() => toast.success("Operation completed successfully!")}>
+                  Success
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => toast.error("Something went wrong!")}>
+                  Error
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => toast.warning("Please review your input")}>
+                  Warning
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => toast.info("Here's some useful information")}>
+                  Info
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => toast("Default notification message")}>
+                  Default
+                </Button>
+              </div>
+              <CodePreview 
+                code={`import { toast } from "sonner";
 
 toast.success("Success!");
 toast.error("Error!");
 toast.warning("Warning!");
-toast.info("Info!");`}
-            />
-          </CardContent>
-        </Card>
+toast.info("Info!");
+toast("Default message");`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Advanced Toasts */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Advanced Toast Patterns</CardTitle>
+              <CardDescription>Loading, promise, actions, and custom content</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3 mb-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    const toastId = toast.loading("Loading...");
+                    setTimeout(() => {
+                      toast.success("Loaded!", { id: toastId });
+                    }, 2000);
+                  }}
+                >
+                  Loading → Success
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    toast.promise(
+                      new Promise((resolve) => setTimeout(resolve, 2000)),
+                      {
+                        loading: "Saving changes...",
+                        success: "Changes saved!",
+                        error: "Failed to save",
+                      }
+                    );
+                  }}
+                >
+                  Promise Toast
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    toast("Event deleted", {
+                      action: {
+                        label: "Undo",
+                        onClick: () => toast.success("Restored!"),
+                      },
+                    });
+                  }}
+                >
+                  With Action
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    toast("Order placed", {
+                      description: "BTC/USDT • Long • 0.5 BTC @ $42,350",
+                      duration: 5000,
+                    });
+                  }}
+                >
+                  With Description
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => toast.dismiss()}
+                >
+                  Dismiss All
+                </Button>
+              </div>
+              <CodePreview 
+                code={`// Loading toast that updates
+const toastId = toast.loading("Loading...");
+// Later...
+toast.success("Done!", { id: toastId });
+
+// Promise-based toast
+toast.promise(fetchData(), {
+  loading: "Loading...",
+  success: "Data loaded!",
+  error: "Failed to load",
+});
+
+// Toast with action button
+toast("Item deleted", {
+  action: {
+    label: "Undo",
+    onClick: () => restoreItem(),
+  },
+});
+
+// Toast with description
+toast("Order placed", {
+  description: "BTC/USDT • Long • 0.5 BTC",
+  duration: 5000,
+});
+
+// Dismiss all toasts
+toast.dismiss();`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Trading-specific Toasts */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Trading Toast Patterns</CardTitle>
+              <CardDescription>Common trading notification examples</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-trading-green/30 text-trading-green hover:bg-trading-green/10"
+                  onClick={() => toast.success("Order Filled", { description: "Long 0.5 BTC @ $42,350.00" })}
+                >
+                  Order Filled
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-trading-red/30 text-trading-red hover:bg-trading-red/10"
+                  onClick={() => toast.error("Order Rejected", { description: "Insufficient margin" })}
+                >
+                  Order Rejected
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-trading-yellow/30 text-trading-yellow hover:bg-trading-yellow/10"
+                  onClick={() => toast.warning("Price Alert", { description: "BTC reached $45,000" })}
+                >
+                  Price Alert
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => toast.info("Position Closed", { description: "Realized PnL: +$125.50 (+2.3%)" })}
+                >
+                  Position Closed
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </SectionWrapper>
     </div>
   );
