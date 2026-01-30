@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      deposit_addresses: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          is_active: boolean
+          network: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          network: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          network?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_options: {
         Row: {
           created_at: string

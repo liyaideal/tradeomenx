@@ -25,16 +25,19 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
   const [copied, setCopied] = useState(false);
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [showFullAddress, setShowFullAddress] = useState(false);
-  const [isGeneratingAddress, setIsGeneratingAddress] = useState(false);
-  
+
   const {
     pendingClaims,
     isClaiming,
     claimDeposit,
     formatTimeAgo,
-  } = useDeposit();
+    getCurrentAddress,
+    generateNewAddress,
+    isGeneratingAddress,
+    isLoadingAddress,
+  } = useDeposit(token.symbol);
 
-  const custodyAddress = getCustodyAddress(token.symbol);
+  const custodyAddress = getCurrentAddress();
 
   const handleCopyAddress = async () => {
     await navigator.clipboard.writeText(custodyAddress);
@@ -61,11 +64,12 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
   };
 
   const handleGenerateNewAddress = async () => {
-    setIsGeneratingAddress(true);
-    // TODO: Replace with actual API call to generate new address
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    toast.success('New deposit address generated');
-    setIsGeneratingAddress(false);
+    try {
+      await generateNewAddress(token.symbol);
+      toast.success('New deposit address generated');
+    } catch (error) {
+      toast.error('Failed to generate new address');
+    }
   };
 
   const handleViewFullAddress = () => {
