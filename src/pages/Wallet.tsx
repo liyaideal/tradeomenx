@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { 
   TransactionHistory, 
+  PendingConfirmations,
   Transaction, 
   TransactionStatus 
 } from "@/components/wallet";
@@ -624,8 +625,14 @@ export default function Wallet() {
               </div>
             </div>
 
-            {/* Right Column - Transaction History */}
-            <div className="col-span-8">
+            {/* Right Column - Pending Confirmations & Transaction History */}
+            <div className="col-span-8 space-y-6">
+              {/* Pending Confirmations */}
+              <div className="trading-card p-6">
+                <PendingConfirmations />
+              </div>
+              
+              {/* Transaction History */}
               <div className="trading-card p-6">
                 <TransactionHistory transactions={transactions} />
               </div>
@@ -701,6 +708,7 @@ export default function Wallet() {
 
       <div className="px-4 py-6 space-y-6">
         <BalanceCard />
+        <PendingConfirmations />
         <WalletList />
         <TransactionHistory transactions={transactions} />
       </div>
