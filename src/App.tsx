@@ -18,6 +18,7 @@ import PortfolioSettlements from "./pages/PortfolioSettlements";
 import SettlementDetail from "./pages/SettlementDetail";
 import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
+import Withdraw from "./pages/Withdraw";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="/portfolio/settlement/:settlementId" element={<SettlementDetail />} />
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/deposit" element={<Deposit />} />
+              <Route path="/withdraw" element={<Withdraw />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/style-guide" element={<StyleGuide />} />

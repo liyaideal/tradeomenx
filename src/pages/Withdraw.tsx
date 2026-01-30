@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, X, HelpCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { BottomNav } from '@/components/BottomNav';
 import { AssetSelect } from '@/components/shared/AssetSelect';
-import { DepositDetails } from '@/components/deposit/DepositDetails';
+import { WithdrawForm } from '@/components/withdraw/WithdrawForm';
 import { SupportedToken, getTokenConfig } from '@/types/deposit';
 
-export default function Deposit() {
+export default function Withdraw() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
@@ -18,12 +17,12 @@ export default function Deposit() {
   const selectedToken = tokenFromUrl && getTokenConfig(tokenFromUrl) ? tokenFromUrl : null;
 
   const handleSelectToken = (token: SupportedToken) => {
-    navigate(`/deposit?token=${token}`);
+    navigate(`/withdraw?token=${token}`);
   };
 
   const handleBack = () => {
     if (selectedToken) {
-      navigate('/deposit');
+      navigate('/withdraw');
     } else {
       navigate('/wallet');
     }
@@ -34,7 +33,7 @@ export default function Deposit() {
   };
 
   const tokenConfig = selectedToken ? getTokenConfig(selectedToken) : null;
-  const title = tokenConfig ? `Deposit ${tokenConfig.symbol}` : 'Deposit';
+  const title = tokenConfig ? `Withdraw ${tokenConfig.symbol}` : 'Withdraw';
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -67,9 +66,9 @@ export default function Deposit() {
       {/* Content */}
       <main className="flex-1 overflow-auto pb-24">
         {selectedToken && tokenConfig ? (
-          <DepositDetails token={tokenConfig} />
+          <WithdrawForm token={tokenConfig} onBack={handleBack} />
         ) : (
-          <AssetSelect onSelectToken={handleSelectToken} />
+          <AssetSelect onSelectToken={handleSelectToken} balanceLabel="Available" />
         )}
       </main>
 

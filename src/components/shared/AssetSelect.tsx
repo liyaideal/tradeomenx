@@ -10,8 +10,10 @@ import {
 } from '@/types/deposit';
 import { cn } from '@/lib/utils';
 
-interface DepositAssetSelectProps {
+interface AssetSelectProps {
   onSelectToken: (token: SupportedToken) => void;
+  showBalance?: boolean;
+  balanceLabel?: string;
 }
 
 const CATEGORIES: { id: AssetCategory; label: string }[] = [
@@ -20,7 +22,7 @@ const CATEGORIES: { id: AssetCategory; label: string }[] = [
   { id: 'crypto', label: 'Crypto' },
 ];
 
-export const DepositAssetSelect = ({ onSelectToken }: DepositAssetSelectProps) => {
+export const AssetSelect = ({ onSelectToken, showBalance = true, balanceLabel = 'Available Balance' }: AssetSelectProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<AssetCategory>('all');
 
@@ -76,9 +78,11 @@ export const DepositAssetSelect = ({ onSelectToken }: DepositAssetSelectProps) =
         <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
           Assets
         </span>
-        <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
-          Available Balance
-        </span>
+        {showBalance && (
+          <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+            {balanceLabel}
+          </span>
+        )}
       </div>
 
       {/* Token List */}
