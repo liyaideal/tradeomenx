@@ -403,10 +403,12 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
+          confirmations: number | null
           created_at: string
           description: string | null
           id: string
           network: string | null
+          required_confirmations: number | null
           status: string
           tx_hash: string | null
           type: string
@@ -415,10 +417,12 @@ export type Database = {
         }
         Insert: {
           amount: number
+          confirmations?: number | null
           created_at?: string
           description?: string | null
           id?: string
           network?: string | null
+          required_confirmations?: number | null
           status?: string
           tx_hash?: string | null
           type: string
@@ -427,10 +431,12 @@ export type Database = {
         }
         Update: {
           amount?: number
+          confirmations?: number | null
           created_at?: string
           description?: string | null
           id?: string
           network?: string | null
+          required_confirmations?: number | null
           status?: string
           tx_hash?: string | null
           type?: string
