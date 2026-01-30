@@ -108,8 +108,12 @@ export const TradingHeaderPlayground = () => {
               </div>
             </div>
             
-            {/* Center: Real-time Indicator Badge */}
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-indicator/10 border border-indicator/30 rounded-lg transition-colors hover:bg-indicator/15">
+            {/* Center: Real-time Indicator Badge - Click to toggle type */}
+            <button 
+              onClick={() => setIndicatorType(indicatorType === "tweets" ? "price" : "tweets")}
+              className="flex items-center gap-2 px-3 py-1.5 bg-indicator/10 border border-indicator/30 rounded-lg transition-all hover:bg-indicator/15 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              title="Click to toggle indicator type"
+            >
               <span className="w-1.5 h-1.5 bg-indicator rounded-full animate-pulse" />
               {indicatorType === "tweets" ? (
                 <>
