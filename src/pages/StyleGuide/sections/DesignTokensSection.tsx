@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Search, Home, Settings, User, Bell, Menu, ChevronRight, X, Plus, Minus, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ExternalLink, Download, Upload, Trash2, Edit, Eye, EyeOff, Lock, Unlock, Star, Heart, Share2, Filter, RefreshCw, MoreHorizontal, MoreVertical, Calendar, Clock, MapPin, Phone, Mail, Link, Image, File, Folder, Camera, Mic, Video, Volume2, VolumeX, Play, Pause, SkipBack, SkipForward, Maximize, Minimize, ZoomIn, ZoomOut, RotateCw, RotateCcw, Undo, Redo, Copy as CopyIcon, Clipboard, Check as CheckIcon, AlertCircle, AlertTriangle, Info, HelpCircle, XCircle, CheckCircle2, Loader2, TrendingUp, TrendingDown, BarChart2, PieChart, Activity, Wallet, CreditCard, DollarSign, Percent, Hash, AtSign, Globe, Wifi, WifiOff, Battery, BatteryCharging, Sun, Moon, Cloud, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SectionWrapper } from "../components/SectionWrapper";
@@ -204,6 +204,234 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
                   <span className="text-xs text-muted-foreground">{value}</span>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        </div>
+      </SectionWrapper>
+
+      {/* Icons */}
+      <SectionWrapper 
+        id="icons" 
+        title="Lucide Icons" 
+        platform="shared"
+        description="Icon library using lucide-react - tree-shakable SVG icons"
+      >
+        <div className="space-y-6">
+          {/* Usage Guide */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Icon Usage</CardTitle>
+              <CardDescription>Import icons individually for tree-shaking</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <CodePreview 
+                code={`import { Camera, Settings, Bell } from 'lucide-react';
+
+// Basic usage
+<Camera />
+
+// With props
+<Camera color="red" size={48} strokeWidth={1.5} />
+
+// With Tailwind classes
+<Camera className="h-6 w-6 text-primary" />`}
+              />
+              
+              {/* Props Table */}
+              <div className="mt-4">
+                <h4 className="text-sm font-medium mb-2">Available Props</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2 text-muted-foreground font-medium">Prop</th>
+                        <th className="text-left py-2 text-muted-foreground font-medium">Type</th>
+                        <th className="text-left py-2 text-muted-foreground font-medium">Default</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/50">
+                      <tr><td className="py-2 font-mono">size</td><td className="py-2">number</td><td className="py-2 text-muted-foreground">24</td></tr>
+                      <tr><td className="py-2 font-mono">color</td><td className="py-2">string</td><td className="py-2 text-muted-foreground">currentColor</td></tr>
+                      <tr><td className="py-2 font-mono">strokeWidth</td><td className="py-2">number</td><td className="py-2 text-muted-foreground">2</td></tr>
+                      <tr><td className="py-2 font-mono">absoluteStrokeWidth</td><td className="py-2">boolean</td><td className="py-2 text-muted-foreground">false</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Icon Sizes */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Icon Sizes</CardTitle>
+              <CardDescription>Recommended size scale for different contexts</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "grid-cols-5"}`}>
+                {[
+                  { size: "h-3 w-3", label: "12px", usage: "Inline badges" },
+                  { size: "h-4 w-4", label: "16px", usage: "Button icons" },
+                  { size: "h-5 w-5", label: "20px", usage: "List items" },
+                  { size: "h-6 w-6", label: "24px", usage: "Navigation" },
+                  { size: "h-8 w-8", label: "32px", usage: "Empty states" },
+                ].map(({ size, label, usage }) => (
+                  <div key={size} className="p-4 bg-muted/20 rounded-lg text-center">
+                    <Bell className={`${size} mx-auto mb-2`} />
+                    <code className="text-xs block">{size}</code>
+                    <p className="text-[10px] text-muted-foreground mt-1">{usage}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Common Icons by Category */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Common Icons by Category</CardTitle>
+              <CardDescription>Frequently used icons organized by function</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Navigation */}
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Navigation</h4>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: Home, name: "Home" },
+                    { icon: Search, name: "Search" },
+                    { icon: Menu, name: "Menu" },
+                    { icon: Settings, name: "Settings" },
+                    { icon: User, name: "User" },
+                    { icon: Bell, name: "Bell" },
+                    { icon: ChevronRight, name: "ChevronRight" },
+                    { icon: ArrowLeft, name: "ArrowLeft" },
+                    { icon: ExternalLink, name: "ExternalLink" },
+                  ].map(({ icon: Icon, name }) => (
+                    <div key={name} className="flex flex-col items-center gap-1 p-2 hover:bg-muted/30 rounded-lg cursor-pointer group" onClick={() => { navigator.clipboard.writeText(name); toast.success(`Copied: ${name}`); }}>
+                      <Icon className="h-5 w-5" />
+                      <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Actions</h4>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: Plus, name: "Plus" },
+                    { icon: Minus, name: "Minus" },
+                    { icon: X, name: "X" },
+                    { icon: Edit, name: "Edit" },
+                    { icon: Trash2, name: "Trash2" },
+                    { icon: CopyIcon, name: "Copy" },
+                    { icon: Download, name: "Download" },
+                    { icon: Upload, name: "Upload" },
+                    { icon: Share2, name: "Share2" },
+                    { icon: RefreshCw, name: "RefreshCw" },
+                    { icon: Filter, name: "Filter" },
+                    { icon: MoreHorizontal, name: "MoreHorizontal" },
+                  ].map(({ icon: Icon, name }) => (
+                    <div key={name} className="flex flex-col items-center gap-1 p-2 hover:bg-muted/30 rounded-lg cursor-pointer group" onClick={() => { navigator.clipboard.writeText(name); toast.success(`Copied: ${name}`); }}>
+                      <Icon className="h-5 w-5" />
+                      <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Status & Feedback */}
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Status & Feedback</h4>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: CheckCircle2, name: "CheckCircle2", color: "text-trading-green" },
+                    { icon: XCircle, name: "XCircle", color: "text-trading-red" },
+                    { icon: AlertCircle, name: "AlertCircle", color: "text-trading-yellow" },
+                    { icon: AlertTriangle, name: "AlertTriangle", color: "text-trading-yellow" },
+                    { icon: Info, name: "Info", color: "text-primary" },
+                    { icon: HelpCircle, name: "HelpCircle", color: "text-muted-foreground" },
+                    { icon: Loader2, name: "Loader2", color: "text-trading-yellow" },
+                    { icon: CheckIcon, name: "Check", color: "text-trading-green" },
+                  ].map(({ icon: Icon, name, color }) => (
+                    <div key={name} className="flex flex-col items-center gap-1 p-2 hover:bg-muted/30 rounded-lg cursor-pointer group" onClick={() => { navigator.clipboard.writeText(name); toast.success(`Copied: ${name}`); }}>
+                      <Icon className={`h-5 w-5 ${color}`} />
+                      <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Trading */}
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Trading & Finance</h4>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: TrendingUp, name: "TrendingUp", color: "text-trading-green" },
+                    { icon: TrendingDown, name: "TrendingDown", color: "text-trading-red" },
+                    { icon: BarChart2, name: "BarChart2" },
+                    { icon: PieChart, name: "PieChart" },
+                    { icon: Activity, name: "Activity" },
+                    { icon: Wallet, name: "Wallet" },
+                    { icon: CreditCard, name: "CreditCard" },
+                    { icon: DollarSign, name: "DollarSign" },
+                    { icon: Percent, name: "Percent" },
+                  ].map(({ icon: Icon, name, color }) => (
+                    <div key={name} className="flex flex-col items-center gap-1 p-2 hover:bg-muted/30 rounded-lg cursor-pointer group" onClick={() => { navigator.clipboard.writeText(name); toast.success(`Copied: ${name}`); }}>
+                      <Icon className={`h-5 w-5 ${color || ""}`} />
+                      <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Visibility & Security */}
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Visibility & Security</h4>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: Eye, name: "Eye" },
+                    { icon: EyeOff, name: "EyeOff" },
+                    { icon: Lock, name: "Lock" },
+                    { icon: Unlock, name: "Unlock" },
+                  ].map(({ icon: Icon, name }) => (
+                    <div key={name} className="flex flex-col items-center gap-1 p-2 hover:bg-muted/30 rounded-lg cursor-pointer group" onClick={() => { navigator.clipboard.writeText(name); toast.success(`Copied: ${name}`); }}>
+                      <Icon className="h-5 w-5" />
+                      <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Icon with Button */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Icons in Buttons</CardTitle>
+              <CardDescription>Common icon + button patterns</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                <Button size="sm"><Plus className="h-4 w-4 mr-1" />Add</Button>
+                <Button size="sm" variant="secondary"><Download className="h-4 w-4 mr-1" />Download</Button>
+                <Button size="sm" variant="outline"><Settings className="h-4 w-4 mr-1" />Settings</Button>
+                <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
+                <Button size="icon" variant="ghost"><MoreVertical className="h-4 w-4" /></Button>
+                <Button size="icon" variant="outline"><RefreshCw className="h-4 w-4" /></Button>
+              </div>
+              <CodePreview 
+                code={`<Button size="sm">
+  <Plus className="h-4 w-4 mr-1" />
+  Add
+</Button>
+
+<Button size="icon" variant="ghost">
+  <MoreVertical className="h-4 w-4" />
+</Button>`}
+              />
             </CardContent>
           </Card>
         </div>
