@@ -10,9 +10,6 @@ import {
   Check, 
   Star,
   AlertTriangle,
-  TrendingUp,
-  TrendingDown,
-  History
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,15 +35,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-
-interface Transaction {
-  id: string;
-  type: "deposit" | "withdraw" | "trade_profit" | "trade_loss" | "platform_credit";
-  amount: number;
-  description: string;
-  date: string;
-  timestamp: number; // for sorting
-}
+import { 
+  TransactionHistory, 
+  Transaction, 
+  TransactionStatus 
+} from "@/components/wallet";
 
 export default function Wallet() {
   const navigate = useNavigate();
@@ -92,7 +85,7 @@ export default function Wallet() {
       
       const { data, error } = await supabase
         .from("transactions")
-        .select("id, type, amount, description, created_at")
+        .select("id, type, amount, description, created_at, tx_hash, network, status")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
@@ -114,6 +107,7 @@ export default function Wallet() {
     description: `${trade.event_name} - ${trade.option_label}`,
     date: trade.closed_at ? new Date(trade.closed_at).toLocaleDateString() : new Date(trade.created_at).toLocaleDateString(),
     timestamp: trade.closed_at ? new Date(trade.closed_at).getTime() : new Date(trade.created_at).getTime(),
+    status: 'completed' as TransactionStatus,
   }));
 
   const fundTransactions: Transaction[] = walletTransactions.map((tx) => ({
@@ -123,6 +117,9 @@ export default function Wallet() {
     description: tx.description || (tx.type === "platform_credit" ? "Platform Credit" : tx.type === "deposit" ? "Deposit" : "Withdraw"),
     date: new Date(tx.created_at).toLocaleDateString(),
     timestamp: new Date(tx.created_at).getTime(),
+    txHash: tx.tx_hash,
+    network: tx.network,
+    status: (tx.status || 'completed') as TransactionStatus,
   }));
 
   // Merge and sort by timestamp (newest first)
@@ -360,61 +357,7 @@ export default function Wallet() {
     </div>
   );
 
-  // Transaction History Component
-  const TransactionHistory = () => (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <History className="w-4 h-4 text-muted-foreground" />
-        <h2 className="text-lg font-semibold">Transaction History</h2>
-      </div>
-
-      {transactions.length === 0 ? (
-        <div className="bg-card border border-border/50 rounded-xl p-6 text-center">
-          <History className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No recent activity</p>
-        </div>
-      ) : (
-        <div className="bg-card border border-border/50 rounded-xl divide-y divide-border/30">
-          {transactions.map((tx) => (
-            <div key={tx.id} className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  tx.type === "deposit" || tx.type === "platform_credit" ? "bg-trading-green/20" :
-                  tx.type === "withdraw" ? "bg-trading-red/20" :
-                  tx.type === "trade_profit" ? "bg-trading-green/20" : "bg-trading-red/20"
-                }`}>
-                  {tx.type === "deposit" ? (
-                    <ArrowDownLeft className="w-5 h-5 text-trading-green" />
-                  ) : tx.type === "withdraw" ? (
-                    <ArrowUpRight className="w-5 h-5 text-trading-red" />
-                  ) : tx.type === "platform_credit" ? (
-                    <WalletIcon className="w-5 h-5 text-trading-green" />
-                  ) : tx.type === "trade_profit" ? (
-                    <TrendingUp className="w-5 h-5 text-trading-green" />
-                  ) : (
-                    <TrendingDown className="w-5 h-5 text-trading-red" />
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-medium truncate max-w-[180px] md:max-w-[300px]">
-                    {tx.description}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {tx.date}
-                  </div>
-                </div>
-              </div>
-              <div className={`text-sm font-semibold font-mono ${
-                tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
-              }`}>
-                {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  // TransactionHistory is now imported from @/components/wallet
 
   // Wallet Connection Dialog Content
   const WalletConnectionContent = () => {
@@ -684,79 +627,7 @@ export default function Wallet() {
             {/* Right Column - Transaction History */}
             <div className="col-span-8">
               <div className="trading-card p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <History className="w-5 h-5 text-muted-foreground" />
-                  <h2 className="text-lg font-semibold">Transaction History</h2>
-                </div>
-
-                {transactions.length === 0 ? (
-                  <div className="py-16 text-center">
-                    <History className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-muted-foreground">No transactions yet</p>
-                    <p className="text-sm text-muted-foreground mt-1">Your transaction history will appear here</p>
-                  </div>
-                ) : (
-                  <div className="overflow-hidden rounded-xl border border-border/50">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-border/50 bg-muted/30">
-                          <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Type</th>
-                          <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Description</th>
-                          <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
-                          <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border/30">
-                        {transactions.map((tx) => (
-                          <tr key={tx.id} className="hover:bg-muted/20 transition-colors">
-                            <td className="py-4 px-4">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
-                                  tx.type === "deposit" || tx.type === "platform_credit" ? "bg-trading-green/20" :
-                                  tx.type === "withdraw" ? "bg-trading-red/20" :
-                                  tx.type === "trade_profit" ? "bg-trading-green/20" : "bg-trading-red/20"
-                                }`}>
-                                  {tx.type === "deposit" ? (
-                                    <ArrowDownLeft className="w-4 h-4 text-trading-green" />
-                                  ) : tx.type === "withdraw" ? (
-                                    <ArrowUpRight className="w-4 h-4 text-trading-red" />
-                                  ) : tx.type === "platform_credit" ? (
-                                    <WalletIcon className="w-4 h-4 text-trading-green" />
-                                  ) : tx.type === "trade_profit" ? (
-                                    <TrendingUp className="w-4 h-4 text-trading-green" />
-                                  ) : (
-                                    <TrendingDown className="w-4 h-4 text-trading-red" />
-                                  )}
-                                </div>
-                                <span className="text-sm font-medium capitalize">
-                                  {tx.type === "platform_credit" ? "Platform Credit" : 
-                                   tx.type === "trade_profit" ? "Trade Profit" :
-                                   tx.type === "trade_loss" ? "Trade Loss" :
-                                   tx.type}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="py-4 px-4">
-                              <span className="text-sm text-muted-foreground truncate max-w-[300px] block">
-                                {tx.description}
-                              </span>
-                            </td>
-                            <td className="py-4 px-4">
-                              <span className="text-sm text-muted-foreground">{tx.date}</span>
-                            </td>
-                            <td className="py-4 px-4 text-right">
-                              <span className={`text-sm font-semibold font-mono ${
-                                tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
-                              }`}>
-                                {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                <TransactionHistory transactions={transactions} />
               </div>
             </div>
           </div>
@@ -831,7 +702,7 @@ export default function Wallet() {
       <div className="px-4 py-6 space-y-6">
         <BalanceCard />
         <WalletList />
-        <TransactionHistory />
+        <TransactionHistory transactions={transactions} />
       </div>
 
       {/* Bottom Navigation */}
