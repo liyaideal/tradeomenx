@@ -83,7 +83,10 @@ export const FullAddressSheet = ({
           <div className="p-6 bg-card/50 border border-border/50 rounded-2xl">
             <div className="font-mono text-xl leading-relaxed text-center flex flex-wrap justify-center gap-x-3 gap-y-2">
               {hasPrefix && (
-                <span className="text-primary">0x</span>
+                <span className="tracking-wide">
+                  <span className="text-primary">0</span>
+                  <span className="text-foreground">x</span>
+                </span>
               )}
               {chunks.map((chunk, chunkIndex) => (
                 <span key={chunkIndex} className="tracking-wide">
@@ -97,18 +100,6 @@ export const FullAddressSheet = ({
                   ))}
                 </span>
               ))}
-            </div>
-            
-            {/* Legend */}
-            <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-border/30">
-              <div className="flex items-center gap-2 text-xs">
-                <span className="w-3 h-3 rounded-full bg-primary" />
-                <span className="text-muted-foreground">Digits (0-9)</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="w-3 h-3 rounded-full bg-foreground" />
-                <span className="text-muted-foreground">Letters (a-f)</span>
-              </div>
             </div>
           </div>
 
