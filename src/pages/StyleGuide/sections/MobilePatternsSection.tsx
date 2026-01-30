@@ -624,106 +624,147 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
         id="desktop-nav-specs"
         title="Desktop Navigation Specification"
         platform="desktop"
-        description="Layout and component rules for desktop trading interface headers"
+        description="Layout and component rules for the main desktop navigation header (EventsDesktopHeader)"
       >
+        {/* Desktop Header Preview */}
         <Card className="trading-card mb-6">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Monitor className="h-4 w-4" />
-              Desktop Header Components
+              EventsDesktopHeader Layout
             </CardTitle>
+            <CardDescription>
+              The primary navigation header used on desktop for Events, Portfolio, and other main pages
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Desktop Header Preview */}
+            {/* Visual Preview */}
             <div className="bg-background rounded-lg border border-border overflow-hidden mb-6">
-              <div className="flex items-center gap-6 px-4 py-2 border-b border-border/30">
-                {/* Symbol */}
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-trading-yellow flex items-center justify-center">
-                    <span className="text-background font-bold text-sm">₿</span>
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold">BTCUSDT</div>
-                    <span className="text-[10px] text-muted-foreground">Perpetual</span>
-                  </div>
+              {/* Accent line */}
+              <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+              
+              <div className="flex items-center justify-between px-6 py-3">
+                {/* Left: Logo + Navigation */}
+                <div className="flex items-center gap-8">
+                  {/* Logo */}
+                  <Logo size="xl" />
+                  
+                  {/* Navigation Tabs */}
+                  <nav className="flex items-center gap-1">
+                    <button className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground shadow-[0_0_12px_hsl(260_60%_55%/0.3)]">
+                      Events
+                    </button>
+                    <button className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                      Resolved
+                    </button>
+                    <button className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                      Portfolio
+                    </button>
+                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 border border-primary/30 hover:border-primary/50 ml-1">
+                      <span className="text-xs">🏆</span>
+                      Leaderboard
+                    </button>
+                  </nav>
                 </div>
-                {/* Price */}
-                <div>
-                  <div className="text-lg font-bold font-mono text-trading-green">88,131.30</div>
-                  <div className="text-[10px] text-muted-foreground font-mono">Mark: 88,132.18</div>
-                </div>
-                {/* Stats */}
-                <div className="flex items-center gap-4 text-[10px]">
-                  <div>
-                    <div className="text-muted-foreground">24H Change</div>
-                    <div className="font-mono text-trading-green">+1.22%</div>
-                  </div>
-                  <div>
-                    <div className="text-muted-foreground">24H High</div>
-                    <div className="font-mono">89,483.50</div>
-                  </div>
-                  <div>
-                    <div className="text-muted-foreground">24H Low</div>
-                    <div className="font-mono">84,408.10</div>
+
+                {/* Right: Language + Balance + Profile */}
+                <div className="flex items-center gap-4">
+                  {/* Language */}
+                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-muted/30">
+                    <span className="text-muted-foreground text-sm">🌐</span>
+                    <span className="text-sm font-medium">EN</span>
+                  </button>
+                  
+                  {/* Balance */}
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 hover:border-trading-green/30">
+                    <span className="text-sm text-muted-foreground">Balance:</span>
+                    <span className="text-sm font-bold text-trading-green font-mono">$10,000.00</span>
+                  </button>
+                  
+                  {/* Profile */}
+                  <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-muted/50">
+                    <div className="w-9 h-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center">
+                      <span className="text-sm text-primary font-medium">U</span>
+                    </div>
+                    <span className="text-sm font-medium">Username</span>
+                    <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-[-90deg]" />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Component specs */}
+            {/* Component Specifications */}
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-2 text-muted-foreground font-medium">Component</th>
-                    <th className="text-left py-2 text-muted-foreground font-medium">Typography</th>
-                    <th className="text-left py-2 text-muted-foreground font-medium">Style</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Spec</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Notes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
                   <tr>
-                    <td className="py-2 font-medium">Symbol Badge</td>
-                    <td className="py-2 font-mono">font-bold</td>
-                    <td className="py-2 text-muted-foreground">32px circle, category color, white text</td>
+                    <td className="py-2 font-medium flex items-center gap-2">
+                      <Logo size="sm" /> Logo
+                    </td>
+                    <td className="py-2 font-mono text-primary">size="xl" (h-8)</td>
+                    <td className="py-2 text-muted-foreground">Left-aligned, clickable to StyleGuide (dev)</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Current Price</td>
-                    <td className="py-2 font-mono">text-xl font-bold font-mono</td>
-                    <td className="py-2 text-muted-foreground">Green/Red based on direction</td>
+                    <td className="py-2 font-medium">Nav Tabs</td>
+                    <td className="py-2 font-mono">px-4 py-2 rounded-lg text-sm</td>
+                    <td className="py-2 text-muted-foreground">Active: bg-primary + shadow glow</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Mark/Index Price</td>
-                    <td className="py-2 font-mono">text-xs font-mono</td>
-                    <td className="py-2 text-muted-foreground">text-muted-foreground</td>
+                    <td className="py-2 font-medium">Leaderboard Button</td>
+                    <td className="py-2 font-mono">border border-primary/30</td>
+                    <td className="py-2 text-muted-foreground">Featured style with icon + hover effect</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Stats Labels</td>
-                    <td className="py-2 font-mono">text-xs</td>
-                    <td className="py-2 text-muted-foreground">text-muted-foreground, uppercase optional</td>
+                    <td className="py-2 font-medium">Language Selector</td>
+                    <td className="py-2 font-mono">Dropdown with Globe icon</td>
+                    <td className="py-2 text-muted-foreground">EN, CN, JP options</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Stats Values</td>
-                    <td className="py-2 font-mono">text-xs font-mono</td>
-                    <td className="py-2 text-muted-foreground">Color-coded when applicable</td>
+                    <td className="py-2 font-medium">Balance Display</td>
+                    <td className="py-2 font-mono">font-mono text-trading-green</td>
+                    <td className="py-2 text-muted-foreground">Clickable → /wallet, hover highlight</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Profile Avatar</td>
+                    <td className="py-2 font-mono">h-9 w-9 border-2 border-primary/50</td>
+                    <td className="py-2 text-muted-foreground">Dropdown: Portfolio, Settings, Sign Out</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Sign In Button</td>
+                    <td className="py-2 font-mono">btn-primary</td>
+                    <td className="py-2 text-muted-foreground">Shown when not logged in</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <CodePreview 
-              code={`import { DesktopHeader } from "@/components/DesktopHeader";
+              code={`import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 
-<DesktopHeader
-  symbol="BTCUSDT"
-  price="88,131.30"
-  markPrice="88,132.18"
-  change24h="+1,065.30"
-  changePercent="+1.22%"
-  high24h="89,483.50"
-  low24h="84,408.10"
-  volume24h="11,641,546,452.24"
-  isPositive
-/>`}
+// Standard usage
+<EventsDesktopHeader />
+
+// With custom right content
+<EventsDesktopHeader 
+  rightContent={<Button>Create Event</Button>}
+/>
+
+// Header structure:
+// - Logo (size="xl") → clickable
+// - Nav tabs: Events, Resolved, Portfolio
+// - Leaderboard button (featured style)
+// - Language selector dropdown
+// - Balance display → navigates to /wallet
+// - Profile avatar with dropdown menu`}
+              collapsible
+              defaultExpanded={false}
             />
           </CardContent>
         </Card>
@@ -731,7 +772,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
         {/* Mobile vs Desktop Comparison */}
         <Card className="trading-card">
           <CardHeader>
-            <CardTitle className="text-lg">Mobile vs Desktop Differences</CardTitle>
+            <CardTitle className="text-lg">Mobile vs Desktop Navigation</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -753,29 +794,34 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                 </thead>
                 <tbody className="divide-y divide-border/50">
                   <tr>
-                    <td className="py-2 font-medium">Logo</td>
+                    <td className="py-2 font-medium">Primary Navigation</td>
+                    <td className="py-2">BottomNav (fixed)</td>
+                    <td className="py-2">Top header nav tabs</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Logo Size</td>
                     <td className="py-2">size="md" (h-5)</td>
-                    <td className="py-2">size="lg" (h-6)</td>
+                    <td className="py-2">size="xl" (h-8)</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Navigation</td>
-                    <td className="py-2">BottomNav fixed</td>
-                    <td className="py-2">Top nav or sidebar</td>
+                    <td className="py-2 font-medium">Header Component</td>
+                    <td className="py-2">MobileHeader</td>
+                    <td className="py-2">EventsDesktopHeader</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Stats Display</td>
-                    <td className="py-2">Compact, expandable via Popover</td>
-                    <td className="py-2">Always visible inline</td>
+                    <td className="py-2 font-medium">Balance Display</td>
+                    <td className="py-2">In Wallet page only</td>
+                    <td className="py-2">Always visible in header</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Back Button</td>
-                    <td className="py-2">Context-aware auto-detection</td>
-                    <td className="py-2">Usually not needed (breadcrumbs)</td>
+                    <td className="py-2 font-medium">Profile Access</td>
+                    <td className="py-2">BottomNav → Portfolio</td>
+                    <td className="py-2">Avatar dropdown menu</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Actions</td>
-                    <td className="py-2">Icon buttons (Heart, Share2)</td>
-                    <td className="py-2">Text buttons or dropdowns</td>
+                    <td className="py-2 font-medium">Language</td>
+                    <td className="py-2">In Settings page</td>
+                    <td className="py-2">Dropdown in header</td>
                   </tr>
                 </tbody>
               </table>
