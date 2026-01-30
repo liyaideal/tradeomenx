@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from './useUserProfile';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   DepositRecord, 
   SupportedToken, 
@@ -34,10 +35,62 @@ const MOCK_PENDING_CLAIMS: DepositRecord[] = [
   },
 ];
 
-export const useDeposit = () => {
+export const useDeposit = (token?: SupportedToken) => {
   const queryClient = useQueryClient();
   const { user } = useUserProfile();
-  const [selectedToken, setSelectedToken] = useState<SupportedToken>('USDT');
+  const [selectedToken, setSelectedToken] = useState<SupportedToken>(token || 'USDT');
+
+  // Fetch user's deposit address for the selected token
+  const {
+    data: depositAddress,
+    isLoading: isLoadingAddress,
+    refetch: refetchAddress,
+  } = useQuery({
+    queryKey: ['deposit-address', user?.id, selectedToken],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('get-deposit-address', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: null,
+      });
+
+      // Use query params for GET request
+      const response = await supabase.functions.invoke(`get-deposit-address?token=${selectedToken}`);
+      
+      if (response.error) {
+        console.error('Error fetching deposit address:', response.error);
+        // Fallback to default address
+        return {
+          address: getCustodyAddress(selectedToken),
+          isDefault: true,
+        };
+      }
+      
+      return response.data;
+    },
+    enabled: !!user,
+    staleTime: 30000,
+  });
+
+  // Generate new address mutation
+  const generateAddressMutation = useMutation({
+    mutationFn: async (tokenToGenerate: SupportedToken) => {
+      const { data, error } = await supabase.functions.invoke('generate-deposit-address', {
+        body: { token: tokenToGenerate },
+      });
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to generate address');
+      }
+      
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deposit-address'] });
+    },
+  });
 
   // Fetch pending claims (deposits < min amount that need signature)
   const { 
@@ -48,14 +101,10 @@ export const useDeposit = () => {
     queryKey: ['pending-claims', user?.id],
     queryFn: async () => {
       // TODO: Replace with actual chain-service API call
-      // const response = await fetch(`/api/deposits/pending-claims?userId=${user?.id}`);
-      // return response.json();
-      
-      // Mock: Return pending claims for development
       return MOCK_PENDING_CLAIMS;
     },
     enabled: !!user,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
 
   // Fetch recent deposits (for status tracking)
@@ -119,6 +168,14 @@ export const useDeposit = () => {
     return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
   }, []);
 
+  // Get the current deposit address (from API or fallback)
+  const getCurrentAddress = useCallback(() => {
+    if (depositAddress?.address) {
+      return depositAddress.address;
+    }
+    return getCustodyAddress(selectedToken);
+  }, [depositAddress, selectedToken]);
+
   return {
     // Config
     supportedTokens: SUPPORTED_TOKENS,
@@ -130,15 +187,21 @@ export const useDeposit = () => {
     // Data
     pendingClaims,
     recentDeposits,
+    depositAddress,
+    getCurrentAddress,
     
     // Loading states
     isLoadingClaims,
     isLoadingDeposits,
+    isLoadingAddress,
     isClaiming: claimMutation.isPending,
+    isGeneratingAddress: generateAddressMutation.isPending,
     
     // Actions
     claimDeposit: claimMutation.mutateAsync,
+    generateNewAddress: generateAddressMutation.mutateAsync,
     refetchClaims,
+    refetchAddress,
     
     // Helpers
     formatTimeAgo,
