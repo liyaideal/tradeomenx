@@ -124,6 +124,9 @@ const TokenListItem = ({ token, onClick }: TokenListItemProps) => {
         {/* Token Info */}
         <div className="text-left">
           <div className="font-medium group-hover:text-primary transition-colors">
+            {token.symbol}
+          </div>
+          <div className="text-xs text-muted-foreground">
             {token.name}
           </div>
         </div>
