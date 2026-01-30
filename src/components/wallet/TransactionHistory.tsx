@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
+  Radio,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-
+import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 // Network explorer URLs for txHash links
 const EXPLORER_URLS: Record<string, string> = {
   'Ethereum': 'https://etherscan.io/tx/',
@@ -76,6 +77,10 @@ const TYPE_LABELS: Record<TransactionType, string> = {
 export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
   const [typeFilters, setTypeFilters] = useState<TransactionType[]>([]);
   const [statusFilters, setStatusFilters] = useState<TransactionStatus[]>([]);
+  const [isLive, setIsLive] = useState(true);
+
+  // Subscribe to real-time transaction updates
+  useRealtimeTransactions();
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -151,6 +156,11 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-muted-foreground" />
           <h2 className="text-lg font-semibold">Transaction History</h2>
+          {/* Live indicator */}
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-trading-green/10 border border-trading-green/20">
+            <Radio className="w-3 h-3 text-trading-green animate-pulse" />
+            <span className="text-xs text-trading-green font-medium">Live</span>
+          </div>
         </div>
         
         <DropdownMenu>
