@@ -15,27 +15,26 @@ interface FullAddressSheetProps {
   tokenSymbol: string;
 }
 
-// Color palette for address characters (matching reference design)
-const CHAR_COLORS = [
-  'text-purple-400',
-  'text-blue-400', 
-  'text-cyan-400',
-  'text-green-400',
-  'text-yellow-400',
-  'text-orange-400',
-  'text-pink-400',
-  'text-violet-400',
-];
-
+// Format address with character-type based coloring
+// Digits (0-9): purple/blue
+// Letters (a-f): white/foreground
 const formatAddressWithColors = (address: string) => {
-  // Remove 0x prefix for formatting
   const hasPrefix = address.startsWith('0x');
   const cleanAddress = hasPrefix ? address.slice(2) : address;
   
-  // Split into chunks of 4 characters
-  const chunks: string[] = [];
-  for (let i = 0; i < cleanAddress.length; i += 4) {
-    chunks.push(cleanAddress.slice(i, i + 4));
+  // Split into chunks of 4 characters for spacing
+  const chunks: { char: string; isDigit: boolean }[][] = [];
+  let currentChunk: { char: string; isDigit: boolean }[] = [];
+  
+  for (let i = 0; i < cleanAddress.length; i++) {
+    const char = cleanAddress[i];
+    const isDigit = /[0-9]/.test(char);
+    currentChunk.push({ char, isDigit });
+    
+    if (currentChunk.length === 4 || i === cleanAddress.length - 1) {
+      chunks.push(currentChunk);
+      currentChunk = [];
+    }
   }
   
   return { hasPrefix, chunks };
@@ -84,16 +83,32 @@ export const FullAddressSheet = ({
           <div className="p-6 bg-card/50 border border-border/50 rounded-2xl">
             <div className="font-mono text-xl leading-relaxed text-center flex flex-wrap justify-center gap-x-3 gap-y-2">
               {hasPrefix && (
-                <span className={CHAR_COLORS[0]}>0x</span>
+                <span className="text-primary">0x</span>
               )}
-              {chunks.map((chunk, index) => (
-                <span 
-                  key={index} 
-                  className={CHAR_COLORS[(index + (hasPrefix ? 1 : 0)) % CHAR_COLORS.length]}
-                >
-                  {chunk}
+              {chunks.map((chunk, chunkIndex) => (
+                <span key={chunkIndex} className="tracking-wide">
+                  {chunk.map((item, charIndex) => (
+                    <span 
+                      key={charIndex}
+                      className={item.isDigit ? 'text-primary' : 'text-foreground'}
+                    >
+                      {item.char}
+                    </span>
+                  ))}
                 </span>
               ))}
+            </div>
+            
+            {/* Legend */}
+            <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-border/30">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-3 h-3 rounded-full bg-primary" />
+                <span className="text-muted-foreground">Digits (0-9)</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-3 h-3 rounded-full bg-foreground" />
+                <span className="text-muted-foreground">Letters (a-f)</span>
+              </div>
             </div>
           </div>
 
