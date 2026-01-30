@@ -29,8 +29,8 @@ interface DepositPanelProps {
 export const DepositPanel = ({ open, onOpenChange }: DepositPanelProps) => {
   const isMobile = useIsMobile();
   const {
-    custodyConfig,
-    custodyAddress,
+    supportedTokens,
+    getCustodyAddress,
     selectedToken,
     setSelectedToken,
     getTokenConfig,
@@ -46,6 +46,7 @@ export const DepositPanel = ({ open, onOpenChange }: DepositPanelProps) => {
   const [claimingId, setClaimingId] = useState<string | null>(null);
 
   const tokenConfig = getTokenConfig(selectedToken);
+  const custodyAddress = getCustodyAddress(selectedToken);
   const estimatedTime = confirmationBlocks * 3; // ~3 seconds per BSC block
 
   const handleCopyAddress = async () => {
@@ -70,19 +71,22 @@ export const DepositPanel = ({ open, onOpenChange }: DepositPanelProps) => {
     }
   };
 
+  // Filter only stablecoins for the panel (USDT/USDC)
+  const stablecoins = supportedTokens.filter(t => ['USDT', 'USDC'].includes(t.symbol));
+
   const content = (
     <div className="space-y-6">
       {/* Network Info */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <div className="w-2 h-2 rounded-full bg-trading-green animate-pulse" />
-        <span>Network: {custodyConfig.network}</span>
+        <span>Network: {tokenConfig?.network || 'BSC (BNB Smart Chain)'}</span>
       </div>
 
       {/* Token Selection */}
       <div className="space-y-2">
         <LabelText size="sm" muted>Select Token</LabelText>
         <div className="flex gap-2">
-          {custodyConfig.tokens.map((token) => (
+          {stablecoins.map((token) => (
             <button
               key={token.symbol}
               onClick={() => setSelectedToken(token.symbol)}
@@ -94,7 +98,7 @@ export const DepositPanel = ({ open, onOpenChange }: DepositPanelProps) => {
             >
               <div className="flex items-center justify-center gap-2">
                 <span className="text-lg">
-                  {token.symbol === 'USDT' ? '💵' : '💲'}
+                  {token.icon}
                 </span>
                 <span className={`font-semibold ${
                   selectedToken === token.symbol ? 'text-primary' : ''
