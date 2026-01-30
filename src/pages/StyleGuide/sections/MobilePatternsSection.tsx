@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
-import { SectionWrapper } from "../components/SectionWrapper";
+import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 
 interface MobilePatternsSectionProps {
@@ -16,16 +18,54 @@ interface MobilePatternsSectionProps {
 export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) => {
   const navigate = useNavigate();
   
-  // Mobile Header Playground
+  // Mobile Header Playground - Basic
   const [headerTitle, setHeaderTitle] = useState("Bitcoin price on January 31, 2026?");
   const [headerShowLogo, setHeaderShowLogo] = useState(false);
   const [headerShowBack, setHeaderShowBack] = useState(true);
   const [headerShowActions, setHeaderShowActions] = useState(true);
   const [headerIsFavorite, setHeaderIsFavorite] = useState(false);
+  
+  // Mobile Header Playground - Stats Bar
   const [headerShowCountdown, setHeaderShowCountdown] = useState(true);
   const [headerShowPrice, setHeaderShowPrice] = useState(true);
   const [headerCurrentPrice, setHeaderCurrentPrice] = useState("$94,532.18");
   const [headerPriceChange, setHeaderPriceChange] = useState("+2.34%");
+  const [headerPriceLabel, setHeaderPriceLabel] = useState("BTC/USD");
+  const [headerShowTweetCount, setHeaderShowTweetCount] = useState(false);
+  const [headerTweetCount, setHeaderTweetCount] = useState(1234);
+  
+  // Quick Presets for Header
+  const applyHeaderPreset = (preset: string) => {
+    switch (preset) {
+      case "trade":
+        setHeaderTitle("Will BTC reach $100k by March 2026?");
+        setHeaderShowLogo(false);
+        setHeaderShowBack(true);
+        setHeaderShowActions(true);
+        setHeaderShowCountdown(true);
+        setHeaderShowPrice(true);
+        setHeaderShowTweetCount(false);
+        break;
+      case "home":
+        setHeaderTitle("");
+        setHeaderShowLogo(true);
+        setHeaderShowBack(false);
+        setHeaderShowActions(false);
+        setHeaderShowCountdown(false);
+        setHeaderShowPrice(false);
+        setHeaderShowTweetCount(false);
+        break;
+      case "detail":
+        setHeaderTitle("Event Details");
+        setHeaderShowLogo(true);
+        setHeaderShowBack(true);
+        setHeaderShowActions(true);
+        setHeaderShowCountdown(true);
+        setHeaderShowPrice(false);
+        setHeaderShowTweetCount(true);
+        break;
+    }
+  };
 
   return (
     <div className="space-y-12">
@@ -36,15 +76,72 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
         platform="mobile"
         description="Configurable header component for mobile trading screens"
       >
+        {/* Props Documentation */}
+        <Card className="trading-card border-primary/30 mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Props Reference</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-muted-foreground font-medium">Prop</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Type</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  <tr><td className="py-1.5 font-mono text-primary">title</td><td className="py-1.5">string</td><td className="py-1.5 text-muted-foreground">Main title text (optional)</td></tr>
+                  <tr><td className="py-1.5 font-mono text-primary">showLogo</td><td className="py-1.5">boolean</td><td className="py-1.5 text-muted-foreground">Show logo on left (default: true)</td></tr>
+                  <tr><td className="py-1.5 font-mono text-primary">showBack</td><td className="py-1.5">boolean</td><td className="py-1.5 text-muted-foreground">Show back button (auto-detected by default)</td></tr>
+                  <tr><td className="py-1.5 font-mono text-primary">showActions</td><td className="py-1.5">boolean</td><td className="py-1.5 text-muted-foreground">Show favorite + share buttons</td></tr>
+                  <tr><td className="py-1.5 font-mono text-primary">endTime</td><td className="py-1.5">Date</td><td className="py-1.5 text-muted-foreground">Countdown timer end time</td></tr>
+                  <tr><td className="py-1.5 font-mono text-primary">currentPrice</td><td className="py-1.5">string</td><td className="py-1.5 text-muted-foreground">Live price display</td></tr>
+                  <tr><td className="py-1.5 font-mono text-primary">priceChange24h</td><td className="py-1.5">string</td><td className="py-1.5 text-muted-foreground">24h price change (e.g., "+2.34%")</td></tr>
+                  <tr><td className="py-1.5 font-mono text-primary">tweetCount</td><td className="py-1.5">number</td><td className="py-1.5 text-muted-foreground">Tweet count indicator</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="trading-card">
           <CardHeader>
             <CardTitle className="text-lg">Mobile Header Playground</CardTitle>
+            <CardDescription>Interactive configuration for all header variants</CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Quick Presets */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="text-xs text-muted-foreground self-center">Presets:</span>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-primary/10"
+                onClick={() => applyHeaderPreset("trade")}
+              >
+                Trade Page
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-primary/10"
+                onClick={() => applyHeaderPreset("home")}
+              >
+                Home Page
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-primary/10"
+                onClick={() => applyHeaderPreset("detail")}
+              >
+                Detail Page
+              </Badge>
+            </div>
+
             {/* Preview */}
             <div className="bg-background rounded-xl border border-border overflow-hidden mb-6">
               <MobileHeader
-                title={headerShowLogo ? undefined : headerTitle}
+                title={headerShowLogo && !headerTitle ? undefined : headerTitle}
                 showLogo={headerShowLogo}
                 showBack={headerShowBack}
                 showActions={headerShowActions}
@@ -53,18 +150,22 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                 endTime={headerShowCountdown ? new Date(Date.now() + 86400000 * 7) : undefined}
                 currentPrice={headerShowPrice ? headerCurrentPrice : undefined}
                 priceChange24h={headerShowPrice ? headerPriceChange : undefined}
+                priceLabel={headerPriceLabel}
+                tweetCount={headerShowTweetCount ? headerTweetCount : undefined}
               />
             </div>
 
-            {/* Controls */}
-            <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+            {/* Controls - 2 Column Layout */}
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              {/* Left Column: Basic Settings */}
               <div className="space-y-4">
+                <h4 className="text-sm font-medium text-muted-foreground">Basic Settings</h4>
                 <div className="space-y-2">
-                  <Label className="text-xs">Title (if not showing logo)</Label>
+                  <Label className="text-xs">Title</Label>
                   <Input 
                     value={headerTitle} 
                     onChange={(e) => setHeaderTitle(e.target.value)}
-                    disabled={headerShowLogo}
+                    placeholder="Enter title or leave empty"
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -76,11 +177,14 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                   <Switch checked={headerShowBack} onCheckedChange={setHeaderShowBack} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label className="text-xs">Show Actions</Label>
+                  <Label className="text-xs">Show Actions (♡ + Share)</Label>
                   <Switch checked={headerShowActions} onCheckedChange={setHeaderShowActions} />
                 </div>
               </div>
+
+              {/* Right Column: Stats Bar */}
               <div className="space-y-4">
+                <h4 className="text-sm font-medium text-muted-foreground">Stats Bar</h4>
                 <div className="flex items-center justify-between">
                   <Label className="text-xs">Show Countdown</Label>
                   <Switch checked={headerShowCountdown} onCheckedChange={setHeaderShowCountdown} />
@@ -89,36 +193,46 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                   <Label className="text-xs">Show Price</Label>
                   <Switch checked={headerShowPrice} onCheckedChange={setHeaderShowPrice} />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-2">
-                    <Label className="text-xs">Current Price</Label>
-                    <Input 
-                      value={headerCurrentPrice} 
-                      onChange={(e) => setHeaderCurrentPrice(e.target.value)}
-                    />
+                {headerShowPrice && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Price</Label>
+                      <Input 
+                        value={headerCurrentPrice} 
+                        onChange={(e) => setHeaderCurrentPrice(e.target.value)}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">24h Change</Label>
+                      <Input 
+                        value={headerPriceChange} 
+                        onChange={(e) => setHeaderPriceChange(e.target.value)}
+                        className="h-8 text-xs"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs">Price Change</Label>
-                    <Input 
-                      value={headerPriceChange} 
-                      onChange={(e) => setHeaderPriceChange(e.target.value)}
-                    />
-                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Show Tweet Count</Label>
+                  <Switch checked={headerShowTweetCount} onCheckedChange={setHeaderShowTweetCount} />
                 </div>
               </div>
             </div>
 
             <CodePreview 
               code={`<MobileHeader
-  title="${headerTitle.slice(0, 30)}..."
+  title="${headerTitle || "(none)"}"
   showLogo={${headerShowLogo}}
   showBack={${headerShowBack}}
-  showActions={${headerShowActions}}
-  showCountdown={${headerShowCountdown}}
-  showPrice={${headerShowPrice}}
+  showActions={${headerShowActions}}${headerShowCountdown ? `
+  endTime={new Date(...)}` : ""}${headerShowPrice ? `
   currentPrice="${headerCurrentPrice}"
-  priceChange="${headerPriceChange}"
+  priceChange24h="${headerPriceChange}"` : ""}${headerShowTweetCount ? `
+  tweetCount={${headerTweetCount}}` : ""}
 />`}
+              collapsible
+              defaultExpanded={false}
             />
           </CardContent>
         </Card>
