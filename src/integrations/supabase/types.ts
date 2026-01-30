@@ -406,6 +406,9 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          network: string | null
+          status: string
+          tx_hash: string | null
           type: string
           updated_at: string
           user_id: string
@@ -415,6 +418,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          network?: string | null
+          status?: string
+          tx_hash?: string | null
           type: string
           updated_at?: string
           user_id: string
@@ -424,6 +430,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          network?: string | null
+          status?: string
+          tx_hash?: string | null
           type?: string
           updated_at?: string
           user_id?: string
