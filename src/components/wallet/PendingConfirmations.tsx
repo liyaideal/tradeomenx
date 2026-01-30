@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { SUPPORTED_TOKENS, CONFIRMATION_BLOCKS, ESTIMATED_BLOCK_TIME_SECONDS } from '@/types/deposit';
+import { CONFIRMATION_BLOCKS, ESTIMATED_BLOCK_TIME_SECONDS } from '@/types/deposit';
 
 // Network explorer URLs
 const EXPLORER_URLS: Record<string, string> = {
@@ -39,9 +39,8 @@ interface PendingTransaction {
   network: string | null;
   tx_hash: string | null;
   created_at: string;
-  // Simulated confirmations (in real app, fetched from chain service)
-  confirmations?: number;
-  requiredConfirmations?: number;
+  confirmations: number;
+  required_confirmations: number;
 }
 
 interface PendingConfirmationsProps {
@@ -51,9 +50,8 @@ interface PendingConfirmationsProps {
 export const PendingConfirmations = ({ className }: PendingConfirmationsProps) => {
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(true);
-  const [simulatedConfirmations, setSimulatedConfirmations] = useState<Record<string, number>>({});
 
-  // Fetch pending/processing transactions
+  // Fetch pending/processing transactions with real confirmations data
   const { data: pendingTransactions = [], isLoading } = useQuery({
     queryKey: ['pending-confirmations', user?.id],
     queryFn: async () => {
@@ -61,7 +59,7 @@ export const PendingConfirmations = ({ className }: PendingConfirmationsProps) =
       
       const { data, error } = await supabase
         .from('transactions')
-        .select('id, type, amount, description, status, network, tx_hash, created_at')
+        .select('id, type, amount, description, status, network, tx_hash, created_at, confirmations, required_confirmations')
         .eq('user_id', user.id)
         .in('status', ['pending', 'processing'])
         .eq('type', 'deposit')
@@ -72,45 +70,15 @@ export const PendingConfirmations = ({ className }: PendingConfirmationsProps) =
         return [];
       }
 
-      return (data || []) as PendingTransaction[];
+      return (data || []).map(tx => ({
+        ...tx,
+        confirmations: tx.confirmations ?? 0,
+        required_confirmations: tx.required_confirmations ?? CONFIRMATION_BLOCKS,
+      })) as PendingTransaction[];
     },
     enabled: !!user,
-    refetchInterval: 5000, // Refresh every 5 seconds
+    refetchInterval: 5000, // Refresh every 5 seconds to get latest confirmations
   });
-
-  // Simulate block confirmations incrementing (demo purposes)
-  useEffect(() => {
-    if (pendingTransactions.length === 0) return;
-
-    const interval = setInterval(() => {
-      setSimulatedConfirmations(prev => {
-        const updated = { ...prev };
-        pendingTransactions.forEach(tx => {
-          const current = prev[tx.id] ?? getInitialConfirmations(tx);
-          const required = getRequiredConfirmations(tx.network);
-          if (current < required) {
-            updated[tx.id] = Math.min(current + 1, required);
-          }
-        });
-        return updated;
-      });
-    }, 3000); // Simulate ~3 second block time
-
-    return () => clearInterval(interval);
-  }, [pendingTransactions]);
-
-  const getInitialConfirmations = (tx: PendingTransaction): number => {
-    // Based on status, estimate initial confirmations
-    if (tx.status === 'pending') return 0;
-    if (tx.status === 'processing') return Math.floor(Math.random() * 8) + 3;
-    return 0;
-  };
-
-  const getRequiredConfirmations = (network: string | null): number => {
-    if (!network) return CONFIRMATION_BLOCKS;
-    const token = SUPPORTED_TOKENS.find(t => t.network === network);
-    return token?.confirmationBlocks ?? CONFIRMATION_BLOCKS;
-  };
 
   const getEstimatedTimeRemaining = (current: number, required: number, network: string | null): string => {
     const remaining = required - current;
@@ -197,8 +165,8 @@ export const PendingConfirmations = ({ className }: PendingConfirmationsProps) =
             </div>
           ) : (
             pendingTransactions.map((tx) => {
-              const confirmations = simulatedConfirmations[tx.id] ?? getInitialConfirmations(tx);
-              const required = getRequiredConfirmations(tx.network);
+              const confirmations = tx.confirmations;
+              const required = tx.required_confirmations;
               const progress = Math.min((confirmations / required) * 100, 100);
               const isComplete = confirmations >= required;
               const explorerUrl = tx.tx_hash ? getExplorerUrl(tx.network, tx.tx_hash) : null;
