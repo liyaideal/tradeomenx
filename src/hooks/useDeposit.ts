@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from './useUserProfile';
 import { 
   DepositRecord, 
-  DepositStatus, 
   SupportedToken, 
-  CUSTODY_CONFIG,
+  SUPPORTED_TOKENS,
   CONFIRMATION_BLOCKS,
+  getCustodyAddress,
+  getTokenConfig,
 } from '@/types/deposit';
 
 // Mock data for development - will be replaced with chain-service API calls
@@ -94,13 +95,13 @@ export const useDeposit = () => {
   });
 
   // Get custody address for selected token
-  const getCustodyAddress = useCallback(() => {
-    return CUSTODY_CONFIG.address;
+  const getCustodyAddressForToken = useCallback((token: SupportedToken) => {
+    return getCustodyAddress(token);
   }, []);
 
-  // Get token config
-  const getTokenConfig = useCallback((token: SupportedToken) => {
-    return CUSTODY_CONFIG.tokens.find(t => t.symbol === token);
+  // Get token config helper
+  const getTokenConfigForToken = useCallback((token: SupportedToken) => {
+    return getTokenConfig(token);
   }, []);
 
   // Format time ago
@@ -120,11 +121,11 @@ export const useDeposit = () => {
 
   return {
     // Config
-    custodyConfig: CUSTODY_CONFIG,
-    custodyAddress: getCustodyAddress(),
+    supportedTokens: SUPPORTED_TOKENS,
+    getCustodyAddress: getCustodyAddressForToken,
     selectedToken,
     setSelectedToken,
-    getTokenConfig,
+    getTokenConfig: getTokenConfigForToken,
     
     // Data
     pendingClaims,

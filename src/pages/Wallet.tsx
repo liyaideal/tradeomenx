@@ -23,7 +23,6 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { TopUpDialog } from "@/components/TopUpDialog";
-import { DepositPanel } from "@/components/deposit";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -132,7 +131,7 @@ export default function Wallet() {
   
   // Dialog states
   const [topUpOpen, setTopUpOpen] = useState(false);
-  const [depositOpen, setDepositOpen] = useState(false);
+  
   const [walletDialogOpen, setWalletDialogOpen] = useState(false);
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
   const [walletToDisconnect, setWalletToDisconnect] = useState<{ id: string; address: string } | null>(null);
@@ -242,7 +241,7 @@ export default function Wallet() {
         <div className="flex gap-3">
           <Button 
             className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-12"
-            onClick={() => setDepositOpen(true)}
+            onClick={() => navigate('/deposit')}
           >
             <ArrowDownLeft className="w-4 h-4 mr-2" />
             Deposit
@@ -890,8 +889,8 @@ export default function Wallet() {
         </div>
       </MobileDrawer>
 
-      {/* Deposit Panel */}
-      <DepositPanel open={depositOpen} onOpenChange={setDepositOpen} />
+
+      {/* Top Up Dialog (legacy card payment) */}
 
       {/* Top Up Dialog (legacy card payment) */}
       <TopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} currentBalance={balance} />
