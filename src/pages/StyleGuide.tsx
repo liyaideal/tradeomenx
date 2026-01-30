@@ -13,12 +13,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OptionChips } from "@/components/OptionChips";
-import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download, ShieldCheck, AlertTriangle, Ban } from "lucide-react";
+import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download, ShieldCheck, AlertTriangle, Ban, Type } from "lucide-react";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
+import { PriceText, PercentText, AmountText, LabelText, MonoText, AddressText } from "@/components/typography";
 
 type DevicePreview = "auto" | "mobile" | "tablet" | "desktop";
 
@@ -35,6 +36,7 @@ const StyleGuide = () => {
     { id: "brand-logo", title: "Brand Logo", keywords: ["logo", "brand", "omenx", "identity", "mark"] },
     { id: "account-risk-playground", title: "Account Risk Playground", keywords: ["risk", "playground", "margin", "equity", "liquidation", "simulator", "interactive"] },
     { id: "typography", title: "Typography", keywords: ["font", "text", "heading", "type", "scale", "inter", "mono"] },
+    { id: "typography-components", title: "Typography Components", keywords: ["typography", "component", "pricetext", "percenttext", "labeltext", "amounttext", "addresstext", "monotext", "semantic"] },
     { id: "playground", title: "Component Playground", keywords: ["playground", "interactive", "test", "try"] },
     { id: "button-playground", title: "Button Playground", keywords: ["button", "click", "action", "variant", "size"] },
     { id: "badge-playground", title: "Badge Playground", keywords: ["badge", "tag", "label", "status"] },
@@ -170,6 +172,31 @@ const StyleGuide = () => {
   const [riskUnrealizedPnL, setRiskUnrealizedPnL] = useState(0);
   const [riskIMTotal, setRiskIMTotal] = useState(50);
   const [riskShowValues, setRiskShowValues] = useState(true);
+
+  // Typography Components Playground
+  const [typoPriceValue, setTypoPriceValue] = useState(1234.56);
+  const [typoPricePrefix, setTypoPricePrefix] = useState("$");
+  const [typoPriceDecimals, setTypoPriceDecimals] = useState(2);
+  const [typoPriceShowSign, setTypoPriceShowSign] = useState(false);
+  const [typoPriceColorByValue, setTypoPriceColorByValue] = useState(false);
+  
+  const [typoPercentValue, setTypoPercentValue] = useState(12.34);
+  const [typoPercentDecimals, setTypoPercentDecimals] = useState(2);
+  const [typoPercentShowSign, setTypoPercentShowSign] = useState(true);
+  const [typoPercentColorByValue, setTypoPercentColorByValue] = useState(true);
+  
+  const [typoAmountValue, setTypoAmountValue] = useState(500);
+  const [typoAmountDecimals, setTypoAmountDecimals] = useState(0);
+  const [typoAmountSuffix, setTypoAmountSuffix] = useState(" contracts");
+  
+  const [typoLabelText, setTypoLabelText] = useState("Option Label");
+  const [typoLabelSize, setTypoLabelSize] = useState<"xs" | "sm" | "base" | "lg">("base");
+  const [typoLabelWeight, setTypoLabelWeight] = useState<"normal" | "medium" | "semibold" | "bold">("medium");
+  const [typoLabelMuted, setTypoLabelMuted] = useState(false);
+  
+  const [typoAddress, setTypoAddress] = useState("0x1234567890abcdef1234567890abcdef12345678");
+  const [typoAddressTruncate, setTypoAddressTruncate] = useState(true);
+  const [typoAddressTruncateLength, setTypoAddressTruncateLength] = useState(6);
 
   // Calculate risk metrics for playground
   const playgroundRiskMetrics = useMemo(() => {
@@ -869,7 +896,397 @@ const StyleGuide = () => {
         </section>
         )}
 
-        {/* Component Playground Section */}
+        {/* Typography Components Playground Section */}
+        {filterSection("typography-components") && (
+        <section id="typography-components">
+          <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
+            <div className="flex items-center gap-2">
+              <Type className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-semibold text-foreground">Typography Components</h2>
+            </div>
+          </div>
+          
+          <p className="text-sm text-muted-foreground mb-6">
+            Semantic typography components that automatically apply correct font styles. 
+            Import from <code className="text-primary">@/components/typography</code>.
+          </p>
+
+          <div className="space-y-8">
+            {/* PriceText Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-green" />
+                  PriceText
+                </CardTitle>
+                <CardDescription>Display prices and currency values with automatic font-mono styling</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex flex-col items-center justify-center min-h-[120px] gap-4">
+                    <span className="text-xs text-muted-foreground">Live Preview</span>
+                    <div className="text-2xl">
+                      <PriceText 
+                        value={typoPriceValue} 
+                        prefix={typoPricePrefix}
+                        decimals={typoPriceDecimals}
+                        showSign={typoPriceShowSign}
+                        colorByValue={typoPriceColorByValue}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Value</Label>
+                      <Input 
+                        type="number" 
+                        value={typoPriceValue} 
+                        onChange={(e) => setTypoPriceValue(parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Prefix</Label>
+                        <Input 
+                          value={typoPricePrefix} 
+                          onChange={(e) => setTypoPricePrefix(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Decimals</Label>
+                        <Input 
+                          type="number" 
+                          min={0} 
+                          max={8}
+                          value={typoPriceDecimals} 
+                          onChange={(e) => setTypoPriceDecimals(parseInt(e.target.value) || 0)}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Show Sign (+/-)</Label>
+                      <Switch checked={typoPriceShowSign} onCheckedChange={setTypoPriceShowSign} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Color by Value</Label>
+                      <Switch checked={typoPriceColorByValue} onCheckedChange={setTypoPriceColorByValue} />
+                    </div>
+                  </div>
+                </div>
+                <CodePreview 
+                  code={`<PriceText value={${typoPriceValue}} prefix="${typoPricePrefix}" decimals={${typoPriceDecimals}}${typoPriceShowSign ? " showSign" : ""}${typoPriceColorByValue ? " colorByValue" : ""} />`}
+                  id="pricetext-code"
+                />
+              </CardContent>
+            </Card>
+
+            {/* PercentText Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-purple" />
+                  PercentText
+                </CardTitle>
+                <CardDescription>Display percentages with automatic formatting and coloring</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex flex-col items-center justify-center min-h-[120px] gap-4">
+                    <span className="text-xs text-muted-foreground">Live Preview</span>
+                    <div className="text-2xl">
+                      <PercentText 
+                        value={typoPercentValue} 
+                        decimals={typoPercentDecimals}
+                        showSign={typoPercentShowSign}
+                        colorByValue={typoPercentColorByValue}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Value</Label>
+                      <Input 
+                        type="number" 
+                        value={typoPercentValue} 
+                        onChange={(e) => setTypoPercentValue(parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Decimals</Label>
+                      <Input 
+                        type="number" 
+                        min={0} 
+                        max={8}
+                        value={typoPercentDecimals} 
+                        onChange={(e) => setTypoPercentDecimals(parseInt(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Show Sign (+/-)</Label>
+                      <Switch checked={typoPercentShowSign} onCheckedChange={setTypoPercentShowSign} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Color by Value</Label>
+                      <Switch checked={typoPercentColorByValue} onCheckedChange={setTypoPercentColorByValue} />
+                    </div>
+                  </div>
+                </div>
+                <CodePreview 
+                  code={`<PercentText value={${typoPercentValue}} decimals={${typoPercentDecimals}}${typoPercentShowSign ? " showSign" : ""}${typoPercentColorByValue ? " colorByValue" : ""} />`}
+                  id="percenttext-code"
+                />
+              </CardContent>
+            </Card>
+
+            {/* AmountText Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-trading-yellow" />
+                  AmountText
+                </CardTitle>
+                <CardDescription>Display quantities and counts with optional suffix</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex flex-col items-center justify-center min-h-[120px] gap-4">
+                    <span className="text-xs text-muted-foreground">Live Preview</span>
+                    <div className="text-2xl">
+                      <AmountText 
+                        value={typoAmountValue} 
+                        decimals={typoAmountDecimals}
+                        suffix={typoAmountSuffix}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Value</Label>
+                      <Input 
+                        type="number" 
+                        value={typoAmountValue} 
+                        onChange={(e) => setTypoAmountValue(parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Decimals</Label>
+                        <Input 
+                          type="number" 
+                          min={0} 
+                          max={8}
+                          value={typoAmountDecimals} 
+                          onChange={(e) => setTypoAmountDecimals(parseInt(e.target.value) || 0)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Suffix</Label>
+                        <Input 
+                          value={typoAmountSuffix} 
+                          onChange={(e) => setTypoAmountSuffix(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <CodePreview 
+                  code={`<AmountText value={${typoAmountValue}} decimals={${typoAmountDecimals}} suffix="${typoAmountSuffix}" />`}
+                  id="amounttext-code"
+                />
+              </CardContent>
+            </Card>
+
+            {/* LabelText Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-primary" />
+                  LabelText
+                </CardTitle>
+                <CardDescription>Display text labels with configurable size and weight (always font-sans)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex flex-col items-center justify-center min-h-[120px] gap-4">
+                    <span className="text-xs text-muted-foreground">Live Preview</span>
+                    <div className="text-2xl">
+                      <LabelText 
+                        size={typoLabelSize}
+                        weight={typoLabelWeight}
+                        muted={typoLabelMuted}
+                      >
+                        {typoLabelText}
+                      </LabelText>
+                    </div>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Text</Label>
+                      <Input 
+                        value={typoLabelText} 
+                        onChange={(e) => setTypoLabelText(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Size</Label>
+                        <Select value={typoLabelSize} onValueChange={(v) => setTypoLabelSize(v as typeof typoLabelSize)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="xs">xs (12px)</SelectItem>
+                            <SelectItem value="sm">sm (14px)</SelectItem>
+                            <SelectItem value="base">base (16px)</SelectItem>
+                            <SelectItem value="lg">lg (18px)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Weight</Label>
+                        <Select value={typoLabelWeight} onValueChange={(v) => setTypoLabelWeight(v as typeof typoLabelWeight)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="normal">normal</SelectItem>
+                            <SelectItem value="medium">medium</SelectItem>
+                            <SelectItem value="semibold">semibold</SelectItem>
+                            <SelectItem value="bold">bold</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Muted</Label>
+                      <Switch checked={typoLabelMuted} onCheckedChange={setTypoLabelMuted} />
+                    </div>
+                  </div>
+                </div>
+                <CodePreview 
+                  code={`<LabelText size="${typoLabelSize}" weight="${typoLabelWeight}"${typoLabelMuted ? " muted" : ""}>${typoLabelText}</LabelText>`}
+                  id="labeltext-code"
+                />
+              </CardContent>
+            </Card>
+
+            {/* AddressText Playground */}
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indicator" />
+                  AddressText
+                </CardTitle>
+                <CardDescription>Display wallet addresses with optional truncation</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {/* Preview */}
+                  <div className="bg-muted/30 rounded-xl p-6 flex flex-col items-center justify-center min-h-[120px] gap-4">
+                    <span className="text-xs text-muted-foreground">Live Preview</span>
+                    <div className="text-lg break-all text-center">
+                      <AddressText 
+                        address={typoAddress}
+                        truncate={typoAddressTruncate}
+                        truncateLength={typoAddressTruncateLength}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Address</Label>
+                      <Input 
+                        value={typoAddress} 
+                        onChange={(e) => setTypoAddress(e.target.value)}
+                        className="font-mono text-xs"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Truncate</Label>
+                      <Switch checked={typoAddressTruncate} onCheckedChange={setTypoAddressTruncate} />
+                    </div>
+                    {typoAddressTruncate && (
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Truncate Length (chars each side)</Label>
+                        <Input 
+                          type="number"
+                          min={4}
+                          max={20}
+                          value={typoAddressTruncateLength} 
+                          onChange={(e) => setTypoAddressTruncateLength(parseInt(e.target.value) || 6)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <CodePreview 
+                  code={`<AddressText address="${typoAddress.slice(0, 20)}..."${typoAddressTruncate ? ` truncate truncateLength={${typoAddressTruncateLength}}` : ""} />`}
+                  id="addresstext-code"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Quick Import Reference */}
+            <Card className="trading-card border-primary/30">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-trading-yellow" />
+                  Quick Import Reference
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <code className="text-sm text-muted-foreground font-mono block">
+                    {`import { PriceText, PercentText, AmountText, LabelText, AddressText, MonoText } from "@/components/typography";`}
+                  </code>
+                </div>
+                <div className="mt-4 grid gap-2">
+                  <div className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-trading-green">•</span>
+                    <span><code className="text-primary">PriceText</code> - 价格/货币值（自动 font-mono + 可选颜色）</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-trading-green">•</span>
+                    <span><code className="text-primary">PercentText</code> - 百分比值（自动 % 后缀 + 可选颜色）</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-trading-green">•</span>
+                    <span><code className="text-primary">AmountText</code> - 数量/份额（自动 font-mono）</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-trading-green">•</span>
+                    <span><code className="text-primary">LabelText</code> - 文本标签（自动 font-sans + 尺寸/权重配置）</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-trading-green">•</span>
+                    <span><code className="text-primary">AddressText</code> - 钱包地址/哈希（自动 font-mono + 截断）</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-trading-green">•</span>
+                    <span><code className="text-primary">MonoText</code> - 通用等宽文本（仅用于数值）</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+        )}
+
+
         {playgroundMatches() && (
         <section id="playground">
           <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
