@@ -10,6 +10,8 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
+import { Logo, omenxLogo } from "@/components/Logo";
+import { Check, X, AlertCircle, ChevronLeft, Heart, Share2, Monitor, Smartphone } from "lucide-react";
 
 interface MobilePatternsSectionProps {
   isMobile: boolean;
@@ -69,12 +71,727 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
 
   return (
     <div className="space-y-12">
-      {/* Mobile Header */}
+      {/* =========================== */}
+      {/* LOGO USAGE GUIDELINES       */}
+      {/* =========================== */}
+      <SectionWrapper
+        id="logo-guidelines"
+        title="Logo Usage Guidelines"
+        platform="shared"
+        description="Complete rules for OMENX logo usage across all platforms and contexts"
+      >
+        {/* Logo Sizes */}
+        <Card className="trading-card mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Logo Sizes</CardTitle>
+            <CardDescription>Standard logo sizes for different contexts</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { size: "sm" as const, label: "Small (h-4)", usage: "Compact headers, nav items" },
+                { size: "md" as const, label: "Medium (h-5)", usage: "Mobile headers (default)" },
+                { size: "lg" as const, label: "Large (h-6)", usage: "Desktop headers" },
+                { size: "xl" as const, label: "Extra Large (h-8)", usage: "Landing pages, branding" },
+              ].map(({ size, label, usage }) => (
+                <div key={size} className="bg-muted/30 rounded-xl p-4 flex flex-col items-center gap-3">
+                  <div className="h-12 flex items-center justify-center">
+                    <Logo size={size} />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-medium">{label}</p>
+                    <p className="text-[10px] text-muted-foreground">{usage}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <CodePreview 
+              code={`import { Logo } from "@/components/Logo";
+
+<Logo size="sm" />  // h-4 - Compact headers
+<Logo size="md" />  // h-5 - Mobile headers (default)
+<Logo size="lg" />  // h-6 - Desktop headers
+<Logo size="xl" />  // h-8 - Landing pages`}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Light Background Usage */}
+        <Card className="trading-card mb-6 border-trading-yellow/30">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-trading-yellow" />
+              Light Background Usage
+            </CardTitle>
+            <CardDescription>Logo is white - requires special treatment on light backgrounds</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              {/* Dark background (standard) */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2">
+                  <Check className="h-3 w-3 text-trading-green" />
+                  Dark Background (Standard)
+                </p>
+                <div className="bg-background rounded-xl p-6 flex items-center justify-center border border-border">
+                  <Logo size="lg" />
+                </div>
+              </div>
+
+              {/* Light background with invert */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2">
+                  <Check className="h-3 w-3 text-trading-green" />
+                  Light Background (Use invert)
+                </p>
+                <div className="bg-white rounded-xl p-6 flex items-center justify-center border border-border">
+                  <Logo size="lg" className="invert" />
+                </div>
+              </div>
+
+              {/* Wrong: White logo on white */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2">
+                  <X className="h-3 w-3 text-trading-red" />
+                  WRONG: Invisible on Light
+                </p>
+                <div className="bg-white rounded-xl p-6 flex items-center justify-center border border-border">
+                  <Logo size="lg" />
+                </div>
+              </div>
+
+              {/* Container approach */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2">
+                  <Check className="h-3 w-3 text-trading-green" />
+                  Alternative: Dark Container
+                </p>
+                <div className="bg-white rounded-xl p-6 flex items-center justify-center border border-border">
+                  <div className="bg-background rounded-lg px-4 py-2">
+                    <Logo size="lg" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <CodePreview 
+              code={`// On light backgrounds, use the invert class
+<Logo size="lg" className="invert" />
+
+// Or wrap in a dark container
+<div className="bg-background rounded-lg px-4 py-2">
+  <Logo size="lg" />
+</div>`}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Do's and Don'ts */}
+        <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+          <Card className="trading-card border-trading-green/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2 text-trading-green">
+                <Check className="h-4 w-4" />
+                Do's
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start gap-3 p-3 bg-trading-green/5 rounded-lg">
+                <Check className="h-4 w-4 text-trading-green shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Use consistent sizing</p>
+                  <p className="text-xs text-muted-foreground">Always use predefined size props (sm, md, lg, xl)</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-trading-green/5 rounded-lg">
+                <Check className="h-4 w-4 text-trading-green shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Maintain clear space</p>
+                  <p className="text-xs text-muted-foreground">Keep minimum padding around logo (equal to logo height)</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-trading-green/5 rounded-lg">
+                <Check className="h-4 w-4 text-trading-green shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Use Logo component</p>
+                  <p className="text-xs text-muted-foreground">Import from @/components/Logo for consistency</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-trading-green/5 rounded-lg">
+                <Check className="h-4 w-4 text-trading-green shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Apply invert on light backgrounds</p>
+                  <p className="text-xs text-muted-foreground">Use className="invert" when needed</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="trading-card border-trading-red/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2 text-trading-red">
+                <X className="h-4 w-4" />
+                Don'ts
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start gap-3 p-3 bg-trading-red/5 rounded-lg">
+                <X className="h-4 w-4 text-trading-red shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Don't stretch or distort</p>
+                  <p className="text-xs text-muted-foreground">Maintain w-auto for proper aspect ratio</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-trading-red/5 rounded-lg">
+                <X className="h-4 w-4 text-trading-red shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Don't add effects</p>
+                  <p className="text-xs text-muted-foreground">No drop shadows, glows, or gradients on logo</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-trading-red/5 rounded-lg">
+                <X className="h-4 w-4 text-trading-red shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Don't use raw SVG</p>
+                  <p className="text-xs text-muted-foreground">Import the Logo component, not the raw asset</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-trading-red/5 rounded-lg">
+                <X className="h-4 w-4 text-trading-red shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Don't change colors</p>
+                  <p className="text-xs text-muted-foreground">Only use invert filter, no color modifications</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Context Usage Table */}
+        <Card className="trading-card mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Usage by Context</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-muted-foreground font-medium">Context</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Size</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Notes</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  <tr>
+                    <td className="py-2">MobileHome, EventsPage headers</td>
+                    <td className="py-2 font-mono text-primary">md</td>
+                    <td className="py-2 text-muted-foreground">Left-aligned, no back button</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2">Trade pages (TradeOrder, TradingCharts)</td>
+                    <td className="py-2 font-mono text-muted-foreground">—</td>
+                    <td className="py-2 text-muted-foreground">Logo hidden, show back button only</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2">Detail pages with back button</td>
+                    <td className="py-2 font-mono text-primary">md</td>
+                    <td className="py-2 text-muted-foreground">Back + Logo together</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2">Desktop navigation</td>
+                    <td className="py-2 font-mono text-primary">lg</td>
+                    <td className="py-2 text-muted-foreground">Left side of top nav</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2">Marketing/Landing pages</td>
+                    <td className="py-2 font-mono text-primary">xl</td>
+                    <td className="py-2 text-muted-foreground">Hero sections, footers</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
+      {/* =========================== */}
+      {/* MOBILE HEADER DESIGN SPECS  */}
+      {/* =========================== */}
+      <SectionWrapper
+        id="mobile-header-specs"
+        title="Mobile Header Design Specification"
+        platform="mobile"
+        description="Comprehensive rules for mobile header layout and behavior"
+      >
+        {/* Page Type Classification */}
+        <Card className="trading-card mb-6 border-primary/30">
+          <CardHeader>
+            <CardTitle className="text-lg">Page Type Classification</CardTitle>
+            <CardDescription>Different page types have different header requirements</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              {/* Functional Pages */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-trading-blue" />
+                  <h4 className="font-medium">Functional Pages</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Core app navigation pages accessed via BottomNav. Never show back button.
+                </p>
+                <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/</span>
+                    <span>Home (MobileHome)</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/events</span>
+                    <span>Events List</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/leaderboard</span>
+                    <span>Leaderboard</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/trade</span>
+                    <span>Trade Hub</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/portfolio</span>
+                    <span>Portfolio</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Operational Pages */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-trading-purple" />
+                  <h4 className="font-medium">Operational Pages</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Detail/action pages accessed via links. Show back button when navigated via PUSH.
+                </p>
+                <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/trade/:id</span>
+                    <span>Trade Order</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/wallet</span>
+                    <span>Wallet</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/deposit</span>
+                    <span>Deposit</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/settings</span>
+                    <span>Settings</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/resolved/:id</span>
+                    <span>Resolved Event</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Header Rules Table */}
+        <Card className="trading-card mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Header Component Rules</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-muted-foreground font-medium">Element</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Rule</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Implementation</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  <tr>
+                    <td className="py-2 font-medium flex items-center gap-2">
+                      <ChevronLeft className="h-3 w-3" /> Back Button
+                    </td>
+                    <td className="py-2 text-muted-foreground">
+                      Auto-detect via navigationType. Never on BottomNav pages.
+                    </td>
+                    <td className="py-2">
+                      <code className="text-primary text-[10px]">showBack</code> prop or auto
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium flex items-center gap-2">
+                      <Logo size="sm" /> Logo
+                    </td>
+                    <td className="py-2 text-muted-foreground">
+                      Show everywhere EXCEPT Trade pages. Left-aligned.
+                    </td>
+                    <td className="py-2">
+                      <code className="text-primary text-[10px]">showLogo=&#123;true&#125;</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Title</td>
+                    <td className="py-2 text-muted-foreground">
+                      Centered. Max 2 lines with line-clamp-2. 14px semibold.
+                    </td>
+                    <td className="py-2">
+                      <code className="text-primary text-[10px]">title</code> prop
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium flex items-center gap-2">
+                      <Heart className="h-3 w-3" />
+                      <Share2 className="h-3 w-3" />
+                      Actions
+                    </td>
+                    <td className="py-2 text-muted-foreground">
+                      Favorite + Share. 36x36 touch targets. Ghost style.
+                    </td>
+                    <td className="py-2">
+                      <code className="text-primary text-[10px]">showActions=&#123;true&#125;</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">rightContent</td>
+                    <td className="py-2 text-muted-foreground">
+                      Custom slot overrides showActions. Any ReactNode.
+                    </td>
+                    <td className="py-2">
+                      <code className="text-primary text-[10px]">rightContent=&#123;...&#125;</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Stats Row</td>
+                    <td className="py-2 text-muted-foreground">
+                      Shows when endTime/currentPrice/tweetCount provided.
+                    </td>
+                    <td className="py-2">
+                      <code className="text-primary text-[10px]">endTime, currentPrice</code>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Visual Examples */}
+        <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+          {/* Home Page Header */}
+          <Card className="trading-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Home Page Header</CardTitle>
+              <CardDescription className="text-[10px]">Logo only, no back, no actions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-background rounded-lg border border-border overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+                  <Logo size="md" />
+                  <div className="w-9" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Trade Page Header */}
+          <Card className="trading-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Trade Page Header</CardTitle>
+              <CardDescription className="text-[10px]">Back button, title, actions, stats row</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-background rounded-lg border border-border overflow-hidden">
+                <div className="px-4 py-2 border-b border-border">
+                  <div className="flex items-center justify-between">
+                    <button className="h-9 w-9 flex items-center justify-center">
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <h1 className="text-sm font-semibold text-center flex-1">BTC to $100k?</h1>
+                    <div className="flex items-center gap-1">
+                      <button className="h-9 w-9 flex items-center justify-center">
+                        <Heart className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                      </button>
+                      <button className="h-9 w-9 flex items-center justify-center">
+                        <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  </div>
+                  {/* Stats row */}
+                  <div className="flex items-center justify-center gap-4 mt-1.5 pt-1.5 border-t border-border/30">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
+                      <span className="text-[10px] text-muted-foreground">Ends in</span>
+                      <span className="text-[10px] text-trading-red font-mono">23:45:12</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 bg-trading-green rounded-full" />
+                      <span className="text-[10px] text-muted-foreground">Price</span>
+                      <span className="text-[10px] text-trading-green font-mono">$94,532</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Detail Page Header */}
+          <Card className="trading-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Detail Page Header</CardTitle>
+              <CardDescription className="text-[10px]">Back + Logo combined</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-background rounded-lg border border-border overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <button className="h-9 w-9 flex items-center justify-center">
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <Logo size="md" />
+                  </div>
+                  <h1 className="text-sm font-semibold flex-1 text-center">Event Details</h1>
+                  <div className="w-9" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* With Custom rightContent */}
+          <Card className="trading-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Custom rightContent</CardTitle>
+              <CardDescription className="text-[10px]">Using rightContent prop for custom buttons</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-background rounded-lg border border-border overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+                  <Logo size="md" />
+                  <h1 className="text-sm font-semibold flex-1 text-center">Settings</h1>
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <CodePreview 
+          code={`// Page type determines header configuration:
+
+// 1. Functional Pages (BottomNav entries) - Never show back
+<MobileHeader showLogo showBack={false} />
+
+// 2. Trade Pages - No logo, show back, with stats
+<MobileHeader 
+  showLogo={false}
+  title="Will BTC reach $100k?"
+  showActions
+  endTime={eventEndTime}
+  currentPrice="$94,532"
+/>
+
+// 3. Detail Pages - Back + Logo together
+<MobileHeader 
+  showLogo
+  title="Event Details"
+  showActions
+/>
+
+// 4. Custom rightContent
+<MobileHeader 
+  title="Settings"
+  rightContent={<Button variant="ghost">Save</Button>}
+/>`}
+          collapsible
+          defaultExpanded={false}
+        />
+      </SectionWrapper>
+
+      {/* =========================== */}
+      {/* DESKTOP NAVIGATION SPECS    */}
+      {/* =========================== */}
+      <SectionWrapper
+        id="desktop-nav-specs"
+        title="Desktop Navigation Specification"
+        platform="desktop"
+        description="Layout and component rules for desktop trading interface headers"
+      >
+        <Card className="trading-card mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Monitor className="h-4 w-4" />
+              Desktop Header Components
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Desktop Header Preview */}
+            <div className="bg-background rounded-lg border border-border overflow-hidden mb-6">
+              <div className="flex items-center gap-6 px-4 py-2 border-b border-border/30">
+                {/* Symbol */}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-trading-yellow flex items-center justify-center">
+                    <span className="text-background font-bold text-sm">₿</span>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">BTCUSDT</div>
+                    <span className="text-[10px] text-muted-foreground">Perpetual</span>
+                  </div>
+                </div>
+                {/* Price */}
+                <div>
+                  <div className="text-lg font-bold font-mono text-trading-green">88,131.30</div>
+                  <div className="text-[10px] text-muted-foreground font-mono">Mark: 88,132.18</div>
+                </div>
+                {/* Stats */}
+                <div className="flex items-center gap-4 text-[10px]">
+                  <div>
+                    <div className="text-muted-foreground">24H Change</div>
+                    <div className="font-mono text-trading-green">+1.22%</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">24H High</div>
+                    <div className="font-mono">89,483.50</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">24H Low</div>
+                    <div className="font-mono">84,408.10</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Component specs */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-muted-foreground font-medium">Component</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Typography</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Style</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  <tr>
+                    <td className="py-2 font-medium">Symbol Badge</td>
+                    <td className="py-2 font-mono">font-bold</td>
+                    <td className="py-2 text-muted-foreground">32px circle, category color, white text</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Current Price</td>
+                    <td className="py-2 font-mono">text-xl font-bold font-mono</td>
+                    <td className="py-2 text-muted-foreground">Green/Red based on direction</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Mark/Index Price</td>
+                    <td className="py-2 font-mono">text-xs font-mono</td>
+                    <td className="py-2 text-muted-foreground">text-muted-foreground</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Stats Labels</td>
+                    <td className="py-2 font-mono">text-xs</td>
+                    <td className="py-2 text-muted-foreground">text-muted-foreground, uppercase optional</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Stats Values</td>
+                    <td className="py-2 font-mono">text-xs font-mono</td>
+                    <td className="py-2 text-muted-foreground">Color-coded when applicable</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <CodePreview 
+              code={`import { DesktopHeader } from "@/components/DesktopHeader";
+
+<DesktopHeader
+  symbol="BTCUSDT"
+  price="88,131.30"
+  markPrice="88,132.18"
+  change24h="+1,065.30"
+  changePercent="+1.22%"
+  high24h="89,483.50"
+  low24h="84,408.10"
+  volume24h="11,641,546,452.24"
+  isPositive
+/>`}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Mobile vs Desktop Comparison */}
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Mobile vs Desktop Differences</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-muted-foreground font-medium">Aspect</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">
+                      <div className="flex items-center gap-1">
+                        <Smartphone className="h-3 w-3" /> Mobile
+                      </div>
+                    </th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">
+                      <div className="flex items-center gap-1">
+                        <Monitor className="h-3 w-3" /> Desktop
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  <tr>
+                    <td className="py-2 font-medium">Logo</td>
+                    <td className="py-2">size="md" (h-5)</td>
+                    <td className="py-2">size="lg" (h-6)</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Navigation</td>
+                    <td className="py-2">BottomNav fixed</td>
+                    <td className="py-2">Top nav or sidebar</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Stats Display</td>
+                    <td className="py-2">Compact, expandable via Popover</td>
+                    <td className="py-2">Always visible inline</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Back Button</td>
+                    <td className="py-2">Context-aware auto-detection</td>
+                    <td className="py-2">Usually not needed (breadcrumbs)</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium">Actions</td>
+                    <td className="py-2">Icon buttons (Heart, Share2)</td>
+                    <td className="py-2">Text buttons or dropdowns</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
+      {/* =========================== */}
+      {/* MOBILE HEADER PLAYGROUND    */}
+      {/* =========================== */}
       <SectionWrapper
         id="mobile-header"
-        title="Mobile Header"
+        title="Mobile Header Playground"
         platform="mobile"
-        description="Configurable header component for mobile trading screens"
+        description="Interactive configuration for all header variants"
       >
         {/* Props Documentation */}
         <Card className="trading-card border-primary/30 mb-6">
