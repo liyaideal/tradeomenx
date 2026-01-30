@@ -694,6 +694,77 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
               />
             </CardContent>
           </Card>
+
+          {/* Web3 Gradient Border Card */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Web3 Gradient Border Card</CardTitle>
+              <CardDescription>Premium card style with animated gradient border</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                {/* Static Gradient Border */}
+                <div>
+                  <p className="text-sm text-muted-foreground mb-3">Static Gradient</p>
+                  <div className="relative p-[1px] rounded-xl bg-gradient-to-r from-trading-purple via-primary to-trading-green overflow-hidden">
+                    <div className="bg-card rounded-xl p-4">
+                      <p className="text-sm font-medium">Premium Card</p>
+                      <p className="text-xs text-muted-foreground mt-1">With gradient border effect</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Animated Gradient Border */}
+                <div>
+                  <p className="text-sm text-muted-foreground mb-3">Hover Glow Effect</p>
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-trading-purple via-primary to-trading-green rounded-xl opacity-50 blur-sm group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative bg-card rounded-xl p-4 border border-border/50">
+                      <p className="text-sm font-medium">Glow Card</p>
+                      <p className="text-xs text-muted-foreground mt-1">Hover to see glow effect</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Multi-color variants */}
+                <div>
+                  <p className="text-sm text-muted-foreground mb-3">Success Variant</p>
+                  <div className="relative p-[1px] rounded-xl bg-gradient-to-r from-trading-green/80 to-trading-green/40 overflow-hidden">
+                    <div className="bg-card rounded-xl p-4">
+                      <p className="text-sm font-medium text-trading-green">Connected</p>
+                      <p className="text-xs text-muted-foreground mt-1">Wallet connected successfully</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm text-muted-foreground mb-3">Warning Variant</p>
+                  <div className="relative p-[1px] rounded-xl bg-gradient-to-r from-trading-yellow/80 to-trading-red/60 overflow-hidden">
+                    <div className="bg-card rounded-xl p-4">
+                      <p className="text-sm font-medium text-trading-yellow">High Risk</p>
+                      <p className="text-xs text-muted-foreground mt-1">Position at risk level</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <CodePreview 
+                code={`// Static gradient border
+<div className="relative p-[1px] rounded-xl bg-gradient-to-r from-trading-purple via-primary to-trading-green overflow-hidden">
+  <div className="bg-card rounded-xl p-4">
+    Content here
+  </div>
+</div>
+
+// Hover glow effect
+<div className="relative group">
+  <div className="absolute -inset-0.5 bg-gradient-to-r from-trading-purple to-trading-green rounded-xl opacity-50 blur-sm group-hover:opacity-100 transition-opacity" />
+  <div className="relative bg-card rounded-xl p-4 border border-border/50">
+    Content here
+  </div>
+</div>`}
+              />
+            </CardContent>
+          </Card>
         </div>
       </SectionWrapper>
     </div>
