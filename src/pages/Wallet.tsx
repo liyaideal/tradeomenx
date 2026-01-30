@@ -249,7 +249,7 @@ export default function Wallet() {
           <Button 
             variant="outline"
             className="flex-1 border-border/50 hover:bg-muted/50 rounded-xl h-12"
-            onClick={() => toast.info("Withdraw feature coming soon")}
+            onClick={() => navigate('/withdraw')}
           >
             <ArrowUpRight className="w-4 h-4 mr-2" />
             Withdraw
