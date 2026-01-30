@@ -156,11 +156,6 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-muted-foreground" />
           <h2 className="text-lg font-semibold">Transaction History</h2>
-          {/* Live indicator */}
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-trading-green/10 border border-trading-green/20">
-            <Radio className="w-3 h-3 text-trading-green animate-pulse" />
-            <span className="text-xs text-trading-green font-medium">Live</span>
-          </div>
         </div>
         
         <DropdownMenu>
