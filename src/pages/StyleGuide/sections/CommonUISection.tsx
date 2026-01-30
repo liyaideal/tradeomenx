@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -8,10 +8,9 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, TrendingDown, Bell, Zap, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
@@ -40,7 +39,6 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
 
   // Switch Playground
   const [switchChecked, setSwitchChecked] = useState(false);
-  const [switchLabel, setSwitchLabel] = useState("Enable feature");
 
   // Slider Playground
   const [sliderValue, setSliderValue] = useState([50]);
@@ -102,7 +100,7 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-xs">Variant</Label>
-                    <Select value={buttonVariant} onValueChange={(v) => setButtonVariant(v as any)}>
+                    <Select value={buttonVariant} onValueChange={(v) => setButtonVariant(v as typeof buttonVariant)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {["default", "secondary", "destructive", "outline", "ghost", "link"].map(v => (
@@ -113,7 +111,7 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs">Size</Label>
-                    <Select value={buttonSize} onValueChange={(v) => setButtonSize(v as any)}>
+                    <Select value={buttonSize} onValueChange={(v) => setButtonSize(v as typeof buttonSize)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {["default", "sm", "lg", "icon"].map(v => (
@@ -167,7 +165,7 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs">Variant</Label>
-                  <Select value={badgeVariant} onValueChange={(v) => setBadgeVariant(v as any)}>
+                  <Select value={badgeVariant} onValueChange={(v) => setBadgeVariant(v as typeof badgeVariant)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {["default", "secondary", "destructive", "outline"].map(v => (
@@ -209,9 +207,15 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <Input placeholder={inputPlaceholder} disabled={inputDisabled} />
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Disabled</Label>
-                <Switch checked={inputDisabled} onCheckedChange={setInputDisabled} />
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label className="text-xs">Placeholder</Label>
+                  <Input value={inputPlaceholder} onChange={(e) => setInputPlaceholder(e.target.value)} className="text-sm" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Disabled</Label>
+                  <Switch checked={inputDisabled} onCheckedChange={setInputDisabled} />
+                </div>
               </div>
               <CodePreview code={`<Input placeholder="${inputPlaceholder}"${inputDisabled ? " disabled" : ""} />`} />
             </CardContent>
@@ -223,9 +227,11 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
               <CardTitle className="text-lg">Switch</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Switch checked={switchChecked} onCheckedChange={setSwitchChecked} />
-                <Label>{switchLabel}</Label>
+              <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center">
+                <div className="flex items-center gap-3">
+                  <Switch checked={switchChecked} onCheckedChange={setSwitchChecked} />
+                  <Label>{switchChecked ? "Enabled" : "Disabled"}</Label>
+                </div>
               </div>
               <CodePreview code={`<Switch checked={${switchChecked}} onCheckedChange={setChecked} />`} />
             </CardContent>
@@ -240,7 +246,7 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>0</span>
-                  <span className="font-mono">{sliderValue[0]}</span>
+                  <span className="font-mono text-foreground">{sliderValue[0]}</span>
                   <span>100</span>
                 </div>
                 <Slider value={sliderValue} onValueChange={setSliderValue} max={100} step={1} />
@@ -255,7 +261,11 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
               <CardTitle className="text-lg">Progress</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Progress</span>
+                  <span className="font-mono">{progressValue}%</span>
+                </div>
                 <Progress value={progressValue} className="h-2" />
                 <Slider value={[progressValue]} onValueChange={([v]) => setProgressValue(v)} max={100} />
               </div>
