@@ -4,4 +4,7 @@ export { DepositDetails } from './DepositDetails';
 export { DepositDialog } from './DepositDialog';
 export { FullAddressSheet } from './FullAddressSheet';
 export { FullAddressDialog } from './FullAddressDialog';
+export { SharePosterContent } from './SharePosterContent';
+export { SharePosterDialog } from './SharePosterDialog';
+export { SharePosterSheet } from './SharePosterSheet';
 export { AssetSelect } from '../shared/AssetSelect';
