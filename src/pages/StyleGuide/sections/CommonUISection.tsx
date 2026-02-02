@@ -12,10 +12,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy, Star } from "lucide-react";
+import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy, Star, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
-import { SectionWrapper } from "../components/SectionWrapper";
+import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { TradingHeaderPlayground } from "../components/TradingHeaderPlayground";
 
@@ -991,6 +991,179 @@ toast.dismiss();`}
             </CardContent>
           </Card>
         </div>
+      </SectionWrapper>
+
+      {/* Toast & Notifications */}
+      <SectionWrapper
+        id="toast-notifications"
+        title="Toast & Notifications"
+        platform="shared"
+        description="Non-blocking notifications using Sonner library"
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Toast Types</CardTitle>
+            <CardDescription>Click buttons to trigger different toast notifications</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              {/* Toast Triggers */}
+              <div className="space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-3"
+                  onClick={() => toast.success("Operation completed successfully")}
+                >
+                  <span className="w-3 h-3 rounded-full bg-trading-green" />
+                  Success Toast
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-3"
+                  onClick={() => toast.error("Something went wrong")}
+                >
+                  <span className="w-3 h-3 rounded-full bg-trading-red" />
+                  Error Toast
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-3"
+                  onClick={() => toast.warning("Please review your input")}
+                >
+                  <span className="w-3 h-3 rounded-full bg-trading-yellow" />
+                  Warning Toast
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-3"
+                  onClick={() => toast.info("Here's some information")}
+                >
+                  <span className="w-3 h-3 rounded-full bg-primary" />
+                  Info Toast
+                </Button>
+              </div>
+
+              {/* Code Example */}
+              <div className="bg-muted/30 rounded-xl p-4">
+                <p className="text-sm font-medium mb-3">Usage</p>
+                <code className="text-xs text-muted-foreground block whitespace-pre-wrap font-mono">
+{`import { toast } from "sonner";
+
+// Success - 操作成功
+toast.success("Saved successfully");
+
+// Error - 操作失败
+toast.error("Failed to save");
+
+// Warning - 警告提示
+toast.warning("Check your input");
+
+// Info - 一般信息
+toast.info("New update available");`}
+                </code>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Toast with Actions */}
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Toast with Actions</CardTitle>
+            <CardDescription>Advanced toast patterns with actions and promise states</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              <div className="space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => toast("Item deleted", {
+                    action: {
+                      label: "Undo",
+                      onClick: () => toast.success("Restored!")
+                    }
+                  })}
+                >
+                  Toast with Undo Action
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => toast.promise(
+                    new Promise((resolve) => setTimeout(resolve, 2000)),
+                    {
+                      loading: "Loading...",
+                      success: "Data loaded!",
+                      error: "Failed to load"
+                    }
+                  )}
+                >
+                  Promise Toast (Loading State)
+                </Button>
+              </div>
+              <div className="bg-muted/30 rounded-xl p-4">
+                <p className="text-sm font-medium mb-3">With Action</p>
+                <code className="text-xs text-muted-foreground block whitespace-pre-wrap font-mono">
+{`// With action button
+toast("Item deleted", {
+  action: {
+    label: "Undo",
+    onClick: () => restore()
+  }
+});
+
+// Promise pattern
+toast.promise(asyncFn(), {
+  loading: "Loading...",
+  success: "Done!",
+  error: "Failed"
+});`}
+                </code>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Usage Guidelines */}
+        <SubSection title="Usage Guidelines" description="When to use toasts vs other feedback patterns">
+          <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+            <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle2 className="h-4 w-4 text-trading-green" />
+                <p className="text-sm font-medium text-trading-green">When to Use Toast</p>
+              </div>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>Operation success feedback (save, delete, update)</li>
+                <li>Non-blocking error notifications</li>
+                <li>Brief status updates</li>
+                <li>Confirmations for undoable actions</li>
+              </ul>
+            </div>
+            <div className="bg-trading-red/10 border border-trading-red/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <XCircle className="h-4 w-4 text-trading-red" />
+                <p className="text-sm font-medium text-trading-red">When NOT to Use Toast</p>
+              </div>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>Critical confirmations requiring user action (use Dialog)</li>
+                <li>Form validation errors (use inline errors)</li>
+                <li>Persistent information (use Alert component)</li>
+                <li>Complex multi-step feedback</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-muted/30 rounded-xl p-4 mt-4">
+            <p className="text-sm font-medium mb-2">Message Guidelines</p>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>• Keep messages short and clear (one line max)</li>
+              <li>• Start with action verbs describing the result</li>
+              <li>• Success examples: "Saved", "Updated", "Deleted"</li>
+              <li>• Error examples: "Failed to save", "Unable to connect"</li>
+            </ul>
+          </div>
+        </SubSection>
       </SectionWrapper>
 
       {/* Desktop Navigation Specification */}
