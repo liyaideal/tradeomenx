@@ -131,7 +131,7 @@ export const ShareModal = ({
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="relative bg-card border border-border rounded-2xl p-5 w-full max-w-sm max-h-[calc(100vh-6rem)] md:max-h-[90vh] overflow-y-auto animate-scale-in">
+      <div className="relative bg-card border border-border rounded-2xl p-5 w-full max-w-[440px] max-h-[calc(100vh-6rem)] md:max-h-[90vh] overflow-y-auto animate-scale-in">
         {/* Close button */}
         <button 
           onClick={onClose}
@@ -143,9 +143,17 @@ export const ShareModal = ({
         <h3 className="text-lg font-bold text-foreground mb-1">{title}</h3>
         <p className="text-sm text-muted-foreground mb-4">{subtitle}</p>
 
-        {/* Card Preview */}
-        <div className="relative mb-4">
-          <div ref={cardRef}>
+        {/* Card Preview - scales down on smaller screens */}
+        <div className="relative mb-4 overflow-hidden rounded-2xl">
+          <div 
+            ref={cardRef}
+            className="origin-top-left"
+            style={{
+              transform: 'scale(var(--poster-scale, 1))',
+              // CSS custom property set by container query would be ideal, 
+              // but for now we use a fixed scale that works on mobile
+            }}
+          >
             {children}
           </div>
           {isGenerating && (
