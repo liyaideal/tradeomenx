@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
+import { AnimationsSection } from "./AnimationsSection";
 import omenxLogo from "@/assets/omenx-logo.svg";
 
 interface DesignTokensSectionProps {
@@ -438,104 +439,7 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
       </SectionWrapper>
 
       {/* Animations */}
-      <SectionWrapper 
-        id="animations" 
-        title="Animations" 
-        platform="shared"
-        description="CSS keyframe animations defined in tailwind.config.ts"
-      >
-        <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-          {/* Fade Animations */}
-          <Card className="trading-card">
-            <CardHeader>
-              <CardTitle className="text-lg">Fade Animations</CardTitle>
-              <CardDescription>Smooth opacity + transform transitions</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-muted/30 rounded-lg text-center">
-                  <div className="w-12 h-12 bg-primary rounded-lg mx-auto mb-2 animate-fade-in" />
-                  <code className="text-xs">animate-fade-in</code>
-                </div>
-                <div className="p-4 bg-muted/30 rounded-lg text-center">
-                  <div className="w-12 h-12 bg-primary rounded-lg mx-auto mb-2 animate-[fade-in_0.3s_ease-out_infinite_alternate]" />
-                  <code className="text-xs">fade-in loop</code>
-                </div>
-              </div>
-              <CodePreview 
-                code={`// Fade in with upward motion
-<div className="animate-fade-in">Content</div>
-
-// Custom duration
-<div className="animate-[fade-in_0.5s_ease-out]">Content</div>`}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Scale Animations */}
-          <Card className="trading-card">
-            <CardHeader>
-              <CardTitle className="text-lg">Scale Animations</CardTitle>
-              <CardDescription>Scale + opacity for emphasis</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-muted/30 rounded-lg text-center">
-                  <div className="w-12 h-12 bg-trading-purple rounded-lg mx-auto mb-2 animate-scale-in" />
-                  <code className="text-xs">animate-scale-in</code>
-                </div>
-                <div className="p-4 bg-muted/30 rounded-lg text-center">
-                  <div className="w-12 h-12 bg-trading-purple rounded-lg mx-auto mb-2 animate-[scale-in_0.2s_ease-out_infinite_alternate]" />
-                  <code className="text-xs">scale-in loop</code>
-                </div>
-              </div>
-              <CodePreview 
-                code={`<div className="animate-scale-in">Modal</div>
-<div className="animate-enter">Combined fade+scale</div>`}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Slide Animations */}
-          <Card className="trading-card">
-            <CardHeader>
-              <CardTitle className="text-lg">Slide Animations</CardTitle>
-              <CardDescription>For sidebars, drawers, sheets</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 bg-muted/30 rounded-lg overflow-hidden">
-                <div className="w-16 h-16 bg-trading-green rounded-lg animate-[slide-in-right_0.5s_ease-out_infinite_alternate]" />
-              </div>
-              <CodePreview 
-                code={`<Sheet>
-  <SheetContent className="animate-slide-in-right">
-    Sidebar content
-  </SheetContent>
-</Sheet>`}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Accordion Animations */}
-          <Card className="trading-card">
-            <CardHeader>
-              <CardTitle className="text-lg">Accordion Animations</CardTitle>
-              <CardDescription>Height + opacity for expandable content</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-xs text-muted-foreground">
-                Used automatically by Radix Accordion component
-              </div>
-              <CodePreview 
-                code={`// Applied automatically by shadcn Accordion
-<AccordionContent>
-  Animates with accordion-down/up
-</AccordionContent>`}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </SectionWrapper>
+      <AnimationsSection isMobile={isMobile} />
 
       {/* Custom CSS Classes */}
       <SectionWrapper 
