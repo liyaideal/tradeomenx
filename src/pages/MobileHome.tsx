@@ -201,7 +201,7 @@ const MobileHome = () => {
         {user ? (
           <UserStatsCard 
             username={username}
-            balance={profile?.trial_balance}
+            balance={profile?.balance}
             weeklyPnL={weeklyPnL}
             weeklyPnLPercent={weeklyPnLPercent}
           />

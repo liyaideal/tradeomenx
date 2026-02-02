@@ -40,7 +40,7 @@ export interface Profile {
   username: string | null;
   email: string | null;
   avatar_url: string | null;
-  trial_balance: number | null;
+  balance: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -244,7 +244,7 @@ export const useUserProfile = () => {
 
   const updateBalance = async (newBalance: number) => {
     try {
-      await updateMutation.mutateAsync({ trial_balance: newBalance });
+      await updateMutation.mutateAsync({ balance: newBalance });
       return true;
     } catch (error) {
       return false;
@@ -252,14 +252,14 @@ export const useUserProfile = () => {
   };
 
   const deductBalance = async (amount: number) => {
-    const currentBalance = profile?.trial_balance ?? 0;
+    const currentBalance = profile?.balance ?? 0;
     const newBalance = currentBalance - amount;
     if (newBalance < 0) return false;
     return updateBalance(newBalance);
   };
 
   const addBalance = async (amount: number) => {
-    const currentBalance = profile?.trial_balance ?? 0;
+    const currentBalance = profile?.balance ?? 0;
     const newBalance = currentBalance + amount;
     return updateBalance(newBalance);
   };
@@ -275,7 +275,7 @@ export const useUserProfile = () => {
     error,
     
     // Computed values for convenience
-    balance: profile?.trial_balance ?? 0,
+    balance: profile?.balance ?? 0,
     username: profile?.username ?? null,
     avatarUrl: profile?.avatar_url ?? null,
     email: profile?.email ?? null,

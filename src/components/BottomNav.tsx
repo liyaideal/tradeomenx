@@ -174,7 +174,7 @@ export const BottomNav = () => {
             <p className="text-sm font-medium text-foreground truncate">
               {username || "Trader"}
             </p>
-            <p className="text-xs text-muted-foreground truncate">{user?.email || profile?.email || "Trial Account"}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email || profile?.email || "Account"}</p>
           </div>
         </div>
 
@@ -191,7 +191,7 @@ export const BottomNav = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Wallet className="w-5 h-5 text-trading-green" />
-              <span className="text-sm text-muted-foreground">Trial Balance</span>
+              <span className="text-sm text-muted-foreground">Balance</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold text-trading-green font-mono">
