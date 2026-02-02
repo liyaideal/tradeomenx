@@ -194,7 +194,7 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
                   <Select value={badgeVariant} onValueChange={(v) => setBadgeVariant(v as typeof badgeVariant)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {["default", "secondary", "destructive", "outline"].map(v => (
+                      {["default", "secondary", "destructive", "outline", "success", "error", "warning", "info"].map(v => (
                         <SelectItem key={v} value={v}>{v}</SelectItem>
                       ))}
                     </SelectContent>
@@ -206,7 +206,7 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
           </CardContent>
         </Card>
 
-        {/* Trading Badges */}
+        {/* Trading Status Badges - All Variants */}
         <div className="mt-6">
           <h4 className="text-sm font-medium mb-3">Trading Status Badges</h4>
           <div className="flex flex-wrap gap-2">
@@ -215,6 +215,9 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
             <Badge variant="info">Active</Badge>
             <Badge variant="warning">Pending</Badge>
           </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            Use <code className="text-primary">success</code>, <code className="text-primary">error</code>, <code className="text-primary">warning</code>, <code className="text-primary">info</code> variants for trading-specific badges with matching hover states.
+          </p>
         </div>
       </SectionWrapper>
 
