@@ -498,30 +498,107 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
           {/* Trading Card Style */}
           <Card className="trading-card">
             <CardHeader>
-              <CardTitle className="text-lg">Trading Card</CardTitle>
-              <CardDescription>Gradient background with proper borders</CardDescription>
+              <CardTitle className="text-lg">Trading Card 样式对比</CardTitle>
+              <CardDescription>渐变背景 + 边框效果 + 悬停动画（鼠标悬停查看效果）</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Default Card</p>
-                  <Card className="p-4">
-                    <p className="text-sm">Standard card styling</p>
+              <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                {/* Default Card */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">Default Card</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">基础样式</span>
+                  </div>
+                  <Card className="p-6 transition-all duration-200 cursor-pointer">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                          <span className="text-lg">📊</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Standard Card</p>
+                          <p className="text-xs text-muted-foreground">纯色背景，基础边框</p>
+                        </div>
+                      </div>
+                      <div className="h-px bg-border" />
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">背景</span>
+                        <span className="font-mono">bg-card (solid)</span>
+                      </div>
+                    </div>
                   </Card>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Trading Card</p>
-                  <Card className="trading-card p-4">
-                    <p className="text-sm">Enhanced trading card</p>
+                
+                {/* Trading Card */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-primary">Trading Card</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">推荐</span>
+                  </div>
+                  <Card className="trading-card p-6 cursor-pointer">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                          <span className="text-lg">✨</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Enhanced Card</p>
+                          <p className="text-xs text-muted-foreground">渐变背景，悬停效果</p>
+                        </div>
+                      </div>
+                      <div className="h-px bg-border/50" />
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">背景</span>
+                        <span className="font-mono text-primary">gradient-card</span>
+                      </div>
+                    </div>
                   </Card>
                 </div>
               </div>
+              
+              {/* Visual Difference Callout */}
+              <div className="mt-6 p-4 rounded-lg bg-muted/30 border border-border/50">
+                <p className="text-xs font-medium mb-2">🎨 主要区别</p>
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <span className="text-muted-foreground">Default:</span>
+                    <ul className="mt-1 space-y-0.5 text-muted-foreground">
+                      <li>• 纯色 bg-card 背景</li>
+                      <li>• 标准 border 边框</li>
+                      <li>• 无悬停效果</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <span className="text-primary">Trading:</span>
+                    <ul className="mt-1 space-y-0.5">
+                      <li className="text-primary">• 145° 渐变背景</li>
+                      <li className="text-primary">• 半透明边框 border/50</li>
+                      <li className="text-primary">• 悬停背景变亮</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
               <CodePreview 
-                code={`<Card className="trading-card">
-  <CardContent>
-    Trading-specific card with gradient
-  </CardContent>
-</Card>`}
+                code={`// 默认卡片
+<Card>
+  <CardContent>Standard styling</CardContent>
+</Card>
+
+// Trading 卡片（推荐用于交易界面）
+<Card className="trading-card">
+  <CardContent>Gradient + hover effects</CardContent>
+</Card>
+
+/* CSS 定义 (index.css) */
+.trading-card {
+  background: var(--gradient-card);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+.trading-card:hover {
+  background: var(--gradient-card-hover);
+  border-color: hsl(var(--border) / 0.7);
+}`}
               />
             </CardContent>
           </Card>
