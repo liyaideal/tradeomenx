@@ -36,6 +36,9 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
   const [headerShowTweetCount, setHeaderShowTweetCount] = useState(false);
   const [headerTweetCount, setHeaderTweetCount] = useState(1234);
   
+  // Expandable Row Pattern demo
+  const [expandableRowOpen, setExpandableRowOpen] = useState(false);
+  
   // Quick Presets for Header
   const applyHeaderPreset = (preset: string) => {
     switch (preset) {
@@ -893,32 +896,18 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                 to keep the default row compact. Desktop shows all details inline.
               </p>
               
-              {/* Visual example */}
+              {/* Interactive example */}
               <div className="bg-muted/30 rounded-xl p-3 space-y-2">
-                <div className="text-xs font-medium text-muted-foreground">Example: Transaction History</div>
-                
-                {/* Collapsed state */}
-                <div className="text-[10px] text-muted-foreground mt-2 mb-1">Collapsed (default)</div>
-                <div className="bg-card border border-border/50 rounded-lg p-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
-                      <span className="text-trading-green text-[10px]">↓</span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-medium truncate">USDT Deposit</span>
-                        <Loader2 className="w-3 h-3 text-trading-yellow animate-spin shrink-0" />
-                      </div>
-                      <span className="text-[10px] text-muted-foreground">02/02/2026</span>
-                    </div>
-                    <span className="text-xs font-semibold text-trading-green font-mono shrink-0">+$2.5k</span>
-                    <ChevronLeft className="w-3 h-3 text-muted-foreground rotate-[-90deg] shrink-0" />
-                  </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-medium text-muted-foreground">Interactive Demo</div>
+                  <Badge variant="outline" className="text-[10px]">Click to toggle</Badge>
                 </div>
                 
-                {/* Expanded state */}
-                <div className="text-[10px] text-muted-foreground mt-3 mb-1">Expanded (after tap)</div>
-                <div className="bg-card border border-primary/50 rounded-lg p-2.5">
+                {/* Interactive expandable row */}
+                <div 
+                  className="bg-card border border-border/50 rounded-lg p-2.5 cursor-pointer hover:bg-muted/30 transition-colors"
+                  onClick={() => setExpandableRowOpen(!expandableRowOpen)}
+                >
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
                       <span className="text-trading-green text-[10px]">↓</span>
@@ -931,31 +920,33 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                       <span className="text-[10px] text-muted-foreground">02/02/2026</span>
                     </div>
                     <span className="text-xs font-semibold text-trading-green font-mono shrink-0">+$2.5k</span>
-                    <ChevronLeft className="w-3 h-3 text-muted-foreground rotate-180 shrink-0" />
+                    <ChevronLeft className={`w-3 h-3 text-muted-foreground shrink-0 transition-transform duration-200 ${expandableRowOpen ? 'rotate-[90deg]' : 'rotate-[-90deg]'}`} />
                   </div>
-                  {/* Expanded details */}
-                  <div className="mt-2 pt-2 border-t border-border/30 ml-9 space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">Status</span>
-                      <span className="flex items-center gap-1 text-trading-yellow">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Processing
-                      </span>
+                  
+                  {/* Expanded details - animated */}
+                  {expandableRowOpen && (
+                    <div className="mt-2 pt-2 border-t border-border/30 ml-9 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">Status</span>
+                        <span className="flex items-center gap-1 text-trading-yellow">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Processing
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">Network</span>
+                        <span className="text-foreground">Ethereum</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">Transaction</span>
+                        <span className="text-primary font-mono text-[10px]">0x1a2b...3c4d ↗</span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">Network</span>
-                      <span className="text-foreground">Ethereum</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground">Transaction</span>
-                      <span className="text-primary font-mono text-[10px]">0x1a2b...3c4d ↗</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
                 
                 {/* Non-expandable row - no chevron */}
-                <div className="text-[10px] text-muted-foreground mt-3 mb-1">No details (no chevron)</div>
-                <div className="bg-card border border-border/50 rounded-lg p-2.5">
+                <div className="bg-card border border-border/50 rounded-lg p-2.5 opacity-60">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
                       <span className="text-trading-green text-[10px]">↗</span>
@@ -967,6 +958,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                     <span className="text-xs font-semibold text-trading-green font-mono shrink-0">+$320</span>
                   </div>
                 </div>
+                <p className="text-[10px] text-muted-foreground text-center">↑ No chevron (no extra details)</p>
               </div>
               
               {/* Logic explanation */}
