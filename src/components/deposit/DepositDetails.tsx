@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, MoreHorizontal, AlertTriangle, Loader2, RefreshCw, Eye } from 'lucide-react';
+import { Copy, Check, MoreHorizontal, AlertTriangle, Loader2, RefreshCw, Eye, Share2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDeposit } from '@/hooks/useDeposit';
 import { cn } from '@/lib/utils';
 import { FullAddressSheet } from './FullAddressSheet';
+import { ShareModal } from '@/components/ShareModal';
+import { SharePosterContent } from './SharePosterContent';
 
 interface DepositDetailsProps {
   token: TokenConfig;
@@ -25,6 +27,7 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
   const [copied, setCopied] = useState(false);
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [showFullAddress, setShowFullAddress] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const {
     pendingClaims,
@@ -134,6 +137,10 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => setShowShareModal(true)}>
+              <Share2 className="w-4 h-4 mr-2" />
+              Share address
+            </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={handleGenerateNewAddress}
               disabled={isGeneratingAddress}
@@ -156,6 +163,22 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
         address={custodyAddress}
         tokenSymbol={token.symbol}
       />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        title="Share Address"
+        subtitle="Share this deposit address with others"
+        shareText={`Deposit ${token.symbol} to my OMENX wallet on ${token.network}`}
+        shareUrl={`https://omenx.com/deposit?token=${token.symbol}`}
+        fileName={`omenx-deposit-${token.symbol.toLowerCase()}`}
+      >
+        <SharePosterContent 
+          address={custodyAddress} 
+          token={token}
+        />
+      </ShareModal>
 
       {/* Info Table */}
       <div className="space-y-4 pt-4">
