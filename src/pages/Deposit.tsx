@@ -63,9 +63,12 @@ export default function Deposit() {
           <h1 className="text-lg font-semibold">{title}</h1>
           
           <div className="flex items-center gap-2">
-            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <a
+              href="mailto:customerservice@omenx.com?subject=Deposit Support"
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
               <HelpCircle className="w-5 h-5" />
-            </button>
+            </a>
             <button
               onClick={handleClose}
               className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors"

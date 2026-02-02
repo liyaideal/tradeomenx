@@ -60,9 +60,12 @@ export const WithdrawDialog = ({ open, onOpenChange }: WithdrawDialogProps) => {
               <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
             </div>
             <div className="flex items-center gap-2">
-              <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50">
+              <a
+                href="mailto:customerservice@omenx.com?subject=Withdraw Support"
+                className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
+              >
                 <HelpCircle className="w-5 h-5" />
-              </button>
+              </a>
               <button
                 onClick={handleClose}
                 className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
