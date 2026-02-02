@@ -877,6 +877,138 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
             </CardContent>
           </Card>
         </div>
+
+        {/* Expandable Row Pattern */}
+        <Card className="trading-card mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Expandable Row Pattern</CardTitle>
+            <CardDescription>
+              Mobile-only pattern to prevent horizontal overflow by collapsing extra details
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                On mobile, list items with additional metadata (status, network, tx hash) use a "tap to expand" pattern 
+                to keep the default row compact. Desktop shows all details inline.
+              </p>
+              
+              {/* Visual example */}
+              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                <div className="text-xs font-medium text-muted-foreground mb-2">Example: Transaction History</div>
+                
+                {/* Expandable row */}
+                <div className="bg-card border border-border/50 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-trading-green/20 flex items-center justify-center">
+                        <span className="text-trading-green text-xs">↓</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">USDT Deposit</span>
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-trading-yellow border-trading-yellow/30">
+                            Processing
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground">02/02/2026</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-trading-green font-mono">+$2,500.00</span>
+                      <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-[-90deg]" />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Non-expandable row */}
+                <div className="bg-card border border-border/50 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-trading-green/20 flex items-center justify-center">
+                        <span className="text-trading-green text-xs">↗</span>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium">Trade Profit - Won</span>
+                        <div className="text-xs text-muted-foreground">01/02/2026</div>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-trading-green font-mono">+$320.00</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Logic explanation */}
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-3">
+                <h4 className="text-sm font-medium">Expand Logic</h4>
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-mono shrink-0">hasDetails =</span>
+                    <span className="text-muted-foreground">txHash || (status !== 'completed') || network</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-mono shrink-0">showExpandable =</span>
+                    <span className="text-muted-foreground">isMobile && hasDetails(tx)</span>
+                  </div>
+                </div>
+                <div className="border-t border-border/50 pt-3 mt-3">
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Shows chevron when:</strong> Mobile + has txHash, pending/processing status, or network info
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    <strong>No chevron when:</strong> Desktop (always inline) or row has no extra details
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <CodePreview 
+              code={`// Determine if row has expandable details
+const hasDetails = (tx: Transaction) => {
+  return tx.txHash || (tx.status && tx.status !== 'completed') || tx.network;
+};
+
+// Only show expand chevron on mobile with details
+const showExpandable = isMobile && hasDetails(tx);
+
+// Render
+<div 
+  className={cn(
+    "p-4 transition-colors",
+    showExpandable && "cursor-pointer hover:bg-muted/30"
+  )}
+  onClick={() => showExpandable && toggleExpand(tx.id)}
+>
+  {/* Main row content */}
+  <div className="flex items-center justify-between">
+    {/* ... */}
+    {showExpandable && (
+      <ChevronDown className={cn(
+        "w-4 h-4 text-muted-foreground transition-transform",
+        isExpanded && "rotate-180"
+      )} />
+    )}
+  </div>
+  
+  {/* Mobile: Expandable details */}
+  {isMobile && isExpanded && hasDetails(tx) && (
+    <div className="mt-3 pt-3 border-t border-border/30">
+      {/* Status, Network, TxHash */}
+    </div>
+  )}
+  
+  {/* Desktop: Always show details inline */}
+  {!isMobile && hasDetails(tx) && (
+    <div className="mt-2 text-xs text-muted-foreground">
+      {/* Status, TxHash link */}
+    </div>
+  )}
+</div>`}
+              collapsible
+              defaultExpanded={false}
+            />
+          </CardContent>
+        </Card>
       </SectionWrapper>
     </div>
   );
