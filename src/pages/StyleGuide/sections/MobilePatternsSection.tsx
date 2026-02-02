@@ -334,7 +334,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
               {/* Functional Pages */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-trading-blue" />
+                  <div className="w-3 h-3 rounded-full bg-primary" />
                   <h4 className="font-medium">Functional Pages</h4>
                 </div>
                 <p className="text-xs text-muted-foreground">
