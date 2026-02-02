@@ -344,6 +344,34 @@
 }
 
 @layer utilities {
+  /* ===== INTERACTIVE EFFECTS ===== */
+  .hover-scale {
+    @apply transition-transform duration-200;
+  }
+  .hover-scale:hover {
+    @apply scale-105;
+  }
+
+  .story-link {
+    @apply relative inline-block;
+  }
+  .story-link::after {
+    content: '';
+    @apply absolute w-full h-0.5 bottom-0 left-0 bg-primary origin-bottom-right transition-transform duration-300 scale-x-0;
+  }
+  .story-link:hover::after {
+    @apply origin-bottom-left scale-x-100;
+  }
+
+  .pulse {
+    animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-animation {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
