@@ -68,7 +68,7 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
   const [popoverAlign, setPopoverAlign] = useState<"start" | "center" | "end">("center");
 
   // Card Playground
-  const [cardStyle, setCardStyle] = useState<"default" | "trading">("default");
+  const [cardStyle, setCardStyle] = useState<"default" | "trading" | "stats" | "web3" | "web3-intense">("default");
 
   const resetPlayground = () => {
     setButtonVariant("default");
@@ -417,20 +417,33 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
         <Card className="trading-card">
           <CardHeader>
             <CardTitle className="text-lg">Card Playground</CardTitle>
-            <CardDescription>Toggle between default and trading card styles</CardDescription>
+            <CardDescription>Toggle between different card styles to see visual differences</CardDescription>
           </CardHeader>
           <CardContent>
             <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-              <div className="bg-muted/30 rounded-xl p-6 flex items-center justify-center min-h-[180px]">
-                <Card className={cardStyle === "trading" ? "trading-card w-full max-w-[280px]" : "w-full max-w-[280px]"}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Sample Card</CardTitle>
-                    <CardDescription className="text-xs">Card description text</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">Card content goes here</p>
-                  </CardContent>
-                </Card>
+              <div className="bg-muted/30 rounded-xl p-8 flex items-center justify-center min-h-[220px]">
+                {cardStyle === "web3" || cardStyle === "web3-intense" ? (
+                  <div className={`${cardStyle === "web3-intense" ? "web3-card web3-card-intense" : "web3-card"} w-full max-w-[280px] p-4`}>
+                    <div className="space-y-2">
+                      <h3 className="text-base font-semibold">Sample Card</h3>
+                      <p className="text-xs text-muted-foreground">Card description text</p>
+                      <p className="text-sm text-muted-foreground pt-2">Card content goes here</p>
+                    </div>
+                  </div>
+                ) : (
+                  <Card className={`w-full max-w-[280px] ${
+                    cardStyle === "trading" ? "trading-card" : 
+                    cardStyle === "stats" ? "stats-card" : ""
+                  }`}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Sample Card</CardTitle>
+                      <CardDescription className="text-xs">Card description text</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">Card content goes here</p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -440,55 +453,138 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
                     <SelectContent>
                       <SelectItem value="default">Default</SelectItem>
                       <SelectItem value="trading">Trading Card</SelectItem>
+                      <SelectItem value="stats">Stats Card</SelectItem>
+                      <SelectItem value="web3">Web3 Card</SelectItem>
+                      <SelectItem value="web3-intense">Web3 Intense</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="text-xs text-muted-foreground space-y-2">
-                  <p><strong>Default:</strong> Standard shadcn/ui card with subtle border</p>
-                  <p><strong>Trading:</strong> Enhanced card with gradient background and glow effects</p>
+                <div className="text-xs text-muted-foreground space-y-2 bg-muted/30 rounded-lg p-3">
+                  <p className={cardStyle === "default" ? "text-foreground font-medium" : ""}>
+                    <strong>Default:</strong> Standard shadcn/ui card with solid border
+                  </p>
+                  <p className={cardStyle === "trading" ? "text-foreground font-medium" : ""}>
+                    <strong>Trading:</strong> Gradient background with hover transition
+                  </p>
+                  <p className={cardStyle === "stats" ? "text-foreground font-medium" : ""}>
+                    <strong>Stats:</strong> Subtle gradient for dashboard metrics
+                  </p>
+                  <p className={cardStyle === "web3" ? "text-foreground font-medium" : ""}>
+                    <strong>Web3:</strong> Animated gradient border with outer glow
+                  </p>
+                  <p className={cardStyle === "web3-intense" ? "text-foreground font-medium" : ""}>
+                    <strong>Web3 Intense:</strong> High-contrast animated border effect
+                  </p>
                 </div>
               </div>
             </div>
             <CodePreview 
-              code={cardStyle === "trading" 
-                ? `<Card className="trading-card">
-  <CardHeader>
-    <CardTitle>Title</CardTitle>
-    <CardDescription>Description</CardDescription>
-  </CardHeader>
-  <CardContent>Content</CardContent>
-</Card>`
-                : `<Card>
-  <CardHeader>
-    <CardTitle>Title</CardTitle>
-    <CardDescription>Description</CardDescription>
-  </CardHeader>
-  <CardContent>Content</CardContent>
-</Card>`}
+              code={
+                cardStyle === "trading" 
+                  ? `<Card className="trading-card">...</Card>`
+                  : cardStyle === "stats"
+                  ? `<Card className="stats-card">...</Card>`
+                  : cardStyle === "web3"
+                  ? `<div className="web3-card p-4">...</div>`
+                  : cardStyle === "web3-intense"
+                  ? `<div className="web3-card web3-card-intense p-4">...</div>`
+                  : `<Card>...</Card>`
+              }
             />
           </CardContent>
         </Card>
 
-        {/* Card Examples Side by Side */}
-        <div className={`grid gap-6 mt-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Default Card</CardTitle>
-              <CardDescription className="text-xs">Standard border styling</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Use for general content containers</p>
-            </CardContent>
-          </Card>
-          <Card className="trading-card">
-            <CardHeader>
-              <CardTitle className="text-base">Trading Card</CardTitle>
-              <CardDescription className="text-xs">Enhanced gradient styling</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Use for trading-specific content</p>
-            </CardContent>
-          </Card>
+        {/* Card Examples - All Variants */}
+        <div className="mt-6">
+          <h4 className="text-sm font-medium mb-4">All Card Variants</h4>
+          <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3"}`}>
+            {/* Default Card */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Default Card</CardTitle>
+                <CardDescription className="text-xs">Standard solid border</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">General content containers</p>
+              </CardContent>
+            </Card>
+            
+            {/* Trading Card */}
+            <Card className="trading-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Trading Card</CardTitle>
+                <CardDescription className="text-xs">Gradient background</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Trading UI elements</p>
+              </CardContent>
+            </Card>
+            
+            {/* Stats Card */}
+            <Card className="stats-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Stats Card</CardTitle>
+                <CardDescription className="text-xs">Dashboard metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">KPIs and statistics</p>
+              </CardContent>
+            </Card>
+            
+            {/* Web3 Card */}
+            <div className="web3-card p-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold">Web3 Card</h3>
+                <p className="text-xs text-muted-foreground">Animated gradient border</p>
+                <p className="text-xs text-muted-foreground pt-2">Premium features & NFTs</p>
+              </div>
+            </div>
+            
+            {/* Web3 Intense Card */}
+            <div className="web3-card web3-card-intense p-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold">Web3 Intense</h3>
+                <p className="text-xs text-muted-foreground">High-contrast animated border</p>
+                <p className="text-xs text-muted-foreground pt-2">Featured & hero sections</p>
+              </div>
+            </div>
+            
+            {/* Glow Card Example */}
+            <Card className="trading-card glow-primary">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Glow Effect</CardTitle>
+                <CardDescription className="text-xs">Add .glow-primary class</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Highlight important content</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* CSS Classes Reference */}
+        <div className="mt-6">
+          <h4 className="text-sm font-medium mb-3">CSS Classes</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-2 text-muted-foreground font-medium">Class</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Effect</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Use Case</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                <tr><td className="py-2 font-mono">.trading-card</td><td className="py-2">Gradient BG, hover transition</td><td className="py-2 text-muted-foreground">Trading panels</td></tr>
+                <tr><td className="py-2 font-mono">.stats-card</td><td className="py-2">Subtle gradient, primary hover</td><td className="py-2 text-muted-foreground">Dashboard stats</td></tr>
+                <tr><td className="py-2 font-mono">.web3-card</td><td className="py-2">Animated gradient border + glow</td><td className="py-2 text-muted-foreground">Premium features</td></tr>
+                <tr><td className="py-2 font-mono">.web3-card-intense</td><td className="py-2">Stronger gradient animation</td><td className="py-2 text-muted-foreground">Hero sections</td></tr>
+                <tr><td className="py-2 font-mono">.glow-primary</td><td className="py-2">Purple shadow glow</td><td className="py-2 text-muted-foreground">Highlights</td></tr>
+                <tr><td className="py-2 font-mono">.glow-green</td><td className="py-2">Green shadow glow</td><td className="py-2 text-muted-foreground">Success states</td></tr>
+                <tr><td className="py-2 font-mono">.glow-red</td><td className="py-2">Red shadow glow</td><td className="py-2 text-muted-foreground">Warning states</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </SectionWrapper>
 
