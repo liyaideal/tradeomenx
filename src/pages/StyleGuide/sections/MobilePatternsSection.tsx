@@ -894,46 +894,38 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
               </p>
               
               {/* Visual example */}
-              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-                <div className="text-xs font-medium text-muted-foreground mb-2">Example: Transaction History</div>
+              <div className="bg-muted/30 rounded-xl p-3 space-y-2">
+                <div className="text-xs font-medium text-muted-foreground">Example: Transaction History</div>
                 
-                {/* Expandable row */}
-                <div className="bg-card border border-border/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-trading-green/20 flex items-center justify-center">
-                        <span className="text-trading-green text-xs">↓</span>
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">USDT Deposit</span>
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-trading-yellow border-trading-yellow/30">
-                            Processing
-                          </Badge>
-                        </div>
-                        <span className="text-xs text-muted-foreground">02/02/2026</span>
-                      </div>
+                {/* Expandable row - has chevron */}
+                <div className="bg-card border border-border/50 rounded-lg p-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
+                      <span className="text-trading-green text-[10px]">↓</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-trading-green font-mono">+$2,500.00</span>
-                      <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-[-90deg]" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-medium truncate">USDT Deposit</span>
+                        <span className="text-[9px] text-trading-yellow">⟳</span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">02/02/2026</span>
                     </div>
+                    <span className="text-xs font-semibold text-trading-green font-mono shrink-0">+$2.5k</span>
+                    <ChevronLeft className="w-3 h-3 text-muted-foreground rotate-[-90deg] shrink-0" />
                   </div>
                 </div>
                 
-                {/* Non-expandable row */}
-                <div className="bg-card border border-border/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-trading-green/20 flex items-center justify-center">
-                        <span className="text-trading-green text-xs">↗</span>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium">Trade Profit - Won</span>
-                        <div className="text-xs text-muted-foreground">01/02/2026</div>
-                      </div>
+                {/* Non-expandable row - no chevron */}
+                <div className="bg-card border border-border/50 rounded-lg p-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
+                      <span className="text-trading-green text-[10px]">↗</span>
                     </div>
-                    <span className="text-sm font-semibold text-trading-green font-mono">+$320.00</span>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-medium truncate block">Trade Profit</span>
+                      <span className="text-[10px] text-muted-foreground">01/02/2026</span>
+                    </div>
+                    <span className="text-xs font-semibold text-trading-green font-mono shrink-0">+$320</span>
                   </div>
                 </div>
               </div>
