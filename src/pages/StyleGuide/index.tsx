@@ -16,6 +16,7 @@ import {
   DesignTokensSection,
   TypographySection,
   CommonUISection,
+  FormsSection,
   TradingSection,
   WalletSection,
   MobilePatternsSection,
@@ -37,6 +38,7 @@ const StyleGuideIndex = () => {
     { id: "tokens", label: "Tokens", icon: "🎨" },
     { id: "typography", label: "Typography", icon: "🔤" },
     { id: "ui", label: "Common UI", icon: "🧩" },
+    { id: "forms", label: "Forms", icon: "📝" },
     { id: "trading", label: "Trading", icon: "💹" },
     { id: "wallet", label: "Wallet", icon: "💰" },
     { id: "mobile", label: "Mobile", icon: "📱" },
@@ -125,6 +127,10 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="ui" className="mt-0">
             <CommonUISection isMobile={isMobile} />
+          </TabsContent>
+
+          <TabsContent value="forms" className="mt-0">
+            <FormsSection isMobile={isMobile} />
           </TabsContent>
 
           <TabsContent value="trading" className="mt-0">
