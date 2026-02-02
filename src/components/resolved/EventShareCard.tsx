@@ -1,6 +1,6 @@
 import { Check, X, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { getCategoryInfo } from "@/lib/categoryUtils";
+import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { format } from "date-fns";
 import omenxLogo from "@/assets/omenx-logo.svg";
 
@@ -60,13 +60,12 @@ export const EventShareCard = ({
       {/* Category & Event Name */}
       <div className="relative mb-4">
         <Badge 
-          variant="outline" 
-          className="text-[9px] uppercase tracking-wide mb-2"
-          style={{
-            backgroundColor: `hsl(${categoryInfo.color} / 0.15)`,
-            color: `hsl(${categoryInfo.color})`,
-            borderColor: `hsl(${categoryInfo.color} / 0.3)`,
-          }}
+          variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
+          className={`text-[9px] uppercase tracking-wide mb-2 ${
+            ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
+              ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
+              : ""
+          }`}
         >
           {categoryInfo.label}
         </Badge>
