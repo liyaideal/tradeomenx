@@ -106,7 +106,7 @@ import { LabelText, MonoText } from '@/components/typography';
 import { toast } from 'sonner';
 import { useDeposit } from '@/hooks/useDeposit';
 import { cn } from '@/lib/utils';
-import { FullAddressSheet } from './FullAddressSheet';
+import { FullAddressDialog } from './FullAddressDialog';
 
 interface DepositDetailsDesktopProps {
   token: TokenConfig;
@@ -231,8 +231,8 @@ const DepositDetailsDesktop = ({ token, onDone }: DepositDetailsDesktopProps) =>
         </DropdownMenu>
       </div>
 
-      {/* Full Address Dialog - Use sheet for consistency */}
-      <FullAddressSheet
+      {/* Full Address Dialog */}
+      <FullAddressDialog
         open={showFullAddress}
         onOpenChange={setShowFullAddress}
         address={custodyAddress}
