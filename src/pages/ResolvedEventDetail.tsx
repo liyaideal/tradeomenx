@@ -20,7 +20,7 @@ import { EventStatisticsCard } from "@/components/resolved/EventStatisticsCard";
 import { RelatedEventCard } from "@/components/resolved/RelatedEventCard";
 import { SettlementEvidenceCard } from "@/components/resolved/SettlementEvidenceCard";
 import { EventRulesCard } from "@/components/resolved/EventRulesCard";
-import { getCategoryInfo } from "@/lib/categoryUtils";
+import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { format } from "date-fns";
 
 const ResolvedEventDetail = () => {
@@ -87,13 +87,8 @@ const ResolvedEventDetail = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Badge 
-                variant="outline" 
-                className="text-[10px] uppercase tracking-wide"
-                style={{
-                  backgroundColor: `hsl(${categoryInfo.color} / 0.15)`,
-                  color: `hsl(${categoryInfo.color})`,
-                  borderColor: `hsl(${categoryInfo.color} / 0.3)`,
-                }}
+                variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "general"}
+                className="text-[10px] uppercase tracking-wide border-0"
               >
                 {categoryInfo.label}
               </Badge>
@@ -329,13 +324,8 @@ const ResolvedEventDetail = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Badge 
-                  variant="outline" 
-                  className="text-[10px] uppercase tracking-wide"
-                  style={{
-                    backgroundColor: `hsl(${categoryInfo.color} / 0.15)`,
-                    color: `hsl(${categoryInfo.color})`,
-                    borderColor: `hsl(${categoryInfo.color} / 0.3)`,
-                  }}
+                  variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "general"}
+                  className="text-[10px] uppercase tracking-wide border-0"
                 >
                   {categoryInfo.label}
                 </Badge>
