@@ -97,14 +97,11 @@ export const TradingSection = ({ isMobile }: TradingSectionProps) => {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-3">
-              {Object.entries(CATEGORY_STYLES).map(([key, style]) => {
-                const categoryClass = style.class;
-                return (
-                  <Badge key={key} className={categoryClass}>
-                    {key}
-                  </Badge>
-                );
-              })}
+              {Object.entries(CATEGORY_STYLES).map(([key, style]) => (
+                <Badge key={key} variant={style.variant}>
+                  {key}
+                </Badge>
+              ))}
             </div>
             <CodePreview 
               code={`import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
