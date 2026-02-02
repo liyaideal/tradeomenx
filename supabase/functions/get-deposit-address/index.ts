@@ -53,9 +53,22 @@ serve(async (req) => {
       );
     }
 
-    // Get token from query params
+    // Get token from request body or query params
+    let token: string | null = null;
+    
+    // Try query params first (for GET requests)
     const url = new URL(req.url);
-    const token = url.searchParams.get("token");
+    token = url.searchParams.get("token");
+    
+    // If not in query params, try request body (for POST requests)
+    if (!token && req.method === "POST") {
+      try {
+        const body = await req.json();
+        token = body.token;
+      } catch {
+        // Body might be empty or invalid JSON
+      }
+    }
     
     if (!token) {
       return new Response(
