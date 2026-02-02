@@ -111,22 +111,18 @@ export const TradingHeaderPlayground = () => {
             {/* Center: Real-time Indicator Badge - Click to toggle type */}
             <button 
               onClick={() => setIndicatorType(indicatorType === "tweets" ? "price" : "tweets")}
-              className="flex items-center gap-2 px-3 py-1.5 bg-indicator/10 border border-indicator/30 rounded-lg transition-all hover:bg-indicator/15 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 bg-indicator/10 border border-indicator/30 rounded-lg transition-all hover:bg-indicator/20 cursor-pointer"
               title="Click to toggle indicator type"
             >
-              <span className="w-1.5 h-1.5 bg-indicator rounded-full animate-pulse" />
-              {indicatorType === "tweets" ? (
-                <>
-                  <span className="text-xs text-muted-foreground">Current Tweets</span>
-                  <span className="text-sm text-indicator font-mono font-bold">{tweetCount.toLocaleString()}</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-xs text-muted-foreground">ETH/USD</span>
-                  <span className="text-sm text-indicator font-mono font-bold">{currentPrice}</span>
-                  <span className="text-xs text-trading-green font-mono">{priceChange}</span>
-                </>
-              )}
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-indicator rounded-full animate-pulse" />
+                <span className="text-xs text-muted-foreground">
+                  {indicatorType === "tweets" ? "Current Tweets" : "Current Price"}
+                </span>
+              </div>
+              <span className="text-sm text-indicator font-mono font-bold">
+                {indicatorType === "tweets" ? tweetCount.toLocaleString() : currentPrice}
+              </span>
             </button>
 
             {/* Right: Stats + Favorite */}
