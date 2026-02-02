@@ -48,16 +48,10 @@ export const useDeposit = (token?: SupportedToken) => {
   } = useQuery({
     queryKey: ['deposit-address', user?.id, selectedToken],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('get-deposit-address', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: null,
+      // Use POST with body since functions.invoke doesn't support query params directly
+      const response = await supabase.functions.invoke('get-deposit-address', {
+        body: { token: selectedToken },
       });
-
-      // Use query params for GET request
-      const response = await supabase.functions.invoke(`get-deposit-address?token=${selectedToken}`);
       
       if (response.error) {
         console.error('Error fetching deposit address:', response.error);
