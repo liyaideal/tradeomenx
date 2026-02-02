@@ -164,7 +164,7 @@ export const TradingHeaderPlayground = () => {
                 className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   i === selectedOptionIndex
                     ? "bg-trading-purple/20 border border-trading-purple text-foreground"
-                    : "bg-muted border border-transparent text-muted-foreground hover:bg-muted/80"
+                    : "bg-muted border border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <span>{opt.label}</span>
