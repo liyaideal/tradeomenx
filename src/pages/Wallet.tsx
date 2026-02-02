@@ -631,10 +631,8 @@ export default function Wallet() {
 
             {/* Right Column - Pending Confirmations & Transaction History */}
             <div className="col-span-8 space-y-6">
-              {/* Pending Confirmations */}
-              <div className="trading-card p-6">
-                <PendingConfirmations />
-              </div>
+              {/* Pending Confirmations - no wrapper, component handles its own visibility */}
+              <PendingConfirmations className="trading-card p-6" />
               
               {/* Transaction History */}
               <div className="trading-card p-6">
