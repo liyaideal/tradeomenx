@@ -8,7 +8,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { ShareModal } from "@/components/ShareModal";
-import { SettlementShareCard } from "@/components/settlement/SettlementShareCard";
+import { SettlementPoster } from "@/components/share";
 import { SettlementPriceChart } from "@/components/settlement/SettlementPriceChart";
 import { SettlementTimeline } from "@/components/resolved/SettlementTimeline";
 import { useSettlementDetail } from "@/hooks/useSettlementDetail";
@@ -475,7 +475,7 @@ export default function SettlementDetail() {
         fileName={`omenx-settlement-${settlementId}`}
         isDataReady={!isProfileLoading && !!profile}
       >
-        <SettlementShareCard
+        <SettlementPoster
           event={settlement.event}
           option={settlement.option}
           side={settlement.side}
@@ -488,7 +488,7 @@ export default function SettlementDetail() {
           settledAt={settlement.settledAt}
           username={profile?.username || "Trader"}
           avatarUrl={profile?.avatar_url || undefined}
-          referralCode={profile?.username?.toUpperCase().slice(0, 8) || "OMENX2024"}
+          referralCode={profile?.username?.toUpperCase().slice(0, 8) || "OMENX2025"}
         />
       </ShareModal>
     </div>

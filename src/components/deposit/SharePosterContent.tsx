@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import { SharePosterLayout } from '@/components/share/SharePosterLayout';
+import { posterColors } from '@/lib/posterStyles';
 import { TokenConfig } from '@/types/deposit';
-import omenxLogo from '@/assets/omenx-logo.svg';
 
 interface SharePosterContentProps {
   address: string;
@@ -31,173 +31,106 @@ const formatAddressDisplay = (address: string) => {
   return { hasPrefix, chunks };
 };
 
-// Design tokens for poster (inline styles for image export consistency)
-const posterStyles = {
-  background: 'linear-gradient(to bottom, #1a1a2e, #16162a)',
-  textPrimary: '#ffffff',
-  textSecondary: 'rgba(255, 255, 255, 0.6)',
-  textMuted: 'rgba(255, 255, 255, 0.3)',
-  accent: '#a78bfa',
-  warning: '#fbbf24',
-  warningBg: 'rgba(251, 191, 36, 0.1)',
-  warningBorder: 'rgba(251, 191, 36, 0.3)',
-  cardBg: 'rgba(255, 255, 255, 0.05)',
-};
-
+/**
+ * SharePosterContent - Deposit address share poster
+ * 
+ * Uses the standard SharePosterLayout with neutral theme for deposit addresses.
+ * Shows token info, formatted address, and network warning.
+ */
 export const SharePosterContent = forwardRef<HTMLDivElement, SharePosterContentProps>(
   ({ address, token, referralCode = 'OMENX2025' }, ref) => {
     const { hasPrefix, chunks } = formatAddressDisplay(address);
 
+    const warningContent = (
+      <p style={{
+        color: posterColors.warning,
+        fontSize: '12px',
+        textAlign: 'center',
+        lineHeight: '1.5',
+        margin: 0,
+      }}>
+        ⚠️ <span style={{ fontWeight: 600 }}>Important:</span> Only send {token.symbol} on the{' '}
+        <span style={{ fontWeight: 600 }}>{token.network}</span> network
+      </p>
+    );
+
     return (
-      <div
+      <SharePosterLayout
         ref={ref}
-        style={{
-          width: '400px',
-          background: posterStyles.background,
-          padding: '32px',
-          borderRadius: '16px',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-        }}
+        theme="neutral"
+        qrValue={address}
+        referralCode={referralCode}
+        ctaText="Scan QR to deposit"
+        qrLabel="Deposit Address"
+        warning={warningContent}
+        style={{ padding: '28px' }}
       >
-        {/* Header: Logo */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-          <img 
-            src={omenxLogo} 
-            alt="OMENX" 
-            style={{ height: '24px', width: 'auto' }}
-          />
-        </div>
-
-        {/* Content: Token Info + Address */}
-        <div style={{ marginBottom: '24px' }}>
-          {/* Token Badge */}
-          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              background: posterStyles.cardBg,
-              borderRadius: '9999px',
-            }}>
-              <span style={{ fontSize: '24px' }}>{token.icon}</span>
-              <span style={{ color: posterStyles.textPrimary, fontWeight: 600 }}>{token.symbol}</span>
-              <span style={{ color: posterStyles.textSecondary }}>on</span>
-              <span style={{ color: posterStyles.textPrimary, fontWeight: 500 }}>{token.network}</span>
-            </div>
-          </div>
-
-          {/* Deposit Address */}
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ color: posterStyles.textSecondary, fontSize: '14px', marginBottom: '8px' }}>
-              Deposit Address
-            </p>
-            <div style={{
-              padding: '16px',
-              background: posterStyles.cardBg,
-              borderRadius: '12px',
-              fontFamily: 'monospace',
-              fontSize: '14px',
-              lineHeight: '1.6',
-              wordBreak: 'break-all',
-            }}>
-              <span style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px' }}>
-                {hasPrefix && (
-                  <span>
-                    <span style={{ color: posterStyles.accent }}>0</span>
-                    <span style={{ color: posterStyles.textPrimary }}>x</span>
-                  </span>
-                )}
-                {chunks.map((chunk, chunkIndex) => (
-                  <span key={chunkIndex}>
-                    {chunk.map((item, charIndex) => (
-                      <span 
-                        key={charIndex}
-                        style={{ color: item.isDigit ? posterStyles.accent : posterStyles.textPrimary }}
-                      >
-                        {item.char}
-                      </span>
-                    ))}
-                  </span>
-                ))}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Warning */}
-        <div style={{
-          padding: '12px',
-          background: posterStyles.warningBg,
-          border: `1px solid ${posterStyles.warningBorder}`,
-          borderRadius: '12px',
-          marginBottom: '24px',
-        }}>
-          <p style={{
-            color: posterStyles.warning,
-            fontSize: '12px',
-            textAlign: 'center',
-            lineHeight: '1.5',
-            margin: 0,
-          }}>
-            ⚠️ <span style={{ fontWeight: 600 }}>Important:</span> Only send {token.symbol} on the{' '}
-            <span style={{ fontWeight: 600 }}>{token.network}</span> network
-          </p>
-        </div>
-
-        {/* Footer: QR Code + Referral */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-        }}>
-          {/* QR Code */}
+        {/* Token Badge */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <div style={{
-            padding: '12px',
-            background: '#ffffff',
-            borderRadius: '12px',
-            flexShrink: 0,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 18px',
+            background: posterColors.cardBg,
+            borderRadius: '9999px',
+            border: `1px solid ${posterColors.border}`,
           }}>
-            <QRCodeSVG 
-              value={address} 
-              size={80}
-              level="H"
-              includeMargin={false}
-            />
-          </div>
-
-          {/* Referral Section */}
-          <div style={{ flex: 1, textAlign: 'right' }}>
-            <p style={{
-              color: posterStyles.textMuted,
-              fontSize: '11px',
-              marginBottom: '4px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-            }}>
-              Referral Code
-            </p>
-            <p style={{
-              color: posterStyles.textPrimary,
-              fontSize: '18px',
-              fontWeight: 700,
-              fontFamily: 'monospace',
-              letterSpacing: '2px',
-              margin: 0,
-            }}>
-              {referralCode}
-            </p>
-            <p style={{
-              color: posterStyles.textMuted,
-              fontSize: '11px',
-              marginTop: '8px',
-            }}>
-              Scan to deposit
-            </p>
+            <span style={{ fontSize: '24px' }}>{token.icon}</span>
+            <span style={{ color: posterColors.textPrimary, fontWeight: 600, fontSize: '15px' }}>
+              {token.symbol}
+            </span>
+            <span style={{ color: posterColors.textSecondary, fontSize: '13px' }}>on</span>
+            <span style={{ color: posterColors.textPrimary, fontWeight: 500, fontSize: '14px' }}>
+              {token.network}
+            </span>
           </div>
         </div>
-      </div>
+
+        {/* Deposit Address */}
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ 
+            color: posterColors.textSecondary, 
+            fontSize: '12px', 
+            marginBottom: '8px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+          }}>
+            Deposit Address
+          </p>
+          <div style={{
+            padding: '16px',
+            background: posterColors.cardBg,
+            borderRadius: '12px',
+            border: `1px solid ${posterColors.border}`,
+            fontFamily: 'monospace',
+            fontSize: '13px',
+            lineHeight: '1.7',
+            wordBreak: 'break-all',
+          }}>
+            <span style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px' }}>
+              {hasPrefix && (
+                <span>
+                  <span style={{ color: '#a78bfa' }}>0</span>
+                  <span style={{ color: posterColors.textPrimary }}>x</span>
+                </span>
+              )}
+              {chunks.map((chunk, chunkIndex) => (
+                <span key={chunkIndex}>
+                  {chunk.map((item, charIndex) => (
+                    <span 
+                      key={charIndex}
+                      style={{ color: item.isDigit ? '#a78bfa' : posterColors.textPrimary }}
+                    >
+                      {item.char}
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </span>
+          </div>
+        </div>
+      </SharePosterLayout>
     );
   }
 );
