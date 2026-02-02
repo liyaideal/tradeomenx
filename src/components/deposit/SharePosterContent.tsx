@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { SharePosterLayout } from '@/components/share/SharePosterLayout';
-import { posterColors } from '@/lib/posterStyles';
+import { posterColors, posterThemes } from '@/lib/posterStyles';
 import { TokenConfig } from '@/types/deposit';
 
 interface SharePosterContentProps {
@@ -40,19 +40,7 @@ const formatAddressDisplay = (address: string) => {
 export const SharePosterContent = forwardRef<HTMLDivElement, SharePosterContentProps>(
   ({ address, token, referralCode = 'OMENX2025' }, ref) => {
     const { hasPrefix, chunks } = formatAddressDisplay(address);
-
-    const warningContent = (
-      <p style={{
-        color: posterColors.warning,
-        fontSize: '12px',
-        textAlign: 'center',
-        lineHeight: '1.5',
-        margin: 0,
-      }}>
-        ⚠️ <span style={{ fontWeight: 600 }}>Important:</span> Only send {token.symbol} on the{' '}
-        <span style={{ fontWeight: 600 }}>{token.network}</span> network
-      </p>
-    );
+    const theme = posterThemes.neutral;
 
     return (
       <SharePosterLayout
@@ -62,56 +50,85 @@ export const SharePosterContent = forwardRef<HTMLDivElement, SharePosterContentP
         referralCode={referralCode}
         ctaText="Scan QR to deposit"
         qrLabel="Deposit Address"
-        warning={warningContent}
-        style={{ padding: '28px' }}
+        style={{ padding: '24px' }}
       >
-        {/* Token Badge */}
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        {/* Token Hero - Centered vertical layout */}
+        <div style={{ 
+          textAlign: 'center', 
+          marginBottom: '24px',
+          paddingTop: '8px',
+        }}>
+          {/* Large Token Icon */}
+          <div style={{
+            fontSize: '48px',
+            marginBottom: '12px',
+            filter: 'drop-shadow(0 4px 12px rgba(167, 139, 250, 0.3))',
+          }}>
+            {token.icon}
+          </div>
+          
+          {/* Token Name */}
+          <div style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: posterColors.textPrimary,
+            letterSpacing: '1px',
+            marginBottom: '8px',
+          }}>
+            {token.symbol}
+          </div>
+          
+          {/* Network Badge */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '10px 18px',
-            background: posterColors.cardBg,
-            borderRadius: '9999px',
-            border: `1px solid ${posterColors.border}`,
+            gap: '6px',
+            padding: '6px 14px',
+            background: theme.bgColor,
+            borderRadius: '20px',
+            border: `1px solid ${theme.borderColor}`,
           }}>
-            <span style={{ fontSize: '24px' }}>{token.icon}</span>
-            <span style={{ color: posterColors.textPrimary, fontWeight: 600, fontSize: '15px' }}>
-              {token.symbol}
-            </span>
-            <span style={{ color: posterColors.textSecondary, fontSize: '13px' }}>on</span>
-            <span style={{ color: posterColors.textPrimary, fontWeight: 500, fontSize: '14px' }}>
+            <span style={{ 
+              width: '6px', 
+              height: '6px', 
+              borderRadius: '50%', 
+              background: theme.primary,
+            }} />
+            <span style={{ 
+              color: theme.primary, 
+              fontSize: '12px', 
+              fontWeight: 500,
+              letterSpacing: '0.3px',
+            }}>
               {token.network}
             </span>
           </div>
         </div>
 
-        {/* Deposit Address */}
-        <div style={{ textAlign: 'center' }}>
+        {/* Deposit Address - Clean without extra box */}
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
           <p style={{ 
-            color: posterColors.textSecondary, 
-            fontSize: '12px', 
-            marginBottom: '8px',
+            color: posterColors.textMuted, 
+            fontSize: '10px', 
+            marginBottom: '10px',
             textTransform: 'uppercase',
-            letterSpacing: '0.5px',
+            letterSpacing: '1px',
           }}>
             Deposit Address
           </p>
           <div style={{
-            padding: '16px',
-            background: posterColors.cardBg,
+            padding: '14px 16px',
+            background: 'rgba(255, 255, 255, 0.04)',
             borderRadius: '12px',
             border: `1px solid ${posterColors.border}`,
-            fontFamily: 'monospace',
-            fontSize: '13px',
-            lineHeight: '1.7',
-            wordBreak: 'break-all',
+            fontFamily: 'ui-monospace, SFMono-Regular, SF Mono, Menlo, monospace',
+            fontSize: '12px',
+            lineHeight: '1.8',
           }}>
-            <span style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px' }}>
+            <span style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '3px 6px' }}>
               {hasPrefix && (
                 <span>
-                  <span style={{ color: '#a78bfa' }}>0</span>
+                  <span style={{ color: theme.primary }}>0</span>
                   <span style={{ color: posterColors.textPrimary }}>x</span>
                 </span>
               )}
@@ -120,7 +137,7 @@ export const SharePosterContent = forwardRef<HTMLDivElement, SharePosterContentP
                   {chunk.map((item, charIndex) => (
                     <span 
                       key={charIndex}
-                      style={{ color: item.isDigit ? '#a78bfa' : posterColors.textPrimary }}
+                      style={{ color: item.isDigit ? theme.primary : posterColors.textPrimary }}
                     >
                       {item.char}
                     </span>
@@ -129,6 +146,27 @@ export const SharePosterContent = forwardRef<HTMLDivElement, SharePosterContentP
               ))}
             </span>
           </div>
+        </div>
+
+        {/* Network Warning - Compact inline style */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          padding: '10px 16px',
+          background: posterColors.warningBg,
+          borderRadius: '8px',
+          border: `1px solid ${posterColors.warningBorder}`,
+        }}>
+          <span style={{ fontSize: '14px' }}>⚠️</span>
+          <span style={{
+            color: posterColors.warning,
+            fontSize: '11px',
+            fontWeight: 500,
+          }}>
+            Only send <strong>{token.symbol}</strong> on <strong>{token.network}</strong>
+          </span>
         </div>
       </SharePosterLayout>
     );
