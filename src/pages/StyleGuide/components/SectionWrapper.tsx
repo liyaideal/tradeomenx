@@ -34,18 +34,22 @@ export const SectionWrapper = ({
 
 interface SubSectionProps {
   title: string;
+  description?: string;
   platform?: Platform;
   children: React.ReactNode;
   className?: string;
 }
 
-export const SubSection = ({ title, platform, children, className }: SubSectionProps) => {
+export const SubSection = ({ title, description, platform, children, className }: SubSectionProps) => {
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex items-center gap-2">
         <h3 className="text-lg font-medium text-foreground">{title}</h3>
         {platform && <PlatformBadge platform={platform} />}
       </div>
+      {description && (
+        <p className="text-sm text-muted-foreground -mt-2">{description}</p>
+      )}
       {children}
     </div>
   );
