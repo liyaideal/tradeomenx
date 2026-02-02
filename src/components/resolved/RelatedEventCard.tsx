@@ -20,12 +20,8 @@ export const RelatedEventCard = ({ event, onClick }: RelatedEventCardProps) => {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           <Badge 
-            variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
-            className={`text-[9px] uppercase tracking-wide px-1.5 py-0 ${
-              ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
-                ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
-                : ""
-            }`}
+            variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "general"}
+            className="text-[9px] uppercase tracking-wide px-1.5 py-0"
           >
             {categoryInfo.label}
           </Badge>

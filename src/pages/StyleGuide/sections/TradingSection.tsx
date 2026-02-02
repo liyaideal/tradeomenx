@@ -395,14 +395,7 @@ const style = CATEGORY_STYLES[category];
                   const style = CATEGORY_STYLES[category];
                   return (
                     <div key={category} className="flex flex-col items-center gap-2 p-3 rounded-lg bg-muted/30">
-                      <Badge 
-                        variant={style.variant}
-                        className={`${
-                          ["Tech", "Entertainment", "Sports", "Market", "General"].includes(category)
-                            ? style.class
-                            : ""
-                        }`}
-                      >
+                      <Badge variant={style.variant}>
                         {category}
                       </Badge>
                       <code className="text-[10px] text-muted-foreground font-mono">
@@ -430,49 +423,49 @@ const style = CATEGORY_STYLES[category];
                   <tbody className="font-mono">
                     <tr className="border-b border-border/50">
                       <td className="py-2 px-2"><span className="text-primary">Social</span></td>
-                      <td className="py-2 px-2">info</td>
+                      <td className="py-2 px-2">social</td>
                       <td className="py-2 px-2 text-muted-foreground">260 60% 55%</td>
                       <td className="py-2 px-2 font-sans text-muted-foreground">Twitter, influencers</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2 px-2"><span className="text-trading-yellow">Crypto</span></td>
-                      <td className="py-2 px-2">warning</td>
+                      <td className="py-2 px-2">crypto</td>
                       <td className="py-2 px-2 text-muted-foreground">48 100% 55%</td>
                       <td className="py-2 px-2 font-sans text-muted-foreground">Bitcoin, Ethereum</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2 px-2"><span className="text-trading-green">Finance</span></td>
-                      <td className="py-2 px-2">success</td>
+                      <td className="py-2 px-2">finance</td>
                       <td className="py-2 px-2 text-muted-foreground">145 80% 42%</td>
                       <td className="py-2 px-2 font-sans text-muted-foreground">Fed, stocks, GDP</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2 px-2"><span className="text-trading-red">Politics</span></td>
-                      <td className="py-2 px-2">error</td>
+                      <td className="py-2 px-2">politics</td>
                       <td className="py-2 px-2 text-muted-foreground">0 85% 60%</td>
                       <td className="py-2 px-2 font-sans text-muted-foreground">Elections, government</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2 px-2"><span className="text-cyan-400">Tech</span></td>
-                      <td className="py-2 px-2">outline + class</td>
+                      <td className="py-2 px-2">tech</td>
                       <td className="py-2 px-2 text-muted-foreground">190 90% 50%</td>
                       <td className="py-2 px-2 font-sans text-muted-foreground">SpaceX, AI, Apple</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2 px-2"><span className="text-orange-400">Entertainment</span></td>
-                      <td className="py-2 px-2">outline + class</td>
+                      <td className="py-2 px-2">entertainment</td>
                       <td className="py-2 px-2 text-muted-foreground">25 95% 55%</td>
                       <td className="py-2 px-2 font-sans text-muted-foreground">Movies, Oscars</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2 px-2"><span className="text-blue-400">Sports</span></td>
-                      <td className="py-2 px-2">outline + class</td>
+                      <td className="py-2 px-2">sports</td>
                       <td className="py-2 px-2 text-muted-foreground">210 90% 55%</td>
                       <td className="py-2 px-2 font-sans text-muted-foreground">NBA, NFL, World Cup</td>
                     </tr>
                     <tr>
                       <td className="py-2 px-2"><span className="text-muted-foreground">General</span></td>
-                      <td className="py-2 px-2">secondary</td>
+                      <td className="py-2 px-2">general</td>
                       <td className="py-2 px-2 text-muted-foreground">222 25% 55%</td>
                       <td className="py-2 px-2 font-sans text-muted-foreground">Fallback</td>
                     </tr>

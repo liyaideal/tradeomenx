@@ -60,12 +60,8 @@ export const EventShareCard = ({
       {/* Category & Event Name */}
       <div className="relative mb-4">
         <Badge 
-          variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
-          className={`text-[9px] uppercase tracking-wide mb-2 ${
-            ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
-              ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
-              : ""
-          }`}
+          variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "general"}
+          className="text-[9px] uppercase tracking-wide mb-2"
         >
           {categoryInfo.label}
         </Badge>
