@@ -611,7 +611,7 @@ const ShareableCard = ({
             {/* Left: Referral Text */}
             <div className="flex-1 min-w-0">
               <div className={`text-xs font-medium mb-1 ${themeConfig.ctaColor}`}>
-                Join & claim $10,000 trial funds!
+                Predict. Trade. Profit.
               </div>
               <div className="flex items-center gap-1">
                 <span className="text-[10px] text-muted-foreground">Referral code:</span>

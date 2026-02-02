@@ -298,30 +298,30 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          balance: number | null
           created_at: string
           email: string | null
           id: string
-          trial_balance: number | null
           updated_at: string
           user_id: string
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          balance?: number | null
           created_at?: string
           email?: string | null
           id?: string
-          trial_balance?: number | null
           updated_at?: string
           user_id: string
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          balance?: number | null
           created_at?: string
           email?: string | null
           id?: string
-          trial_balance?: number | null
           updated_at?: string
           user_id?: string
           username?: string | null

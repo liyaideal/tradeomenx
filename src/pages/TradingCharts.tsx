@@ -215,7 +215,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
       {/* Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border/30 px-4 py-3 z-50">
         <div className="text-center text-xs text-muted-foreground mb-2">
-          Available {profile?.trial_balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'} USDC
+          Available {profile?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'} USDC
         </div>
         <div className="flex gap-3">
           <button

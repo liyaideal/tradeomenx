@@ -344,7 +344,7 @@ export const closePosition = async (
 export const updateUserBalance = async (userId: string, newBalance: number) => {
   const { error } = await supabase
     .from("profiles")
-    .update({ trial_balance: newBalance })
+    .update({ balance: newBalance })
     .eq("user_id", userId);
 
   if (error) throw error;

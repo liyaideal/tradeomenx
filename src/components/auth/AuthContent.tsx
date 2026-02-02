@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { PROFILE_QUERY_KEY, useUserProfile } from "@/hooks/useUserProfile";
 import { 
-  Gift, 
   Wallet, 
   TrendingUp, 
   BarChart3, 
@@ -16,7 +15,8 @@ import {
   ArrowRight,
   ArrowLeft,
   Check,
-  Loader2
+  Loader2,
+  Zap
 } from "lucide-react";
 import type { AuthStep } from "@/hooks/useAuth";
 import sillyname from "sillyname";
@@ -112,13 +112,13 @@ export const AuthContent = ({
           user_id: string;
           username: string;
           avatar_url: string;
-          trial_balance: number;
+          balance: number;
           email?: string;
         } = {
           user_id: data.user.id,
           username: mockUsername,
           avatar_url: avatarUrl,
-          trial_balance: 10000,
+          balance: 0,
         };
         if (mockEmail) {
           profileData.email = mockEmail;
@@ -208,14 +208,14 @@ export const AuthContent = ({
           </p>
         </div>
 
-        {/* Trial Funds Banner */}
+        {/* Value Proposition Banner */}
         <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <Gift className="w-5 h-5 text-primary" />
+            <TrendingUp className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <p className="font-medium text-foreground text-sm">Get 10,000 USDT Trial Funds</p>
-            <p className="text-xs text-muted-foreground">Demo Trading · No Deposit · Start Now</p>
+            <p className="font-medium text-foreground text-sm">Predict. Trade. Profit.</p>
+            <p className="text-xs text-muted-foreground">Up to 100x Leverage · Pro Trading Tools</p>
           </div>
         </div>
 
@@ -326,8 +326,8 @@ export const AuthContent = ({
             New to OMENX? Authorization creates your account automatically
           </p>
           <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-            <Gift className="w-3.5 h-3.5 text-primary" />
-            10,000 USDT Trial Funds · No Deposit Required · Start Trading Now
+            <Zap className="w-3.5 h-3.5 text-primary" />
+            Predict. Trade. Profit. · Start Trading Now
           </p>
         </div>
 
@@ -356,26 +356,26 @@ export const AuthContent = ({
         </button>
 
         <div className="text-center space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">Create Simulation Wallet</h2>
-          <p className="text-sm text-muted-foreground">Get 10,000 USDT trial funds and start trading</p>
+          <h2 className="text-lg font-semibold text-foreground">Create Your Trading Wallet</h2>
+          <p className="text-sm text-muted-foreground">Start trading events with real funds</p>
         </div>
 
-        {/* Welcome Bonus Card */}
-        <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-3">
+        {/* Platform Features Card */}
+        <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-lg bg-trading-green/20 flex items-center justify-center flex-shrink-0">
-              <Gift className="w-4 h-4 text-trading-green" />
+            <div className="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <Zap className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="font-semibold text-trading-green text-sm">Welcome Bonus: 10,000 USDT</p>
+              <p className="font-semibold text-primary text-sm">Pro Trading Platform</p>
               <ul className="text-xs text-muted-foreground mt-1 space-y-0.5">
                 <li className="flex items-center gap-1.5">
-                  <div className="w-1 h-1 rounded-full bg-trading-green" />
-                  Virtual funds for practice trading
+                  <div className="w-1 h-1 rounded-full bg-primary" />
+                  Up to 100x leverage on events
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <div className="w-1 h-1 rounded-full bg-trading-green" />
-                  No deposit required
+                  <div className="w-1 h-1 rounded-full bg-primary" />
+                  Real-time market data
                 </li>
               </ul>
             </div>
@@ -415,7 +415,7 @@ export const AuthContent = ({
           onClick={handleCreateWallet}
           className="w-full h-11 btn-trading-green"
         >
-          Create Wallet & Claim 10,000 USDT
+          Create Wallet & Start Trading
         </Button>
       </div>
     );
@@ -438,7 +438,7 @@ export const AuthContent = ({
         <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-3 flex items-center gap-2">
           <Check className="w-4 h-4 text-trading-green" />
           <span className="text-trading-green font-medium text-sm">
-            Ready to trade with 10,000 USDT trial funds
+            Wallet created! Complete your profile to start
           </span>
         </div>
 
