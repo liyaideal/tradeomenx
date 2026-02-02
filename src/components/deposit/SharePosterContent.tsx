@@ -58,22 +58,13 @@ export const SharePosterContent = forwardRef<HTMLDivElement, SharePosterContentP
           marginBottom: '24px',
           paddingTop: '8px',
         }}>
-          {/* Large Token Icon */}
-          <div style={{
-            fontSize: '48px',
-            marginBottom: '12px',
-            filter: 'drop-shadow(0 4px 12px rgba(167, 139, 250, 0.3))',
-          }}>
-            {token.icon}
-          </div>
-          
           {/* Token Name */}
           <div style={{
-            fontSize: '28px',
+            fontSize: '32px',
             fontWeight: 700,
             color: posterColors.textPrimary,
-            letterSpacing: '1px',
-            marginBottom: '8px',
+            letterSpacing: '2px',
+            marginBottom: '12px',
           }}>
             {token.symbol}
           </div>
