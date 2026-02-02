@@ -459,11 +459,18 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
         </div>
         
         <div className="flex items-center gap-2 mt-2.5">
-          <Badge className={`text-[10px] font-medium border-0 px-2 py-0.5 ${CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class || CATEGORY_STYLES.General.class}`}>
+          <Badge 
+            variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
+            className={`text-[10px] font-medium border-0 px-2 py-0.5 ${
+              ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
+                ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
+                : ""
+            }`}
+          >
             {categoryInfo.label}
           </Badge>
           {event.hasMultipleOptions && (
-            <Badge variant="outline" className="text-[10px] font-medium bg-primary/10 text-primary border-primary/30 px-2 py-0.5">
+            <Badge variant="info" className="text-[10px] font-medium px-2 py-0.5">
               Multi-Option
             </Badge>
           )}
