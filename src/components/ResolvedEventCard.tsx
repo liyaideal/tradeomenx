@@ -107,12 +107,8 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
           {/* Row 2: Category + Participation + Date */}
           <div className="flex items-center gap-2 mt-2.5 flex-wrap">
             <Badge 
-              variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
-              className={`text-[10px] font-medium border-0 px-2 py-0.5 ${
-                ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
-                  ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
-                  : ""
-              }`}
+              variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "general"}
+              className="text-[10px] font-medium border-0 px-2 py-0.5"
             >
               {categoryInfo.label}
             </Badge>
@@ -210,12 +206,8 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
         {/* Row 2: Category + Participation + Date */}
         <div className="flex items-center gap-2 mt-2.5 flex-wrap">
           <Badge 
-            variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
-            className={`text-[10px] font-medium border-0 px-2 py-0.5 ${
-              ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
-                ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
-                : ""
-            }`}
+            variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "general"}
+            className="text-[10px] font-medium border-0 px-2 py-0.5"
           >
             {categoryInfo.label}
           </Badge>
