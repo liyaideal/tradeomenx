@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { Logo, omenxLogo } from "@/components/Logo";
-import { Check, X, AlertCircle, ChevronLeft, Heart, Share2 } from "lucide-react";
+import { Check, X, AlertCircle, ChevronLeft, Heart, Share2, Loader2 } from "lucide-react";
 
 interface MobilePatternsSectionProps {
   isMobile: boolean;
@@ -906,7 +906,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs font-medium truncate">USDT Deposit</span>
-                        <span className="text-[9px] text-trading-yellow">⟳</span>
+                        <Loader2 className="w-3 h-3 text-trading-yellow animate-spin shrink-0" />
                       </div>
                       <span className="text-[10px] text-muted-foreground">02/02/2026</span>
                     </div>
