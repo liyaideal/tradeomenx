@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronDown, Star, RotateCcw, ArrowLeft } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ChevronDown, Star, RotateCcw, ArrowLeft, ExternalLink } from "lucide-react";
 import { CodePreview } from "./CodePreview";
 
 interface OptionChip {
@@ -36,6 +37,10 @@ export const TradingHeaderPlayground = () => {
   const [tweetCount, setTweetCount] = useState(1847);
   const [currentPrice, setCurrentPrice] = useState("$4,287.50");
   const [priceChange, setPriceChange] = useState("+2.34%");
+  const [priceLabel, setPriceLabel] = useState("ETH/USD");
+  const [period, setPeriod] = useState("Q2 2026");
+  const [high24h, setHigh24h] = useState("$4,352.10");
+  const [low24h, setLow24h] = useState("$4,156.80");
   
   // Stats Settings
   const [volume24h, setVolume24h] = useState("$2.45M");
@@ -56,6 +61,10 @@ export const TradingHeaderPlayground = () => {
     setTweetCount(1847);
     setCurrentPrice("$4,287.50");
     setPriceChange("+2.34%");
+    setPriceLabel("ETH/USD");
+    setPeriod("Q2 2026");
+    setHigh24h("$4,352.10");
+    setLow24h("$4,156.80");
     setVolume24h("$2.45M");
     setFundingRate("+0.05%");
     setNextFunding("28min");
@@ -108,22 +117,88 @@ export const TradingHeaderPlayground = () => {
               </div>
             </div>
             
-            {/* Center: Real-time Indicator Badge - Click to toggle type */}
-            <button 
+            {/* Center: Real-time Indicator Badge with Popover */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button 
+                  className="flex items-center gap-2 px-3 py-1.5 bg-indicator/10 border border-indicator/30 rounded-lg transition-all hover:bg-indicator/20 cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-indicator rounded-full animate-pulse" />
+                    <span className="text-xs text-muted-foreground">
+                      {indicatorType === "tweets" ? "Current Tweets" : "Current Price"}
+                    </span>
+                  </div>
+                  <span className="text-sm text-indicator font-mono font-bold">
+                    {indicatorType === "tweets" ? tweetCount.toLocaleString() : currentPrice}
+                  </span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-3" align="start">
+                <div className="space-y-3">
+                  {/* Header with title and value */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {indicatorType === "tweets" ? "Tweet Count" : priceLabel}
+                    </span>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-indicator">
+                        {indicatorType === "tweets" ? tweetCount.toLocaleString() : currentPrice}
+                      </div>
+                      {indicatorType === "price" && priceChange && (
+                        <div className={`text-xs font-mono ${priceChange.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
+                          {priceChange} (24h)
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Stats section */}
+                  <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
+                    <div className="flex justify-between">
+                      <span>Period</span>
+                      <span>{period}</span>
+                    </div>
+                    {indicatorType === "price" && (
+                      <>
+                        <div className="flex justify-between">
+                          <span>24h High</span>
+                          <span className="text-trading-green font-mono">{high24h}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>24h Low</span>
+                          <span className="text-trading-red font-mono">{low24h}</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex justify-between">
+                      <span>Last updated</span>
+                      <span>Just now</span>
+                    </div>
+                  </div>
+                  
+                  {/* Source link */}
+                  <a
+                    href="#"
+                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                    onClick={(e) => e.preventDefault()}
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    {indicatorType === "tweets" ? "View on Twitter/X" : "View on CoinGecko"}
+                  </a>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
+            {/* Toggle indicator type button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground"
               onClick={() => setIndicatorType(indicatorType === "tweets" ? "price" : "tweets")}
-              className="flex items-center gap-2 px-3 py-1.5 bg-indicator/10 border border-indicator/30 rounded-lg transition-all hover:bg-indicator/20 cursor-pointer"
-              title="Click to toggle indicator type"
             >
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-indicator rounded-full animate-pulse" />
-                <span className="text-xs text-muted-foreground">
-                  {indicatorType === "tweets" ? "Current Tweets" : "Current Price"}
-                </span>
-              </div>
-              <span className="text-sm text-indicator font-mono font-bold">
-                {indicatorType === "tweets" ? tweetCount.toLocaleString() : currentPrice}
-              </span>
-            </button>
+              Switch to {indicatorType === "tweets" ? "Price" : "Tweets"}
+            </Button>
 
             {/* Right: Stats + Favorite */}
             <div className="flex items-center gap-6 text-xs">
@@ -252,6 +327,14 @@ export const TradingHeaderPlayground = () => {
             ) : (
               <>
                 <div className="space-y-2">
+                  <Label className="text-xs">Price Label (e.g., ETH/USD)</Label>
+                  <Input 
+                    value={priceLabel} 
+                    onChange={(e) => setPriceLabel(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label className="text-xs">Current Price</Label>
                   <Input 
                     value={currentPrice} 
@@ -267,8 +350,36 @@ export const TradingHeaderPlayground = () => {
                     className="h-8 text-sm font-mono"
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <Label className="text-xs">24h High</Label>
+                    <Input 
+                      value={high24h} 
+                      onChange={(e) => setHigh24h(e.target.value)}
+                      className="h-8 text-sm font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">24h Low</Label>
+                    <Input 
+                      value={low24h} 
+                      onChange={(e) => setLow24h(e.target.value)}
+                      className="h-8 text-sm font-mono"
+                    />
+                  </div>
+                </div>
               </>
             )}
+            
+            {/* Shared: Period */}
+            <div className="space-y-2 pt-2 border-t border-border/30">
+              <Label className="text-xs">Period</Label>
+              <Input 
+                value={period} 
+                onChange={(e) => setPeriod(e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
           </div>
 
           {/* Stats Settings */}
@@ -333,7 +444,12 @@ export const TradingHeaderPlayground = () => {
               <tr>
                 <td className="py-2 font-medium">Real-time Badge</td>
                 <td className="py-2 font-mono text-primary">bg-indicator/10 border-indicator/30</td>
-                <td className="py-2 text-muted-foreground">Tweet count OR Current Price</td>
+                <td className="py-2 text-muted-foreground">Click opens Popover with details</td>
+              </tr>
+              <tr>
+                <td className="py-2 font-medium">↳ Popover Content</td>
+                <td className="py-2 font-mono text-primary">PopoverContent w-72 p-3</td>
+                <td className="py-2 text-muted-foreground">Title, value, 24h change, period, high/low, source link</td>
               </tr>
               <tr>
                 <td className="py-2 font-medium">Stats Row</td>
