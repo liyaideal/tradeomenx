@@ -12,6 +12,11 @@ const badgeVariants = cva(
         secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary-hover",
         destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/70",
         outline: "text-foreground hover:bg-muted",
+        // Trading-specific variants with matching hover states
+        success: "border-trading-green/30 bg-trading-green/10 text-trading-green hover:bg-trading-green/20",
+        error: "border-trading-red/30 bg-trading-red/10 text-trading-red hover:bg-trading-red/20",
+        warning: "border-trading-yellow/30 bg-trading-yellow/10 text-trading-yellow hover:bg-trading-yellow/20",
+        info: "border-trading-purple/30 bg-trading-purple/10 text-trading-purple hover:bg-trading-purple/20",
       },
     },
     defaultVariants: {
