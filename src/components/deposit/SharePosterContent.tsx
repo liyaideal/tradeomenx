@@ -1,10 +1,12 @@
 import { forwardRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { TokenConfig } from '@/types/deposit';
+import omenxLogo from '@/assets/omenx-logo.svg';
 
 interface SharePosterContentProps {
   address: string;
   token: TokenConfig;
+  referralCode?: string;
 }
 
 // Format address with character-type based coloring for display
@@ -29,89 +31,171 @@ const formatAddressDisplay = (address: string) => {
   return { hasPrefix, chunks };
 };
 
+// Design tokens for poster (inline styles for image export consistency)
+const posterStyles = {
+  background: 'linear-gradient(to bottom, #1a1a2e, #16162a)',
+  textPrimary: '#ffffff',
+  textSecondary: 'rgba(255, 255, 255, 0.6)',
+  textMuted: 'rgba(255, 255, 255, 0.3)',
+  accent: '#a78bfa',
+  warning: '#fbbf24',
+  warningBg: 'rgba(251, 191, 36, 0.1)',
+  warningBorder: 'rgba(251, 191, 36, 0.3)',
+  cardBg: 'rgba(255, 255, 255, 0.05)',
+};
+
 export const SharePosterContent = forwardRef<HTMLDivElement, SharePosterContentProps>(
-  ({ address, token }, ref) => {
+  ({ address, token, referralCode = 'OMENX2025' }, ref) => {
     const { hasPrefix, chunks } = formatAddressDisplay(address);
 
     return (
       <div
         ref={ref}
-        className="w-[400px] bg-gradient-to-b from-[#1a1a2e] to-[#16162a] p-8 rounded-2xl"
-        style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+        style={{
+          width: '400px',
+          background: posterStyles.background,
+          padding: '32px',
+          borderRadius: '16px',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+        }}
       >
-        {/* Header with Logo */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <span className="text-primary font-bold text-lg">Ω</span>
-          </div>
-          <span className="text-xl font-bold text-white tracking-tight">OmenX</span>
+        {/* Header: Logo */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+          <img 
+            src={omenxLogo} 
+            alt="OMENX" 
+            style={{ height: '24px', width: 'auto' }}
+          />
         </div>
 
-        {/* Token Info */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full">
-            <span className="text-2xl">{token.icon}</span>
-            <span className="text-white font-semibold">{token.symbol}</span>
-            <span className="text-white/60">on</span>
-            <span className="text-white font-medium">{token.network}</span>
+        {/* Content: Token Info + Address */}
+        <div style={{ marginBottom: '24px' }}>
+          {/* Token Badge */}
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              background: posterStyles.cardBg,
+              borderRadius: '9999px',
+            }}>
+              <span style={{ fontSize: '24px' }}>{token.icon}</span>
+              <span style={{ color: posterStyles.textPrimary, fontWeight: 600 }}>{token.symbol}</span>
+              <span style={{ color: posterStyles.textSecondary }}>on</span>
+              <span style={{ color: posterStyles.textPrimary, fontWeight: 500 }}>{token.network}</span>
+            </div>
           </div>
-        </div>
 
-        {/* QR Code */}
-        <div className="flex justify-center mb-6">
-          <div className="p-4 bg-white rounded-xl">
-            <QRCodeSVG 
-              value={address} 
-              size={180}
-              level="H"
-              includeMargin={false}
-            />
-          </div>
-        </div>
-
-        {/* Address */}
-        <div className="text-center mb-6">
-          <p className="text-white/50 text-sm mb-2">Deposit Address</p>
-          <div 
-            className="p-4 bg-white/5 rounded-xl font-mono text-sm leading-relaxed"
-            style={{ wordBreak: 'break-all' }}
-          >
-            <span className="flex flex-wrap justify-center gap-x-2 gap-y-1">
-              {hasPrefix && (
-                <span>
-                  <span style={{ color: '#a78bfa' }}>0</span>
-                  <span style={{ color: '#ffffff' }}>x</span>
-                </span>
-              )}
-              {chunks.map((chunk, chunkIndex) => (
-                <span key={chunkIndex}>
-                  {chunk.map((item, charIndex) => (
-                    <span 
-                      key={charIndex}
-                      style={{ color: item.isDigit ? '#a78bfa' : '#ffffff' }}
-                    >
-                      {item.char}
-                    </span>
-                  ))}
-                </span>
-              ))}
-            </span>
+          {/* Deposit Address */}
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: posterStyles.textSecondary, fontSize: '14px', marginBottom: '8px' }}>
+              Deposit Address
+            </p>
+            <div style={{
+              padding: '16px',
+              background: posterStyles.cardBg,
+              borderRadius: '12px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              lineHeight: '1.6',
+              wordBreak: 'break-all',
+            }}>
+              <span style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px' }}>
+                {hasPrefix && (
+                  <span>
+                    <span style={{ color: posterStyles.accent }}>0</span>
+                    <span style={{ color: posterStyles.textPrimary }}>x</span>
+                  </span>
+                )}
+                {chunks.map((chunk, chunkIndex) => (
+                  <span key={chunkIndex}>
+                    {chunk.map((item, charIndex) => (
+                      <span 
+                        key={charIndex}
+                        style={{ color: item.isDigit ? posterStyles.accent : posterStyles.textPrimary }}
+                      >
+                        {item.char}
+                      </span>
+                    ))}
+                  </span>
+                ))}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Warning */}
-        <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-4">
-          <p className="text-amber-400 text-xs text-center leading-relaxed">
-            <span className="font-semibold">⚠️ Important:</span> Only send {token.symbol} on the{' '}
-            <span className="font-semibold">{token.network}</span> network
+        <div style={{
+          padding: '12px',
+          background: posterStyles.warningBg,
+          border: `1px solid ${posterStyles.warningBorder}`,
+          borderRadius: '12px',
+          marginBottom: '24px',
+        }}>
+          <p style={{
+            color: posterStyles.warning,
+            fontSize: '12px',
+            textAlign: 'center',
+            lineHeight: '1.5',
+            margin: 0,
+          }}>
+            ⚠️ <span style={{ fontWeight: 600 }}>Important:</span> Only send {token.symbol} on the{' '}
+            <span style={{ fontWeight: 600 }}>{token.network}</span> network
           </p>
         </div>
 
-        {/* Footer */}
-        <div className="text-center">
-          <p className="text-white/30 text-xs">
-            Scan QR code or copy address to deposit
-          </p>
+        {/* Footer: QR Code + Referral */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+        }}>
+          {/* QR Code */}
+          <div style={{
+            padding: '12px',
+            background: '#ffffff',
+            borderRadius: '12px',
+            flexShrink: 0,
+          }}>
+            <QRCodeSVG 
+              value={address} 
+              size={80}
+              level="H"
+              includeMargin={false}
+            />
+          </div>
+
+          {/* Referral Section */}
+          <div style={{ flex: 1, textAlign: 'right' }}>
+            <p style={{
+              color: posterStyles.textMuted,
+              fontSize: '11px',
+              marginBottom: '4px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>
+              Referral Code
+            </p>
+            <p style={{
+              color: posterStyles.textPrimary,
+              fontSize: '18px',
+              fontWeight: 700,
+              fontFamily: 'monospace',
+              letterSpacing: '2px',
+              margin: 0,
+            }}>
+              {referralCode}
+            </p>
+            <p style={{
+              color: posterStyles.textMuted,
+              fontSize: '11px',
+              marginTop: '8px',
+            }}>
+              Scan to deposit
+            </p>
+          </div>
         </div>
       </div>
     );
