@@ -371,6 +371,155 @@ const style = CATEGORY_STYLES[category];
           </CardContent>
         </Card>
       </SectionWrapper>
+
+      {/* Event Category Labels */}
+      <SectionWrapper
+        id="category-labels"
+        title="Event Category Labels"
+        platform="shared"
+        description="Color-coded labels for different event categories"
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Category Color System</CardTitle>
+            <CardDescription>
+              Each event category has a unique color. Never duplicate colors between categories.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* All Categories Display */}
+            <div>
+              <h4 className="text-sm font-medium mb-3">All Categories</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {(Object.keys(CATEGORY_STYLES) as Array<keyof typeof CATEGORY_STYLES>).map((category) => {
+                  const style = CATEGORY_STYLES[category];
+                  return (
+                    <div key={category} className="flex flex-col items-center gap-2 p-3 rounded-lg bg-muted/30">
+                      <Badge 
+                        variant={style.variant}
+                        className={`${
+                          ["Tech", "Entertainment", "Sports", "Market", "General"].includes(category)
+                            ? style.class
+                            : ""
+                        }`}
+                      >
+                        {category}
+                      </Badge>
+                      <code className="text-[10px] text-muted-foreground font-mono">
+                        variant="{style.variant}"
+                      </code>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Color Reference Table */}
+            <div>
+              <h4 className="text-sm font-medium mb-3">Color Reference</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-2 font-medium text-muted-foreground">Category</th>
+                      <th className="text-left py-2 px-2 font-medium text-muted-foreground">Variant</th>
+                      <th className="text-left py-2 px-2 font-medium text-muted-foreground">HSL Color</th>
+                      <th className="text-left py-2 px-2 font-medium text-muted-foreground">Use Case</th>
+                    </tr>
+                  </thead>
+                  <tbody className="font-mono">
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2"><span className="text-primary">Social</span></td>
+                      <td className="py-2 px-2">info</td>
+                      <td className="py-2 px-2 text-muted-foreground">260 60% 55%</td>
+                      <td className="py-2 px-2 font-sans text-muted-foreground">Twitter, influencers</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2"><span className="text-trading-yellow">Crypto</span></td>
+                      <td className="py-2 px-2">warning</td>
+                      <td className="py-2 px-2 text-muted-foreground">48 100% 55%</td>
+                      <td className="py-2 px-2 font-sans text-muted-foreground">Bitcoin, Ethereum</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2"><span className="text-trading-green">Finance</span></td>
+                      <td className="py-2 px-2">success</td>
+                      <td className="py-2 px-2 text-muted-foreground">145 80% 42%</td>
+                      <td className="py-2 px-2 font-sans text-muted-foreground">Fed, stocks, GDP</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2"><span className="text-trading-red">Politics</span></td>
+                      <td className="py-2 px-2">error</td>
+                      <td className="py-2 px-2 text-muted-foreground">0 85% 60%</td>
+                      <td className="py-2 px-2 font-sans text-muted-foreground">Elections, government</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2"><span className="text-cyan-400">Tech</span></td>
+                      <td className="py-2 px-2">outline + class</td>
+                      <td className="py-2 px-2 text-muted-foreground">190 90% 50%</td>
+                      <td className="py-2 px-2 font-sans text-muted-foreground">SpaceX, AI, Apple</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2"><span className="text-orange-400">Entertainment</span></td>
+                      <td className="py-2 px-2">outline + class</td>
+                      <td className="py-2 px-2 text-muted-foreground">25 95% 55%</td>
+                      <td className="py-2 px-2 font-sans text-muted-foreground">Movies, Oscars</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 px-2"><span className="text-blue-400">Sports</span></td>
+                      <td className="py-2 px-2">outline + class</td>
+                      <td className="py-2 px-2 text-muted-foreground">210 90% 55%</td>
+                      <td className="py-2 px-2 font-sans text-muted-foreground">NBA, NFL, World Cup</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-2"><span className="text-muted-foreground">General</span></td>
+                      <td className="py-2 px-2">secondary</td>
+                      <td className="py-2 px-2 text-muted-foreground">222 25% 55%</td>
+                      <td className="py-2 px-2 font-sans text-muted-foreground">Fallback</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* How to Add New Category */}
+            <div className="p-4 rounded-lg bg-trading-yellow/10 border border-trading-yellow/30">
+              <h4 className="text-sm font-semibold text-trading-yellow mb-2 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                Adding New Categories
+              </h4>
+              <ol className="text-xs text-muted-foreground space-y-2 list-decimal list-inside">
+                <li><strong>Choose a unique color</strong> - Never duplicate an existing category's color</li>
+                <li><strong>Add to CATEGORY_STYLES</strong> in <code className="text-primary">src/lib/categoryUtils.ts</code></li>
+                <li><strong>Add keywords</strong> to <code className="text-primary">getCategoryFromName()</code> function</li>
+                <li><strong>Update this StyleGuide</strong> with the new category</li>
+              </ol>
+            </div>
+
+            {/* Code Example */}
+            <div>
+              <h4 className="text-sm font-medium mb-2">Usage Example</h4>
+              <CodePreview 
+                code={`import { CATEGORY_STYLES, CategoryType, getCategoryInfo } from "@/lib/categoryUtils";
+
+// Get category from event
+const categoryInfo = getCategoryInfo(event.category);
+
+// Use the variant system
+<Badge 
+  variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
+  className={\`\${
+    ["Tech", "Entertainment", "Sports"].includes(categoryInfo.label) 
+      ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
+      : ""
+  }\`}
+>
+  {categoryInfo.label}
+</Badge>`}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
     </div>
   );
 };
