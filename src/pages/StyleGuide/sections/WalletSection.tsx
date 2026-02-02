@@ -315,12 +315,100 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
               />
             </div>
 
-            {/* Full Address Display */}
+            {/* Security: Color-Coded Address Display */}
+            <div className="space-y-4 p-4 border border-primary/20 rounded-xl bg-primary/5">
+              <div>
+                <h4 className="text-sm font-semibold text-primary mb-1">🔐 Security: Color-Coded Address Display</h4>
+                <p className="text-xs text-muted-foreground">
+                  Alphanumeric differentiation to prevent character confusion (e.g., '6' vs 'b', '0' vs 'O')
+                </p>
+              </div>
+
+              {/* Visual Example */}
+              <div className="p-5 bg-card/80 border border-border/50 rounded-xl">
+                <div className="font-mono text-lg leading-relaxed text-center flex flex-wrap justify-center gap-x-3 gap-y-2">
+                  <span className="tracking-wide">
+                    <span className="text-primary">0</span>
+                    <span className="text-foreground">x</span>
+                  </span>
+                  {/* 742d */}
+                  <span className="tracking-wide">
+                    <span className="text-primary">7</span>
+                    <span className="text-primary">4</span>
+                    <span className="text-primary">2</span>
+                    <span className="text-foreground">d</span>
+                  </span>
+                  {/* 35Cc */}
+                  <span className="tracking-wide">
+                    <span className="text-primary">3</span>
+                    <span className="text-primary">5</span>
+                    <span className="text-foreground">C</span>
+                    <span className="text-foreground">c</span>
+                  </span>
+                  {/* 6634 */}
+                  <span className="tracking-wide">
+                    <span className="text-primary">6</span>
+                    <span className="text-primary">6</span>
+                    <span className="text-primary">3</span>
+                    <span className="text-primary">4</span>
+                  </span>
+                  {/* C053 */}
+                  <span className="tracking-wide">
+                    <span className="text-foreground">C</span>
+                    <span className="text-primary">0</span>
+                    <span className="text-primary">5</span>
+                    <span className="text-primary">3</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Color Legend */}
+              <div className="flex items-center justify-center gap-6 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-primary" />
+                  <span>Digits (0-9)</span>
+                  <code className="text-muted-foreground">text-primary</code>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-foreground" />
+                  <span>Letters (a-f)</span>
+                  <code className="text-muted-foreground">text-foreground</code>
+                </div>
+              </div>
+
+              {/* Why This Matters */}
+              <div className="p-3 bg-trading-yellow/5 border border-trading-yellow/20 rounded-lg">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <span className="font-semibold text-trading-yellow">⚠️ When to use:</span>{' '}
+                  Always apply this pattern in <code>FullAddressSheet</code> and any full deposit address display. 
+                  Helps users verify addresses without confusing similar characters.
+                </p>
+              </div>
+
+              <CodePreview 
+                code={`// src/components/deposit/FullAddressSheet.tsx
+{chunks.map((chunk, i) => (
+  <span key={i}>
+    {chunk.map((item, j) => (
+      <span 
+        key={j}
+        className={item.isDigit ? 'text-primary' : 'text-foreground'}
+      >
+        {item.char}
+      </span>
+    ))}
+  </span>
+))}`}
+              />
+            </div>
+
+            {/* Truncated Address */}
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Full Address (Copyable)</h4>
+              <h4 className="text-sm font-medium">Truncated Address (Non-Security Context)</h4>
+              <p className="text-xs text-muted-foreground">For transaction history lists, truncated mono addresses are acceptable.</p>
               <div className="p-3 bg-muted/20 rounded-lg">
                 <p className="text-xs font-mono text-muted-foreground break-all">
-                  0x8f3a2b1c4d5e6f7890123456789abcdef0123456789abcdef0123456789abcd
+                  0x8f3a2b...9abcd
                 </p>
               </div>
             </div>
