@@ -1265,6 +1265,276 @@ toast.promise(asyncFn(), {
         </SubSection>
       </SectionWrapper>
 
+      {/* Share Poster Design System */}
+      <SectionWrapper
+        id="share-poster"
+        title="Share Poster Design System"
+        platform="shared"
+        description="Standardized poster templates for sharing trades, settlements, and referrals"
+      >
+        <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+          {/* Poster Structure - Updated to match actual pattern */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Poster Structure</CardTitle>
+              <CardDescription>Standard layout: Logo → Content → QR + Referral</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 bg-gradient-to-b from-[#1a1a2e] to-[#16162a] rounded-xl space-y-4">
+                {/* Header - OMENX Logo */}
+                <div className="flex items-center gap-2 pb-3">
+                  <Logo size="md" />
+                  <div className="ml-auto px-2 py-0.5 bg-white/10 rounded text-[10px] text-white/60">
+                    JAN 25, 2026
+                  </div>
+                </div>
+                
+                {/* Content Zone - Main Stats */}
+                <div className="p-4 bg-trading-green/10 border border-trading-green/30 rounded-lg text-center space-y-2">
+                  <p className="text-[10px] text-trading-green uppercase tracking-wider">PROFIT</p>
+                  <p className="text-2xl font-bold text-trading-green">+$68.00</p>
+                  <p className="text-sm text-trading-green/80">+96.2% ROI</p>
+                </div>
+                
+                {/* Event Info */}
+                <div className="p-3 bg-white/5 rounded-lg space-y-1">
+                  <p className="text-xs text-white font-medium">Event Name Here</p>
+                  <div className="flex items-center gap-2 text-[10px]">
+                    <span className="px-1.5 py-0.5 bg-trading-green/20 text-trading-green rounded">Long 10x</span>
+                    <span className="text-white/60">Option Label</span>
+                  </div>
+                </div>
+                
+                {/* Footer - QR + Referral */}
+                <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                  <div className="space-y-1">
+                    <p className="text-xs text-trading-green">Join & trade like a pro!</p>
+                    <p className="text-[10px] text-white/60">
+                      Referral: <span className="font-semibold text-white">BUBBLESP</span>
+                    </p>
+                  </div>
+                  <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center">
+                    <span className="text-[8px] text-black">QR Code</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p><strong>Structure:</strong> Logo Header → Content (Stats/PnL) → QR + Referral Footer</p>
+                <p><strong>Background:</strong> Dark gradient <code>from-[#1a1a2e] to-[#16162a]</code></p>
+                <p><strong>Fixed Width:</strong> <code>w-[400px]</code> for consistent image export</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Color Themes */}
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Theme Variants</CardTitle>
+              <CardDescription>Context-aware color themes for different poster types</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Win Theme */}
+              <div className="p-3 bg-trading-green/10 border border-trading-green/30 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-trading-green">Win / Profit Theme</p>
+                    <p className="text-xs text-muted-foreground">Settlement wins, positive PnL</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-6 h-6 rounded bg-trading-green" title="#22c55e" />
+                    <div className="w-6 h-6 rounded bg-trading-green/20" title="20% opacity" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Loss Theme */}
+              <div className="p-3 bg-trading-red/10 border border-trading-red/30 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-trading-red">Loss Theme</p>
+                    <p className="text-xs text-muted-foreground">Settlement losses, negative PnL</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-6 h-6 rounded bg-trading-red" title="#ef4444" />
+                    <div className="w-6 h-6 rounded bg-trading-red/20" title="20% opacity" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Neutral Theme */}
+              <div className="p-3 bg-primary/10 border border-primary/30 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-primary">Neutral / Brand Theme</p>
+                    <p className="text-xs text-muted-foreground">Deposits, addresses, leaderboard</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-6 h-6 rounded bg-primary" title="primary" />
+                    <div className="w-6 h-6 rounded bg-primary/20" title="20% opacity" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Special Themes */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2 bg-gradient-to-r from-amber-500/20 to-yellow-400/20 border border-amber-400/30 rounded-lg">
+                  <p className="text-xs font-semibold text-amber-400">Gold (Top Rank)</p>
+                </div>
+                <div className="p-2 bg-gradient-to-r from-cyan-400/20 to-purple-500/20 border border-cyan-400/30 rounded-lg">
+                  <p className="text-xs font-semibold text-cyan-400">Neon (Alt Theme)</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Poster Components Reference */}
+        <Card className="trading-card mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Poster Components</CardTitle>
+            <CardDescription>Reference for all share poster implementations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 pr-4 font-medium">Component</th>
+                    <th className="text-left py-2 pr-4 font-medium">Purpose</th>
+                    <th className="text-left py-2 pr-4 font-medium">Key Elements</th>
+                    <th className="text-left py-2 font-medium">Theme</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-border/50">
+                    <td className="py-3 pr-4 font-mono text-xs text-foreground">SharePosterContent</td>
+                    <td className="py-3 pr-4">Deposit address sharing</td>
+                    <td className="py-3 pr-4">QR code, color-coded address, network warning</td>
+                    <td className="py-3">Neutral/Brand</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-3 pr-4 font-mono text-xs text-foreground">SettlementShareCard</td>
+                    <td className="py-3 pr-4">Trade result sharing</td>
+                    <td className="py-3 pr-4">PnL amount, ROI %, event name, entry/exit</td>
+                    <td className="py-3">Win/Loss dynamic</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-3 pr-4 font-mono text-xs text-foreground">EventShareCard</td>
+                    <td className="py-3 pr-4">Event outcome sharing</td>
+                    <td className="py-3 pr-4">Winning option, final price, user position</td>
+                    <td className="py-3">Win/Loss dynamic</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 pr-4 font-mono text-xs text-foreground">Leaderboard Card</td>
+                    <td className="py-3 pr-4">Ranking sharing</td>
+                    <td className="py-3 pr-4">Rank position, username, stats, referral</td>
+                    <td className="py-3">Gold/Neon/Brutal</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 p-4 bg-muted/20 rounded-lg">
+              <h4 className="text-sm font-semibold mb-3">Implementation Pattern</h4>
+              <CodePreview 
+                code={`// 1. Create poster content component (pure visual)
+const SharePosterContent = forwardRef<HTMLDivElement, Props>(
+  ({ data }, ref) => (
+    <div ref={ref} className="w-[400px] bg-gradient-to-b from-[#1a1a2e] to-[#16162a] p-8 rounded-2xl">
+      {/* Header - OMENX Logo */}
+      <Logo size="md" />
+      
+      {/* Main Content (PnL Stats, Event Info, etc.) */}
+      
+      {/* Footer - QR Code + Referral */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p>Join & trade like a pro!</p>
+          <p>Referral: <strong>CODE</strong></p>
+        </div>
+        <QRCodeSVG value="https://omenx.com?ref=CODE" size={56} />
+      </div>
+    </div>
+  )
+);
+
+// 2. Use html-to-image to generate PNG
+import { toPng } from 'html-to-image';
+
+const dataUrl = await toPng(posterRef.current, {
+  quality: 1,
+  pixelRatio: 2,  // 2x for retina
+});
+
+// 3. Share via navigator.share or download
+const blob = await fetch(dataUrl).then(r => r.blob());
+const file = new File([blob], 'share.png', { type: 'image/png' });
+navigator.share({ files: [file] });`}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Design Rules */}
+        <Card className="trading-card mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Design Rules</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold">✅ Must Have</h4>
+                <ul className="text-xs text-muted-foreground space-y-2">
+                  <li className="flex gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-trading-green shrink-0 mt-0.5" />
+                    <span>OMENX logo in header (use Logo component)</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-trading-green shrink-0 mt-0.5" />
+                    <span>QR code + Referral code in footer</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-trading-green shrink-0 mt-0.5" />
+                    <span>Fixed width <code>w-[400px]</code> for consistent export</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-trading-green shrink-0 mt-0.5" />
+                    <span>Dark gradient background for Web3 aesthetic</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-trading-green shrink-0 mt-0.5" />
+                    <span>Color-coded addresses (digits = primary, letters = white)</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold">❌ Avoid</h4>
+                <ul className="text-xs text-muted-foreground space-y-2">
+                  <li className="flex gap-2">
+                    <XCircle className="h-3.5 w-3.5 text-trading-red shrink-0 mt-0.5" />
+                    <span>Using Tailwind classes for colors (use inline styles for html-to-image)</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <XCircle className="h-3.5 w-3.5 text-trading-red shrink-0 mt-0.5" />
+                    <span>Variable width containers (causes inconsistent exports)</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <XCircle className="h-3.5 w-3.5 text-trading-red shrink-0 mt-0.5" />
+                    <span>Light backgrounds (doesn't match brand aesthetic)</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <XCircle className="h-3.5 w-3.5 text-trading-red shrink-0 mt-0.5" />
+                    <span>Missing QR code or referral in footer</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
       {/* Desktop Navigation Specification */}
       <DesktopNavigationSection isMobile={isMobile} />
     </div>
