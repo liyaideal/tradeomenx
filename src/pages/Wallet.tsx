@@ -41,6 +41,8 @@ import {
   Transaction, 
   TransactionStatus 
 } from "@/components/wallet";
+import { DepositDialog } from "@/components/deposit/DepositDialog";
+import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
 
 export default function Wallet() {
   const navigate = useNavigate();
@@ -129,6 +131,8 @@ export default function Wallet() {
   
   // Dialog states
   const [topUpOpen, setTopUpOpen] = useState(false);
+  const [depositDialogOpen, setDepositDialogOpen] = useState(false);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   
   const [walletDialogOpen, setWalletDialogOpen] = useState(false);
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
@@ -516,7 +520,7 @@ export default function Wallet() {
                   <div className="flex gap-3">
                     <Button 
                       className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-11"
-                      onClick={() => setTopUpOpen(true)}
+                      onClick={() => setDepositDialogOpen(true)}
                     >
                       <ArrowDownLeft className="w-4 h-4 mr-2" />
                       Deposit
@@ -524,7 +528,7 @@ export default function Wallet() {
                     <Button 
                       variant="outline"
                       className="flex-1 border-border/50 hover:bg-muted/50 rounded-xl h-11"
-                      onClick={() => toast.info("Withdraw feature coming soon")}
+                      onClick={() => setWithdrawDialogOpen(true)}
                     >
                       <ArrowUpRight className="w-4 h-4 mr-2" />
                       Withdraw
@@ -640,7 +644,7 @@ export default function Wallet() {
           </div>
         </div>
 
-        {/* Top Up Dialog */}
+        {/* Top Up Dialog (legacy/fallback) */}
         <TopUpDialog 
           open={topUpOpen} 
           onOpenChange={setTopUpOpen} 
@@ -648,6 +652,18 @@ export default function Wallet() {
           onTopUp={(amount, method) => {
             toast.success(`Deposited $${amount} via ${method}`);
           }}
+        />
+
+        {/* Desktop Deposit Dialog */}
+        <DepositDialog 
+          open={depositDialogOpen} 
+          onOpenChange={setDepositDialogOpen} 
+        />
+
+        {/* Desktop Withdraw Dialog */}
+        <WithdrawDialog 
+          open={withdrawDialogOpen} 
+          onOpenChange={setWithdrawDialogOpen} 
         />
 
         {/* Wallet Connection Dialog */}
