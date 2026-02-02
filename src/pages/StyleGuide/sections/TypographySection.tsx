@@ -379,7 +379,7 @@ export const TypographySection = ({ isMobile }: TypographySectionProps) => {
           <Card className="trading-card">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-trading-blue" />
+                <span className="w-2 h-2 rounded-full bg-primary" />
                 AmountText
               </CardTitle>
               <CardDescription>Display quantities with optional suffix</CardDescription>
