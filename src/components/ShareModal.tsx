@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X, Download, Copy, Send, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as htmlToImage from "html-to-image";
-
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -125,8 +125,8 @@ export const ShareModal = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pb-20 md:pb-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 pb-20 md:pb-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
       
@@ -210,6 +210,7 @@ export const ShareModal = ({
           </button>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
