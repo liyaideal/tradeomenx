@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, X, HelpCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -11,6 +11,13 @@ export default function Withdraw() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
+  
+  // On desktop, redirect to wallet page (withdraw uses dialog there)
+  useEffect(() => {
+    if (isMobile === false) {
+      navigate('/wallet', { replace: true });
+    }
+  }, [isMobile, navigate]);
   
   // Get token from URL params if present (for step 2)
   const tokenFromUrl = searchParams.get('token') as SupportedToken | null;
@@ -34,6 +41,11 @@ export default function Withdraw() {
 
   const tokenConfig = selectedToken ? getTokenConfig(selectedToken) : null;
   const title = tokenConfig ? `Withdraw ${tokenConfig.symbol}` : 'Withdraw';
+
+  // Don't render on desktop (will redirect)
+  if (isMobile === false) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

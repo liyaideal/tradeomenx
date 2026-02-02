@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, X, HelpCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { BottomNav } from '@/components/BottomNav';
 import { AssetSelect } from '@/components/shared/AssetSelect';
@@ -12,6 +11,13 @@ export default function Deposit() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
+  
+  // On desktop, redirect to wallet page (deposit uses dialog there)
+  useEffect(() => {
+    if (isMobile === false) {
+      navigate('/wallet', { replace: true });
+    }
+  }, [isMobile, navigate]);
   
   // Get token from URL params if present (for step 2)
   const tokenFromUrl = searchParams.get('token') as SupportedToken | null;
@@ -35,6 +41,11 @@ export default function Deposit() {
 
   const tokenConfig = selectedToken ? getTokenConfig(selectedToken) : null;
   const title = tokenConfig ? `Deposit ${tokenConfig.symbol}` : 'Deposit';
+
+  // Don't render on desktop (will redirect)
+  if (isMobile === false) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
