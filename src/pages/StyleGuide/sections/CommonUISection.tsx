@@ -210,10 +210,10 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
         <div className="mt-6">
           <h4 className="text-sm font-medium mb-3">Trading Status Badges</h4>
           <div className="flex flex-wrap gap-2">
-            <Badge className="bg-trading-green/10 text-trading-green border-trading-green/20">+12.34%</Badge>
-            <Badge className="bg-trading-red/10 text-trading-red border-trading-red/20">-5.67%</Badge>
-            <Badge className="bg-trading-purple/10 text-trading-purple border-trading-purple/20">Active</Badge>
-            <Badge className="bg-trading-yellow/10 text-trading-yellow border-trading-yellow/20">Pending</Badge>
+            <Badge variant="success">+12.34%</Badge>
+            <Badge variant="error">-5.67%</Badge>
+            <Badge variant="info">Active</Badge>
+            <Badge variant="warning">Pending</Badge>
           </div>
         </div>
       </SectionWrapper>
