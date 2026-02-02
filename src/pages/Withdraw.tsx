@@ -13,8 +13,9 @@ export default function Withdraw() {
   const isMobile = useIsMobile();
   
   // On desktop, redirect to wallet page (withdraw uses dialog there)
+  // Only redirect when isMobile is explicitly false (not undefined during initial load)
   useEffect(() => {
-    if (isMobile === false) {
+    if (isMobile !== undefined && isMobile === false) {
       navigate('/wallet', { replace: true });
     }
   }, [isMobile, navigate]);
@@ -42,8 +43,8 @@ export default function Withdraw() {
   const tokenConfig = selectedToken ? getTokenConfig(selectedToken) : null;
   const title = tokenConfig ? `Withdraw ${tokenConfig.symbol}` : 'Withdraw';
 
-  // Don't render on desktop (will redirect)
-  if (isMobile === false) {
+  // Don't render on desktop (will redirect) or during initial load
+  if (isMobile === undefined || isMobile === false) {
     return null;
   }
 
