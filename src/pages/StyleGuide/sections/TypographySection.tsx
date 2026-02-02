@@ -434,7 +434,7 @@ export const TypographySection = ({ isMobile }: TypographySectionProps) => {
           <Card className="trading-card">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-trading-orange" />
+                <span className="w-2 h-2 rounded-full bg-trading-yellow" />
                 LabelText
               </CardTitle>
               <CardDescription>Display labels and option names with consistent styling</CardDescription>
