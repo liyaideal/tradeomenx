@@ -59,12 +59,14 @@ export const SharePosterLayout = forwardRef<HTMLDivElement, SharePosterLayoutPro
         ref={ref}
         style={{
           width: `${POSTER_WIDTH}px`,
+          maxWidth: '100%',
           background: POSTER_BACKGROUND,
           padding: '24px',
           borderRadius: '16px',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           position: 'relative',
-          overflow: 'hidden',
+          overflow: 'visible',
+          boxSizing: 'border-box',
           ...style,
         }}
       >
