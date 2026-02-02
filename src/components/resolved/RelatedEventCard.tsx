@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { RelatedEvent } from "@/hooks/useResolvedEventDetail";
 import { Check, ChevronRight } from "lucide-react";
-import { getCategoryInfo } from "@/lib/categoryUtils";
+import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 
 interface RelatedEventCardProps {
   event: RelatedEvent;
@@ -20,13 +20,12 @@ export const RelatedEventCard = ({ event, onClick }: RelatedEventCardProps) => {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           <Badge 
-            variant="outline" 
-            className="text-[9px] uppercase tracking-wide px-1.5 py-0"
-            style={{
-              backgroundColor: `hsl(${categoryInfo.color} / 0.15)`,
-              color: `hsl(${categoryInfo.color})`,
-              borderColor: `hsl(${categoryInfo.color} / 0.3)`,
-            }}
+            variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
+            className={`text-[9px] uppercase tracking-wide px-1.5 py-0 ${
+              ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
+                ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
+                : ""
+            }`}
           >
             {categoryInfo.label}
           </Badge>

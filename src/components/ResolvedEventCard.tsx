@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, BarChart3, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ResolvedEvent, ResolvedEventOption } from "@/hooks/useResolvedEvents";
-import { getCategoryInfo } from "@/lib/categoryUtils";
+import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { format } from "date-fns";
 
 interface ResolvedEventCardProps {
@@ -107,11 +107,12 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
           {/* Row 2: Category + Participation + Date */}
           <div className="flex items-center gap-2 mt-2.5 flex-wrap">
             <Badge 
-              className="text-[10px] font-medium border-0 px-2 py-0.5"
-              style={{ 
-                backgroundColor: `hsl(${categoryInfo.color} / 0.2)`,
-                color: `hsl(${categoryInfo.color})`
-              }}
+              variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
+              className={`text-[10px] font-medium border-0 px-2 py-0.5 ${
+                ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
+                  ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
+                  : ""
+              }`}
             >
               {categoryInfo.label}
             </Badge>
@@ -209,11 +210,12 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
         {/* Row 2: Category + Participation + Date */}
         <div className="flex items-center gap-2 mt-2.5 flex-wrap">
           <Badge 
-            className="text-[10px] font-medium border-0 px-2 py-0.5"
-            style={{ 
-              backgroundColor: `hsl(${categoryInfo.color} / 0.2)`,
-              color: `hsl(${categoryInfo.color})`
-            }}
+            variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "secondary"}
+            className={`text-[10px] font-medium border-0 px-2 py-0.5 ${
+              ["Tech", "Entertainment", "Sports", "Market", "General"].includes(categoryInfo.label) 
+                ? CATEGORY_STYLES[categoryInfo.label as CategoryType]?.class 
+                : ""
+            }`}
           >
             {categoryInfo.label}
           </Badge>
