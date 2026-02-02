@@ -98,21 +98,38 @@ export const AuthContent = ({
         // Replace spaces with underscores to satisfy database constraint
         const rawUsername = sillyname();
         const mockUsername = rawUsername.replace(/ /g, '_');
+        
+        // Generate random avatar URL
+        const avatarSeeds = ['felix', 'aneka', 'sophia', 'liam', 'mia', 'oliver', 'emma', 'noah', 'ava', 'elijah'];
+        const avatarBgs = ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc', 'ffdfbf'];
+        const randomSeed = avatarSeeds[Math.floor(Math.random() * avatarSeeds.length)];
+        const randomBg = avatarBgs[Math.floor(Math.random() * avatarBgs.length)];
+        const avatarUrl = `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${randomSeed}&backgroundColor=${randomBg}`;
 
-        // Update profile with sillyname username (and email only for Google)
-        // (profile is auto-created by database trigger, so we update it)
-        const updateData: { username: string; email?: string } = { username: mockUsername };
+        // Upsert profile - creates if not exists, updates if exists
+        // This handles the case where the database trigger might not have fired
+        const profileData: {
+          user_id: string;
+          username: string;
+          avatar_url: string;
+          trial_balance: number;
+          email?: string;
+        } = {
+          user_id: data.user.id,
+          username: mockUsername,
+          avatar_url: avatarUrl,
+          trial_balance: 10000,
+        };
         if (mockEmail) {
-          updateData.email = mockEmail;
+          profileData.email = mockEmail;
         }
         
         const { error: profileError } = await supabase
           .from("profiles")
-          .update(updateData)
-          .eq("user_id", data.user.id);
+          .upsert(profileData, { onConflict: 'user_id' });
 
         if (profileError) {
-          console.error("Profile update error:", profileError);
+          console.error("Profile upsert error:", profileError);
         } else {
           // Invalidate profile cache to refresh the username
           await queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
