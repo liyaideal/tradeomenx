@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Gift, Star, Users, Share2, Trophy, ChevronRight, Clock, Check, Lock } from "lucide-react";
+import { ArrowLeft, Gift, Star, Trophy, Lock } from "lucide-react";
+import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -70,10 +71,10 @@ export default function Rewards() {
         }}
       >
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
-            task.isClaimed ? 'bg-muted' : 'bg-primary/10'
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+            task.isClaimed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'
           }`}>
-            {task.icon}
+            <TaskIcon icon={task.icon} size={20} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
