@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Search, Home, Settings, User, Bell, Menu, ChevronRight, X, Plus, Minus, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ExternalLink, Download, Upload, Trash2, Edit, Eye, EyeOff, Lock, Unlock, Star, Heart, Share2, Filter, RefreshCw, MoreHorizontal, MoreVertical, Calendar, Clock, MapPin, Phone, Mail, Link, Image, File, Folder, Camera, Mic, Video, Volume2, VolumeX, Play, Pause, SkipBack, SkipForward, Maximize, Minimize, ZoomIn, ZoomOut, RotateCw, RotateCcw, Undo, Redo, Copy as CopyIcon, Clipboard, Check as CheckIcon, AlertCircle, AlertTriangle, Info, HelpCircle, XCircle, CheckCircle2, Loader2, TrendingUp, TrendingDown, BarChart2, PieChart, Activity, Wallet, CreditCard, DollarSign, Percent, Hash, AtSign, Globe, Wifi, WifiOff, Battery, BatteryCharging, Sun, Moon, Cloud, Zap } from "lucide-react";
+import { Copy, Check, Search, Home, Settings, User, Bell, Menu, ChevronRight, X, Plus, Minus, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ExternalLink, Download, Upload, Trash2, Edit, Eye, EyeOff, Lock, Unlock, Star, Heart, Share2, Filter, RefreshCw, MoreHorizontal, MoreVertical, Calendar, Clock, MapPin, Phone, Mail, Link, Image, File, Folder, Camera, Mic, Video, Volume2, VolumeX, Play, Pause, SkipBack, SkipForward, Maximize, Minimize, ZoomIn, ZoomOut, RotateCw, RotateCcw, Undo, Redo, Copy as CopyIcon, Clipboard, Check as CheckIcon, AlertCircle, AlertTriangle, Info, HelpCircle, XCircle, CheckCircle2, Loader2, TrendingUp, TrendingDown, BarChart2, PieChart, Activity, Wallet, CreditCard, DollarSign, Percent, Hash, AtSign, Globe, Wifi, WifiOff, Battery, BatteryCharging, Sun, Moon, Cloud, Zap, Gift, Trophy, Sparkles, Coins, UserPlus, Twitter, Target, Users, Rocket, Medal, Crown, Flame } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SectionWrapper } from "../components/SectionWrapper";
@@ -400,6 +400,50 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
                   ].map(({ icon: Icon, name }) => (
                     <div key={name} className="flex flex-col items-center gap-1 p-2 hover:bg-muted/30 rounded-lg cursor-pointer group" onClick={() => { navigator.clipboard.writeText(name); toast.success(`Copied: ${name}`); }}>
                       <Icon className="h-5 w-5" />
+                      <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rewards & Engagement */}
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Rewards & Engagement</h4>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: Gift, name: "Gift", color: "text-primary" },
+                    { icon: Star, name: "Star", color: "text-trading-yellow" },
+                    { icon: Trophy, name: "Trophy", color: "text-trading-yellow" },
+                    { icon: Sparkles, name: "Sparkles", color: "text-primary" },
+                    { icon: Zap, name: "Zap", color: "text-trading-yellow" },
+                    { icon: Coins, name: "Coins", color: "text-trading-yellow" },
+                    { icon: Medal, name: "Medal", color: "text-trading-yellow" },
+                    { icon: Crown, name: "Crown", color: "text-trading-yellow" },
+                    { icon: Flame, name: "Flame", color: "text-trading-red" },
+                    { icon: Rocket, name: "Rocket", color: "text-primary" },
+                  ].map(({ icon: Icon, name, color }) => (
+                    <div key={name} className="flex flex-col items-center gap-1 p-2 hover:bg-muted/30 rounded-lg cursor-pointer group" onClick={() => { navigator.clipboard.writeText(name); toast.success(`Copied: ${name}`); }}>
+                      <Icon className={`h-5 w-5 ${color || ""}`} />
+                      <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Social & Referral */}
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Social & Referral</h4>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: Users, name: "Users" },
+                    { icon: UserPlus, name: "UserPlus", color: "text-trading-green" },
+                    { icon: Twitter, name: "Twitter", color: "text-[#1DA1F2]" },
+                    { icon: Share2, name: "Share2" },
+                    { icon: Target, name: "Target", color: "text-trading-red" },
+                    { icon: CheckCircle2, name: "CheckCircle2", color: "text-trading-green" },
+                  ].map(({ icon: Icon, name, color }) => (
+                    <div key={name} className="flex flex-col items-center gap-1 p-2 hover:bg-muted/30 rounded-lg cursor-pointer group" onClick={() => { navigator.clipboard.writeText(name); toast.success(`Copied: ${name}`); }}>
+                      <Icon className={`h-5 w-5 ${color || ""}`} />
                       <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{name}</span>
                     </div>
                   ))}
