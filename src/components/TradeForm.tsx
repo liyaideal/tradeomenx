@@ -2,8 +2,6 @@ import { useState, useMemo } from "react";
 import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
-import { TopUpDialog } from "@/components/TopUpDialog";
-import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
 
@@ -42,7 +40,6 @@ export const TradeForm = ({
   const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
-  const [topUpOpen, setTopUpOpen] = useState(false);
   
   // TP/SL states
   const [tpMode, setTpMode] = useState<"pct" | "price">("pct");
@@ -205,7 +202,7 @@ export const TradeForm = ({
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs">{available.toLocaleString()}</span>
           <button 
-            onClick={() => setTopUpOpen(true)}
+            onClick={() => navigate('/deposit')}
             className="w-5 h-5 bg-muted rounded-full flex items-center justify-center hover:bg-muted-foreground/30 transition-colors"
           >
             <Plus className="w-3 h-3" />
@@ -427,16 +424,6 @@ export const TradeForm = ({
       >
         {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
       </button>
-
-      {/* Top Up Dialog */}
-      <TopUpDialog
-        open={topUpOpen}
-        onOpenChange={setTopUpOpen}
-        currentBalance={available}
-        onTopUp={(amount, method) => {
-          toast.success(`Top up of $${amount} via ${method} initiated`);
-        }}
-      />
     </div>
   );
 };

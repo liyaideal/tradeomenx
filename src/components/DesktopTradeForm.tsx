@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { ChevronDown, Calculator } from "lucide-react";
+import { ChevronDown, Calculator, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
+import { DepositDialog } from "@/components/deposit/DepositDialog";
+
 interface DesktopTradeFormProps {
   selectedPrice?: string;
   symbol?: string;
@@ -14,6 +17,7 @@ interface DesktopTradeFormProps {
 export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: DesktopTradeFormProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { balance } = useUserProfile();
   const [marginType, setMarginType] = useState("Cross");
   const [leverage, setLeverage] = useState("10.00x");
   const [orderType, setOrderType] = useState<"Limit" | "Market" | "Conditional">("Limit");
@@ -22,6 +26,7 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
   const [sliderValue, setSliderValue] = useState([0]);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDefaultTab, setAuthDefaultTab] = useState<"signin" | "signup">("signup");
+  const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 
   const handlePreview = (side: "buy" | "sell") => {
     // Check if user is logged in first
@@ -158,9 +163,25 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
             <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
             <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
             <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
-            <span>100%</span>
+          <span>100%</span>
           </div>
         </div>
+
+        {/* Available Balance - Only show for logged in users */}
+        {user && (
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Available (USDC)</span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs">{balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <button 
+                onClick={() => setDepositDialogOpen(true)}
+                className="w-5 h-5 bg-muted rounded-full flex items-center justify-center hover:bg-muted-foreground/30 transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Value & Cost */}
         <div className="space-y-1.5">
@@ -256,6 +277,12 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
         open={authDialogOpen} 
         onOpenChange={setAuthDialogOpen}
         defaultTab={authDefaultTab}
+      />
+
+      {/* Deposit Dialog */}
+      <DepositDialog
+        open={depositDialogOpen}
+        onOpenChange={setDepositDialogOpen}
       />
     </div>
   );
