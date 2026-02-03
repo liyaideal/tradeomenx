@@ -1654,7 +1654,7 @@ navigator.share({ files: [file] });`}
 
 // Desktop Navigation Section Component
 const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
-  const [desktopPreset, setDesktopPreset] = useState<"home" | "trade" | "detail">("home");
+  const [desktopPreset, setDesktopPreset] = useState<"home" | "trade">("home");
 
   return (
     <SectionWrapper
@@ -1680,13 +1680,6 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
             onClick={() => setDesktopPreset("trade")}
           >
             Trade Page
-          </Badge>
-          <Badge 
-            variant={desktopPreset === "detail" ? "default" : "outline"} 
-            className="cursor-pointer hover:bg-primary/80"
-            onClick={() => setDesktopPreset("detail")}
-          >
-            Resolved Detail
           </Badge>
         </div>
       </div>
@@ -1808,95 +1801,6 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
       {/* TRADE PAGE HEADER - Interactive Playground */}
       {desktopPreset === "trade" && <TradingHeaderPlayground />}
 
-      {/* RESOLVED DETAIL PAGE HEADER */}
-      {desktopPreset === "detail" && (
-        <Card className="trading-card mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Monitor className="h-4 w-4" />
-              Detail Page Header
-            </CardTitle>
-            <CardDescription>
-              Header for resolved event details, settlement pages - uses EventsDesktopHeader with rightContent
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Visual Preview */}
-            <div className="bg-background rounded-lg border border-border overflow-hidden mb-6">
-              <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-              
-              <div className="flex items-center justify-between px-6 py-3">
-                <div className="flex items-center gap-8">
-                  <Logo size="xl" />
-                  <nav className="flex items-center gap-1">
-                    {["Events", "Resolved", "Portfolio"].map((tab, i) => (
-                      <button
-                        key={tab}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                          i === 1
-                            ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(260_60%_55%/0.3)]"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                        }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 border border-primary/30 ml-1">
-                      <Trophy className="w-4 h-4" />
-                      Leaderboard
-                    </button>
-                  </nav>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  {/* Right Content Slot - Share Button */}
-                  <Button variant="outline" size="sm" className="gap-1.5">
-                    <Share2 className="h-3.5 w-3.5" />
-                    Share
-                  </Button>
-                  
-                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-muted/30">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">EN</span>
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50">
-                    <span className="text-sm text-muted-foreground">Balance:</span>
-                    <span className="text-sm font-bold text-trading-green font-mono">$10,000.00</span>
-                  </button>
-                  <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-muted/50">
-                    <div className="w-9 h-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center">
-                      <span className="text-sm text-primary font-medium">U</span>
-                    </div>
-                    <span className="text-sm font-medium">Username</span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-sm text-muted-foreground mb-4">
-              Detail pages use <code className="text-primary">EventsDesktopHeader</code> with the <code className="text-primary">rightContent</code> prop
-              to add contextual actions like Share buttons.
-            </p>
-
-            <CodePreview 
-              code={`import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-
-// Resolved event detail page
-<EventsDesktopHeader 
-  rightContent={
-    <Button variant="outline" size="sm" className="gap-1.5">
-      <Share2 className="h-3.5 w-3.5" />
-      Share
-    </Button>
-  }
-/>`}
-              collapsible
-              defaultExpanded={false}
-            />
-          </CardContent>
-        </Card>
-      )}
 
       {/* Mobile vs Desktop Comparison */}
       <Card className="trading-card">
@@ -1925,9 +1829,9 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
                   <td className="py-2">Embedded trading header</td>
                 </tr>
                 <tr>
-                  <td className="py-2 font-medium">Resolved Detail</td>
+                  <td className="py-2 font-medium">Detail Pages</td>
                   <td className="py-2">MobileHeader + back</td>
-                  <td className="py-2">EventsDesktopHeader + rightContent</td>
+                  <td className="py-2">EventsDesktopHeader (same as Home)</td>
                 </tr>
                 <tr>
                   <td className="py-2 font-medium">Portfolio</td>
