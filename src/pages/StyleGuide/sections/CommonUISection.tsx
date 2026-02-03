@@ -592,27 +592,27 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
 
         {/* Achievement Badge Card Pattern */}
         <div className="mt-6">
-          <h4 className="text-sm font-medium mb-2">Achievement Badge Card</h4>
+          <h4 className="text-sm font-medium mb-2">Achievement Badge Card (Watermark Style)</h4>
           <p className="text-xs text-muted-foreground mb-4">
-            Gamified task/reward cards with prominent icons and clear visual hierarchy. 
-            Large icon top-left, points badge top-right, full description, and full-width action button.
+            Gamified task/reward cards with decorative watermark icon. 
+            48px semi-transparent icon as background decoration in top-right, compact content layout with points badge and full-width action button.
           </p>
           
           <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"}`}>
             {/* Pending State */}
-            <Card className="trading-card overflow-hidden">
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
-                    <Star className="w-7 h-7 text-muted-foreground" />
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-muted-foreground">
-                    <Star className="w-3.5 h-3.5" />
-                    <span className="font-bold text-sm font-mono">+200</span>
+            <Card className="trading-card overflow-hidden relative">
+              <div className="absolute top-3 right-3 pointer-events-none">
+                <Star className="w-12 h-12 text-muted-foreground/10" />
+              </div>
+              <div className="p-4 relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+                    <Star className="w-3 h-3" />
+                    <span className="font-bold font-mono">+200</span>
                   </div>
                 </div>
-                <div className="mb-4">
-                  <h4 className="font-semibold text-base mb-1">Invite a Friend</h4>
+                <div className="mb-3 pr-12">
+                  <h4 className="font-semibold text-base mb-0.5">Invite a Friend</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">Invite friends and earn when they trade</p>
                 </div>
                 <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
@@ -622,19 +622,19 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
             </Card>
 
             {/* Claimable State */}
-            <Card className="trading-card overflow-hidden border-primary/40 glow-primary">
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-14 h-14 rounded-xl bg-primary/15 ring-2 ring-primary/40 flex items-center justify-center">
-                    <Star className="w-7 h-7 text-primary" />
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary">
-                    <Star className="w-3.5 h-3.5" />
-                    <span className="font-bold text-sm font-mono">+50</span>
+            <Card className="trading-card overflow-hidden relative border-primary/40 glow-primary">
+              <div className="absolute top-3 right-3 pointer-events-none">
+                <Star className="w-12 h-12 text-primary/15" />
+              </div>
+              <div className="p-4 relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs">
+                    <Star className="w-3 h-3" />
+                    <span className="font-bold font-mono">+50</span>
                   </div>
                 </div>
-                <div className="mb-4">
-                  <h4 className="font-semibold text-base mb-1">Complete Registration</h4>
+                <div className="mb-3 pr-12">
+                  <h4 className="font-semibold text-base mb-0.5">Complete Registration</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">Create your account to get started</p>
                 </div>
                 <Button className="btn-primary w-full">
@@ -645,51 +645,53 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
             </Card>
 
             {/* Claimed State */}
-            <Card className="trading-card overflow-hidden opacity-60">
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-14 h-14 rounded-xl bg-trading-green/10 ring-2 ring-trading-green/30 flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7 text-trading-green" />
+            <Card className="trading-card overflow-hidden relative opacity-60">
+              <div className="absolute top-3 right-3 pointer-events-none">
+                <CheckCircle2 className="w-12 h-12 text-trading-green/10" />
+              </div>
+              <div className="p-4 relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+                    <Star className="w-3 h-3" />
+                    <span className="font-bold font-mono">+100</span>
                   </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-muted-foreground">
-                    <Star className="w-3.5 h-3.5" />
-                    <span className="font-bold text-sm font-mono">+100</span>
+                  <div className="flex items-center gap-1 text-trading-green text-xs">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span className="font-medium">Completed</span>
                   </div>
                 </div>
-                <div className="mb-4">
-                  <h4 className="font-semibold text-base mb-1">First Trade</h4>
+                <div className="mb-3 pr-12">
+                  <h4 className="font-semibold text-base mb-0.5">First Trade</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">Place your first prediction trade</p>
-                </div>
-                <div className="flex items-center justify-center gap-2 text-trading-green py-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span className="text-sm font-medium">Completed</span>
                 </div>
               </div>
             </Card>
           </div>
 
           <CodePreview
-            code={`{/* Achievement Badge Card - Claimable State */}
-<Card className="trading-card overflow-hidden border-primary/40 glow-primary">
-  <div className="p-4">
-    {/* Top: Large Icon + Points Badge */}
-    <div className="flex items-start justify-between mb-3">
-      <div className="w-14 h-14 rounded-xl bg-primary/15 ring-2 ring-primary/40 flex items-center justify-center">
-        <TaskIcon icon={task.icon} size={28} className="text-primary" />
-      </div>
-      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary">
-        <Sparkles className="w-3.5 h-3.5" />
-        <span className="font-bold text-sm font-mono">+{points}</span>
+            code={`{/* Achievement Badge Card - Watermark Style */}
+<Card className="trading-card overflow-hidden relative border-primary/40 glow-primary">
+  {/* Decorative Icon Watermark */}
+  <div className="absolute top-3 right-3 pointer-events-none">
+    <TaskIcon icon={task.icon} size={48} className="text-primary/15" />
+  </div>
+  
+  <div className="p-4 relative">
+    {/* Header: Points Badge */}
+    <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs">
+        <Sparkles className="w-3 h-3" />
+        <span className="font-bold font-mono">+{points}</span>
       </div>
     </div>
     
-    {/* Middle: Title + Description */}
-    <div className="mb-4">
-      <h4 className="font-semibold text-base mb-1">{task.name}</h4>
+    {/* Title + Description (with right padding for watermark) */}
+    <div className="mb-3 pr-12">
+      <h4 className="font-semibold text-base mb-0.5">{task.name}</h4>
       <p className="text-sm text-muted-foreground leading-relaxed">{task.description}</p>
     </div>
     
-    {/* Bottom: Full-width Action */}
+    {/* Full-width Action */}
     <Button className="btn-primary w-full" onClick={onClaim}>
       <Gift className="w-4 h-4 mr-2" />
       Claim Reward
