@@ -24,11 +24,11 @@ export interface Referral {
   created_at: string;
 }
 
-// Generate a random referral code
+// Generate a random referral code (6 characters)
 const generateReferralCode = (): string => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return code;
