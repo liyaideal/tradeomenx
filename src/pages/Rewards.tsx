@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Gift, Star, Trophy, Lock } from "lucide-react";
+import { Gift, Star, Trophy, Lock } from "lucide-react";
 import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
+import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { usePoints } from "@/hooks/usePoints";
 import { useTasks, TaskWithProgress } from "@/hooks/useTasks";
@@ -51,17 +52,17 @@ export default function Rewards() {
   const TaskCard = ({ task }: { task: TaskWithProgress }) => {
     const getStatusBadge = () => {
       if (task.isClaimed) {
-        return <Badge variant="secondary" className="bg-trading-green/20 text-trading-green">Claimed</Badge>;
+        return <Badge variant="success">Claimed</Badge>;
       }
       if (task.isCompleted) {
-        return <Badge className="bg-primary">Claim</Badge>;
+        return <Badge variant="default">Claim</Badge>;
       }
       return <Badge variant="outline">Pending</Badge>;
     };
 
     return (
       <Card
-        className={`p-4 cursor-pointer transition-all duration-200 ${
+        className={`trading-card p-4 cursor-pointer transition-all duration-200 ${
           task.isClaimed ? 'opacity-60' : 'hover:border-primary/50'
         }`}
         onClick={() => {
@@ -97,7 +98,7 @@ export default function Rewards() {
   const content = (
     <div className="space-y-6">
       {/* Points Balance Card */}
-      <Card className="p-6 bg-gradient-to-br from-primary/10 via-background to-primary/5 border-primary/20">
+      <Card className="trading-card p-6 border-primary/20">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
@@ -139,7 +140,7 @@ export default function Rewards() {
       </Card>
 
       {/* Task Progress */}
-      <Card className="p-4">
+      <Card className="trading-card p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold flex items-center gap-2">
             <Trophy className="w-4 h-4 text-primary" />
@@ -160,7 +161,7 @@ export default function Rewards() {
 
         <TabsContent value="tasks" className="mt-4 space-y-3">
           {tasks.length === 0 ? (
-            <Card className="p-8 text-center">
+            <Card className="trading-card p-8 text-center">
               <Gift className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">No tasks available</p>
             </Card>
@@ -185,16 +186,11 @@ export default function Rewards() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        {/* Mobile Header */}
-        <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border/50">
-          <div className="flex items-center justify-between px-4 py-3">
-            <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="font-semibold">Rewards Center</h1>
-            <div className="w-9" />
-          </div>
-        </header>
+        {/* Mobile Header - using MobileHeader component */}
+        <MobileHeader 
+          title="Rewards Center"
+          showBack={true}
+        />
 
         <main className="p-4">
           {content}
