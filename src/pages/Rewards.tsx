@@ -60,8 +60,8 @@ export default function Rewards() {
           isClaimed ? 'opacity-60' : isClaimable ? 'border-primary/30' : ''
         }`}
       >
-        <div className="flex items-center gap-3">
-          {/* Icon */}
+        {/* Row 1: Icon + Task Info */}
+        <div className="flex items-start gap-3 mb-3">
           <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
             isClaimed ? 'bg-muted' : isClaimable ? 'bg-primary/10' : 'bg-muted'
           }`}>
@@ -71,41 +71,39 @@ export default function Rewards() {
               className={isClaimed ? 'text-trading-green' : isClaimable ? 'text-primary' : 'text-muted-foreground'} 
             />
           </div>
-
-          {/* Content */}
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-sm truncate">{task.name}</h4>
-            <p className="text-xs text-muted-foreground truncate mt-0.5">{task.description}</p>
+            <h4 className="font-medium text-sm">{task.name}</h4>
+            <p className="text-xs text-muted-foreground mt-0.5">{task.description}</p>
+          </div>
+        </div>
+
+        {/* Row 2: Points + Action */}
+        <div className="flex items-center justify-between pl-[52px]">
+          <div className="flex items-center gap-1">
+            <span className={`font-bold text-lg font-mono ${isClaimable ? 'text-primary' : 'text-muted-foreground'}`}>
+              +{task.reward_points}
+            </span>
+            <span className="text-xs text-muted-foreground">points</span>
           </div>
 
-          {/* Points + Action */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="text-right">
-              <span className={`font-bold text-sm ${isClaimable ? 'text-primary' : 'text-muted-foreground'}`}>
-                +{task.reward_points}
-              </span>
-              <p className="text-xs text-muted-foreground">points</p>
-            </div>
-
-            {isClaimed ? (
-              <Badge variant="success" className="min-w-[70px] justify-center">
-                Claimed
-              </Badge>
-            ) : isClaimable ? (
-              <Button 
-                size="sm" 
-                className="btn-primary min-w-[70px]"
-                onClick={() => claimReward(task.id)}
-                disabled={isClaiming}
-              >
-                Claim
-              </Button>
-            ) : (
-              <Button variant="outline" size="sm" disabled className="min-w-[70px]">
-                Pending
-              </Button>
-            )}
-          </div>
+          {isClaimed ? (
+            <Badge variant="success" className="px-4 py-1">
+              Claimed
+            </Badge>
+          ) : isClaimable ? (
+            <Button 
+              size="sm" 
+              className="btn-primary px-6"
+              onClick={() => claimReward(task.id)}
+              disabled={isClaiming}
+            >
+              Claim
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" disabled className="px-6">
+              Pending
+            </Button>
+          )}
         </div>
       </Card>
     );
