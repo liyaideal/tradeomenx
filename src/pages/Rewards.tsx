@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift, Star, Trophy, Lock } from "lucide-react";
+import { Gift, Star, Trophy, Lock, Sparkles, CheckCircle2 } from "lucide-react";
 import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -56,54 +56,72 @@ export default function Rewards() {
 
     return (
       <Card
-        className={`trading-card p-4 transition-all duration-200 ${
-          isClaimed ? 'opacity-60' : isClaimable ? 'border-primary/30' : ''
+        className={`trading-card overflow-hidden transition-all duration-200 ${
+          isClaimed ? 'opacity-60' : isClaimable ? 'border-primary/40 glow-primary' : ''
         }`}
       >
-        {/* Row 1: Icon + Task Info */}
-        <div className="flex items-start gap-3 mb-3">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-            isClaimed ? 'bg-muted' : isClaimable ? 'bg-primary/10' : 'bg-muted'
-          }`}>
-            <TaskIcon 
-              icon={task.icon} 
-              size={20} 
-              className={isClaimed ? 'text-trading-green' : isClaimable ? 'text-primary' : 'text-muted-foreground'} 
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-sm">{task.name}</h4>
-            <p className="text-xs text-muted-foreground mt-0.5">{task.description}</p>
-          </div>
-        </div>
+        {/* Achievement Badge Style Layout */}
+        <div className="p-4">
+          {/* Top: Large Icon + Status Badge */}
+          <div className="flex items-start justify-between mb-3">
+            {/* Large Achievement Icon */}
+            <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+              isClaimed 
+                ? 'bg-trading-green/10 ring-2 ring-trading-green/30' 
+                : isClaimable 
+                  ? 'bg-primary/15 ring-2 ring-primary/40' 
+                  : 'bg-muted'
+            }`}>
+              {isClaimed ? (
+                <CheckCircle2 className="w-7 h-7 text-trading-green" />
+              ) : (
+                <TaskIcon 
+                  icon={task.icon} 
+                  size={28} 
+                  className={isClaimable ? 'text-primary' : 'text-muted-foreground'} 
+                />
+              )}
+            </div>
 
-        {/* Row 2: Points + Action */}
-        <div className="flex items-center justify-between pl-[52px]">
-          <div className="flex items-center gap-1">
-            <span className={`font-bold text-lg font-mono ${isClaimable ? 'text-primary' : 'text-muted-foreground'}`}>
-              +{task.reward_points}
-            </span>
-            <span className="text-xs text-muted-foreground">points</span>
+            {/* Points Reward Badge */}
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${
+              isClaimable 
+                ? 'bg-primary/15 text-primary' 
+                : 'bg-muted text-muted-foreground'
+            }`}>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span className="font-bold text-sm font-mono">+{task.reward_points}</span>
+            </div>
           </div>
 
-          {isClaimed ? (
-            <Badge variant="success" className="px-4 py-1">
-              Claimed
-            </Badge>
-          ) : isClaimable ? (
-            <Button 
-              size="sm" 
-              className="btn-primary px-6"
-              onClick={() => claimReward(task.id)}
-              disabled={isClaiming}
-            >
-              Claim
-            </Button>
-          ) : (
-            <Button variant="outline" size="sm" disabled className="px-6">
-              Pending
-            </Button>
-          )}
+          {/* Middle: Title + Description */}
+          <div className="mb-4">
+            <h4 className="font-semibold text-base mb-1">{task.name}</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">{task.description}</p>
+          </div>
+
+          {/* Bottom: Action Area */}
+          <div className="flex items-center justify-end">
+            {isClaimed ? (
+              <div className="flex items-center gap-2 text-trading-green">
+                <CheckCircle2 className="w-4 h-4" />
+                <span className="text-sm font-medium">Completed</span>
+              </div>
+            ) : isClaimable ? (
+              <Button 
+                className="btn-primary w-full"
+                onClick={() => claimReward(task.id)}
+                disabled={isClaiming}
+              >
+                <Gift className="w-4 h-4 mr-2" />
+                Claim Reward
+              </Button>
+            ) : (
+              <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+                Complete task to unlock
+              </div>
+            )}
+          </div>
         </div>
       </Card>
     );

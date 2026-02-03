@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy, Star, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
+import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy, Star, CheckCircle2, AlertCircle, XCircle, Gift } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
@@ -590,104 +590,109 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
           </div>
         </div>
 
-        {/* Actionable Card Pattern */}
+        {/* Achievement Badge Card Pattern */}
         <div className="mt-6">
-          <h4 className="text-sm font-medium mb-2">Actionable Card Pattern</h4>
+          <h4 className="text-sm font-medium mb-2">Achievement Badge Card</h4>
           <p className="text-xs text-muted-foreground mb-4">
-            For task/reward cards with clear CTA actions. Uses a two-row layout to prevent text truncation: 
-            Row 1 for task info, Row 2 for points and action button. Three states: Pending, Claimable, Claimed.
+            Gamified task/reward cards with prominent icons and clear visual hierarchy. 
+            Large icon top-left, points badge top-right, full description, and full-width action button.
           </p>
           
           <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"}`}>
             {/* Pending State */}
-            <Card className="trading-card p-4">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                  <Star className="w-5 h-5 text-muted-foreground" />
+            <Card className="trading-card overflow-hidden">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+                    <Star className="w-7 h-7 text-muted-foreground" />
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-muted-foreground">
+                    <Star className="w-3.5 h-3.5" />
+                    <span className="font-bold text-sm font-mono">+200</span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-sm">Invite a Friend</h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">Invite friends and earn when they trade</p>
+                <div className="mb-4">
+                  <h4 className="font-semibold text-base mb-1">Invite a Friend</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Invite friends and earn when they trade</p>
                 </div>
-              </div>
-              <div className="flex items-center justify-between pl-[52px]">
-                <div className="flex items-center gap-1">
-                  <span className="font-bold text-lg font-mono text-muted-foreground">+200</span>
-                  <span className="text-xs text-muted-foreground">points</span>
+                <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
+                  Complete task to unlock
                 </div>
-                <Button variant="outline" size="sm" disabled className="px-6">
-                  Pending
-                </Button>
               </div>
             </Card>
 
             {/* Claimable State */}
-            <Card className="trading-card p-4 border-primary/30">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Star className="w-5 h-5 text-primary" />
+            <Card className="trading-card overflow-hidden border-primary/40 glow-primary">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-14 h-14 rounded-xl bg-primary/15 ring-2 ring-primary/40 flex items-center justify-center">
+                    <Star className="w-7 h-7 text-primary" />
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary">
+                    <Star className="w-3.5 h-3.5" />
+                    <span className="font-bold text-sm font-mono">+50</span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-sm">Complete Registration</h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">Create your account to get started</p>
+                <div className="mb-4">
+                  <h4 className="font-semibold text-base mb-1">Complete Registration</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Create your account to get started</p>
                 </div>
-              </div>
-              <div className="flex items-center justify-between pl-[52px]">
-                <div className="flex items-center gap-1">
-                  <span className="font-bold text-lg font-mono text-primary">+50</span>
-                  <span className="text-xs text-muted-foreground">points</span>
-                </div>
-                <Button size="sm" className="btn-primary px-6">
-                  Claim
+                <Button className="btn-primary w-full">
+                  <Gift className="w-4 h-4 mr-2" />
+                  Claim Reward
                 </Button>
               </div>
             </Card>
 
             {/* Claimed State */}
-            <Card className="trading-card p-4 opacity-60">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                  <CheckCircle2 className="w-5 h-5 text-trading-green" />
+            <Card className="trading-card overflow-hidden opacity-60">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-14 h-14 rounded-xl bg-trading-green/10 ring-2 ring-trading-green/30 flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-trading-green" />
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-muted-foreground">
+                    <Star className="w-3.5 h-3.5" />
+                    <span className="font-bold text-sm font-mono">+100</span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-sm">First Trade</h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">Place your first prediction trade</p>
+                <div className="mb-4">
+                  <h4 className="font-semibold text-base mb-1">First Trade</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Place your first prediction trade</p>
                 </div>
-              </div>
-              <div className="flex items-center justify-between pl-[52px]">
-                <div className="flex items-center gap-1">
-                  <span className="font-bold text-lg font-mono text-muted-foreground">+100</span>
-                  <span className="text-xs text-muted-foreground">points</span>
+                <div className="flex items-center justify-center gap-2 text-trading-green py-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span className="text-sm font-medium">Completed</span>
                 </div>
-                <Badge variant="success" className="px-4 py-1">
-                  Claimed
-                </Badge>
               </div>
             </Card>
           </div>
 
           <CodePreview
-            code={`{/* Actionable Card - Two-Row Layout */}
-<Card className="trading-card p-4 border-primary/30">
-  {/* Row 1: Icon + Task Info */}
-  <div className="flex items-start gap-3 mb-3">
-    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-      <TaskIcon icon={task.icon} />
+            code={`{/* Achievement Badge Card - Claimable State */}
+<Card className="trading-card overflow-hidden border-primary/40 glow-primary">
+  <div className="p-4">
+    {/* Top: Large Icon + Points Badge */}
+    <div className="flex items-start justify-between mb-3">
+      <div className="w-14 h-14 rounded-xl bg-primary/15 ring-2 ring-primary/40 flex items-center justify-center">
+        <TaskIcon icon={task.icon} size={28} className="text-primary" />
+      </div>
+      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary">
+        <Sparkles className="w-3.5 h-3.5" />
+        <span className="font-bold text-sm font-mono">+{points}</span>
+      </div>
     </div>
-    <div className="flex-1">
-      <h4 className="font-medium text-sm">{task.name}</h4>
-      <p className="text-xs text-muted-foreground mt-0.5">{task.description}</p>
+    
+    {/* Middle: Title + Description */}
+    <div className="mb-4">
+      <h4 className="font-semibold text-base mb-1">{task.name}</h4>
+      <p className="text-sm text-muted-foreground leading-relaxed">{task.description}</p>
     </div>
-  </div>
-  
-  {/* Row 2: Points + Action (aligned with text) */}
-  <div className="flex items-center justify-between pl-[52px]">
-    <div className="flex items-center gap-1">
-      <span className="font-bold text-lg font-mono text-primary">+{points}</span>
-      <span className="text-xs text-muted-foreground">points</span>
-    </div>
-    <Button size="sm" className="btn-primary px-6" onClick={onClaim}>
-      Claim
+    
+    {/* Bottom: Full-width Action */}
+    <Button className="btn-primary w-full" onClick={onClaim}>
+      <Gift className="w-4 h-4 mr-2" />
+      Claim Reward
     </Button>
   </div>
 </Card>`}
