@@ -186,10 +186,10 @@ export default function Rewards() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        {/* Mobile Header - using MobileHeader component */}
+        {/* Mobile Header - Title Only mode per Style Guide */}
         <MobileHeader 
           title="Rewards Center"
-          showBack={true}
+          showLogo={false}
         />
 
         <main className="p-4">
