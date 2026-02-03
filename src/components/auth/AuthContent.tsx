@@ -106,27 +106,31 @@ export const AuthContent = ({
         const randomBg = avatarBgs[Math.floor(Math.random() * avatarBgs.length)];
         const avatarUrl = `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${randomSeed}&backgroundColor=${randomBg}`;
 
-        // Upsert profile - creates if not exists, updates if exists
-        // This handles the case where the database trigger might not have fired
+        // Upsert profile - creates if not exists, updates only non-balance fields if exists
+        // The database trigger (handle_new_user) handles balance initialization
+        // We don't include 'balance' here to avoid overwriting trigger-set values
         const profileData: {
           user_id: string;
           username: string;
           avatar_url: string;
-          balance: number;
           email?: string;
         } = {
           user_id: data.user.id,
           username: mockUsername,
           avatar_url: avatarUrl,
-          balance: 0,
         };
         if (mockEmail) {
           profileData.email = mockEmail;
         }
         
+        // Use insert with onConflict to only update non-balance fields
         const { error: profileError } = await supabase
           .from("profiles")
-          .upsert(profileData, { onConflict: 'user_id' });
+          .upsert(profileData, { 
+            onConflict: 'user_id',
+            // Only update these specific columns on conflict, preserving balance
+            ignoreDuplicates: false
+          });
 
         if (profileError) {
           console.error("Profile upsert error:", profileError);
