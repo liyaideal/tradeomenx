@@ -15,6 +15,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useReferral } from "@/hooks/useReferral";
 import * as htmlToImage from "html-to-image";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { QRCodeSVG } from "qrcode.react";
@@ -482,6 +483,7 @@ interface ShareableCardProps {
   theme?: CardTheme;
   visibleStats?: StatKey[];
   hideShareHint?: boolean;
+  referralCode?: string; // External referral code from useReferral
 }
 
 const ShareableCard = ({ 
@@ -491,23 +493,12 @@ const ShareableCard = ({
   isGenerating, 
   theme = "default",
   visibleStats = ["pnl", "roi", "volume"],
-  hideShareHint = false
+  hideShareHint = false,
+  referralCode = "OMENX2025"
 }: ShareableCardProps) => {
   const colors = getRankColors(user.rank);
   const themeConfig = cardThemes[theme];
   const glowColors = themeGlowColors[theme];
-  
-  // Generate a random 5-character referral code (stable per user)
-  const referralCode = React.useMemo(() => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = '';
-    // Use username as seed for consistency
-    const seed = user.username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    for (let i = 0; i < 5; i++) {
-      code += chars[(seed * (i + 1) * 7) % chars.length];
-    }
-    return code;
-  }, [user.username]);
   
   const stats = [
     { key: "pnl" as StatKey, label: "PnL", value: `$${user.pnl.toLocaleString()}`, color: themeConfig.pnlColor, icon: true },
@@ -740,6 +731,7 @@ interface ShareModalProps {
   onThemeChange: (theme: CardTheme) => void;
   visibleStats: StatKey[];
   onStatsChange: (stats: StatKey[]) => void;
+  referralCode?: string; // External referral code from useReferral
 }
 
 const ShareModal = ({ 
@@ -750,25 +742,14 @@ const ShareModal = ({
   theme,
   onThemeChange,
   visibleStats,
-  onStatsChange
+  onStatsChange,
+  referralCode = "OMENX2025"
 }: ShareModalProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const modalCardRef = useRef<HTMLDivElement>(null);
-
-  // Generate a stable referral code based on username
-  const referralCode = React.useMemo(() => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = '';
-    const seed = user.username;
-    for (let i = 0; i < 5; i++) {
-      const charIndex = (seed.charCodeAt(i % seed.length) + i * 7) % chars.length;
-      code += chars[charIndex];
-    }
-    return code;
-  }, [user.username]);
 
   // Generate image when modal opens or customization changes
   const generateImage = async () => {
@@ -905,6 +886,7 @@ const ShareModal = ({
               visibleStats={visibleStats}
               isGenerating={isGenerating}
               hideShareHint={true}
+              referralCode={referralCode}
             />
           </div>
         </div>
@@ -969,6 +951,7 @@ export default function Leaderboard() {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { username, avatarUrl, user } = useUserProfile();
+  const { referralCode } = useReferral();
   const [sortType, setSortType] = useState<SortType>("pnl");
   const [period, setPeriod] = useState<PeriodType>("7d");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -1241,6 +1224,7 @@ export default function Leaderboard() {
             isGenerating={isGenerating}
             theme={cardTheme}
             visibleStats={visibleStats}
+            referralCode={referralCode || "OMENX2025"}
           />
           <p className="text-center text-sm text-muted-foreground mt-4">
             Tap to customize and share your ranking card
@@ -1260,6 +1244,7 @@ export default function Leaderboard() {
         onThemeChange={setCardTheme}
         visibleStats={visibleStats}
         onStatsChange={setVisibleStats}
+        referralCode={referralCode || "OMENX2025"}
       />
     </div>
   );

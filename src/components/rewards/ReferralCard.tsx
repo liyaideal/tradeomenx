@@ -25,7 +25,7 @@ export const ReferralCard = () => {
   return (
     <div className="space-y-4">
       {/* Referral Code Card */}
-      <Card className="p-6 bg-gradient-to-br from-primary/5 to-background">
+      <Card className="trading-card p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
             <Users className="w-5 h-5 text-primary" />
@@ -70,7 +70,7 @@ export const ReferralCard = () => {
       </Card>
 
       {/* Stats Card */}
-      <Card className="p-4">
+      <Card className="trading-card p-4">
         <h4 className="font-medium mb-3">Referral Stats</h4>
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center">
@@ -89,7 +89,7 @@ export const ReferralCard = () => {
       </Card>
 
       {/* How it works */}
-      <Card className="p-4">
+      <Card className="trading-card p-4">
         <h4 className="font-medium mb-3">How It Works</h4>
         <div className="space-y-3">
           <div className="flex items-start gap-3">
