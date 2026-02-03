@@ -30,14 +30,17 @@ export default function Deposit() {
 
   const handleBack = () => {
     if (selectedToken) {
+      // Go back to asset selection
       navigate('/deposit');
     } else {
-      navigate('/wallet');
+      // Go back to previous page (could be /trade/order or /wallet)
+      navigate(-1);
     }
   };
 
   const handleClose = () => {
-    navigate('/wallet');
+    // Go back to previous page instead of always going to /wallet
+    navigate(-1);
   };
 
   const tokenConfig = selectedToken ? getTokenConfig(selectedToken) : null;
