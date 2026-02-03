@@ -589,6 +589,107 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
             </table>
           </div>
         </div>
+
+        {/* Actionable Card Pattern */}
+        <div className="mt-6">
+          <h4 className="text-sm font-medium mb-2">Actionable Card Pattern</h4>
+          <p className="text-xs text-muted-foreground mb-4">
+            For task/reward cards with clear CTA actions. The action button is positioned at the far right, 
+            visually separated from metadata. Three states: Pending (outline button), Claimable (primary button), Claimed (success badge).
+          </p>
+          
+          <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"}`}>
+            {/* Pending State */}
+            <Card className="trading-card p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                  <Star className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-sm">Sample Task</h4>
+                  <p className="text-xs text-muted-foreground truncate">Complete this action to earn</p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="text-right">
+                    <span className="font-bold text-sm text-muted-foreground">+50</span>
+                    <p className="text-xs text-muted-foreground">points</p>
+                  </div>
+                  <Button variant="outline" size="sm" disabled className="min-w-[70px]">
+                    Pending
+                  </Button>
+                </div>
+              </div>
+            </Card>
+
+            {/* Claimable State */}
+            <Card className="trading-card p-4 border-primary/30">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Star className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-sm">Sample Task</h4>
+                  <p className="text-xs text-muted-foreground truncate">Complete this action to earn</p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="text-right">
+                    <span className="font-bold text-sm text-primary">+50</span>
+                    <p className="text-xs text-muted-foreground">points</p>
+                  </div>
+                  <Button size="sm" className="btn-primary min-w-[70px]">
+                    Claim
+                  </Button>
+                </div>
+              </div>
+            </Card>
+
+            {/* Claimed State */}
+            <Card className="trading-card p-4 opacity-60">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-trading-green" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-sm">Sample Task</h4>
+                  <p className="text-xs text-muted-foreground truncate">Complete this action to earn</p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="text-right">
+                    <span className="font-bold text-sm text-muted-foreground">+50</span>
+                    <p className="text-xs text-muted-foreground">points</p>
+                  </div>
+                  <Badge variant="success" className="min-w-[70px] justify-center">
+                    Claimed
+                  </Badge>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <CodePreview
+            code={`{/* Actionable Card - Claimable State */}
+<Card className="trading-card p-4 border-primary/30">
+  <div className="flex items-center gap-3">
+    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+      <TaskIcon icon={task.icon} />
+    </div>
+    <div className="flex-1 min-w-0">
+      <h4 className="font-medium text-sm">{task.name}</h4>
+      <p className="text-xs text-muted-foreground truncate">{task.description}</p>
+    </div>
+    <div className="flex items-center gap-3 flex-shrink-0">
+      <div className="text-right">
+        <span className="font-bold text-sm text-primary">+{points}</span>
+        <p className="text-xs text-muted-foreground">points</p>
+      </div>
+      <Button size="sm" className="btn-primary min-w-[70px]" onClick={onClaim}>
+        Claim
+      </Button>
+    </div>
+  </div>
+</Card>`}
+          />
+        </div>
       </SectionWrapper>
 
       {/* Form Elements */}
