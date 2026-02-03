@@ -119,21 +119,31 @@ export const useTasks = () => {
     }
   };
 
-  // Combine tasks with user progress
-  const tasksWithProgress: TaskWithProgress[] = (tasks || []).map(task => {
-    const userTask = userTasks?.find(ut => ut.task_id === task.id);
-    const isCompleted = userTask?.status === 'completed' || userTask?.status === 'claimed';
-    const isClaimed = userTask?.status === 'claimed';
-    const canClaim = userTask?.status === 'completed' && !isClaimed;
+  // Combine tasks with user progress and sort by status
+  const tasksWithProgress: TaskWithProgress[] = (tasks || [])
+    .map(task => {
+      const userTask = userTasks?.find(ut => ut.task_id === task.id);
+      const isCompleted = userTask?.status === 'completed' || userTask?.status === 'claimed';
+      const isClaimed = userTask?.status === 'claimed';
+      const canClaim = userTask?.status === 'completed' && !isClaimed;
 
-    return {
-      ...task,
-      userTask,
-      canClaim,
-      isCompleted,
-      isClaimed,
-    };
-  });
+      return {
+        ...task,
+        userTask,
+        canClaim,
+        isCompleted,
+        isClaimed,
+      };
+    })
+    .sort((a, b) => {
+      // Priority: Claimable (1) > Pending (2) > Claimed (3)
+      const getPriority = (task: TaskWithProgress) => {
+        if (task.isCompleted && !task.isClaimed) return 1; // Claimable
+        if (!task.isCompleted && !task.isClaimed) return 2; // Pending
+        return 3; // Claimed
+      };
+      return getPriority(a) - getPriority(b);
+    });
 
   // Claim task reward
   const claimMutation = useMutation({
