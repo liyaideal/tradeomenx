@@ -333,7 +333,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
             <CardDescription>Different page types have different header requirements</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
               {/* Functional Pages */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -367,19 +367,47 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                 </div>
               </div>
 
-              {/* Operational Pages */}
+              {/* Operational Pages - With Logo */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-trading-purple" />
-                  <h4 className="font-medium">Operational Pages</h4>
+                  <h4 className="font-medium">Operational (Logo)</h4>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Detail/action pages accessed via links. Show back button when navigated via PUSH.
+                  Detail pages with rich content. Show back + logo + title.
                 </p>
                 <div className="bg-muted/30 rounded-lg p-3 space-y-2">
                   <div className="flex items-center gap-2 text-xs">
                     <span className="font-mono text-primary">/trade/:id</span>
                     <span>Trade Order</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/resolved/:id</span>
+                    <span>Resolved Event</span>
+                  </div>
+                </div>
+                <div className="bg-primary/10 rounded-lg p-2 mt-2">
+                  <code className="text-[10px] text-primary">showLogo=&#123;true&#125;</code>
+                </div>
+              </div>
+
+              {/* Operational Pages - Title Only */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-trading-green" />
+                  <h4 className="font-medium">Operational (Title Only)</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Utility/settings pages. Clean header with back + centered title only.
+                </p>
+                <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/settings</span>
+                    <span>Settings</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-mono text-primary">/rewards</span>
+                    <span>Rewards Center</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     <span className="font-mono text-primary">/wallet</span>
@@ -390,13 +418,12 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                     <span>Deposit</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/settings</span>
-                    <span>Settings</span>
+                    <span className="font-mono text-primary">/withdraw</span>
+                    <span>Withdraw</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/resolved/:id</span>
-                    <span>Resolved Event</span>
-                  </div>
+                </div>
+                <div className="bg-trading-green/10 rounded-lg p-2 mt-2">
+                  <code className="text-[10px] text-trading-green">showLogo=&#123;false&#125;</code>
                 </div>
               </div>
             </div>
