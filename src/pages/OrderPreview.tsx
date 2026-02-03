@@ -33,7 +33,7 @@ export default function OrderPreview() {
   const location = useLocation();
   const { addOrder } = useOrdersStore();
   const { addPosition } = usePositionsStore();
-  const { balance, user, deductBalance } = useUserProfile();
+  const { balance, trialBalance, totalBalance, user, deductBalance } = useUserProfile();
   const { refetch: refetchPositions } = usePositions();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
@@ -65,6 +65,11 @@ export default function OrderPreview() {
   // 如果是 No 选项，显示特殊提示
   const showBinaryHint = isBinaryOrder && isNoOption(optionLabel);
 
+  // Calculate how the payment will be split
+  const trialDeduction = Math.min(trialBalance, totalCost);
+  const realDeduction = Math.max(0, totalCost - trialBalance);
+  const hasSufficientFunds = totalBalance >= totalCost;
+
   const orderDetails: OrderDetail[] = [
     { label: "Event", value: eventName },
     { label: "Option", value: optionLabel },
@@ -78,7 +83,19 @@ export default function OrderPreview() {
     { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: orderData.tpsl ? "Set" : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-    { label: "Available Balance", value: `${balance.toFixed(2)} USDC`, highlight: balance >= totalCost ? "green" : "red" },
+    // Show balance breakdown
+    ...(trialBalance > 0 ? [
+      { label: "Trial Balance", value: `${trialBalance.toFixed(2)} USDC`, highlight: "purple" as const },
+      { label: "Real Balance", value: `${balance.toFixed(2)} USDC` },
+      { label: "Total Available", value: `${totalBalance.toFixed(2)} USDC`, highlight: hasSufficientFunds ? "green" as const : "red" as const },
+    ] : [
+      { label: "Available Balance", value: `${balance.toFixed(2)} USDC`, highlight: hasSufficientFunds ? "green" as const : "red" as const },
+    ]),
+    // Show payment breakdown if using trial balance
+    ...(trialBalance > 0 && hasSufficientFunds ? [
+      { label: "From Trial Balance", value: `-${trialDeduction.toFixed(2)} USDC`, highlight: "purple" as const },
+      ...(realDeduction > 0 ? [{ label: "From Real Balance", value: `-${realDeduction.toFixed(2)} USDC` }] : []),
+    ] : []),
   ];
 
   const potentialWin = parseInt(orderCalculations.potentialWin) || 0;
@@ -90,9 +107,9 @@ export default function OrderPreview() {
       return;
     }
 
-    // Check if user has enough balance
-    if (balance < totalCost) {
-      toast.error(`Insufficient balance. You need ${totalCost.toFixed(2)} USDC but only have ${balance.toFixed(2)} USDC.`);
+    // Check if user has enough total balance (trial + real)
+    if (!hasSufficientFunds) {
+      toast.error(`Insufficient balance. You need ${totalCost.toFixed(2)} USDC but only have ${totalBalance.toFixed(2)} USDC available.`);
       return;
     }
 

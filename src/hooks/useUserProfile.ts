@@ -41,6 +41,7 @@ export interface Profile {
   email: string | null;
   avatar_url: string | null;
   balance: number | null;
+  trial_balance: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -251,11 +252,106 @@ export const useUserProfile = () => {
     }
   };
 
-  const deductBalance = async (amount: number) => {
+  const updateTrialBalance = async (newTrialBalance: number) => {
+    try {
+      await updateMutation.mutateAsync({ trial_balance: newTrialBalance });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  /**
+   * Deduct balance with trial balance priority
+   * Logic: Use trial_balance first, if insufficient, use mixed payment
+   * @param amount - Total amount to deduct
+   * @returns Object with success status and breakdown of deduction
+   */
+  const deductBalance = async (amount: number): Promise<boolean> => {
+    const currentTrialBalance = profile?.trial_balance ?? 0;
     const currentBalance = profile?.balance ?? 0;
-    const newBalance = currentBalance - amount;
-    if (newBalance < 0) return false;
-    return updateBalance(newBalance);
+    const totalAvailable = currentTrialBalance + currentBalance;
+
+    // Check if total funds are sufficient
+    if (totalAvailable < amount) {
+      return false;
+    }
+
+    let trialDeduction = 0;
+    let realDeduction = 0;
+
+    if (currentTrialBalance >= amount) {
+      // Trial balance is sufficient, use only trial balance
+      trialDeduction = amount;
+      realDeduction = 0;
+    } else {
+      // Mixed payment: use all trial balance first, then real balance
+      trialDeduction = currentTrialBalance;
+      realDeduction = amount - currentTrialBalance;
+    }
+
+    try {
+      // Update both balances in a single mutation to ensure atomicity
+      const updates: Partial<Profile> = {};
+      
+      if (trialDeduction > 0) {
+        updates.trial_balance = currentTrialBalance - trialDeduction;
+      }
+      if (realDeduction > 0) {
+        updates.balance = currentBalance - realDeduction;
+      }
+
+      await updateMutation.mutateAsync(updates);
+      return true;
+    } catch (error) {
+      console.error("Failed to deduct balance:", error);
+      return false;
+    }
+  };
+
+  /**
+   * Deduct balance with detailed breakdown
+   * Returns the breakdown of how much was deducted from each source
+   */
+  const deductBalanceWithDetails = async (amount: number): Promise<{
+    success: boolean;
+    trialDeducted: number;
+    realDeducted: number;
+  }> => {
+    const currentTrialBalance = profile?.trial_balance ?? 0;
+    const currentBalance = profile?.balance ?? 0;
+    const totalAvailable = currentTrialBalance + currentBalance;
+
+    if (totalAvailable < amount) {
+      return { success: false, trialDeducted: 0, realDeducted: 0 };
+    }
+
+    let trialDeduction = 0;
+    let realDeduction = 0;
+
+    if (currentTrialBalance >= amount) {
+      trialDeduction = amount;
+    } else {
+      trialDeduction = currentTrialBalance;
+      realDeduction = amount - currentTrialBalance;
+    }
+
+    try {
+      const updates: Partial<Profile> = {};
+      
+      if (trialDeduction > 0) {
+        updates.trial_balance = currentTrialBalance - trialDeduction;
+      }
+      if (realDeduction > 0) {
+        updates.balance = currentBalance - realDeduction;
+      }
+
+      await updateMutation.mutateAsync(updates);
+      return { success: true, trialDeducted: trialDeduction, realDeducted: realDeduction };
+    } catch (error) {
+      console.error("Failed to deduct balance:", error);
+      return { success: false, trialDeducted: 0, realDeducted: 0 };
+    }
   };
 
   const addBalance = async (amount: number) => {
@@ -263,6 +359,15 @@ export const useUserProfile = () => {
     const newBalance = currentBalance + amount;
     return updateBalance(newBalance);
   };
+
+  const addTrialBalance = async (amount: number) => {
+    const currentTrialBalance = profile?.trial_balance ?? 0;
+    const newTrialBalance = currentTrialBalance + amount;
+    return updateTrialBalance(newTrialBalance);
+  };
+
+  // Calculate total available balance (trial + real)
+  const totalBalance = (profile?.trial_balance ?? 0) + (profile?.balance ?? 0);
 
   return {
     // Profile data
@@ -276,6 +381,8 @@ export const useUserProfile = () => {
     
     // Computed values for convenience
     balance: profile?.balance ?? 0,
+    trialBalance: profile?.trial_balance ?? 0,
+    totalBalance,
     username: profile?.username ?? null,
     avatarUrl: profile?.avatar_url ?? null,
     email: profile?.email ?? null,
@@ -285,8 +392,11 @@ export const useUserProfile = () => {
     updateAvatar,
     updateEmail,
     updateBalance,
+    updateTrialBalance,
     deductBalance,
+    deductBalanceWithDetails,
     addBalance,
+    addTrialBalance,
     
     // Refetch
     refetchProfile: refetch,
