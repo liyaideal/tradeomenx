@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/hover-card";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
-import { TopUpDialog } from "@/components/TopUpDialog";
+import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
@@ -200,7 +200,7 @@ export default function DesktopTrading() {
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
-  const [topUpOpen, setTopUpOpen] = useState(false);
+  const [depositDialogOpen, setDepositDialogOpen] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDefaultTab, setAuthDefaultTab] = useState<"signin" | "signup">("signup");
@@ -1395,7 +1395,7 @@ export default function DesktopTrading() {
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs">{available.toLocaleString()}</span>
                 <button 
-                  onClick={() => setTopUpOpen(true)}
+                  onClick={() => setDepositDialogOpen(true)}
                   className="w-5 h-5 bg-muted rounded-full flex items-center justify-center hover:bg-muted-foreground/30 transition-colors"
                 >
                   <Plus className="w-3 h-3" />
@@ -1692,15 +1692,6 @@ export default function DesktopTrading() {
         </DialogContent>
       </Dialog>
 
-      {/* Top Up Dialog */}
-      <TopUpDialog
-        open={topUpOpen}
-        onOpenChange={setTopUpOpen}
-        currentBalance={available}
-        onTopUp={(amount, method) => {
-          toast.success(`Top up of $${amount} via ${method} initiated`);
-        }}
-      />
       
       {/* Position TP/SL Edit Dialog */}
       <Dialog open={positionTpSlOpen} onOpenChange={setPositionTpSlOpen}>
@@ -2010,6 +2001,12 @@ export default function DesktopTrading() {
         open={authDialogOpen}
         onOpenChange={setAuthDialogOpen}
         defaultTab={authDefaultTab}
+      />
+
+      {/* Deposit Dialog */}
+      <DepositDialog
+        open={depositDialogOpen}
+        onOpenChange={setDepositDialogOpen}
       />
     </div>
   );
