@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift, Star, Trophy, Lock, Sparkles, CheckCircle2 } from "lucide-react";
+import { Gift, Star, Trophy, Lock, CheckCircle2 } from "lucide-react";
 import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -83,7 +83,7 @@ export default function Rewards() {
                 ? 'bg-primary/15 text-primary' 
                 : 'bg-muted text-muted-foreground'
             }`}>
-              <Sparkles className="w-3 h-3" />
+              <Star className="w-3 h-3" />
               <span className="font-bold font-mono">+{task.reward_points}</span>
             </div>
             {isClaimed && (
