@@ -3,3 +3,4 @@ export { ReferralCard } from './ReferralCard';
 export { PointsHistoryList } from './PointsHistoryList';
 export { FloatingRewardsButton } from './FloatingRewardsButton';
 export { TaskIcon, taskIconNames } from './TaskIcon';
+export { TaskCard } from './TaskCard';
