@@ -193,9 +193,19 @@ export default function Rewards() {
               <p className="text-muted-foreground">No tasks available</p>
             </Card>
           ) : (
-            tasks.map(task => (
-              <TaskCard key={task.id} task={task} />
-            ))
+            [...tasks]
+              .sort((a, b) => {
+                // Priority: Claimable (1) > Pending (2) > Claimed (3)
+                const getPriority = (task: TaskWithProgress) => {
+                  if (task.isCompleted && !task.isClaimed) return 1; // Claimable
+                  if (!task.isCompleted && !task.isClaimed) return 2; // Pending
+                  return 3; // Claimed
+                };
+                return getPriority(a) - getPriority(b);
+              })
+              .map(task => (
+                <TaskCard key={task.id} task={task} />
+              ))
           )}
         </TabsContent>
 
