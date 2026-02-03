@@ -1453,7 +1453,7 @@ const SharePosterContent = forwardRef<HTMLDivElement, Props>(
           <p>Join & trade like a pro!</p>
           <p>Referral: <strong>CODE</strong></p>
         </div>
-        <QRCodeSVG value="https://omenx.com?ref=CODE" size={56} />
+        <QRCodeSVG value="https://omenx.lovable.app?ref=CODE" size={56} />
       </div>
     </div>
   )
