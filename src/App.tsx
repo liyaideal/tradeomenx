@@ -20,6 +20,7 @@ import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Settings from "./pages/Settings";
+import Rewards from "./pages/Rewards";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/deposit" element={<Deposit />} />
               <Route path="/withdraw" element={<Withdraw />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/rewards" element={<Rewards />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/style-guide" element={<StyleGuide />} />
               <Route path="*" element={<NotFound />} />

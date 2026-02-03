@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
+import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
 import { toast } from "sonner";
 import { usePositions } from "@/hooks/usePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -445,6 +446,9 @@ const MobileHome = () => {
       </main>
 
       <BottomNav />
+      
+      {/* Floating Rewards Button */}
+      <FloatingRewardsButton className="bottom-24 right-4" />
       
       {/* Auth Sheet */}
       <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />

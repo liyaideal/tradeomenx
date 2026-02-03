@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      budget_limits: {
+        Row: {
+          category: string
+          created_at: string
+          current_amount: number
+          id: string
+          is_active: boolean | null
+          limit_amount: number
+          period_end: string
+          period_start: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          current_amount?: number
+          id?: string
+          is_active?: boolean | null
+          limit_amount: number
+          period_end: string
+          period_start: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_amount?: number
+          id?: string
+          is_active?: boolean | null
+          limit_amount?: number
+          period_end?: string
+          period_start?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       deposit_addresses: {
         Row: {
           address: string
@@ -178,6 +217,135 @@ export type Database = {
         }
         Relationships: []
       }
+      points_accounts: {
+        Row: {
+          balance: number
+          created_at: string
+          frozen: number
+          id: string
+          lifetime_earned: number
+          lifetime_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          frozen?: number
+          id?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          frozen?: number
+          id?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      points_config: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      points_ledger: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          source: string
+          source_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          source: string
+          source_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          source?: string
+          source_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      points_redemptions: {
+        Row: {
+          created_at: string
+          exchange_rate: Json
+          id: string
+          points_spent: number
+          status: string
+          trial_balance_received: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          exchange_rate: Json
+          id?: string
+          points_spent: number
+          status?: string
+          trial_balance_received: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          exchange_rate?: Json
+          id?: string
+          points_spent?: number
+          status?: string
+          trial_balance_received?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       positions: {
         Row: {
           closed_at: string | null
@@ -302,6 +470,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          trial_balance: number | null
           updated_at: string
           user_id: string
           username: string | null
@@ -312,6 +481,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          trial_balance?: number | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -322,9 +492,136 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          trial_balance?: number | null
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          updated_at: string
+          user_id: string
+          uses_count: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id: string
+          uses_count?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id?: string
+          uses_count?: number | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          level: number
+          metadata: Json | null
+          points_awarded: number | null
+          qualified_at: string | null
+          referee_id: string
+          referral_code: string
+          referrer_id: string
+          rewarded_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level?: number
+          metadata?: Json | null
+          points_awarded?: number | null
+          qualified_at?: string | null
+          referee_id: string
+          referral_code: string
+          referrer_id: string
+          rewarded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level?: number
+          metadata?: Json | null
+          points_awarded?: number | null
+          qualified_at?: string | null
+          referee_id?: string
+          referral_code?: string
+          referrer_id?: string
+          rewarded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          max_completions: number | null
+          name: string
+          reward_points: number
+          sort_order: number | null
+          trigger_condition: Json
+          type: string
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_completions?: number | null
+          name: string
+          reward_points: number
+          sort_order?: number | null
+          trigger_condition: Json
+          type: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_completions?: number | null
+          name?: string
+          reward_points?: number
+          sort_order?: number | null
+          trigger_condition?: Json
+          type?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
         }
         Relationships: []
       }
@@ -465,6 +762,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_tasks: {
+        Row: {
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          points_awarded: number | null
+          progress: Json | null
+          status: string
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          points_awarded?: number | null
+          progress?: Json | null
+          status?: string
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          points_awarded?: number | null
+          progress?: Json | null
+          status?: string
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallets: {
         Row: {
