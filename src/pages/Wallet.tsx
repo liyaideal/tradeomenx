@@ -509,13 +509,12 @@ export default function Wallet() {
                     </div>
                     <div>
                       <span className="text-sm text-muted-foreground">Available Balance</span>
-                      <div className="text-3xl font-bold font-mono">
-                        ${formatCurrency(balance)}
+                      <div className="flex items-baseline gap-2 flex-nowrap">
+                        <span className="text-3xl font-bold font-mono whitespace-nowrap">${formatCurrency(balance)}</span>
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">USDC</span>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="text-sm text-muted-foreground mb-6">USDC</div>
                   
                   <div className="flex gap-3">
                     <Button 
