@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Search, Home, Settings, User, Bell, Menu, ChevronRight, X, Plus, Minus, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ExternalLink, Download, Upload, Trash2, Edit, Eye, EyeOff, Lock, Unlock, Star, Heart, Share2, Filter, RefreshCw, MoreHorizontal, MoreVertical, Calendar, Clock, MapPin, Phone, Mail, Link, Image, File, Folder, Camera, Mic, Video, Volume2, VolumeX, Play, Pause, SkipBack, SkipForward, Maximize, Minimize, ZoomIn, ZoomOut, RotateCw, RotateCcw, Undo, Redo, Copy as CopyIcon, Clipboard, Check as CheckIcon, AlertCircle, AlertTriangle, Info, HelpCircle, XCircle, CheckCircle2, Loader2, TrendingUp, TrendingDown, BarChart2, PieChart, Activity, Wallet, CreditCard, DollarSign, Percent, Hash, AtSign, Globe, Wifi, WifiOff, Battery, BatteryCharging, Sun, Moon, Cloud, Zap, Gift, Trophy, Sparkles, Coins, UserPlus, Twitter, Target, Users, Rocket, Medal, Crown, Flame } from "lucide-react";
+import { Copy, Check, Search, Home, Settings, User, Bell, Menu, ChevronRight, X, Plus, Minus, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ExternalLink, Download, Upload, Trash2, Edit, Eye, EyeOff, Lock, Unlock, Star, Heart, Share2, Filter, RefreshCw, MoreHorizontal, MoreVertical, Calendar, Clock, MapPin, Phone, Mail, Link, Image, File, Folder, Camera, Mic, Video, Volume2, VolumeX, Play, Pause, SkipBack, SkipForward, Maximize, Minimize, ZoomIn, ZoomOut, RotateCw, RotateCcw, Undo, Redo, Copy as CopyIcon, Clipboard, Check as CheckIcon, AlertCircle, AlertTriangle, Info, HelpCircle, XCircle, CheckCircle2, Loader2, TrendingUp, TrendingDown, BarChart2, PieChart, Activity, Wallet, CreditCard, DollarSign, Percent, Hash, AtSign, Globe, Wifi, WifiOff, Battery, BatteryCharging, Sun, Moon, Cloud, Zap, Gift, Trophy, Sparkles, Coins, UserPlus, Target, Users, Rocket, Medal, Crown, Flame } from "lucide-react";
+import { XIcon } from "@/components/icons/XIcon";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SectionWrapper } from "../components/SectionWrapper";
@@ -437,7 +438,7 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
                   {[
                     { icon: Users, name: "Users" },
                     { icon: UserPlus, name: "UserPlus", color: "text-trading-green" },
-                    { icon: Twitter, name: "Twitter", color: "text-[#1DA1F2]" },
+                    { icon: XIcon, name: "X (Twitter)", color: "text-foreground" },
                     { icon: Share2, name: "Share2" },
                     { icon: Target, name: "Target", color: "text-trading-red" },
                     { icon: CheckCircle2, name: "CheckCircle2", color: "text-trading-green" },
