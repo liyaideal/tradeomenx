@@ -11,13 +11,13 @@ import {
   Zap,
   Coins,
   UserPlus,
-  Twitter,
   Rocket,
   Medal,
   Crown,
   Flame,
   type LucideIcon
 } from "lucide-react";
+import { XIcon } from "@/components/icons/XIcon";
 
 // Icon name to Lucide component mapping for tasks
 const iconMap: Record<string, LucideIcon> = {
@@ -27,7 +27,7 @@ const iconMap: Record<string, LucideIcon> = {
   "target": Target,
   "users": Users,
   "share": Share2,
-  "twitter": Twitter,
+  "x": XIcon as unknown as LucideIcon,
   "user-plus": UserPlus,
   
   // Rewards & Engagement icons
@@ -47,7 +47,7 @@ const iconMap: Record<string, LucideIcon> = {
   "👀": Eye,
   "🎯": Target,
   "👥": Users,
-  "🐦": Twitter,
+  "🐦": XIcon as unknown as LucideIcon,
 };
 
 interface TaskIconProps {
