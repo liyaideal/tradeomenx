@@ -30,8 +30,8 @@ export default function Deposit() {
 
   const handleBack = () => {
     if (selectedToken) {
-      // Go back to asset selection
-      navigate('/deposit');
+      // Go back to asset selection - use replace to avoid history stack issues
+      navigate('/deposit', { replace: true });
     } else {
       // Go back to previous page (could be /trade/order or /wallet)
       navigate(-1);
