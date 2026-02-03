@@ -1,25 +1,23 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift, Star, Trophy, Lock, CheckCircle2 } from "lucide-react";
-import { TaskIcon } from "@/components/rewards/TaskIcon";
+import { Gift, Star, Trophy, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { usePoints } from "@/hooks/usePoints";
-import { useTasks, TaskWithProgress } from "@/hooks/useTasks";
+import { useTasks } from "@/hooks/useTasks";
 import { useReferral } from "@/hooks/useReferral";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { RedeemDialog } from "@/components/rewards/RedeemDialog";
 import { ReferralCard } from "@/components/rewards/ReferralCard";
 import { PointsHistoryList } from "@/components/rewards/PointsHistoryList";
+import { TaskCard } from "@/components/rewards/TaskCard";
 import { LoginPrompt } from "@/components/LoginPrompt";
-
 export default function Rewards() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -48,79 +46,6 @@ export default function Rewards() {
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const minRedeemThreshold = config?.min_redeem_threshold?.points || 100;
   const canRedeem = pointsBalance >= minRedeemThreshold;
-
-  const TaskCard = ({ task }: { task: TaskWithProgress }) => {
-    const isPending = !task.isCompleted && !task.isClaimed;
-    const isClaimable = task.isCompleted && !task.isClaimed;
-    const isClaimed = task.isClaimed;
-
-    return (
-      <Card
-        className={`trading-card overflow-hidden transition-all duration-200 relative ${
-          isClaimed ? 'opacity-60' : isClaimable ? 'border-primary/40 glow-primary' : ''
-        }`}
-      >
-        {/* Decorative Icon Watermark */}
-        <div className="absolute top-3 right-3 pointer-events-none">
-          <TaskIcon 
-            icon={task.icon} 
-            size={48} 
-            className={`${
-              isClaimed 
-                ? 'text-trading-green/10' 
-                : isClaimable 
-                  ? 'text-primary/15' 
-                  : 'text-muted-foreground/10'
-            }`}
-          />
-        </div>
-
-        <div className="p-4 relative">
-          {/* Header: Points Badge + Status */}
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs ${
-              isClaimable 
-                ? 'bg-primary/15 text-primary' 
-                : 'bg-muted text-muted-foreground'
-            }`}>
-              <Star className="w-3 h-3" />
-              <span className="font-bold font-mono">+{task.reward_points}</span>
-            </div>
-            {isClaimed && (
-              <div className="flex items-center gap-1 text-trading-green text-xs">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span className="font-medium">Completed</span>
-              </div>
-            )}
-          </div>
-
-          {/* Title + Description */}
-          <div className="mb-3 pr-12">
-            <h4 className="font-semibold text-base mb-0.5">{task.name}</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">{task.description}</p>
-          </div>
-
-          {/* Action Area */}
-          {!isClaimed && (
-            isClaimable ? (
-              <Button 
-                className="btn-primary w-full"
-                onClick={() => claimReward(task.id)}
-                disabled={isClaiming}
-              >
-                <Gift className="w-4 h-4 mr-2" />
-                Claim Reward
-              </Button>
-            ) : (
-              <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
-                Complete task to unlock
-              </div>
-            )
-          )}
-        </div>
-      </Card>
-    );
-  };
 
   const content = (
     <div className="space-y-6">
@@ -194,7 +119,7 @@ export default function Rewards() {
             </Card>
           ) : (
             tasks.map(task => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.id} task={task} onClaim={claimReward} isClaiming={isClaiming} />
             ))
           )}
         </TabsContent>
