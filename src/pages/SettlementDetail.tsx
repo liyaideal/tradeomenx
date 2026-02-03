@@ -13,6 +13,7 @@ import { SettlementPriceChart } from "@/components/settlement/SettlementPriceCha
 import { SettlementTimeline } from "@/components/resolved/SettlementTimeline";
 import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useReferral } from "@/hooks/useReferral";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { format, formatDistanceStrict } from "date-fns";
 
@@ -22,8 +23,9 @@ export default function SettlementDetail() {
   const isMobile = useIsMobile();
   const [showShareModal, setShowShareModal] = useState(false);
 
-  // Fetch user profile for share card
+  // Fetch user profile and referral code for share card
   const { profile, isLoading: isProfileLoading } = useUserProfile();
+  const { referralCode } = useReferral();
 
   // Fetch real settlement data
   const { data: settlement, isLoading, error } = useSettlementDetail({ settlementId });
@@ -488,7 +490,7 @@ export default function SettlementDetail() {
           settledAt={settlement.settledAt}
           username={profile?.username || "Trader"}
           avatarUrl={profile?.avatar_url || undefined}
-          referralCode={profile?.username?.toUpperCase().slice(0, 8) || "OMENX2025"}
+          referralCode={referralCode || "OMENX2025"}
         />
       </ShareModal>
     </div>
