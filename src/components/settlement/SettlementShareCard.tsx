@@ -218,13 +218,13 @@ export const SettlementShareCard = ({
           <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
             <div className="p-1.5 bg-white rounded-md">
               <QRCodeSVG 
-                value="https://omenx.com" 
+                value={`https://omenx.lovable.app?ref=${referralCode}`} 
                 size={44}
                 level="M"
                 includeMargin={false}
               />
             </div>
-            <span className="text-[8px] text-muted-foreground">omenx.com</span>
+            <span className="text-[8px] text-muted-foreground">omenx.lovable.app</span>
           </div>
         </div>
       </div>

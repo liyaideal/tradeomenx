@@ -616,13 +616,13 @@ const ShareableCard = ({
             <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
               <div className="p-1.5 bg-white rounded-md">
                 <QRCodeSVG 
-                  value="https://omenx.com" 
+                  value={`https://omenx.lovable.app?ref=${referralCode}`} 
                   size={48}
                   level="M"
                   includeMargin={false}
                 />
               </div>
-              <span className="text-[9px] text-muted-foreground">omenx.com</span>
+              <span className="text-[9px] text-muted-foreground">omenx.lovable.app</span>
             </div>
           </div>
         </div>
