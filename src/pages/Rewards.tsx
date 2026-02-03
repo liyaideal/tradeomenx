@@ -50,45 +50,61 @@ export default function Rewards() {
   const canRedeem = pointsBalance >= minRedeemThreshold;
 
   const TaskCard = ({ task }: { task: TaskWithProgress }) => {
-    const getStatusBadge = () => {
-      if (task.isClaimed) {
-        return <Badge variant="success">Claimed</Badge>;
-      }
-      if (task.isCompleted) {
-        return <Badge variant="default">Claim</Badge>;
-      }
-      return <Badge variant="outline">Pending</Badge>;
-    };
+    const isPending = !task.isCompleted && !task.isClaimed;
+    const isClaimable = task.isCompleted && !task.isClaimed;
+    const isClaimed = task.isClaimed;
 
     return (
       <Card
-        className={`trading-card p-4 cursor-pointer transition-all duration-200 ${
-          task.isClaimed ? 'opacity-60' : 'hover:border-primary/50'
+        className={`trading-card p-4 transition-all duration-200 ${
+          isClaimed ? 'opacity-60' : isClaimable ? 'border-primary/30' : ''
         }`}
-        onClick={() => {
-          if (task.isCompleted && !task.isClaimed) {
-            claimReward(task.id);
-          }
-        }}
       >
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-            task.isClaimed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'
+          {/* Icon */}
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+            isClaimed ? 'bg-muted' : isClaimable ? 'bg-primary/10' : 'bg-muted'
           }`}>
-            <TaskIcon icon={task.icon} size={20} />
+            <TaskIcon 
+              icon={task.icon} 
+              size={20} 
+              className={isClaimed ? 'text-trading-green' : isClaimable ? 'text-primary' : 'text-muted-foreground'} 
+            />
           </div>
+
+          {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h4 className="font-medium text-sm truncate">{task.name}</h4>
-              {getStatusBadge()}
-            </div>
+            <h4 className="font-medium text-sm truncate">{task.name}</h4>
             <p className="text-xs text-muted-foreground truncate mt-0.5">{task.description}</p>
           </div>
-          <div className="text-right flex-shrink-0">
-            <span className={`font-bold text-sm ${task.isClaimed ? 'text-muted-foreground' : 'text-primary'}`}>
-              +{task.reward_points}
-            </span>
-            <p className="text-xs text-muted-foreground">points</p>
+
+          {/* Points + Action */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="text-right">
+              <span className={`font-bold text-sm ${isClaimable ? 'text-primary' : 'text-muted-foreground'}`}>
+                +{task.reward_points}
+              </span>
+              <p className="text-xs text-muted-foreground">points</p>
+            </div>
+
+            {isClaimed ? (
+              <Badge variant="success" className="min-w-[70px] justify-center">
+                Claimed
+              </Badge>
+            ) : isClaimable ? (
+              <Button 
+                size="sm" 
+                className="btn-primary min-w-[70px]"
+                onClick={() => claimReward(task.id)}
+                disabled={isClaiming}
+              >
+                Claim
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" disabled className="min-w-[70px]">
+                Pending
+              </Button>
+            )}
           </div>
         </div>
       </Card>
