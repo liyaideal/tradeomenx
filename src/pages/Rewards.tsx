@@ -64,8 +64,8 @@ export default function Rewards() {
         <div className="p-4">
           {/* Top: Large Icon + Status Badge */}
           <div className="flex items-start justify-between mb-3">
-            {/* Large Achievement Icon */}
-            <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+            {/* Achievement Icon */}
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
               isClaimed 
                 ? 'bg-trading-green/10 ring-2 ring-trading-green/30' 
                 : isClaimable 
@@ -73,11 +73,11 @@ export default function Rewards() {
                   : 'bg-muted'
             }`}>
               {isClaimed ? (
-                <CheckCircle2 className="w-7 h-7 text-trading-green" />
+                <CheckCircle2 className="w-5 h-5 text-trading-green" />
               ) : (
                 <TaskIcon 
                   icon={task.icon} 
-                  size={28} 
+                  size={20} 
                   className={isClaimable ? 'text-primary' : 'text-muted-foreground'} 
                 />
               )}
