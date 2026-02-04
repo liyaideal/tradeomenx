@@ -7,13 +7,14 @@ interface ReferralShareModalProps {
   referralCode: string;
   referralLink: string;
   username?: string;
+  avatarUrl?: string;
 }
 
 /**
  * ReferralShareModal - Modal for sharing referral invitation
  * 
- * Uses the benefits-focused ReferralSharePoster design.
- * Emphasizes new user rewards rather than inviter's stats.
+ * Uses the KOL-friendly ReferralSharePoster design with prominent
+ * user avatar and name for better recognition and conversion.
  */
 export const ReferralShareModal = ({
   open,
@@ -21,8 +22,9 @@ export const ReferralShareModal = ({
   referralCode,
   referralLink,
   username,
+  avatarUrl,
 }: ReferralShareModalProps) => {
-  const shareText = `Join me on OMENX and get 100 bonus points! Use my code: ${referralCode}`;
+  const shareText = `Join me on OMENX and earn rewards! Use my code: ${referralCode}`;
 
   return (
     <ShareModal
@@ -38,6 +40,7 @@ export const ReferralShareModal = ({
       <ReferralSharePoster
         referralCode={referralCode}
         inviterName={username}
+        avatarUrl={avatarUrl}
       />
     </ShareModal>
   );
