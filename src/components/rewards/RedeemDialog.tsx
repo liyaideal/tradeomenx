@@ -55,7 +55,7 @@ export const RedeemDialog = ({ open, onOpenChange }: RedeemDialogProps) => {
           <span>Exchange Rate</span>
         </div>
         <p className="font-medium">
-          100 Points = $10 Trial Balance
+          100 Points = $10 Trial Bonus
         </p>
       </div>
 
@@ -106,7 +106,7 @@ export const RedeemDialog = ({ open, onOpenChange }: RedeemDialogProps) => {
               <p className="text-2xl font-bold text-primary font-mono">
                 ${trialBalanceReceived.toFixed(2)}
               </p>
-              <p className="text-xs text-muted-foreground">Trial Balance</p>
+              <p className="text-xs text-muted-foreground">Trial Bonus</p>
             </div>
             <ArrowRight className="w-6 h-6 text-primary" />
           </div>
@@ -126,9 +126,9 @@ export const RedeemDialog = ({ open, onOpenChange }: RedeemDialogProps) => {
 
       {/* Notes */}
       <div className="text-xs text-muted-foreground space-y-1">
-        <p>• Trial balance can be used for all trading products</p>
-        <p>• Trial balance is consumed before real balance</p>
-        <p>• Trial balance cannot be withdrawn</p>
+        <p>• Trial bonus can be used for all trading products</p>
+        <p>• Trial bonus is consumed before available balance</p>
+        <p>• Trial bonus cannot be withdrawn</p>
       </div>
     </div>
   );
@@ -140,7 +140,7 @@ export const RedeemDialog = ({ open, onOpenChange }: RedeemDialogProps) => {
           <DrawerHeader>
             <DrawerTitle>Redeem Points</DrawerTitle>
             <DrawerDescription>
-              Convert your points to trial balance
+              Convert your points to trial bonus
             </DrawerDescription>
           </DrawerHeader>
           {content}
@@ -155,7 +155,7 @@ export const RedeemDialog = ({ open, onOpenChange }: RedeemDialogProps) => {
         <DialogHeader>
           <DialogTitle>Redeem Points</DialogTitle>
           <DialogDescription>
-            Convert your points to trial balance
+            Convert your points to trial bonus
           </DialogDescription>
         </DialogHeader>
         {content}
