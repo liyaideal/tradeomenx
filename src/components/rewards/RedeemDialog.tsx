@@ -55,7 +55,7 @@ export const RedeemDialog = ({ open, onOpenChange }: RedeemDialogProps) => {
           <span>Exchange Rate</span>
         </div>
         <p className="font-medium">
-          {pointsPerCent} Points = $0.01 Trial Balance
+          100 Points = $10 Trial Balance
         </p>
       </div>
 
