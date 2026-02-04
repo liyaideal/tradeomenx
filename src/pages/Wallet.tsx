@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useWallets } from "@/hooks/useWallets";
+import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -60,6 +61,7 @@ export default function Wallet() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { balance, trialBalance, user } = useUserProfile();
+  const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const { 
     wallets, 
     isLoading: walletsLoading, 
@@ -263,6 +265,64 @@ export default function Wallet() {
     );
   };
 
+  // Available Balance Tooltip with margin info and Portfolio link
+  const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
+    const content = (
+      <div className="space-y-2">
+        <p className="text-xs">Funds available for trading and withdrawal.</p>
+        {marginInUse > 0 && (
+          <div className="pt-2 border-t border-border/50 space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Margin in Use:</span>
+              <span className="font-mono text-trading-yellow">${formatCurrency(marginInUse)}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Unrealized P&L:</span>
+              <span className={`font-mono ${unrealizedPnL >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+                {unrealizedPnL >= 0 ? '+' : ''}${formatCurrency(unrealizedPnL)}
+              </span>
+            </div>
+          </div>
+        )}
+        <button
+          onClick={() => navigate('/portfolio')}
+          className="w-full mt-2 text-xs text-primary hover:underline text-left"
+        >
+          View positions in Portfolio →
+        </button>
+      </div>
+    );
+
+    if (isMobile) {
+      return (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="text-muted-foreground hover:text-foreground transition-colors">
+              <Info className="w-3 h-3" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-3" side="top" align="start">
+            {content}
+          </PopoverContent>
+        </Popover>
+      );
+    }
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button className="text-muted-foreground hover:text-foreground transition-colors">
+              <Info className="w-3 h-3" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="w-64 p-3">
+            {content}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
+
   // Balance Card Component
   const BalanceCard = () => (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 p-6">
@@ -290,7 +350,7 @@ export default function Wallet() {
           <div className="p-3 rounded-lg bg-muted/20">
             <div className="flex items-center gap-1 mb-1">
               <span className="text-xs text-muted-foreground">Available Balance</span>
-              <InfoTooltip text="Funds available for trading and withdrawal." />
+              <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
             </div>
             <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
           </div>
