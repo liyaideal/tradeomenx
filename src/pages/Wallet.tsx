@@ -266,7 +266,7 @@ export default function Wallet() {
   };
 
   // Available Balance Popover with margin info and Portfolio link
-  // Uses Popover for both mobile and desktop to allow interactive content (clickable link)
+  // Uses Popover for both mobile and desktop to enable interactive content (clickable link)
   const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
     const content = (
       <div className="space-y-2">
