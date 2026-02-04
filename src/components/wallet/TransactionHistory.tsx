@@ -89,6 +89,15 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
     return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
+  // Format description based on status - remove "incoming" for completed deposits
+  const formatDescription = (tx: Transaction): string => {
+    if (tx.type === 'deposit' && tx.status === 'completed') {
+      // Remove "incoming" suffix for completed deposits
+      return tx.description.replace(/ incoming$/i, '');
+    }
+    return tx.description;
+  };
+
   const getExplorerUrl = (network: string | null | undefined, txHash: string): string | null => {
     if (!network || !txHash) return null;
     const baseUrl = EXPLORER_URLS[network];
@@ -279,7 +288,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium truncate">
-                          {tx.description}
+                          {formatDescription(tx)}
                         </span>
                         {/* Mobile: Show status icon inline if pending/processing */}
                         {isMobile && tx.status && tx.status !== 'completed' && (
