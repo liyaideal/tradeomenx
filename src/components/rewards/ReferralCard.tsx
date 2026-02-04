@@ -89,14 +89,7 @@ export const ReferralCard = () => {
         onOpenChange={setShowShareModal}
         referralCode={referralCode}
         referralLink={referralLink}
-        username={profile?.username || 'Trader'}
-        avatarUrl={profile?.avatar_url || undefined}
-        stats={{
-          pnl: 7650, // TODO: Replace with real data from user stats
-          roi: 45.8,
-          volume: 245000,
-          rank: 13,
-        }}
+        username={profile?.username || undefined}
       />
 
       {/* Stats Card */}
