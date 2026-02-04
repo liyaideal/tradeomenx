@@ -13,10 +13,10 @@ interface ReferralSharePosterProps {
 /**
  * ReferralSharePoster - KOL-friendly invitation card
  * 
- * Design: User avatar + name prominently displayed for KOL recognition,
- * followed by benefits for new users.
+ * Design: Borderless floating avatar with glow effect,
+ * decorative sparkles, and integrated invite badge.
  * 
- * Layout: Badge → Avatar+Name → Benefits Grid → Steps → Footer
+ * Layout: Avatar+Badge+Name → Benefits Grid → Steps → Footer
  */
 export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePosterProps>(
   ({ referralCode, inviterName, avatarUrl }, ref) => {
@@ -34,84 +34,143 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
         ctaText="Predict. Trade. Profit."
         qrLabel="omenx.lovable.app"
       >
-        {/* Invite Badge */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: '16px',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 14px',
-            background: theme.bgColor,
-            border: `1px solid ${theme.borderColor}`,
-            borderRadius: '20px',
-          }}>
-            <span style={{ fontSize: '14px' }}>🎁</span>
-            <span style={{
-              color: theme.primary,
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-            }}>
-              Exclusive Invite
-            </span>
-          </div>
-        </div>
-
-        {/* User Profile - Prominent Center Section */}
+        {/* User Profile - Floating Borderless Design */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           marginBottom: '20px',
-          padding: '16px',
-          background: 'rgba(255, 255, 255, 0.03)',
-          borderRadius: '16px',
-          border: `1px solid ${posterColors.border}`,
+          position: 'relative',
         }}>
-          {/* Avatar */}
+          {/* Decorative sparkles */}
           <div style={{
-            width: '64px',
-            height: '64px',
-            borderRadius: '50%',
-            background: theme.bgColor,
-            border: `3px solid ${theme.borderColor}`,
-            overflow: 'hidden',
-            marginBottom: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: `0 0 20px ${theme.glowColor}`,
+            position: 'absolute',
+            top: '-8px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '120px',
+            height: '100px',
+            pointerEvents: 'none',
           }}>
-            {avatarUrl ? (
-              <img 
-                src={avatarUrl} 
-                alt={displayName}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <span style={{ 
-                fontSize: '24px', 
-                fontWeight: 700, 
-                color: theme.primary,
-              }}>
-                {initials}
-              </span>
-            )}
+            <span style={{ 
+              position: 'absolute', 
+              top: '0', 
+              left: '10px', 
+              fontSize: '10px',
+              opacity: 0.6,
+            }}>✦</span>
+            <span style={{ 
+              position: 'absolute', 
+              top: '15px', 
+              right: '5px', 
+              fontSize: '14px',
+              color: theme.primary,
+              opacity: 0.8,
+            }}>✦</span>
+            <span style={{ 
+              position: 'absolute', 
+              top: '50px', 
+              left: '-5px', 
+              fontSize: '8px',
+              opacity: 0.5,
+            }}>✦</span>
+            <span style={{ 
+              position: 'absolute', 
+              top: '60px', 
+              right: '0', 
+              fontSize: '12px',
+              color: theme.primary,
+              opacity: 0.7,
+            }}>✧</span>
           </div>
 
-          {/* Username */}
+          {/* Avatar with glow ring */}
           <div style={{
-            fontSize: '18px',
-            fontWeight: 700,
-            color: posterColors.textPrimary,
-            marginBottom: '4px',
+            position: 'relative',
+            marginBottom: '14px',
           }}>
-            {displayName}
+            {/* Outer glow ring */}
+            <div style={{
+              position: 'absolute',
+              inset: '-6px',
+              borderRadius: '50%',
+              background: `conic-gradient(from 0deg, ${theme.primary}40, ${theme.glowColor}, ${theme.primary}40)`,
+              animation: 'spin 8s linear infinite',
+              opacity: 0.6,
+            }} />
+            {/* Inner ring */}
+            <div style={{
+              position: 'absolute',
+              inset: '-3px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #1a1a2e, #16162a)',
+            }} />
+            {/* Avatar */}
+            <div style={{
+              position: 'relative',
+              width: '72px',
+              height: '72px',
+              borderRadius: '50%',
+              background: theme.bgColor,
+              border: `2px solid ${theme.borderColor}`,
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              {avatarUrl ? (
+                <img 
+                  src={avatarUrl} 
+                  alt={displayName}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <span style={{ 
+                  fontSize: '28px', 
+                  fontWeight: 700, 
+                  color: theme.primary,
+                }}>
+                  {initials}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Username + Invite Badge inline */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '6px',
+          }}>
+            <div style={{
+              fontSize: '18px',
+              fontWeight: 700,
+              color: posterColors.textPrimary,
+            }}>
+              {displayName}
+            </div>
+            {/* Compact invite badge */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '3px 8px',
+              background: theme.bgColor,
+              border: `1px solid ${theme.borderColor}`,
+              borderRadius: '12px',
+            }}>
+              <span style={{ fontSize: '10px' }}>🎁</span>
+              <span style={{
+                color: theme.primary,
+                fontSize: '9px',
+                fontWeight: 600,
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase',
+              }}>
+                Invite
+              </span>
+            </div>
           </div>
           
           {/* Invite text */}
@@ -123,7 +182,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
           </div>
         </div>
 
-        {/* Benefits Grid - Compact */}
+        {/* Benefits Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -132,20 +191,20 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
         }}>
           {/* Benefit 1: First Trade Bonus */}
           <div style={{
-            padding: '12px 10px',
+            padding: '14px 10px',
             background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
+            borderRadius: '12px',
             border: `1px solid ${posterColors.border}`,
             textAlign: 'center',
           }}>
             <div style={{
-              fontSize: '20px',
+              fontSize: '22px',
               fontWeight: 700,
               color: theme.primary,
               fontFamily: 'ui-monospace, monospace',
-              marginBottom: '2px',
+              marginBottom: '4px',
             }}>
-              +100 <span style={{ fontSize: '11px', fontWeight: 500 }}>pts</span>
+              +100 <span style={{ fontSize: '12px', fontWeight: 500 }}>pts</span>
             </div>
             <div style={{
               fontSize: '9px',
@@ -159,20 +218,20 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
 
           {/* Benefit 2: Each Referral Bonus */}
           <div style={{
-            padding: '12px 10px',
+            padding: '14px 10px',
             background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
+            borderRadius: '12px',
             border: `1px solid ${posterColors.border}`,
             textAlign: 'center',
           }}>
             <div style={{
-              fontSize: '20px',
+              fontSize: '22px',
               fontWeight: 700,
               color: '#22c55e',
               fontFamily: 'ui-monospace, monospace',
-              marginBottom: '2px',
+              marginBottom: '4px',
             }}>
-              +200 <span style={{ fontSize: '11px', fontWeight: 500 }}>pts</span>
+              +200 <span style={{ fontSize: '12px', fontWeight: 500 }}>pts</span>
             </div>
             <div style={{
               fontSize: '9px',
