@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Globe, ChevronDown, User, Trophy, LogOut, LogIn, Gift, Users } from "lucide-react";
+import { Globe, ChevronDown, User, Trophy, LogOut, LogIn, Gift, Users, Settings, HelpCircle, Briefcase } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -170,6 +170,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={() => navigate("/portfolio")}>
+                    <Briefcase className="w-4 h-4 mr-2 text-muted-foreground" />
                     Portfolio
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/rewards")}>
@@ -181,9 +182,11 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     Referral
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
+                    <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
                     Settings
                   </DropdownMenuItem>
                   <DropdownMenuItem>
+                    <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
                     Help & Support
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
