@@ -88,7 +88,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
           gap: '10px',
           marginBottom: '20px',
         }}>
-          {/* Benefit 1: Sign-up Bonus */}
+          {/* Benefit 1: First Trade Bonus */}
           <div style={{
             padding: '14px 12px',
             background: 'rgba(255, 255, 255, 0.05)',
@@ -96,7 +96,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
             border: `1px solid ${posterColors.border}`,
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: '24px', marginBottom: '6px' }}>💰</div>
+            <div style={{ fontSize: '24px', marginBottom: '6px' }}>📈</div>
             <div style={{
               fontSize: '18px',
               fontWeight: 700,
@@ -112,11 +112,11 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>
-              Sign-up Points
+              First Trade
             </div>
           </div>
 
-          {/* Benefit 2: First Trade Bonus */}
+          {/* Benefit 2: Each Referral Bonus */}
           <div style={{
             padding: '14px 12px',
             background: 'rgba(255, 255, 255, 0.05)',
@@ -124,7 +124,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
             border: `1px solid ${posterColors.border}`,
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: '24px', marginBottom: '6px' }}>📈</div>
+            <div style={{ fontSize: '24px', marginBottom: '6px' }}>👥</div>
             <div style={{
               fontSize: '18px',
               fontWeight: 700,
@@ -132,7 +132,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
               fontFamily: 'ui-monospace, monospace',
               marginBottom: '4px',
             }}>
-              +50
+              +200
             </div>
             <div style={{
               fontSize: '10px',
@@ -140,7 +140,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>
-              First Trade Bonus
+              Each Referral
             </div>
           </div>
         </div>
