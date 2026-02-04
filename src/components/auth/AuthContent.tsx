@@ -627,37 +627,19 @@ export const AuthContent = ({
           )}
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-3 pt-1">
-          <Button
-            onClick={handleSkip}
-            variant="outline"
-            className="flex-1 h-10"
-          >
-            Skip for Now
-          </Button>
-          <Button
-            onClick={handleCompleteProfile}
-            disabled={isLoading}
-            className="flex-1 h-10 btn-primary"
-          >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-              <>
-                <Save className="w-4 h-4 mr-1.5" />
-                Save Profile
-              </>
-            )}
-          </Button>
-        </div>
-
-        {/* Start Trading Link */}
-        <button
-          onClick={handleSkip}
-          className="w-full flex items-center justify-center gap-1.5 text-sm text-primary hover:underline"
+        {/* Single CTA Button */}
+        <Button
+          onClick={handleCompleteProfile}
+          disabled={isLoading}
+          className="w-full h-11 btn-trading-green"
         >
-          Start Trading Now
-          <ArrowRight className="w-4 h-4" />
-        </button>
+          {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+            <>
+              Start Trading Now
+              <ArrowRight className="w-4 h-4 ml-1.5" />
+            </>
+          )}
+        </Button>
       </div>
     );
   }
