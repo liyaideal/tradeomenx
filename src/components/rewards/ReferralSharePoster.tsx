@@ -31,7 +31,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
         theme="special"
         qrValue={referralLink}
         referralCode={referralCode}
-        ctaText="Scan to join & earn"
+        ctaText="Predict. Trade. Profit."
         qrLabel="omenx.lovable.app"
       >
         {/* Invite Badge */}
