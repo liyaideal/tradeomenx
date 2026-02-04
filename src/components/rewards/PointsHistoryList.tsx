@@ -91,7 +91,7 @@ export const PointsHistoryList = () => {
                 </span>
               </div>
               <p className="text-xs text-muted-foreground truncate">
-                {entry.description || 'Points transaction'}
+                {(entry.description || 'Points transaction').replace(/trial balance/gi, 'trial bonus')}
               </p>
             </div>
             <div className="text-right">
