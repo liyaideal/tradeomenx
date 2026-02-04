@@ -93,11 +93,11 @@ export const useReferral = () => {
     },
   });
 
-  // Get referral link
+  // Get referral link - uses published domain for consistency
   const getReferralLink = () => {
     if (!referralCode) return '';
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/?ref=${referralCode.code}`;
+    // Use the published domain for all referral links
+    return `https://omenx.lovable.app?ref=${referralCode.code}`;
   };
 
   // Copy referral link
