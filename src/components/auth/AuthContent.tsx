@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +17,10 @@ import {
   ArrowLeft,
   Check,
   Loader2,
-  Zap
+  Zap,
+  Gift,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import type { AuthStep } from "@/hooks/useAuth";
 import sillyname from "sillyname";
@@ -39,10 +43,23 @@ export const AuthContent = ({
   variant = "desktop" 
 }: AuthContentProps) => {
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
   const { profile, username: profileUsername, email: profileEmail } = useUserProfile();
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">("google");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+  const [showReferralInput, setShowReferralInput] = useState(false);
+  const [emailError, setEmailError] = useState("");
+
+  // Check for referral code in URL on mount
+  useEffect(() => {
+    const refCode = searchParams.get("ref");
+    if (refCode) {
+      setReferralCode(refCode.toUpperCase());
+      setShowReferralInput(true);
+    }
+  }, [searchParams]);
 
   // Pre-fill username and email when profile data loads or step changes
   useEffect(() => {
@@ -160,7 +177,27 @@ export const AuthContent = ({
     setStep("completeProfile");
   };
 
+  // Validate email format
+  const validateEmail = (email: string): boolean => {
+    if (!email.trim()) {
+      setEmailError("Email is required");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setEmailError("Please enter a valid email address");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
   const handleCompleteProfile = async () => {
+    // Validate email is required
+    if (!validateEmail(email)) {
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -168,7 +205,7 @@ export const AuthContent = ({
       if (user) {
         const updates: { username?: string; email?: string } = {};
         if (username.trim()) updates.username = username.trim();
-        if (email.trim()) updates.email = email.trim();
+        updates.email = email.trim();
 
         if (Object.keys(updates).length > 0) {
           const { error } = await supabase
@@ -178,6 +215,50 @@ export const AuthContent = ({
 
           if (error) {
             console.error("Profile update error:", error);
+          }
+        }
+
+        // If referral code is provided, try to link it
+        if (referralCode.trim()) {
+          // Look up the referral code
+          const { data: referralCodeData, error: codeError } = await supabase
+            .from("referral_codes")
+            .select("id, user_id, code")
+            .eq("code", referralCode.trim().toUpperCase())
+            .eq("is_active", true)
+            .maybeSingle();
+
+          if (referralCodeData && !codeError) {
+            // Don't allow self-referral
+            if (referralCodeData.user_id !== user.id) {
+              // Check if referral already exists
+              const { data: existingReferral } = await supabase
+                .from("referrals")
+                .select("id")
+                .eq("referee_id", user.id)
+                .maybeSingle();
+
+              if (!existingReferral) {
+                // Create the referral record
+                const { error: referralError } = await supabase
+                  .from("referrals")
+                  .insert({
+                    referrer_id: referralCodeData.user_id,
+                    referee_id: user.id,
+                    referral_code: referralCodeData.code,
+                    status: "pending",
+                    level: 1
+                  });
+
+                if (!referralError) {
+                  // Update referral code uses count
+                  await supabase
+                    .from("referral_codes")
+                    .update({ uses_count: (referralCodeData as any).uses_count + 1 || 1 })
+                    .eq("id", referralCodeData.id);
+                }
+              }
+            }
           }
         }
       }
@@ -427,8 +508,10 @@ export const AuthContent = ({
 
   // Complete Profile Step
   if (step === "completeProfile") {
+    const hasPrefilledReferral = !!searchParams.get("ref");
+
     return (
-      <div className={containerClass}>
+      <div className="space-y-4">
         {/* Back Button */}
         <button
           onClick={() => setStep("createWallet")}
@@ -439,61 +522,113 @@ export const AuthContent = ({
         </button>
 
         {/* Success Banner */}
-        <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-3 flex items-center gap-2">
-          <Check className="w-4 h-4 text-trading-green" />
+        <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-2.5 flex items-center gap-2">
+          <Check className="w-4 h-4 text-trading-green flex-shrink-0" />
           <span className="text-trading-green font-medium text-sm">
             Wallet created! Complete your profile to start
           </span>
         </div>
 
-        <div className="text-center space-y-1">
+        <div className="text-center space-y-0.5">
           <p className="text-xs text-muted-foreground">Final Step</p>
           <h2 className="text-lg font-semibold text-foreground">Complete Your Profile</h2>
-          <p className="text-sm text-muted-foreground">Optional — Unlock exclusive features</p>
         </div>
 
-        {/* Username Input */}
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="username" className="text-sm font-medium text-foreground">Username</Label>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Optional</span>
+        {/* Account Info Section */}
+        <div className="bg-card/50 border border-border/50 rounded-xl p-4 space-y-3">
+          {/* Username Input */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="username" className="text-sm font-medium text-foreground">Username</Label>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">Optional</span>
+            </div>
+            <Input
+              id="username"
+              type="text"
+              placeholder="Enter your display name"
+              value={username}
+              maxLength={20}
+              onChange={(e) => setUsername(e.target.value)}
+              className="h-10 bg-muted/50 border-border/50"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Public display name</span>
+              <span>{username.length}/20</span>
+            </div>
           </div>
-          <Input
-            id="username"
-            type="text"
-            placeholder="Enter your display name"
-            value={username}
-            maxLength={20}
-            onChange={(e) => setUsername(e.target.value)}
-            className="h-11 bg-muted/50 border-border/50"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>This will be your public display name</span>
-            <span>{username.length}/20 characters</span>
+
+          {/* Email Input - Required */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-1">
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">Email Address</Label>
+              <span className="text-trading-red">*</span>
+            </div>
+            <Input
+              id="email"
+              type="email"
+              placeholder="your.email@example.com"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) validateEmail(e.target.value);
+              }}
+              className={`h-10 bg-muted/50 border-border/50 ${emailError ? "border-trading-red focus-visible:ring-trading-red" : ""}`}
+            />
+            {emailError ? (
+              <p className="text-xs text-trading-red">{emailError}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                For notifications and account recovery
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Email Input */}
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="email" className="text-sm font-medium text-foreground">Email Address</Label>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Optional</span>
-          </div>
-          <Input
-            id="email"
-            type="email"
-            placeholder="your.email@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-11 bg-muted/50 border-border/50"
-          />
-          <p className="text-xs text-muted-foreground">
-            For important notifications and account recovery
-          </p>
+        {/* Referral Code Section */}
+        <div className="bg-card/50 border border-border/50 rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowReferralInput(!showReferralInput)}
+            className="w-full p-3 flex items-center justify-between hover:bg-muted/30 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Gift className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                {hasPrefilledReferral ? "Invited by a friend" : "Have a referral code?"}
+              </span>
+              {referralCode && (
+                <span className="text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary font-mono">
+                  {referralCode}
+                </span>
+              )}
+            </div>
+            {showReferralInput ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+          
+          {showReferralInput && (
+            <div className="px-3 pb-3 space-y-1.5">
+              <Input
+                id="referralCode"
+                type="text"
+                placeholder="Enter 6-character code (e.g. ABCDEF)"
+                value={referralCode}
+                maxLength={6}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                className="h-10 bg-muted/50 border-border/50 font-mono uppercase tracking-wider"
+              />
+              <p className="text-xs text-muted-foreground">
+                You and your inviter will both earn bonus points!
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-1">
           <Button
             onClick={handleSkip}
             variant="outline"
