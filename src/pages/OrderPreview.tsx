@@ -85,16 +85,16 @@ export default function OrderPreview() {
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
     // Show balance breakdown
     ...(trialBalance > 0 ? [
-      { label: "Trial Balance", value: `${trialBalance.toFixed(2)} USDC`, highlight: "purple" as const },
-      { label: "Real Balance", value: `${balance.toFixed(2)} USDC` },
+      { label: "Trial Bonus", value: `${trialBalance.toFixed(2)} USDC`, highlight: "purple" as const },
+      { label: "Available Balance", value: `${balance.toFixed(2)} USDC` },
       { label: "Total Available", value: `${totalBalance.toFixed(2)} USDC`, highlight: hasSufficientFunds ? "green" as const : "red" as const },
     ] : [
       { label: "Available Balance", value: `${balance.toFixed(2)} USDC`, highlight: hasSufficientFunds ? "green" as const : "red" as const },
     ]),
-    // Show payment breakdown if using trial balance
+    // Show payment breakdown if using trial bonus
     ...(trialBalance > 0 && hasSufficientFunds ? [
-      { label: "From Trial Balance", value: `-${trialDeduction.toFixed(2)} USDC`, highlight: "purple" as const },
-      ...(realDeduction > 0 ? [{ label: "From Real Balance", value: `-${realDeduction.toFixed(2)} USDC` }] : []),
+      { label: "From Trial Bonus", value: `-${trialDeduction.toFixed(2)} USDC`, highlight: "purple" as const },
+      ...(realDeduction > 0 ? [{ label: "From Available Balance", value: `-${realDeduction.toFixed(2)} USDC` }] : []),
     ] : []),
   ];
 

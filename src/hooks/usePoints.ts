@@ -148,7 +148,7 @@ export const usePoints = () => {
           balance_after: newBalance,
           type: 'spend',
           source: 'redeem',
-          description: `Redeemed ${pointsToRedeem} points for $${trialBalanceReceived.toFixed(2)} trial balance`
+          description: `Redeemed ${pointsToRedeem} points for $${trialBalanceReceived.toFixed(2)} trial bonus`
         });
 
       if (ledgerError) throw ledgerError;
@@ -188,13 +188,13 @@ export const usePoints = () => {
           type: 'platform_credit',
           amount: trialBalanceReceived,
           status: 'completed',
-          description: `Redeemed ${pointsToRedeem} points for trial balance`
+          description: `Redeemed ${pointsToRedeem} points for trial bonus`
         });
 
       return { pointsSpent: pointsToRedeem, trialBalanceReceived };
     },
     onSuccess: (data) => {
-      toast.success(`Redeemed ${data.pointsSpent} points for $${data.trialBalanceReceived.toFixed(2)} trial balance!`);
+      toast.success(`Redeemed ${data.pointsSpent} points for $${data.trialBalanceReceived.toFixed(2)} trial bonus!`);
       queryClient.invalidateQueries({ queryKey: ['points-account'] });
       queryClient.invalidateQueries({ queryKey: ['points-history'] });
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });
