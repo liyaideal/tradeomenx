@@ -70,7 +70,7 @@ export default function Wallet() {
     setPrimaryWallet 
   } = useWallets();
 
-  // Fetch recent trades for transaction history
+  // Fetch closed trades for transaction history (only realized P&L)
   const { data: recentTrades = [] } = useQuery({
     queryKey: ["wallet-trades", user?.id],
     queryFn: async () => {
@@ -80,7 +80,7 @@ export default function Wallet() {
         .from("trades")
         .select("id, event_name, option_label, pnl, created_at, closed_at, status")
         .eq("user_id", user.id)
-        .eq("status", "Filled")
+        .eq("status", "Closed")
         .not("pnl", "is", null)
         .order("closed_at", { ascending: false });
 
