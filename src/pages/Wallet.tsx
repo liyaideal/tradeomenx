@@ -265,7 +265,8 @@ export default function Wallet() {
     );
   };
 
-  // Available Balance Tooltip with margin info and Portfolio link
+  // Available Balance Popover with margin info and Portfolio link
+  // Uses Popover for both mobile and desktop to allow interactive content (clickable link)
   const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
     const content = (
       <div className="space-y-2">
@@ -293,33 +294,17 @@ export default function Wallet() {
       </div>
     );
 
-    if (isMobile) {
-      return (
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="w-3 h-3" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-64 p-3" side="top" align="start">
-            {content}
-          </PopoverContent>
-        </Popover>
-      );
-    }
     return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="w-3 h-3" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="w-64 p-3">
-            {content}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button className="text-muted-foreground hover:text-foreground transition-colors">
+            <Info className="w-3 h-3" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-3" side="top" align={isMobile ? "start" : "center"}>
+          {content}
+        </PopoverContent>
+      </Popover>
     );
   };
 
