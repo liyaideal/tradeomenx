@@ -25,6 +25,31 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
     const displayName = inviterName || 'OMENX User';
     const initials = displayName.charAt(0).toUpperCase();
 
+    // Stamp element for top-right corner
+    const stamp = (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: '6px 10px',
+        background: 'rgba(251, 191, 36, 0.15)',
+        border: '1.5px dashed rgba(251, 191, 36, 0.6)',
+        borderRadius: '6px',
+        transform: 'rotate(12deg)',
+      }}>
+        <span style={{ fontSize: '12px' }}>🎁</span>
+        <span style={{
+          color: '#fbbf24',
+          fontSize: '10px',
+          fontWeight: 700,
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase',
+        }}>
+          Exclusive Invite
+        </span>
+      </div>
+    );
+
     return (
       <SharePosterLayout
         ref={ref}
@@ -33,6 +58,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
         referralCode={referralCode}
         ctaText="Predict. Trade. Profit."
         qrLabel="omenx.lovable.app"
+        stamp={stamp}
       >
         {/* User Profile - Floating Borderless Design */}
         <div style={{
@@ -136,41 +162,14 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
             </div>
           </div>
 
-          {/* Username + Invite Badge inline */}
+          {/* Username */}
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+            fontSize: '18px',
+            fontWeight: 700,
+            color: posterColors.textPrimary,
             marginBottom: '6px',
           }}>
-            <div style={{
-              fontSize: '18px',
-              fontWeight: 700,
-              color: posterColors.textPrimary,
-            }}>
-              {displayName}
-            </div>
-            {/* VIP badge */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '3px 8px',
-              background: theme.bgColor,
-              border: `1px solid ${theme.borderColor}`,
-              borderRadius: '12px',
-            }}>
-              <span style={{ fontSize: '10px' }}>⭐</span>
-              <span style={{
-                color: theme.primary,
-                fontSize: '9px',
-                fontWeight: 600,
-                letterSpacing: '0.5px',
-                textTransform: 'uppercase',
-              }}>
-                VIP
-              </span>
-            </div>
+            {displayName}
           </div>
           
           {/* Invite text */}

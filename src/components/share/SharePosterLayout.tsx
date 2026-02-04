@@ -26,6 +26,8 @@ interface SharePosterLayoutProps {
   ctaText?: string;
   /** Small text below QR code */
   qrLabel?: string;
+  /** Optional stamp element for top-right corner */
+  stamp?: ReactNode;
   /** Additional container styles */
   style?: CSSProperties;
 }
@@ -50,6 +52,7 @@ export const SharePosterLayout = forwardRef<HTMLDivElement, SharePosterLayoutPro
     referralCode = 'OMENX2025',
     ctaText = 'Join & trade with us!',
     qrLabel = 'omenx.com',
+    stamp,
     style,
   }, ref) => {
     const themeStyle = posterThemes[theme];
@@ -95,6 +98,18 @@ export const SharePosterLayout = forwardRef<HTMLDivElement, SharePosterLayoutPro
           opacity: 0.4,
           pointerEvents: 'none',
         }} />
+
+        {/* Stamp - Top Right Corner */}
+        {stamp && (
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            zIndex: 10,
+          }}>
+            {stamp}
+          </div>
+        )}
 
         {/* Header: Logo + Date */}
         <div style={{
