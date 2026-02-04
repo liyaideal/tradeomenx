@@ -26,7 +26,7 @@ const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { balance, user, username, avatarUrl, profile } = useUserProfile();
+  const { balance, trialBalance, user, username, avatarUrl, profile } = useUserProfile();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
 
@@ -178,7 +178,7 @@ export const BottomNav = () => {
           </div>
         </div>
 
-        {/* Balance Card - Tappable to go to Wallet page */}
+        {/* Equity Card - Tappable to go to Wallet page */}
         <div 
           onClick={() => {
             setProfileSheetOpen(false);
@@ -191,11 +191,11 @@ export const BottomNav = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Wallet className="w-5 h-5 text-trading-green" />
-              <span className="text-sm text-muted-foreground">Balance</span>
+              <span className="text-sm text-muted-foreground">Equity</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold text-trading-green font-mono">
-                ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${(balance + trialBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
