@@ -145,7 +145,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
               fontFamily: 'ui-monospace, monospace',
               marginBottom: '2px',
             }}>
-              +100
+              +100 <span style={{ fontSize: '11px', fontWeight: 500 }}>pts</span>
             </div>
             <div style={{
               fontSize: '9px',
@@ -172,7 +172,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
               fontFamily: 'ui-monospace, monospace',
               marginBottom: '2px',
             }}>
-              +200
+              +200 <span style={{ fontSize: '11px', fontWeight: 500 }}>pts</span>
             </div>
             <div style={{
               fontSize: '9px',
