@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Gift, Star, Trophy, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,12 +20,17 @@ import { TaskCard } from "@/components/rewards/TaskCard";
 import { LoginPrompt } from "@/components/LoginPrompt";
 export default function Rewards() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
   const { pointsBalance, frozenPoints, lifetimeEarned, config, isLoading: isLoadingPoints } = usePoints();
   const { tasks, completedCount, totalCount, claimReward, isClaiming, refreshTaskStatus } = useTasks();
   const { referralCode, stats: referralStats } = useReferral();
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
+  
+  // Get initial tab from URL params
+  const initialTab = searchParams.get("tab") || "tasks";
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // Refresh task status when component mounts
   useEffect(() => {
@@ -33,6 +38,14 @@ export default function Rewards() {
       refreshTaskStatus();
     }
   }, [user]);
+
+  // Sync tab with URL params
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl && ["tasks", "referral", "history"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   if (!user) {
     return (
@@ -92,7 +105,7 @@ export default function Rewards() {
       </Card>
 
       {/* Tabs */}
-      <Tabs defaultValue="tasks" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="tasks">Tasks</TabsTrigger>
           <TabsTrigger value="referral">Referral</TabsTrigger>
