@@ -30,20 +30,19 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '4px',
-        padding: '6px 10px',
-        background: 'rgba(251, 191, 36, 0.15)',
-        border: '1.5px dashed rgba(251, 191, 36, 0.6)',
-        borderRadius: '6px',
-        transform: 'rotate(12deg)',
+        gap: '5px',
+        padding: '5px 10px',
+        background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1))',
+        border: '1px solid rgba(251, 191, 36, 0.3)',
+        borderRadius: '20px',
+        boxShadow: '0 2px 8px rgba(251, 191, 36, 0.15)',
       }}>
-        <span style={{ fontSize: '12px' }}>🎁</span>
+        <span style={{ fontSize: '11px' }}>🎁</span>
         <span style={{
           color: '#fbbf24',
-          fontSize: '10px',
-          fontWeight: 700,
-          letterSpacing: '0.5px',
-          textTransform: 'uppercase',
+          fontSize: '9px',
+          fontWeight: 600,
+          letterSpacing: '0.3px',
         }}>
           Exclusive Invite
         </span>
