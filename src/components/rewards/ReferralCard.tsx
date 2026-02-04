@@ -90,6 +90,7 @@ export const ReferralCard = () => {
         referralCode={referralCode}
         referralLink={referralLink}
         username={profile?.username || undefined}
+        avatarUrl={profile?.avatar_url || undefined}
       />
 
       {/* Stats Card */}

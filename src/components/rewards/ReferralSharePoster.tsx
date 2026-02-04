@@ -4,24 +4,26 @@ import { posterColors, posterThemes } from '@/lib/posterStyles';
 
 interface ReferralSharePosterProps {
   referralCode: string;
-  /** Inviter's username - shown as "Invited by" */
+  /** Inviter's username */
   inviterName?: string;
+  /** Inviter's avatar URL */
+  avatarUrl?: string;
 }
 
 /**
- * ReferralSharePoster - Benefits-focused invitation card
+ * ReferralSharePoster - KOL-friendly invitation card
  * 
- * Design philosophy: Focus on NEW USER benefits, not inviter achievements.
- * - Highlights sign-up rewards and first-trade bonuses
- * - Large, scannable QR code
- * - Clear call-to-action for registration
+ * Design: User avatar + name prominently displayed for KOL recognition,
+ * followed by benefits for new users.
  * 
- * Theme: "special" (gold) to convey rewards/value
+ * Layout: Badge → Avatar+Name → Benefits Grid → Steps → Footer
  */
 export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePosterProps>(
-  ({ referralCode, inviterName }, ref) => {
+  ({ referralCode, inviterName, avatarUrl }, ref) => {
     const theme = posterThemes.special; // Gold theme for rewards
     const referralLink = `https://omenx.lovable.app?ref=${referralCode}`;
+    const displayName = inviterName || 'OMENX User';
+    const initials = displayName.charAt(0).toUpperCase();
 
     return (
       <SharePosterLayout
@@ -29,10 +31,10 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
         theme="special"
         qrValue={referralLink}
         referralCode={referralCode}
-        ctaText="Scan to claim rewards"
+        ctaText="Scan to join & earn"
         qrLabel="omenx.lovable.app"
       >
-        {/* Gift Badge */}
+        {/* Invite Badge */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -42,72 +44,111 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '8px 16px',
+            padding: '6px 14px',
             background: theme.bgColor,
             border: `1px solid ${theme.borderColor}`,
-            borderRadius: '24px',
+            borderRadius: '20px',
           }}>
-            <span style={{ fontSize: '18px' }}>🎁</span>
+            <span style={{ fontSize: '14px' }}>🎁</span>
             <span style={{
               color: theme.primary,
-              fontSize: '13px',
+              fontSize: '11px',
               fontWeight: 600,
-              letterSpacing: '0.5px',
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
             }}>
-              EXCLUSIVE INVITE
+              Exclusive Invite
             </span>
           </div>
         </div>
 
-        {/* Main Headline */}
+        {/* User Profile - Prominent Center Section */}
         <div style={{
-          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           marginBottom: '20px',
+          padding: '16px',
+          background: 'rgba(255, 255, 255, 0.03)',
+          borderRadius: '16px',
+          border: `1px solid ${posterColors.border}`,
         }}>
+          {/* Avatar */}
           <div style={{
-            fontSize: '24px',
-            fontWeight: 800,
-            color: posterColors.textPrimary,
-            lineHeight: 1.3,
-            marginBottom: '8px',
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            background: theme.bgColor,
+            border: `3px solid ${theme.borderColor}`,
+            overflow: 'hidden',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: `0 0 20px ${theme.glowColor}`,
           }}>
-            Join OMENX
+            {avatarUrl ? (
+              <img 
+                src={avatarUrl} 
+                alt={displayName}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <span style={{ 
+                fontSize: '24px', 
+                fontWeight: 700, 
+                color: theme.primary,
+              }}>
+                {initials}
+              </span>
+            )}
           </div>
+
+          {/* Username */}
           <div style={{
-            fontSize: '14px',
+            fontSize: '18px',
+            fontWeight: 700,
+            color: posterColors.textPrimary,
+            marginBottom: '4px',
+          }}>
+            {displayName}
+          </div>
+          
+          {/* Invite text */}
+          <div style={{
+            fontSize: '12px',
             color: posterColors.textSecondary,
           }}>
-            The Prediction Market Platform
+            invites you to join OMENX
           </div>
         </div>
 
-        {/* Benefits Grid */}
+        {/* Benefits Grid - Compact */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '10px',
-          marginBottom: '20px',
+          gap: '8px',
+          marginBottom: '16px',
         }}>
           {/* Benefit 1: First Trade Bonus */}
           <div style={{
-            padding: '14px 12px',
+            padding: '12px 10px',
             background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '12px',
+            borderRadius: '10px',
             border: `1px solid ${posterColors.border}`,
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: '24px', marginBottom: '6px' }}>📈</div>
             <div style={{
-              fontSize: '18px',
+              fontSize: '20px',
               fontWeight: 700,
               color: theme.primary,
               fontFamily: 'ui-monospace, monospace',
-              marginBottom: '4px',
+              marginBottom: '2px',
             }}>
               +100
             </div>
             <div style={{
-              fontSize: '10px',
+              fontSize: '9px',
               color: posterColors.textMuted,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -118,24 +159,23 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
 
           {/* Benefit 2: Each Referral Bonus */}
           <div style={{
-            padding: '14px 12px',
+            padding: '12px 10px',
             background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '12px',
+            borderRadius: '10px',
             border: `1px solid ${posterColors.border}`,
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: '24px', marginBottom: '6px' }}>👥</div>
             <div style={{
-              fontSize: '18px',
+              fontSize: '20px',
               fontWeight: 700,
               color: '#22c55e',
               fontFamily: 'ui-monospace, monospace',
-              marginBottom: '4px',
+              marginBottom: '2px',
             }}>
               +200
             </div>
             <div style={{
-              fontSize: '10px',
+              fontSize: '9px',
               color: posterColors.textMuted,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -145,93 +185,83 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
           </div>
         </div>
 
-        {/* How it works - Compact */}
+        {/* How it works - Compact horizontal */}
         <div style={{
-          padding: '12px 14px',
-          background: 'rgba(255, 255, 255, 0.03)',
-          borderRadius: '10px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '10px',
+          background: 'rgba(255, 255, 255, 0.02)',
+          borderRadius: '8px',
           border: `1px solid ${posterColors.border}`,
-          marginBottom: '4px',
         }}>
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: '8px',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                background: theme.bgColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '10px',
-                fontWeight: 700,
-                color: theme.primary,
-              }}>1</span>
-              <span style={{ fontSize: '11px', color: posterColors.textSecondary }}>
-                Scan QR
-              </span>
-            </div>
-            <span style={{ color: posterColors.textMuted, fontSize: '12px' }}>→</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                background: theme.bgColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '10px',
-                fontWeight: 700,
-                color: theme.primary,
-              }}>2</span>
-              <span style={{ fontSize: '11px', color: posterColors.textSecondary }}>
-                Sign Up
-              </span>
-            </div>
-            <span style={{ color: posterColors.textMuted, fontSize: '12px' }}>→</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                background: theme.bgColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '10px',
-                fontWeight: 700,
-                color: theme.primary,
-              }}>3</span>
-              <span style={{ fontSize: '11px', color: posterColors.textSecondary }}>
-                Claim!
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Invited by (optional) */}
-        {inviterName && (
-          <div style={{
-            textAlign: 'center',
-            marginTop: '12px',
+            gap: '4px',
           }}>
             <span style={{
-              fontSize: '11px',
-              color: posterColors.textMuted,
-            }}>
-              Invited by{' '}
-              <span style={{ color: posterColors.textSecondary, fontWeight: 500 }}>
-                {inviterName}
-              </span>
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: theme.bgColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '8px',
+              fontWeight: 700,
+              color: theme.primary,
+            }}>1</span>
+            <span style={{ fontSize: '10px', color: posterColors.textSecondary }}>
+              Scan
             </span>
           </div>
-        )}
+          <span style={{ color: posterColors.textMuted, fontSize: '10px' }}>→</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}>
+            <span style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: theme.bgColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '8px',
+              fontWeight: 700,
+              color: theme.primary,
+            }}>2</span>
+            <span style={{ fontSize: '10px', color: posterColors.textSecondary }}>
+              Sign Up
+            </span>
+          </div>
+          <span style={{ color: posterColors.textMuted, fontSize: '10px' }}>→</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}>
+            <span style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: theme.bgColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '8px',
+              fontWeight: 700,
+              color: theme.primary,
+            }}>3</span>
+            <span style={{ fontSize: '10px', color: posterColors.textSecondary }}>
+              Earn!
+            </span>
+          </div>
+        </div>
       </SharePosterLayout>
     );
   }
