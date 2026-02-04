@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Gift } from "lucide-react";
 import { usePoints } from "@/hooks/usePoints";
 import { useTasks } from "@/hooks/useTasks";
-import treasureChestGif from "@/assets/treasure-chest.gif";
 
 interface FloatingRewardsButtonProps {
   className?: string;
@@ -53,27 +53,41 @@ export const FloatingRewardsButton = ({ className = "" }: FloatingRewardsButtonP
         `}
       />
 
+      {/* Animated "Free Bonus" label */}
+      <div 
+        className={`
+          absolute -top-2 left-1/2 -translate-x-1/2
+          px-2 py-0.5 rounded-full
+          bg-trading-green text-white
+          text-[9px] font-bold uppercase tracking-wide
+          whitespace-nowrap
+          shadow-lg shadow-trading-green/30
+          animate-bounce
+        `}
+        style={{ animationDuration: '2s' }}
+      >
+        Free Bonus
+      </div>
+
       {/* Main button */}
       <div 
         className={`
           relative w-14 h-14 rounded-full 
-          bg-background/80 backdrop-blur-sm
-          border-2 border-primary/40
-          shadow-lg shadow-primary/20
+          bg-gradient-to-br from-primary via-primary to-primary/80
+          shadow-lg shadow-primary/30
           flex items-center justify-center
-          overflow-hidden
           transition-all duration-300
-          group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-primary/30
-          group-hover:border-primary/60
+          group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-primary/40
           group-active:scale-95
         `}
       >
-        {/* Treasure chest GIF with blend mode to hide white background */}
-        <img 
-          src={treasureChestGif} 
-          alt="Rewards"
-          className="w-10 h-10 object-contain"
-          style={{ mixBlendMode: 'multiply' }}
+        <Gift 
+          className={`
+            w-6 h-6 text-primary-foreground
+            transition-transform duration-300
+            ${isAnimating ? 'rotate-12' : 'rotate-0'}
+            group-hover:rotate-12 group-hover:scale-110
+          `}
         />
 
         {/* Notification badge */}
