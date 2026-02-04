@@ -39,7 +39,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const location = useLocation();
   const [language, setLanguage] = useState("EN");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const { balance, user, username, avatarUrl } = useUserProfile();
+  const { balance, trialBalance, user, username, avatarUrl } = useUserProfile();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -141,14 +141,14 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
           {user ? (
             <>
-              {/* Balance - only show when logged in */}
+              {/* Equity - only show when logged in */}
               <button 
                 onClick={() => navigate("/wallet")}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5 cursor-pointer"
               >
-                <span className="text-sm text-muted-foreground">Balance:</span>
+                <span className="text-sm text-muted-foreground">Equity:</span>
                 <span className="text-sm font-bold text-trading-green font-mono">
-                  ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${(balance + trialBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </button>
 
