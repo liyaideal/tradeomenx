@@ -231,18 +231,18 @@ export default function Wallet() {
     }
   };
 
-  // Trial Balance Info Component - Tooltip for desktop, Popover for mobile
-  const TrialBalanceInfo = () => {
+  // Info Tooltip Component - reusable for both fields
+  const InfoTooltip = ({ text }: { text: string }) => {
     if (isMobile) {
       return (
         <Popover>
           <PopoverTrigger asChild>
             <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="w-3.5 h-3.5" />
+              <Info className="w-3 h-3" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-56 p-3 text-xs" side="top" align="end">
-            <p>Trial balance is used first when trading and cannot be withdrawn.</p>
+          <PopoverContent className="w-56 p-3 text-xs" side="top" align="center">
+            <p>{text}</p>
           </PopoverContent>
         </Popover>
       );
@@ -252,11 +252,11 @@ export default function Wallet() {
         <Tooltip>
           <TooltipTrigger asChild>
             <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="w-3.5 h-3.5" />
+              <Info className="w-3 h-3" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-[200px]">
-            <p>Trial balance is used first when trading and cannot be withdrawn.</p>
+            <p>{text}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -284,29 +284,24 @@ export default function Wallet() {
           <span className="text-sm text-muted-foreground whitespace-nowrap">USDC</span>
         </div>
 
-        {/* Balance Breakdown */}
-        <div className="mb-6 space-y-2">
-          {/* Balance Row */}
-          <div className="flex items-center justify-between p-2 rounded-lg bg-muted/20">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
-                <WalletIcon className="w-3 h-3 text-primary" />
-              </div>
-              <span className="text-sm text-muted-foreground">Balance</span>
+        {/* Balance Breakdown - 2 Column Grid */}
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          {/* Available Balance */}
+          <div className="p-3 rounded-lg bg-muted/20">
+            <div className="flex items-center gap-1 mb-1">
+              <span className="text-xs text-muted-foreground">Available Balance</span>
+              <InfoTooltip text="Funds available for trading and withdrawal." />
             </div>
-            <span className="font-mono text-sm">${formatCurrency(balance)}</span>
+            <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
           </div>
           
-          {/* Trial Balance Row */}
-          <div className={`flex items-center justify-between p-2 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
-            <div className="flex items-center gap-2">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center ${trialBalance > 0 ? 'bg-trading-green/20' : 'bg-muted/30'}`}>
-                <Star className={`w-3 h-3 ${trialBalance > 0 ? 'text-trading-green' : 'text-muted-foreground'}`} />
-              </div>
-              <span className="text-sm text-muted-foreground">Trial Balance</span>
-              <TrialBalanceInfo />
+          {/* Trial Bonus */}
+          <div className={`p-3 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
+            <div className="flex items-center gap-1 mb-1">
+              <span className="text-xs text-muted-foreground">Trial Bonus</span>
+              <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn." />
             </div>
-            <span className={`font-mono text-sm ${trialBalance > 0 ? 'text-trading-green font-semibold' : 'text-muted-foreground'}`}>
+            <span className={`font-mono text-sm font-semibold ${trialBalance > 0 ? 'text-trading-green' : 'text-muted-foreground'}`}>
               ${formatCurrency(trialBalance)}
             </span>
           </div>
@@ -590,29 +585,24 @@ export default function Wallet() {
                     </div>
                   </div>
 
-                  {/* Balance Breakdown */}
-                  <div className="mb-4 space-y-2">
-                    {/* Real Balance */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-muted/20">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
-                          <WalletIcon className="w-3 h-3 text-primary" />
-                        </div>
-                        <span className="text-sm text-muted-foreground">Balance</span>
+                  {/* Balance Breakdown - 2 Column Grid */}
+                  <div className="mb-4 grid grid-cols-2 gap-3">
+                    {/* Available Balance */}
+                    <div className="p-3 rounded-lg bg-muted/20">
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="text-xs text-muted-foreground">Available Balance</span>
+                        <InfoTooltip text="Funds available for trading and withdrawal." />
                       </div>
-                      <span className="font-mono text-sm">${formatCurrency(balance)}</span>
+                      <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
                     </div>
                     
-                    {/* Trial Balance */}
-                    <div className={`flex items-center justify-between p-2 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center ${trialBalance > 0 ? 'bg-trading-green/20' : 'bg-muted/30'}`}>
-                          <Star className={`w-3 h-3 ${trialBalance > 0 ? 'text-trading-green' : 'text-muted-foreground'}`} />
-                        </div>
-                        <span className="text-sm text-muted-foreground">Trial Balance</span>
-                        <TrialBalanceInfo />
+                    {/* Trial Bonus */}
+                    <div className={`p-3 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="text-xs text-muted-foreground">Trial Bonus</span>
+                        <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn." />
                       </div>
-                      <span className={`font-mono text-sm ${trialBalance > 0 ? 'text-trading-green font-semibold' : 'text-muted-foreground'}`}>
+                      <span className={`font-mono text-sm font-semibold ${trialBalance > 0 ? 'text-trading-green' : 'text-muted-foreground'}`}>
                         ${formatCurrency(trialBalance)}
                       </span>
                     </div>
