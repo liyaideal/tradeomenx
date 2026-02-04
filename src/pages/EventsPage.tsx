@@ -9,6 +9,7 @@ import { EventStatsOverview } from "@/components/EventStatsOverview";
 import { EventFilters, EventStatusFilter, MobileStatusDropdown, MobileFilterDrawer } from "@/components/EventFilters";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
+import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { format } from "date-fns";
 
@@ -223,6 +224,9 @@ const EventsPage = () => {
       </main>
 
       {isMobile && <BottomNav />}
+      
+      {/* Floating Rewards Button - Desktop only (mobile has it on Home) */}
+      {!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}
     </div>
   );
 };
