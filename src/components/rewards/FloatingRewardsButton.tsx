@@ -35,10 +35,9 @@ export const FloatingRewardsButton = ({ className = "" }: FloatingRewardsButtonP
         `}
       >
         <img 
-          src={`${bonusBadge}?loop=infinite`} 
+          src={bonusBadge} 
           alt="Bonus"
           className="w-full h-full object-contain drop-shadow-lg"
-          key={Date.now()}
         />
 
         {/* Notification badge */}
