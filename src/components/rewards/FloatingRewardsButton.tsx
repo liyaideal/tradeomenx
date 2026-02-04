@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift } from "lucide-react";
 import { usePoints } from "@/hooks/usePoints";
 import { useTasks } from "@/hooks/useTasks";
+import bonusBadge from "@/assets/bonus-badge.gif";
 
 interface FloatingRewardsButtonProps {
   className?: string;
@@ -12,19 +11,10 @@ export const FloatingRewardsButton = ({ className = "" }: FloatingRewardsButtonP
   const navigate = useNavigate();
   const { pointsBalance } = usePoints();
   const { tasks } = useTasks();
-  const [isAnimating, setIsAnimating] = useState(true);
 
   // Check if there are claimable tasks
   const claimableTasks = tasks.filter(t => t.isCompleted && !t.isClaimed);
   const hasClaimable = claimableTasks.length > 0;
-
-  // Pulse animation effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(prev => !prev);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <button
@@ -35,64 +25,24 @@ export const FloatingRewardsButton = ({ className = "" }: FloatingRewardsButtonP
       `}
       aria-label="Open Rewards Center"
     >
-      {/* Outer glow ring */}
+      {/* Main button - GIF badge */}
       <div 
         className={`
-          absolute inset-0 rounded-full bg-primary/30 blur-xl
-          transition-all duration-1000
-          ${isAnimating ? 'scale-150 opacity-40' : 'scale-100 opacity-20'}
-        `}
-      />
-      
-      {/* Middle glow ring */}
-      <div 
-        className={`
-          absolute inset-0 rounded-full bg-primary/40
-          transition-all duration-700 delay-100
-          ${isAnimating ? 'scale-125 opacity-60' : 'scale-100 opacity-30'}
-        `}
-      />
-
-      {/* Animated "Free Bonus" label */}
-      <div 
-        className={`
-          absolute -top-2 left-1/2 -translate-x-1/2
-          px-2 py-0.5 rounded-full
-          bg-trading-green text-white
-          text-[9px] font-bold uppercase tracking-wide
-          whitespace-nowrap
-          shadow-lg shadow-trading-green/30
-          animate-bounce
-        `}
-        style={{ animationDuration: '2s' }}
-      >
-        Free Bonus
-      </div>
-
-      {/* Main button */}
-      <div 
-        className={`
-          relative w-14 h-14 rounded-full 
-          bg-gradient-to-br from-primary via-primary to-primary/80
-          shadow-lg shadow-primary/30
-          flex items-center justify-center
+          relative w-16 h-16
           transition-all duration-300
-          group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-primary/40
+          group-hover:scale-110
           group-active:scale-95
         `}
       >
-        <Gift 
-          className={`
-            w-6 h-6 text-primary-foreground
-            transition-transform duration-300
-            ${isAnimating ? 'rotate-12' : 'rotate-0'}
-            group-hover:rotate-12 group-hover:scale-110
-          `}
+        <img 
+          src={bonusBadge} 
+          alt="Bonus"
+          className="w-full h-full object-contain drop-shadow-lg"
         />
 
         {/* Notification badge */}
         {hasClaimable && (
-          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-trading-red flex items-center justify-center">
+          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-trading-red flex items-center justify-center shadow-lg">
             <span className="text-[10px] font-bold text-white">
               {claimableTasks.length}
             </span>
