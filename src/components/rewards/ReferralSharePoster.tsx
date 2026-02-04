@@ -150,7 +150,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
             }}>
               {displayName}
             </div>
-            {/* Compact invite badge */}
+            {/* VIP badge */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -160,7 +160,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
               border: `1px solid ${theme.borderColor}`,
               borderRadius: '12px',
             }}>
-              <span style={{ fontSize: '10px' }}>🎁</span>
+              <span style={{ fontSize: '10px' }}>⭐</span>
               <span style={{
                 color: theme.primary,
                 fontSize: '9px',
@@ -168,7 +168,7 @@ export const ReferralSharePoster = forwardRef<HTMLDivElement, ReferralSharePoste
                 letterSpacing: '0.5px',
                 textTransform: 'uppercase',
               }}>
-                Invite
+                VIP
               </span>
             </div>
           </div>
