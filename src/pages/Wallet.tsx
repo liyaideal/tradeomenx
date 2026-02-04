@@ -541,13 +541,45 @@ export default function Wallet() {
                       <WalletIcon className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <span className="text-sm text-muted-foreground">Available Balance</span>
+                      <span className="text-sm text-muted-foreground">Balance</span>
                       <div className="flex items-baseline gap-2 flex-nowrap">
                         <span className="text-3xl font-bold font-mono whitespace-nowrap">${formatCurrency(balance)}</span>
                         <span className="text-sm text-muted-foreground whitespace-nowrap">USDC</span>
                       </div>
                     </div>
                   </div>
+
+                  {/* Trial Balance Section */}
+                  {trialBalance > 0 && (
+                    <div className="mb-4 p-3 rounded-xl bg-trading-green/10 border border-trading-green/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-trading-green/20 flex items-center justify-center">
+                            <Star className="w-3 h-3 text-trading-green" />
+                          </div>
+                          <span className="text-sm text-muted-foreground">Trial Balance</span>
+                        </div>
+                        <span className="font-mono font-semibold text-trading-green">${formatCurrency(trialBalance)}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2 ml-8">Used first when trading • Cannot be withdrawn</p>
+                    </div>
+                  )}
+
+                  {/* Show placeholder when no trial balance */}
+                  {trialBalance === 0 && (
+                    <div className="mb-4 p-3 rounded-xl bg-muted/30 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-muted/50 flex items-center justify-center">
+                            <Star className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                          <span className="text-sm text-muted-foreground">Trial Balance</span>
+                        </div>
+                        <span className="font-mono text-muted-foreground">$0.00</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2 ml-8">Earn points from tasks to redeem trial balance</p>
+                    </div>
+                  )}
                   
                   <div className="flex gap-3">
                     <Button 
