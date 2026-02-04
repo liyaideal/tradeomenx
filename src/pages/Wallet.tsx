@@ -636,7 +636,7 @@ export default function Wallet() {
                     <div className="p-3 rounded-lg bg-muted/20">
                       <div className="flex items-center gap-1 mb-1">
                         <span className="text-xs text-muted-foreground">Available Balance</span>
-                        <InfoTooltip text="Funds available for trading and withdrawal." />
+                        <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
                       </div>
                       <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
                     </div>
