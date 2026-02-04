@@ -89,13 +89,21 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
     return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  // Format description based on status - remove "incoming" for completed deposits
+  // Format description based on status and terminology
   const formatDescription = (tx: Transaction): string => {
+    let description = tx.description;
+    
+    // Remove "incoming" suffix for completed deposits
     if (tx.type === 'deposit' && tx.status === 'completed') {
-      // Remove "incoming" suffix for completed deposits
-      return tx.description.replace(/ incoming$/i, '');
+      description = description.replace(/ incoming$/i, '');
     }
-    return tx.description;
+    
+    // Update legacy "trial balance" to "trial bonus" for platform credits
+    if (tx.type === 'platform_credit') {
+      description = description.replace(/trial balance/gi, 'trial bonus');
+    }
+    
+    return description;
   };
 
   const getExplorerUrl = (network: string | null | undefined, txHash: string): string | null => {
