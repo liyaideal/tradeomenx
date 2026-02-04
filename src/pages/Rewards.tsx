@@ -91,18 +91,6 @@ export default function Rewards() {
         </div>
       </Card>
 
-      {/* Task Progress */}
-      <Card className="trading-card p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-primary" />
-            Task Progress
-          </h3>
-          <span className="text-sm text-muted-foreground">{completedCount}/{totalCount}</span>
-        </div>
-        <Progress value={progressPercent} className="h-2" />
-      </Card>
-
       {/* Tabs */}
       <Tabs defaultValue="tasks" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -112,6 +100,18 @@ export default function Rewards() {
         </TabsList>
 
         <TabsContent value="tasks" className="mt-4 space-y-3">
+          {/* Task Progress - Now inside Tasks tab */}
+          <Card className="trading-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-primary" />
+                Task Progress
+              </h3>
+              <span className="text-sm text-muted-foreground">{completedCount}/{totalCount}</span>
+            </div>
+            <Progress value={progressPercent} className="h-2" />
+          </Card>
+
           {tasks.length === 0 ? (
             <Card className="trading-card p-8 text-center">
               <Gift className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
