@@ -1,10 +1,14 @@
-import { Copy, Share2, Users, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Copy, Share2, Users, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useReferral } from "@/hooks/useReferral";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { ReferralShareModal } from "./ReferralShareModal";
 
 export const ReferralCard = () => {
+  const [showShareModal, setShowShareModal] = useState(false);
   const { 
     referralCode, 
     referralLink, 
@@ -13,6 +17,7 @@ export const ReferralCard = () => {
     stats,
     isLoading 
   } = useReferral();
+  const { profile } = useUserProfile();
 
   if (isLoading) {
     return (
@@ -49,25 +54,50 @@ export const ReferralCard = () => {
             </Button>
           </div>
 
-          <div className="flex gap-2">
+          {/* Action Buttons - 3 columns */}
+          <div className="grid grid-cols-3 gap-2">
             <Button 
               variant="outline" 
               className="flex-1"
               onClick={copyReferralLink}
             >
               <Copy className="w-4 h-4 mr-2" />
-              Copy Link
+              Copy
+            </Button>
+            <Button 
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowShareModal(true)}
+            >
+              <Image className="w-4 h-4 mr-2" />
+              Poster
             </Button>
             <Button 
               className="flex-1 btn-primary"
               onClick={shareOnX}
             >
               <Share2 className="w-4 h-4 mr-2" />
-              Share on X
+              X
             </Button>
           </div>
         </div>
       </Card>
+
+      {/* Share Modal with Poster */}
+      <ReferralShareModal
+        open={showShareModal}
+        onOpenChange={setShowShareModal}
+        referralCode={referralCode}
+        referralLink={referralLink}
+        username={profile?.username || 'Trader'}
+        avatarUrl={profile?.avatar_url || undefined}
+        stats={{
+          pnl: 7650, // TODO: Replace with real data from user stats
+          roi: 45.8,
+          volume: 245000,
+          rank: 13,
+        }}
+      />
 
       {/* Stats Card */}
       <Card className="trading-card p-4">

@@ -1,5 +1,7 @@
 export { RedeemDialog } from './RedeemDialog';
 export { ReferralCard } from './ReferralCard';
+export { ReferralSharePoster } from './ReferralSharePoster';
+export { ReferralShareModal } from './ReferralShareModal';
 export { PointsHistoryList } from './PointsHistoryList';
 export { FloatingRewardsButton } from './FloatingRewardsButton';
 export { TaskIcon, taskIconNames } from './TaskIcon';
