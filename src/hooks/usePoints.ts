@@ -180,6 +180,17 @@ export const usePoints = () => {
           status: 'completed'
         });
 
+      // Add transaction record for trial balance credit
+      await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          type: 'platform_credit',
+          amount: trialBalanceReceived,
+          status: 'completed',
+          description: `Redeemed ${pointsToRedeem} points for trial balance`
+        });
+
       return { pointsSpent: pointsToRedeem, trialBalanceReceived };
     },
     onSuccess: (data) => {
