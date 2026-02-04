@@ -28,16 +28,17 @@ export const FloatingRewardsButton = ({ className = "" }: FloatingRewardsButtonP
       {/* Main button - GIF badge */}
       <div 
         className={`
-          relative w-16 h-16
+          relative w-20 h-20
           transition-all duration-300
           group-hover:scale-110
           group-active:scale-95
         `}
       >
         <img 
-          src={bonusBadge} 
+          src={`${bonusBadge}?loop=infinite`} 
           alt="Bonus"
           className="w-full h-full object-contain drop-shadow-lg"
+          key={Date.now()}
         />
 
         {/* Notification badge */}
