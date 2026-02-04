@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Globe, ChevronDown, User, Trophy, LogOut, LogIn, Gift } from "lucide-react";
+import { Globe, ChevronDown, User, Trophy, LogOut, LogIn, Gift, Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -175,6 +175,10 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   <DropdownMenuItem onClick={() => navigate("/rewards")}>
                     <Gift className="w-4 h-4 mr-2 text-primary" />
                     Rewards
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/rewards?tab=referral")}>
+                    <Users className="w-4 h-4 mr-2 text-primary" />
+                    Referral
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
                     Settings
