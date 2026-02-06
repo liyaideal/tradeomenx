@@ -20,6 +20,7 @@ import {
   TradingSection,
   WalletSection,
   MobilePatternsSection,
+  UserIdentitySection,
 } from "./sections";
 
 const StyleGuideIndex = () => {
@@ -42,6 +43,7 @@ const StyleGuideIndex = () => {
     { id: "trading", label: "Trading", icon: "💹" },
     { id: "wallet", label: "Wallet", icon: "💰" },
     { id: "mobile", label: "Mobile", icon: "📱" },
+    { id: "identity", label: "Identity", icon: "👤" },
   ];
 
   return (
@@ -143,6 +145,10 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="mobile" className="mt-0">
             <MobilePatternsSection isMobile={isMobile} />
+          </TabsContent>
+
+          <TabsContent value="identity" className="mt-0">
+            <UserIdentitySection isMobile={isMobile} />
           </TabsContent>
         </Tabs>
       </main>
