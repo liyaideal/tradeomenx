@@ -17,6 +17,7 @@ import { RedeemDialog } from "@/components/rewards/RedeemDialog";
 import { ReferralCard } from "@/components/rewards/ReferralCard";
 import { PointsHistoryList } from "@/components/rewards/PointsHistoryList";
 import { TaskCard } from "@/components/rewards/TaskCard";
+import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { LoginPrompt } from "@/components/LoginPrompt";
 export default function Rewards() {
   const navigate = useNavigate();
@@ -162,6 +163,7 @@ export default function Rewards() {
         </main>
 
         <BottomNav />
+        <TreasureDropButton />
         <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
       </div>
     );
@@ -186,6 +188,7 @@ export default function Rewards() {
         {content}
       </main>
 
+      <TreasureDropButton />
       <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
     </div>
   );

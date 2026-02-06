@@ -34,14 +34,29 @@ export const useTreasureDrop = () => {
     queryFn: async () => {
       if (!user) return null;
       
-      const { data, error } = await supabase
-        .from('treasure_drops')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Use raw fetch since types might not be updated yet for new table
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
 
-      if (error && error.code !== 'PGRST116') throw error;
-      return data as TreasureDrop | null;
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/treasure_drops?user_id=eq.${user.id}&select=*`,
+        {
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        }
+      );
+      
+      const result = await response.json();
+      console.log('Treasure drop check result:', result);
+
+      if (!response.ok) {
+        console.error('Treasure drop query error:', result);
+        return null;
+      }
+      
+      return (result && result.length > 0) ? result[0] as TreasureDrop : null;
     },
     enabled: !!user,
   });
@@ -50,6 +65,16 @@ export const useTreasureDrop = () => {
   const isEligible = lifetimeEarned >= 100 && !existingDrop && !!user;
   const hasClaimed = !!existingDrop;
 
+  console.log('Treasure eligibility check:', {
+    lifetimeEarned,
+    existingDrop,
+    user: !!user,
+    isEligible,
+    hasTriggered,
+    isLoadingPoints,
+    isLoadingDrop
+  });
+
   // Trigger treasure appearance with random delay (2-10 seconds)
   useEffect(() => {
     if (isEligible && !hasTriggered && !isLoadingPoints && !isLoadingDrop) {
@@ -57,6 +82,7 @@ export const useTreasureDrop = () => {
       console.log(`Treasure will appear in ${delay}ms`);
       
       const timer = setTimeout(() => {
+        console.log('Treasure appearing now!');
         setShouldShowTreasure(true);
         setHasTriggered(true);
       }, delay);
