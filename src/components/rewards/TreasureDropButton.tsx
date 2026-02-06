@@ -16,8 +16,6 @@ export const TreasureDropButton = ({ className = "" }: TreasureDropButtonProps) 
     newBalance: number;
   } | null>(null);
 
-  if (!shouldShowTreasure) return null;
-
   const handleClick = async () => {
     try {
       const result = await claimTreasure();
@@ -38,32 +36,36 @@ export const TreasureDropButton = ({ className = "" }: TreasureDropButtonProps) 
     hideTreasure();
   };
 
+  // Always render the dialog (even when button is hidden) so animation can play
   return (
     <>
-      <button
-        onClick={handleClick}
-        disabled={isClaiming}
-        className={`
-          fixed bottom-24 right-4 z-50
-          transition-all duration-300
-          hover:scale-105
-          active:scale-95
-          disabled:opacity-50
-          ${className}
-        `}
-        aria-label="Open Treasure"
-      >
-        <div className="relative w-28 h-28 md:w-40 md:h-40">
-          <img 
-            src={penguinGiftBox} 
-            alt="Treasure"
-            className="w-full h-full object-contain drop-shadow-2xl"
-          />
-          {/* Glow effect */}
-          <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl -z-10 animate-pulse" />
-        </div>
-      </button>
+      {shouldShowTreasure && (
+        <button
+          onClick={handleClick}
+          disabled={isClaiming}
+          className={`
+            fixed bottom-24 right-4 z-50
+            transition-all duration-300
+            hover:scale-105
+            active:scale-95
+            disabled:opacity-50
+            ${className}
+          `}
+          aria-label="Open Treasure"
+        >
+          <div className="relative w-28 h-28 md:w-40 md:h-40">
+            <img 
+              src={penguinGiftBox} 
+              alt="Treasure"
+              className="w-full h-full object-contain drop-shadow-2xl"
+            />
+            {/* Glow effect */}
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl -z-10 animate-pulse" />
+          </div>
+        </button>
+      )}
 
+      {/* Dialog always rendered so it can display after claim */}
       <TreasureClaimDialog 
         open={dialogOpen} 
         onClose={handleDialogClose}
