@@ -104,94 +104,31 @@ export const usePoints = () => {
     },
   });
 
-  // Redeem points for trial balance
+  // Redeem points for trial balance via edge function
   const redeemMutation = useMutation({
     mutationFn: async (pointsToRedeem: number) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
 
-      const config = configData;
-      if (!config) throw new Error('Config not loaded');
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/redeem-points`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ pointsToRedeem }),
+        }
+      );
 
-      const pointsPerCent = config.exchange_rate?.points_per_cent || 10;
-      const minThreshold = config.min_redeem_threshold?.points || 100;
-
-      if (pointsToRedeem < minThreshold) {
-        throw new Error(`Minimum ${minThreshold} points required to redeem`);
-      }
-
-      if (!pointsAccount || pointsAccount.balance < pointsToRedeem) {
-        throw new Error('Insufficient points balance');
-      }
-
-      // Calculate trial balance to receive (in dollars)
-      const trialBalanceReceived = (pointsToRedeem / pointsPerCent) / 100;
-
-      // Update points account
-      const newBalance = pointsAccount.balance - pointsToRedeem;
-      const { error: updateError } = await supabase
-        .from('points_accounts')
-        .update({ 
-          balance: newBalance,
-          lifetime_spent: pointsAccount.lifetime_spent + pointsToRedeem
-        })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
-      // Add ledger entry
-      const { error: ledgerError } = await supabase
-        .from('points_ledger')
-        .insert({
-          user_id: user.id,
-          amount: -pointsToRedeem,
-          balance_after: newBalance,
-          type: 'spend',
-          source: 'redeem',
-          description: `Redeemed ${pointsToRedeem} points for $${trialBalanceReceived.toFixed(2)} trial bonus`
-        });
-
-      if (ledgerError) throw ledgerError;
-
-      // Update profile trial balance
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('trial_balance')
-        .eq('user_id', user.id)
-        .single();
-
-      const currentTrialBalance = (profile?.trial_balance as number) || 0;
+      const result = await response.json();
       
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ trial_balance: currentTrialBalance + trialBalanceReceived })
-        .eq('user_id', user.id);
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to redeem points');
+      }
 
-      if (profileError) throw profileError;
-
-      // Record redemption
-      await supabase
-        .from('points_redemptions')
-        .insert({
-          user_id: user.id,
-          points_spent: pointsToRedeem,
-          trial_balance_received: trialBalanceReceived,
-          exchange_rate: { points_per_cent: pointsPerCent },
-          status: 'completed'
-        });
-
-      // Add transaction record for trial balance credit
-      await supabase
-        .from('transactions')
-        .insert({
-          user_id: user.id,
-          type: 'platform_credit',
-          amount: trialBalanceReceived,
-          status: 'completed',
-          description: `Redeemed ${pointsToRedeem} points for trial bonus`
-        });
-
-      return { pointsSpent: pointsToRedeem, trialBalanceReceived };
+      return result;
     },
     onSuccess: (data) => {
       toast.success(`Redeemed ${data.pointsSpent} points for $${data.trialBalanceReceived.toFixed(2)} trial bonus!`);
