@@ -1,4 +1,4 @@
-import { Gift, CheckCircle2, Star } from "lucide-react";
+import { Gift, CheckCircle2, Star, ArrowRight } from "lucide-react";
 import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,12 +8,23 @@ interface TaskCardProps {
   task: TaskWithProgress;
   onClaim: (taskId: string) => void;
   isClaiming: boolean;
+  onGoComplete?: (task: TaskWithProgress) => void;
 }
 
-export function TaskCard({ task, onClaim, isClaiming }: TaskCardProps) {
+export function TaskCard({ task, onClaim, isClaiming, onGoComplete }: TaskCardProps) {
   const isPending = !task.isCompleted && !task.isClaimed;
   const isClaimable = task.isCompleted && !task.isClaimed;
   const isClaimed = task.isClaimed;
+
+  // Check if this task has an actionable "Go Complete" state
+  const triggerAction = task.trigger_condition?.action as string;
+  const canGoComplete = isPending && ['share_x', 'first_trade'].includes(triggerAction);
+
+  const handleGoComplete = () => {
+    if (onGoComplete) {
+      onGoComplete(task);
+    }
+  };
 
   return (
     <Card
@@ -71,6 +82,15 @@ export function TaskCard({ task, onClaim, isClaiming }: TaskCardProps) {
             >
               <Gift className="w-4 h-4 mr-2" />
               Claim Reward
+            </Button>
+          ) : canGoComplete ? (
+            <Button 
+              variant="outline"
+              className="w-full border-primary/50 text-primary hover:bg-primary/10"
+              onClick={handleGoComplete}
+            >
+              Go Share
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
             <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg">

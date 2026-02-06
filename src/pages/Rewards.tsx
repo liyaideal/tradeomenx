@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Gift, Star, Trophy, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { usePoints } from "@/hooks/usePoints";
-import { useTasks } from "@/hooks/useTasks";
+import { useTasks, TaskWithProgress } from "@/hooks/useTasks";
 import { useReferral } from "@/hooks/useReferral";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { RedeemDialog } from "@/components/rewards/RedeemDialog";
@@ -19,6 +19,7 @@ import { PointsHistoryList } from "@/components/rewards/PointsHistoryList";
 import { TaskCard } from "@/components/rewards/TaskCard";
 import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { LoginPrompt } from "@/components/LoginPrompt";
+
 export default function Rewards() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -26,8 +27,11 @@ export default function Rewards() {
   const { user } = useUserProfile();
   const { pointsBalance, frozenPoints, lifetimeEarned, config, isLoading: isLoadingPoints } = usePoints();
   const { tasks, completedCount, totalCount, claimReward, isClaiming, refreshTaskStatus } = useTasks();
-  const { referralCode, stats: referralStats } = useReferral();
+  const { referralCode, stats: referralStats, shareOnX } = useReferral();
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
+  
+  // Ref to trigger X share after tab switch
+  const pendingShareRef = useRef(false);
   
   // Get initial tab from URL params
   const initialTab = searchParams.get("tab") || "tasks";
@@ -47,6 +51,31 @@ export default function Rewards() {
       setActiveTab(tabFromUrl);
     }
   }, [searchParams]);
+
+  // Trigger X share after switching to referral tab
+  useEffect(() => {
+    if (activeTab === 'referral' && pendingShareRef.current) {
+      pendingShareRef.current = false;
+      // Small delay to ensure UI has updated
+      setTimeout(() => {
+        shareOnX();
+      }, 300);
+    }
+  }, [activeTab, shareOnX]);
+
+  // Handle "Go Complete" action for tasks
+  const handleGoComplete = (task: TaskWithProgress) => {
+    const action = task.trigger_condition?.action as string;
+    
+    if (action === 'share_x') {
+      // Switch to referral tab and trigger X share
+      pendingShareRef.current = true;
+      setActiveTab('referral');
+    } else if (action === 'first_trade') {
+      // Navigate to trading
+      navigate('/');
+    }
+  };
 
   if (!user) {
     return (
@@ -133,7 +162,13 @@ export default function Rewards() {
             </Card>
           ) : (
             tasks.map(task => (
-              <TaskCard key={task.id} task={task} onClaim={claimReward} isClaiming={isClaiming} />
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                onClaim={claimReward} 
+                isClaiming={isClaiming}
+                onGoComplete={handleGoComplete}
+              />
             ))
           )}
         </TabsContent>
