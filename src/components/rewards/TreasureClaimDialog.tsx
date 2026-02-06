@@ -12,30 +12,33 @@ interface TreasureClaimDialogProps {
   newBalance: number;
 }
 
-// Confetti particle component
-const Confetti = ({ delay, left, color }: { delay: number; left: string; color: string }) => (
+// Confetti particle component with more variety
+const Confetti = ({ delay, left, color, size }: { delay: number; left: string; color: string; size: number }) => (
   <div
-    className="absolute w-3 h-3 rounded-sm animate-confetti-fall"
+    className="absolute rounded-sm pointer-events-none"
     style={{
       left,
-      top: '-10px',
+      top: '-20px',
+      width: `${size}px`,
+      height: `${size}px`,
       backgroundColor: color,
-      animationDelay: `${delay}ms`,
+      animation: `confetti-fall ${2 + Math.random() * 2}s ease-out ${delay}ms forwards`,
       transform: `rotate(${Math.random() * 360}deg)`,
     }}
   />
 );
 
-// Sparkle component
-const Sparkle = ({ delay, x, y }: { delay: number; x: string; y: string }) => (
+// Sparkle component with better positioning
+const SparkleParticle = ({ delay, x, y, size }: { delay: number; x: string; y: string; size: number }) => (
   <Sparkles
-    className="absolute text-yellow-400 animate-sparkle"
+    className="absolute text-yellow-400 pointer-events-none"
     style={{
       left: x,
       top: y,
-      animationDelay: `${delay}ms`,
+      animation: `sparkle 1.5s ease-in-out ${delay}ms infinite`,
+      width: size,
+      height: size,
     }}
-    size={20}
   />
 );
 
@@ -48,22 +51,25 @@ export const TreasureClaimDialog = ({
 }: TreasureClaimDialogProps) => {
   const [showContent, setShowContent] = useState(false);
   const [animatedPoints, setAnimatedPoints] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  // Generate confetti particles
-  const confettiColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
-  const confetti = Array.from({ length: 50 }, (_, i) => ({
+  // Generate confetti particles with more variety
+  const confettiColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FF69B4', '#00CED1'];
+  const confetti = Array.from({ length: 80 }, (_, i) => ({
     id: i,
-    delay: Math.random() * 2000,
+    delay: Math.random() * 1500,
     left: `${Math.random() * 100}%`,
     color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+    size: 6 + Math.random() * 8,
   }));
 
-  // Generate sparkles
-  const sparkles = Array.from({ length: 8 }, (_, i) => ({
+  // Generate sparkles around the treasure
+  const sparkles = Array.from({ length: 12 }, (_, i) => ({
     id: i,
-    delay: Math.random() * 1000,
-    x: `${20 + Math.random() * 60}%`,
-    y: `${20 + Math.random() * 60}%`,
+    delay: Math.random() * 800,
+    x: `${15 + Math.random() * 70}%`,
+    y: `${15 + Math.random() * 50}%`,
+    size: 16 + Math.random() * 12,
   }));
 
   // Animate points counting up
@@ -71,25 +77,33 @@ export const TreasureClaimDialog = ({
     if (open) {
       setShowContent(false);
       setAnimatedPoints(0);
+      setShowConfetti(false);
       
       // Show content after a brief delay
-      const showTimer = setTimeout(() => setShowContent(true), 300);
+      const showTimer = setTimeout(() => {
+        setShowContent(true);
+        setShowConfetti(true);
+      }, 200);
       
-      // Animate points
+      // Animate points with easing
+      const startTime = Date.now();
       const duration = 2000;
-      const steps = 60;
-      const increment = pointsDropped / steps;
-      let current = 0;
       
       const countTimer = setInterval(() => {
-        current += increment;
-        if (current >= pointsDropped) {
-          setAnimatedPoints(pointsDropped);
+        const elapsed = Date.now() - startTime - 400; // delay start
+        if (elapsed < 0) return;
+        
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(eased * pointsDropped);
+        
+        setAnimatedPoints(current);
+        
+        if (progress >= 1) {
           clearInterval(countTimer);
-        } else {
-          setAnimatedPoints(Math.floor(current));
         }
-      }, duration / steps);
+      }, 16);
 
       return () => {
         clearTimeout(showTimer);
@@ -109,58 +123,94 @@ export const TreasureClaimDialog = ({
     }
   };
 
+  const getTierEmoji = () => {
+    switch (tier) {
+      case 'high':
+        return '💎';
+      case 'low':
+        return '🌟';
+      default:
+        return '✨';
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="sm:max-w-md overflow-hidden border-primary/30 bg-gradient-to-b from-background to-background/95">
+      <DialogContent 
+        className="sm:max-w-md border-primary/30 bg-gradient-to-b from-background to-background/95 overflow-visible"
+        style={{ overflow: 'visible' }}
+      >
         <DialogTitle className="sr-only">Treasure Claimed</DialogTitle>
         
-        {/* Confetti overlay */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {confetti.map((c) => (
-            <Confetti key={c.id} delay={c.delay} left={c.left} color={c.color} />
-          ))}
-        </div>
+        {/* Confetti container - positioned absolutely to cover the screen */}
+        {showConfetti && (
+          <div 
+            className="fixed inset-0 pointer-events-none overflow-hidden"
+            style={{ zIndex: 9999 }}
+          >
+            {confetti.map((c) => (
+              <Confetti 
+                key={c.id} 
+                delay={c.delay} 
+                left={c.left} 
+                color={c.color} 
+                size={c.size}
+              />
+            ))}
+          </div>
+        )}
 
-        {/* Sparkles */}
-        <div className="absolute inset-0 pointer-events-none">
-          {sparkles.map((s) => (
-            <Sparkle key={s.id} delay={s.delay} x={s.x} y={s.y} />
-          ))}
-        </div>
+        {/* Sparkles within dialog */}
+        {showConfetti && (
+          <div className="absolute inset-0 pointer-events-none overflow-visible">
+            {sparkles.map((s) => (
+              <SparkleParticle 
+                key={s.id} 
+                delay={s.delay} 
+                x={s.x} 
+                y={s.y}
+                size={s.size}
+              />
+            ))}
+          </div>
+        )}
 
         {showContent && (
           <div className="relative z-10 flex flex-col items-center py-6 animate-scale-in">
-            {/* Treasure image */}
-            <div className="relative mb-4">
+            {/* Treasure image with glow */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 rounded-full bg-yellow-400/40 blur-3xl animate-pulse" />
+              <div className="absolute inset-0 rounded-full bg-primary/30 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
               <img 
                 src={treasurePenguin} 
                 alt="Treasure"
-                className="w-24 h-24 object-contain"
+                className="w-28 h-28 object-contain relative z-10 drop-shadow-2xl"
               />
-              <div className="absolute inset-0 rounded-full bg-yellow-400/30 blur-2xl -z-10" />
+              <span className="absolute -top-2 -right-2 text-3xl animate-bounce">{getTierEmoji()}</span>
             </div>
 
             {/* Tier message */}
-            <p className="text-sm text-muted-foreground mb-2 text-center">
+            <p className="text-base text-muted-foreground mb-3 text-center font-medium">
               {getTierMessage()}
             </p>
 
-            {/* Points display */}
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="w-8 h-8 text-yellow-500 fill-yellow-500 animate-pulse" />
-              <span className="text-5xl font-bold text-primary font-mono tracking-tight">
+            {/* Points display with glow */}
+            <div className="flex items-center gap-3 mb-3 relative">
+              <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full" />
+              <Star className="w-10 h-10 text-yellow-500 fill-yellow-500 animate-pulse relative z-10" />
+              <span className="text-6xl font-bold text-primary font-mono tracking-tight relative z-10 tabular-nums">
                 +{animatedPoints.toLocaleString()}
               </span>
             </div>
             
-            <p className="text-lg font-medium text-foreground mb-4">
+            <p className="text-xl font-semibold text-foreground mb-5">
               Points Received!
             </p>
 
-            {/* New balance */}
-            <div className="bg-muted/50 rounded-lg px-4 py-2 mb-6">
-              <p className="text-sm text-muted-foreground">New Balance</p>
-              <p className="text-xl font-bold text-primary font-mono">
+            {/* New balance card */}
+            <div className="bg-muted/60 rounded-xl px-6 py-3 mb-6 border border-primary/20">
+              <p className="text-sm text-muted-foreground text-center">New Balance</p>
+              <p className="text-2xl font-bold text-primary font-mono text-center tabular-nums">
                 {newBalance.toLocaleString()} pts
               </p>
             </div>
@@ -168,10 +218,10 @@ export const TreasureClaimDialog = ({
             {/* Close button */}
             <Button 
               onClick={onClose}
-              className="w-full btn-primary"
+              className="w-full btn-primary text-lg"
               size="lg"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
+              <Sparkles className="w-5 h-5 mr-2" />
               Awesome!
             </Button>
           </div>

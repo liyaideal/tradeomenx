@@ -436,6 +436,29 @@
     }
   }
 
+  /* ===== CONFETTI & CELEBRATION ANIMATIONS ===== */
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(-10px) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes sparkle {
+    0%, 100% {
+      opacity: 0;
+      transform: scale(0) rotate(0deg);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1) rotate(180deg);
+    }
+  }
+
   /* ===== STAR PARTICLE ANIMATIONS ===== */
   @keyframes twinkle {
     0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
