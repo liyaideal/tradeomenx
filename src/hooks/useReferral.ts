@@ -116,11 +116,18 @@ export const useReferral = () => {
     }
   };
 
-  // Share on X (Twitter)
+  // Share on X (Twitter) with engaging copy
   const shareOnX = () => {
     const link = getReferralLink();
-    const text = encodeURIComponent(`Join me on OmenX - the prediction market platform! Use my referral link to get started: ${link}`);
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+    // Engaging copy for Beta launch
+    const tweetText = `🎯 Prediction markets are boring. OmenX adds leverage.
+
+Beta is LIVE - early testers get test funds & can earn points.
+
+Join now 👇
+${link}`;
+    const encodedText = encodeURIComponent(tweetText);
+    window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, '_blank');
   };
 
   // Apply referral code (for new users)
