@@ -119,12 +119,7 @@ export const useReferral = () => {
   // Share on X (Twitter) with engaging copy
   const shareOnX = () => {
     const link = getReferralLink();
-    // Engaging copy for Beta launch
-    const tweetText = `🎯 Prediction markets are boring. OmenX adds leverage.
-
-Beta is LIVE - early testers get test funds & can earn points.
-
-Join now 👇
+    const tweetText = `🎯 What if you could trade predictions with leverage? Now you can. OmenX Beta is LIVE - claim test funds & earn points. Join now 👇
 ${link}`;
     const encodedText = encodeURIComponent(tweetText);
     window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, '_blank');
