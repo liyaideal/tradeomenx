@@ -118,6 +118,14 @@ export default {
           from: { opacity: "0", transform: "scale(0.95) translateY(10px)" },
           to: { opacity: "1", transform: "scale(1) translateY(0)" },
         },
+        "confetti-fall": {
+          "0%": { transform: "translateY(-10px) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "translateY(400px) rotate(720deg)", opacity: "0" },
+        },
+        "sparkle": {
+          "0%, 100%": { opacity: "0", transform: "scale(0)" },
+          "50%": { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -127,6 +135,8 @@ export default {
         "scale-in": "scale-in 0.2s ease-out",
         "pulse-soft": "pulse-soft 2s ease-in-out infinite",
         "enter": "enter 0.3s ease-out",
+        "confetti-fall": "confetti-fall 3s ease-out forwards",
+        "sparkle": "sparkle 1.5s ease-in-out infinite",
       },
     },
   },

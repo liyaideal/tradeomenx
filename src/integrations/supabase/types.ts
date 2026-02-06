@@ -742,6 +742,36 @@ export type Database = {
         }
         Relationships: []
       }
+      treasure_drops: {
+        Row: {
+          created_at: string
+          dropped_at: string
+          id: string
+          points_dropped: number
+          target_points: number
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dropped_at?: string
+          id?: string
+          points_dropped: number
+          target_points: number
+          tier: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dropped_at?: string
+          id?: string
+          points_dropped?: number
+          target_points?: number
+          tier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

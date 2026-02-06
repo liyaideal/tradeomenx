@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.get-deposit-address]
 verify_jwt = false
+
+[functions.redeem-points]
+verify_jwt = false
+
+[functions.claim-treasure]
+verify_jwt = false
