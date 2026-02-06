@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTreasureDrop } from "@/hooks/useTreasureDrop";
-import treasurePenguin from "@/assets/treasure-penguin.gif";
+import penguinGiftBox from "@/assets/penguin-gift-box.gif";
 import { TreasureClaimDialog } from "./TreasureClaimDialog";
 
 interface TreasureDropButtonProps {
@@ -45,18 +45,17 @@ export const TreasureDropButton = ({ className = "" }: TreasureDropButtonProps) 
         disabled={isClaiming}
         className={`
           fixed bottom-24 right-4 z-50
-          animate-bounce
           transition-all duration-300
-          hover:scale-110
+          hover:scale-105
           active:scale-95
           disabled:opacity-50
           ${className}
         `}
         aria-label="Open Treasure"
       >
-        <div className="relative w-20 h-20">
+        <div className="relative w-28 h-28">
           <img 
-            src={treasurePenguin} 
+            src={penguinGiftBox} 
             alt="Treasure"
             className="w-full h-full object-contain drop-shadow-2xl"
           />
