@@ -72,8 +72,11 @@ export default function Rewards() {
       pendingShareRef.current = true;
       setActiveTab('referral');
     } else if (action === 'first_trade') {
-      // Navigate to trading
+      // Navigate to trading page
       navigate('/');
+    } else if (action === 'referral_qualified') {
+      // Switch to referral tab to invite friends
+      setActiveTab('referral');
     }
   };
 

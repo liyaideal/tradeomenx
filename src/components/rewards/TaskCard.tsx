@@ -1,4 +1,4 @@
-import { Gift, CheckCircle2, Star, ArrowRight } from "lucide-react";
+import { Gift, CheckCircle2, Star, ArrowRight, TrendingUp, Share2, Users } from "lucide-react";
 import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,20 @@ interface TaskCardProps {
   onGoComplete?: (task: TaskWithProgress) => void;
 }
 
+// Map trigger actions to button config
+const getGoButtonConfig = (action: string): { label: string; icon: React.ReactNode } | null => {
+  switch (action) {
+    case 'first_trade':
+      return { label: 'Go Trade', icon: <TrendingUp className="w-4 h-4 mr-2" /> };
+    case 'share_x':
+      return { label: 'Go Share', icon: <Share2 className="w-4 h-4 mr-2" /> };
+    case 'referral_qualified':
+      return { label: 'Go Invite', icon: <Users className="w-4 h-4 mr-2" /> };
+    default:
+      return null;
+  }
+};
+
 export function TaskCard({ task, onClaim, isClaiming, onGoComplete }: TaskCardProps) {
   const isPending = !task.isCompleted && !task.isClaimed;
   const isClaimable = task.isCompleted && !task.isClaimed;
@@ -18,7 +32,8 @@ export function TaskCard({ task, onClaim, isClaiming, onGoComplete }: TaskCardPr
 
   // Check if this task has an actionable "Go Complete" state
   const triggerAction = task.trigger_condition?.action as string;
-  const canGoComplete = isPending && ['share_x', 'first_trade'].includes(triggerAction);
+  const goButtonConfig = getGoButtonConfig(triggerAction);
+  const canGoComplete = isPending && goButtonConfig !== null;
 
   const handleGoComplete = () => {
     if (onGoComplete) {
@@ -83,13 +98,14 @@ export function TaskCard({ task, onClaim, isClaiming, onGoComplete }: TaskCardPr
               <Gift className="w-4 h-4 mr-2" />
               Claim Reward
             </Button>
-          ) : canGoComplete ? (
+          ) : canGoComplete && goButtonConfig ? (
             <Button 
               variant="outline"
               className="w-full border-primary/50 text-primary hover:bg-primary/10"
               onClick={handleGoComplete}
             >
-              Go Share
+              {goButtonConfig.icon}
+              {goButtonConfig.label}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
