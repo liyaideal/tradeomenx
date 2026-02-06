@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Star, Sparkles } from "lucide-react";
 import penguinGiftBox from "@/assets/penguin-gift-box.gif";
+import "./TreasureClaimDialog.css";
 
 interface TreasureClaimDialogProps {
   open: boolean;
@@ -18,6 +19,7 @@ const ConfettiPortal = ({ show }: { show: boolean }) => {
   const confettiColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FF69B4', '#00CED1', '#FF4500'];
   
   const confettiParticles = useMemo(() => {
+    if (!show) return [];
     return Array.from({ length: 120 }, (_, i) => ({
       id: i,
       delay: Math.random() * 1500,
@@ -32,32 +34,19 @@ const ConfettiPortal = ({ show }: { show: boolean }) => {
   if (!show) return null;
 
   return createPortal(
-    <div 
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        pointerEvents: 'none',
-        zIndex: 999999,
-        overflow: 'hidden',
-      }}
-    >
+    <div className="treasure-confetti-container">
       {confettiParticles.map((particle) => (
         <div
           key={particle.id}
+          className="treasure-confetti-particle"
           style={{
-            position: 'absolute',
             left: `${particle.left}%`,
-            top: '-30px',
             width: `${particle.size}px`,
             height: `${particle.size}px`,
             backgroundColor: particle.color,
-            borderRadius: '2px',
-            opacity: 0,
             transform: `rotate(${particle.rotation}deg)`,
-            animation: `confetti-fall ${particle.duration}s ease-out ${particle.delay}ms forwards`,
+            animationDuration: `${particle.duration}s`,
+            animationDelay: `${particle.delay}ms`,
           }}
         />
       ))}
@@ -65,6 +54,21 @@ const ConfettiPortal = ({ show }: { show: boolean }) => {
     document.body
   );
 };
+
+// Sparkle component with CSS animation
+const SparkleParticle = ({ x, y, size, delay, duration }: { x: number; y: number; size: number; delay: number; duration: number }) => (
+  <Sparkles
+    className="treasure-sparkle"
+    style={{
+      left: `${x}%`,
+      top: `${y}%`,
+      width: size,
+      height: size,
+      animationDuration: `${duration}s`,
+      animationDelay: `${delay}ms`,
+    }}
+  />
+);
 
 export const TreasureClaimDialog = ({
   open,
@@ -174,17 +178,13 @@ export const TreasureClaimDialog = ({
           {showContent && (
             <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
               {sparkleParticles.map((particle) => (
-                <Sparkles
+                <SparkleParticle
                   key={particle.id}
-                  className="absolute text-yellow-400"
-                  style={{
-                    left: `${particle.x}%`,
-                    top: `${particle.y}%`,
-                    width: particle.size,
-                    height: particle.size,
-                    opacity: 0,
-                    animation: `sparkle ${particle.duration}s ease-in-out ${particle.delay}ms infinite`,
-                  }}
+                  x={particle.x}
+                  y={particle.y}
+                  size={particle.size}
+                  delay={particle.delay}
+                  duration={particle.duration}
                 />
               ))}
             </div>
