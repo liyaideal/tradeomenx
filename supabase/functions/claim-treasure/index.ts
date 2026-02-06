@@ -7,7 +7,7 @@ const corsHeaders = {
 
 // Probability distribution:
 // 10% -> 300-350 points (low tier)
-// 80% -> 500-850 points (mid tier)
+// 80% -> 800-850 points (mid tier)
 // 10% -> 1000-1100 points (high tier)
 function determineTargetPoints(): { tier: string; targetPoints: number } {
   const random = Math.random()
@@ -17,8 +17,8 @@ function determineTargetPoints(): { tier: string; targetPoints: number } {
     const targetPoints = Math.floor(Math.random() * (350 - 300 + 1)) + 300
     return { tier: 'low', targetPoints }
   } else if (random < 0.90) {
-    // 80% chance: mid tier (500-850)
-    const targetPoints = Math.floor(Math.random() * (850 - 500 + 1)) + 500
+    // 80% chance: mid tier (800-850)
+    const targetPoints = Math.floor(Math.random() * (850 - 800 + 1)) + 800
     return { tier: 'mid', targetPoints }
   } else {
     // 10% chance: high tier (1000-1100)

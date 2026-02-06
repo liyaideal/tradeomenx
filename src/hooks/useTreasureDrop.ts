@@ -75,10 +75,10 @@ export const useTreasureDrop = () => {
     isLoadingDrop
   });
 
-  // Trigger treasure appearance with random delay (2-10 seconds)
+  // Trigger treasure appearance with random delay (1-5 seconds)
   useEffect(() => {
     if (isEligible && !hasTriggered && !isLoadingPoints && !isLoadingDrop) {
-      const delay = Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000; // 2-10 seconds
+      const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000; // 1-5 seconds
       console.log(`Treasure will appear in ${delay}ms`);
       
       const timer = setTimeout(() => {
