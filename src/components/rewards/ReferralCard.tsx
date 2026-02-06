@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Copy, Share2, Users, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,35 +7,9 @@ import { useReferral } from "@/hooks/useReferral";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ReferralShareModal } from "./ReferralShareModal";
 
-interface ReferralCardProps {
-  /** External control for the share modal (from parent component like Tasks) */
-  externalShareModalOpen?: boolean;
-  onExternalShareModalChange?: (open: boolean) => void;
-}
-
-export const ReferralCard = ({ 
-  externalShareModalOpen,
-  onExternalShareModalChange,
-}: ReferralCardProps) => {
-  const [internalShowModal, setInternalShowModal] = useState(false);
-  
-  // Combine internal and external modal control
-  const showShareModal = externalShareModalOpen ?? internalShowModal;
-  const setShowShareModal = (open: boolean) => {
-    if (onExternalShareModalChange) {
-      onExternalShareModalChange(open);
-    }
-    setInternalShowModal(open);
-  };
-  
-  // Sync internal state when external changes
-  useEffect(() => {
-    if (externalShareModalOpen !== undefined) {
-      setInternalShowModal(externalShareModalOpen);
-    }
-  }, [externalShareModalOpen]);
-  
-  const {
+export const ReferralCard = () => {
+  const [showShareModal, setShowShareModal] = useState(false);
+  const { 
     referralCode, 
     referralLink, 
     copyReferralLink, 

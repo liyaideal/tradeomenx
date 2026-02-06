@@ -27,14 +27,10 @@ export default function Rewards() {
   const { user } = useUserProfile();
   const { pointsBalance, frozenPoints, lifetimeEarned, config, isLoading: isLoadingPoints } = usePoints();
   const { tasks, completedCount, totalCount, claimReward, isClaiming, refreshTaskStatus } = useTasks();
-  const { referralCode, referralLink, stats: referralStats } = useReferral();
-  const { profile } = useUserProfile();
+  const { referralCode, stats: referralStats, shareOnX } = useReferral();
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
   
-  // State to control the share modal from outside ReferralCard
-  const [showShareModal, setShowShareModal] = useState(false);
-  
-  // Ref to trigger share modal after tab switch
+  // Ref to trigger X share after tab switch
   const pendingShareRef = useRef(false);
   
   // Get initial tab from URL params
@@ -56,16 +52,16 @@ export default function Rewards() {
     }
   }, [searchParams]);
 
-  // Trigger share modal after switching to referral tab
+  // Trigger X share after switching to referral tab
   useEffect(() => {
     if (activeTab === 'referral' && pendingShareRef.current) {
       pendingShareRef.current = false;
       // Small delay to ensure UI has updated
       setTimeout(() => {
-        setShowShareModal(true);
+        shareOnX();
       }, 300);
     }
-  }, [activeTab]);
+  }, [activeTab, shareOnX]);
 
   // Handle "Go Complete" action for tasks
   const handleGoComplete = (task: TaskWithProgress) => {
@@ -181,10 +177,7 @@ export default function Rewards() {
         </TabsContent>
 
         <TabsContent value="referral" className="mt-4">
-          <ReferralCard 
-            externalShareModalOpen={showShareModal}
-            onExternalShareModalChange={setShowShareModal}
-          />
+          <ReferralCard />
         </TabsContent>
 
         <TabsContent value="history" className="mt-4">
