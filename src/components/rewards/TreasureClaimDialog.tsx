@@ -243,15 +243,13 @@ export const TreasureClaimDialog = ({
           hideCloseButton={true}
           className="bg-gradient-to-b from-background to-background/95"
         >
-          <div className="relative overflow-visible pb-safe">
-            <TreasureContent
-              showContent={showContent}
-              sparkleParticles={sparkleParticles}
-              tier={tier}
-              animatedPoints={animatedPoints}
-              onClose={onClose}
-            />
-          </div>
+          <TreasureContent
+            showContent={showContent}
+            sparkleParticles={sparkleParticles}
+            tier={tier}
+            animatedPoints={animatedPoints}
+            onClose={onClose}
+          />
         </MobileDrawer>
       ) : (
         <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
