@@ -1,8 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
 import { Star, Sparkles, Rocket } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import treasureDropSuccess from "@/assets/treasure-drop-success.gif";
 import "./TreasureClaimDialog.css";
 
@@ -70,6 +72,93 @@ const SparkleParticle = ({ x, y, size, delay, duration }: { x: number; y: number
   />
 );
 
+// Content component shared between Dialog and Drawer
+const TreasureContent = ({
+  showContent,
+  sparkleParticles,
+  tier,
+  animatedPoints,
+  onClose,
+}: {
+  showContent: boolean;
+  sparkleParticles: Array<{ id: number; delay: number; x: number; y: number; size: number; duration: number }>;
+  tier: string;
+  animatedPoints: number;
+  onClose: () => void;
+}) => {
+  const getTierMessage = () => {
+    switch (tier) {
+      case 'high':
+        return '🎉 JACKPOT! You hit the legendary tier!';
+      case 'low':
+        return '🎁 Nice! You found some bonus points!';
+      default:
+        return '✨ Amazing! You discovered a treasure!';
+    }
+  };
+
+  if (!showContent) return null;
+
+  return (
+    <>
+      {/* Sparkles within content area */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
+        {sparkleParticles.map((particle) => (
+          <SparkleParticle
+            key={particle.id}
+            x={particle.x}
+            y={particle.y}
+            size={particle.size}
+            delay={particle.delay}
+            duration={particle.duration}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-20 flex flex-col items-center py-4 animate-scale-in">
+        {/* Success image with enhanced glow */}
+        <div className="relative mb-4">
+          <div className="absolute -inset-6 rounded-full bg-primary/20 blur-3xl animate-pulse" />
+          <div className="absolute -inset-8 rounded-full bg-primary/10 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+          <img 
+            src={treasureDropSuccess} 
+            alt="Treasure Claimed"
+            className="w-36 h-36 object-contain relative z-10 drop-shadow-2xl"
+          />
+        </div>
+
+        {/* Tier message */}
+        <p className="text-sm text-muted-foreground mb-2 text-center font-medium">
+          {getTierMessage()}
+        </p>
+
+        {/* Points display with glow effect */}
+        <div className="flex items-center gap-2 mb-2 relative">
+          <div className="absolute -inset-4 bg-primary/20 blur-2xl rounded-full" />
+          <Star className="w-8 h-8 text-primary fill-primary animate-pulse relative z-10" />
+          <span className="text-5xl font-bold text-primary font-mono tracking-tight relative z-10 tabular-nums">
+            +{animatedPoints.toLocaleString()}
+          </span>
+        </div>
+        
+        <p className="text-lg font-semibold text-foreground mb-4">
+          Points Received!
+        </p>
+
+        {/* Close button */}
+        <Button 
+          onClick={onClose}
+          className="w-full btn-primary text-base"
+          size="lg"
+        >
+          <Rocket className="w-5 h-5 mr-2" />
+          Awesome!
+        </Button>
+      </div>
+    </>
+  );
+};
+
 export const TreasureClaimDialog = ({
   open,
   onClose,
@@ -80,6 +169,7 @@ export const TreasureClaimDialog = ({
   const [showContent, setShowContent] = useState(false);
   const [animatedPoints, setAnimatedPoints] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const isMobile = useIsMobile();
 
   // Generate sparkle particles
   const sparkleParticles = useMemo(() => {
@@ -140,90 +230,46 @@ export const TreasureClaimDialog = ({
     }
   }, [open, pointsDropped]);
 
-  const getTierMessage = () => {
-    switch (tier) {
-      case 'high':
-        return '🎉 JACKPOT! You hit the legendary tier!';
-      case 'low':
-        return '🎁 Nice! You found some bonus points!';
-      default:
-        return '✨ Amazing! You discovered a treasure!';
-    }
-  };
-
-
   return (
     <>
       {/* Confetti rendered via portal to body */}
       <ConfettiPortal show={showConfetti} />
       
-      <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-        <DialogContent 
-          className="sm:max-w-md border-primary/30 bg-gradient-to-b from-background to-background/95"
-          style={{ overflow: 'visible' }}
+      {isMobile ? (
+        <MobileDrawer
+          open={open}
+          onOpenChange={(isOpen) => !isOpen && onClose()}
+          showHandle={true}
+          hideCloseButton={true}
+          className="bg-gradient-to-b from-background to-background/95"
         >
-          <DialogTitle className="sr-only">Treasure Claimed</DialogTitle>
-
-          {/* Sparkles within dialog area */}
-          {showContent && (
-            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
-              {sparkleParticles.map((particle) => (
-                <SparkleParticle
-                  key={particle.id}
-                  x={particle.x}
-                  y={particle.y}
-                  size={particle.size}
-                  delay={particle.delay}
-                  duration={particle.duration}
-                />
-              ))}
-            </div>
-          )}
-
-          {showContent && (
-          <div className="relative z-20 flex flex-col items-center py-6 animate-scale-in">
-              {/* Success image with enhanced glow */}
-              <div className="relative mb-6">
-                <div className="absolute -inset-6 rounded-full bg-primary/20 blur-3xl animate-pulse" />
-                <div className="absolute -inset-8 rounded-full bg-primary/10 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
-                <img 
-                  src={treasureDropSuccess} 
-                  alt="Treasure Claimed"
-                  className="w-44 h-44 object-contain relative z-10 drop-shadow-2xl"
-                />
-              </div>
-
-              {/* Tier message */}
-              <p className="text-base text-muted-foreground mb-3 text-center font-medium">
-                {getTierMessage()}
-              </p>
-
-              {/* Points display with glow effect */}
-              <div className="flex items-center gap-3 mb-3 relative">
-                <div className="absolute -inset-4 bg-primary/20 blur-2xl rounded-full" />
-                <Star className="w-10 h-10 text-primary fill-primary animate-pulse relative z-10" />
-                <span className="text-6xl font-bold text-primary font-mono tracking-tight relative z-10 tabular-nums">
-                  +{animatedPoints.toLocaleString()}
-                </span>
-              </div>
-              
-              <p className="text-xl font-semibold text-foreground mb-6">
-                Points Received!
-              </p>
-
-              {/* Close button */}
-              <Button 
-                onClick={onClose}
-                className="w-full btn-primary text-lg"
-                size="lg"
-              >
-                <Rocket className="w-5 h-5 mr-2" />
-                Awesome!
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          <div className="relative overflow-visible pb-safe">
+            <TreasureContent
+              showContent={showContent}
+              sparkleParticles={sparkleParticles}
+              tier={tier}
+              animatedPoints={animatedPoints}
+              onClose={onClose}
+            />
+          </div>
+        </MobileDrawer>
+      ) : (
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+          <DialogContent 
+            className="sm:max-w-md border-primary/30 bg-gradient-to-b from-background to-background/95"
+            style={{ overflow: 'visible' }}
+          >
+            <DialogTitle className="sr-only">Treasure Claimed</DialogTitle>
+            <TreasureContent
+              showContent={showContent}
+              sparkleParticles={sparkleParticles}
+              tier={tier}
+              animatedPoints={animatedPoints}
+              onClose={onClose}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };
