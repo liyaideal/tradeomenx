@@ -53,7 +53,7 @@ export const TreasureDropButton = ({ className = "" }: TreasureDropButtonProps) 
         `}
         aria-label="Open Treasure"
       >
-        <div className="relative w-28 h-28">
+        <div className="relative w-28 h-28 md:w-40 md:h-40">
           <img 
             src={penguinGiftBox} 
             alt="Treasure"
