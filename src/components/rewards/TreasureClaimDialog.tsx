@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Star, Sparkles } from "lucide-react";
+import { Star, Sparkles, Rocket } from "lucide-react";
 import treasureDropSuccess from "@/assets/treasure-drop-success.gif";
 import "./TreasureClaimDialog.css";
 
@@ -151,16 +151,6 @@ export const TreasureClaimDialog = ({
     }
   };
 
-  const getTierEmoji = () => {
-    switch (tier) {
-      case 'high':
-        return '💎';
-      case 'low':
-        return '🌟';
-      default:
-        return '✨';
-    }
-  };
 
   return (
     <>
@@ -194,14 +184,13 @@ export const TreasureClaimDialog = ({
           <div className="relative z-20 flex flex-col items-center py-6 animate-scale-in">
               {/* Success image with enhanced glow */}
               <div className="relative mb-6">
-                <div className="absolute -inset-4 rounded-full bg-primary/20 blur-3xl animate-pulse" />
-                <div className="absolute -inset-6 rounded-full bg-primary/10 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+                <div className="absolute -inset-6 rounded-full bg-primary/20 blur-3xl animate-pulse" />
+                <div className="absolute -inset-8 rounded-full bg-primary/10 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
                 <img 
                   src={treasureDropSuccess} 
                   alt="Treasure Claimed"
-                  className="w-32 h-32 object-contain relative z-10 drop-shadow-2xl"
+                  className="w-44 h-44 object-contain relative z-10 drop-shadow-2xl"
                 />
-                <span className="absolute -top-3 -right-3 text-4xl animate-bounce">{getTierEmoji()}</span>
               </div>
 
               {/* Tier message */}
@@ -228,7 +217,7 @@ export const TreasureClaimDialog = ({
                 className="w-full btn-primary text-lg"
                 size="lg"
               >
-                <Sparkles className="w-5 h-5 mr-2" />
+                <Rocket className="w-5 h-5 mr-2" />
                 Awesome!
               </Button>
             </div>
