@@ -6,3 +6,5 @@ export { PointsHistoryList } from './PointsHistoryList';
 export { FloatingRewardsButton } from './FloatingRewardsButton';
 export { TaskIcon, taskIconNames } from './TaskIcon';
 export { TaskCard } from './TaskCard';
+export { TreasureDropButton } from './TreasureDropButton';
+export { TreasureClaimDialog } from './TreasureClaimDialog';
