@@ -7,12 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Ban } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Ban, Clock, Check } from "lucide-react";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 import { OptionChips } from "@/components/OptionChips";
 import { cn } from "@/lib/utils";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TradingSectionProps {
   isMobile: boolean;
@@ -25,6 +27,10 @@ export const TradingSection = ({ isMobile }: TradingSectionProps) => {
   const [riskTotalAssets, setRiskTotalAssets] = useState(100);
   const [riskUnrealizedPnL, setRiskUnrealizedPnL] = useState(0);
   const [riskIMTotal, setRiskIMTotal] = useState(50);
+
+  // Partial Fill Playground
+  const [partialFillAmount, setPartialFillAmount] = useState(60);
+  const [partialFillTotal, setPartialFillTotal] = useState(100);
 
   const playgroundRiskMetrics = useMemo(() => {
     const equity = riskTotalAssets + riskUnrealizedPnL;
@@ -43,6 +49,15 @@ export const TradingSection = ({ isMobile }: TradingSectionProps) => {
     { id: "opt2", label: "No", price: "0.35" },
     { id: "opt3", label: ">$100k", price: "0.42" },
   ];
+
+  // Mock fill history for partial fill demo
+  const mockFillHistory = [
+    { time: "14:32:05", amount: 30, price: "0.652", total: "$19.56" },
+    { time: "14:28:12", amount: 20, price: "0.648", total: "$12.96" },
+    { time: "14:25:33", amount: 10, price: "0.645", total: "$6.45" },
+  ];
+
+  const filledPercent = Math.round((partialFillAmount / partialFillTotal) * 100);
 
   return (
     <div className="space-y-12">
@@ -334,6 +349,273 @@ const style = CATEGORY_STYLES[category];
                   </div>
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
+      {/* Order Status & Partial Fill */}
+      <SectionWrapper
+        id="order-status"
+        title="Order Status & Partial Fill"
+        platform="shared"
+        description="Order status badges and partial fill hover interaction"
+      >
+        {/* Status Badges */}
+        <Card className="trading-card mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Order Status Badges</CardTitle>
+            <CardDescription>Visual indicators for different order states</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3 mb-4">
+              <Badge className="bg-amber-500/20 text-amber-400 hover:bg-amber-500/30">Pending</Badge>
+              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">Partially Filled</Badge>
+              <Badge className="bg-trading-green/20 text-trading-green hover:bg-trading-green/30">Filled</Badge>
+              <Badge className="bg-trading-red/20 text-trading-red hover:bg-trading-red/30">Cancelled</Badge>
+            </div>
+            <CodePreview 
+              code={`const statusColors = {
+  Pending: "bg-amber-500/20 text-amber-400",
+  "Partially Filled": "bg-cyan-500/20 text-cyan-400",
+  Filled: "bg-trading-green/20 text-trading-green",
+  Cancelled: "bg-trading-red/20 text-trading-red",
+};
+
+<Badge className={statusColors[status]}>{status}</Badge>`}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Partial Fill Hover Playground */}
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Partial Fill Hover Interaction</CardTitle>
+            <CardDescription>Hover on the status badge to see fill history details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+              {/* Preview */}
+              <div className="space-y-4">
+                <div className="bg-card rounded-xl p-4 border border-border">
+                  {/* Order Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-trading-green/20 text-trading-green">
+                        Buy
+                      </span>
+                      <span className="text-sm text-muted-foreground">Limit</span>
+                    </div>
+                    
+                    {/* Hoverable Partial Fill Badge */}
+                    <HoverCard openDelay={100} closeDelay={100}>
+                      <HoverCardTrigger asChild>
+                        <button className="cursor-pointer">
+                          <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition-colors">
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-3 h-3" />
+                              Partially Filled
+                            </span>
+                          </Badge>
+                        </button>
+                      </HoverCardTrigger>
+                      <HoverCardContent 
+                        side="bottom" 
+                        align="end" 
+                        className="w-72 p-0 bg-popover border-border"
+                      >
+                        {/* Fill Progress Header */}
+                        <div className="px-3 py-2.5 border-b border-border bg-muted/30">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-xs font-medium">Fill Progress</span>
+                            <span className="text-xs font-mono text-cyan-400">
+                              {partialFillAmount}/{partialFillTotal} ({filledPercent}%)
+                            </span>
+                          </div>
+                          <Progress 
+                            value={filledPercent} 
+                            className="h-1.5 [&>div]:bg-cyan-400"
+                          />
+                        </div>
+                        
+                        {/* Fill History */}
+                        <div className="px-3 py-2">
+                          <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
+                            Fill History
+                          </div>
+                          <div className="space-y-2">
+                            {mockFillHistory.map((fill, idx) => (
+                              <div 
+                                key={idx} 
+                                className="flex items-center justify-between text-xs py-1.5 border-b border-border/50 last:border-0"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Check className="w-3 h-3 text-trading-green" />
+                                  <span className="font-mono text-muted-foreground">{fill.time}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <span className="font-mono">{fill.amount} @ {fill.price}</span>
+                                  <span className="font-mono text-trading-green">{fill.total}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Summary */}
+                        <div className="px-3 py-2 border-t border-border bg-muted/30">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Avg Fill Price</span>
+                            <span className="font-mono font-medium">$0.649</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs mt-1">
+                            <span className="text-muted-foreground">Total Filled</span>
+                            <span className="font-mono font-medium text-trading-green">$38.97</span>
+                          </div>
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
+                  </div>
+
+                  {/* Order Info */}
+                  <div className="mb-3">
+                    <h3 className="font-medium text-foreground text-sm">BTC to reach $100k</h3>
+                    <p className="text-xs text-muted-foreground">Yes · 65%</p>
+                  </div>
+
+                  {/* Order Details */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block">Price</span>
+                      <span className="font-mono text-xs">$0.65</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block">Amount</span>
+                      <span className="font-mono text-xs">{partialFillTotal}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block">Filled</span>
+                      <span className="font-mono text-xs text-cyan-400">{partialFillAmount}/{partialFillTotal}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  👆 Hover on "Partially Filled" badge to see fill details
+                </p>
+              </div>
+
+              {/* Controls */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label className="text-xs">Filled Amount</Label>
+                    <span className="text-xs font-mono text-cyan-400">{partialFillAmount}</span>
+                  </div>
+                  <Slider 
+                    value={[partialFillAmount]} 
+                    onValueChange={([v]) => setPartialFillAmount(v)} 
+                    min={1} 
+                    max={partialFillTotal - 1} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label className="text-xs">Total Order Amount</Label>
+                    <span className="text-xs font-mono">{partialFillTotal}</span>
+                  </div>
+                  <Slider 
+                    value={[partialFillTotal]} 
+                    onValueChange={([v]) => {
+                      setPartialFillTotal(v);
+                      if (partialFillAmount >= v) setPartialFillAmount(v - 1);
+                    }} 
+                    min={10} 
+                    max={200} 
+                  />
+                </div>
+
+                {/* Fill Percentage Indicator */}
+                <div className="p-4 rounded-lg bg-muted/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Fill Percentage</span>
+                    <span className={cn(
+                      "text-sm font-mono font-medium",
+                      filledPercent >= 75 ? "text-trading-green" : 
+                      filledPercent >= 50 ? "text-cyan-400" : 
+                      filledPercent >= 25 ? "text-amber-400" : "text-muted-foreground"
+                    )}>
+                      {filledPercent}%
+                    </span>
+                  </div>
+                  <Progress 
+                    value={filledPercent} 
+                    className={cn(
+                      "h-2",
+                      filledPercent >= 75 ? "[&>div]:bg-trading-green" : 
+                      filledPercent >= 50 ? "[&>div]:bg-cyan-400" : 
+                      filledPercent >= 25 ? "[&>div]:bg-amber-400" : "[&>div]:bg-muted-foreground"
+                    )}
+                  />
+                </div>
+
+                {/* Quick Presets */}
+                <div className="pt-4 border-t border-border/50">
+                  <Label className="text-xs mb-2 block">Quick Presets</Label>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" className="text-xs" onClick={() => { setPartialFillAmount(25); setPartialFillTotal(100); }}>
+                      25% Filled
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-xs" onClick={() => { setPartialFillAmount(50); setPartialFillTotal(100); }}>
+                      50% Filled
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-xs" onClick={() => { setPartialFillAmount(90); setPartialFillTotal(100); }}>
+                      90% Filled
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Code Example */}
+            <div className="mt-6">
+              <CodePreview 
+                code={`import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+
+// Partial Fill Status Badge with Hover
+<HoverCard openDelay={100} closeDelay={100}>
+  <HoverCardTrigger asChild>
+    <button className="cursor-pointer">
+      <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
+        <Clock className="w-3 h-3 mr-1.5" />
+        Partially Filled
+      </Badge>
+    </button>
+  </HoverCardTrigger>
+  <HoverCardContent side="bottom" align="end" className="w-72 p-0">
+    {/* Fill Progress */}
+    <div className="px-3 py-2.5 border-b border-border bg-muted/30">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-xs font-medium">Fill Progress</span>
+        <span className="text-xs font-mono text-cyan-400">
+          {filled}/{total} ({filledPercent}%)
+        </span>
+      </div>
+      <Progress value={filledPercent} className="h-1.5 [&>div]:bg-cyan-400" />
+    </div>
+    
+    {/* Fill History List */}
+    <div className="px-3 py-2">
+      {fills.map((fill) => (
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-mono text-muted-foreground">{fill.time}</span>
+          <span className="font-mono">{fill.amount} @ {fill.price}</span>
+        </div>
+      ))}
+    </div>
+  </HoverCardContent>
+</HoverCard>`}
+              />
             </div>
           </CardContent>
         </Card>
