@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Star, Sparkles } from "lucide-react";
-import penguinGiftBox from "@/assets/penguin-gift-box.gif";
+import treasureDropSuccess from "@/assets/treasure-drop-success.gif";
 import "./TreasureClaimDialog.css";
 
 interface TreasureClaimDialogProps {
@@ -191,15 +191,15 @@ export const TreasureClaimDialog = ({
           )}
 
           {showContent && (
-            <div className="relative z-20 flex flex-col items-center py-6 animate-scale-in">
-              {/* Treasure image with enhanced glow */}
+          <div className="relative z-20 flex flex-col items-center py-6 animate-scale-in">
+              {/* Success image with enhanced glow */}
               <div className="relative mb-6">
-                <div className="absolute -inset-4 rounded-full bg-yellow-400/30 blur-3xl animate-pulse" />
-                <div className="absolute -inset-6 rounded-full bg-primary/20 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+                <div className="absolute -inset-4 rounded-full bg-primary/20 blur-3xl animate-pulse" />
+                <div className="absolute -inset-6 rounded-full bg-primary/10 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
                 <img 
-                  src={penguinGiftBox} 
-                  alt="Treasure"
-                  className="w-28 h-28 object-contain relative z-10 drop-shadow-2xl"
+                  src={treasureDropSuccess} 
+                  alt="Treasure Claimed"
+                  className="w-32 h-32 object-contain relative z-10 drop-shadow-2xl"
                 />
                 <span className="absolute -top-3 -right-3 text-4xl animate-bounce">{getTierEmoji()}</span>
               </div>
@@ -211,24 +211,16 @@ export const TreasureClaimDialog = ({
 
               {/* Points display with glow effect */}
               <div className="flex items-center gap-3 mb-3 relative">
-                <div className="absolute -inset-4 bg-yellow-500/20 blur-2xl rounded-full" />
-                <Star className="w-10 h-10 text-yellow-500 fill-yellow-500 animate-pulse relative z-10" />
+                <div className="absolute -inset-4 bg-primary/20 blur-2xl rounded-full" />
+                <Star className="w-10 h-10 text-primary fill-primary animate-pulse relative z-10" />
                 <span className="text-6xl font-bold text-primary font-mono tracking-tight relative z-10 tabular-nums">
                   +{animatedPoints.toLocaleString()}
                 </span>
               </div>
               
-              <p className="text-xl font-semibold text-foreground mb-5">
+              <p className="text-xl font-semibold text-foreground mb-6">
                 Points Received!
               </p>
-
-              {/* New balance card */}
-              <div className="bg-muted/60 rounded-xl px-6 py-3 mb-6 border border-primary/20">
-                <p className="text-sm text-muted-foreground text-center">New Balance</p>
-                <p className="text-2xl font-bold text-primary font-mono text-center tabular-nums">
-                  {newBalance.toLocaleString()} pts
-                </p>
-              </div>
 
               {/* Close button */}
               <Button 
