@@ -270,8 +270,14 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
     if (!selectedEventId || tradingEvents.length === 0) {
       return tradingEvents[0] || null;
     }
-    return tradingEvents.find(e => e.id === selectedEventId) || tradingEvents[0] || null;
-  }, [selectedEventId, tradingEvents]);
+    const found = tradingEvents.find(e => e.id === selectedEventId);
+    // If an explicit ID was requested (e.g. from URL) but not found, return null
+    // so the UI can show an "expired event" fallback
+    if (!found && initialEventId) {
+      return null;
+    }
+    return found || tradingEvents[0] || null;
+  }, [selectedEventId, tradingEvents, initialEventId]);
 
   // Get options for selected event
   const options = useMemo(() => {

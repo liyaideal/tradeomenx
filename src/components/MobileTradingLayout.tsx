@@ -6,6 +6,7 @@ import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
 import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
+import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
 
 // Context for sharing trading state with child components
@@ -84,8 +85,11 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
     );
   }
 
-  // No event found
+  // No event found — check if user provided an event ID that doesn't exist (expired/settled)
   if (!selectedEvent) {
+    if (eventId) {
+      return <ExpiredEventFallback eventId={eventId} />;
+    }
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center px-4">
