@@ -131,19 +131,19 @@ ${link}`;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Find the referral code
-      const { data: codeData, error: codeError } = await supabase
-        .from('referral_codes')
-        .select('*')
-        .eq('code', code.toUpperCase())
-        .eq('is_active', true)
-        .maybeSingle();
+      // Find the referral code using secure RPC function
+      const { data: codeResults, error: codeError } = await supabase
+        .rpc('lookup_referral_code', { _code: code.toUpperCase() });
 
+      const codeData = codeResults?.[0];
       if (codeError || !codeData) {
         throw new Error('Invalid referral code');
       }
 
-      if (codeData.user_id === user.id) {
+      // Map the RPC result to expected shape
+      const referrerUserId = codeData.referrer_id;
+
+      if (referrerUserId === user.id) {
         throw new Error('Cannot use your own referral code');
       }
 
@@ -162,7 +162,7 @@ ${link}`;
       const { error: refError } = await supabase
         .from('referrals')
         .insert({
-          referrer_id: codeData.user_id,
+          referrer_id: referrerUserId,
           referee_id: user.id,
           referral_code: code.toUpperCase(),
           level: 1,
@@ -171,11 +171,8 @@ ${link}`;
 
       if (refError) throw refError;
 
-      // Increment uses count
-      await supabase
-        .from('referral_codes')
-        .update({ uses_count: (codeData.uses_count || 0) + 1 })
-        .eq('id', codeData.id);
+      // Increment uses count via secure RPC
+      await supabase.rpc('increment_referral_uses', { _code: code.toUpperCase() });
 
       return { success: true };
     },

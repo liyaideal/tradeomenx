@@ -897,6 +897,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_referral_uses: { Args: { _code: string }; Returns: undefined }
+      lookup_referral_code: {
+        Args: { _code: string }
+        Returns: {
+          code: string
+          is_active: boolean
+          referrer_id: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
