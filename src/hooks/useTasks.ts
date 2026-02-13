@@ -145,104 +145,31 @@ export const useTasks = () => {
       return getPriority(a) - getPriority(b);
     });
 
-  // Claim task reward
+  // Claim task reward via secure edge function
   const claimMutation = useMutation({
     mutationFn: async (taskId: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
 
-      const task = tasks?.find(t => t.id === taskId);
-      if (!task) throw new Error('Task not found');
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/claim-task`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ taskId }),
+        }
+      );
 
-      // Get or create user task
-      const { data: existingUserTask } = await supabase
-        .from('user_tasks')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('task_id', taskId)
-        .maybeSingle();
+      const result = await response.json();
 
-      // Check completion
-      const isCompleted = await checkTaskCompletion(task);
-      if (!isCompleted && !existingUserTask) {
-        throw new Error('Task not completed yet');
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to claim task');
       }
 
-      if (existingUserTask?.status === 'claimed') {
-        throw new Error('Reward already claimed');
-      }
-
-      // Create or update user task
-      if (!existingUserTask) {
-        const { error: createError } = await supabase
-          .from('user_tasks')
-          .insert({
-            user_id: user.id,
-            task_id: taskId,
-            status: 'claimed',
-            completed_at: new Date().toISOString(),
-            claimed_at: new Date().toISOString(),
-            points_awarded: task.reward_points,
-          });
-        
-        if (createError) throw createError;
-      } else {
-        const { error: updateError } = await supabase
-          .from('user_tasks')
-          .update({
-            status: 'claimed',
-            claimed_at: new Date().toISOString(),
-            points_awarded: task.reward_points,
-          })
-          .eq('id', existingUserTask.id);
-
-        if (updateError) throw updateError;
-      }
-
-      // Get or create points account
-      let { data: pointsAccount } = await supabase
-        .from('points_accounts')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (!pointsAccount) {
-        const { data: newAccount, error: createError } = await supabase
-          .from('points_accounts')
-          .insert({ user_id: user.id, balance: 0 })
-          .select()
-          .single();
-        
-        if (createError) throw createError;
-        pointsAccount = newAccount;
-      }
-
-      // Update points balance
-      const newBalance = (pointsAccount?.balance || 0) + task.reward_points;
-      const { error: pointsError } = await supabase
-        .from('points_accounts')
-        .update({ 
-          balance: newBalance,
-          lifetime_earned: (pointsAccount?.lifetime_earned || 0) + task.reward_points
-        })
-        .eq('user_id', user.id);
-
-      if (pointsError) throw pointsError;
-
-      // Add ledger entry
-      await supabase
-        .from('points_ledger')
-        .insert({
-          user_id: user.id,
-          amount: task.reward_points,
-          balance_after: newBalance,
-          type: 'earn',
-          source: 'task',
-          source_id: taskId,
-          description: `Completed task: ${task.name}`
-        });
-
-      return { task, pointsEarned: task.reward_points };
+      return result;
     },
     onSuccess: (data) => {
       toast.success(`+${data.pointsEarned} points earned!`, {

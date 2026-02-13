@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.claim-treasure]
 verify_jwt = false
+
+[functions.claim-task]
+verify_jwt = false
