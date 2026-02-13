@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
+import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
 import { useOrders } from "@/hooks/useOrders";
@@ -569,8 +570,11 @@ export default function DesktopTrading() {
     );
   }
 
-  // No event found
+  // No event found — check if URL has an expired/invalid event ID
   if (!selectedEvent) {
+    if (eventId) {
+      return <ExpiredEventFallback eventId={eventId} />;
+    }
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4 text-center px-4">
