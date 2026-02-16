@@ -6,14 +6,15 @@ import { Input } from "@/components/ui/input";
 import { useReferral } from "@/hooks/useReferral";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ReferralShareModal } from "./ReferralShareModal";
+import { XShareConfirmDialog } from "./XShareConfirmDialog";
 
 export const ReferralCard = () => {
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showXShareDialog, setShowXShareDialog] = useState(false);
   const { 
     referralCode, 
     referralLink, 
     copyReferralLink, 
-    shareOnX, 
     stats,
     isLoading 
   } = useReferral();
@@ -74,7 +75,7 @@ export const ReferralCard = () => {
             </Button>
             <Button 
               className="flex-1 btn-primary"
-              onClick={shareOnX}
+              onClick={() => setShowXShareDialog(true)}
             >
               <Share2 className="w-4 h-4 mr-2" />
               X
@@ -91,6 +92,19 @@ export const ReferralCard = () => {
         referralLink={referralLink}
         username={profile?.username || undefined}
         avatarUrl={profile?.avatar_url || undefined}
+      />
+
+      {/* X Share Authorization Dialog */}
+      <XShareConfirmDialog
+        open={showXShareDialog}
+        onOpenChange={setShowXShareDialog}
+        tweetContent={`🎯 What if you could trade predictions with leverage? Now you can. OmenX Beta is LIVE - claim test funds & earn points. Join now 👇\n${referralLink}`}
+        referralLink={referralLink}
+        onConfirm={() => {
+          // TODO: Call edge function to authorize & post via X API
+          console.log("X share confirmed from referral card");
+          setShowXShareDialog(false);
+        }}
       />
 
       {/* Stats Card */}
