@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Gift, Star, Trophy, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { ReferralCard } from "@/components/rewards/ReferralCard";
 import { PointsHistoryList } from "@/components/rewards/PointsHistoryList";
 import { TaskCard } from "@/components/rewards/TaskCard";
 import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
+import { XShareConfirmDialog } from "@/components/rewards/XShareConfirmDialog";
 import { LoginPrompt } from "@/components/LoginPrompt";
 
 export default function Rewards() {
@@ -27,11 +28,9 @@ export default function Rewards() {
   const { user } = useUserProfile();
   const { pointsBalance, frozenPoints, lifetimeEarned, config, isLoading: isLoadingPoints } = usePoints();
   const { tasks, completedCount, totalCount, claimReward, isClaiming, refreshTaskStatus } = useTasks();
-  const { referralCode, stats: referralStats, shareOnX } = useReferral();
+  const { referralCode, referralLink, stats: referralStats } = useReferral();
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
-  
-  // Ref to trigger X share after tab switch
-  const pendingShareRef = useRef(false);
+  const [xShareDialogOpen, setXShareDialogOpen] = useState(false);
   
   // Get initial tab from URL params
   const initialTab = searchParams.get("tab") || "tasks";
@@ -52,25 +51,14 @@ export default function Rewards() {
     }
   }, [searchParams]);
 
-  // Trigger X share after switching to referral tab
-  useEffect(() => {
-    if (activeTab === 'referral' && pendingShareRef.current) {
-      pendingShareRef.current = false;
-      // Small delay to ensure UI has updated
-      setTimeout(() => {
-        shareOnX();
-      }, 300);
-    }
-  }, [activeTab, shareOnX]);
 
   // Handle "Go Complete" action for tasks
   const handleGoComplete = (task: TaskWithProgress) => {
     const action = task.trigger_condition?.action as string;
     
     if (action === 'share_x') {
-      // Switch to referral tab and trigger X share
-      pendingShareRef.current = true;
-      setActiveTab('referral');
+      // Open X share confirmation dialog
+      setXShareDialogOpen(true);
     } else if (action === 'first_trade') {
       // Navigate to trading page
       navigate('/');
@@ -92,6 +80,15 @@ export default function Rewards() {
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const minRedeemThreshold = config?.min_redeem_threshold?.points || 100;
   const canRedeem = pointsBalance >= minRedeemThreshold;
+
+  // Tweet content for X share task
+  const tweetContent = `🎯 What if you could trade predictions with leverage? Now you can. OmenX Beta is LIVE - claim test funds & earn points. Join now 👇\n${referralLink}`;
+
+  const handleXShareConfirm = () => {
+    // TODO: Call edge function to authorize & post via X API
+    console.log("X share confirmed — will call API");
+    setXShareDialogOpen(false);
+  };
 
   const content = (
     <div className="space-y-6">
@@ -203,6 +200,13 @@ export default function Rewards() {
         <BottomNav />
         <TreasureDropButton />
         <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
+        <XShareConfirmDialog
+          open={xShareDialogOpen}
+          onOpenChange={setXShareDialogOpen}
+          tweetContent={tweetContent}
+          referralLink={referralLink}
+          onConfirm={handleXShareConfirm}
+        />
       </div>
     );
   }
@@ -228,6 +232,13 @@ export default function Rewards() {
 
       <TreasureDropButton />
       <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
+      <XShareConfirmDialog
+        open={xShareDialogOpen}
+        onOpenChange={setXShareDialogOpen}
+        tweetContent={tweetContent}
+        referralLink={referralLink}
+        onConfirm={handleXShareConfirm}
+      />
     </div>
   );
 }
