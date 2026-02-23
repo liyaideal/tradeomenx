@@ -186,7 +186,7 @@ export default function Rewards() {
           showLogo={false}
         />
 
-        <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!">
+        <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!" maxPreviewHeight="400px">
         <main className="p-4">
           {content}
         </main>
