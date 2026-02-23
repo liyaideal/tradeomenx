@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -599,6 +600,7 @@ export default function Wallet() {
       <div className="min-h-screen bg-background">
         <EventsDesktopHeader />
         
+        <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and connected wallets by signing in.">
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Page Title */}
           <div className="mb-8">
@@ -777,6 +779,7 @@ export default function Wallet() {
             </div>
           </div>
         </div>
+        </AuthGateOverlay>
 
         {/* Top Up Dialog (legacy/fallback) */}
         <TopUpDialog 
@@ -856,12 +859,14 @@ export default function Wallet() {
       {/* Header */}
       <MobileHeader title="Wallet" showLogo={false} />
 
+      <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and connected wallets by signing in.">
       <div className="px-4 py-6 space-y-6">
         <BalanceCard />
         <PendingConfirmations />
         <WalletList />
         <TransactionHistory transactions={transactions} />
       </div>
+      </AuthGateOverlay>
 
       {/* Bottom Navigation */}
       <BottomNav />

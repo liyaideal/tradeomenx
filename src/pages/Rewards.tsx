@@ -19,7 +19,7 @@ import { PointsHistoryList } from "@/components/rewards/PointsHistoryList";
 import { TaskCard } from "@/components/rewards/TaskCard";
 import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { XShareConfirmDialog } from "@/components/rewards/XShareConfirmDialog";
-import { LoginPrompt } from "@/components/LoginPrompt";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 
 export default function Rewards() {
   const navigate = useNavigate();
@@ -68,14 +68,7 @@ export default function Rewards() {
     }
   };
 
-  if (!user) {
-    return (
-      <LoginPrompt 
-        title="Rewards Center"
-        description="Sign in to access your rewards and earn points!" 
-      />
-    );
-  }
+  const isGuest = !user;
 
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const minRedeemThreshold = config?.min_redeem_threshold?.points || 100;
@@ -193,9 +186,11 @@ export default function Rewards() {
           showLogo={false}
         />
 
+        <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!">
         <main className="p-4">
           {content}
         </main>
+        </AuthGateOverlay>
 
         <BottomNav />
         <TreasureDropButton />
@@ -216,6 +211,7 @@ export default function Rewards() {
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
       
+      <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!">
       <main className="max-w-2xl mx-auto p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
@@ -229,6 +225,7 @@ export default function Rewards() {
 
         {content}
       </main>
+      </AuthGateOverlay>
 
       <TreasureDropButton />
       <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
