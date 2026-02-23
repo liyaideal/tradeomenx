@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import {
   Dialog,
   DialogContent,
@@ -195,6 +196,7 @@ export const DesktopPositionsPanel = () => {
   const selectedOrder = selectedOrderIndex !== null ? orders[selectedOrderIndex] : null;
 
   return (
+    <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades.">
     <div className="bg-background border-t border-border/30">
       {/* Tabs */}
       <div className="flex items-center gap-1 px-4 border-b border-border/30">
@@ -674,5 +676,6 @@ export const DesktopPositionsPanel = () => {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </AuthGateOverlay>
   );
 };
