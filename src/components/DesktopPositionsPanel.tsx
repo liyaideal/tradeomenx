@@ -198,7 +198,7 @@ export const DesktopPositionsPanel = () => {
   return (
     <div className="bg-background border-t border-border/30">
       {/* Tabs - always interactive */}
-      <div className="flex items-center gap-1 px-4 border-b border-border/30">
+      <div className="flex items-center gap-1 px-4 border-b border-border/30 relative z-20">
         {tabs.map((tab) => (
           <button
             key={tab.id}
