@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
@@ -169,6 +170,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
       </div>
 
       {/* Orders/Positions Tabs */}
+      <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades." compact>
       <div ref={tabSectionRef} className="flex px-4 mt-2 border-b border-border/30">
         {["Orders", "Positions"].map((tab) => {
           const count = tab === "Orders" ? orders.length : positions.length;
@@ -235,6 +237,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
           )
         )}
       </div>
+      </AuthGateOverlay>
     </div>
   );
 }

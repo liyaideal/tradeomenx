@@ -10,7 +10,7 @@ import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
-import { LoginPrompt } from "@/components/LoginPrompt";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -175,15 +175,7 @@ export default function Portfolio() {
     });
   }, [settlements, sortField, sortDirection]);
 
-  // If not logged in, show login prompt
-  if (!authLoading && !user) {
-    return (
-      <LoginPrompt 
-        title="Sign in to view your portfolio"
-        description="Track your open positions and settlement history by signing in to your account."
-      />
-    );
-  }
+  const isGuest = !authLoading && !user;
 
 
   const handleSort = (field: SortField) => {
@@ -241,6 +233,7 @@ export default function Portfolio() {
         <EventsDesktopHeader />
       )}
 
+      <AuthGateOverlay title="Sign in to view your portfolio" description="Track your open positions and settlement history by signing in to your account.">
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-8`}>
         {/* Page Title */}
         <div className="relative">
@@ -979,6 +972,7 @@ export default function Portfolio() {
           </>
         )}
       </main>
+      </AuthGateOverlay>
 
       {isMobile && <BottomNav />}
     </div>
