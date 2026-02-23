@@ -51,6 +51,7 @@ import { executeTrade } from "@/services/tradingService";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
@@ -1037,6 +1038,7 @@ export default function DesktopTrading() {
           </div>
 
           {/* Bottom: Positions Panel */}
+          <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades.">
           <div className="border-t border-border/30 flex-shrink-0">
             <div className="flex items-center gap-1 px-4 border-b border-border/30">
               {(["Positions", "Current Orders"] as const).map((tab) => (
@@ -1294,6 +1296,7 @@ export default function DesktopTrading() {
               )}
             </div>
           </div>
+          </AuthGateOverlay>
         </div>
 
         {/* Right Section: Trade Form + Account Risk - separate containers, no internal scroll */}
