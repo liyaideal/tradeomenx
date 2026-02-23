@@ -19,6 +19,8 @@ interface AuthGateOverlayProps {
   compact?: boolean;
   /** Max height for the blurred preview area (e.g. "320px"). Prevents large empty blurred areas on full-page gates. */
   maxPreviewHeight?: string;
+  /** Full-page mode: hides blurred content entirely and shows a centered CTA filling the available space */
+  fullPage?: boolean;
 }
 
 /**
@@ -32,6 +34,13 @@ interface AuthGateOverlayProps {
  *   <PositionsTable />
  * </AuthGateOverlay>
  * ```
+ *
+ * For full-page gates (Rewards, Wallet, Portfolio):
+ * ```tsx
+ * <AuthGateOverlay title="Sign in" fullPage>
+ *   <PageContent />
+ * </AuthGateOverlay>
+ * ```
  */
 export const AuthGateOverlay = ({
   children,
@@ -40,6 +49,7 @@ export const AuthGateOverlay = ({
   blur = true,
   compact = false,
   maxPreviewHeight,
+  fullPage = false,
 }: AuthGateOverlayProps) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -48,6 +58,46 @@ export const AuthGateOverlay = ({
   // Authenticated – render children directly
   if (user) {
     return <>{children}</>;
+  }
+
+  // Full-page mode: no blurred preview, just a clean centered CTA
+  if (fullPage) {
+    return (
+      <>
+        <div className="flex flex-1 items-center justify-center min-h-[50vh] px-4">
+          <div className="text-center space-y-4 max-w-xs">
+            <div className="mx-auto rounded-full bg-muted/80 w-16 h-16 flex items-center justify-center">
+              <LogIn className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+              <p className="text-sm text-muted-foreground">{description}</p>
+            </div>
+            <div className="flex items-center justify-center gap-3 pt-1">
+              <Button
+                variant="outline"
+                onClick={() => setAuthOpen(true)}
+                className="border-border/50"
+              >
+                <LogIn className="w-4 h-4 mr-1.5" />
+                Log In
+              </Button>
+              <Button onClick={() => setAuthOpen(true)}>
+                <UserPlus className="w-4 h-4 mr-1.5" />
+                Sign Up
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Auth Modal */}
+        {isMobile ? (
+          <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+        ) : (
+          <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+        )}
+      </>
+    );
   }
 
   return (

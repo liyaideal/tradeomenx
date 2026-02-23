@@ -186,7 +186,7 @@ export default function Rewards() {
           showLogo={false}
         />
 
-        <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!" maxPreviewHeight="400px">
+        <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!" fullPage>
         <main className="p-4">
           {content}
         </main>
@@ -211,7 +211,7 @@ export default function Rewards() {
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
       
-      <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!">
+      <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!" fullPage>
       <main className="max-w-2xl mx-auto p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
