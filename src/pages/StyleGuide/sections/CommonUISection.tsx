@@ -1666,6 +1666,10 @@ navigator.share({ files: [file] });`}
                     <div className="flex justify-between text-sm"><span className="text-muted-foreground">BTC/USDT</span><span className="font-mono text-trading-green">+$245.30</span></div>
                     <div className="flex justify-between text-sm"><span className="text-muted-foreground">ETH/USDT</span><span className="font-mono text-trading-red">-$18.50</span></div>
                     <div className="flex justify-between text-sm"><span className="text-muted-foreground">SOL/USDT</span><span className="font-mono text-trading-green">+$72.00</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">DOGE/USDT</span><span className="font-mono text-trading-green">+$12.40</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">AVAX/USDT</span><span className="font-mono text-trading-red">-$31.20</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">LINK/USDT</span><span className="font-mono text-trading-green">+$8.90</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">ARB/USDT</span><span className="font-mono text-trading-red">-$5.60</span></div>
                   </div>
                 </AuthGateOverlay>
               </div>
