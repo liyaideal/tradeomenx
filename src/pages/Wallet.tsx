@@ -859,7 +859,7 @@ export default function Wallet() {
       {/* Header */}
       <MobileHeader title="Wallet" showLogo={false} />
 
-      <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and connected wallets by signing in.">
+      <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and connected wallets by signing in." maxPreviewHeight="400px">
       <div className="px-4 py-6 space-y-6">
         <BalanceCard />
         <PendingConfirmations />

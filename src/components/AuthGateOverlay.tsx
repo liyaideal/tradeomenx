@@ -17,6 +17,8 @@ interface AuthGateOverlayProps {
   blur?: boolean;
   /** Compact mode for smaller panels */
   compact?: boolean;
+  /** Max height for the blurred preview area (e.g. "320px"). Prevents large empty blurred areas on full-page gates. */
+  maxPreviewHeight?: string;
 }
 
 /**
@@ -37,6 +39,7 @@ export const AuthGateOverlay = ({
   description = "Create an account or log in to access this feature.",
   blur = true,
   compact = false,
+  maxPreviewHeight,
 }: AuthGateOverlayProps) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -48,7 +51,7 @@ export const AuthGateOverlay = ({
   }
 
   return (
-    <div className="relative isolate overflow-hidden">
+    <div className="relative isolate overflow-hidden" style={maxPreviewHeight ? { maxHeight: maxPreviewHeight } : undefined}>
       {/* Blurred / dimmed content underneath */}
       <div
         className={`select-none pointer-events-none ${blur ? "blur-[3px]" : ""} opacity-70`}
