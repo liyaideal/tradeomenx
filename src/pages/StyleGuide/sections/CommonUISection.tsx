@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -1648,6 +1649,52 @@ navigator.share({ files: [file] });`}
 
       {/* Desktop Navigation Specification */}
       <DesktopNavigationSection isMobile={isMobile} />
+
+      {/* ── Auth Gate Overlay ── */}
+      <SectionWrapper id="auth-gate-overlay" title="Auth Gate Overlay" description="Reusable overlay for content that requires authentication. When the user is not logged in, content is blurred with a sign-in CTA on top.">
+        <Card className="border-border/50 bg-card/50 backdrop-blur">
+          <CardHeader>
+            <CardTitle className="text-lg">AuthGateOverlay</CardTitle>
+            <CardDescription>Wraps any content section. If user is not authenticated, shows a blurred overlay with Log In / Sign Up buttons. Supports compact mode for smaller panels.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Default variant */}
+            <SubSection title="Default">
+              <div className="border border-border/30 rounded-lg overflow-hidden">
+                <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to track your trades.">
+                  <div className="p-6 space-y-3">
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">BTC/USDT</span><span className="font-mono text-trading-green">+$245.30</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">ETH/USDT</span><span className="font-mono text-trading-red">-$18.50</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">SOL/USDT</span><span className="font-mono text-trading-green">+$72.00</span></div>
+                  </div>
+                </AuthGateOverlay>
+              </div>
+            </SubSection>
+
+            {/* Compact variant */}
+            <SubSection title="Compact">
+              <div className="border border-border/30 rounded-lg overflow-hidden max-w-sm">
+                <AuthGateOverlay title="Sign in" description="Log in to access this feature." compact>
+                  <div className="p-4 space-y-2">
+                    <div className="flex justify-between text-xs"><span className="text-muted-foreground">Balance</span><span className="font-mono">$1,250.00</span></div>
+                    <div className="flex justify-between text-xs"><span className="text-muted-foreground">P&L</span><span className="font-mono text-trading-green">+$85.20</span></div>
+                  </div>
+                </AuthGateOverlay>
+              </div>
+            </SubSection>
+
+            {/* Code */}
+            <CodePreview code={`<AuthGateOverlay
+  title="Sign in to view positions"
+  description="Log in or create an account to track your trades."
+  compact={false} // optional, for smaller panels
+  blur={true}     // optional, blur background content
+>
+  <PositionsTable />
+</AuthGateOverlay>`} />
+          </CardContent>
+        </Card>
+      </SectionWrapper>
     </div>
   );
 };
