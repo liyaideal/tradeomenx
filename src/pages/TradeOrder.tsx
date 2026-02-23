@@ -171,6 +171,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
 
       {/* Orders/Positions Tabs */}
       <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades." compact>
+      <div className="max-h-[280px] overflow-hidden">
       <div ref={tabSectionRef} className="flex px-4 mt-2 border-b border-border/30">
         {["Orders", "Positions"].map((tab) => {
           const count = tab === "Orders" ? orders.length : positions.length;
@@ -236,6 +237,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
             ))
           )
         )}
+      </div>
       </div>
       </AuthGateOverlay>
     </div>
