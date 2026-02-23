@@ -48,7 +48,7 @@ export const AuthGateOverlay = ({
   }
 
   return (
-    <div className="relative isolate">
+    <div className="relative isolate overflow-hidden">
       {/* Blurred / dimmed content underneath */}
       <div
         className={`select-none pointer-events-none ${blur ? "blur-[3px]" : ""} opacity-70`}
@@ -58,7 +58,7 @@ export const AuthGateOverlay = ({
       </div>
 
       {/* Overlay CTA */}
-      <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[1px]">
+      <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/40">
         <div className={`text-center space-y-3 ${compact ? "max-w-[240px]" : "max-w-xs"} px-4`}>
           <div className={`mx-auto rounded-full bg-muted/80 flex items-center justify-center ${compact ? "w-10 h-10" : "w-14 h-14"}`}>
             <LogIn className={`text-muted-foreground ${compact ? "w-5 h-5" : "w-7 h-7"}`} />

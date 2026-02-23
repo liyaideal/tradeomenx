@@ -1038,9 +1038,8 @@ export default function DesktopTrading() {
           </div>
 
           {/* Bottom: Positions Panel */}
-          <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades.">
           <div className="border-t border-border/30 flex-shrink-0">
-            <div className="flex items-center gap-1 px-4 border-b border-border/30">
+            <div className="flex items-center gap-1 px-4 border-b border-border/30 relative z-20">
               {(["Positions", "Current Orders"] as const).map((tab) => (
                 <button
                   key={tab}
@@ -1060,7 +1059,8 @@ export default function DesktopTrading() {
               ))}
             </div>
 
-            <div>
+            <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades.">
+            <div className="max-h-[300px] overflow-hidden">
               {bottomTab === "Orders" && (
                 <table className="w-full">
                   <thead className="sticky top-0 bg-background">
@@ -1295,8 +1295,8 @@ export default function DesktopTrading() {
                 </table>
               )}
             </div>
+            </AuthGateOverlay>
           </div>
-          </AuthGateOverlay>
         </div>
 
         {/* Right Section: Trade Form + Account Risk - separate containers, no internal scroll */}
