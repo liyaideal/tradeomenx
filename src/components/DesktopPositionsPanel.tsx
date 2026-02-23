@@ -219,7 +219,7 @@ export const DesktopPositionsPanel = () => {
 
       {/* Content - auth gated */}
       <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades.">
-      <div className="min-h-[120px]">
+      <div className="min-h-[120px] max-h-[300px] overflow-hidden">
         {activeTab === "Positions" && (
           <div className="overflow-x-auto">
             <table className="w-full">

@@ -48,7 +48,7 @@ export const AuthGateOverlay = ({
   }
 
   return (
-    <div className="relative isolate overflow-hidden">
+    <div className="relative isolate">
       {/* Blurred / dimmed content underneath */}
       <div
         className={`select-none pointer-events-none ${blur ? "blur-[3px]" : ""} opacity-70`}
