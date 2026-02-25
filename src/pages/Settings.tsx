@@ -337,10 +337,6 @@ const Settings = () => {
             The account you used to sign in
           </p>
         </div>
-        <Badge variant="outline" className="border-primary/50 text-primary text-xs">
-          <Shield className="w-3 h-3 mr-1" />
-          Verified
-        </Badge>
       </div>
       
       <div className="bg-muted/30 rounded-xl p-4">
@@ -349,12 +345,7 @@ const Settings = () => {
             {providerInfo.icon}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">{providerInfo.label}</span>
-              <Badge variant="secondary" className="text-xs h-5">
-                Active
-              </Badge>
-            </div>
+            <span className="font-medium text-sm">{providerInfo.label}</span>
             {providerEmail && (
               <p className="text-sm font-mono text-muted-foreground truncate mt-0.5">
                 {providerEmail}
