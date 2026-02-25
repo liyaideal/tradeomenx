@@ -398,8 +398,8 @@ export default function Wallet() {
   const AddressCard = ({ wallet }: { wallet: typeof wallets[0] }) => (
     <div className="bg-card border border-border/50 rounded-xl p-4 hover:border-border transition-colors">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center text-xl">
-          {wallet.icon}
+        <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center p-2">
+          <img src={wallet.icon} alt={wallet.network} className="w-6 h-6" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -626,8 +626,8 @@ export default function Wallet() {
                         className="bg-muted/30 rounded-xl p-4 hover:bg-muted/50 transition-colors"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-xl">
-                            {wallet.icon}
+                          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center p-2">
+                            <img src={wallet.icon} alt={wallet.network} className="w-6 h-6" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">

@@ -31,18 +31,18 @@ interface DbWallet {
 
 const WALLETS_QUERY_KEY = ["user-wallets"];
 
-// Network icon helper
-const getNetworkIcon = (network: string): string => {
+// Network logo helper - returns path to chain logo
+const getNetworkLogo = (network: string): string => {
   const lower = network.toLowerCase();
-  if (lower.includes('ethereum') || lower.includes('eth')) return '⟠';
-  if (lower.includes('tron') || lower.includes('trc')) return '💎';
-  if (lower.includes('bnb') || lower.includes('bsc') || lower.includes('bep')) return '🔶';
-  if (lower.includes('polygon') || lower.includes('matic')) return '🟣';
-  if (lower.includes('solana') || lower.includes('sol')) return '◎';
-  if (lower.includes('bitcoin') || lower.includes('btc')) return '₿';
-  if (lower.includes('arbitrum')) return '🔵';
-  if (lower.includes('avalanche') || lower.includes('avax')) return '🔺';
-  return '🔗';
+  if (lower.includes('ethereum') || lower.includes('eth')) return '/chain-logos/ethereum.svg';
+  if (lower.includes('tron') || lower.includes('trc')) return '/chain-logos/tron.svg';
+  if (lower.includes('bnb') || lower.includes('bsc') || lower.includes('bep')) return '/chain-logos/bnb.svg';
+  if (lower.includes('polygon') || lower.includes('matic')) return '/chain-logos/polygon.svg';
+  if (lower.includes('solana') || lower.includes('sol')) return '/chain-logos/solana.svg';
+  if (lower.includes('bitcoin') || lower.includes('btc')) return '/chain-logos/bitcoin.svg';
+  if (lower.includes('arbitrum')) return '/chain-logos/arbitrum.svg';
+  if (lower.includes('avalanche') || lower.includes('avax')) return '/chain-logos/avalanche.svg';
+  return '/chain-logos/ethereum.svg';
 };
 
 // Transform DB wallet to frontend wallet
@@ -53,7 +53,7 @@ const transformWallet = (dbWallet: DbWallet): Wallet => ({
   fullAddress: dbWallet.full_address,
   network: dbWallet.network,
   walletType: dbWallet.wallet_type,
-  icon: getNetworkIcon(dbWallet.network),
+  icon: getNetworkLogo(dbWallet.network),
   isPrimary: dbWallet.is_primary,
   connectedAt: dbWallet.connected_at.split('T')[0],
 });
@@ -117,7 +117,7 @@ export const useWallets = () => {
           full_address: walletData.fullAddress,
           network: walletData.network,
           wallet_type: walletData.label, // backwards compat
-          icon: getNetworkIcon(walletData.network),
+          icon: getNetworkLogo(walletData.network),
           is_primary: isPrimary,
           label: walletData.label,
         } as any)
