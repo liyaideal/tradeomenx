@@ -10,7 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Clock, Lock, TrendingUp, Zap, Users, BarChart3, ChevronDown, ChevronUp } from "lucide-react";
+import { Clock, Lock, TrendingUp, Zap, Users, BarChart3, ChevronDown, ChevronUp, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { toast } from "sonner";
@@ -642,16 +648,22 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
               </div>
             </div>
 
-            {/* Price & Quantity - better input styling */}
+            {/* Market Price Badge & Quantity */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs text-muted-foreground font-medium">Price</label>
-                <div className="relative">
-                  <Input 
-                    value={selectedOptionData?.price || "—"} 
-                    readOnly 
-                    className="font-mono text-foreground bg-muted/40 border-border/40 h-10"
-                  />
+                <label className="text-xs text-muted-foreground font-medium">Type</label>
+                <div className="flex items-center gap-1.5 h-10">
+                  <Badge variant="info" className="text-xs px-2.5 py-1">Market Price</Badge>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[200px] text-xs">
+                        Market orders execute at best available price
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -709,8 +721,8 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-border/20">
-                <span className="text-muted-foreground text-sm">Order Price</span>
-                <span className="text-sm font-mono">{selectedOptionData.price} USDC</span>
+                <span className="text-muted-foreground text-sm">Order Type</span>
+                <Badge variant="info" className="text-xs">Market</Badge>
               </div>
               <div className="flex justify-between py-2 border-b border-border/20">
                 <span className="text-muted-foreground text-sm">Quantity</span>
