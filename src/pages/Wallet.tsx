@@ -13,12 +13,10 @@ import {
   AlertTriangle,
   Info,
   Trash2,
-  BookMarked,
+  
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useWallets } from "@/hooks/useWallets";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
@@ -31,7 +29,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   MobileDrawer,
-  MobileDrawerActions,
   MobileDrawerStatus,
 } from "@/components/ui/mobile-drawer";
 import {
@@ -41,13 +38,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { 
+  TransactionHistory, 
+  PendingConfirmations,
+  Transaction, 
+  TransactionStatus 
+} from "@/components/wallet";
+import { AddAddressDialog } from "@/components/wallet/AddAddressDialog";
+import { DepositDialog } from "@/components/deposit/DepositDialog";
+import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
 import { 
   TransactionHistory, 
   PendingConfirmations,
@@ -68,16 +67,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const NETWORKS = [
-  "Ethereum",
-  "BNB Smart Chain (BEP20)",
-  "Tron (TRC20)",
-  "Polygon",
-  "Arbitrum One",
-  "Solana",
-  "Avalanche C-Chain",
-  "Bitcoin",
-];
+
+
 
 export default function Wallet() {
   const navigate = useNavigate();
@@ -174,11 +165,6 @@ export default function Wallet() {
   const [walletToDelete, setWalletToDelete] = useState<{ id: string; label: string } | null>(null);
   const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
   
-  // Add Address form states
-  const [newLabel, setNewLabel] = useState("");
-  const [newAddress, setNewAddress] = useState("");
-  const [newNetwork, setNewNetwork] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -189,39 +175,6 @@ export default function Wallet() {
     setCopiedWalletId(walletId);
     toast.success("Address copied");
     setTimeout(() => setCopiedWalletId(null), 2000);
-  };
-
-  const handleAddAddress = async () => {
-    if (!newLabel.trim()) {
-      toast.error("Please enter a label");
-      return;
-    }
-    if (!newAddress.trim()) {
-      toast.error("Please enter an address");
-      return;
-    }
-    if (!newNetwork) {
-      toast.error("Please select a network");
-      return;
-    }
-    
-    setIsAdding(true);
-    const result = await addWallet({
-      label: newLabel.trim(),
-      fullAddress: newAddress.trim(),
-      network: newNetwork,
-    });
-    
-    if (result.success) {
-      toast.success("Address saved");
-      setAddAddressOpen(false);
-      setNewLabel("");
-      setNewAddress("");
-      setNewNetwork("");
-    } else {
-      toast.error(result.error || "Failed to save address");
-    }
-    setIsAdding(false);
   };
 
   const handleDeleteWallet = (wallet: { id: string; label: string }) => {
@@ -250,14 +203,6 @@ export default function Wallet() {
       toast.error(result.error || "Failed to update default address");
     }
   };
-
-  const handleAddDialogClose = (open: boolean) => {
-    setAddAddressOpen(open);
-    if (!open) {
-      setNewLabel("");
-      setNewAddress("");
-      setNewNetwork("");
-    }
   };
 
   // Info Tooltip Component
@@ -492,43 +437,6 @@ export default function Wallet() {
     </div>
   );
 
-  // Add Address Form Content
-  const AddAddressFormContent = () => (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="addr-label">Label</Label>
-        <Input
-          id="addr-label"
-          placeholder="e.g. My Binance, Cold Wallet"
-          value={newLabel}
-          onChange={(e) => setNewLabel(e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="addr-address">Address</Label>
-        <Input
-          id="addr-address"
-          placeholder="Paste wallet address"
-          value={newAddress}
-          onChange={(e) => setNewAddress(e.target.value)}
-          className="font-mono"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>Network</Label>
-        <Select value={newNetwork} onValueChange={setNewNetwork}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select network" />
-          </SelectTrigger>
-          <SelectContent>
-            {NETWORKS.map((net) => (
-              <SelectItem key={net} value={net}>{net}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  );
 
   // Desktop Layout
   if (!isMobile) {
@@ -730,23 +638,7 @@ export default function Wallet() {
         />
 
         {/* Add Address Dialog */}
-        <Dialog open={addAddressOpen} onOpenChange={handleAddDialogClose}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Address</DialogTitle>
-              <DialogDescription>Save a wallet address for quick deposits and withdrawals</DialogDescription>
-            </DialogHeader>
-            <AddAddressFormContent />
-            <div className="flex gap-3 pt-2">
-              <Button variant="outline" onClick={() => handleAddDialogClose(false)} className="flex-1">
-                Cancel
-              </Button>
-              <Button onClick={handleAddAddress} disabled={isAdding} className="flex-1 btn-primary">
-                {isAdding ? "Saving..." : "Save Address"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AddAddressDialog open={addAddressOpen} onOpenChange={setAddAddressOpen} />
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -806,23 +698,8 @@ export default function Wallet() {
         }}
       />
 
-      {/* Add Address - Mobile Drawer */}
-      <MobileDrawer
-        open={addAddressOpen}
-        onOpenChange={handleAddDialogClose}
-        title="Add Address"
-      >
-        <AddAddressFormContent />
-        <MobileDrawerActions>
-          <Button
-            onClick={handleAddAddress}
-            disabled={isAdding}
-            className="w-full btn-primary h-12"
-          >
-            {isAdding ? "Saving..." : "Save Address"}
-          </Button>
-        </MobileDrawerActions>
-      </MobileDrawer>
+      {/* Add Address Dialog (shared component handles mobile/desktop) */}
+      <AddAddressDialog open={addAddressOpen} onOpenChange={setAddAddressOpen} />
 
       {/* Delete Confirmation - Mobile */}
       <MobileDrawer
@@ -857,3 +734,4 @@ export default function Wallet() {
     </div>
   );
 }
+
