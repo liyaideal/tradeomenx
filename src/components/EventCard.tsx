@@ -648,34 +648,34 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
               </div>
             </div>
 
-            {/* Market Price Badge & Quantity */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs text-muted-foreground font-medium">Type</label>
-                <div className="flex items-center gap-1.5 h-10">
-                  <Badge variant="info" className="text-xs px-2.5 py-1">Market Price</Badge>
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[200px] text-xs">
-                        Market orders execute at best available price
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
+            {/* Market Order indicator */}
+            <div className="flex items-center justify-between rounded-lg bg-muted/30 border border-border/30 px-3 py-2">
+              <div className="flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-trading-yellow" />
+                <span className="text-xs font-semibold text-foreground">Market Order</span>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-muted-foreground font-medium">Quantity</label>
-                <Input 
-                  type="number"
-                  placeholder="Enter quantity"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  className="font-mono h-10 bg-muted/20 border-border/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-                />
-              </div>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[200px] text-xs">
+                    Executes at best available price
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            {/* Quantity */}
+            <div className="space-y-1.5">
+              <label className="text-xs text-muted-foreground font-medium">Quantity</label>
+              <Input 
+                type="number"
+                placeholder="Enter quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="font-mono h-10 bg-muted/20 border-border/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+              />
             </div>
 
             {/* Trade Button - with gradient and glow */}
