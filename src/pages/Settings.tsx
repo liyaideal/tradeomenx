@@ -38,10 +38,14 @@ const inferAuthMethod = (email: string | null | undefined): "google" | "telegram
   return "wallet"; // fallback - no email means wallet or telegram
 };
 
+import { GoogleIcon } from "@/components/icons/GoogleIcon";
+import { TelegramIcon } from "@/components/icons/TelegramIcon";
+import { Wallet } from "lucide-react";
+
 const AUTH_METHOD_INFO = {
-  google: { label: "Google", icon: "🔵", color: "text-blue-400", description: "Google Account" },
-  telegram: { label: "Telegram", icon: "✈️", color: "text-sky-400", description: "Telegram Account" },
-  wallet: { label: "Wallet", icon: "💎", color: "text-purple-400", description: "Web3 Wallet" },
+  google: { label: "Google", icon: <GoogleIcon className="w-5 h-5" />, color: "text-blue-400", description: "Google Account" },
+  telegram: { label: "Telegram", icon: <TelegramIcon className="w-5 h-5" />, color: "text-sky-400", description: "Telegram Account" },
+  wallet: { label: "Wallet", icon: <Wallet className="w-5 h-5 text-purple-400" />, color: "text-purple-400", description: "Web3 Wallet" },
 };
 
 const Settings = () => {
