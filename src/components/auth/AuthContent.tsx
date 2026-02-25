@@ -130,11 +130,13 @@ export const AuthContent = ({
           user_id: string;
           username: string;
           avatar_url: string;
+          auth_method: string;
           email?: string;
         } = {
           user_id: data.user.id,
           username: mockUsername,
           avatar_url: avatarUrl,
+          auth_method: method,
         };
         if (mockEmail) {
           profileData.email = mockEmail;

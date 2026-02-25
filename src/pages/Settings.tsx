@@ -31,18 +31,11 @@ import {
 } from "@/components/ui/mobile-drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// Infer auth method from profile data since we use anonymous sign-in
-const inferAuthMethod = (email: string | null | undefined): "google" | "telegram" | "wallet" => {
-  if (email && email.includes("@gmail.com")) return "google";
-  if (email && email.includes("@")) return "google"; // any email likely came from Google OAuth
-  return "wallet"; // fallback - no email means wallet or telegram
-};
-
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
 import { TelegramIcon } from "@/components/icons/TelegramIcon";
 import { Wallet } from "lucide-react";
 
-const AUTH_METHOD_INFO = {
+const AUTH_METHOD_INFO: Record<string, { label: string; icon: React.ReactNode; color: string; description: string }> = {
   google: { label: "Google", icon: <GoogleIcon className="w-5 h-5" />, color: "text-blue-400", description: "Google Account" },
   telegram: { label: "Telegram", icon: <TelegramIcon className="w-5 h-5" />, color: "text-sky-400", description: "Telegram Account" },
   wallet: { label: "Wallet", icon: <Wallet className="w-5 h-5 text-purple-400" />, color: "text-purple-400", description: "Web3 Wallet" },
@@ -178,9 +171,9 @@ const Settings = () => {
   const userId = user?.id?.slice(0, 6) || "123456";
   const joinDate = formatDate(profile?.created_at || user?.created_at);
 
-  // Auth provider info - infer from profile email
-  const authMethod = inferAuthMethod(email);
-  const providerInfo = AUTH_METHOD_INFO[authMethod];
+  // Auth provider info - read from profile's auth_method column
+  const authMethod = (profile as any)?.auth_method || "google";
+  const providerInfo = AUTH_METHOD_INFO[authMethod] || AUTH_METHOD_INFO.google;
   const providerEmail = email;
 
   if (profileLoading) {
