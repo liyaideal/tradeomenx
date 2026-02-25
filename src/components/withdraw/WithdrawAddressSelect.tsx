@@ -44,8 +44,8 @@ export const WithdrawAddressSelect = ({
               )}
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xl">
-                  {wallet.icon}
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center p-2">
+                  <img src={wallet.icon} alt={wallet.network} className="w-6 h-6" />
                 </div>
                 <div className="text-left">
                   <div className="font-medium">{wallet.label}</div>

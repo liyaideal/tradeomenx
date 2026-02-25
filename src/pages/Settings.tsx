@@ -408,7 +408,7 @@ const Settings = () => {
             onClick={() => navigate("/wallet")}
             className="mt-4 bg-muted/30 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-muted/50 transition-colors"
           >
-            <span className="text-2xl">{primaryWallet.icon}</span>
+            <img src={primaryWallet.icon} alt={primaryWallet.network} className="w-8 h-8" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">{primaryWallet.label}</span>
