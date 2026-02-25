@@ -42,7 +42,7 @@ const EXPLORER_URLS: Record<string, string> = {
 };
 
 export type TransactionType = 'deposit' | 'withdraw' | 'trade_profit' | 'trade_loss' | 'platform_credit';
-export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed';
+export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'rejected';
 
 export interface Transaction {
   id: string;
@@ -62,10 +62,11 @@ interface TransactionHistoryProps {
 }
 
 const STATUS_CONFIG: Record<TransactionStatus, { icon: React.ElementType; color: string; label: string }> = {
-  pending: { icon: Clock, color: 'text-trading-yellow', label: 'Pending' },
+  pending: { icon: Clock, color: 'text-trading-yellow', label: 'Pending Review' },
   processing: { icon: Loader2, color: 'text-primary', label: 'Processing' },
   completed: { icon: CheckCircle2, color: 'text-trading-green', label: 'Completed' },
   failed: { icon: XCircle, color: 'text-trading-red', label: 'Failed' },
+  rejected: { icon: XCircle, color: 'text-trading-red', label: 'Rejected' },
 };
 
 const TYPE_LABELS: Record<TransactionType, string> = {
