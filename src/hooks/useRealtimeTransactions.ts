@@ -46,6 +46,11 @@ export const useRealtimeTransactions = () => {
           icon: '❌',
         });
         break;
+      case 'rejected':
+        toast.error(`${typeLabel} of $${formattedAmount} was rejected`, {
+          icon: '🚫',
+        });
+        break;
     }
   }, []);
 
