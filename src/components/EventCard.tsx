@@ -648,27 +648,24 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
               </div>
             </div>
 
-            {/* Market Order indicator */}
-            <div className="flex items-center justify-between rounded-lg bg-muted/30 border border-border/30 px-3 py-2">
-              <div className="flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-trading-yellow" />
-                <span className="text-xs font-semibold text-foreground">Market Order</span>
-              </div>
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[200px] text-xs">
-                    Executes at best available price
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-
-            {/* Quantity */}
+            {/* Quantity with Market Order hint */}
             <div className="space-y-1.5">
-              <label className="text-xs text-muted-foreground font-medium">Quantity</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-muted-foreground font-medium">Quantity</label>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-muted-foreground">Market Order</span>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[200px] text-xs">
+                        Executes at best available price
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
               <Input 
                 type="number"
                 placeholder="Enter quantity"
