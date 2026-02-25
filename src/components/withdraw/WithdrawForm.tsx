@@ -121,11 +121,11 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
         >
           {selectedWallet ? (
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xl">
-                {selectedWallet.icon}
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center p-2">
+                <img src={selectedWallet.icon} alt={selectedWallet.network} className="w-6 h-6" />
               </div>
               <div className="text-left">
-                <div className="font-medium">{selectedWallet.walletType}</div>
+                <div className="font-medium">{selectedWallet.label}</div>
                 <MonoText className="text-sm text-muted-foreground">
                   {selectedWallet.address}
                 </MonoText>

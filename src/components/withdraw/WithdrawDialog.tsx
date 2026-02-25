@@ -202,9 +202,9 @@ const WithdrawFormDesktop = ({ token, onDone, onBack }: WithdrawFormDesktopProps
         >
           {selectedWallet ? (
             <div className="flex items-center gap-2">
-              <span className="text-lg">{selectedWallet.icon}</span>
+              <img src={selectedWallet.icon} alt={selectedWallet.network} className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-medium text-sm">{selectedWallet.walletType}</div>
+                <div className="font-medium text-sm">{selectedWallet.label}</div>
                 <MonoText className="text-xs text-muted-foreground">
                   {selectedWallet.address}
                 </MonoText>
