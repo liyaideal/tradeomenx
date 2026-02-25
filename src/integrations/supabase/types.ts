@@ -852,6 +852,7 @@ export type Database = {
           icon: string
           id: string
           is_primary: boolean
+          label: string | null
           network: string
           updated_at: string
           user_id: string
@@ -865,6 +866,7 @@ export type Database = {
           icon?: string
           id?: string
           is_primary?: boolean
+          label?: string | null
           network?: string
           updated_at?: string
           user_id: string
@@ -878,6 +880,7 @@ export type Database = {
           icon?: string
           id?: string
           is_primary?: boolean
+          label?: string | null
           network?: string
           updated_at?: string
           user_id?: string

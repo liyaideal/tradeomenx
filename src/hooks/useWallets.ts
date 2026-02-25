@@ -4,6 +4,7 @@ import { useUserProfile } from "./useUserProfile";
 
 export interface Wallet {
   id: string;
+  label: string;
   address: string;
   fullAddress: string;
   network: string;
@@ -25,18 +26,34 @@ interface DbWallet {
   connected_at: string;
   created_at: string;
   updated_at: string;
+  label: string | null;
 }
 
 const WALLETS_QUERY_KEY = ["user-wallets"];
 
+// Network icon helper
+const getNetworkIcon = (network: string): string => {
+  const lower = network.toLowerCase();
+  if (lower.includes('ethereum') || lower.includes('eth')) return '⟠';
+  if (lower.includes('tron') || lower.includes('trc')) return '💎';
+  if (lower.includes('bnb') || lower.includes('bsc') || lower.includes('bep')) return '🔶';
+  if (lower.includes('polygon') || lower.includes('matic')) return '🟣';
+  if (lower.includes('solana') || lower.includes('sol')) return '◎';
+  if (lower.includes('bitcoin') || lower.includes('btc')) return '₿';
+  if (lower.includes('arbitrum')) return '🔵';
+  if (lower.includes('avalanche') || lower.includes('avax')) return '🔺';
+  return '🔗';
+};
+
 // Transform DB wallet to frontend wallet
 const transformWallet = (dbWallet: DbWallet): Wallet => ({
   id: dbWallet.id,
+  label: dbWallet.label || dbWallet.wallet_type || 'Unnamed Address',
   address: dbWallet.address,
   fullAddress: dbWallet.full_address,
   network: dbWallet.network,
   walletType: dbWallet.wallet_type,
-  icon: dbWallet.icon,
+  icon: getNetworkIcon(dbWallet.network),
   isPrimary: dbWallet.is_primary,
   connectedAt: dbWallet.connected_at.split('T')[0],
 });
@@ -70,18 +87,21 @@ export const useWallets = () => {
   // Add wallet mutation
   const addWalletMutation = useMutation({
     mutationFn: async (walletData: {
-      address: string;
+      label: string;
       fullAddress: string;
       network: string;
-      walletType: string;
-      icon: string;
     }) => {
       if (!user) throw new Error("User not authenticated");
+
+      // Generate short address
+      const addr = walletData.fullAddress;
+      const shortAddress = addr.length > 12
+        ? `${addr.slice(0, 6)}...${addr.slice(-4)}`
+        : addr;
 
       // If this is the first wallet, make it primary
       const isPrimary = wallets.length === 0;
 
-      // If making this wallet primary, unset other primary wallets first
       if (isPrimary) {
         await supabase
           .from("wallets")
@@ -93,13 +113,14 @@ export const useWallets = () => {
         .from("wallets")
         .insert({
           user_id: user.id,
-          address: walletData.address,
+          address: shortAddress,
           full_address: walletData.fullAddress,
           network: walletData.network,
-          wallet_type: walletData.walletType,
-          icon: walletData.icon,
+          wallet_type: walletData.label, // backwards compat
+          icon: getNetworkIcon(walletData.network),
           is_primary: isPrimary,
-        })
+          label: walletData.label,
+        } as any)
         .select()
         .single();
 
@@ -134,13 +155,11 @@ export const useWallets = () => {
     mutationFn: async (walletId: string) => {
       if (!user) throw new Error("User not authenticated");
 
-      // First, unset all primary wallets
       await supabase
         .from("wallets")
         .update({ is_primary: false })
         .eq("user_id", user.id);
 
-      // Then set the selected wallet as primary
       const { error } = await supabase
         .from("wallets")
         .update({ is_primary: true })
@@ -156,11 +175,9 @@ export const useWallets = () => {
 
   // Helper functions
   const addWallet = async (walletData: {
-    address: string;
+    label: string;
     fullAddress: string;
     network: string;
-    walletType: string;
-    icon: string;
   }) => {
     try {
       await addWalletMutation.mutateAsync(walletData);

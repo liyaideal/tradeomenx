@@ -12,9 +12,13 @@ import {
   Star,
   AlertTriangle,
   Info,
+  Trash2,
+  BookMarked,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useWallets } from "@/hooks/useWallets";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
@@ -27,8 +31,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   MobileDrawer,
-  MobileDrawerList,
-  MobileDrawerListItem,
+  MobileDrawerActions,
   MobileDrawerStatus,
 } from "@/components/ui/mobile-drawer";
 import {
@@ -38,6 +41,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   TransactionHistory, 
   PendingConfirmations,
@@ -57,6 +67,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+const NETWORKS = [
+  "Ethereum",
+  "BNB Smart Chain (BEP20)",
+  "Tron (TRC20)",
+  "Polygon",
+  "Arbitrum One",
+  "Solana",
+  "Avalanche C-Chain",
+  "Bitcoin",
+];
 
 export default function Wallet() {
   const navigate = useNavigate();
@@ -140,7 +161,6 @@ export default function Wallet() {
     status: (tx.status || 'completed') as TransactionStatus,
   }));
 
-  // Merge and sort by timestamp (newest first)
   const transactions: Transaction[] = [...tradeTransactions, ...fundTransactions]
     .sort((a, b) => b.timestamp - a.timestamp);
   
@@ -149,14 +169,16 @@ export default function Wallet() {
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   
-  const [walletDialogOpen, setWalletDialogOpen] = useState(false);
-  const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
-  const [walletToDisconnect, setWalletToDisconnect] = useState<{ id: string; address: string } | null>(null);
+  const [addAddressOpen, setAddAddressOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [walletToDelete, setWalletToDelete] = useState<{ id: string; label: string } | null>(null);
   const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
   
-  // Wallet connection states
-  const [walletStep, setWalletStep] = useState<"select" | "connecting" | "success">("select");
-  const [selectedWalletType, setSelectedWalletType] = useState<string | null>(null);
+  // Add Address form states
+  const [newLabel, setNewLabel] = useState("");
+  const [newAddress, setNewAddress] = useState("");
+  const [newNetwork, setNewNetwork] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -165,76 +187,80 @@ export default function Wallet() {
   const handleCopyWallet = (walletId: string, address: string) => {
     navigator.clipboard.writeText(address);
     setCopiedWalletId(walletId);
-    toast.success("Wallet address copied");
+    toast.success("Address copied");
     setTimeout(() => setCopiedWalletId(null), 2000);
   };
 
-  const handleConnectWallet = async (walletType: string, icon: string) => {
-    setSelectedWalletType(walletType);
-    setWalletStep("connecting");
+  const handleAddAddress = async () => {
+    if (!newLabel.trim()) {
+      toast.error("Please enter a label");
+      return;
+    }
+    if (!newAddress.trim()) {
+      toast.error("Please enter an address");
+      return;
+    }
+    if (!newNetwork) {
+      toast.error("Please select a network");
+      return;
+    }
     
-    // Simulate connection delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Generate random wallet address
-    const randomHex = () => Math.floor(Math.random() * 16).toString(16);
-    const randomAddress = '0x' + Array(40).fill(0).map(() => randomHex()).join('');
-    const shortAddress = randomAddress.slice(0, 6) + '...' + randomAddress.slice(-4);
-    
+    setIsAdding(true);
     const result = await addWallet({
-      address: shortAddress,
-      fullAddress: randomAddress,
-      network: "Ethereum Mainnet",
-      walletType,
-      icon
+      label: newLabel.trim(),
+      fullAddress: newAddress.trim(),
+      network: newNetwork,
     });
     
     if (result.success) {
-      setWalletStep("success");
+      toast.success("Address saved");
+      setAddAddressOpen(false);
+      setNewLabel("");
+      setNewAddress("");
+      setNewNetwork("");
     } else {
-      toast.error(result.error || "Failed to connect wallet");
-      setWalletStep("select");
+      toast.error(result.error || "Failed to save address");
     }
+    setIsAdding(false);
   };
 
-  const handleWalletDialogClose = (open: boolean) => {
-    setWalletDialogOpen(open);
-    if (!open) {
-      setTimeout(() => {
-        setWalletStep("select");
-        setSelectedWalletType(null);
-      }, 200);
-    }
+  const handleDeleteWallet = (wallet: { id: string; label: string }) => {
+    setWalletToDelete(wallet);
+    setDeleteDialogOpen(true);
   };
 
-  const handleDisconnectWallet = (wallet: { id: string; address: string }) => {
-    setWalletToDisconnect(wallet);
-    setDisconnectDialogOpen(true);
-  };
-
-  const handleConfirmDisconnect = async () => {
-    if (walletToDisconnect) {
-      const result = await removeWallet(walletToDisconnect.id);
+  const handleConfirmDelete = async () => {
+    if (walletToDelete) {
+      const result = await removeWallet(walletToDelete.id);
       if (result.success) {
-        toast.success("Wallet disconnected");
+        toast.success("Address deleted");
       } else {
-        toast.error(result.error || "Failed to disconnect wallet");
+        toast.error(result.error || "Failed to delete address");
       }
     }
-    setDisconnectDialogOpen(false);
-    setWalletToDisconnect(null);
+    setDeleteDialogOpen(false);
+    setWalletToDelete(null);
   };
 
   const handleSetPrimaryWallet = async (walletId: string) => {
     const result = await setPrimaryWallet(walletId);
     if (result.success) {
-      toast.success("Primary wallet updated");
+      toast.success("Default address updated");
     } else {
-      toast.error(result.error || "Failed to update primary wallet");
+      toast.error(result.error || "Failed to update default address");
     }
   };
 
-  // Info Tooltip Component - reusable for both fields
+  const handleAddDialogClose = (open: boolean) => {
+    setAddAddressOpen(open);
+    if (!open) {
+      setNewLabel("");
+      setNewAddress("");
+      setNewNetwork("");
+    }
+  };
+
+  // Info Tooltip Component
   const InfoTooltip = ({ text }: { text: string }) => {
     if (isMobile) {
       return (
@@ -266,8 +292,7 @@ export default function Wallet() {
     );
   };
 
-  // Available Balance Popover with margin info and Portfolio link
-  // Uses Popover for both mobile and desktop to enable interactive content (clickable link)
+  // Available Balance Popover
   const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
     const content = (
       <div className="space-y-2">
@@ -312,12 +337,10 @@ export default function Wallet() {
   // Balance Card Component
   const BalanceCard = () => (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 p-6">
-      {/* Background decoration */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-trading-green/10 rounded-full blur-2xl" />
       
       <div className="relative">
-        {/* Total Equity Section */}
         <div className="flex items-center gap-2 mb-2">
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
             <WalletIcon className="w-4 h-4 text-primary" />
@@ -330,9 +353,7 @@ export default function Wallet() {
           <span className="text-sm text-muted-foreground whitespace-nowrap">USDC</span>
         </div>
 
-        {/* Balance Breakdown - 2 Column Grid */}
         <div className="mb-6 grid grid-cols-2 gap-3">
-          {/* Available Balance */}
           <div className="p-3 rounded-lg bg-muted/20">
             <div className="flex items-center gap-1 mb-1">
               <span className="text-xs text-muted-foreground">Available Balance</span>
@@ -341,7 +362,6 @@ export default function Wallet() {
             <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
           </div>
           
-          {/* Trial Bonus */}
           <div className={`p-3 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
             <div className="flex items-center gap-1 mb-1">
               <span className="text-xs text-muted-foreground">Trial Bonus</span>
@@ -353,7 +373,6 @@ export default function Wallet() {
           </div>
         </div>
         
-        {/* Action Buttons */}
         <div className="flex gap-3">
           <Button 
             className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-12"
@@ -375,99 +394,96 @@ export default function Wallet() {
     </div>
   );
 
-  // Wallet List Component
-  const WalletList = () => (
+  // Address Card for individual saved address
+  const AddressCard = ({ wallet }: { wallet: typeof wallets[0] }) => (
+    <div className="bg-card border border-border/50 rounded-xl p-4 hover:border-border transition-colors">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center text-xl">
+          {wallet.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium">{wallet.label}</span>
+            {wallet.isPrimary && (
+              <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+                Default
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <code className="text-sm font-mono text-muted-foreground">{wallet.address}</code>
+            <button
+              onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {copiedWalletId === wallet.id ? (
+                <Check className="w-3.5 h-3.5 text-trading-green" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+            </button>
+          </div>
+          <span className="text-xs text-muted-foreground">{wallet.network}</span>
+        </div>
+      </div>
+      
+      <div className="mt-3 pt-3 border-t border-border/30 flex justify-end gap-2">
+        {!wallet.isPrimary && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleSetPrimaryWallet(wallet.id)}
+            className="text-primary hover:text-primary hover:bg-primary/10"
+          >
+            <Star className="w-3.5 h-3.5 mr-1" />
+            Set Default
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
+          className="text-muted-foreground hover:text-trading-red hover:bg-trading-red/10"
+        >
+          <Trash2 className="w-3.5 h-3.5 mr-1" />
+          Delete
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Saved Addresses List Component
+  const SavedAddressesList = () => (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Connected Wallets</h2>
+        <h2 className="text-lg font-semibold">Saved Addresses</h2>
         <span className="text-sm text-muted-foreground">
-          {wallets.length} wallet{wallets.length !== 1 ? 's' : ''}
+          {wallets.length} address{wallets.length !== 1 ? 'es' : ''}
         </span>
       </div>
 
       {walletsLoading ? (
         <div className="text-center py-8 text-muted-foreground">
-          <p>Loading wallets...</p>
+          <p>Loading...</p>
         </div>
       ) : (
         <div className="space-y-3">
           {wallets.map((wallet) => (
-            <div 
-              key={wallet.id} 
-              className="bg-card border border-border/50 rounded-xl p-4 hover:border-border transition-colors"
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center text-2xl">
-                  {wallet.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{wallet.walletType}</span>
-                    {wallet.isPrimary && (
-                      <Badge variant="outline" className="border-primary/50 text-primary text-xs">
-                        Primary
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <code className="text-sm font-mono text-muted-foreground">{wallet.address}</code>
-                    <button
-                      onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {copiedWalletId === wallet.id ? (
-                        <Check className="w-3.5 h-3.5 text-trading-green" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-muted-foreground">{wallet.network}</span>
-                    <span className="text-xs text-muted-foreground">•</span>
-                    <span className="text-xs text-muted-foreground">Connected {wallet.connectedAt}</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Action buttons */}
-              <div className="mt-3 pt-3 border-t border-border/30 flex justify-end gap-2">
-                {!wallet.isPrimary && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSetPrimaryWallet(wallet.id)}
-                    className="text-primary hover:text-primary hover:bg-primary/10"
-                  >
-                    <Star className="w-3.5 h-3.5 mr-1" />
-                    Set Primary
-                  </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDisconnectWallet({ id: wallet.id, address: wallet.address })}
-                  className="text-muted-foreground hover:text-trading-red hover:bg-trading-red/10"
-                >
-                  Disconnect
-                </Button>
-              </div>
-            </div>
+            <AddressCard key={wallet.id} wallet={wallet} />
           ))}
 
-          {/* Connect New Wallet Button */}
           <button 
-            onClick={() => setWalletDialogOpen(true)}
+            onClick={() => setAddAddressOpen(true)}
             className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all"
           >
             <Plus className="w-5 h-5" />
-            <span className="font-medium">Connect New Wallet</span>
+            <span className="font-medium">Add Address</span>
           </button>
 
           {wallets.length === 0 && !walletsLoading && (
             <div className="text-center py-4">
               <p className="text-sm text-muted-foreground">
-                Connect a wallet to deposit and withdraw funds
+                Save addresses for quick deposits and withdrawals
               </p>
             </div>
           )}
@@ -476,123 +492,43 @@ export default function Wallet() {
     </div>
   );
 
-  // TransactionHistory is now imported from @/components/wallet
-
-  // Wallet Connection Dialog Content
-  const WalletConnectionContent = () => {
-    if (walletStep === "select") {
-      if (isMobile) {
-        return (
-          <MobileDrawerList>
-            <MobileDrawerListItem
-              icon="🦊"
-              label="MetaMask"
-              description="Connect to your MetaMask wallet"
-              onClick={() => handleConnectWallet("MetaMask", "🦊")}
-            />
-            <MobileDrawerListItem
-              icon="🌈"
-              label="Rainbow"
-              description="Connect to your Rainbow wallet"
-              onClick={() => handleConnectWallet("Rainbow", "🌈")}
-            />
-            <MobileDrawerListItem
-              icon="💎"
-              label="WalletConnect"
-              description="Scan with WalletConnect"
-              onClick={() => handleConnectWallet("WalletConnect", "💎")}
-            />
-          </MobileDrawerList>
-        );
-      }
-      return (
-        <div className="py-4 space-y-3">
-          {[
-            { type: "MetaMask", icon: "🦊", desc: "Connect to your MetaMask wallet" },
-            { type: "Rainbow", icon: "🌈", desc: "Connect to your Rainbow wallet" },
-            { type: "WalletConnect", icon: "💎", desc: "Scan with WalletConnect" },
-          ].map((wallet) => (
-            <button
-              key={wallet.type}
-              onClick={() => handleConnectWallet(wallet.type, wallet.icon)}
-              className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <span className="text-3xl">{wallet.icon}</span>
-              <div className="text-left">
-                <p className="font-medium">{wallet.type}</p>
-                <p className="text-sm text-muted-foreground">{wallet.desc}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      );
-    }
-
-    if (walletStep === "connecting") {
-      if (isMobile) {
-        return (
-          <MobileDrawerStatus
-            icon={
-              <span className="text-3xl animate-pulse">
-                {selectedWalletType === "MetaMask" ? "🦊" : selectedWalletType === "Rainbow" ? "🌈" : "💎"}
-              </span>
-            }
-            title={`Connecting to ${selectedWalletType}...`}
-            description="Please confirm in your wallet"
-          />
-        );
-      }
-      return (
-        <div className="py-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-            <span className="text-3xl">
-              {selectedWalletType === "MetaMask" ? "🦊" : selectedWalletType === "Rainbow" ? "🌈" : "💎"}
-            </span>
-          </div>
-          <p className="text-muted-foreground">Connecting to {selectedWalletType}...</p>
-          <p className="text-sm text-muted-foreground mt-2">Please confirm in your wallet</p>
-        </div>
-      );
-    }
-
-    if (walletStep === "success") {
-      if (isMobile) {
-        return (
-          <>
-            <MobileDrawerStatus
-              icon={<Check className="w-8 h-8 text-trading-green" />}
-              title="Wallet Connected!"
-              description={`Your ${selectedWalletType} wallet has been linked`}
-              variant="success"
-            />
-            <Button
-              onClick={() => handleWalletDialogClose(false)}
-              className="w-full btn-primary h-12"
-            >
-              Done
-            </Button>
-          </>
-        );
-      }
-      return (
-        <div className="py-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-green/20 flex items-center justify-center">
-            <Check className="w-8 h-8 text-trading-green" />
-          </div>
-          <p className="font-medium text-trading-green">Wallet Connected!</p>
-          <p className="text-sm text-muted-foreground mt-2">Your {selectedWalletType} wallet has been linked</p>
-          <Button
-            onClick={() => handleWalletDialogClose(false)}
-            className="mt-6 btn-primary"
-          >
-            Done
-          </Button>
-        </div>
-      );
-    }
-
-    return null;
-  };
+  // Add Address Form Content
+  const AddAddressFormContent = () => (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="addr-label">Label</Label>
+        <Input
+          id="addr-label"
+          placeholder="e.g. My Binance, Cold Wallet"
+          value={newLabel}
+          onChange={(e) => setNewLabel(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="addr-address">Address</Label>
+        <Input
+          id="addr-address"
+          placeholder="Paste wallet address"
+          value={newAddress}
+          onChange={(e) => setNewAddress(e.target.value)}
+          className="font-mono"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>Network</Label>
+        <Select value={newNetwork} onValueChange={setNewNetwork}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select network" />
+          </SelectTrigger>
+          <SelectContent>
+            {NETWORKS.map((net) => (
+              <SelectItem key={net} value={net}>{net}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
 
   // Desktop Layout
   if (!isMobile) {
@@ -600,25 +536,22 @@ export default function Wallet() {
       <div className="min-h-screen bg-background">
         <EventsDesktopHeader />
         
-        <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and connected wallets by signing in.">
+        <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in.">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* Page Title */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold">Wallet</h1>
-            <p className="text-muted-foreground">Manage your funds and connected wallets</p>
+            <p className="text-muted-foreground">Manage your funds and saved addresses</p>
           </div>
 
-          {/* Desktop Grid Layout */}
           <div className="grid grid-cols-12 gap-6">
-            {/* Left Column - Balance & Actions */}
+            {/* Left Column */}
             <div className="col-span-4 space-y-6">
-              {/* Balance Card - Enhanced for Desktop */}
+              {/* Balance Card */}
               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 p-6">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-trading-green/10 rounded-full blur-2xl" />
                 
                 <div className="relative">
-                  {/* Total Equity - Main Display */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
                       <WalletIcon className="w-6 h-6 text-primary" />
@@ -632,9 +565,7 @@ export default function Wallet() {
                     </div>
                   </div>
 
-                  {/* Balance Breakdown - 2 Column Grid */}
                   <div className="mb-4 grid grid-cols-2 gap-3">
-                    {/* Available Balance */}
                     <div className="p-3 rounded-lg bg-muted/20">
                       <div className="flex items-center gap-1 mb-1">
                         <span className="text-xs text-muted-foreground">Available Balance</span>
@@ -643,7 +574,6 @@ export default function Wallet() {
                       <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
                     </div>
                     
-                    {/* Trial Bonus */}
                     <div className={`p-3 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
                       <div className="flex items-center gap-1 mb-1">
                         <span className="text-xs text-muted-foreground">Trial Bonus</span>
@@ -675,18 +605,18 @@ export default function Wallet() {
                 </div>
               </div>
 
-              {/* Connected Wallets */}
+              {/* Saved Addresses */}
               <div className="trading-card p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">Connected Wallets</h2>
+                  <h2 className="text-lg font-semibold">Saved Addresses</h2>
                   <span className="text-sm text-muted-foreground">
-                    {wallets.length} wallet{wallets.length !== 1 ? 's' : ''}
+                    {wallets.length} address{wallets.length !== 1 ? 'es' : ''}
                   </span>
                 </div>
 
                 {walletsLoading ? (
                   <div className="text-center py-6 text-muted-foreground">
-                    <p>Loading wallets...</p>
+                    <p>Loading...</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -701,10 +631,10 @@ export default function Wallet() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-sm">{wallet.walletType}</span>
+                              <span className="font-medium text-sm">{wallet.label}</span>
                               {wallet.isPrimary && (
                                 <Badge variant="outline" className="border-primary/50 text-primary text-xs">
-                                  Primary
+                                  Default
                                 </Badge>
                               )}
                             </div>
@@ -734,32 +664,33 @@ export default function Wallet() {
                               className="text-primary hover:text-primary hover:bg-primary/10 h-8 text-xs"
                             >
                               <Star className="w-3 h-3 mr-1" />
-                              Set Primary
+                              Set Default
                             </Button>
                           )}
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDisconnectWallet({ id: wallet.id, address: wallet.address })}
+                            onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
                             className="text-muted-foreground hover:text-trading-red hover:bg-trading-red/10 h-8 text-xs"
                           >
-                            Disconnect
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete
                           </Button>
                         </div>
                       </div>
                     ))}
 
                     <button 
-                      onClick={() => setWalletDialogOpen(true)}
+                      onClick={() => setAddAddressOpen(true)}
                       className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all text-sm"
                     >
                       <Plus className="w-4 h-4" />
-                      <span className="font-medium">Connect New Wallet</span>
+                      <span className="font-medium">Add Address</span>
                     </button>
 
                     {wallets.length === 0 && !walletsLoading && (
                       <p className="text-center text-sm text-muted-foreground py-2">
-                        Connect a wallet to deposit and withdraw funds
+                        Save addresses for quick deposits and withdrawals
                       </p>
                     )}
                   </div>
@@ -767,12 +698,10 @@ export default function Wallet() {
               </div>
             </div>
 
-            {/* Right Column - Pending Confirmations & Transaction History */}
+            {/* Right Column */}
             <div className="col-span-8 space-y-6">
-              {/* Pending Confirmations - no wrapper, component handles its own visibility */}
               <PendingConfirmations className="trading-card p-6" />
               
-              {/* Transaction History */}
               <div className="trading-card p-6">
                 <TransactionHistory transactions={transactions} />
               </div>
@@ -781,7 +710,6 @@ export default function Wallet() {
         </div>
         </AuthGateOverlay>
 
-        {/* Top Up Dialog (legacy/fallback) */}
         <TopUpDialog 
           open={topUpOpen} 
           onOpenChange={setTopUpOpen} 
@@ -791,60 +719,60 @@ export default function Wallet() {
           }}
         />
 
-        {/* Desktop Deposit Dialog */}
         <DepositDialog 
           open={depositDialogOpen} 
           onOpenChange={setDepositDialogOpen} 
         />
 
-        {/* Desktop Withdraw Dialog */}
         <WithdrawDialog 
           open={withdrawDialogOpen} 
           onOpenChange={setWithdrawDialogOpen} 
         />
 
-        {/* Wallet Connection Dialog */}
-        <Dialog open={walletDialogOpen} onOpenChange={handleWalletDialogClose}>
+        {/* Add Address Dialog */}
+        <Dialog open={addAddressOpen} onOpenChange={handleAddDialogClose}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {walletStep === "select" && "Connect Wallet"}
-                {walletStep === "connecting" && "Connecting..."}
-                {walletStep === "success" && "Connected!"}
-              </DialogTitle>
-              {walletStep === "select" && (
-                <DialogDescription>Choose a wallet to connect</DialogDescription>
-              )}
+              <DialogTitle>Add Address</DialogTitle>
+              <DialogDescription>Save a wallet address for quick deposits and withdrawals</DialogDescription>
             </DialogHeader>
-            <WalletConnectionContent />
+            <AddAddressFormContent />
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" onClick={() => handleAddDialogClose(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={handleAddAddress} disabled={isAdding} className="flex-1 btn-primary">
+                {isAdding ? "Saving..." : "Save Address"}
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
 
-        {/* Disconnect Confirmation Dialog */}
-        <Dialog open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-trading-red" />
-                Disconnect Wallet?
+                Delete Address?
               </DialogTitle>
               <DialogDescription>
-                Are you sure you want to disconnect {walletToDisconnect?.address}? You can reconnect it anytime.
+                Are you sure you want to delete "{walletToDelete?.label}"? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <div className="flex gap-3 pt-4">
               <Button
                 variant="outline"
-                onClick={() => setDisconnectDialogOpen(false)}
+                onClick={() => setDeleteDialogOpen(false)}
                 className="flex-1"
               >
                 Cancel
               </Button>
               <Button
-                onClick={handleConfirmDisconnect}
+                onClick={handleConfirmDelete}
                 className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
               >
-                Disconnect
+                Delete
               </Button>
             </div>
           </DialogContent>
@@ -856,22 +784,19 @@ export default function Wallet() {
   // Mobile Layout
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
       <MobileHeader title="Wallet" showLogo={false} />
 
-      <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and connected wallets by signing in." maxPreviewHeight="400px">
+      <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
       <div className="px-4 py-6 space-y-6">
         <BalanceCard />
         <PendingConfirmations />
-        <WalletList />
+        <SavedAddressesList />
         <TransactionHistory transactions={transactions} />
       </div>
       </AuthGateOverlay>
 
-      {/* Bottom Navigation */}
       <BottomNav />
 
-      {/* Top Up Dialog */}
       <TopUpDialog 
         open={topUpOpen} 
         onOpenChange={setTopUpOpen} 
@@ -881,52 +806,53 @@ export default function Wallet() {
         }}
       />
 
-      {/* Wallet Connection - Mobile Drawer */}
+      {/* Add Address - Mobile Drawer */}
       <MobileDrawer
-        open={walletDialogOpen}
-        onOpenChange={handleWalletDialogClose}
-        title={
-          walletStep === "select" ? "Connect Wallet" :
-          walletStep === "connecting" ? "Connecting..." :
-          "Connected!"
-        }
+        open={addAddressOpen}
+        onOpenChange={handleAddDialogClose}
+        title="Add Address"
       >
-        <WalletConnectionContent />
+        <AddAddressFormContent />
+        <MobileDrawerActions>
+          <Button
+            onClick={handleAddAddress}
+            disabled={isAdding}
+            className="w-full btn-primary h-12"
+          >
+            {isAdding ? "Saving..." : "Save Address"}
+          </Button>
+        </MobileDrawerActions>
       </MobileDrawer>
 
-      {/* Disconnect Confirmation - Mobile */}
+      {/* Delete Confirmation - Mobile */}
       <MobileDrawer
-        open={disconnectDialogOpen}
-        onOpenChange={setDisconnectDialogOpen}
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
         showHandle={true}
       >
         <MobileDrawerStatus
           icon={<AlertTriangle className="w-8 h-8 text-trading-red" />}
-          title="Disconnect Wallet?"
-          description="Are you sure you want to disconnect this wallet? You can reconnect it anytime."
+          title="Delete Address?"
+          description={`Are you sure you want to delete "${walletToDelete?.label}"? This action cannot be undone.`}
           variant="error"
         />
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={() => setDisconnectDialogOpen(false)}
+            onClick={() => setDeleteDialogOpen(false)}
             className="flex-1 h-12"
           >
             Cancel
           </Button>
           <Button
-            onClick={handleConfirmDisconnect}
+            onClick={handleConfirmDelete}
             className="flex-1 h-12 bg-trading-red hover:bg-trading-red/90 text-white"
           >
-            Disconnect
+            Delete
           </Button>
         </div>
       </MobileDrawer>
 
-
-      {/* Top Up Dialog (legacy card payment) */}
-
-      {/* Top Up Dialog (legacy card payment) */}
       <TopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} currentBalance={balance} />
     </div>
   );

@@ -149,32 +149,9 @@ const Settings = () => {
     }
   };
 
-  const handleConnectWallet = async (walletType: string, icon: string) => {
-    setSelectedWalletType(walletType);
-    setWalletStep("connecting");
-    
-    // Simulate connection delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Generate random wallet address
-    const randomHex = () => Math.floor(Math.random() * 16).toString(16);
-    const randomAddress = '0x' + Array(40).fill(0).map(() => randomHex()).join('');
-    const shortAddress = randomAddress.slice(0, 6) + '...' + randomAddress.slice(-4);
-    
-    const result = await addWallet({
-      address: shortAddress,
-      fullAddress: randomAddress,
-      network: "Ethereum Mainnet",
-      walletType,
-      icon
-    });
-    
-    if (result.success) {
-      setWalletStep("success");
-    } else {
-      toast.error(result.error || "Failed to connect wallet");
-      setWalletStep("select");
-    }
+  // Legacy - no longer used, Settings just redirects to Wallet page
+  const handleConnectWallet = async (_walletType: string, _icon: string) => {
+    navigate("/wallet");
   };
 
   const handleWalletDialogClose = (open: boolean) => {
@@ -407,13 +384,13 @@ const Settings = () => {
       <div className="trading-card p-4 md:p-6">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-semibold mb-1">Connected Wallets</h3>
+            <h3 className="font-semibold mb-1">Saved Addresses</h3>
             <p className="text-sm text-muted-foreground">
               {walletsLoading 
                 ? "Loading..." 
                 : connectedWallets.length === 0 
-                  ? "No wallets connected"
-                  : `${connectedWallets.length} wallet${connectedWallets.length > 1 ? 's' : ''} connected`
+                  ? "No addresses saved"
+                  : `${connectedWallets.length} address${connectedWallets.length > 1 ? 'es' : ''} saved`
               }
             </p>
           </div>
@@ -434,14 +411,15 @@ const Settings = () => {
             <span className="text-2xl">{primaryWallet.icon}</span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-mono font-medium text-sm">{primaryWallet.address}</span>
+                <span className="font-medium text-sm">{primaryWallet.label}</span>
                 {primaryWallet.isPrimary && (
                   <Badge variant="outline" className="border-primary/50 text-primary text-xs h-5">
-                    Primary
+                    Default
                   </Badge>
                 )}
               </div>
-              <span className="text-xs text-muted-foreground">{primaryWallet.network}</span>
+              <span className="text-xs font-mono text-muted-foreground">{primaryWallet.address}</span>
+              <span className="text-xs text-muted-foreground block">{primaryWallet.network}</span>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </div>
@@ -454,7 +432,7 @@ const Settings = () => {
             className="mt-4 w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span>Connect Wallet</span>
+            <span>Add Address</span>
           </button>
         )}
       </div>

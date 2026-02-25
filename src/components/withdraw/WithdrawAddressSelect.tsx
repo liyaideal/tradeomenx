@@ -48,7 +48,7 @@ export const WithdrawAddressSelect = ({
                   {wallet.icon}
                 </div>
                 <div className="text-left">
-                  <div className="font-medium">{wallet.walletType}</div>
+                  <div className="font-medium">{wallet.label}</div>
                   <MonoText className="text-sm text-muted-foreground">
                     {wallet.address}
                   </MonoText>
