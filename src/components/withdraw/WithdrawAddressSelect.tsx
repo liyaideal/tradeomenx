@@ -3,34 +3,13 @@ import { Check, Plus } from 'lucide-react';
 import { useWallets } from '@/hooks/useWallets';
 import { MonoText } from '@/components/typography';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { toast } from 'sonner';
-
-const NETWORKS = [
-  "Ethereum",
-  "BNB Smart Chain (BEP20)",
-  "Tron (TRC20)",
-  "Polygon",
-  "Arbitrum One",
-  "Solana",
-  "Avalanche C-Chain",
-  "Bitcoin",
-];
+import { AddAddressDialog } from '@/components/wallet/AddAddressDialog';
 
 interface WithdrawAddressSelectProps {
   open: boolean;
@@ -45,94 +24,17 @@ export const WithdrawAddressSelect = ({
   selectedAddress,
   onSelectAddress,
 }: WithdrawAddressSelectProps) => {
-  const { wallets, addWallet } = useWallets();
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newLabel, setNewLabel] = useState("");
-  const [newAddress, setNewAddress] = useState("");
-  const [newNetwork, setNewNetwork] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-
-  const handleAdd = async () => {
-    if (!newLabel.trim() || !newAddress.trim() || !newNetwork) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-    setIsAdding(true);
-    const result = await addWallet({
-      label: newLabel.trim(),
-      fullAddress: newAddress.trim(),
-      network: newNetwork,
-    });
-    if (result.success) {
-      toast.success("Address saved");
-      setShowAddForm(false);
-      setNewLabel("");
-      setNewAddress("");
-      setNewNetwork("");
-      onSelectAddress(newAddress.trim());
-    } else {
-      toast.error(result.error || "Failed to save address");
-    }
-    setIsAdding(false);
-  };
-
-  const handleClose = () => {
-    setShowAddForm(false);
-    setNewLabel("");
-    setNewAddress("");
-    setNewNetwork("");
-    onClose();
-  };
+  const { wallets } = useWallets();
+  const [addOpen, setAddOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-      <SheetContent side="bottom" className="rounded-t-2xl">
-        <SheetHeader className="pb-4">
-          <SheetTitle>{showAddForm ? "Add New Address" : "Select Address"}</SheetTitle>
-        </SheetHeader>
+    <>
+      <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader className="pb-4">
+            <SheetTitle>Select Address</SheetTitle>
+          </SheetHeader>
 
-        {showAddForm ? (
-          <div className="space-y-4 pb-6">
-            <div className="space-y-2">
-              <Label>Label</Label>
-              <Input
-                placeholder="e.g. My Binance, Cold Wallet"
-                value={newLabel}
-                onChange={(e) => setNewLabel(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Address</Label>
-              <Input
-                placeholder="Paste wallet address"
-                value={newAddress}
-                onChange={(e) => setNewAddress(e.target.value)}
-                className="font-mono"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Network</Label>
-              <Select value={newNetwork} onValueChange={setNewNetwork}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select network" />
-                </SelectTrigger>
-                <SelectContent>
-                  {NETWORKS.map((net) => (
-                    <SelectItem key={net} value={net}>{net}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-3 pt-2">
-              <Button variant="outline" onClick={() => setShowAddForm(false)} className="flex-1 h-12">
-                Back
-              </Button>
-              <Button onClick={handleAdd} disabled={isAdding} className="flex-1 h-12 btn-primary">
-                {isAdding ? "Saving..." : "Save Address"}
-              </Button>
-            </div>
-          </div>
-        ) : (
           <div className="space-y-2 pb-6">
             {wallets.map((wallet) => (
               <button
@@ -162,9 +64,8 @@ export const WithdrawAddressSelect = ({
               </button>
             ))}
 
-            {/* Add Address button */}
             <button
-              onClick={() => setShowAddForm(true)}
+              onClick={() => setAddOpen(true)}
               className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-border/50 hover:border-primary/50 text-muted-foreground hover:text-foreground transition-all"
             >
               <Plus className="w-5 h-5" />
@@ -179,8 +80,14 @@ export const WithdrawAddressSelect = ({
               </div>
             )}
           </div>
-        )}
-      </SheetContent>
-    </Sheet>
+        </SheetContent>
+      </Sheet>
+
+      <AddAddressDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        onAdded={(addr) => onSelectAddress(addr)}
+      />
+    </>
   );
 };
