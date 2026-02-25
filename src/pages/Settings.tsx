@@ -31,18 +31,17 @@ import {
 } from "@/components/ui/mobile-drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// Helper to get provider display info
-const getProviderInfo = (provider: string) => {
-  switch (provider) {
-    case "google":
-      return { label: "Google", icon: "🔵", color: "text-blue-400" };
-    case "apple":
-      return { label: "Apple", icon: "🍎", color: "text-foreground" };
-    case "email":
-      return { label: "Email / Password", icon: "✉️", color: "text-muted-foreground" };
-    default:
-      return { label: provider, icon: "🔗", color: "text-muted-foreground" };
-  }
+// Infer auth method from profile data since we use anonymous sign-in
+const inferAuthMethod = (email: string | null | undefined): "google" | "telegram" | "wallet" => {
+  if (email && email.includes("@gmail.com")) return "google";
+  if (email && email.includes("@")) return "google"; // any email likely came from Google OAuth
+  return "wallet"; // fallback - no email means wallet or telegram
+};
+
+const AUTH_METHOD_INFO = {
+  google: { label: "Google", icon: "🔵", color: "text-blue-400", description: "Google Account" },
+  telegram: { label: "Telegram", icon: "✈️", color: "text-sky-400", description: "Telegram Account" },
+  wallet: { label: "Wallet", icon: "💎", color: "text-purple-400", description: "Web3 Wallet" },
 };
 
 const Settings = () => {
@@ -175,14 +174,10 @@ const Settings = () => {
   const userId = user?.id?.slice(0, 6) || "123456";
   const joinDate = formatDate(profile?.created_at || user?.created_at);
 
-  // Auth provider info
-  const authProvider = user?.app_metadata?.provider || "email";
-  const identities = user?.identities || [];
-  const providerInfo = getProviderInfo(authProvider);
-  // Get the email used to sign in via the provider
-  const providerEmail = identities.length > 0 
-    ? identities[0]?.identity_data?.email 
-    : user?.email;
+  // Auth provider info - infer from profile email
+  const authMethod = inferAuthMethod(email);
+  const providerInfo = AUTH_METHOD_INFO[authMethod];
+  const providerEmail = email;
 
   if (profileLoading) {
     return (
