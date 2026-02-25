@@ -66,7 +66,7 @@ export const WithdrawAddressSelectDialog = ({
                     </div>
                     <div className="text-left">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm">{wallet.walletType}</span>
+                        <span className="font-medium text-sm">{wallet.label}</span>
                         {wallet.isPrimary && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium">
                             Primary
