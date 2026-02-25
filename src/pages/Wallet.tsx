@@ -47,14 +47,6 @@ import {
 import { AddAddressDialog } from "@/components/wallet/AddAddressDialog";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
-import { 
-  TransactionHistory, 
-  PendingConfirmations,
-  Transaction, 
-  TransactionStatus 
-} from "@/components/wallet";
-import { DepositDialog } from "@/components/deposit/DepositDialog";
-import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
 import {
   Tooltip,
   TooltipContent,
@@ -202,7 +194,6 @@ export default function Wallet() {
     } else {
       toast.error(result.error || "Failed to update default address");
     }
-  };
   };
 
   // Info Tooltip Component
