@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star, Shield, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile, AVATAR_SEEDS, AVATAR_BACKGROUNDS, generateAvatarUrl } from "@/hooks/useUserProfile";
-import { useWallets } from "@/hooks/useWallets";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -32,18 +31,29 @@ import {
 } from "@/components/ui/mobile-drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+// Helper to get provider display info
+const getProviderInfo = (provider: string) => {
+  switch (provider) {
+    case "google":
+      return { label: "Google", icon: "🔵", color: "text-blue-400" };
+    case "apple":
+      return { label: "Apple", icon: "🍎", color: "text-foreground" };
+    case "email":
+      return { label: "Email / Password", icon: "✉️", color: "text-muted-foreground" };
+    default:
+      return { label: provider, icon: "🔗", color: "text-muted-foreground" };
+  }
+};
+
 const Settings = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { profile, user, isLoading: profileLoading, updateUsername, updateAvatar, updateEmail, refetchProfile } = useUserProfile();
-  const { wallets: connectedWallets, isLoading: walletsLoading, addWallet, removeWallet, setPrimaryWallet } = useWallets();
-  const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
   
   // Dialog states
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [usernameDialogOpen, setUsernameDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [walletDialogOpen, setWalletDialogOpen] = useState(false);
   
   // Form states
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
@@ -54,19 +64,6 @@ const Settings = () => {
   // Email verification states
   const [emailStep, setEmailStep] = useState<"input" | "verify">("input");
   const [verificationCode, setVerificationCode] = useState("");
-
-  // Wallet connection states
-  const [walletStep, setWalletStep] = useState<"select" | "connecting" | "success">("select");
-  const [selectedWalletType, setSelectedWalletType] = useState<string | null>(null);
-  const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
-  const [walletToDisconnect, setWalletToDisconnect] = useState<{ id: string; address: string } | null>(null);
-
-  const handleCopyWallet = (walletId: string, address: string) => {
-    navigator.clipboard.writeText(address);
-    setCopiedWalletId(walletId);
-    toast.success("Wallet address copied");
-    setTimeout(() => setCopiedWalletId(null), 2000);
-  };
 
   const handleSelectAvatar = async () => {
     if (!selectedAvatar) return;
@@ -106,13 +103,11 @@ const Settings = () => {
       toast.error("Email cannot be empty");
       return;
     }
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail.trim())) {
       toast.error("Please enter a valid email address");
       return;
     }
-    // Move to verification step
     setEmailStep("verify");
     toast.success("Verification code sent to " + newEmail);
   };
@@ -124,7 +119,6 @@ const Settings = () => {
     }
     setIsUpdating(true);
     
-    // Simulate verification delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const result = await updateEmail(newEmail.trim());
@@ -143,53 +137,14 @@ const Settings = () => {
   const handleEmailDialogClose = (open: boolean) => {
     setEmailDialogOpen(open);
     if (!open) {
-      // Reset state when closing
       setEmailStep("input");
       setVerificationCode("");
     }
   };
 
-  // Legacy - no longer used, Settings just redirects to Wallet page
-  const handleConnectWallet = async (_walletType: string, _icon: string) => {
-    navigate("/wallet");
-  };
-
-  const handleWalletDialogClose = (open: boolean) => {
-    setWalletDialogOpen(open);
-    if (!open) {
-      // Reset state when closing
-      setTimeout(() => {
-        setWalletStep("select");
-        setSelectedWalletType(null);
-      }, 200);
-    }
-  };
-
-  const handleConfirmDisconnect = async () => {
-    if (walletToDisconnect) {
-      const result = await removeWallet(walletToDisconnect.id);
-      if (result.success) {
-        toast.success("Wallet disconnected");
-      } else {
-        toast.error(result.error || "Failed to disconnect wallet");
-      }
-    }
-    setDisconnectDialogOpen(false);
-    setWalletToDisconnect(null);
-  };
-
-  const handleDisconnectWallet = (wallet: { id: string; address: string }) => {
-    setWalletToDisconnect(wallet);
-    setDisconnectDialogOpen(true);
-  };
-
-  const handleSetPrimaryWallet = async (walletId: string) => {
-    const result = await setPrimaryWallet(walletId);
-    if (result.success) {
-      toast.success("Primary wallet updated");
-    } else {
-      toast.error(result.error || "Failed to update primary wallet");
-    }
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
   };
 
   const formatDate = (dateString?: string) => {
@@ -201,7 +156,7 @@ const Settings = () => {
     }).replace(/\//g, "-");
   };
 
-  // Generate avatar grid - memoized to prevent re-creation (MUST be before early returns)
+  // Generate avatar grid
   const avatarOptions = useMemo(() => 
     AVATAR_SEEDS.flatMap((seed, seedIndex) => 
       AVATAR_BACKGROUNDS.map((bg, bgIndex) => ({
@@ -213,14 +168,22 @@ const Settings = () => {
     ).slice(0, 80),
   []);
 
-  // Profile data - prioritize profile from database
+  // Profile data
   const username = profile?.username || null;
   const email = profile?.email || user?.email || null;
   const avatarUrl = profile?.avatar_url || null;
   const userId = user?.id?.slice(0, 6) || "123456";
   const joinDate = formatDate(profile?.created_at || user?.created_at);
 
-  // Show loading state while profile is loading
+  // Auth provider info
+  const authProvider = user?.app_metadata?.provider || "email";
+  const identities = user?.identities || [];
+  const providerInfo = getProviderInfo(authProvider);
+  // Get the email used to sign in via the provider
+  const providerEmail = identities.length > 0 
+    ? identities[0]?.identity_data?.email 
+    : user?.email;
+
   if (profileLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -229,7 +192,7 @@ const Settings = () => {
     );
   }
 
-  // Avatar grid JSX - rendered inline to avoid component recreation
+  // Avatar grid JSX
   const renderAvatarGrid = (maxHeight: string) => (
     <div className={`overflow-y-auto ${maxHeight}`}>
       <div className="grid grid-cols-5 gap-3 pr-2">
@@ -259,7 +222,6 @@ const Settings = () => {
   const ProfileCard = () => (
     <div className="trading-card p-4 md:p-6">
       <div className="flex items-start gap-4">
-        {/* Avatar with edit button */}
         <div className="relative">
           <Avatar className="w-16 h-16 md:w-20 md:h-20 border-2 border-primary/50">
             <AvatarImage src={avatarUrl} alt="User" />
@@ -280,7 +242,6 @@ const Settings = () => {
             {username ? username : "Username Not Set"}
           </span>
           
-          {/* Mobile layout */}
           {isMobile ? (
             <div className="mt-3 space-y-2 text-sm">
               <div className="flex justify-between">
@@ -293,7 +254,6 @@ const Settings = () => {
               </div>
             </div>
           ) : (
-            /* Desktop layout */
             <div className="mt-2 space-y-1 text-sm text-muted-foreground">
               <p>User ID: #{userId}</p>
               <p>Joined {joinDate}</p>
@@ -351,7 +311,6 @@ const Settings = () => {
         </Button>
       </div>
       
-      {/* Recommendation box - only show if no email */}
       {!email && (
         <div className="bg-trading-yellow/10 border border-trading-yellow/30 rounded-xl p-4">
           <div className="flex items-start gap-3">
@@ -376,82 +335,61 @@ const Settings = () => {
     </div>
   );
 
-  // Connected Wallets Card - Simplified redirect entry
-  const WalletsCard = () => {
-    const primaryWallet = connectedWallets.find(w => w.isPrimary) || connectedWallets[0];
-    
-    return (
-      <div className="trading-card p-4 md:p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-semibold mb-1">Saved Addresses</h3>
-            <p className="text-sm text-muted-foreground">
-              {walletsLoading 
-                ? "Loading..." 
-                : connectedWallets.length === 0 
-                  ? "No addresses saved"
-                  : `${connectedWallets.length} address${connectedWallets.length > 1 ? 'es' : ''} saved`
-              }
-            </p>
-          </div>
-          <Button
-            onClick={() => navigate("/wallet")}
-            className="btn-primary h-9 px-4"
-          >
-            Manage
-          </Button>
+  // Linked Account Card - shows which auth provider/email was used to sign in
+  const LinkedAccountCard = () => (
+    <div className="trading-card p-4 md:p-6">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h3 className="font-semibold mb-1">Linked Account</h3>
+          <p className="text-xs text-muted-foreground">
+            The account you used to sign in
+          </p>
         </div>
-        
-        {/* Show primary wallet preview if exists */}
-        {primaryWallet && !walletsLoading && (
-          <div 
-            onClick={() => navigate("/wallet")}
-            className="mt-4 bg-muted/30 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-muted/50 transition-colors"
-          >
-            <img src={primaryWallet.icon} alt={primaryWallet.network} className="w-8 h-8" />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">{primaryWallet.label}</span>
-                {primaryWallet.isPrimary && (
-                  <Badge variant="outline" className="border-primary/50 text-primary text-xs h-5">
-                    Default
-                  </Badge>
-                )}
-              </div>
-              <span className="text-xs font-mono text-muted-foreground">{primaryWallet.address}</span>
-              <span className="text-xs text-muted-foreground block">{primaryWallet.network}</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </div>
-        )}
-        
-        {/* Quick connect prompt if no wallets */}
-        {!walletsLoading && connectedWallets.length === 0 && (
-          <button 
-            onClick={() => navigate("/wallet")}
-            className="mt-4 w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Address</span>
-          </button>
-        )}
+        <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+          <Shield className="w-3 h-3 mr-1" />
+          Verified
+        </Badge>
       </div>
-    );
-  };
+      
+      <div className="bg-muted/30 rounded-xl p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg">
+            {providerInfo.icon}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">{providerInfo.label}</span>
+              <Badge variant="secondary" className="text-xs h-5">
+                Active
+              </Badge>
+            </div>
+            {providerEmail && (
+              <p className="text-sm font-mono text-muted-foreground truncate mt-0.5">
+                {providerEmail}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <p className="text-xs text-muted-foreground mt-3">
+        You signed in via <span className={`font-medium ${providerInfo.color}`}>{providerInfo.label}</span>.
+        This cannot be changed. To use a different account, sign out and sign in again.
+      </p>
+    </div>
+  );
 
   // Mobile Layout
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        {/* Header */}
         <MobileHeader title="Settings" showLogo={false} />
 
-        {/* Content */}
         <div className="p-4 space-y-4">
           <ProfileCard />
           <UsernameCard />
           <EmailCard />
-          <WalletsCard />
+          <LinkedAccountCard />
         </div>
 
         <BottomNav />
@@ -568,98 +506,6 @@ const Settings = () => {
             </MobileDrawerSection>
           )}
         </MobileDrawer>
-
-        {/* Wallet Connection Drawer */}
-        <MobileDrawer
-          open={walletDialogOpen}
-          onOpenChange={handleWalletDialogClose}
-          title={
-            walletStep === "select" ? "Connect Wallet" :
-            walletStep === "connecting" ? "Connecting..." :
-            "Connected!"
-          }
-        >
-          {walletStep === "select" && (
-            <MobileDrawerList>
-              <MobileDrawerListItem
-                icon="🦊"
-                label="MetaMask"
-                description="Connect to your MetaMask wallet"
-                onClick={() => handleConnectWallet("MetaMask", "🦊")}
-              />
-              <MobileDrawerListItem
-                icon="🌈"
-                label="Rainbow"
-                description="Connect to your Rainbow wallet"
-                onClick={() => handleConnectWallet("Rainbow", "🌈")}
-              />
-              <MobileDrawerListItem
-                icon="💎"
-                label="WalletConnect"
-                description="Scan with WalletConnect"
-                onClick={() => handleConnectWallet("WalletConnect", "💎")}
-              />
-            </MobileDrawerList>
-          )}
-          
-          {walletStep === "connecting" && (
-            <MobileDrawerStatus
-              icon={
-                <span className="text-3xl animate-pulse">
-                  {selectedWalletType === "MetaMask" ? "🦊" : selectedWalletType === "Rainbow" ? "🌈" : "💎"}
-                </span>
-              }
-              title={`Connecting to ${selectedWalletType}...`}
-              description="Please confirm in your wallet"
-            />
-          )}
-          
-          {walletStep === "success" && (
-            <>
-              <MobileDrawerStatus
-                icon={<Check className="w-8 h-8 text-trading-green" />}
-                title="Wallet Connected!"
-                description={`Your ${selectedWalletType} wallet has been linked`}
-                variant="success"
-              />
-              <Button
-                onClick={() => handleWalletDialogClose(false)}
-                className="w-full btn-primary h-12"
-              >
-                Done
-              </Button>
-            </>
-          )}
-        </MobileDrawer>
-
-        {/* Disconnect Wallet Confirmation Drawer */}
-        <MobileDrawer
-          open={disconnectDialogOpen}
-          onOpenChange={setDisconnectDialogOpen}
-          showHandle={true}
-        >
-          <MobileDrawerStatus
-            icon={<AlertTriangle className="w-8 h-8 text-trading-red" />}
-            title="Disconnect Wallet?"
-            description="Are you sure you want to disconnect this wallet? You can reconnect it anytime."
-            variant="error"
-          />
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setDisconnectDialogOpen(false)}
-              className="flex-1 h-12"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmDisconnect}
-              className="flex-1 h-12 bg-trading-red hover:bg-trading-red/90 text-white"
-            >
-              Disconnect
-            </Button>
-          </div>
-        </MobileDrawer>
       </div>
     );
   }
@@ -679,7 +525,7 @@ const Settings = () => {
           <ProfileCard />
           <UsernameCard />
           <EmailCard />
-          <WalletsCard />
+          <LinkedAccountCard />
         </div>
       </div>
 
@@ -827,115 +673,6 @@ const Settings = () => {
               </>
             )}
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Wallet Connection Dialog */}
-      <Dialog open={walletDialogOpen} onOpenChange={handleWalletDialogClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {walletStep === "select" && "Connect Wallet"}
-              {walletStep === "connecting" && "Connecting..."}
-              {walletStep === "success" && "Connected!"}
-            </DialogTitle>
-            {walletStep === "select" && (
-              <DialogDescription>
-                Choose a wallet to connect
-              </DialogDescription>
-            )}
-          </DialogHeader>
-          
-          {walletStep === "select" && (
-            <div className="py-4 space-y-3">
-              <button
-                onClick={() => handleConnectWallet("MetaMask", "🦊")}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <span className="text-3xl">🦊</span>
-                <div className="text-left">
-                  <p className="font-medium">MetaMask</p>
-                  <p className="text-sm text-muted-foreground">Connect to your MetaMask wallet</p>
-                </div>
-              </button>
-              <button
-                onClick={() => handleConnectWallet("Rainbow", "🌈")}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <span className="text-3xl">🌈</span>
-                <div className="text-left">
-                  <p className="font-medium">Rainbow</p>
-                  <p className="text-sm text-muted-foreground">Connect to your Rainbow wallet</p>
-                </div>
-              </button>
-              <button
-                onClick={() => handleConnectWallet("WalletConnect", "💎")}
-                className="w-full flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <span className="text-3xl">💎</span>
-                <div className="text-left">
-                  <p className="font-medium">WalletConnect</p>
-                  <p className="text-sm text-muted-foreground">Scan with WalletConnect</p>
-                </div>
-              </button>
-            </div>
-          )}
-          
-          {walletStep === "connecting" && (
-            <div className="py-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-                <span className="text-3xl">{selectedWalletType === "MetaMask" ? "🦊" : selectedWalletType === "Rainbow" ? "🌈" : "💎"}</span>
-              </div>
-              <p className="text-muted-foreground">Connecting to {selectedWalletType}...</p>
-              <p className="text-sm text-muted-foreground mt-2">Please confirm in your wallet</p>
-            </div>
-          )}
-          
-          {walletStep === "success" && (
-            <div className="py-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-green/20 flex items-center justify-center">
-                <Check className="w-8 h-8 text-trading-green" />
-              </div>
-              <p className="font-medium text-trading-green">Wallet Connected!</p>
-              <p className="text-sm text-muted-foreground mt-2">Your {selectedWalletType} wallet has been linked</p>
-              <Button
-                onClick={() => handleWalletDialogClose(false)}
-                className="mt-6 btn-primary"
-              >
-                Done
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Disconnect Wallet Confirmation Dialog */}
-      <Dialog open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
-        <DialogContent>
-          <div className="py-4 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-trading-red/10 flex items-center justify-center">
-              <AlertTriangle className="w-8 h-8 text-trading-red" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Disconnect Wallet?</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              Are you sure you want to disconnect this wallet? You can reconnect it anytime.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setDisconnectDialogOpen(false)}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmDisconnect}
-                className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
-              >
-                Disconnect
-              </Button>
-            </div>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
