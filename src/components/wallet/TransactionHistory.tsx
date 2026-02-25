@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
-import { useIsMobile } from '@/hooks/use-mobile';
+
 
 // Network explorer URLs for txHash links
 const EXPLORER_URLS: Record<string, string> = {
@@ -80,7 +80,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
   const [typeFilters, setTypeFilters] = useState<TransactionType[]>([]);
   const [statusFilters, setStatusFilters] = useState<TransactionStatus[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const isMobile = useIsMobile();
+  
 
   // Subscribe to real-time transaction updates
   useRealtimeTransactions();
@@ -273,7 +273,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
             const statusConfig = STATUS_CONFIG[tx.status || 'completed'];
             const StatusIcon = statusConfig.icon;
             const isExpanded = expandedId === tx.id;
-            const showExpandable = isMobile && hasDetails(tx);
+            const showExpandable = hasDetails(tx);
             
             return (
               <div 
@@ -298,8 +298,8 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                         <span className="text-sm font-medium truncate">
                           {formatDescription(tx)}
                         </span>
-                        {/* Mobile: Show status icon inline if pending/processing */}
-                        {isMobile && tx.status && tx.status !== 'completed' && (
+                        {/* Show status icon inline if pending/processing */}
+                        {tx.status && tx.status !== 'completed' && (
                           <StatusIcon className={cn(
                             "w-3.5 h-3.5 shrink-0",
                             statusConfig.color,
@@ -327,39 +327,8 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                   </div>
                 </div>
 
-                {/* Desktop: Show details inline */}
-                {!isMobile && hasDetails(tx) && (
-                  <div className="flex items-center gap-2 mt-2 ml-[52px] text-xs text-muted-foreground">
-                    {tx.status && tx.status !== 'completed' && (
-                      <span className={cn("flex items-center gap-1", statusConfig.color)}>
-                        <StatusIcon className={cn(
-                          "w-3 h-3",
-                          tx.status === 'processing' && "animate-spin"
-                        )} />
-                        {statusConfig.label}
-                      </span>
-                    )}
-                    
-                    {tx.txHash && explorerUrl && (
-                      <>
-                        {tx.status && tx.status !== 'completed' && <span>•</span>}
-                        <a 
-                          href={explorerUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-primary hover:underline font-mono"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {truncateTxHash(tx.txHash)}
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {/* Mobile: Expandable details */}
-                {isMobile && isExpanded && hasDetails(tx) && (
+                {/* Expandable details */}
+                {isExpanded && hasDetails(tx) && (
                   <div className="mt-3 pt-3 border-t border-border/30 ml-[52px] space-y-2">
                     {tx.status && (
                       <div className="flex items-center justify-between text-sm">
