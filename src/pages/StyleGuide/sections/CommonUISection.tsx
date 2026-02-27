@@ -1770,39 +1770,68 @@ navigator.share({ files: [file] });`}
               ))}
             </div>
 
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setPaginationPage(p => Math.max(1, p - 1))}
-                    className={paginationPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-                {getPaginationRange().map((item, idx) =>
-                  item === "ellipsis" ? (
-                    <PaginationItem key={`ellipsis-${idx}`}>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  ) : (
-                    <PaginationItem key={item}>
-                      <PaginationLink
-                        isActive={paginationPage === item}
-                        onClick={() => setPaginationPage(item as number)}
-                        className="cursor-pointer"
-                      >
-                        {item}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => setPaginationPage(p => Math.min(totalPages, p + 1))}
-                    className={paginationPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            {/* Mobile: simplified prev/next only. Desktop: full numbered pagination */}
+            {isMobile ? (
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPaginationPage(p => Math.max(1, p - 1))}
+                  disabled={paginationPage === 1}
+                  className="gap-1"
+                >
+                  <ChevronDown className="h-4 w-4 rotate-90" />
+                  Prev
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  {paginationPage} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPaginationPage(p => Math.min(totalPages, p + 1))}
+                  disabled={paginationPage === totalPages}
+                  className="gap-1"
+                >
+                  Next
+                  <ChevronDown className="h-4 w-4 -rotate-90" />
+                </Button>
+              </div>
+            ) : (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setPaginationPage(p => Math.max(1, p - 1))}
+                      className={paginationPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  {getPaginationRange().map((item, idx) =>
+                    item === "ellipsis" ? (
+                      <PaginationItem key={`ellipsis-${idx}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={item}>
+                        <PaginationLink
+                          isActive={paginationPage === item}
+                          onClick={() => setPaginationPage(item as number)}
+                          className="cursor-pointer"
+                        >
+                          {item}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPaginationPage(p => Math.min(totalPages, p + 1))}
+                      className={paginationPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
 
             <CodePreview
               code={`import {
@@ -1855,7 +1884,8 @@ navigator.share({ files: [file] });`}
               <div className="flex items-start gap-3">
                 <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="text-sm text-muted-foreground space-y-2">
-                  <p><strong className="text-foreground">Numbered Pagination</strong> — Best for structured data (tables, search results, admin lists) where users need to jump to specific pages.</p>
+                  <p><strong className="text-foreground">Numbered Pagination (Desktop)</strong> — Best for structured data (tables, search results, admin lists) where users need to jump to specific pages. Uses the full <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">Pagination</code> component with page numbers and ellipsis.</p>
+                  <p><strong className="text-foreground">Simplified Prev/Next (Mobile)</strong> — On mobile, hide page numbers and show only Prev/Next buttons with a compact "1 / 10" indicator to avoid horizontal overflow.</p>
                   <p><strong className="text-foreground">Load More / Infinite Scroll</strong> — Best for feed-style content (timelines, activity logs) where chronological browsing is natural. Currently used in <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">ResolvedPage</code>.</p>
                   <p className="text-xs">The <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">Pagination</code> component is available but currently unused in the app. Consider it for any new table or list views.</p>
                 </div>
