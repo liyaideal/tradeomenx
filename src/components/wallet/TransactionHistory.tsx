@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -13,6 +13,8 @@ import {
   XCircle,
   Loader2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,8 +26,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { cn } from '@/lib/utils';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 
 // Network explorer URLs for txHash links
@@ -80,7 +92,11 @@ const TYPE_LABELS: Record<TransactionType, string> = {
 export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
   const [typeFilters, setTypeFilters] = useState<TransactionType[]>([]);
   const [statusFilters, setStatusFilters] = useState<TransactionStatus[]>([]);
+  const isMobile = useIsMobile();
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
   
 
   // Subscribe to real-time transaction updates
@@ -149,6 +165,35 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
 
   const hasActiveFilters = typeFilters.length > 0 || statusFilters.length > 0;
 
+  // Pagination
+  const totalPages = Math.ceil(filteredTransactions.length / PAGE_SIZE);
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  // Reset page when filters change
+  const effectiveCurrentPage = currentPage > totalPages ? 1 : currentPage;
+  if (effectiveCurrentPage !== currentPage && totalPages > 0) {
+    setCurrentPage(1);
+  }
+
+  const getPaginationRange = (): (number | "ellipsis")[] => {
+    const range: (number | "ellipsis")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) range.push(i);
+    } else {
+      range.push(1);
+      if (currentPage > 3) range.push("ellipsis");
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) range.push(i);
+      if (currentPage < totalPages - 2) range.push("ellipsis");
+      range.push(totalPages);
+    }
+    return range;
+  };
+
   const getTransactionIcon = (tx: Transaction) => {
     if (tx.type === 'deposit') {
       return <ArrowDownLeft className="w-5 h-5 text-trading-green" />;
@@ -186,6 +231,9 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-muted-foreground" />
           <h2 className="text-lg font-semibold">Transaction History</h2>
+          {filteredTransactions.length > 0 && (
+            <span className="text-xs text-muted-foreground">({filteredTransactions.length})</span>
+          )}
         </div>
         
         <DropdownMenu>
@@ -269,7 +317,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
         </div>
       ) : (
         <div className="bg-card border border-border/50 rounded-xl divide-y divide-border/30">
-          {filteredTransactions.map((tx) => {
+          {paginatedTransactions.map((tx) => {
             const explorerUrl = getExplorerUrl(tx.network, tx.txHash || '');
             const statusConfig = STATUS_CONFIG[tx.status || 'completed'];
             const StatusIcon = statusConfig.icon;
@@ -372,6 +420,71 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
             );
           })}
         </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        isMobile ? (
+          <div className="flex items-center justify-between pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Prev
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {currentPage} / {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="gap-1"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <Pagination className="pt-2">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              {getPaginationRange().map((item, idx) =>
+                item === "ellipsis" ? (
+                  <PaginationItem key={`ellipsis-${idx}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={item}>
+                    <PaginationLink
+                      isActive={currentPage === item}
+                      onClick={() => setCurrentPage(item as number)}
+                      className="cursor-pointer"
+                    >
+                      {item}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )
       )}
     </div>
   );
