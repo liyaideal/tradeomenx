@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,15 @@ import { toast } from "sonner";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { TradingHeaderPlayground } from "../components/TradingHeaderPlayground";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface CommonUISectionProps {
   isMobile: boolean;
@@ -70,6 +79,29 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
 
   // Card Playground
   const [cardStyle, setCardStyle] = useState<"default" | "trading" | "stats" | "web3" | "web3-intense">("default");
+
+  // Pagination Playground
+  const [paginationPage, setPaginationPage] = useState(1);
+  const [paginationPageSize, setPaginationPageSize] = useState(5);
+  const paginationItems = useMemo(() => Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`), []);
+  const totalPages = Math.ceil(paginationItems.length / paginationPageSize);
+  const paginatedItems = paginationItems.slice((paginationPage - 1) * paginationPageSize, paginationPage * paginationPageSize);
+
+  const getPaginationRange = () => {
+    const range: (number | "ellipsis")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) range.push(i);
+    } else {
+      range.push(1);
+      if (paginationPage > 3) range.push("ellipsis");
+      const start = Math.max(2, paginationPage - 1);
+      const end = Math.min(totalPages - 1, paginationPage + 1);
+      for (let i = start; i <= end; i++) range.push(i);
+      if (paginationPage < totalPages - 2) range.push("ellipsis");
+      range.push(totalPages);
+    }
+    return range;
+  };
 
   const resetPlayground = () => {
     setButtonVariant("default");
@@ -1699,6 +1731,139 @@ navigator.share({ files: [file] });`}
           </CardContent>
         </Card>
       </SectionWrapper>
+
+      {/* Pagination */}
+      <SectionWrapper
+        id="pagination"
+        title="Pagination"
+        platform="shared"
+        description="Numbered page navigation for paginated data sets"
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Pagination Playground</CardTitle>
+            <CardDescription>Navigate through 50 demo items with configurable page size</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs">Items per page</Label>
+                <Select value={String(paginationPageSize)} onValueChange={(v) => { setPaginationPageSize(Number(v)); setPaginationPage(1); }}>
+                  <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {[5, 10, 20].map(n => (
+                      <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="text-xs text-muted-foreground pt-5">
+                Page {paginationPage} of {totalPages} · {paginationItems.length} items
+              </div>
+            </div>
+
+            <div className="bg-muted/30 rounded-xl p-4 space-y-1.5">
+              {paginatedItems.map((item) => (
+                <div key={item} className="text-sm text-foreground px-3 py-2 rounded-md bg-background/50 border border-border/30">
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPaginationPage(p => Math.max(1, p - 1))}
+                    className={paginationPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                {getPaginationRange().map((item, idx) =>
+                  item === "ellipsis" ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={item}>
+                      <PaginationLink
+                        isActive={paginationPage === item}
+                        onClick={() => setPaginationPage(item as number)}
+                        className="cursor-pointer"
+                      >
+                        {item}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPaginationPage(p => Math.min(totalPages, p + 1))}
+                    className={paginationPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+
+            <CodePreview
+              code={`import {
+  Pagination, PaginationContent, PaginationItem,
+  PaginationLink, PaginationNext, PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
+
+<Pagination>
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious onClick={() => setPage(p => Math.max(1, p - 1))} />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink isActive>1</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationEllipsis />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationNext onClick={() => setPage(p => p + 1)} />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>`}
+              collapsible
+              defaultExpanded={false}
+            />
+          </CardContent>
+        </Card>
+
+        <SubSection title="Sub-components" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { name: "PaginationPrevious", desc: "Back navigation with chevron icon" },
+              { name: "PaginationNext", desc: "Forward navigation with chevron icon" },
+              { name: "PaginationLink", desc: "Numbered page link, supports isActive prop" },
+              { name: "PaginationEllipsis", desc: "Ellipsis indicator for skipped page ranges" },
+            ].map(({ name, desc }) => (
+              <div key={name} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+                <code className="text-xs font-mono text-primary whitespace-nowrap">{`<${name} />`}</code>
+                <span className="text-xs text-muted-foreground">{desc}</span>
+              </div>
+            ))}
+          </div>
+        </SubSection>
+
+        <SubSection title="Pagination vs Load More" className="mt-6">
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="text-sm text-muted-foreground space-y-2">
+                  <p><strong className="text-foreground">Numbered Pagination</strong> — Best for structured data (tables, search results, admin lists) where users need to jump to specific pages.</p>
+                  <p><strong className="text-foreground">Load More / Infinite Scroll</strong> — Best for feed-style content (timelines, activity logs) where chronological browsing is natural. Currently used in <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">ResolvedPage</code>.</p>
+                  <p className="text-xs">The <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">Pagination</code> component is available but currently unused in the app. Consider it for any new table or list views.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </SubSection>
+      </SectionWrapper>
     </div>
   );
 };
@@ -1899,6 +2064,6 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
           </div>
         </CardContent>
       </Card>
-    </SectionWrapper>
+      </SectionWrapper>
   );
 };
