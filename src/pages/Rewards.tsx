@@ -100,10 +100,13 @@ export default function Rewards() {
           <Button
             onClick={() => setRedeemDialogOpen(true)}
             disabled={!canRedeem}
-            className="btn-primary"
+            className="btn-primary h-auto py-2 px-4 flex-col gap-0"
           >
-            <Gift className="w-4 h-4 mr-2" />
-            Redeem
+            <span className="flex items-center gap-1.5">
+              <Gift className="w-4 h-4" />
+              Redeem
+            </span>
+            <span className="text-[10px] font-normal opacity-80">→ Trial Bonus</span>
           </Button>
         </div>
         
