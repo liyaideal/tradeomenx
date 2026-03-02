@@ -102,7 +102,7 @@ export default function Rewards() {
             disabled={!canRedeem}
             className="btn-primary"
           >
-            <Gift className="w-4 h-4 mr-2" />
+            {!isMobile && <Gift className="w-4 h-4 mr-2" />}
             Get Trial Funds
           </Button>
         </div>
