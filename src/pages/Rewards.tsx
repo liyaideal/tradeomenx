@@ -106,7 +106,7 @@ export default function Rewards() {
               <Gift className="w-4 h-4" />
               Redeem
             </span>
-            <span className="text-[10px] font-normal opacity-80">→ Trial Bonus</span>
+            <span className="text-[10px] font-normal opacity-80">Trial Funds</span>
           </Button>
         </div>
         
