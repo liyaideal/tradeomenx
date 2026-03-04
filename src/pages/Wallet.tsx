@@ -137,7 +137,7 @@ export default function Wallet() {
     type: tx.type as "deposit" | "withdraw" | "platform_credit",
     amount: tx.amount,
     description: tx.description || (tx.type === "platform_credit" ? "Platform Credit" : tx.type === "deposit" ? "Deposit" : "Withdraw"),
-    date: new Date(tx.created_at).toLocaleDateString(),
+    date: new Date(tx.created_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: new Date(tx.created_at).getTime(),
     txHash: tx.tx_hash,
     network: tx.network,
