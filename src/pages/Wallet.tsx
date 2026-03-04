@@ -127,7 +127,7 @@ export default function Wallet() {
     type: (trade.pnl ?? 0) >= 0 ? "trade_profit" : "trade_loss" as const,
     amount: trade.pnl ?? 0,
     description: `${trade.event_name} - ${trade.option_label}`,
-    date: trade.closed_at ? new Date(trade.closed_at).toLocaleDateString() : new Date(trade.created_at).toLocaleDateString(),
+    date: trade.closed_at ? new Date(trade.closed_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }) : new Date(trade.created_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: trade.closed_at ? new Date(trade.closed_at).getTime() : new Date(trade.created_at).getTime(),
     status: 'completed' as TransactionStatus,
   }));
@@ -137,7 +137,7 @@ export default function Wallet() {
     type: tx.type as "deposit" | "withdraw" | "platform_credit",
     amount: tx.amount,
     description: tx.description || (tx.type === "platform_credit" ? "Platform Credit" : tx.type === "deposit" ? "Deposit" : "Withdraw"),
-    date: new Date(tx.created_at).toLocaleDateString(),
+    date: new Date(tx.created_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: new Date(tx.created_at).getTime(),
     txHash: tx.tx_hash,
     network: tx.network,
