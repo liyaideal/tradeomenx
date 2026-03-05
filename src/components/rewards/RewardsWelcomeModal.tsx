@@ -41,7 +41,7 @@ export const RewardsWelcomeModal = () => {
 
       {/* Headline */}
       <h2 className="text-xl font-bold text-foreground mb-0.5">
-        🎁 Free Trial Funds
+        Claim Free Trial Funds
       </h2>
       <p className="text-sm text-muted-foreground mb-2 max-w-[260px]">
         Do tasks, earn points, trade for free!
