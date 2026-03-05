@@ -35,7 +35,7 @@ export const RewardsWelcomeModal = () => {
         <img
           src={rewardsGiftBox}
           alt="Rewards"
-          className="w-32 h-32 md:w-40 md:h-40 object-contain relative z-10 drop-shadow-xl animate-[float_3s_ease-in-out_infinite]"
+          className="w-44 h-44 md:w-52 md:h-52 object-contain relative z-10 drop-shadow-xl animate-[float_3s_ease-in-out_infinite]"
         />
       </div>
 
