@@ -48,7 +48,7 @@ export const RewardsWelcomeModal = () => {
       </p>
 
       {/* Steps preview */}
-      <div className="w-full space-y-2.5 mb-6">
+      <div className="w-full space-y-2 mb-4">
         {[
           { step: "1", label: "Complete Tasks", desc: "Easy one-time missions", icon: "🎯" },
           { step: "2", label: "Earn Points", desc: "Instant point rewards", icon: "⭐" },
