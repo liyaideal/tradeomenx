@@ -41,10 +41,10 @@ export const RewardsWelcomeModal = () => {
 
       {/* Headline */}
       <h2 className="text-xl font-bold text-foreground mb-0.5">
-        🎁 Claim Your Free Trial Funds
+        🎁 Free Trial Funds
       </h2>
-      <p className="text-sm text-muted-foreground mb-2 max-w-[280px] leading-relaxed">
-        Complete simple tasks to earn points, then convert them into trial funds to start trading — no deposit needed!
+      <p className="text-sm text-muted-foreground mb-2 max-w-[260px]">
+        Do tasks, earn points, trade for free!
       </p>
 
       {/* Steps preview */}
