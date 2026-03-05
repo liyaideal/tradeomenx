@@ -27,28 +27,28 @@ export const RewardsWelcomeModal = () => {
   };
 
   const content = (
-    <div className="flex flex-col items-center text-center py-2">
+    <div className="flex flex-col items-center text-center py-0">
       {/* Gift box illustration with glow */}
-      <div className="relative mb-4">
+      <div className="relative mb-2">
         <div className="absolute -inset-8 rounded-full bg-primary/20 blur-3xl animate-pulse" />
         <div className="absolute -inset-4 rounded-full bg-primary/10 blur-xl animate-pulse" style={{ animationDelay: '0.7s' }} />
         <img
           src={rewardsGiftBox}
           alt="Rewards"
-          className="w-44 h-44 md:w-52 md:h-52 object-contain relative z-10 drop-shadow-xl animate-[float_3s_ease-in-out_infinite]"
+          className="w-36 h-36 md:w-44 md:h-44 object-contain relative z-10 drop-shadow-xl animate-[float_3s_ease-in-out_infinite]"
         />
       </div>
 
       {/* Headline */}
-      <h2 className="text-xl font-bold text-foreground mb-1.5">
+      <h2 className="text-xl font-bold text-foreground mb-1">
         🎁 Claim Your Free Trial Funds
       </h2>
-      <p className="text-sm text-muted-foreground mb-5 max-w-[280px] leading-relaxed">
+      <p className="text-sm text-muted-foreground mb-3 max-w-[280px] leading-relaxed">
         Complete simple tasks to earn points, then convert them into trial funds to start trading — no deposit needed!
       </p>
 
       {/* Steps preview */}
-      <div className="w-full space-y-2.5 mb-6">
+      <div className="w-full space-y-2 mb-4">
         {[
           { step: "1", label: "Complete Tasks", desc: "Easy one-time missions", icon: "🎯" },
           { step: "2", label: "Earn Points", desc: "Instant point rewards", icon: "⭐" },
