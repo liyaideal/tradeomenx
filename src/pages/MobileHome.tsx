@@ -8,6 +8,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
 import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
+import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { toast } from "sonner";
 import { usePositions } from "@/hooks/usePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
