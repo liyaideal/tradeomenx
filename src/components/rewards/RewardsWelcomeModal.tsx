@@ -6,7 +6,7 @@ import { Star, Gift, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTreasureDrop } from "@/hooks/useTreasureDrop";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import treasurePenguin from "@/assets/treasure-penguin.gif";
+import rewardsGiftBox from "@/assets/rewards-gift-box.png";
 
 /**
  * Full-screen welcome modal shown on Home page for logged-in users
