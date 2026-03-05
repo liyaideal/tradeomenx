@@ -28,13 +28,14 @@ export const RewardsWelcomeModal = () => {
 
   const content = (
     <div className="flex flex-col items-center text-center py-2">
-      {/* Penguin illustration */}
+      {/* Gift box illustration with glow */}
       <div className="relative mb-4">
-        <div className="absolute -inset-6 rounded-full bg-primary/15 blur-2xl animate-pulse" />
+        <div className="absolute -inset-8 rounded-full bg-primary/20 blur-3xl animate-pulse" />
+        <div className="absolute -inset-4 rounded-full bg-primary/10 blur-xl animate-pulse" style={{ animationDelay: '0.7s' }} />
         <img
-          src={treasurePenguin}
+          src={rewardsGiftBox}
           alt="Rewards"
-          className="w-36 h-36 md:w-44 md:h-44 object-contain relative z-10 drop-shadow-xl"
+          className="w-32 h-32 md:w-40 md:h-40 object-contain relative z-10 drop-shadow-xl animate-[float_3s_ease-in-out_infinite]"
         />
       </div>
 
