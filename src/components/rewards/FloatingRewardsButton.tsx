@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { usePoints } from "@/hooks/usePoints";
 import { useTasks } from "@/hooks/useTasks";
+import { useTreasureDrop } from "@/hooks/useTreasureDrop";
 import bonusBadge from "@/assets/bonus-badge.gif";
 
 interface FloatingRewardsButtonProps {
@@ -11,10 +12,14 @@ export const FloatingRewardsButton = ({ className = "" }: FloatingRewardsButtonP
   const navigate = useNavigate();
   const { pointsBalance } = usePoints();
   const { tasks } = useTasks();
+  const { hasClaimed, isLoading } = useTreasureDrop();
 
   // Check if there are claimable tasks
   const claimableTasks = tasks.filter(t => t.isCompleted && !t.isClaimed);
   const hasClaimable = claimableTasks.length > 0;
+
+  // Only show floating button after user has claimed their treasure drop
+  if (!hasClaimed || isLoading) return null;
 
   return (
     <button
