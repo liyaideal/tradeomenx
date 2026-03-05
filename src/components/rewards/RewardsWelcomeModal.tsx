@@ -29,9 +29,9 @@ export const RewardsWelcomeModal = () => {
   const content = (
     <div className="flex flex-col items-center text-center py-0">
       {/* Gift box illustration with glow */}
-      <div className="relative mb-0">
-        <div className="absolute -inset-8 rounded-full bg-primary/20 blur-3xl animate-pulse" />
-        <div className="absolute -inset-4 rounded-full bg-primary/10 blur-xl animate-pulse" style={{ animationDelay: '0.7s' }} />
+      <div className="relative -mb-2 -mt-4">
+        <div className="absolute -inset-6 rounded-full bg-primary/20 blur-3xl animate-pulse" />
+        <div className="absolute -inset-3 rounded-full bg-primary/10 blur-xl animate-pulse" style={{ animationDelay: '0.7s' }} />
         <img
           src={rewardsGiftBox}
           alt="Rewards"
