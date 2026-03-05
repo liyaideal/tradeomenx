@@ -226,7 +226,8 @@ const EventsPage = () => {
 
       {isMobile && <BottomNav />}
       
-      {/* Floating Rewards Button - Desktop only (mobile has it on Home) */}
+      {/* Rewards: Welcome modal for unclaimed users, floating button for claimed */}
+      {!isMobile && <RewardsWelcomeModal />}
       {!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}
     </div>
   );
