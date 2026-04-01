@@ -92,6 +92,8 @@ const App = () => (
               <Route path="/style-guide" element={<StyleGuide />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/glossary" element={<GlossaryPage />} />
+              <Route path="/glossary/en" element={<GlossaryEnPage />} />
+              <Route path="/glossary/cn" element={<GlossaryCnPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/insights" element={<InsightsPage />} />
               <Route path="/methodology" element={<MethodologyPage />} />
