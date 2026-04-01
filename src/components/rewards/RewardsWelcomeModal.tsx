@@ -6,6 +6,7 @@ import { Star, Gift, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTreasureDrop } from "@/hooks/useTreasureDrop";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 import rewardsGiftBox from "@/assets/rewards-gift-box.gif";
 
 /**
@@ -18,9 +19,10 @@ export const RewardsWelcomeModal = () => {
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
   const { hasClaimed, isLoading } = useTreasureDrop();
+  const isAuthFlowOpen = useAuthFlowStore((state) => state.isOpen);
 
   // Only show for logged-in users who haven't claimed treasure
-  const shouldShow = !!user && !hasClaimed && !isLoading;
+  const shouldShow = !!user && !hasClaimed && !isLoading && !isAuthFlowOpen;
 
   const handleGoToRewards = () => {
     navigate("/rewards");

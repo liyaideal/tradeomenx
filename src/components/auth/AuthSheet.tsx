@@ -3,6 +3,7 @@ import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Logo } from "@/components/Logo";
 import { AuthContent } from "./AuthContent";
 import { useAuth, type AuthStep } from "@/hooks/useAuth";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 
 interface AuthSheetProps {
   open: boolean;
@@ -11,8 +12,14 @@ interface AuthSheetProps {
 
 export const AuthSheet = ({ open, onOpenChange }: AuthSheetProps) => {
   const { user } = useAuth();
+  const setAuthFlowOpen = useAuthFlowStore((state) => state.setIsOpen);
   const [step, setStep] = useState<AuthStep>("login");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setAuthFlowOpen(open);
+    return () => setAuthFlowOpen(false);
+  }, [open, setAuthFlowOpen]);
 
   // Move to wallet creation step when user logs in
   useEffect(() => {

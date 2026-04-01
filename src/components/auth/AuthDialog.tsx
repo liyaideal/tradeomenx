@@ -7,6 +7,7 @@ import {
 import { Logo } from "@/components/Logo";
 import { AuthContent } from "./AuthContent";
 import { useAuth, type AuthStep } from "@/hooks/useAuth";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface AuthDialogProps {
@@ -17,9 +18,15 @@ interface AuthDialogProps {
 
 export const AuthDialog = ({ open, onOpenChange, defaultTab = "signin" }: AuthDialogProps) => {
   const { user } = useAuth();
+  const setAuthFlowOpen = useAuthFlowStore((state) => state.setIsOpen);
   // "signup" and "signin" both start at login step (auth flow is unified)
   const [step, setStep] = useState<AuthStep>("login");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setAuthFlowOpen(open);
+    return () => setAuthFlowOpen(false);
+  }, [open, setAuthFlowOpen]);
 
   // Close dialog when user logs in
   useEffect(() => {
