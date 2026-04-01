@@ -10,7 +10,7 @@ export function useOrderSimulation() {
   const { orders, updateOrderStatus, fillOrder } = useOrdersStore();
   const { addPosition } = usePositionsStore();
   const processedOrdersRef = useRef<Set<string>>(new Set());
-  const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
     // Find new orders that need simulation
