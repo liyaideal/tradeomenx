@@ -31,7 +31,7 @@ const TermCard = ({ term, lang }: TermCardProps) => {
           <h3 className="text-sm md:text-base font-semibold text-foreground leading-snug">
             {title}
           </h3>
-          <span className="text-xs text-muted-foreground/60 mt-0.5 block">{subtitle}</span>
+          
         </div>
         <svg
           className={`shrink-0 mt-1 w-4 h-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
