@@ -2,7 +2,6 @@ import { SeoPageLayout } from "@/components/seo";
 import { useState } from "react";
 import { Search, BookOpen, Lightbulb, MessageSquareQuote } from "lucide-react";
 import { glossaryTerms, GlossaryTerm } from "@/data/glossaryTerms";
-import { useNavigate } from "react-router-dom";
 
 interface TermCardProps {
   term: GlossaryTerm;
@@ -109,10 +108,6 @@ interface GlossaryContentProps {
 
 const GlossaryContent = ({ lang }: GlossaryContentProps) => {
   const [search, setSearch] = useState("");
-  const navigate = useNavigate();
-
-  const otherLang = lang === "en" ? "cn" : "en";
-  const otherLabel = lang === "en" ? "中文" : "English";
 
   const filtered = glossaryTerms.filter((t) => {
     const q = search.toLowerCase();
@@ -131,9 +126,9 @@ const GlossaryContent = ({ lang }: GlossaryContentProps) => {
 
   return (
     <SeoPageLayout title={title} description={description}>
-      {/* Language switcher + search */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1 max-w-md">
+      {/* Search */}
+      <div className="mb-6 max-w-md">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
@@ -143,12 +138,6 @@ const GlossaryContent = ({ lang }: GlossaryContentProps) => {
             className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted/50 border border-border/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
           />
         </div>
-        <button
-          onClick={() => navigate(`/glossary/${otherLang}`)}
-          className="shrink-0 px-4 py-2 rounded-lg border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
-        >
-          {otherLabel}
-        </button>
       </div>
 
       {/* Term count */}
