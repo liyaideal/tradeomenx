@@ -7,7 +7,6 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
-import { FloatingDiscordButton } from "@/components/FloatingDiscordButton";
 import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { toast } from "sonner";
