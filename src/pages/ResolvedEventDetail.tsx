@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -186,7 +187,15 @@ const ResolvedEventDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Settlement Progress - 紧凑时间线 */}
+          {/* External Spot Market Links - Mobile */}
+          {event.external_links && event.external_links.length > 0 && (
+            <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+              <CardContent className="px-4 py-3">
+                <ExternalHedgeLinks links={event.external_links} label="Compare on spot markets" />
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
             <CardHeader className="pb-2 pt-3 px-4">
               <CardTitle className="text-sm font-medium text-muted-foreground">Settlement Progress</CardTitle>
@@ -487,6 +496,18 @@ const ResolvedEventDetail = () => {
                 />
               </CardContent>
             </Card>
+
+            {/* External Spot Market Links - Desktop */}
+            {event.external_links && event.external_links.length > 0 && (
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Spot Market Comparison</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ExternalHedgeLinks links={event.external_links} label="Compare on spot markets" />
+                </CardContent>
+              </Card>
+            )}
 
             {/* Related Events */}
             {event.relatedEvents.length > 0 && (

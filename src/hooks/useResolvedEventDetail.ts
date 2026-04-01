@@ -22,6 +22,11 @@ export interface RelatedEvent {
   is_resolved: boolean;
   winning_option_label: string | null;
 }
+export interface ExternalLinkData {
+  platform: string;
+  url: string;
+  icon: string;
+}
 
 export interface ResolvedEventDetail {
   id: string;
@@ -38,6 +43,7 @@ export interface ResolvedEventDetail {
   end_date: string | null;
   settled_at: string | null;
   winning_option_id: string | null;
+  external_links: ExternalLinkData[] | null;
   options: {
     id: string;
     label: string;
@@ -187,6 +193,9 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         end_date: event.end_date,
         settled_at: event.settled_at,
         winning_option_id: event.winning_option_id,
+        external_links: Array.isArray((event as any).external_links)
+          ? (event as any).external_links as ExternalLinkData[]
+          : null,
         options: (event.event_options || []).map((opt: any) => ({
           id: opt.id,
           label: opt.label,
