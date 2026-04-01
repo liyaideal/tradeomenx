@@ -453,6 +453,7 @@ const MobileHome = () => {
       {/* Rewards: Welcome modal for unclaimed users, floating button for claimed */}
       <RewardsWelcomeModal />
       <FloatingRewardsButton className="bottom-24 right-4" />
+      <FloatingDiscordButton className="bottom-44 right-5" />
       
       {/* Treasure Drop Button - appears when eligible */}
       <TreasureDropButton />
