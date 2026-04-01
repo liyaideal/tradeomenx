@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
+import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
@@ -1016,6 +1017,13 @@ export default function DesktopTrading() {
                         ))}
                       </ul>
                     </div>
+
+                    {/* External Hedge Links */}
+                    {selectedEvent.externalLinks && selectedEvent.externalLinks.length > 0 && (
+                      <div className="bg-muted/30 rounded-lg p-4">
+                        <ExternalHedgeLinks links={selectedEvent.externalLinks} />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

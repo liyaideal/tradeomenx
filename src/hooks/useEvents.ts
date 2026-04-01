@@ -16,6 +16,12 @@ export interface EventStats {
   marketCap?: string;
 }
 
+export interface ExternalPlatformLink {
+  platform: string;
+  url: string;
+  icon: string;
+}
+
 export interface TradingEvent {
   id: string;
   name: string;
@@ -29,11 +35,12 @@ export interface TradingEvent {
   sourceUrl: string;
   sourceName: string;
   resolutionSource: string;
+  externalLinks?: ExternalPlatformLink[];
   // Optional fields for specific event types
   tweetCount?: number;
   currentPrice?: string;
   priceChange24h?: string;
-  priceLabel?: string; // Dynamic label for the asset (e.g., "BTC/USD", "S&P 500")
+  priceLabel?: string;
   stats?: EventStats;
 }
 
@@ -165,25 +172,36 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
     if (!priceLabel) priceLabel = 'S&P 500';
   }
 
-  return {
-    id: event.id,
-    name: event.name,
-    icon: event.icon || "📊",
-    ends: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    endTime: endDate,
-    period,
-    volume: event.volume || "$0",
-    description: event.description || "",
-    rules: rulesArray,
-    sourceUrl: event.source_url || "",
-    sourceName: event.source_name || "Official Source",
-    resolutionSource: event.settlement_description || "Official settlement source",
-    tweetCount,
-    currentPrice,
-    priceChange24h,
-    priceLabel,
+    // Parse external links
+    let externalLinks: ExternalPlatformLink[] | undefined;
+    if (event.external_links && Array.isArray(event.external_links)) {
+      externalLinks = (event.external_links as any[]).map(link => ({
+        platform: link.platform,
+        url: link.url,
+        icon: link.icon,
+      }));
+    }
+
+    return {
+      id: event.id,
+      name: event.name,
+      icon: event.icon || "📊",
+      ends: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      endTime: endDate,
+      period,
+      volume: event.volume || "$0",
+      description: event.description || "",
+      rules: rulesArray,
+      sourceUrl: event.source_url || "",
+      sourceName: event.source_name || "Official Source",
+      resolutionSource: event.settlement_description || "Official settlement source",
+      externalLinks,
+      tweetCount,
+      currentPrice,
+      priceChange24h,
+      priceLabel,
+    };
   };
-};
 
 // Convert database option to EventOption format
 const dbOptionToEventOption = (option: DatabaseEventOption, livePrice?: number): EventOption => {

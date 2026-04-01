@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
+
+export interface ExternalLink {
+  platform: string;
+  url: string;
+  icon: string;
+}
 
 export interface DatabaseEvent {
   id: string;
@@ -14,7 +21,8 @@ export interface DatabaseEvent {
   source_name: string | null;
   source_url: string | null;
   settlement_description: string | null;
-  price_label: string | null; // Dynamic label for price-based events
+  price_label: string | null;
+  external_links: Json | null; // Raw JSON from DB, parsed to ExternalLink[] in useEvents
   is_resolved: boolean;
   winning_option_id: string | null;
   settled_at: string | null;
