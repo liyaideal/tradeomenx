@@ -497,6 +497,18 @@ const ResolvedEventDetail = () => {
               </CardContent>
             </Card>
 
+            {/* External Spot Market Links - Desktop */}
+            {event.external_links && event.external_links.length > 0 && (
+              <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Spot Market Comparison</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ExternalHedgeLinks links={event.external_links} label="Compare on spot markets" />
+                </CardContent>
+              </Card>
+            )}
+
             {/* Related Events */}
             {event.relatedEvents.length > 0 && (
               <Card className="border-border/40" style={{ background: "var(--gradient-card)" }}>
