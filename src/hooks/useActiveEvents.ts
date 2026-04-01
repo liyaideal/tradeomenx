@@ -15,6 +15,7 @@ export interface DatabaseEvent {
   source_url: string | null;
   settlement_description: string | null;
   price_label: string | null; // Dynamic label for price-based events
+  external_links: ExternalLink[] | null; // Links to Polymarket, Kalshi, etc.
   is_resolved: boolean;
   winning_option_id: string | null;
   settled_at: string | null;

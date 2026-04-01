@@ -16,6 +16,12 @@ export interface EventStats {
   marketCap?: string;
 }
 
+export interface ExternalPlatformLink {
+  platform: string;
+  url: string;
+  icon: string;
+}
+
 export interface TradingEvent {
   id: string;
   name: string;
@@ -29,11 +35,12 @@ export interface TradingEvent {
   sourceUrl: string;
   sourceName: string;
   resolutionSource: string;
+  externalLinks?: ExternalPlatformLink[];
   // Optional fields for specific event types
   tweetCount?: number;
   currentPrice?: string;
   priceChange24h?: string;
-  priceLabel?: string; // Dynamic label for the asset (e.g., "BTC/USD", "S&P 500")
+  priceLabel?: string;
   stats?: EventStats;
 }
 
