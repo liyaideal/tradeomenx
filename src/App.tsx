@@ -88,6 +88,14 @@ const App = () => (
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/style-guide" element={<StyleGuide />} />
+              <Route path="/faq" element={<FaqPage />} />
+              <Route path="/glossary" element={<GlossaryPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/insights" element={<InsightsPage />} />
+              <Route path="/methodology" element={<MethodologyPage />} />
+              <Route path="/developers" element={<DevelopersPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ResponsiveLayout>
