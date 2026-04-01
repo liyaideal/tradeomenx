@@ -22,6 +22,11 @@ export interface RelatedEvent {
   is_resolved: boolean;
   winning_option_label: string | null;
 }
+export interface ExternalLinkData {
+  platform: string;
+  url: string;
+  icon: string;
+}
 
 export interface ResolvedEventDetail {
   id: string;
