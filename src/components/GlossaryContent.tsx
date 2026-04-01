@@ -108,10 +108,6 @@ interface GlossaryContentProps {
 
 const GlossaryContent = ({ lang }: GlossaryContentProps) => {
   const [search, setSearch] = useState("");
-  const navigate = useNavigate();
-
-  const otherLang = lang === "en" ? "cn" : "en";
-  const otherLabel = lang === "en" ? "中文" : "English";
 
   const filtered = glossaryTerms.filter((t) => {
     const q = search.toLowerCase();
