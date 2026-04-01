@@ -1,8 +1,7 @@
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "./SeoFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 interface SeoPageLayoutProps {
   children: React.ReactNode;
@@ -12,20 +11,12 @@ interface SeoPageLayoutProps {
 
 export const SeoPageLayout = ({ children, title, description }: SeoPageLayoutProps) => {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       {isMobile ? (
-        <header className="sticky top-0 z-50 border-b border-border/30 backdrop-blur-md px-4 py-3 flex items-center gap-3"
-          style={{ background: "linear-gradient(180deg, hsl(222 47% 8% / 0.98) 0%, hsl(222 47% 6% / 0.95) 100%)" }}
-        >
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-base font-semibold text-foreground">{title}</h1>
-        </header>
+        <MobileHeader title={title} />
       ) : (
         <EventsDesktopHeader />
       )}
