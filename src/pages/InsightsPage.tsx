@@ -14,7 +14,7 @@ const InsightsPage = () => {
 
   return (
     <SeoPageLayout
-      title="Platform Insights"
+      title="OmenX Insights"
       description="Live data, trending markets, and auto-generated insights from OmenX event trading markets."
     >
       {isLoading ? (

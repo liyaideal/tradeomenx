@@ -66,20 +66,24 @@ interface KpiCardProps {
 }
 
 const KpiCard = ({ icon: Icon, label, value, change, showChange }: KpiCardProps) => (
-  <div className="p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors">
-    <div className="flex items-center gap-2 mb-2">
-      <Icon className="w-4 h-4 text-primary" />
-      <span className="text-xs text-muted-foreground font-medium">{label}</span>
+  <div className="p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors flex flex-col justify-between min-h-[120px]">
+    <div className="flex items-center gap-2 mb-3">
+      <Icon className="w-4 h-4 text-primary shrink-0" />
+      <span className="text-xs text-muted-foreground font-medium leading-tight">{label}</span>
     </div>
-    <div className="text-xl md:text-2xl font-bold text-foreground font-mono">{value}</div>
-    {showChange && change !== 0 && (
-      <div className={`flex items-center gap-1 mt-1 text-xs font-medium ${
-        change > 0 ? "text-trading-green" : "text-trading-red"
-      }`}>
-        {change > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-        {change > 0 ? "+" : ""}{change.toFixed(1)}%
-      </div>
-    )}
+    <div>
+      <div className="text-2xl font-bold text-foreground font-mono leading-none">{value}</div>
+      {showChange && change !== 0 ? (
+        <div className={`flex items-center gap-1 mt-2 text-xs font-medium ${
+          change > 0 ? "text-trading-green" : "text-trading-red"
+        }`}>
+          {change > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+          {change > 0 ? "+" : ""}{change.toFixed(1)}%
+        </div>
+      ) : (
+        <div className="mt-2 h-4" />
+      )}
+    </div>
   </div>
 );
 
