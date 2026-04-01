@@ -136,8 +136,13 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
           return (
             <div
               key={event.id}
-              className="p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors group"
+              className="relative p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors group overflow-hidden"
             >
+              {/* Background sparkline */}
+              <div className="absolute bottom-0 right-0 opacity-20 pointer-events-none">
+                <MiniSparkline data={sparklineData} positive={isPositive} />
+              </div>
+
               {/* Category badge */}
               <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mb-2 ${catStyle.class}`}>
                 {catInfo.label}
@@ -185,16 +190,13 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                 <span>Closes: {closingDate}</span>
               </div>
 
-              {/* Sparkline + Trade button */}
-              <div className="flex items-center justify-between">
-                <MiniSparkline data={sparklineData} positive={isPositive} />
-                <button
-                  onClick={() => navigate("/trade")}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors opacity-0 group-hover:opacity-100"
-                >
-                  Trade Now <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
+              {/* Trade button */}
+              <button
+                onClick={() => navigate("/trade")}
+                className="relative z-10 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+              >
+                Trade Now <ArrowRight className="w-3 h-3" />
+              </button>
             </div>
           );
         })}
