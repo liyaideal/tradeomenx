@@ -103,11 +103,11 @@ export const SeoFooter = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-border/20 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="border-t border-border/20 mt-8 pt-6 flex flex-col items-center gap-1.5 text-center">
           <p className="text-xs text-muted-foreground">
             © 2026 OmenX. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground text-center md:text-right max-w-md">
+          <p className="text-xs text-muted-foreground/60">
             For informational purposes only. Not financial advice. Trading involves risk of loss.
           </p>
         </div>
