@@ -26,6 +26,7 @@ export const BiggestMovers = ({ events, priceChanges }: BiggestMoversProps) => {
     event.options.map((opt) => {
       const change = priceChanges.get(opt.id);
       return {
+        eventId: event.id,
         eventName: event.name,
         optionLabel: opt.label,
         price: opt.price,
