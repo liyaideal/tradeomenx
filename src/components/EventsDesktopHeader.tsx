@@ -21,6 +21,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 const navItems = [
   { label: "Events", path: "/events" },
   { label: "Resolved", path: "/resolved" },
+  { label: "Insights", path: "/insights" },
   { label: "Portfolio", path: "/portfolio" },
 ];
 
