@@ -27,27 +27,49 @@ const generateSparkline = (currentPrice: number): number[] => {
   return points;
 };
 
-const MiniSparkline = ({ data, positive }: { data: number[]; positive: boolean }) => {
+const MiniSparkline = ({ data, positive, id }: { data: number[]; positive: boolean; id: string }) => {
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 0.01;
-  const h = 24;
+  const h = 40;
   const w = 200;
-  // Flip Y so chart grows upward from bottom
-  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${((v - min) / range) * (h - 2) + 1}`).join(" ");
-  const fillPoints = `0,${h} ${points} ${w},${h}`;
   const strokeColor = positive ? "hsl(145 80% 42%)" : "hsl(0 85% 60%)";
+
+  // Convert data to coordinate points
+  const coords = data.map((v, i) => ({
+    x: (i / (data.length - 1)) * w,
+    y: ((v - min) / range) * (h - 4) + 2,
+  }));
+
+  // Build smooth cubic bezier path (Catmull-Rom to Bezier)
+  let d = `M${coords[0].x},${coords[0].y}`;
+  for (let i = 0; i < coords.length - 1; i++) {
+    const p0 = coords[Math.max(0, i - 1)];
+    const p1 = coords[i];
+    const p2 = coords[i + 1];
+    const p3 = coords[Math.min(coords.length - 1, i + 2)];
+    const tension = 0.35;
+    const cp1x = p1.x + (p2.x - p0.x) * tension;
+    const cp1y = p1.y + (p2.y - p0.y) * tension;
+    const cp2x = p2.x - (p3.x - p1.x) * tension;
+    const cp2y = p2.y - (p3.y - p1.y) * tension;
+    d += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+  }
+
+  const fillD = `${d} L${w},${h} L0,${h} Z`;
+  const gradId = `sparkGrad-${id}`;
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-full">
       <defs>
-        <linearGradient id={`sparkGrad-${positive ? "up" : "down"}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={strokeColor} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={strokeColor} stopOpacity="0.02" />
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={strokeColor} stopOpacity="0.25" />
+          <stop offset="60%" stopColor={strokeColor} stopOpacity="0.08" />
+          <stop offset="100%" stopColor={strokeColor} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <polygon points={fillPoints} fill={`url(#sparkGrad-${positive ? "up" : "down"})`} />
-      <polyline points={points} fill="none" stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={fillD} fill={`url(#${gradId})`} />
+      <path d={d} fill="none" stroke={strokeColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };
@@ -179,8 +201,8 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
               </div>
 
               {/* Sparkline background - top 1/3 with fade */}
-              <div className="absolute top-0 left-0 right-0 h-1/3 pointer-events-none opacity-[0.15] group-hover:opacity-[0.25] transition-opacity" style={{ maskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)' }}>
-                <MiniSparkline data={sparklineData} positive={isPositive} />
+              <div className="absolute top-0 left-0 right-0 h-1/3 pointer-events-none opacity-[0.10] group-hover:opacity-[0.18] transition-opacity duration-500" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)' }}>
+                <MiniSparkline data={sparklineData} positive={isPositive} id={event.id} />
               </div>
 
               {/* Metrics row */}
