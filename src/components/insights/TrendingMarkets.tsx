@@ -38,7 +38,7 @@ const MiniSparkline = ({ data, positive }: { data: number[]; positive: boolean }
   const strokeColor = positive ? "hsl(145 80% 42%)" : "hsl(0 85% 60%)";
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-6">
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-full">
       <defs>
         <linearGradient id={`sparkGrad-${positive ? "up" : "down"}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={strokeColor} stopOpacity="0.3" />
