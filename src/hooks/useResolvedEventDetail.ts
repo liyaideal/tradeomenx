@@ -187,6 +187,9 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         end_date: event.end_date,
         settled_at: event.settled_at,
         winning_option_id: event.winning_option_id,
+        external_links: Array.isArray((event as any).external_links)
+          ? (event as any).external_links as ExternalLinkData[]
+          : null,
         options: (event.event_options || []).map((opt: any) => ({
           id: opt.id,
           label: opt.label,

@@ -34,7 +34,7 @@ export function ExternalHedgeLinks({ links, compact = false, label = "Hedge on s
       {!compact && (
         <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <ExternalLink className="w-3 h-3" />
-          <span>Hedge on spot markets</span>
+          <span>{label}</span>
         </div>
       )}
       <div className="flex items-center gap-1.5 flex-wrap">
