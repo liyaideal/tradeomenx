@@ -21,6 +21,14 @@ import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Settings from "./pages/Settings";
 import Rewards from "./pages/Rewards";
+import FaqPage from "./pages/FaqPage";
+import GlossaryPage from "./pages/GlossaryPage";
+import AboutPage from "./pages/AboutPage";
+import InsightsPage from "./pages/InsightsPage";
+import MethodologyPage from "./pages/MethodologyPage";
+import DevelopersPage from "./pages/DevelopersPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
@@ -80,6 +88,14 @@ const App = () => (
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/style-guide" element={<StyleGuide />} />
+              <Route path="/faq" element={<FaqPage />} />
+              <Route path="/glossary" element={<GlossaryPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/insights" element={<InsightsPage />} />
+              <Route path="/methodology" element={<MethodologyPage />} />
+              <Route path="/developers" element={<DevelopersPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ResponsiveLayout>
