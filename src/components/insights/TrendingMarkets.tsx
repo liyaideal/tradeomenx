@@ -177,8 +177,8 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                 )}
               </div>
 
-              {/* Sparkline area chart */}
-              <div className="mb-3 rounded-md overflow-hidden bg-muted/20">
+              {/* Sparkline background */}
+              <div className="absolute bottom-0 left-0 right-0 h-2/3 pointer-events-none opacity-[0.12] group-hover:opacity-[0.2] transition-opacity">
                 <MiniSparkline data={sparklineData} positive={isPositive} />
               </div>
 
