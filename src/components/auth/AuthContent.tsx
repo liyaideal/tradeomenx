@@ -96,8 +96,8 @@ export const AuthContent = ({
       const { data: { session: existingSession } } = await supabase.auth.getSession();
       
       if (existingSession?.user) {
-        toast.success(`Welcome back! Connected via ${method}`);
-        onSuccess?.();
+        toast.success(`Welcome back! Connected via ${method === "google" ? "Google" : method === "telegram" ? "Telegram" : "Wallet"}!`);
+        setStep("createWallet");
         return;
       }
 
