@@ -229,6 +229,14 @@ export const BottomNav = () => {
             }}
           />
           <MobileDrawerListItem
+            icon={Lightbulb}
+            label="Insights"
+            onClick={() => {
+              setProfileSheetOpen(false);
+              navigate("/insights");
+            }}
+          />
+          <MobileDrawerListItem
             icon={Settings}
             label="Settings"
             onClick={() => {
