@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 const footerLinks = {
@@ -6,6 +8,7 @@ const footerLinks = {
     { label: "Events", path: "/events" },
     { label: "Resolved", path: "/resolved" },
     { label: "Leaderboard", path: "/leaderboard" },
+    { label: "Insights", path: "/insights" },
   ],
   "Learn More": [
     { label: "About", path: "/about" },
@@ -40,15 +43,45 @@ const socialLinks = [
   },
 ];
 
+const FooterAccordion = ({ heading, links, navigate }: { heading: string; links: { label: string; path: string }[]; navigate: (path: string) => void }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b border-border/20">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between py-3 text-sm font-semibold text-foreground"
+      >
+        {heading}
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      <div className={`overflow-hidden transition-all duration-200 ${open ? "max-h-40 pb-3" : "max-h-0"}`}>
+        <ul className="space-y-2">
+          {links.map((link) => (
+            <li key={link.path}>
+              <button
+                onClick={() => navigate(link.path)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
 export const SeoFooter = () => {
   const navigate = useNavigate();
 
   return (
     <footer className="border-t border-border/30 bg-card/50 mt-auto">
       <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        {/* Desktop layout */}
+        <div className="hidden md:grid grid-cols-5 gap-8">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
+          <div>
             <button onClick={() => navigate("/")} className="mb-3">
               <Logo size="xl" />
             </button>
@@ -99,6 +132,48 @@ export const SeoFooter = () => {
             >
               support@omenx.com
             </a>
+          </div>
+        </div>
+
+        {/* Mobile layout */}
+        <div className="md:hidden">
+          {/* Brand */}
+          <div className="mb-6">
+            <button onClick={() => navigate("/")} className="mb-2">
+              <Logo size="lg" />
+            </button>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Trade on real-world event outcomes with transparent pricing and instant settlement.
+            </p>
+          </div>
+
+          {/* Accordion links */}
+          {Object.entries(footerLinks).map(([heading, links]) => (
+            <FooterAccordion key={heading} heading={heading} links={links} navigate={navigate} />
+          ))}
+
+          {/* Connect - always visible */}
+          <div className="pt-4">
+            <div className="flex items-center gap-4">
+              {socialLinks.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  {s.icon}
+                </a>
+              ))}
+              <a
+                href="mailto:support@omenx.com"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                support@omenx.com
+              </a>
+            </div>
           </div>
         </div>
 
