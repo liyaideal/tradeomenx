@@ -146,11 +146,6 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
               key={event.id}
               className="relative p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors group overflow-hidden"
             >
-              {/* Background sparkline */}
-              <div className="absolute bottom-0 right-0 opacity-20 pointer-events-none">
-                <MiniSparkline data={sparklineData} positive={isPositive} />
-              </div>
-
               {/* Category badge */}
               <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mb-2 ${catStyle.class}`}>
                 {catInfo.label}
@@ -182,12 +177,9 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                 )}
               </div>
 
-              {/* Probability bar */}
-              <div className="w-full h-1.5 rounded-full bg-muted/50 mb-3 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary transition-all"
-                  style={{ width: `${mainPrice * 100}%` }}
-                />
+              {/* Sparkline area chart */}
+              <div className="mb-3 rounded-md overflow-hidden bg-muted/20">
+                <MiniSparkline data={sparklineData} positive={isPositive} />
               </div>
 
               {/* Metrics row */}
