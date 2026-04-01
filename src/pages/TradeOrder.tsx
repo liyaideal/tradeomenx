@@ -105,33 +105,22 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
                   Funding: -0.0001% / Next: in 28min
                 </div>
               </div>
-              <Popover>
-                <PopoverTrigger asChild>
+              <Sheet>
+                <SheetTrigger asChild>
                   <button className="flex items-center gap-1 text-[10px] text-muted-foreground">
                     <ExternalLink className="w-3 h-3" />
                     Event Info
                   </button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-64 p-3 space-y-3">
-                  <div className="text-xs font-medium">{selectedEvent?.name}</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {selectedEvent?.description || "Predict the outcome of this event."}
+                </SheetTrigger>
+                <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-2xl">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Event Info</SheetTitle>
+                  </SheetHeader>
+                  <div className="px-1 pb-4">
+                    <EventInfoContent event={selectedEvent!} />
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-[10px]">
-                    <div className="bg-muted/30 rounded p-2">
-                      <div className="text-muted-foreground">Ends</div>
-                      <div className="font-medium">{selectedEvent?.ends}</div>
-                    </div>
-                    <div className="bg-muted/30 rounded p-2">
-                      <div className="text-muted-foreground">Volume</div>
-                      <div className="font-medium">{selectedEvent?.volume}</div>
-                    </div>
-                  </div>
-                  {selectedEvent?.externalLinks && selectedEvent.externalLinks.length > 0 && (
-                    <ExternalHedgeLinks links={selectedEvent.externalLinks} />
-                  )}
-                </PopoverContent>
-              </Popover>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
 
