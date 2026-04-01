@@ -38,6 +38,7 @@ export interface ResolvedEventDetail {
   end_date: string | null;
   settled_at: string | null;
   winning_option_id: string | null;
+  external_links: ExternalLinkData[] | null;
   options: {
     id: string;
     label: string;
