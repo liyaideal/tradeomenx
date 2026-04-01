@@ -114,6 +114,10 @@ export const useTasks = () => {
         // This would be tracked separately when user shares
         return false;
 
+      case 'join_discord':
+        // Tracked when user clicks "Join Discord" button
+        return false;
+
       default:
         return false;
     }

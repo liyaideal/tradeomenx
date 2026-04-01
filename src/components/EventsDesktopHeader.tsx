@@ -186,7 +186,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
                     Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => window.open("https://discord.gg/AZwP5qtK", "_blank", "noopener,noreferrer")}>
                     <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
                     Help & Support
                   </DropdownMenuItem>

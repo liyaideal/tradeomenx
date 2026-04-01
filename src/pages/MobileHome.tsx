@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
+import { FloatingDiscordButton } from "@/components/FloatingDiscordButton";
 import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { toast } from "sonner";
@@ -452,6 +453,7 @@ const MobileHome = () => {
       {/* Rewards: Welcome modal for unclaimed users, floating button for claimed */}
       <RewardsWelcomeModal />
       <FloatingRewardsButton className="bottom-24 right-4" />
+      <FloatingDiscordButton className="bottom-44 right-5" />
       
       {/* Treasure Drop Button - appears when eligible */}
       <TreasureDropButton />

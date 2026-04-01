@@ -57,14 +57,13 @@ export default function Rewards() {
     const action = task.trigger_condition?.action as string;
     
     if (action === 'share_x') {
-      // Open X share confirmation dialog
       setXShareDialogOpen(true);
     } else if (action === 'first_trade') {
-      // Navigate to trading page
       navigate('/');
     } else if (action === 'referral_qualified') {
-      // Switch to referral tab to invite friends
       setActiveTab('referral');
+    } else if (action === 'join_discord') {
+      window.open("https://discord.gg/AZwP5qtK", "_blank", "noopener,noreferrer");
     }
   };
 
