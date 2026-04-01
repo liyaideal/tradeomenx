@@ -33,7 +33,8 @@ const MiniSparkline = ({ data, positive }: { data: number[]; positive: boolean }
   const range = max - min || 0.01;
   const h = 24;
   const w = 200;
-  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * (h - 2) - 1}`).join(" ");
+  // Flip Y so chart grows upward from bottom
+  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${((v - min) / range) * (h - 2) + 1}`).join(" ");
   const fillPoints = `0,${h} ${points} ${w},${h}`;
   const strokeColor = positive ? "hsl(145 80% 42%)" : "hsl(0 85% 60%)";
 
