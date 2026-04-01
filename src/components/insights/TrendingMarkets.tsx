@@ -167,7 +167,8 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
           return (
             <div
               key={event.id}
-              className="relative p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors group overflow-hidden"
+              onClick={() => navigate(`/trade?event=${event.id}`)}
+              className="relative p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors group overflow-hidden cursor-pointer"
             >
               {/* Top row: category + trade button */}
               <div className="flex items-center justify-between mb-2">
