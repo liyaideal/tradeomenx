@@ -172,25 +172,36 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
     if (!priceLabel) priceLabel = 'S&P 500';
   }
 
-  return {
-    id: event.id,
-    name: event.name,
-    icon: event.icon || "📊",
-    ends: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    endTime: endDate,
-    period,
-    volume: event.volume || "$0",
-    description: event.description || "",
-    rules: rulesArray,
-    sourceUrl: event.source_url || "",
-    sourceName: event.source_name || "Official Source",
-    resolutionSource: event.settlement_description || "Official settlement source",
-    tweetCount,
-    currentPrice,
-    priceChange24h,
-    priceLabel,
+    // Parse external links
+    let externalLinks: ExternalPlatformLink[] | undefined;
+    if (event.external_links && Array.isArray(event.external_links)) {
+      externalLinks = (event.external_links as any[]).map(link => ({
+        platform: link.platform,
+        url: link.url,
+        icon: link.icon,
+      }));
+    }
+
+    return {
+      id: event.id,
+      name: event.name,
+      icon: event.icon || "📊",
+      ends: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      endTime: endDate,
+      period,
+      volume: event.volume || "$0",
+      description: event.description || "",
+      rules: rulesArray,
+      sourceUrl: event.source_url || "",
+      sourceName: event.source_name || "Official Source",
+      resolutionSource: event.settlement_description || "Official settlement source",
+      externalLinks,
+      tweetCount,
+      currentPrice,
+      priceChange24h,
+      priceLabel,
+    };
   };
-};
 
 // Convert database option to EventOption format
 const dbOptionToEventOption = (option: DatabaseEventOption, livePrice?: number): EventOption => {
