@@ -511,3 +511,74 @@
     background-size: 20px 20px;
   }
 }
+
+/* ===== LEGAL / POLICY PAGE PROSE ===== */
+.legal-prose {
+  max-width: none;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.8125rem;
+  line-height: 1.75;
+}
+
+@media (min-width: 768px) {
+  .legal-prose {
+    font-size: 0.9375rem;
+  }
+}
+
+.legal-prose h2 {
+  color: hsl(var(--foreground));
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.25);
+}
+
+@media (min-width: 768px) {
+  .legal-prose h2 {
+    font-size: 1.25rem;
+    margin-top: 2.5rem;
+  }
+}
+
+.legal-prose h3 {
+  color: hsl(var(--foreground) / 0.85);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .legal-prose h3 {
+    font-size: 1.075rem;
+  }
+}
+
+.legal-prose p {
+  margin-bottom: 0.75rem;
+}
+
+.legal-prose ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.legal-prose ul li {
+  margin-bottom: 0.375rem;
+  padding-left: 0.25rem;
+}
+
+.legal-prose a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legal-prose strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}

@@ -32,19 +32,7 @@ export const SeoPageLayout = ({ children, title, description }: SeoPageLayoutPro
         {!description && (
           <h1 className="text-xl md:text-3xl font-bold text-foreground mb-6 md:mb-8">{title}</h1>
         )}
-        <div className="
-          prose prose-invert prose-sm md:prose-base max-w-none
-          prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:text-[13px] md:prose-p:text-base
-          prose-a:text-primary prose-a:underline prose-a:underline-offset-2
-          prose-strong:text-foreground prose-strong:font-semibold
-          prose-li:text-muted-foreground prose-li:text-[13px] md:prose-li:text-base prose-li:leading-relaxed
-          prose-ul:pl-5 prose-ul:list-disc prose-ul:space-y-1.5
-          prose-headings:text-foreground
-          prose-h2:text-base md:prose-h2:text-xl prose-h2:font-semibold prose-h2:mt-8 prose-h2:mb-3
-          prose-h2:pb-2 prose-h2:border-b prose-h2:border-border/20
-          prose-h3:text-sm md:prose-h3:text-lg prose-h3:font-medium prose-h3:mt-5 prose-h3:mb-2
-          prose-h3:text-muted-foreground/90
-        ">
+        <div className="legal-prose">
           {children}
         </div>
       </main>
