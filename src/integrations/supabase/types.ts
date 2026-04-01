@@ -160,6 +160,7 @@ export type Database = {
           created_at: string
           description: string | null
           end_date: string | null
+          external_links: Json | null
           icon: string
           id: string
           is_resolved: boolean
@@ -180,6 +181,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          external_links?: Json | null
           icon?: string
           id: string
           is_resolved?: boolean
@@ -200,6 +202,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          external_links?: Json | null
           icon?: string
           id?: string
           is_resolved?: boolean
