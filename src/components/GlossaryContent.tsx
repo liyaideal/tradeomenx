@@ -2,7 +2,6 @@ import { SeoPageLayout } from "@/components/seo";
 import { useState } from "react";
 import { Search, BookOpen, Lightbulb, MessageSquareQuote } from "lucide-react";
 import { glossaryTerms, GlossaryTerm } from "@/data/glossaryTerms";
-import { useNavigate } from "react-router-dom";
 
 interface TermCardProps {
   term: GlossaryTerm;
