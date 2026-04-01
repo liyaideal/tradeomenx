@@ -23,9 +23,10 @@ const defaultColors = {
 interface ExternalHedgeLinksProps {
   links: ExternalPlatformLink[];
   compact?: boolean;
+  label?: string;
 }
 
-export function ExternalHedgeLinks({ links, compact = false }: ExternalHedgeLinksProps) {
+export function ExternalHedgeLinks({ links, compact = false, label = "Hedge on spot markets" }: ExternalHedgeLinksProps) {
   if (!links || links.length === 0) return null;
 
   return (
