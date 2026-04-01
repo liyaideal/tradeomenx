@@ -78,14 +78,19 @@ export const CategoryBreakdown = ({ events }: CategoryBreakdownProps) => {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) => formatVol(value)}
+                formatter={(value: number) => [formatVol(value), "Volume"]}
+                labelFormatter={(name) => name}
                 contentStyle={{
-                  background: "hsl(222 35% 10%)",
-                  border: "1px solid hsl(222 25% 18%)",
+                  background: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
                   borderRadius: "8px",
                   fontSize: "12px",
-                  color: "hsl(210 40% 98%)",
+                  color: "hsl(var(--foreground))",
+                  padding: "8px 12px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
                 }}
+                itemStyle={{ color: "hsl(var(--foreground))", fontSize: "12px" }}
+                labelStyle={{ color: "hsl(var(--muted-foreground))", fontSize: "11px", marginBottom: "2px" }}
               />
             </PieChart>
           </ResponsiveContainer>
