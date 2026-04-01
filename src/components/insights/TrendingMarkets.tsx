@@ -38,7 +38,7 @@ const MiniSparkline = ({ data, positive }: { data: number[]; positive: boolean }
   const strokeColor = positive ? "hsl(145 80% 42%)" : "hsl(0 85% 60%)";
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-6">
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-full">
       <defs>
         <linearGradient id={`sparkGrad-${positive ? "up" : "down"}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={strokeColor} stopOpacity="0.3" />
@@ -177,8 +177,8 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                 )}
               </div>
 
-              {/* Sparkline area chart */}
-              <div className="mb-3 rounded-md overflow-hidden bg-muted/20">
+              {/* Sparkline background */}
+              <div className="absolute bottom-0 left-0 right-0 h-2/3 pointer-events-none opacity-[0.12] group-hover:opacity-[0.2] transition-opacity">
                 <MiniSparkline data={sparklineData} positive={isPositive} />
               </div>
 
