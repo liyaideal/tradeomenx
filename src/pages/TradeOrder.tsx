@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
@@ -104,15 +105,33 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
                   Funding: -0.0001% / Next: in 28min
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-1.5">
-                <button className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <ExternalLink className="w-3 h-3" />
-                  Event Info
-                </button>
-                {selectedEvent?.externalLinks && selectedEvent.externalLinks.length > 0 && (
-                  <ExternalHedgeLinks links={selectedEvent.externalLinks} compact />
-                )}
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <ExternalLink className="w-3 h-3" />
+                    Event Info
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-64 p-3 space-y-3">
+                  <div className="text-xs font-medium">{selectedEvent?.name}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {selectedEvent?.description || "Predict the outcome of this event."}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[10px]">
+                    <div className="bg-muted/30 rounded p-2">
+                      <div className="text-muted-foreground">Ends</div>
+                      <div className="font-medium">{selectedEvent?.ends}</div>
+                    </div>
+                    <div className="bg-muted/30 rounded p-2">
+                      <div className="text-muted-foreground">Volume</div>
+                      <div className="font-medium">{selectedEvent?.volume}</div>
+                    </div>
+                  </div>
+                  {selectedEvent?.externalLinks && selectedEvent.externalLinks.length > 0 && (
+                    <ExternalHedgeLinks links={selectedEvent.externalLinks} />
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
