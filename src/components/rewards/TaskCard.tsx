@@ -20,6 +20,8 @@ const getGoButtonConfig = (action: string): { label: string; icon: React.ReactNo
       return { label: 'Go Share', icon: <Share2 className="w-4 h-4 mr-2" /> };
     case 'referral_qualified':
       return { label: 'Go Invite', icon: <Users className="w-4 h-4 mr-2" /> };
+    case 'join_discord':
+      return { label: 'Join Discord', icon: <Users className="w-4 h-4 mr-2" /> };
     default:
       return null;
   }
