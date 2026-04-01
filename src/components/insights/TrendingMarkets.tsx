@@ -178,8 +178,8 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                 )}
               </div>
 
-              {/* Sparkline background */}
-              <div className="absolute bottom-0 left-0 right-0 h-2/3 pointer-events-none opacity-[0.12] group-hover:opacity-[0.2] transition-opacity">
+              {/* Sparkline background - top 1/3 with fade */}
+              <div className="absolute top-0 left-0 right-0 h-1/3 pointer-events-none opacity-[0.15] group-hover:opacity-[0.25] transition-opacity" style={{ maskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)' }}>
                 <MiniSparkline data={sparklineData} positive={isPositive} />
               </div>
 
