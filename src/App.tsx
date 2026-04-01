@@ -23,6 +23,8 @@ import Settings from "./pages/Settings";
 import Rewards from "./pages/Rewards";
 import FaqPage from "./pages/FaqPage";
 import GlossaryPage from "./pages/GlossaryPage";
+import GlossaryEnPage from "./pages/GlossaryEnPage";
+import GlossaryCnPage from "./pages/GlossaryCnPage";
 import AboutPage from "./pages/AboutPage";
 import InsightsPage from "./pages/InsightsPage";
 import MethodologyPage from "./pages/MethodologyPage";
@@ -90,6 +92,8 @@ const App = () => (
               <Route path="/style-guide" element={<StyleGuide />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/glossary" element={<GlossaryPage />} />
+              <Route path="/glossary/en" element={<GlossaryEnPage />} />
+              <Route path="/glossary/cn" element={<GlossaryCnPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/insights" element={<InsightsPage />} />
               <Route path="/methodology" element={<MethodologyPage />} />
