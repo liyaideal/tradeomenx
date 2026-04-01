@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
+import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
