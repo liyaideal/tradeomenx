@@ -1,81 +1,28 @@
 import { SeoPageLayout } from "@/components/seo";
+import { FlaskConical } from "lucide-react";
 
 const MethodologyPage = () => {
   return (
     <SeoPageLayout
       title="Methodology"
-      description="How OmenX creates, prices, and settles event markets — a transparent look at our platform mechanics."
+      description="How OmenX creates, prices, and settles event markets."
     >
-      <h2>Market Creation</h2>
-      <p>
-        Events are curated by the OmenX team based on public interest, verifiability, and trading demand.
-        Each event undergoes a rigorous review process to ensure:
-      </p>
-      <ul>
-        <li><strong>Clear resolution criteria</strong> — unambiguous conditions for determining the outcome.</li>
-        <li><strong>Verifiable data sources</strong> — trusted, publicly accessible sources for settlement.</li>
-        <li><strong>Defined timeframe</strong> — a specific end date or trigger condition.</li>
-        <li><strong>Meaningful outcomes</strong> — events that reflect genuine informational value.</li>
-      </ul>
-
-      <h2>Pricing Mechanism</h2>
-      <p>
-        OmenX uses a <strong>continuous double auction (order book)</strong> model for price discovery.
-        Unlike automated market makers (AMMs), our order book model allows:
-      </p>
-      <ul>
-        <li>True price discovery through natural supply and demand</li>
-        <li>Tighter spreads and better execution for traders</li>
-        <li>Limit orders for precise entry and exit points</li>
-        <li>Transparent visibility into market depth and liquidity</li>
-      </ul>
-      <p>
-        Option prices range from $0.00 to $1.00, directly representing the market-implied probability
-        of each outcome. For binary events (Yes/No), option prices are complementary.
-      </p>
-
-      <h2>Leverage & Margin</h2>
-      <p>
-        Traders can open leveraged positions up to 20x. The margin system ensures:
-      </p>
-      <ul>
-        <li><strong>Isolated margin</strong> — each position has its own margin, limiting loss to the allocated amount.</li>
-        <li><strong>Automatic liquidation</strong> — positions are closed before they can exceed the margin.</li>
-        <li><strong>No negative balances</strong> — you cannot lose more than your margin on any single position.</li>
-      </ul>
-
-      <h2>Resolution & Settlement</h2>
-      <p>
-        When an event concludes, the OmenX resolution system:
-      </p>
-      <ol>
-        <li><strong>Monitors</strong> — Tracks the event through designated data sources in real time.</li>
-        <li><strong>Verifies</strong> — Cross-references outcomes across multiple sources to prevent errors.</li>
-        <li><strong>Resolves</strong> — Marks the winning outcome and triggers settlement.</li>
-        <li><strong>Settles</strong> — Instantly credits winners ($1.00 per winning contract) and debits losing positions ($0.00).</li>
-      </ol>
-      <p>
-        All settlement evidence, including source URLs and timestamps, is published on the event's resolution page
-        for full transparency.
-      </p>
-
-      <h2>Risk Management</h2>
-      <p>
-        OmenX employs multiple risk management mechanisms:
-      </p>
-      <ul>
-        <li><strong>Account Risk Indicator</strong> — Real-time risk scoring based on portfolio leverage and exposure.</li>
-        <li><strong>Position Limits</strong> — Maximum position sizes per event to prevent market manipulation.</li>
-        <li><strong>Stop Loss / Take Profit</strong> — Automatic exit orders to manage individual position risk.</li>
-        <li><strong>Budget Limits</strong> — Optional spending controls for responsible trading.</li>
-      </ul>
-
-      <h2>Data Integrity</h2>
-      <p>
-        All trades, prices, and settlements are recorded with full audit trails. Historical price data
-        is available through our <a href="/developers">Developer API</a> for independent verification
-        and research.
-      </p>
+      <div className="flex flex-col items-center justify-center py-16 md:py-24 text-center">
+        <div className="text-6xl md:text-8xl mb-6">🧪</div>
+        <h2 className="text-lg md:text-2xl font-bold text-foreground mb-3">
+          实验室里的仓鼠还在跑轮子…
+        </h2>
+        <p className="text-sm md:text-base text-muted-foreground max-w-md leading-relaxed">
+          我们的方法论文档正在由一只非常努力的仓鼠驱动生成中，<br />
+          它需要再跑几圈才能完成 🐹💨
+        </p>
+        <div className="mt-8 px-4 py-2 rounded-full bg-muted/50 border border-border/30">
+          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <FlaskConical className="w-3.5 h-3.5" />
+            内容编写中，敬请期待
+          </span>
+        </div>
+      </div>
     </SeoPageLayout>
   );
 };
