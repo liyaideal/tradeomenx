@@ -169,10 +169,18 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
               key={event.id}
               className="relative p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors group overflow-hidden"
             >
-              {/* Category badge */}
-              <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mb-2 ${catStyle.class}`}>
-                {catInfo.label}
-              </span>
+              {/* Top row: category + trade button */}
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${catStyle.class}`}>
+                  {catInfo.label}
+                </span>
+                <button
+                  onClick={() => navigate("/trade")}
+                  className="relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-medium hover:bg-primary/20 transition-colors"
+                >
+                  Trade <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
 
               {/* Event name */}
               <h3 className="text-sm font-semibold text-foreground mb-3 line-clamp-2 leading-snug">
@@ -206,20 +214,12 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
               </div>
 
               {/* Metrics row */}
-              <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-3">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                 <span>Vol 24h: {formatVol(metrics.volume24h)}</span>
                 <span>OI: {formatVol(metrics.openInterest)}</span>
                 <span>Traders: {metrics.traders}</span>
                 <span>Closes: {closingDate}</span>
               </div>
-
-              {/* Trade button */}
-              <button
-                onClick={() => navigate("/trade")}
-                className="relative z-10 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
-              >
-                Trade Now <ArrowRight className="w-3 h-3" />
-              </button>
             </div>
           );
         })}
