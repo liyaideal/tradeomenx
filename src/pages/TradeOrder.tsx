@@ -104,10 +104,15 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
                   Funding: -0.0001% / Next: in 28min
                 </div>
               </div>
-              <button className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <ExternalLink className="w-3 h-3" />
-                Event Info
-              </button>
+              <div className="flex flex-col items-end gap-1.5">
+                <button className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <ExternalLink className="w-3 h-3" />
+                  Event Info
+                </button>
+                {selectedEvent?.externalLinks && selectedEvent.externalLinks.length > 0 && (
+                  <ExternalHedgeLinks links={selectedEvent.externalLinks} compact />
+                )}
+              </div>
             </div>
           </div>
 
