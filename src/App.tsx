@@ -23,6 +23,8 @@ import Settings from "./pages/Settings";
 import Rewards from "./pages/Rewards";
 import FaqPage from "./pages/FaqPage";
 import GlossaryPage from "./pages/GlossaryPage";
+import GlossaryEnPage from "./pages/GlossaryEnPage";
+import GlossaryCnPage from "./pages/GlossaryCnPage";
 import AboutPage from "./pages/AboutPage";
 import InsightsPage from "./pages/InsightsPage";
 import MethodologyPage from "./pages/MethodologyPage";
