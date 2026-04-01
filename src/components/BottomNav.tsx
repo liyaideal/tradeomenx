@@ -241,7 +241,7 @@ export const BottomNav = () => {
             label="Help & Support"
             onClick={() => {
               setProfileSheetOpen(false);
-              toast.info("Help & Support coming soon");
+              window.open("https://discord.gg/AZwP5qtK", "_blank", "noopener,noreferrer");
             }}
           />
           <MobileDrawerListItem
