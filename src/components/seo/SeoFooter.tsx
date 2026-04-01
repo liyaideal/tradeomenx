@@ -2,23 +2,43 @@ import { useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 
 const footerLinks = {
-  Product: [
+  Platform: [
     { label: "Events", path: "/events" },
+    { label: "Resolved", path: "/resolved" },
     { label: "Leaderboard", path: "/leaderboard" },
-    { label: "Insights", path: "/insights" },
   ],
-  Resources: [
+  "Learn More": [
+    { label: "About", path: "/about" },
     { label: "FAQ", path: "/faq" },
     { label: "Glossary", path: "/glossary" },
     { label: "Methodology", path: "/methodology" },
-    { label: "Developers", path: "/developers" },
   ],
-  Company: [
-    { label: "About", path: "/about" },
+  Legal: [
     { label: "Privacy Policy", path: "/privacy-policy" },
     { label: "Terms of Service", path: "/terms-of-service" },
   ],
 };
+
+const socialLinks = [
+  {
+    label: "X",
+    href: "#",
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Discord",
+    href: "#",
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.8733.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z" />
+      </svg>
+    ),
+  },
+];
 
 export const SeoFooter = () => {
   const navigate = useNavigate();
@@ -27,16 +47,6 @@ export const SeoFooter = () => {
     <footer className="border-t border-border/30 bg-card/50 mt-auto">
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <button onClick={() => navigate("/")} className="mb-3">
-              <Logo size="xl" />
-            </button>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-[200px]">
-              Trade on real-world event outcomes with transparent pricing and instant settlement.
-            </p>
-          </div>
-
           {/* Link columns */}
           {Object.entries(footerLinks).map(([heading, links]) => (
             <div key={heading}>
@@ -55,14 +65,40 @@ export const SeoFooter = () => {
               </ul>
             </div>
           ))}
+
+          {/* Connect column */}
+          <div>
+            <h4 className="text-sm font-semibold text-foreground mb-3">Connect</h4>
+            <div className="flex items-center gap-3 mb-3">
+              {socialLinks.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  {s.icon}
+                </a>
+              ))}
+            </div>
+            <a
+              href="mailto:support@omenx.com"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              support@omenx.com
+            </a>
+          </div>
         </div>
 
+        {/* Bottom bar */}
         <div className="border-t border-border/20 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} OmenX. All rights reserved.
+            © 2026 OmenX. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground">
-            Event trading involves risk. Past performance does not guarantee future results.
+          <p className="text-xs text-muted-foreground text-center md:text-right max-w-md">
+            For informational purposes only. Not financial advice. Trading involves risk of loss.
           </p>
         </div>
       </div>
