@@ -11,7 +11,6 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
-import { FloatingDiscordButton } from "@/components/FloatingDiscordButton";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { format } from "date-fns";
 
@@ -230,7 +229,7 @@ const EventsPage = () => {
       {/* Rewards: Welcome modal for unclaimed users, floating button for claimed */}
       {!isMobile && <RewardsWelcomeModal />}
       {!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}
-      {!isMobile && <FloatingDiscordButton className="bottom-32 right-10" />}
+      
     </div>
   );
 };
