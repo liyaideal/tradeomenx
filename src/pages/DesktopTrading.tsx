@@ -1017,6 +1017,13 @@ export default function DesktopTrading() {
                         ))}
                       </ul>
                     </div>
+
+                    {/* External Hedge Links */}
+                    {selectedEvent.externalLinks && selectedEvent.externalLinks.length > 0 && (
+                      <div className="bg-muted/30 rounded-lg p-4">
+                        <ExternalHedgeLinks links={selectedEvent.externalLinks} />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
