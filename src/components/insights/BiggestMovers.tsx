@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
 
