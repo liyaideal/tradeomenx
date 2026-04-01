@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { ExternalLink, ChevronDown } from "lucide-react";
+import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
