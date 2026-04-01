@@ -31,14 +31,22 @@ const MiniSparkline = ({ data, positive }: { data: number[]; positive: boolean }
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 0.01;
-  const h = 28;
-  const w = 80;
-  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(" ");
-  const color = positive ? "hsl(145 80% 42%)" : "hsl(0 85% 60%)";
+  const h = 24;
+  const w = 200;
+  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * (h - 2) - 1}`).join(" ");
+  const fillPoints = `0,${h} ${points} ${w},${h}`;
+  const strokeColor = positive ? "hsl(145 80% 42%)" : "hsl(0 85% 60%)";
 
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="shrink-0">
-      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-6">
+      <defs>
+        <linearGradient id={`sparkGrad-${positive ? "up" : "down"}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={strokeColor} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={strokeColor} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <polygon points={fillPoints} fill={`url(#sparkGrad-${positive ? "up" : "down"})`} />
+      <polyline points={points} fill="none" stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };
@@ -138,11 +146,6 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
               key={event.id}
               className="relative p-4 rounded-xl bg-card border border-border/30 hover:border-border/50 transition-colors group overflow-hidden"
             >
-              {/* Background sparkline */}
-              <div className="absolute bottom-0 right-0 opacity-20 pointer-events-none">
-                <MiniSparkline data={sparklineData} positive={isPositive} />
-              </div>
-
               {/* Category badge */}
               <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mb-2 ${catStyle.class}`}>
                 {catInfo.label}
@@ -174,12 +177,9 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                 )}
               </div>
 
-              {/* Probability bar */}
-              <div className="w-full h-1.5 rounded-full bg-muted/50 mb-3 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary transition-all"
-                  style={{ width: `${mainPrice * 100}%` }}
-                />
+              {/* Sparkline area chart */}
+              <div className="mb-3 rounded-md overflow-hidden bg-muted/20">
+                <MiniSparkline data={sparklineData} positive={isPositive} />
               </div>
 
               {/* Metrics row */}
