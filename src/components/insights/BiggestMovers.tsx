@@ -53,7 +53,7 @@ export const BiggestMovers = ({ events, priceChanges }: BiggestMoversProps) => {
     const path = sparklinePath(positive);
 
     return (
-      <div className="flex items-center gap-3 py-2.5 border-b border-border/20 last:border-0">
+      <div onClick={() => navigate(`/trade?event=${item.eventId}`)} className="flex items-center gap-3 py-2.5 border-b border-border/20 last:border-0 cursor-pointer hover:bg-muted/30 rounded-lg px-2 -mx-2 transition-colors">
         <div className="flex-1 min-w-0">
           <p className="text-xs font-medium text-foreground truncate">{item.eventName}</p>
           <p className="text-[10px] text-muted-foreground">{item.optionLabel}</p>
