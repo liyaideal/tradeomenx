@@ -21,6 +21,7 @@ const sparklinePath = (positive: boolean): string => {
 };
 
 export const BiggestMovers = ({ events, priceChanges }: BiggestMoversProps) => {
+  const navigate = useNavigate();
   // Flatten options with their changes
   const optionsWithChanges = events.flatMap((event) =>
     event.options.map((opt) => {
