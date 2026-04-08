@@ -374,6 +374,7 @@ const Settings = () => {
           <UsernameCard />
           <EmailCard />
           <LinkedAccountCard />
+          <ConnectedAccountsCard />
         </div>
 
         <BottomNav />
