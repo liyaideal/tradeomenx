@@ -8,6 +8,8 @@ import { MobileTradingLayout, TradingContextData } from "@/components/MobileTrad
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
+import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";

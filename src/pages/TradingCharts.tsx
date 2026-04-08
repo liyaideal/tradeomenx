@@ -5,6 +5,8 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
+import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { usePositions } from "@/hooks/usePositions";
 import { useOrders } from "@/hooks/useOrders";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
