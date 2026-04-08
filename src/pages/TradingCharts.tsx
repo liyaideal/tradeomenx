@@ -212,6 +212,10 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
               />
             ))
           )}
+          {/* Airdrop Positions */}
+          {pendingAirdrops.map((airdrop) => (
+            <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+          ))}
         </div>
       )}
 

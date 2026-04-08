@@ -254,6 +254,10 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
             ))
           )
         )}
+        {/* Airdrop Positions */}
+        {pendingAirdrops.map((airdrop) => (
+          <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+        ))}
       </div>
       </div>
       </AuthGateOverlay>
