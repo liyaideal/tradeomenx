@@ -50,7 +50,7 @@ export const useConnectedAccounts = () => {
     mutationFn: async (payload: {
       walletAddress: string;
       signature: string;
-      message: Record<string, string>;
+      message: { platform: string; account: string; timestamp: string; nonce: string };
       platform: string;
     }) => {
       const { data, error } = await supabase.functions.invoke(

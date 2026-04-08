@@ -4,8 +4,8 @@
 export const EIP712_DOMAIN = {
   name: "OmenX",
   version: "1",
-  chainId: 1, // Ethereum mainnet
-} as const;
+  chainId: 1,
+};
 
 export const EIP712_TYPES = {
   ConnectAccount: [
@@ -14,7 +14,7 @@ export const EIP712_TYPES = {
     { name: "timestamp", type: "uint256" },
     { name: "nonce", type: "string" },
   ],
-} as const;
+};
 
 export interface EIP712Message {
   platform: string;
