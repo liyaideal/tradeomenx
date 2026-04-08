@@ -8,6 +8,8 @@ import { MobileTradingLayout, TradingContextData } from "@/components/MobileTrad
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
+import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
@@ -30,6 +32,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
   // Use unified hooks - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
   const { positions, isLoading: positionsLoading } = usePositions();
+  const { pendingAirdrops } = useAirdropPositions();
   
   // Enable order simulation for auto-filling
   useOrderSimulation();
@@ -251,6 +254,10 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
             ))
           )
         )}
+        {/* Airdrop Positions */}
+        {pendingAirdrops.map((airdrop) => (
+          <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+        ))}
       </div>
       </div>
       </AuthGateOverlay>

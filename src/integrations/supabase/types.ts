@@ -14,6 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
+      airdrop_positions: {
+        Row: {
+          activated_at: string | null
+          activated_trade_id: string | null
+          airdrop_value: number
+          connected_account_id: string
+          counter_event_name: string
+          counter_option_label: string
+          counter_price: number
+          counter_side: string
+          created_at: string
+          expired_at: string | null
+          expires_at: string
+          external_event_name: string
+          external_position_id: string | null
+          external_price: number
+          external_side: string
+          external_size: number
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_trade_id?: string | null
+          airdrop_value?: number
+          connected_account_id: string
+          counter_event_name: string
+          counter_option_label: string
+          counter_price: number
+          counter_side: string
+          created_at?: string
+          expired_at?: string | null
+          expires_at: string
+          external_event_name: string
+          external_position_id?: string | null
+          external_price: number
+          external_side: string
+          external_size: number
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          activated_trade_id?: string | null
+          airdrop_value?: number
+          connected_account_id?: string
+          counter_event_name?: string
+          counter_option_label?: string
+          counter_price?: number
+          counter_side?: string
+          created_at?: string
+          expired_at?: string | null
+          expires_at?: string
+          external_event_name?: string
+          external_position_id?: string | null
+          external_price?: number
+          external_side?: string
+          external_size?: number
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "airdrop_positions_activated_trade_id_fkey"
+            columns: ["activated_trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "airdrop_positions_connected_account_id_fkey"
+            columns: ["connected_account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_limits: {
         Row: {
           category: string
@@ -53,6 +137,51 @@ export type Database = {
         }
         Relationships: []
       }
+      connected_accounts: {
+        Row: {
+          created_at: string
+          disconnected_at: string | null
+          display_address: string
+          id: string
+          platform: string
+          signature: string
+          signed_message: Json
+          status: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          disconnected_at?: string | null
+          display_address: string
+          id?: string
+          platform?: string
+          signature: string
+          signed_message: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          disconnected_at?: string | null
+          display_address?: string
+          id?: string
+          platform?: string
+          signature?: string
+          signed_message?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       deposit_addresses: {
         Row: {
           address: string
@@ -83,6 +212,45 @@ export type Database = {
           token?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      event_mappings: {
+        Row: {
+          category: string | null
+          created_at: string
+          external_event_id: string
+          external_event_name: string
+          external_platform: string
+          id: string
+          mapping_status: string
+          omenx_event_id: string | null
+          omenx_event_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          external_event_id: string
+          external_event_name: string
+          external_platform?: string
+          id?: string
+          mapping_status?: string
+          omenx_event_id?: string | null
+          omenx_event_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          external_event_id?: string
+          external_event_name?: string
+          external_platform?: string
+          id?: string
+          mapping_status?: string
+          omenx_event_id?: string | null
+          omenx_event_name?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -217,6 +385,39 @@ export type Database = {
           updated_at?: string
           volume?: string | null
           winning_option_id?: string | null
+        }
+        Relationships: []
+      }
+      h2e_fund: {
+        Row: {
+          active_airdrops_count: number
+          active_airdrops_value: number
+          created_at: string
+          id: string
+          total_allocated: number
+          total_disbursed: number
+          total_returned: number
+          updated_at: string
+        }
+        Insert: {
+          active_airdrops_count?: number
+          active_airdrops_value?: number
+          created_at?: string
+          id?: string
+          total_allocated?: number
+          total_disbursed?: number
+          total_returned?: number
+          updated_at?: string
+        }
+        Update: {
+          active_airdrops_count?: number
+          active_airdrops_value?: number
+          created_at?: string
+          id?: string
+          total_allocated?: number
+          total_disbursed?: number
+          total_returned?: number
+          updated_at?: string
         }
         Relationships: []
       }

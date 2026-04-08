@@ -1,0 +1,145 @@
+import { useState, useEffect } from "react";
+import { Gift, Clock, Zap, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import type { AirdropPosition } from "@/hooks/useAirdropPositions";
+
+interface AirdropPositionCardProps {
+  airdrop: AirdropPosition;
+}
+
+const useCountdown = (expiresAt: string) => {
+  const [timeLeft, setTimeLeft] = useState("");
+  const [isExpired, setIsExpired] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      if (diff <= 0) {
+        setIsExpired(true);
+        setTimeLeft("Expired");
+        return;
+      }
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setTimeLeft(`${hours}h ${minutes}m`);
+    };
+
+    update();
+    const interval = setInterval(update, 60000);
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+
+  return { timeLeft, isExpired };
+};
+
+export const AirdropPositionCard = ({ airdrop }: AirdropPositionCardProps) => {
+  const navigate = useNavigate();
+  const { timeLeft, isExpired } = useCountdown(airdrop.expiresAt);
+
+  const isPending = airdrop.status === "pending";
+  const isActivated = airdrop.status === "activated";
+  const isExpiredStatus = airdrop.status === "expired";
+
+  const statusConfig = {
+    pending: {
+      bg: "bg-trading-yellow/10",
+      border: "border-trading-yellow/30",
+      badgeBg: "bg-trading-yellow/20 text-trading-yellow border-trading-yellow/30",
+      label: "Pending Activation",
+    },
+    activated: {
+      bg: "bg-trading-green/10",
+      border: "border-trading-green/30",
+      badgeBg: "bg-trading-green/20 text-trading-green border-trading-green/30",
+      label: "Activated",
+    },
+    expired: {
+      bg: "bg-muted/30",
+      border: "border-border",
+      badgeBg: "bg-muted text-muted-foreground border-border",
+      label: "Expired",
+    },
+  };
+
+  const config = statusConfig[airdrop.status as keyof typeof statusConfig] || statusConfig.expired;
+
+  return (
+    <div className={`rounded-xl p-3 border ${config.bg} ${config.border}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
+            <Gift className="w-3 h-3" />
+            AIRDROP
+          </Badge>
+          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${config.badgeBg}`}>
+            {config.label}
+          </Badge>
+        </div>
+        {isPending && !isExpired && (
+          <div className="flex items-center gap-1 text-xs text-trading-yellow">
+            <Clock className="w-3 h-3" />
+            <span className="font-mono">{timeLeft}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Counter Position Info */}
+      <div className="mb-2">
+        <h3 className="font-medium text-foreground text-sm">{airdrop.counterEventName}</h3>
+        <p className="text-xs text-muted-foreground">
+          {airdrop.counterOptionLabel} · {airdrop.counterSide === "long" ? "Long" : "Short"}
+        </p>
+      </div>
+
+      {/* Details Grid */}
+      <div className="grid grid-cols-3 gap-2 mb-2">
+        <div>
+          <span className="text-[10px] text-muted-foreground block">Value</span>
+          <span className="font-mono text-xs text-trading-green">${airdrop.airdropValue.toFixed(2)}</span>
+        </div>
+        <div>
+          <span className="text-[10px] text-muted-foreground block">Price</span>
+          <span className="font-mono text-xs">${airdrop.counterPrice.toFixed(4)}</span>
+        </div>
+        <div>
+          <span className="text-[10px] text-muted-foreground block">Source</span>
+          <span className="text-xs text-muted-foreground truncate block">{airdrop.externalSide} @ ${airdrop.externalPrice.toFixed(2)}</span>
+        </div>
+      </div>
+
+      {/* External position reference */}
+      <div className="text-[10px] text-muted-foreground mb-2 flex items-center gap-1">
+        <span>Hedging:</span>
+        <span className="truncate">{airdrop.externalEventName}</span>
+      </div>
+
+      {/* Action */}
+      {isPending && !isExpired && (
+        <Button
+          onClick={() => navigate("/events")}
+          className="w-full h-8 text-xs btn-primary gap-1"
+        >
+          <Zap className="w-3 h-3" />
+          Activate — Make a Trade
+        </Button>
+      )}
+
+      {isExpiredStatus && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
+          <AlertTriangle className="w-3 h-3" />
+          <span>This airdrop expired without activation</span>
+        </div>
+      )}
+
+      {isActivated && (
+        <div className="flex items-center gap-2 text-xs text-trading-green py-1">
+          <Zap className="w-3 h-3" />
+          <span>Activated — Position is live</span>
+        </div>
+      )}
+    </div>
+  );
+};

@@ -5,6 +5,8 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
+import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { usePositions } from "@/hooks/usePositions";
 import { useOrders } from "@/hooks/useOrders";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
@@ -24,6 +26,7 @@ interface TradingChartsContentProps {
 function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChartsContentProps) {
   const navigate = useNavigate();
   const { positions, isLoading: positionsLoading } = usePositions();
+  const { pendingAirdrops } = useAirdropPositions();
   // Use unified orders hook - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
   const { profile } = useUserProfile();
@@ -209,6 +212,10 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
               />
             ))
           )}
+          {/* Airdrop Positions */}
+          {pendingAirdrops.map((airdrop) => (
+            <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+          ))}
         </div>
       )}
 

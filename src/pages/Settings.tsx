@@ -34,6 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
 import { TelegramIcon } from "@/components/icons/TelegramIcon";
 import { Wallet } from "lucide-react";
+import { ConnectedAccountsCard } from "@/components/settings/ConnectedAccountsCard";
 
 const AUTH_METHOD_INFO: Record<string, { label: string; icon: React.ReactNode; color: string; description: string }> = {
   google: { label: "Google", icon: <GoogleIcon className="w-5 h-5" />, color: "text-blue-400", description: "Google Account" },
@@ -373,6 +374,7 @@ const Settings = () => {
           <UsernameCard />
           <EmailCard />
           <LinkedAccountCard />
+          <ConnectedAccountsCard />
         </div>
 
         <BottomNav />
@@ -509,6 +511,7 @@ const Settings = () => {
           <UsernameCard />
           <EmailCard />
           <LinkedAccountCard />
+          <ConnectedAccountsCard />
         </div>
       </div>
 
