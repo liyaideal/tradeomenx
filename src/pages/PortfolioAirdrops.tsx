@@ -311,7 +311,6 @@ export default function PortfolioAirdrops() {
                             <ChevronRight className="w-4 h-4 ml-1" />
                           </Button>
                         ) : null}
-                        )}
                       </TableCell>
                     </TableRow>
                   ))}
