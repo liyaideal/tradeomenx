@@ -1093,6 +1093,16 @@ export default function DesktopTrading() {
               )}
 
               {bottomTab === "Positions" && (
+                <>
+                {/* Pending Airdrop Banner */}
+                {pendingAirdrops.length > 0 && (
+                  <div className="mx-4 mt-2 mb-1 px-3 py-2 rounded-lg bg-trading-yellow/10 border border-trading-yellow/30 flex items-center gap-2">
+                    <span className="text-sm">🎁</span>
+                    <span className="text-xs text-trading-yellow">
+                      You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — make a trade to claim
+                    </span>
+                  </div>
+                )}
                 <table className="w-full">
                   <thead className="sticky top-0 bg-background">
                     <tr className="border-b border-border/30">
