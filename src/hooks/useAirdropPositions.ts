@@ -63,6 +63,7 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     externalSide: "No",
     externalPrice: 0.72,
     counterEventName: "ETH Price Prediction April 2026",
+    counterEventId: "3",
     counterOptionLabel: "Above $5,000",
     counterSide: "long",
     counterPrice: 0.28,
