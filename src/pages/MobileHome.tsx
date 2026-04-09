@@ -505,6 +505,7 @@ const MobileHome = () => {
       
       {/* Airdrop homepage modal */}
       <AirdropHomepageModal />
+    </div>
   );
 };
 
