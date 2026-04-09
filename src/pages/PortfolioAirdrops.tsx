@@ -185,26 +185,26 @@ export default function PortfolioAirdrops() {
 
         {/* Stats Cards */}
         <div className="grid gap-3 grid-cols-3">
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
-              <Gift className="w-3.5 h-3.5" />
+          <div className="bg-card rounded-xl p-4 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+              <Gift className="w-3.5 h-3.5 shrink-0" />
               <span>Total Value</span>
             </div>
-            <p className="text-xl font-bold font-mono text-trading-green">${totalValue.toFixed(2)}</p>
+            <p className="text-xl font-bold font-mono text-trading-green mt-3">${totalValue.toFixed(2)}</p>
           </div>
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
-              <Clock className="w-3.5 h-3.5" />
+          <div className="bg-card rounded-xl p-4 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
               <span>Pending</span>
             </div>
-            <p className="text-xl font-bold font-mono text-foreground">{pendingAirdrops.length}</p>
+            <p className="text-xl font-bold font-mono text-foreground mt-3">{pendingAirdrops.length}</p>
           </div>
-          <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
-              <Zap className="w-3.5 h-3.5" />
+          <div className="bg-card rounded-xl p-4 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+              <Zap className="w-3.5 h-3.5 shrink-0" />
               <span>Activated</span>
             </div>
-            <p className="text-xl font-bold font-mono text-foreground">{activatedAirdrops.length}</p>
+            <p className="text-xl font-bold font-mono text-foreground mt-3">{activatedAirdrops.length}</p>
           </div>
         </div>
 
@@ -234,12 +234,21 @@ export default function PortfolioAirdrops() {
           isMobile ? (
             <div className="space-y-3">
               {airdrops.map((airdrop) => (
-                <AirdropPositionCard
+                <div
                   key={airdrop.id}
-                  airdrop={airdrop}
-                  onActivate={activateAirdrop}
-                  isActivating={isActivating}
-                />
+                  className={airdrop.status === "activated" ? "cursor-pointer" : ""}
+                  onClick={() => {
+                    if (airdrop.status === "activated") {
+                      navigate(`/trade?event=${airdrop.counterEventId}`);
+                    }
+                  }}
+                >
+                  <AirdropPositionCard
+                    airdrop={airdrop}
+                    onActivate={activateAirdrop}
+                    isActivating={isActivating}
+                  />
+                </div>
               ))}
             </div>
           ) : (
