@@ -2,77 +2,61 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
 
-const NOTIFIED_KEY = "airdrop_toast_notified_ids";
-
-const getNotifiedIds = (): Set<string> => {
-  try {
-    const raw = sessionStorage.getItem(NOTIFIED_KEY);
-    return raw ? new Set(JSON.parse(raw)) : new Set();
-  } catch {
-    return new Set();
-  }
-};
-
-const saveNotifiedIds = (ids: Set<string>) => {
-  sessionStorage.setItem(NOTIFIED_KEY, JSON.stringify([...ids]));
-};
+const TOAST_ACCOUNTS_KEY = "airdrop_toast_account_ids";
 
 export const AirdropNotificationToast = () => {
   const navigate = useNavigate();
   const { pendingAirdrops } = useAirdropPositions();
-  const prevCount = useRef(0);
+  const { activeAccounts } = useConnectedAccounts();
+  const firedForRef = useRef<Set<string>>(new Set());
+
+  // Track which account IDs we've already toasted for
+  useEffect(() => {
+    // Initialize from sessionStorage
+    try {
+      const saved = sessionStorage.getItem(TOAST_ACCOUNTS_KEY);
+      if (saved) firedForRef.current = new Set(JSON.parse(saved));
+    } catch { /* ignore */ }
+  }, []);
+
+  const activeIds = activeAccounts.map((a) => a.id).sort().join(",");
+  const pendingCount = pendingAirdrops.length;
 
   useEffect(() => {
-    if (pendingAirdrops.length === 0) {
-      prevCount.current = 0;
-      return;
-    }
+    if (pendingCount === 0 || activeAccounts.length === 0) return;
 
-    // Only fire when count transitions from 0 → N (new connection)
-    if (prevCount.current === 0 && pendingAirdrops.length > 0) {
-      const timer = setTimeout(() => {
-        const notified = getNotifiedIds();
-        const newOnes = pendingAirdrops.filter((a) => !notified.has(a.id));
+    // Check if any active account is new (not yet toasted)
+    const newAccountIds = activeAccounts
+      .filter((a) => !firedForRef.current.has(a.id))
+      .map((a) => a.id);
 
-        if (newOnes.length === 0) {
-          // IDs already seen — clear and re-notify (reconnection scenario)
-          sessionStorage.removeItem(NOTIFIED_KEY);
-          const freshNotified = new Set<string>();
-          pendingAirdrops.forEach((airdrop) => {
-            freshNotified.add(airdrop.id);
-            toast("🎁 New Airdrop Received!", {
-              description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
-              duration: 8000,
-              action: {
-                label: "View",
-                onClick: () => navigate("/portfolio?tab=airdrops"),
-              },
-            });
-          });
-          saveNotifiedIds(freshNotified);
-        } else {
-          newOnes.forEach((airdrop) => {
-            notified.add(airdrop.id);
-            toast("🎁 New Airdrop Received!", {
-              description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
-              duration: 8000,
-              action: {
-                label: "View",
-                onClick: () => navigate("/portfolio?tab=airdrops"),
-              },
-            });
-          });
-          saveNotifiedIds(notified);
-        }
-      }, 500);
+    if (newAccountIds.length === 0) return;
 
-      prevCount.current = pendingAirdrops.length;
-      return () => clearTimeout(timer);
-    }
+    // Mark as fired
+    newAccountIds.forEach((id) => firedForRef.current.add(id));
+    try {
+      sessionStorage.setItem(TOAST_ACCOUNTS_KEY, JSON.stringify([...firedForRef.current]));
+    } catch { /* ignore */ }
 
-    prevCount.current = pendingAirdrops.length;
-  }, [pendingAirdrops, navigate]);
+    // Fire toasts with delay
+    const timer = setTimeout(() => {
+      pendingAirdrops.forEach((airdrop) => {
+        toast("🎁 New Airdrop Received!", {
+          description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
+          duration: 8000,
+          action: {
+            label: "View",
+            onClick: () => navigate("/portfolio?tab=airdrops"),
+          },
+        });
+      });
+    }, 800);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIds, pendingCount]);
 
   return null;
 };
