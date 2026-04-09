@@ -1,38 +1,47 @@
 
 
-## 修复三个视图之间 Orders/Positions 数据不一致
+## Plan: Homepage Airdrop Notification Modal/Drawer
 
-### 根因分析
+### Problem
+When new airdrops are detected from Polymarket scanning, users should see a rich modal (desktop) or bottom drawer (mobile) on the homepage — not just a small toast. Limited to 3 popups per day to avoid spamming.
 
-数据不一致的原因是 `useOrderSimulation` 这个 hook 的运行位置不统一：
+### Design
 
-- **Trade tab** (`TradeOrder.tsx`) — 运行了 `useOrderSimulation`
-- **Desktop** (`DesktopTrading.tsx`) — 运行了 `useOrderSimulation`
-- **Charts tab** (`TradingCharts.tsx`) — **没有运行** `useOrderSimulation`
+**Mobile**: Bottom drawer (Vaul) with airdrop details, countdown timer, and "Activate Now" button.
+**Desktop**: Dialog modal with same content.
 
-`useOrderSimulation` 会自动把 Pending 订单变成 Filled（然后从列表移除），同时创建对应的 Position。这意味着：
-- 在 Trade/Desktop 页面，订单会被自动消耗掉，数量会变少
-- 切到 Charts 时，模拟停止，但 Zustand 状态已被修改
-- 不同时间点切换 tab，看到的数据自然不同
+Both show:
+- Title: "🎁 New Airdrop Position!"
+- Detected position info (event name, side)
+- FREE $10 hedge position details
+- Countdown timer (time remaining to activate)
+- "Activate Now" button → navigates to `/trade?event={eventId}`
+- Dismiss button
 
-### 解决方案
+### Technical Approach
 
-把 `useOrderSimulation` 从各个页面组件中移除，改为在全局（App 层级）运行一次。这样无论用户在哪个 tab，模拟逻辑都一致运行。
+1. **New component: `AirdropHomepageModal.tsx`**
+   - Accepts `pendingAirdrops` from `useAirdropPositions`
+   - On mount (homepage only), checks for new unshown airdrops
+   - Uses `localStorage` key `omenx-airdrop-modal-shown:{userId}:{date}` to track daily count (max 3)
+   - Uses `sessionStorage` to track which airdrop IDs have already been shown in this session
+   - Shows one airdrop at a time (most recent first)
+   - Mobile: renders as `Drawer` from vaul; Desktop: renders as `Dialog`
+   - Live countdown using `setInterval` for the `expiresAt` field
+   - "Activate Now" calls `activateAirdrop(id)` then navigates to trade page
+   - "Dismiss" closes and marks as shown
 
-### 改动范围
+2. **Integration in `MobileHome.tsx` and `EventsPage.tsx` (desktop homepage)**
+   - Add `<AirdropHomepageModal />` component
+   - Only renders on homepage routes
 
-#### 1. `src/App.tsx` — 添加全局 OrderSimulation
-- 在 App 组件中调用 `useOrderSimulation()`
-- 确保只在 guest 模式下运行（已登录用户用 Supabase 数据，不需要模拟）
+3. **Rate limiting logic**
+   - On each render, read `localStorage` for today's date key
+   - Parse shown count; if >= 3, skip
+   - After showing, increment count and save
 
-#### 2. `src/pages/TradeOrder.tsx` — 移除 `useOrderSimulation`
-- 删除 import 和调用
-
-#### 3. `src/pages/DesktopTrading.tsx` — 移除 `useOrderSimulation`
-- 删除 import 和调用
-
-#### 4. `src/hooks/useOrderSimulation.ts` — 添加登录检查
-- 如果用户已登录，跳过模拟（已登录用户的订单由 Supabase 管理）
-
-这样三个视图在任何时刻看到的 orders 和 positions 都完全一致。
+### Files to Create/Edit
+- **Create**: `src/components/AirdropHomepageModal.tsx`
+- **Edit**: `src/pages/MobileHome.tsx` — add modal component
+- **Edit**: `src/pages/EventsPage.tsx` — add modal component (desktop homepage)
 
