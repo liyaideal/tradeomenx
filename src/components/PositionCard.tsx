@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info, Gift } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +41,7 @@ interface PositionCardProps {
   leverage: string;
   takeProfit?: string;
   stopLoss?: string;
+  isAirdrop?: boolean;
 }
 
 export const PositionCard = ({
@@ -58,6 +59,7 @@ export const PositionCard = ({
   leverage,
   takeProfit: initialTp = "",
   stopLoss: initialSl = "",
+  isAirdrop,
 }: PositionCardProps) => {
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
@@ -209,6 +211,12 @@ export const PositionCard = ({
               {type === "long" ? "Long" : "Short"}
             </span>
             <span className="text-xs text-muted-foreground">{leverage}</span>
+            {isAirdrop && (
+              <span className="inline-flex items-center gap-0.5 bg-primary/20 text-primary border border-primary/30 text-[9px] font-semibold px-1.5 py-0 rounded">
+                <Gift className="w-2.5 h-2.5" />
+                AIRDROP
+              </span>
+            )}
           </div>
           <div className={`flex items-center gap-1 text-xs font-semibold ${
             isProfitable ? "text-trading-green" : "text-trading-red"

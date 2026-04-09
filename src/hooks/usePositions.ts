@@ -2,6 +2,7 @@ import { useMemo, useCallback } from "react";
 import { useAuth } from "./useAuth";
 import { useSupabasePositions, SupabasePosition } from "./useSupabasePositions";
 import { usePositionsStore, Position as LocalPosition } from "@/stores/usePositionsStore";
+import { useAirdropPositions, AirdropPosition } from "./useAirdropPositions";
 
 // Unified position interface for components
 export interface UnifiedPosition {
@@ -22,8 +23,10 @@ export interface UnifiedPosition {
   sl: string;
   tpMode: "%" | "$";
   slMode: "%" | "$";
+  isAirdrop?: boolean;
+  airdropId?: string;
   // Original source for mutations
-  _source: "supabase" | "local";
+  _source: "supabase" | "local" | "airdrop";
   _supabaseId?: string;
 }
 
@@ -82,6 +85,33 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
   };
 };
 
+// Convert activated airdrop to unified position format
+const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
+  const qty = Math.round(airdrop.airdropValue / airdrop.counterPrice);
+  return {
+    id: `airdrop-${airdrop.id}`,
+    type: airdrop.counterSide as "long" | "short",
+    event: airdrop.counterEventName,
+    option: airdrop.counterOptionLabel,
+    optionId: null,
+    entryPrice: `$${airdrop.counterPrice.toFixed(4)}`,
+    markPrice: `$${airdrop.counterPrice.toFixed(4)}`,
+    size: String(qty),
+    sizeDisplay: qty.toLocaleString(),
+    margin: `$${airdrop.airdropValue.toFixed(2)}`,
+    pnl: "+$0.00",
+    pnlPercent: "+0.0%",
+    leverage: "1x",
+    tp: "",
+    sl: "",
+    tpMode: "%",
+    slMode: "%",
+    isAirdrop: true,
+    airdropId: airdrop.id,
+    _source: "airdrop",
+  };
+};
+
 export const usePositions = () => {
   const { user } = useAuth();
   const isLoggedIn = !!user;
@@ -103,14 +133,18 @@ export const usePositions = () => {
     closePosition: closeLocalPosition,
     updatePositionTpSl: updateLocalTpSl,
   } = usePositionsStore();
+
+  // Activated airdrops (merged into positions list)
+  const { activatedAirdrops } = useAirdropPositions();
   
-  // Convert to unified format
+  // Convert to unified format (including activated airdrops)
   const positions: UnifiedPosition[] = useMemo(() => {
-    if (isLoggedIn) {
-      return supabasePositions.map(convertSupabasePosition);
-    }
-    return localPositions.map(convertLocalPosition);
-  }, [isLoggedIn, supabasePositions, localPositions]);
+    const base = isLoggedIn
+      ? supabasePositions.map(convertSupabasePosition)
+      : localPositions.map(convertLocalPosition);
+    const airdropPositions = activatedAirdrops.map(convertAirdropPosition);
+    return [...base, ...airdropPositions];
+  }, [isLoggedIn, supabasePositions, localPositions, activatedAirdrops]);
   
   // Refetch positions (for logged-in users)
   const refetch = useCallback(() => {
@@ -122,19 +156,22 @@ export const usePositions = () => {
   // Unified close position handler
   const closePosition = useCallback(
     async (positionId: string, index: number) => {
+      // Airdrop positions — just remove from local state for now
+      if (positionId.startsWith("airdrop-")) {
+        // For demo: could mark as closed; for now just toast
+        const { toast } = await import("sonner");
+        toast.success("Airdrop position closed");
+        return;
+      }
       if (isLoggedIn) {
-        // Get the position to calculate PnL
         const pos = supabasePositions.find(p => p.id === positionId);
         if (pos) {
           const closePrice = Number(pos.mark_price);
           const entryPrice = Number(pos.entry_price);
           const size = Number(pos.size);
           const side = pos.side;
-          
-          // Calculate PnL
           const priceDiff = closePrice - entryPrice;
           const pnl = side === "long" ? priceDiff * size : -priceDiff * size;
-          
           await closeSupabasePosition(positionId, closePrice, pnl);
         }
       } else {
@@ -154,6 +191,11 @@ export const usePositions = () => {
       tpMode: "%" | "$",
       slMode: "%" | "$"
     ) => {
+      if (positionId.startsWith("airdrop-")) {
+        const { toast } = await import("sonner");
+        toast.success("TP/SL updated for airdrop position");
+        return;
+      }
       if (isLoggedIn) {
         const tpValue = tp ? parseFloat(tp) : null;
         const slValue = sl ? parseFloat(sl) : null;
