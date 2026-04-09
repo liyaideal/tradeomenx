@@ -1225,6 +1225,7 @@ export default function DesktopTrading() {
                     )}
                   </tbody>
                 </table>
+                </>
               )}
             </div>
             </AuthGateOverlay>
