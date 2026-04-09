@@ -23,8 +23,10 @@ export interface UnifiedPosition {
   sl: string;
   tpMode: "%" | "$";
   slMode: "%" | "$";
+  isAirdrop?: boolean;
+  airdropId?: string;
   // Original source for mutations
-  _source: "supabase" | "local";
+  _source: "supabase" | "local" | "airdrop";
   _supabaseId?: string;
 }
 
