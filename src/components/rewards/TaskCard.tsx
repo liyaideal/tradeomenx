@@ -34,7 +34,7 @@ const getGoButtonConfig = (action: string): { label: string; icon: React.ReactNo
   }
 };
 
-export function TaskCard({ task, onClaim, isClaiming, onGoComplete }: TaskCardProps) {
+export function TaskCard({ task, onClaim, isClaiming, onGoComplete, prerequisiteBlocked, prerequisiteHint }: TaskCardProps) {
   const isPending = !task.isCompleted && !task.isClaimed;
   const isClaimable = task.isCompleted && !task.isClaimed;
   const isClaimed = task.isClaimed;
