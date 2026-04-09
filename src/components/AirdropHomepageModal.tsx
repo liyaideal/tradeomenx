@@ -241,6 +241,7 @@ export const AirdropHomepageModal = () => {
           airdrop={currentAirdrop}
           onActivate={handleActivate}
           onDismiss={handleDismiss}
+          showDismiss={false}
           isActivating={isActivating}
         />
       </DialogContent>
