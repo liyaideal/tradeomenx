@@ -189,7 +189,7 @@ export const ConnectedAccountsCard = () => {
           value={walletAddress}
           onChange={(e) => setWalletAddress(e.target.value)}
           className="font-mono h-12"
-          disabled={connectionStep === "signing"}
+          disabled={connectionStep !== "input"}
         />
         <p className="text-xs text-muted-foreground">
           Enter the wallet address you use on {PLATFORMS.find((p) => p.id === selectedPlatform)?.name}.
