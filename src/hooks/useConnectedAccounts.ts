@@ -28,10 +28,24 @@ export const useConnectedAccounts = () => {
   const queryClient = useQueryClient();
   const { user } = useUserProfile();
 
-  // ── Demo state ──
-  const [demoAccounts, setDemoAccounts] = useState<ConnectedAccount[]>([]);
+  // ── Demo state (persisted to localStorage) ──
+  const [demoAccounts, setDemoAccounts] = useState<ConnectedAccount[]>(() => {
+    try {
+      const saved = localStorage.getItem("demo_connected_accounts");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [isDemoVerifying, setIsDemoVerifying] = useState(false);
   const [isDemoDisconnecting, setIsDemoDisconnecting] = useState(false);
+
+  // Persist demo accounts to localStorage
+  const updateDemoAccounts = useCallback((updater: (prev: ConnectedAccount[]) => ConnectedAccount[]) => {
+    setDemoAccounts((prev) => {
+      const next = updater(prev);
+      localStorage.setItem("demo_connected_accounts", JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   const demoVerifyAndConnect = useCallback(
     async (payload: {
