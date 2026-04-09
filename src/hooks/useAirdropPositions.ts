@@ -23,7 +23,7 @@ export interface AirdropPosition {
 }
 
 const QUERY_KEY = ["airdrop-positions"];
-const DEMO_AIRDROPS_STORAGE_KEY = "omenx-demo-airdrop-positions-v1";
+const DEMO_AIRDROPS_STORAGE_KEY_PREFIX = "omenx-demo-airdrop-positions:";
 
 // Mock airdrop data for frontend development
 const MOCK_AIRDROPS: AirdropPosition[] = [
@@ -77,11 +77,13 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
   },
 ];
 
-const loadDemoAirdrops = (): AirdropPosition[] => {
+const getDemoStorageKey = (userId: string) => `${DEMO_AIRDROPS_STORAGE_KEY_PREFIX}${userId}`;
+
+const loadDemoAirdrops = (userId: string): AirdropPosition[] => {
   if (typeof window === "undefined") return MOCK_AIRDROPS;
 
   try {
-    const stored = window.localStorage.getItem(DEMO_AIRDROPS_STORAGE_KEY);
+    const stored = window.localStorage.getItem(getDemoStorageKey(userId));
     if (!stored) return MOCK_AIRDROPS;
 
     const parsed = JSON.parse(stored);
@@ -91,9 +93,9 @@ const loadDemoAirdrops = (): AirdropPosition[] => {
   }
 };
 
-const saveDemoAirdrops = (airdrops: AirdropPosition[]) => {
+const saveDemoAirdrops = (userId: string, airdrops: AirdropPosition[]) => {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(DEMO_AIRDROPS_STORAGE_KEY, JSON.stringify(airdrops));
+  window.localStorage.setItem(getDemoStorageKey(userId), JSON.stringify(airdrops));
 };
 
 export const useAirdropPositions = () => {
@@ -117,13 +119,13 @@ export const useAirdropPositions = () => {
     queryKey,
     queryFn: async () => {
       if (isDemoMode) {
-        if (!hasScanComplete) return [];
+        if (!hasScanComplete || !user) return [];
 
         const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
         if (cached && cached.length > 0) return cached;
 
-        const storedDemoAirdrops = loadDemoAirdrops();
-        saveDemoAirdrops(storedDemoAirdrops);
+        const storedDemoAirdrops = loadDemoAirdrops(user.id);
+        saveDemoAirdrops(user.id, storedDemoAirdrops);
         return storedDemoAirdrops;
       }
 
@@ -168,13 +170,13 @@ export const useAirdropPositions = () => {
     setIsActivating(true);
     try {
       if (isDemoMode) {
-        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops()).map((a) =>
+        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '')).map((a) =>
           a.id === id
             ? { ...a, status: "activated", activatedAt: new Date().toISOString() }
             : a
         );
 
-        saveDemoAirdrops(nextDemoAirdrops);
+        saveDemoAirdrops(user?.id ?? '', nextDemoAirdrops);
         queryClient.setQueryData<AirdropPosition[]>(queryKey, nextDemoAirdrops);
       } else {
         const { error } = await supabase
