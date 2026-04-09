@@ -265,7 +265,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
                 ))}
                 {/* Airdrop Positions inside Positions tab */}
                 {pendingAirdrops.map((airdrop) => (
-                  <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+                  <AirdropPositionCard key={airdrop.id} airdrop={airdrop} onActivate={activateAirdrop} isActivating={isActivating} />
                 ))}
               </>
             )}
