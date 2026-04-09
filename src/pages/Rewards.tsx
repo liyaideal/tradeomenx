@@ -20,6 +20,7 @@ import { TaskCard } from "@/components/rewards/TaskCard";
 import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { XShareConfirmDialog } from "@/components/rewards/XShareConfirmDialog";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
 
 export default function Rewards() {
   const navigate = useNavigate();
