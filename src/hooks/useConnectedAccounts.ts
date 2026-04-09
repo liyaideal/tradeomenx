@@ -28,10 +28,24 @@ export const useConnectedAccounts = () => {
   const queryClient = useQueryClient();
   const { user } = useUserProfile();
 
-  // ── Demo state ──
-  const [demoAccounts, setDemoAccounts] = useState<ConnectedAccount[]>([]);
+  // ── Demo state (persisted to localStorage) ──
+  const [demoAccounts, setDemoAccounts] = useState<ConnectedAccount[]>(() => {
+    try {
+      const saved = localStorage.getItem("demo_connected_accounts");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [isDemoVerifying, setIsDemoVerifying] = useState(false);
   const [isDemoDisconnecting, setIsDemoDisconnecting] = useState(false);
+
+  // Persist demo accounts to localStorage
+  const updateDemoAccounts = useCallback((updater: (prev: ConnectedAccount[]) => ConnectedAccount[]) => {
+    setDemoAccounts((prev) => {
+      const next = updater(prev);
+      localStorage.setItem("demo_connected_accounts", JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   const demoVerifyAndConnect = useCallback(
     async (payload: {
@@ -55,12 +69,12 @@ export const useConnectedAccounts = () => {
         airdropsReceived: 0,
         scanStatus: "scanning",
       };
-      setDemoAccounts((prev) => [newAccount, ...prev]);
+      updateDemoAccounts((prev) => [newAccount, ...prev]);
       setIsDemoVerifying(false);
 
       // Simulate scanning completing after 3 seconds
       setTimeout(() => {
-        setDemoAccounts((prev) =>
+        updateDemoAccounts((prev) =>
           prev.map((a) =>
             a.id === newAccount.id
               ? { ...a, scanStatus: "complete" as const, positionsDetected: 3, airdropsReceived: 2 }
@@ -77,9 +91,9 @@ export const useConnectedAccounts = () => {
   const demoDisconnect = useCallback(async (accountId: string) => {
     setIsDemoDisconnecting(true);
     await new Promise((r) => setTimeout(r, 500));
-    setDemoAccounts((prev) => prev.filter((a) => a.id !== accountId));
+    updateDemoAccounts((prev) => prev.filter((a) => a.id !== accountId));
     setIsDemoDisconnecting(false);
-  }, []);
+  }, [updateDemoAccounts]);
 
   // ── Real Supabase queries (used when DEMO_MODE = false) ──
   const { data: realAccounts = [], isLoading: realLoading } = useQuery({
