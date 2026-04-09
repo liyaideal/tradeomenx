@@ -2101,7 +2101,7 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
 // Settings Card Section Component
 const SettingsCardSection = () => {
   return (
-    <SectionWrapper title="Settings Card" description="Standard card pattern used on the Settings page. Uses trading-card class with plain text titles (no icons).">
+    <SectionWrapper id="settings-card" title="Settings Card" description="Standard card pattern used on the Settings page. Uses trading-card class with plain text titles (no icons).">
       <Card>
         <CardContent className="pt-6 space-y-4">
           <SubSection title="Anatomy">
