@@ -46,7 +46,7 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
-import { useOrderSimulation } from "@/hooks/useOrderSimulation";
+
 import { BinaryEventHint, isBinaryEvent, isNoOption } from "@/components/BinaryEventHint";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
