@@ -9,6 +9,9 @@ interface TaskCardProps {
   onClaim: (taskId: string) => void;
   isClaiming: boolean;
   onGoComplete?: (task: TaskWithProgress) => void;
+  /** If true, the "Go" button is disabled with a prerequisite hint */
+  prerequisiteBlocked?: boolean;
+  prerequisiteHint?: string;
 }
 
 // Map trigger actions to button config
