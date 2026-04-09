@@ -119,13 +119,13 @@ export const useAirdropPositions = () => {
     queryKey,
     queryFn: async () => {
       if (isDemoMode) {
-        if (!hasScanComplete) return [];
+        if (!hasScanComplete || !user) return [];
 
         const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
         if (cached && cached.length > 0) return cached;
 
-        const storedDemoAirdrops = loadDemoAirdrops();
-        saveDemoAirdrops(storedDemoAirdrops);
+        const storedDemoAirdrops = loadDemoAirdrops(user.id);
+        saveDemoAirdrops(user.id, storedDemoAirdrops);
         return storedDemoAirdrops;
       }
 
@@ -170,13 +170,13 @@ export const useAirdropPositions = () => {
     setIsActivating(true);
     try {
       if (isDemoMode) {
-        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops()).map((a) =>
+        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '')).map((a) =>
           a.id === id
             ? { ...a, status: "activated", activatedAt: new Date().toISOString() }
             : a
         );
 
-        saveDemoAirdrops(nextDemoAirdrops);
+        saveDemoAirdrops(user?.id ?? '', nextDemoAirdrops);
         queryClient.setQueryData<AirdropPosition[]>(queryKey, nextDemoAirdrops);
       } else {
         const { error } = await supabase
