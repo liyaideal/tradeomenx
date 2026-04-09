@@ -78,11 +78,13 @@ const AirdropModalBody = ({
   airdrop,
   onActivate,
   onDismiss,
+  showDismiss = true,
   isActivating,
 }: {
   airdrop: AirdropPosition;
   onActivate: () => void;
   onDismiss: () => void;
+  showDismiss?: boolean;
   isActivating: boolean;
 }) => {
   const countdown = useCountdown(airdrop.expiresAt);
@@ -144,17 +146,19 @@ const AirdropModalBody = ({
 
       {/* Actions */}
       <div className="flex gap-3">
+        {showDismiss && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-1 text-muted-foreground"
+            onClick={onDismiss}
+          >
+            Dismiss
+          </Button>
+        )}
         <Button
-          variant="ghost"
           size="sm"
-          className="flex-1 text-muted-foreground"
-          onClick={onDismiss}
-        >
-          Dismiss
-        </Button>
-        <Button
-          size="sm"
-          className="flex-[2] bg-trading-green hover:bg-trading-green/90 text-white gap-1.5"
+          className={`${showDismiss ? 'flex-[2]' : 'w-full'} bg-trading-green hover:bg-trading-green/90 text-white gap-1.5`}
           onClick={onActivate}
           disabled={isActivating}
         >
@@ -237,6 +241,7 @@ export const AirdropHomepageModal = () => {
           airdrop={currentAirdrop}
           onActivate={handleActivate}
           onDismiss={handleDismiss}
+          showDismiss={false}
           isActivating={isActivating}
         />
       </DialogContent>
