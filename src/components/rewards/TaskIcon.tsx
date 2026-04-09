@@ -15,6 +15,8 @@ import {
   Medal,
   Crown,
   Flame,
+  MessageCircle,
+  Link,
   type LucideIcon
 } from "lucide-react";
 import { XIcon } from "@/components/icons/XIcon";
@@ -29,6 +31,8 @@ const iconMap: Record<string, LucideIcon> = {
   "share": Share2,
   "x": XIcon as unknown as LucideIcon,
   "user-plus": UserPlus,
+  "message-circle": MessageCircle,
+  "link": Link,
   
   // Rewards & Engagement icons
   "gift": Gift,
