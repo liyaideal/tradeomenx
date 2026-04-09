@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useOrdersStore, Order } from '@/stores/useOrdersStore';
 import { usePositionsStore } from '@/stores/usePositionsStore';
 import { orderToPosition } from '@/lib/orderUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 // Track which orders are "demo" orders that shouldn't auto-fill
 const DEMO_ORDER_TIMES = ['2 mins ago', '5 mins ago', '8 mins ago', '12 mins ago', '15 mins ago', '20 mins ago'];
