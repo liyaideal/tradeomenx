@@ -502,7 +502,9 @@ const MobileHome = () => {
       
       {/* Auth Sheet */}
       <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
-    </div>
+      
+      {/* Airdrop homepage modal */}
+      <AirdropHomepageModal />
   );
 };
 

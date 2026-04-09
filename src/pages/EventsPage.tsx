@@ -231,6 +231,9 @@ const EventsPage = () => {
       {!isMobile && <RewardsWelcomeModal />}
       {!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}
       
+      {/* Airdrop homepage modal - desktop only (mobile uses MobileHome) */}
+      {!isMobile && <AirdropHomepageModal />}
+      
     </div>
   );
 };
