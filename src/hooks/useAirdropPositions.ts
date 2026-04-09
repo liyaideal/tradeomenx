@@ -23,6 +23,7 @@ export interface AirdropPosition {
 }
 
 const QUERY_KEY = ["airdrop-positions"];
+const DEMO_AIRDROPS_STORAGE_KEY = "omenx-demo-airdrop-positions-v1";
 
 // Mock airdrop data for frontend development
 const MOCK_AIRDROPS: AirdropPosition[] = [
@@ -76,6 +77,25 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
   },
 ];
 
+const loadDemoAirdrops = (): AirdropPosition[] => {
+  if (typeof window === "undefined") return MOCK_AIRDROPS;
+
+  try {
+    const stored = window.localStorage.getItem(DEMO_AIRDROPS_STORAGE_KEY);
+    if (!stored) return MOCK_AIRDROPS;
+
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : MOCK_AIRDROPS;
+  } catch {
+    return MOCK_AIRDROPS;
+  }
+};
+
+const saveDemoAirdrops = (airdrops: AirdropPosition[]) => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(DEMO_AIRDROPS_STORAGE_KEY, JSON.stringify(airdrops));
+};
+
 export const useAirdropPositions = () => {
   const { user } = useUserProfile();
   const { activeAccounts, isDemoMode } = useConnectedAccounts();
@@ -96,9 +116,15 @@ export const useAirdropPositions = () => {
   const { data: airdrops = [], isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
-      // Demo mode: only show mock airdrops after scan completes
       if (isDemoMode) {
-        return hasScanComplete ? MOCK_AIRDROPS : [];
+        if (!hasScanComplete) return [];
+
+        const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
+        if (cached && cached.length > 0) return cached;
+
+        const storedDemoAirdrops = loadDemoAirdrops();
+        saveDemoAirdrops(storedDemoAirdrops);
+        return storedDemoAirdrops;
       }
 
       if (!user) return [];
@@ -142,14 +168,14 @@ export const useAirdropPositions = () => {
     setIsActivating(true);
     try {
       if (isDemoMode) {
-        // Optimistically update the cache for demo mode
-        queryClient.setQueryData<AirdropPosition[]>(queryKey, (old) =>
-          (old ?? []).map((a) =>
-            a.id === id
-              ? { ...a, status: "activated", activatedAt: new Date().toISOString() }
-              : a
-          )
+        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops()).map((a) =>
+          a.id === id
+            ? { ...a, status: "activated", activatedAt: new Date().toISOString() }
+            : a
         );
+
+        saveDemoAirdrops(nextDemoAirdrops);
+        queryClient.setQueryData<AirdropPosition[]>(queryKey, nextDemoAirdrops);
       } else {
         const { error } = await supabase
           .from("airdrop_positions")

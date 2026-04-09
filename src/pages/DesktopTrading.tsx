@@ -1120,7 +1120,7 @@ export default function DesktopTrading() {
                     </tr>
                   </thead>
                   <tbody>
-                    {positions.length === 0 && activatedAirdrops.length === 0 ? (
+                    {positions.length === 0 && activatedAirdrops.length === 0 && pendingAirdrops.length === 0 ? (
                       <tr>
                         <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">No open positions</td>
                       </tr>

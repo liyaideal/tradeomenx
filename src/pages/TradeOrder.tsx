@@ -239,7 +239,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
             )}
             {positionsLoading ? (
               <div className="text-center text-muted-foreground py-4">Loading positions...</div>
-            ) : positions.length === 0 && pendingAirdrops.length === 0 ? (
+            ) : positions.length === 0 && activatedAirdrops.length === 0 && pendingAirdrops.length === 0 ? (
               <div className="text-center text-muted-foreground py-4">No open positions</div>
             ) : (
               <>
@@ -261,7 +261,9 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
                     />
                   </div>
                 ))}
-                {/* Airdrop Positions inside Positions tab */}
+                {activatedAirdrops.map((airdrop) => (
+                  <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+                ))}
                 {pendingAirdrops.map((airdrop) => (
                   <AirdropPositionCard key={airdrop.id} airdrop={airdrop} onActivate={activateAirdrop} isActivating={isActivating} />
                 ))}
