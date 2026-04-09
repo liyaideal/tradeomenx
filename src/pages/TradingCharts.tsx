@@ -27,11 +27,10 @@ interface TradingChartsContentProps {
 function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChartsContentProps) {
   const navigate = useNavigate();
   const { positions, isLoading: positionsLoading } = usePositions();
-  const { pendingAirdrops, activatedAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
-  // Use unified orders hook - Supabase for logged-in users, local for guests
+  const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
   const { orders, isLoading: ordersLoading } = useOrders();
   const { profile } = useUserProfile();
-  const totalPositionCount = positions.length + activatedAirdrops.length + pendingAirdrops.length;
+  const totalPositionCount = positions.length + pendingAirdrops.length;
   
   const [bottomTab, setBottomTab] = useState("Order Book");
 
