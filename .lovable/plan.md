@@ -1,65 +1,38 @@
 
 
-## 点击 Activate 直接激活空投仓位
+## 修复三个视图之间 Orders/Positions 数据不一致
 
-用户选择了最简单的方案：点击 Activate 按钮后，pending airdrop 直接变成 activated 仓位，无需跳转或交易。
+### 根因分析
 
----
+数据不一致的原因是 `useOrderSimulation` 这个 hook 的运行位置不统一：
+
+- **Trade tab** (`TradeOrder.tsx`) — 运行了 `useOrderSimulation`
+- **Desktop** (`DesktopTrading.tsx`) — 运行了 `useOrderSimulation`
+- **Charts tab** (`TradingCharts.tsx`) — **没有运行** `useOrderSimulation`
+
+`useOrderSimulation` 会自动把 Pending 订单变成 Filled（然后从列表移除），同时创建对应的 Position。这意味着：
+- 在 Trade/Desktop 页面，订单会被自动消耗掉，数量会变少
+- 切到 Charts 时，模拟停止，但 Zustand 状态已被修改
+- 不同时间点切换 tab，看到的数据自然不同
+
+### 解决方案
+
+把 `useOrderSimulation` 从各个页面组件中移除，改为在全局（App 层级）运行一次。这样无论用户在哪个 tab，模拟逻辑都一致运行。
 
 ### 改动范围
 
-#### 1. `useAirdropPositions.ts` — 新增 `activateAirdrop` 方法
+#### 1. `src/App.tsx` — 添加全局 OrderSimulation
+- 在 App 组件中调用 `useOrderSimulation()`
+- 确保只在 guest 模式下运行（已登录用户用 Supabase 数据，不需要模拟）
 
-- 新增一个 `activateAirdrop(airdropId: string)` 函数
-- Demo 模式下：更新 MOCK 数据状态从 `pending` → `activated`，设置 `activatedAt = now()`
-  - 因为 mock 数据是静态常量，需要改成用 `useState` 或 React Query 缓存 mutation 的方式来管理状态变更
-  - 具体做法：用 `queryClient.setQueryData` 直接修改缓存中对应 airdrop 的 status
-- 非 demo 模式：调用 supabase 更新 `airdrop_positions` 表的 status 和 activated_at
-- 激活成功后显示 toast："Airdrop activated! Position is now live"
-- 返回 `activateAirdrop` 和 `isActivating` 状态
+#### 2. `src/pages/TradeOrder.tsx` — 移除 `useOrderSimulation`
+- 删除 import 和调用
 
-#### 2. `DesktopTrading.tsx` — Activate 按钮调用 activateAirdrop
+#### 3. `src/pages/DesktopTrading.tsx` — 移除 `useOrderSimulation`
+- 删除 import 和调用
 
-- 把 pending airdrop 行的 Activate 按钮从 `navigate(...)` 改成调用 `activateAirdrop(airdrop.id)`
-- 按钮点击后显示 loading 状态，激活完成后该行自动从 PENDING 变成 AIRDROP（因为数据刷新）
+#### 4. `src/hooks/useOrderSimulation.ts` — 添加登录检查
+- 如果用户已登录，跳过模拟（已登录用户的订单由 Supabase 管理）
 
-#### 3. `AirdropPositionCard.tsx` — 移动端同步修改
-
-- 同样把 "Activate — Make a Trade" 按钮改成直接调用 `activateAirdrop`
-- 激活后卡片自动刷新为 activated 状态
-
-#### 4. `TradingCharts.tsx` — 移动端 Charts tab 同步
-
-- 如果 Charts tab 的 Positions 区域也有 Activate 按钮，同步改成直接激活
-
----
-
-### 技术细节
-
-**Demo 模式状态变更方案：**
-```typescript
-// useAirdropPositions.ts
-const activateAirdrop = async (id: string) => {
-  if (isDemoMode) {
-    queryClient.setQueryData(queryKey, (old) =>
-      old.map(a => a.id === id 
-        ? { ...a, status: "activated", activatedAt: new Date().toISOString() } 
-        : a
-      )
-    );
-  } else {
-    await supabase.from("airdrop_positions")
-      .update({ status: "activated", activated_at: new Date().toISOString() })
-      .eq("id", id);
-    queryClient.invalidateQueries(queryKey);
-  }
-  toast.success("Airdrop activated!");
-};
-```
-
-**涉及文件：**
-- `src/hooks/useAirdropPositions.ts`
-- `src/pages/DesktopTrading.tsx`
-- `src/components/AirdropPositionCard.tsx`
-- `src/pages/TradingCharts.tsx`（如有 Activate 按钮）
+这样三个视图在任何时刻看到的 orders 和 positions 都完全一致。
 
