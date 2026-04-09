@@ -251,10 +251,7 @@ export const ConnectedAccountsCard = () => {
       <div className="trading-card p-4 md:p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="font-semibold mb-1 flex items-center gap-2">
-              <Link2 className="w-4 h-4" />
-              Connected Accounts
-            </h3>
+            <h3 className="font-semibold mb-1">Connected Accounts</h3>
             <p className="text-xs text-muted-foreground">
               Link external prediction market wallets to receive H2E airdrops
             </p>
