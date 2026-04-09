@@ -4,6 +4,8 @@ import { TrendingUp, TrendingDown, Trophy, ChevronRight, Loader2 } from "lucide-
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { usePositions } from "@/hooks/usePositions";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
