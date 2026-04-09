@@ -70,7 +70,7 @@ export default function Rewards() {
     } else if (action === 'connect_external') {
       navigate('/settings');
     } else if (action === 'activate_airdrop') {
-      navigate('/portfolio');
+      navigate('/portfolio/airdrops');
     }
   };
 
