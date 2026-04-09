@@ -45,7 +45,7 @@ import {
 
 type SortField = "pnl" | "size" | "event" | null;
 type SortDirection = "asc" | "desc";
-type TabType = "positions" | "settlements";
+type TabType = "positions" | "settlements" | "airdrops";
 
 // Portfolio Tab 下拉组件 - 类似 Events 的 Active/Resolved 切换
 const PortfolioTabDropdown = ({
