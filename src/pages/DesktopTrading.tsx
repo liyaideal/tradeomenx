@@ -221,6 +221,7 @@ export default function DesktopTrading() {
   
   // Airdrop positions for banner and rows
   const { pendingAirdrops, activatedAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
+  const totalPositionCount = positions.length + activatedAirdrops.length + pendingAirdrops.length;
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
