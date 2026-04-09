@@ -2,61 +2,62 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
-import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
-
-const TOAST_ACCOUNTS_KEY = "airdrop_toast_account_ids";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 export const AirdropNotificationToast = () => {
   const navigate = useNavigate();
   const { pendingAirdrops } = useAirdropPositions();
-  const { activeAccounts } = useConnectedAccounts();
-  const firedForRef = useRef<Set<string>>(new Set());
+  const { user } = useUserProfile();
+  const prevIdsRef = useRef<Set<string>>(new Set());
+  const initializedRef = useRef(false);
 
-  // Track which account IDs we've already toasted for
-  useEffect(() => {
-    // Initialize from sessionStorage
-    try {
-      const saved = sessionStorage.getItem(TOAST_ACCOUNTS_KEY);
-      if (saved) firedForRef.current = new Set(JSON.parse(saved));
-    } catch { /* ignore */ }
-  }, []);
-
-  const activeIds = activeAccounts.map((a) => a.id).sort().join(",");
-  const pendingCount = pendingAirdrops.length;
+  const userId = user?.id ?? "guest";
 
   useEffect(() => {
-    if (pendingCount === 0 || activeAccounts.length === 0) return;
+    // Build current set of pending airdrop IDs
+    const currentIds = new Set(pendingAirdrops.map((a) => a.id));
 
-    // Check if any active account is new (not yet toasted)
-    const newAccountIds = activeAccounts
-      .filter((a) => !firedForRef.current.has(a.id))
-      .map((a) => a.id);
+    // On first render with data, just record the IDs without toasting
+    // This prevents toasting on page navigation when airdrops already exist
+    if (!initializedRef.current) {
+      // Only initialize once we have actual data or confirmed empty
+      prevIdsRef.current = currentIds;
+      initializedRef.current = true;
+      return;
+    }
 
-    if (newAccountIds.length === 0) return;
+    // Find newly appeared airdrop IDs
+    const newIds = [...currentIds].filter((id) => !prevIdsRef.current.has(id));
 
-    // Mark as fired
-    newAccountIds.forEach((id) => firedForRef.current.add(id));
-    try {
-      sessionStorage.setItem(TOAST_ACCOUNTS_KEY, JSON.stringify([...firedForRef.current]));
-    } catch { /* ignore */ }
-
-    // Fire toasts with delay
-    const timer = setTimeout(() => {
-      pendingAirdrops.forEach((airdrop) => {
-        toast("🎁 New Airdrop Received!", {
-          description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
-          duration: 8000,
-          action: {
-            label: "View",
-            onClick: () => navigate("/portfolio?tab=airdrops"),
-          },
+    if (newIds.length > 0) {
+      // Fire toast for each new airdrop
+      const timer = setTimeout(() => {
+        newIds.forEach((id) => {
+          const airdrop = pendingAirdrops.find((a) => a.id === id);
+          if (!airdrop) return;
+          toast("🎁 New Airdrop Received!", {
+            description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
+            duration: 8000,
+            action: {
+              label: "View",
+              onClick: () => navigate("/portfolio?tab=airdrops"),
+            },
+          });
         });
-      });
-    }, 800);
+      }, 500);
 
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIds, pendingCount]);
+      prevIdsRef.current = currentIds;
+      return () => clearTimeout(timer);
+    }
+
+    prevIdsRef.current = currentIds;
+  }, [pendingAirdrops, navigate, userId]);
+
+  // Reset initialization when user changes
+  useEffect(() => {
+    initializedRef.current = false;
+    prevIdsRef.current = new Set();
+  }, [userId]);
 
   return null;
 };

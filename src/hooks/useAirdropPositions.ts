@@ -23,7 +23,6 @@ export interface AirdropPosition {
 const QUERY_KEY = ["airdrop-positions"];
 
 // Mock airdrop data for frontend development
-// 3 positions detected, 2 airdrops received (pending + activated)
 const MOCK_AIRDROPS: AirdropPosition[] = [
   {
     id: "mock-airdrop-1",
@@ -79,17 +78,25 @@ export const useAirdropPositions = () => {
   const { user } = useUserProfile();
   const { activeAccounts, isDemoMode } = useConnectedAccounts();
 
+  // Only show airdrops when at least one account has finished scanning
+  const hasScanComplete = activeAccounts.some((a) => a.scanStatus === "complete");
+
+  // Build a stable query key that reacts to scan status changes
+  const scanKey = activeAccounts
+    .map((a) => `${a.id}:${a.scanStatus}`)
+    .sort()
+    .join(",");
+
   const { data: airdrops = [], isLoading } = useQuery({
-    queryKey: [...QUERY_KEY, activeAccounts.length],
+    queryKey: [...QUERY_KEY, scanKey],
     queryFn: async () => {
-      // Demo mode: only show mock airdrops if there are active connected accounts
+      // Demo mode: only show mock airdrops after scan completes
       if (isDemoMode) {
-        return activeAccounts.length > 0 ? MOCK_AIRDROPS : [];
+        return hasScanComplete ? MOCK_AIRDROPS : [];
       }
 
       if (!user) return [];
 
-      // Try real data first
       const { data, error } = await supabase
         .from("airdrop_positions")
         .select("*")
