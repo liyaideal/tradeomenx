@@ -1,0 +1,197 @@
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Gift, Loader2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { usePositions } from "@/hooks/usePositions";
+import { useSettlements } from "@/hooks/useSettlements";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { BottomNav } from "@/components/BottomNav";
+import { MobileHeader } from "@/components/MobileHeader";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type TabType = "positions" | "settlements" | "airdrops";
+
+// Portfolio Tab 下拉组件
+const PortfolioTabDropdown = ({
+  activeTab,
+  onTabChange,
+  positionsCount,
+  settlementsCount,
+  airdropsCount,
+}: {
+  activeTab: TabType;
+  onTabChange: (tab: TabType) => void;
+  positionsCount: number;
+  settlementsCount: number;
+  airdropsCount: number;
+}) => {
+  const tabOptions: { value: TabType; label: string }[] = [
+    { value: "positions", label: `Positions (${positionsCount})` },
+    { value: "settlements", label: `Settlements (${settlementsCount})` },
+    { value: "airdrops", label: `Airdrops (${airdropsCount})` },
+  ];
+
+  return (
+    <Select value={activeTab} onValueChange={(v) => onTabChange(v as TabType)}>
+      <SelectTrigger className="w-[140px] bg-secondary border-border/50 h-9">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {tabOptions.map((opt) => (
+          <SelectItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
+
+export default function PortfolioAirdrops() {
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useUserProfile();
+  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, isLoading } = useAirdropPositions();
+  const { positions } = usePositions();
+  const { data: settlements = [] } = useSettlements();
+
+  const handleTabChange = (tab: TabType) => {
+    if (tab === "positions") {
+      navigate("/portfolio");
+    } else if (tab === "settlements") {
+      navigate("/portfolio/settlements");
+    }
+  };
+
+  const isGuest = !authLoading && !user;
+
+  // Stats
+  const totalValue = useMemo(() => {
+    return airdrops.reduce((sum, a) => sum + a.airdropValue, 0);
+  }, [airdrops]);
+
+  return (
+    <div 
+      className={`min-h-screen ${isMobile ? "pb-24" : ""}`}
+      style={{
+        background: isMobile 
+          ? "hsl(222 47% 6%)" 
+          : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)"
+      }}
+    >
+      {/* Header */}
+      {isMobile ? (
+        <MobileHeader 
+          showLogo
+          rightContent={
+            <PortfolioTabDropdown
+              activeTab="airdrops"
+              onTabChange={handleTabChange}
+              positionsCount={positions.length}
+              settlementsCount={settlements.length}
+              airdropsCount={airdrops.length}
+            />
+          }
+        />
+      ) : (
+        <EventsDesktopHeader />
+      )}
+
+      <AuthGateOverlay title="Sign in to view your airdrops" description="Track your H2E airdrop positions by signing in to your account.">
+      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-8`}>
+        {/* Page Title */}
+        <div className="relative">
+          {!isMobile && (
+            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
+          )}
+          <div>
+            <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
+              Portfolio
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
+              Hedge-to-Earn airdrop positions from your external accounts
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop Tabs */}
+        {!isMobile && (
+          <div className="flex border-b border-border">
+            <button
+              onClick={() => navigate("/portfolio")}
+              className="py-2 px-4 text-sm font-medium transition-all text-muted-foreground"
+            >
+              Positions
+            </button>
+            <button
+              onClick={() => navigate("/portfolio/settlements")}
+              className="py-2 px-4 text-sm font-medium transition-all text-muted-foreground"
+            >
+              Settlements ({settlements.length})
+            </button>
+            <button
+              className="py-2 px-4 text-sm font-medium transition-all text-primary border-b-2 border-primary"
+            >
+              Airdrops ({airdrops.length})
+            </button>
+          </div>
+        )}
+
+        {/* Stats Cards */}
+        <div className="grid gap-3 grid-cols-3">
+          <div className="bg-card rounded-xl p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Gift className="w-3.5 h-3.5" />
+              <span>Total Airdrops</span>
+            </div>
+            <p className="text-lg font-bold text-foreground">{airdrops.length}</p>
+          </div>
+          <div className="bg-card rounded-xl p-4">
+            <div className="text-muted-foreground text-xs mb-1">Pending</div>
+            <p className="text-lg font-bold text-amber-400">{pendingAirdrops.length}</p>
+          </div>
+          <div className="bg-card rounded-xl p-4">
+            <div className="text-muted-foreground text-xs mb-1">Activated</div>
+            <p className="text-lg font-bold text-emerald-400">{activatedAirdrops.length}</p>
+          </div>
+        </div>
+
+        {/* Airdrop List */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : airdrops.length === 0 ? (
+          <div className="text-center py-16 space-y-3">
+            <Gift className="w-10 h-10 text-muted-foreground/40 mx-auto" />
+            <p className="text-muted-foreground text-sm">No airdrops yet</p>
+            <p className="text-muted-foreground/60 text-xs">Connect an external account to start receiving counter-position airdrops</p>
+            <Button variant="outline" className="mt-2" onClick={() => navigate("/settings")}>
+              Connect Account
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {airdrops.map((airdrop) => (
+              <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+            ))}
+          </div>
+        )}
+      </main>
+      </AuthGateOverlay>
+
+      {isMobile && <BottomNav />}
+    </div>
+  );
+}
