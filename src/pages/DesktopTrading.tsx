@@ -222,7 +222,7 @@ export default function DesktopTrading() {
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   
   // Airdrop positions for banner and rows
-  const { pendingAirdrops, activatedAirdrops } = useAirdropPositions();
+  const { pendingAirdrops, activatedAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
