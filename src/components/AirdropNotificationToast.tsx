@@ -3,26 +3,37 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 
+const NOTIFIED_KEY = "airdrop_toast_notified_ids";
+
+const getNotifiedIds = (): Set<string> => {
+  try {
+    const raw = sessionStorage.getItem(NOTIFIED_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const saveNotifiedIds = (ids: Set<string>) => {
+  sessionStorage.setItem(NOTIFIED_KEY, JSON.stringify([...ids]));
+};
+
 export const AirdropNotificationToast = () => {
   const navigate = useNavigate();
   const { pendingAirdrops } = useAirdropPositions();
-  const prevCountRef = useRef(0);
-  const hasInitialized = useRef(false);
+  const hasChecked = useRef(false);
 
   useEffect(() => {
-    // Skip the very first render to avoid showing toast on page load
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      prevCountRef.current = pendingAirdrops.length;
-      return;
-    }
+    if (pendingAirdrops.length === 0) return;
+    // Small delay to avoid firing during initial hydration flicker
+    const timer = setTimeout(() => {
+      const notified = getNotifiedIds();
+      const newOnes = pendingAirdrops.filter((a) => !notified.has(a.id));
 
-    const newCount = pendingAirdrops.length;
-    const prevCount = prevCountRef.current;
+      if (newOnes.length === 0) return;
 
-    if (newCount > prevCount) {
-      const newAirdrops = pendingAirdrops.slice(0, newCount - prevCount);
-      newAirdrops.forEach((airdrop) => {
+      newOnes.forEach((airdrop) => {
+        notified.add(airdrop.id);
         toast("🎁 New Airdrop Received!", {
           description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
           duration: 8000,
@@ -32,9 +43,11 @@ export const AirdropNotificationToast = () => {
           },
         });
       });
-    }
 
-    prevCountRef.current = newCount;
+      saveNotifiedIds(notified);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [pendingAirdrops, navigate]);
 
   return null;
