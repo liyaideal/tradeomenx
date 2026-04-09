@@ -108,15 +108,22 @@ export function TaskCard({ task, onClaim, isClaiming, onGoComplete, prerequisite
               Claim Reward
             </Button>
           ) : canGoComplete && goButtonConfig ? (
-            <Button 
-              variant="outline"
-              className="w-full border-primary/50 text-primary hover:bg-primary/10"
-              onClick={handleGoComplete}
-            >
-              {goButtonConfig.icon}
-              {goButtonConfig.label}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            prerequisiteBlocked ? (
+              <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg flex items-center justify-center gap-2">
+                <Lock className="w-3.5 h-3.5" />
+                {prerequisiteHint || "Complete prerequisite task first"}
+              </div>
+            ) : (
+              <Button 
+                variant="outline"
+                className="w-full border-primary/50 text-primary hover:bg-primary/10"
+                onClick={handleGoComplete}
+              >
+                {goButtonConfig.icon}
+                {goButtonConfig.label}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            )
           ) : (
             <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
               Complete task to unlock
