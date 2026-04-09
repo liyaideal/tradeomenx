@@ -49,12 +49,13 @@ export const ConnectedAccountsCard = () => {
     isVerifying,
     disconnect,
     isDisconnecting,
+    isDemoMode,
   } = useConnectedAccounts();
 
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
-  const [connectionStep, setConnectionStep] = useState<"input" | "signing">("input");
+  const [connectionStep, setConnectionStep] = useState<"input" | "signing" | "verifying">("input");
 
   const resetDialog = () => {
     setWalletAddress("");
@@ -81,54 +82,78 @@ export const ConnectedAccountsCard = () => {
     }
     if (!user || !selectedPlatform) return;
 
-    setConnectionStep("signing");
-
     try {
-      // Check if MetaMask or any injected provider is available
-      const ethereum = (window as any).ethereum;
-      if (!ethereum) {
-        toast.error("No Web3 wallet detected. Please install MetaMask or use WalletConnect.");
-        setConnectionStep("input");
-        return;
-      }
+      // Step 1: Signing
+      setConnectionStep("signing");
 
-      // Request account access
-      await ethereum.request({ method: "eth_requestAccounts" });
+      if (isDemoMode) {
+        // Demo: simulate wallet signature delay
+        await new Promise((r) => setTimeout(r, 1500));
 
-      const provider = new BrowserProvider(ethereum);
-      const signer = await provider.getSigner();
-      const signerAddress = await signer.getAddress();
+        // Step 2: Verifying
+        setConnectionStep("verifying");
 
-      // Verify the signer address matches the input
-      if (signerAddress.toLowerCase() !== walletAddress.toLowerCase()) {
-        toast.error(
-          `Connected wallet (${signerAddress.slice(0, 6)}...${signerAddress.slice(-4)}) does not match the entered address. Please switch to the correct wallet.`
-        );
-        setConnectionStep("input");
-        return;
-      }
+        const demoMessage = {
+          platform: selectedPlatform,
+          account: walletAddress.toLowerCase(),
+          timestamp: Math.floor(Date.now() / 1000).toString(),
+          nonce: crypto.randomUUID().slice(0, 8),
+        };
 
-      // Build and sign EIP-712 message
-      const message = buildSignMessage(selectedPlatform, user.id);
-      const signature = await signer.signTypedData(
-        EIP712_DOMAIN,
-        EIP712_TYPES,
-        {
-          ...message,
-          timestamp: BigInt(message.timestamp),
+        await verifyAndConnect({
+          walletAddress: walletAddress.toLowerCase(),
+          signature: "0xdemo_signature_" + Date.now(),
+          message: demoMessage,
+          platform: selectedPlatform,
+        });
+
+        toast.success("Wallet connected and verified successfully!");
+        handleCloseDialog(false);
+      } else {
+        // Production: real Web3 flow
+        const ethereum = (window as any).ethereum;
+        if (!ethereum) {
+          toast.error("No Web3 wallet detected. Please install MetaMask or use WalletConnect.");
+          setConnectionStep("input");
+          return;
         }
-      );
 
-      // Send to backend for verification
-      await verifyAndConnect({
-        walletAddress: walletAddress.toLowerCase(),
-        signature,
-        message,
-        platform: selectedPlatform,
-      });
+        await ethereum.request({ method: "eth_requestAccounts" });
 
-      toast.success("Wallet connected and verified successfully!");
-      handleCloseDialog(false);
+        const provider = new BrowserProvider(ethereum);
+        const signer = await provider.getSigner();
+        const signerAddress = await signer.getAddress();
+
+        if (signerAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+          toast.error(
+            `Connected wallet (${signerAddress.slice(0, 6)}...${signerAddress.slice(-4)}) does not match the entered address. Please switch to the correct wallet.`
+          );
+          setConnectionStep("input");
+          return;
+        }
+
+        const message = buildSignMessage(selectedPlatform, user.id);
+        const signature = await signer.signTypedData(
+          EIP712_DOMAIN,
+          EIP712_TYPES,
+          {
+            ...message,
+            timestamp: BigInt(message.timestamp),
+          }
+        );
+
+        setConnectionStep("verifying");
+
+        await verifyAndConnect({
+          walletAddress: walletAddress.toLowerCase(),
+          signature,
+          message,
+          platform: selectedPlatform,
+        });
+
+        toast.success("Wallet connected and verified successfully!");
+        handleCloseDialog(false);
+      }
     } catch (error: any) {
       console.error("Wallet connection error:", error);
       if (error.code === 4001) {
@@ -164,7 +189,7 @@ export const ConnectedAccountsCard = () => {
           value={walletAddress}
           onChange={(e) => setWalletAddress(e.target.value)}
           className="font-mono h-12"
-          disabled={connectionStep === "signing"}
+          disabled={connectionStep !== "input"}
         />
         <p className="text-xs text-muted-foreground">
           Enter the wallet address you use on {PLATFORMS.find((p) => p.id === selectedPlatform)?.name}.
@@ -176,9 +201,21 @@ export const ConnectedAccountsCard = () => {
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
           <div>
-            <p className="text-sm font-medium">Waiting for signature...</p>
+            <p className="text-sm font-medium">Waiting for wallet signature...</p>
             <p className="text-xs text-muted-foreground">
               Please confirm the signature request in your wallet
+            </p>
+          </div>
+        </div>
+      )}
+
+      {connectionStep === "verifying" && (
+        <div className="bg-trading-green/10 border border-trading-green/20 rounded-xl p-4 flex items-center gap-3">
+          <Loader2 className="w-5 h-5 animate-spin text-trading-green" />
+          <div>
+            <p className="text-sm font-medium">Verifying on-chain...</p>
+            <p className="text-xs text-muted-foreground">
+              Confirming wallet ownership and linking account
             </p>
           </div>
         </div>
@@ -199,11 +236,11 @@ export const ConnectedAccountsCard = () => {
           <MobileDrawerActions>
             <Button
               onClick={handleConnectWallet}
-              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep === "signing"}
+              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep !== "input"}
               className="w-full btn-primary h-12"
             >
-              {connectionStep === "signing" ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Verifying...</>
+              {connectionStep !== "input" ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {connectionStep === "signing" ? "Signing..." : "Verifying..."}</>
               ) : (
                 <><Wallet className="w-4 h-4 mr-2" /> Sign & Connect</>
               )}
@@ -231,11 +268,11 @@ export const ConnectedAccountsCard = () => {
             </Button>
             <Button
               onClick={handleConnectWallet}
-              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep === "signing"}
+              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep !== "input"}
               className="flex-1 btn-primary"
             >
-              {connectionStep === "signing" ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Verifying...</>
+              {connectionStep !== "input" ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {connectionStep === "signing" ? "Signing..." : "Verifying..."}</>
               ) : (
                 <><Wallet className="w-4 h-4 mr-2" /> Sign & Connect</>
               )}

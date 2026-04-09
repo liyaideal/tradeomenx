@@ -1,6 +1,10 @@
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "./useUserProfile";
+
+// Toggle this to false when backend is ready
+const DEMO_MODE = true;
 
 export interface ConnectedAccount {
   id: string;
@@ -14,11 +18,53 @@ export interface ConnectedAccount {
 
 const QUERY_KEY = ["connected-accounts"];
 
+const formatAddress = (addr: string) =>
+  `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
 export const useConnectedAccounts = () => {
   const queryClient = useQueryClient();
   const { user } = useUserProfile();
 
-  const { data: accounts = [], isLoading } = useQuery({
+  // ── Demo state ──
+  const [demoAccounts, setDemoAccounts] = useState<ConnectedAccount[]>([]);
+  const [isDemoVerifying, setIsDemoVerifying] = useState(false);
+  const [isDemoDisconnecting, setIsDemoDisconnecting] = useState(false);
+
+  const demoVerifyAndConnect = useCallback(
+    async (payload: {
+      walletAddress: string;
+      signature: string;
+      message: { platform: string; account: string; timestamp: string; nonce: string };
+      platform: string;
+    }) => {
+      setIsDemoVerifying(true);
+      // Simulate backend delay
+      await new Promise((r) => setTimeout(r, 1500));
+      const newAccount: ConnectedAccount = {
+        id: crypto.randomUUID(),
+        platform: payload.platform,
+        walletAddress: payload.walletAddress,
+        displayAddress: formatAddress(payload.walletAddress),
+        status: "active",
+        verifiedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      };
+      setDemoAccounts((prev) => [newAccount, ...prev]);
+      setIsDemoVerifying(false);
+      return newAccount;
+    },
+    []
+  );
+
+  const demoDisconnect = useCallback(async (accountId: string) => {
+    setIsDemoDisconnecting(true);
+    await new Promise((r) => setTimeout(r, 500));
+    setDemoAccounts((prev) => prev.filter((a) => a.id !== accountId));
+    setIsDemoDisconnecting(false);
+  }, []);
+
+  // ── Real Supabase queries (used when DEMO_MODE = false) ──
+  const { data: realAccounts = [], isLoading: realLoading } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: async () => {
       if (!user) return [];
@@ -43,7 +89,7 @@ export const useConnectedAccounts = () => {
         createdAt: row.created_at,
       }));
     },
-    enabled: !!user,
+    enabled: !!user && !DEMO_MODE,
   });
 
   const verifyAndConnectMutation = useMutation({
@@ -79,13 +125,20 @@ export const useConnectedAccounts = () => {
     },
   });
 
+  const accounts = DEMO_MODE ? demoAccounts : realAccounts;
+
   return {
     accounts,
-    isLoading,
+    isLoading: DEMO_MODE ? false : realLoading,
     activeAccounts: accounts.filter((a) => a.status === "active"),
-    verifyAndConnect: verifyAndConnectMutation.mutateAsync,
-    isVerifying: verifyAndConnectMutation.isPending,
-    disconnect: disconnectMutation.mutateAsync,
-    isDisconnecting: disconnectMutation.isPending,
+    verifyAndConnect: DEMO_MODE
+      ? demoVerifyAndConnect
+      : verifyAndConnectMutation.mutateAsync,
+    isVerifying: DEMO_MODE ? isDemoVerifying : verifyAndConnectMutation.isPending,
+    disconnect: DEMO_MODE ? demoDisconnect : disconnectMutation.mutateAsync,
+    isDisconnecting: DEMO_MODE
+      ? isDemoDisconnecting
+      : disconnectMutation.isPending,
+    isDemoMode: DEMO_MODE,
   };
 };
