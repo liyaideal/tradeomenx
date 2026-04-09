@@ -20,30 +20,36 @@ export interface ConnectedAccount {
 }
 
 const QUERY_KEY = ["connected-accounts"];
-const DEMO_QUERY_KEY = ["demo-connected-accounts"];
 
 const formatAddress = (addr: string) =>
   `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
-const readDemoAccounts = (): ConnectedAccount[] => {
+// User-scoped localStorage key
+const getDemoStorageKey = (userId: string) => `demo_connected_accounts:${userId}`;
+
+const readDemoAccounts = (userId: string): ConnectedAccount[] => {
   try {
-    const saved = localStorage.getItem("demo_connected_accounts");
+    const saved = localStorage.getItem(getDemoStorageKey(userId));
     return saved ? JSON.parse(saved) : [];
   } catch { return []; }
 };
 
-const writeDemoAccounts = (accounts: ConnectedAccount[]) => {
-  localStorage.setItem("demo_connected_accounts", JSON.stringify(accounts));
+const writeDemoAccounts = (userId: string, accounts: ConnectedAccount[]) => {
+  localStorage.setItem(getDemoStorageKey(userId), JSON.stringify(accounts));
 };
 
 export const useConnectedAccounts = () => {
   const queryClient = useQueryClient();
   const { user } = useUserProfile();
+  const userId = user?.id ?? "guest";
+
+  // User-scoped demo query key
+  const DEMO_QUERY_KEY = ["demo-connected-accounts", userId];
 
   // ── Demo state (shared via react-query cache, persisted to localStorage) ──
   const { data: demoAccounts = [] } = useQuery<ConnectedAccount[]>({
     queryKey: DEMO_QUERY_KEY,
-    queryFn: readDemoAccounts,
+    queryFn: () => readDemoAccounts(userId),
     staleTime: Infinity,
     enabled: DEMO_MODE,
   });
@@ -55,9 +61,9 @@ export const useConnectedAccounts = () => {
   const updateDemoAccounts = useCallback((updater: (prev: ConnectedAccount[]) => ConnectedAccount[]) => {
     const prev = queryClient.getQueryData<ConnectedAccount[]>(DEMO_QUERY_KEY) ?? [];
     const next = updater(prev);
-    writeDemoAccounts(next);
+    writeDemoAccounts(userId, next);
     queryClient.setQueryData(DEMO_QUERY_KEY, next);
-  }, [queryClient]);
+  }, [queryClient, userId, DEMO_QUERY_KEY]);
 
   const demoVerifyAndConnect = useCallback(
     async (payload: {
@@ -97,7 +103,7 @@ export const useConnectedAccounts = () => {
 
       return newAccount;
     },
-    []
+    [updateDemoAccounts]
   );
 
   const demoDisconnect = useCallback(async (accountId: string) => {
