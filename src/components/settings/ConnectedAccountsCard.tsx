@@ -81,54 +81,78 @@ export const ConnectedAccountsCard = () => {
     }
     if (!user || !selectedPlatform) return;
 
-    setConnectionStep("signing");
-
     try {
-      // Check if MetaMask or any injected provider is available
-      const ethereum = (window as any).ethereum;
-      if (!ethereum) {
-        toast.error("No Web3 wallet detected. Please install MetaMask or use WalletConnect.");
-        setConnectionStep("input");
-        return;
-      }
+      // Step 1: Signing
+      setConnectionStep("signing");
 
-      // Request account access
-      await ethereum.request({ method: "eth_requestAccounts" });
+      if (isDemoMode) {
+        // Demo: simulate wallet signature delay
+        await new Promise((r) => setTimeout(r, 1500));
 
-      const provider = new BrowserProvider(ethereum);
-      const signer = await provider.getSigner();
-      const signerAddress = await signer.getAddress();
+        // Step 2: Verifying
+        setConnectionStep("verifying");
 
-      // Verify the signer address matches the input
-      if (signerAddress.toLowerCase() !== walletAddress.toLowerCase()) {
-        toast.error(
-          `Connected wallet (${signerAddress.slice(0, 6)}...${signerAddress.slice(-4)}) does not match the entered address. Please switch to the correct wallet.`
-        );
-        setConnectionStep("input");
-        return;
-      }
+        const demoMessage = {
+          platform: selectedPlatform,
+          account: walletAddress.toLowerCase(),
+          timestamp: Math.floor(Date.now() / 1000).toString(),
+          nonce: crypto.randomUUID().slice(0, 8),
+        };
 
-      // Build and sign EIP-712 message
-      const message = buildSignMessage(selectedPlatform, user.id);
-      const signature = await signer.signTypedData(
-        EIP712_DOMAIN,
-        EIP712_TYPES,
-        {
-          ...message,
-          timestamp: BigInt(message.timestamp),
+        await verifyAndConnect({
+          walletAddress: walletAddress.toLowerCase(),
+          signature: "0xdemo_signature_" + Date.now(),
+          message: demoMessage,
+          platform: selectedPlatform,
+        });
+
+        toast.success("Wallet connected and verified successfully!");
+        handleCloseDialog(false);
+      } else {
+        // Production: real Web3 flow
+        const ethereum = (window as any).ethereum;
+        if (!ethereum) {
+          toast.error("No Web3 wallet detected. Please install MetaMask or use WalletConnect.");
+          setConnectionStep("input");
+          return;
         }
-      );
 
-      // Send to backend for verification
-      await verifyAndConnect({
-        walletAddress: walletAddress.toLowerCase(),
-        signature,
-        message,
-        platform: selectedPlatform,
-      });
+        await ethereum.request({ method: "eth_requestAccounts" });
 
-      toast.success("Wallet connected and verified successfully!");
-      handleCloseDialog(false);
+        const provider = new BrowserProvider(ethereum);
+        const signer = await provider.getSigner();
+        const signerAddress = await signer.getAddress();
+
+        if (signerAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+          toast.error(
+            `Connected wallet (${signerAddress.slice(0, 6)}...${signerAddress.slice(-4)}) does not match the entered address. Please switch to the correct wallet.`
+          );
+          setConnectionStep("input");
+          return;
+        }
+
+        const message = buildSignMessage(selectedPlatform, user.id);
+        const signature = await signer.signTypedData(
+          EIP712_DOMAIN,
+          EIP712_TYPES,
+          {
+            ...message,
+            timestamp: BigInt(message.timestamp),
+          }
+        );
+
+        setConnectionStep("verifying");
+
+        await verifyAndConnect({
+          walletAddress: walletAddress.toLowerCase(),
+          signature,
+          message,
+          platform: selectedPlatform,
+        });
+
+        toast.success("Wallet connected and verified successfully!");
+        handleCloseDialog(false);
+      }
     } catch (error: any) {
       console.error("Wallet connection error:", error);
       if (error.code === 4001) {
