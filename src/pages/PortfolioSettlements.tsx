@@ -72,6 +72,8 @@ export default function PortfolioSettlements() {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useUserProfile();
   const { data: settlements = [], isLoading } = useSettlements();
+  const { airdrops } = useAirdropPositions();
+  const { positions } = usePositions();
 
   // Calculate settlements stats
   const settlementsStats = useMemo(() => {
