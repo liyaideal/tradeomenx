@@ -15,6 +15,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
 import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import {
   DropdownMenu,
@@ -501,6 +502,9 @@ const MobileHome = () => {
       
       {/* Auth Sheet */}
       <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+      
+      {/* Airdrop homepage modal */}
+      <AirdropHomepageModal />
     </div>
   );
 };

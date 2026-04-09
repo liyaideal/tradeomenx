@@ -12,6 +12,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
+import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
 import { format } from "date-fns";
 
 const EventsPage = () => {
@@ -229,6 +230,9 @@ const EventsPage = () => {
       {/* Rewards: Welcome modal for unclaimed users, floating button for claimed */}
       {!isMobile && <RewardsWelcomeModal />}
       {!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}
+      
+      {/* Airdrop homepage modal - desktop only (mobile uses MobileHome) */}
+      {!isMobile && <AirdropHomepageModal />}
       
     </div>
   );
