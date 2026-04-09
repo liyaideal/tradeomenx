@@ -227,7 +227,7 @@ export const DesktopPositionsPanel = () => {
         <div className="flex items-center gap-2 px-4 py-2.5 bg-trading-yellow/10 border-b border-trading-yellow/20">
           <Gift className="w-4 h-4 text-trading-yellow flex-shrink-0" />
           <span className="text-sm text-trading-yellow font-medium">
-            🎁 You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — make a trade to claim
+            🎁 You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — click Activate to claim
           </span>
         </div>
       )}

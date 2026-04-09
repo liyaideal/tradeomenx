@@ -1100,7 +1100,7 @@ export default function DesktopTrading() {
                   <div className="mx-4 mt-2 mb-1 px-3 py-2 rounded-lg bg-trading-yellow/10 border border-trading-yellow/30 flex items-center gap-2">
                     <span className="text-sm">🎁</span>
                     <span className="text-xs text-trading-yellow">
-                      You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — make a trade to claim
+                      You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — click Activate to claim
                     </span>
                   </div>
                 )}

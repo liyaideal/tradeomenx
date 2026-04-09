@@ -235,7 +235,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-trading-yellow/10 border border-trading-yellow/20 mb-3">
                 <Gift className="w-4 h-4 text-trading-yellow flex-shrink-0" />
                 <span className="text-xs text-trading-yellow">
-                  🎁 You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — make a trade to claim
+                  🎁 You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — tap Activate to claim
                 </span>
               </div>
             )}
