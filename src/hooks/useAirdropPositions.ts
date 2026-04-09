@@ -31,7 +31,7 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     externalSide: "Yes",
     externalPrice: 0.62,
     counterEventName: "BTC End of Q1 2026 Price",
-    counterEventId: "2",
+    counterEventId: "btc-150k-2026",
     counterOptionLabel: "Below $120,000",
     counterSide: "short",
     counterPrice: 0.38,
