@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell, Zap, Shield, Trophy, Sparkles, LineChart, Target, Loader2 } from "lucide-react";
+import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe, Bell, Zap, Shield, Trophy, Sparkles, LineChart, Target, Loader2, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
