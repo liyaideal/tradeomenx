@@ -1,36 +1,31 @@
 
 
-## Add Pagination to Style Guide + Audit Project Usage
+## Settings Page Card Consistency & Platform Logos
 
-### Findings
-
-**Pagination component** exists at `src/components/ui/pagination.tsx` but is **never used** anywhere in the project.
-
-**Current pagination patterns in the project:**
-1. **ResolvedPage** (`src/pages/ResolvedPage.tsx`) — uses a manual "Load More" button with `displayCount` state. Not using the Pagination component.
-2. **PointsHistoryList** (`src/components/rewards/PointsHistoryList.tsx`) — no pagination at all, renders all entries.
-3. **EventCard** — has a "show more options" collapse, not true pagination.
-
-**Conclusion:** Only ResolvedPage has pagination-like behavior, using a custom "Load More" pattern. This is a valid UX choice (infinite scroll / load-more) and doesn't necessarily need to switch to numbered pagination. No changes needed to existing pages — the two patterns serve different purposes.
+### Problem
+1. **Card title icon inconsistency**: The "Connected Accounts" card has a `Link2` icon in its title, while Username, Email Address, and Linked Account cards have no title icons. The majority pattern (no icons) should be the standard.
+2. **Platform logos**: Polymarket and Kalshi use emoji placeholders (`🔮` and `📊`) instead of real brand logos.
 
 ### Plan
 
-#### 1. Add Pagination section to CommonUISection
+#### 1. Standardize Settings Card Titles — Remove Icon from Connected Accounts
+Remove the `Link2` icon from the Connected Accounts card title in `ConnectedAccountsCard.tsx` to match the other cards (Username, Email, Linked Account) which use plain text titles without icons.
 
-Add a new `SectionWrapper` block at the end of `CommonUISection.tsx` with:
+**File**: `src/components/settings/ConnectedAccountsCard.tsx`
+- Remove `Link2` from the import and from the `<h3>` element
+- Title becomes plain `Connected Accounts` text, consistent with other cards
 
-- **Interactive Playground**: A demo list of 50 items paginated with the `Pagination` component. Controls for:
-  - Items per page (5 / 10 / 20)
-  - Current page display with Previous / Next / numbered links / ellipsis
-- **Quick Reference**: Show all sub-components (`PaginationPrevious`, `PaginationNext`, `PaginationLink`, `PaginationEllipsis`)
-- **Usage Note**: Document when to use numbered Pagination vs "Load More" pattern, noting that ResolvedPage intentionally uses Load More for feed-style content
-- **CodePreview**: Show import and basic usage snippet
+#### 2. Add Real Platform Logos
+Download official Polymarket and Kalshi logos as SVGs and place them in `public/chain-logos/` (or `public/platform-logos/`). Update the `PLATFORMS` array in `ConnectedAccountsCard.tsx` to use `<img>` tags with real logos instead of emoji.
 
-#### 2. State additions at top of CommonUISection
+**Files**:
+- Create `public/platform-logos/polymarket.svg` and `public/platform-logos/kalshi.svg`
+- Update `PLATFORMS` in `ConnectedAccountsCard.tsx`: replace `icon: "🔮"` / `icon: "📊"` with logo image paths
 
-Add `paginationPage` and `paginationPageSize` state variables for the playground.
-
-#### 3. No changes to existing pages
-
-ResolvedPage's "Load More" is appropriate for its feed-style UX. PointsHistoryList currently shows all entries which is fine for typical volumes. No refactoring needed.
+#### 3. Add Settings Card Spec to Style Guide
+Add a "Settings Card" subsection to `CommonUISection.tsx` documenting the standard pattern:
+- Uses `trading-card` class with `p-4 md:p-6`
+- Title: `<h3 className="font-semibold mb-1">` — plain text, no icon
+- Subtitle: `<p className="text-xs text-muted-foreground">`
+- Action button aligned top-right via `flex items-start justify-between`
 
