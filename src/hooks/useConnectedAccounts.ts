@@ -14,6 +14,9 @@ export interface ConnectedAccount {
   status: string;
   verifiedAt: string | null;
   createdAt: string;
+  positionsDetected: number;
+  airdropsReceived: number;
+  scanStatus: "scanning" | "complete";
 }
 
 const QUERY_KEY = ["connected-accounts"];
@@ -48,9 +51,24 @@ export const useConnectedAccounts = () => {
         status: "active",
         verifiedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
+        positionsDetected: 0,
+        airdropsReceived: 0,
+        scanStatus: "scanning",
       };
       setDemoAccounts((prev) => [newAccount, ...prev]);
       setIsDemoVerifying(false);
+
+      // Simulate scanning completing after 3 seconds
+      setTimeout(() => {
+        setDemoAccounts((prev) =>
+          prev.map((a) =>
+            a.id === newAccount.id
+              ? { ...a, scanStatus: "complete" as const, positionsDetected: 3, airdropsReceived: 2 }
+              : a
+          )
+        );
+      }, 3000);
+
       return newAccount;
     },
     []
@@ -87,6 +105,9 @@ export const useConnectedAccounts = () => {
         status: row.status,
         verifiedAt: row.verified_at,
         createdAt: row.created_at,
+        positionsDetected: 0,
+        airdropsReceived: 0,
+        scanStatus: "complete",
       }));
     },
     enabled: !!user && !DEMO_MODE,

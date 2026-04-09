@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "./useUserProfile";
+import { useConnectedAccounts } from "./useConnectedAccounts";
 
 export interface AirdropPosition {
   id: string;
@@ -21,6 +22,7 @@ export interface AirdropPosition {
 const QUERY_KEY = ["airdrop-positions"];
 
 // Mock airdrop data for frontend development
+// 3 positions detected, 2 airdrops received (pending + activated)
 const MOCK_AIRDROPS: AirdropPosition[] = [
   {
     id: "mock-airdrop-1",
@@ -71,10 +73,16 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
 
 export const useAirdropPositions = () => {
   const { user } = useUserProfile();
+  const { activeAccounts, isDemoMode } = useConnectedAccounts();
 
   const { data: airdrops = [], isLoading } = useQuery({
-    queryKey: QUERY_KEY,
+    queryKey: [...QUERY_KEY, activeAccounts.length],
     queryFn: async () => {
+      // Demo mode: only show mock airdrops if there are active connected accounts
+      if (isDemoMode) {
+        return activeAccounts.length > 0 ? MOCK_AIRDROPS : [];
+      }
+
       if (!user) return [];
 
       // Try real data first
@@ -86,7 +94,7 @@ export const useAirdropPositions = () => {
 
       if (error) {
         console.error("Error fetching airdrop positions:", error);
-        return MOCK_AIRDROPS;
+        return [];
       }
 
       if (data && data.length > 0) {
@@ -107,10 +115,9 @@ export const useAirdropPositions = () => {
         }));
       }
 
-      // Fall back to mock data
-      return MOCK_AIRDROPS;
+      return [];
     },
-    enabled: !!user,
+    enabled: isDemoMode || !!user,
   });
 
   const pendingAirdrops = airdrops.filter((a) => a.status === "pending");

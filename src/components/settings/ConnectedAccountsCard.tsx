@@ -323,9 +323,22 @@ export const ConnectedAccountsCard = () => {
                     )}
                   </div>
                   {account ? (
-                    <p className="text-sm font-mono text-muted-foreground truncate mt-0.5">
-                      {account.displayAddress}
-                    </p>
+                    <div className="mt-1 space-y-0.5">
+                      <p className="text-xs font-mono text-muted-foreground truncate">
+                        {account.displayAddress}
+                      </p>
+                      {account.scanStatus === "scanning" ? (
+                        <div className="flex items-center gap-1.5">
+                          <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                          <span className="text-xs text-muted-foreground">Scanning positions...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span>Positions: <span className="text-foreground font-medium">{account.positionsDetected}</span></span>
+                          <span>Airdrops: <span className="text-trading-green font-medium">{account.airdropsReceived}</span></span>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {platform.description}
