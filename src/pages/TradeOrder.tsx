@@ -32,7 +32,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
   // Use unified hooks - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
   const { positions, isLoading: positionsLoading } = usePositions();
-  const { pendingAirdrops } = useAirdropPositions();
+  const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
   
   // Enable order simulation for auto-filling
   useOrderSimulation();
