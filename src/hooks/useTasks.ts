@@ -111,12 +111,30 @@ export const useTasks = () => {
         return (referrals?.length || 0) > 0;
 
       case 'share_x':
-        // This would be tracked separately when user shares
         return false;
 
       case 'join_discord':
-        // Tracked when user clicks "Join Discord" button
         return false;
+
+      case 'connect_external': {
+        const { data: accounts } = await supabase
+          .from('connected_accounts')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .limit(1);
+        return (accounts?.length || 0) > 0;
+      }
+
+      case 'activate_airdrop': {
+        const { data: activated } = await supabase
+          .from('airdrop_positions')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'activated')
+          .limit(1);
+        return (activated?.length || 0) > 0;
+      }
 
       default:
         return false;
