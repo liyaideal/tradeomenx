@@ -69,12 +69,12 @@ export const useConnectedAccounts = () => {
         airdropsReceived: 0,
         scanStatus: "scanning",
       };
-      setDemoAccounts((prev) => [newAccount, ...prev]);
+      updateDemoAccounts((prev) => [newAccount, ...prev]);
       setIsDemoVerifying(false);
 
       // Simulate scanning completing after 3 seconds
       setTimeout(() => {
-        setDemoAccounts((prev) =>
+        updateDemoAccounts((prev) =>
           prev.map((a) =>
             a.id === newAccount.id
               ? { ...a, scanStatus: "complete" as const, positionsDetected: 3, airdropsReceived: 2 }
