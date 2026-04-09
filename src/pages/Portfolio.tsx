@@ -280,6 +280,19 @@ export default function Portfolio() {
             >
               Settlements ({settlements.length})
             </button>
+            <button
+              onClick={() => setActiveTab("airdrops")}
+              className={`py-2 px-4 text-sm font-medium transition-all ${
+                activeTab === "airdrops"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground"
+              }`}
+            >
+              <span className="flex items-center gap-1.5">
+                <Gift className="w-3.5 h-3.5" />
+                Airdrops ({airdrops.length})
+              </span>
+            </button>
           </div>
         )}
 
