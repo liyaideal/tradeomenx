@@ -13,19 +13,21 @@ export const AirdropNotificationToast = () => {
   const pendingCount = pendingAirdrops.length;
 
   useEffect(() => {
-    // Reset fired flag when count goes back to 0 (disconnection)
+    console.log("[AirdropToast] pendingCount:", pendingCount, "prevLength:", prevLengthRef.current, "hasFired:", hasFiredRef.current);
+
     if (pendingCount === 0) {
       prevLengthRef.current = 0;
       hasFiredRef.current = false;
       return;
     }
 
-    // Fire toast when transitioning from 0 → N
     if (prevLengthRef.current === 0 && pendingCount > 0 && !hasFiredRef.current) {
       hasFiredRef.current = true;
       prevLengthRef.current = pendingCount;
 
+      console.log("[AirdropToast] Firing toast for", pendingCount, "airdrops");
       const timer = setTimeout(() => {
+        console.log("[AirdropToast] Timer fired, showing toasts");
         pendingAirdrops.forEach((airdrop) => {
           toast("🎁 New Airdrop Received!", {
             description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
