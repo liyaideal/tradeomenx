@@ -229,7 +229,11 @@ export default function Portfolio() {
           rightContent={
             <PortfolioTabDropdown
               activeTab={activeTab}
-              onTabChange={(tab) => tab === "settlements" ? navigate("/portfolio/settlements") : setActiveTab(tab)}
+              onTabChange={(tab) => {
+                if (tab === "settlements") navigate("/portfolio/settlements");
+                else if (tab === "airdrops") navigate("/portfolio/airdrops");
+                else setActiveTab(tab);
+              }}
               positionsCount={positions.length}
               settlementsCount={settlements.length}
               airdropsCount={airdrops.length}
@@ -271,22 +275,14 @@ export default function Portfolio() {
               Positions ({positions.length})
             </button>
             <button
-              onClick={() => setActiveTab("settlements")}
-              className={`py-2 px-4 text-sm font-medium transition-all ${
-                activeTab === "settlements"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground"
-              }`}
+              onClick={() => navigate("/portfolio/settlements")}
+              className="py-2 px-4 text-sm font-medium transition-all text-muted-foreground"
             >
               Settlements ({settlements.length})
             </button>
             <button
-              onClick={() => setActiveTab("airdrops")}
-              className={`py-2 px-4 text-sm font-medium transition-all ${
-                activeTab === "airdrops"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground"
-              }`}
+              onClick={() => navigate("/portfolio/airdrops")}
+              className="py-2 px-4 text-sm font-medium transition-all text-muted-foreground"
             >
               <span className="flex items-center gap-1.5">
                 <Gift className="w-3.5 h-3.5" />

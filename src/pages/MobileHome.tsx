@@ -471,7 +471,7 @@ const MobileHome = () => {
           <section>
             <div 
               className="trading-card p-4 border-trading-yellow/30 bg-trading-yellow/5 cursor-pointer hover:bg-trading-yellow/10 transition-colors"
-              onClick={() => navigate("/portfolio?tab=airdrops")}
+              onClick={() => navigate("/portfolio/airdrops")}
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-trading-yellow/20 flex items-center justify-center flex-shrink-0">

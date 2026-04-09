@@ -99,7 +99,7 @@ export default function PortfolioSettlements() {
     if (tab === "positions") {
       navigate("/portfolio");
     } else if (tab === "airdrops") {
-      navigate("/portfolio", { state: { tab: "airdrops" } });
+      navigate("/portfolio/airdrops");
     }
   };
 
@@ -168,6 +168,12 @@ export default function PortfolioSettlements() {
               className="py-2 px-4 text-sm font-medium transition-all text-primary border-b-2 border-primary"
             >
               Settlements ({settlements.length})
+            </button>
+            <button
+              onClick={() => navigate("/portfolio/airdrops")}
+              className="py-2 px-4 text-sm font-medium transition-all text-muted-foreground"
+            >
+              Airdrops ({airdrops.length})
             </button>
           </div>
         )}
