@@ -1227,12 +1227,12 @@ export default function DesktopTrading() {
                       {activatedAirdrops.map((airdrop) => (
                         <tr key={`airdrop-${airdrop.id}`} className="border-b border-border/30 bg-primary/5">
                           <td className="px-4 py-2">
-                            <div className="flex items-center gap-1.5">
-                              <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
-                                <Gift className="w-3 h-3" />
+                            <div className="flex items-center gap-1.5 flex-nowrap">
+                              <span className="inline-flex items-center gap-0.5 bg-primary/20 text-primary border border-primary/30 text-[9px] font-semibold px-1 py-px rounded whitespace-nowrap flex-shrink-0">
+                                <Gift className="w-2.5 h-2.5" />
                                 AIRDROP
-                              </Badge>
-                              <span className="text-sm font-medium">{airdrop.counterOptionLabel}</span>
+                              </span>
+                              <span className="text-sm font-medium truncate">{airdrop.counterOptionLabel}</span>
                             </div>
                             <div className="text-xs text-muted-foreground truncate max-w-[180px]">
                               {airdrop.counterEventName}
@@ -1261,12 +1261,12 @@ export default function DesktopTrading() {
                       {pendingAirdrops.map((airdrop) => (
                         <tr key={`airdrop-pending-${airdrop.id}`} className="border-b border-border/30 bg-trading-yellow/5">
                           <td className="px-4 py-2">
-                            <div className="flex items-center gap-1.5">
-                              <Badge variant="outline" className="bg-trading-yellow/20 text-trading-yellow border-trading-yellow/30 text-[10px] px-1.5 py-0 gap-1">
-                                <Gift className="w-3 h-3" />
+                            <div className="flex items-center gap-1.5 flex-nowrap">
+                              <span className="inline-flex items-center gap-0.5 bg-trading-yellow/20 text-trading-yellow border border-trading-yellow/30 text-[9px] font-semibold px-1 py-px rounded whitespace-nowrap flex-shrink-0">
+                                <Gift className="w-2.5 h-2.5" />
                                 PENDING
-                              </Badge>
-                              <span className="text-sm font-medium">{airdrop.counterOptionLabel}</span>
+                              </span>
+                              <span className="text-sm font-medium truncate">{airdrop.counterOptionLabel}</span>
                             </div>
                             <div className="text-xs text-muted-foreground truncate max-w-[180px]">
                               {airdrop.counterEventName}
