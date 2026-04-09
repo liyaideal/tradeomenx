@@ -55,6 +55,7 @@ import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { Badge } from "@/components/ui/badge";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
