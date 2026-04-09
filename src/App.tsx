@@ -79,6 +79,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <OrderSimulationRunner />
           <AirdropNotificationToast />
           <ResponsiveLayout>
             <Routes>

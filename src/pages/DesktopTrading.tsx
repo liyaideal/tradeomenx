@@ -153,8 +153,6 @@ export default function DesktopTrading() {
   // Show back button only if user navigated here (PUSH), not if they used bottom nav or direct URL
   const showBackButton = navigationType === "PUSH";
   
-  // Enable order simulation for auto-filling
-  useOrderSimulation();
   
   // selectedOption is now managed by useEvents hook
   const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">(

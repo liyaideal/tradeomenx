@@ -34,8 +34,6 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
   const { positions, isLoading: positionsLoading } = usePositions();
   const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
   
-  // Enable order simulation for auto-filling
-  useOrderSimulation();
   
   const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
   const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);

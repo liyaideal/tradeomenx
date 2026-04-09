@@ -12,8 +12,23 @@ export function useOrderSimulation() {
   const { addPosition } = usePositionsStore();
   const processedOrdersRef = useRef<Set<string>>(new Set());
   const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsLoggedIn(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
+    // Skip simulation for logged-in users (they use real data)
+    if (isLoggedIn) return;
+
     // Find new orders that need simulation
     orders.forEach((order, index) => {
       const orderKey = `${order.event}-${order.option}-${order.time}-${order.price}`;
