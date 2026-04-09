@@ -35,8 +35,15 @@ import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
 import { AirdropNotificationToast } from "./components/AirdropNotificationToast";
+import { useOrderSimulation } from "./hooks/useOrderSimulation";
 
 const queryClient = new QueryClient();
+
+// Global simulation runner
+const OrderSimulationRunner = () => {
+  useOrderSimulation();
+  return null;
+};
 
 // Responsive layout wrapper
 const ResponsiveLayout = ({ children }: { children: React.ReactNode }) => {
