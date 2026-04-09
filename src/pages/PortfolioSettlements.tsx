@@ -128,8 +128,9 @@ export default function PortfolioSettlements() {
             <PortfolioTabDropdown
               activeTab="settlements"
               onTabChange={handleTabChange}
-              positionsCount={0}
+              positionsCount={positions.length}
               settlementsCount={settlements.length}
+              airdropsCount={airdrops.length}
             />
           }
         />
