@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link2, Plus, Loader2, ExternalLink, X, Wallet } from "lucide-react";
+import { Plus, Loader2, X, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,14 +26,14 @@ const PLATFORMS = [
   {
     id: "polymarket",
     name: "Polymarket",
-    icon: "🔮",
+    logo: "/platform-logos/polymarket.svg",
     description: "Connect your Polymarket wallet to receive counter-position airdrops",
     status: "available" as const,
   },
   {
     id: "kalshi",
     name: "Kalshi",
-    icon: "📊",
+    logo: "/platform-logos/kalshi.svg",
     description: "Kalshi integration coming soon",
     status: "coming_soon" as const,
   },
@@ -251,10 +251,7 @@ export const ConnectedAccountsCard = () => {
       <div className="trading-card p-4 md:p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="font-semibold mb-1 flex items-center gap-2">
-              <Link2 className="w-4 h-4" />
-              Connected Accounts
-            </h3>
+            <h3 className="font-semibold mb-1">Connected Accounts</h3>
             <p className="text-xs text-muted-foreground">
               Link external prediction market wallets to receive H2E airdrops
             </p>
@@ -271,8 +268,8 @@ export const ConnectedAccountsCard = () => {
                 key={platform.id}
                 className="bg-muted/30 rounded-xl p-4 flex items-center gap-3"
               >
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg">
-                  {platform.icon}
+                <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center overflow-hidden">
+                  <img src={platform.logo} alt={platform.name} className="w-6 h-6" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
