@@ -98,6 +98,8 @@ export default function PortfolioSettlements() {
   const handleTabChange = (tab: TabType) => {
     if (tab === "positions") {
       navigate("/portfolio");
+    } else if (tab === "airdrops") {
+      navigate("/portfolio", { state: { tab: "airdrops" } });
     }
   };
 
