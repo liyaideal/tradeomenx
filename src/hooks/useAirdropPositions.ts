@@ -47,7 +47,7 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     externalSide: "Yes",
     externalPrice: 0.45,
     counterEventName: "Fed Interest Rate Decision June 2026",
-    counterEventId: "4",
+    counterEventId: "fed-rate-below-3",
     counterOptionLabel: "Hold Steady",
     counterSide: "long",
     counterPrice: 0.55,
