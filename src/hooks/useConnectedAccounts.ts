@@ -91,9 +91,9 @@ export const useConnectedAccounts = () => {
   const demoDisconnect = useCallback(async (accountId: string) => {
     setIsDemoDisconnecting(true);
     await new Promise((r) => setTimeout(r, 500));
-    setDemoAccounts((prev) => prev.filter((a) => a.id !== accountId));
+    updateDemoAccounts((prev) => prev.filter((a) => a.id !== accountId));
     setIsDemoDisconnecting(false);
-  }, []);
+  }, [updateDemoAccounts]);
 
   // ── Real Supabase queries (used when DEMO_MODE = false) ──
   const { data: realAccounts = [], isLoading: realLoading } = useQuery({
