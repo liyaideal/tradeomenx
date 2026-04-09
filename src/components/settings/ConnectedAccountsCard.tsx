@@ -201,9 +201,21 @@ export const ConnectedAccountsCard = () => {
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
           <div>
-            <p className="text-sm font-medium">Waiting for signature...</p>
+            <p className="text-sm font-medium">Waiting for wallet signature...</p>
             <p className="text-xs text-muted-foreground">
               Please confirm the signature request in your wallet
+            </p>
+          </div>
+        </div>
+      )}
+
+      {connectionStep === "verifying" && (
+        <div className="bg-trading-green/10 border border-trading-green/20 rounded-xl p-4 flex items-center gap-3">
+          <Loader2 className="w-5 h-5 animate-spin text-trading-green" />
+          <div>
+            <p className="text-sm font-medium">Verifying on-chain...</p>
+            <p className="text-xs text-muted-foreground">
+              Confirming wallet ownership and linking account
             </p>
           </div>
         </div>
