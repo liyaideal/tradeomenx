@@ -21,33 +21,57 @@ const saveNotifiedIds = (ids: Set<string>) => {
 export const AirdropNotificationToast = () => {
   const navigate = useNavigate();
   const { pendingAirdrops } = useAirdropPositions();
-  const hasChecked = useRef(false);
+  const prevCount = useRef(0);
 
   useEffect(() => {
-    if (pendingAirdrops.length === 0) return;
-    // Small delay to avoid firing during initial hydration flicker
-    const timer = setTimeout(() => {
-      const notified = getNotifiedIds();
-      const newOnes = pendingAirdrops.filter((a) => !notified.has(a.id));
+    if (pendingAirdrops.length === 0) {
+      prevCount.current = 0;
+      return;
+    }
 
-      if (newOnes.length === 0) return;
+    // Only fire when count transitions from 0 → N (new connection)
+    if (prevCount.current === 0 && pendingAirdrops.length > 0) {
+      const timer = setTimeout(() => {
+        const notified = getNotifiedIds();
+        const newOnes = pendingAirdrops.filter((a) => !notified.has(a.id));
 
-      newOnes.forEach((airdrop) => {
-        notified.add(airdrop.id);
-        toast("🎁 New Airdrop Received!", {
-          description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
-          duration: 8000,
-          action: {
-            label: "View",
-            onClick: () => navigate("/portfolio?tab=airdrops"),
-          },
-        });
-      });
+        if (newOnes.length === 0) {
+          // IDs already seen — clear and re-notify (reconnection scenario)
+          sessionStorage.removeItem(NOTIFIED_KEY);
+          const freshNotified = new Set<string>();
+          pendingAirdrops.forEach((airdrop) => {
+            freshNotified.add(airdrop.id);
+            toast("🎁 New Airdrop Received!", {
+              description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
+              duration: 8000,
+              action: {
+                label: "View",
+                onClick: () => navigate("/portfolio?tab=airdrops"),
+              },
+            });
+          });
+          saveNotifiedIds(freshNotified);
+        } else {
+          newOnes.forEach((airdrop) => {
+            notified.add(airdrop.id);
+            toast("🎁 New Airdrop Received!", {
+              description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
+              duration: 8000,
+              action: {
+                label: "View",
+                onClick: () => navigate("/portfolio?tab=airdrops"),
+              },
+            });
+          });
+          saveNotifiedIds(notified);
+        }
+      }, 500);
 
-      saveNotifiedIds(notified);
-    }, 500);
+      prevCount.current = pendingAirdrops.length;
+      return () => clearTimeout(timer);
+    }
 
-    return () => clearTimeout(timer);
+    prevCount.current = pendingAirdrops.length;
   }, [pendingAirdrops, navigate]);
 
   return null;
