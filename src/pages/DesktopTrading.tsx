@@ -975,7 +975,7 @@ export default function DesktopTrading() {
                 >
                   {tab}
                   <span className="ml-1 text-muted-foreground">
-                    ({tab === "Current Orders" ? unifiedOrders.length : positions.length})
+                    ({tab === "Current Orders" ? unifiedOrders.length : totalPositionCount})
                   </span>
                 </button>
               ))}
