@@ -27,7 +27,7 @@ interface TradingChartsContentProps {
 function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChartsContentProps) {
   const navigate = useNavigate();
   const { positions, isLoading: positionsLoading } = usePositions();
-  const { pendingAirdrops } = useAirdropPositions();
+  const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
   // Use unified orders hook - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
   const { profile } = useUserProfile();
