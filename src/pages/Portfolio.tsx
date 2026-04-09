@@ -229,7 +229,11 @@ export default function Portfolio() {
           rightContent={
             <PortfolioTabDropdown
               activeTab={activeTab}
-              onTabChange={(tab) => tab === "settlements" ? navigate("/portfolio/settlements") : setActiveTab(tab)}
+              onTabChange={(tab) => {
+                if (tab === "settlements") navigate("/portfolio/settlements");
+                else if (tab === "airdrops") navigate("/portfolio/airdrops");
+                else setActiveTab(tab);
+              }}
               positionsCount={positions.length}
               settlementsCount={settlements.length}
               airdropsCount={airdrops.length}

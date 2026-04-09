@@ -99,7 +99,7 @@ export default function PortfolioSettlements() {
     if (tab === "positions") {
       navigate("/portfolio");
     } else if (tab === "airdrops") {
-      navigate("/portfolio", { state: { tab: "airdrops" } });
+      navigate("/portfolio/airdrops");
     }
   };
 

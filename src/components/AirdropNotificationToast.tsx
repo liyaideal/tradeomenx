@@ -40,7 +40,7 @@ export const AirdropNotificationToast = () => {
             duration: 8000,
             action: {
               label: "View",
-              onClick: () => navigate("/portfolio?tab=airdrops"),
+              onClick: () => navigate("/portfolio/airdrops"),
             },
           });
         });

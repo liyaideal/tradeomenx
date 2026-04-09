@@ -15,6 +15,7 @@ import ResolvedEventDetail from "./pages/ResolvedEventDetail";
 import Leaderboard from "./pages/Leaderboard";
 import Portfolio from "./pages/Portfolio";
 import PortfolioSettlements from "./pages/PortfolioSettlements";
+import PortfolioAirdrops from "./pages/PortfolioAirdrops";
 import SettlementDetail from "./pages/SettlementDetail";
 import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
@@ -92,6 +93,7 @@ const App = () => (
               <Route path="/resolved/:eventId" element={<ResolvedEventDetail />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/settlements" element={<PortfolioSettlements />} />
+              <Route path="/portfolio/airdrops" element={<PortfolioAirdrops />} />
               <Route path="/portfolio/settlement/:settlementId" element={<SettlementDetail />} />
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/deposit" element={<Deposit />} />
