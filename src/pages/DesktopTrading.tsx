@@ -46,7 +46,7 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
-import { useOrderSimulation } from "@/hooks/useOrderSimulation";
+
 import { BinaryEventHint, isBinaryEvent, isNoOption } from "@/components/BinaryEventHint";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
@@ -153,8 +153,6 @@ export default function DesktopTrading() {
   // Show back button only if user navigated here (PUSH), not if they used bottom nav or direct URL
   const showBackButton = navigationType === "PUSH";
   
-  // Enable order simulation for auto-filling
-  useOrderSimulation();
   
   // selectedOption is now managed by useEvents hook
   const [bottomTab, setBottomTab] = useState<"Orders" | "Positions">(
