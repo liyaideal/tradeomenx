@@ -78,6 +78,7 @@ const AirdropModalBody = ({
   airdrop,
   onActivate,
   onDismiss,
+  showDismiss = true,
   isActivating,
 }: {
   airdrop: AirdropPosition;
