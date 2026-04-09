@@ -1,4 +1,4 @@
-import { Gift, CheckCircle2, Star, ArrowRight, TrendingUp, Share2, Users, Link } from "lucide-react";
+import { Gift, CheckCircle2, Star, ArrowRight, TrendingUp, Share2, Users, Link, Lock } from "lucide-react";
 import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,9 @@ interface TaskCardProps {
   onClaim: (taskId: string) => void;
   isClaiming: boolean;
   onGoComplete?: (task: TaskWithProgress) => void;
+  /** If true, the "Go" button is disabled with a prerequisite hint */
+  prerequisiteBlocked?: boolean;
+  prerequisiteHint?: string;
 }
 
 // Map trigger actions to button config
@@ -31,7 +34,7 @@ const getGoButtonConfig = (action: string): { label: string; icon: React.ReactNo
   }
 };
 
-export function TaskCard({ task, onClaim, isClaiming, onGoComplete }: TaskCardProps) {
+export function TaskCard({ task, onClaim, isClaiming, onGoComplete, prerequisiteBlocked, prerequisiteHint }: TaskCardProps) {
   const isPending = !task.isCompleted && !task.isClaimed;
   const isClaimable = task.isCompleted && !task.isClaimed;
   const isClaimed = task.isClaimed;
@@ -105,15 +108,22 @@ export function TaskCard({ task, onClaim, isClaiming, onGoComplete }: TaskCardPr
               Claim Reward
             </Button>
           ) : canGoComplete && goButtonConfig ? (
-            <Button 
-              variant="outline"
-              className="w-full border-primary/50 text-primary hover:bg-primary/10"
-              onClick={handleGoComplete}
-            >
-              {goButtonConfig.icon}
-              {goButtonConfig.label}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            prerequisiteBlocked ? (
+              <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg flex items-center justify-center gap-2">
+                <Lock className="w-3.5 h-3.5" />
+                {prerequisiteHint || "Complete prerequisite task first"}
+              </div>
+            ) : (
+              <Button 
+                variant="outline"
+                className="w-full border-primary/50 text-primary hover:bg-primary/10"
+                onClick={handleGoComplete}
+              >
+                {goButtonConfig.icon}
+                {goButtonConfig.label}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            )
           ) : (
             <div className="w-full text-center py-2 text-sm text-muted-foreground border border-dashed border-border rounded-lg">
               Complete task to unlock

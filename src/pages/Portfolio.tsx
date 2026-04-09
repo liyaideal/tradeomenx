@@ -1,16 +1,18 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2, Gift } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { AirdropPositionCard } from "@/components/AirdropPositionCard";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -43,7 +45,7 @@ import {
 
 type SortField = "pnl" | "size" | "event" | null;
 type SortDirection = "asc" | "desc";
-type TabType = "positions" | "settlements";
+type TabType = "positions" | "settlements" | "airdrops";
 
 // Portfolio Tab 下拉组件 - 类似 Events 的 Active/Resolved 切换
 const PortfolioTabDropdown = ({
@@ -51,15 +53,18 @@ const PortfolioTabDropdown = ({
   onTabChange,
   positionsCount,
   settlementsCount,
+  airdropsCount,
 }: {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
   positionsCount: number;
   settlementsCount: number;
+  airdropsCount: number;
 }) => {
   const tabOptions: { value: TabType; label: string }[] = [
     { value: "positions", label: `Positions (${positionsCount})` },
     { value: "settlements", label: `Settlements (${settlementsCount})` },
+    { value: "airdrops", label: `Airdrops (${airdropsCount})` },
   ];
 
   return (
@@ -85,6 +90,7 @@ export default function Portfolio() {
   const { user, isLoading: authLoading } = useUserProfile();
   const { positions, isLoading: positionsLoading } = usePositions();
   const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
+  const { airdrops } = useAirdropPositions();
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   // Use the same risk metrics as the Account Risk module in /trade
   const riskMetrics = useRealtimeRiskMetrics();
@@ -226,6 +232,7 @@ export default function Portfolio() {
               onTabChange={(tab) => tab === "settlements" ? navigate("/portfolio/settlements") : setActiveTab(tab)}
               positionsCount={positions.length}
               settlementsCount={settlements.length}
+              airdropsCount={airdrops.length}
             />
           }
         />
@@ -272,6 +279,19 @@ export default function Portfolio() {
               }`}
             >
               Settlements ({settlements.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("airdrops")}
+              className={`py-2 px-4 text-sm font-medium transition-all ${
+                activeTab === "airdrops"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground"
+              }`}
+            >
+              <span className="flex items-center gap-1.5">
+                <Gift className="w-3.5 h-3.5" />
+                Airdrops ({airdrops.length})
+              </span>
             </button>
           </div>
         )}
@@ -970,6 +990,25 @@ export default function Portfolio() {
               </div>
             )}
           </>
+        )}
+
+        {activeTab === "airdrops" && (
+          <div className="space-y-3">
+            {airdrops.length === 0 ? (
+              <div className="text-center py-16 space-y-3">
+                <Gift className="w-10 h-10 text-muted-foreground/40 mx-auto" />
+                <p className="text-muted-foreground text-sm">No airdrops yet</p>
+                <p className="text-muted-foreground/60 text-xs">Connect an external account to start receiving counter-position airdrops</p>
+                <Button variant="outline" className="mt-2" onClick={() => navigate("/settings")}>
+                  Connect Account
+                </Button>
+              </div>
+            ) : (
+              airdrops.map((airdrop) => (
+                <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+              ))
+            )}
+          </div>
         )}
       </main>
       </AuthGateOverlay>

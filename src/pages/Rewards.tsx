@@ -20,6 +20,7 @@ import { TaskCard } from "@/components/rewards/TaskCard";
 import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { XShareConfirmDialog } from "@/components/rewards/XShareConfirmDialog";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
 
 export default function Rewards() {
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ export default function Rewards() {
   const { pointsBalance, frozenPoints, lifetimeEarned, config, isLoading: isLoadingPoints } = usePoints();
   const { tasks, completedCount, totalCount, claimReward, isClaiming, refreshTaskStatus } = useTasks();
   const { referralCode, referralLink, stats: referralStats } = useReferral();
+  const { activeAccounts } = useConnectedAccounts();
+  const hasConnectedAccount = activeAccounts.length > 0;
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
   const [xShareDialogOpen, setXShareDialogOpen] = useState(false);
   
@@ -67,7 +70,7 @@ export default function Rewards() {
     } else if (action === 'connect_external') {
       navigate('/settings');
     } else if (action === 'activate_airdrop') {
-      navigate('/');
+      navigate('/portfolio');
     }
   };
 
@@ -164,6 +167,10 @@ export default function Rewards() {
                 onClaim={claimReward} 
                 isClaiming={isClaiming}
                 onGoComplete={handleGoComplete}
+                prerequisiteBlocked={
+                  (task.trigger_condition?.action as string) === 'activate_airdrop' && !hasConnectedAccount
+                }
+                prerequisiteHint="Connect an external account first"
               />
             ))
           )}
