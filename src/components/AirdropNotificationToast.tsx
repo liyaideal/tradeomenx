@@ -3,61 +3,69 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
+
+const SESSION_KEY_PREFIX = "omenx-airdrop-toast-shown:";
+
+const getSessionKey = (userId: string) => `${SESSION_KEY_PREFIX}${userId}`;
+
+const getToastedIds = (userId: string): Set<string> => {
+  try {
+    const raw = sessionStorage.getItem(getSessionKey(userId));
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const markToasted = (userId: string, ids: string[]) => {
+  try {
+    const existing = getToastedIds(userId);
+    ids.forEach((id) => existing.add(id));
+    sessionStorage.setItem(getSessionKey(userId), JSON.stringify([...existing]));
+  } catch {}
+};
 
 export const AirdropNotificationToast = () => {
   const navigate = useNavigate();
   const { pendingAirdrops } = useAirdropPositions();
   const { user } = useUserProfile();
-  const prevIdsRef = useRef<Set<string>>(new Set());
-  const initializedRef = useRef(false);
+  const { activeAccounts } = useConnectedAccounts();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const userId = user?.id ?? "guest";
 
+  // Only toast after at least one account has finished scanning
+  const hasScanComplete = activeAccounts.some((a) => a.scanStatus === "complete");
+
   useEffect(() => {
-    // Build current set of pending airdrop IDs
-    const currentIds = new Set(pendingAirdrops.map((a) => a.id));
+    if (!hasScanComplete || pendingAirdrops.length === 0) return;
 
-    // On first render with data, just record the IDs without toasting
-    // This prevents toasting on page navigation when airdrops already exist
-    if (!initializedRef.current) {
-      // Only initialize once we have actual data or confirmed empty
-      prevIdsRef.current = currentIds;
-      initializedRef.current = true;
-      return;
-    }
+    const toastedIds = getToastedIds(userId);
+    const newAirdrops = pendingAirdrops.filter((a) => !toastedIds.has(a.id));
 
-    // Find newly appeared airdrop IDs
-    const newIds = [...currentIds].filter((id) => !prevIdsRef.current.has(id));
+    if (newAirdrops.length === 0) return;
 
-    if (newIds.length > 0) {
-      // Fire toast for each new airdrop
-      const timer = setTimeout(() => {
-        newIds.forEach((id) => {
-          const airdrop = pendingAirdrops.find((a) => a.id === id);
-          if (!airdrop) return;
-          toast("🎁 New Airdrop Received!", {
-            description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
-            duration: 8000,
-            action: {
-              label: "View",
-              onClick: () => navigate("/portfolio/airdrops"),
-            },
-          });
+    // Mark as toasted immediately to prevent duplicates
+    markToasted(userId, newAirdrops.map((a) => a.id));
+
+    timerRef.current = setTimeout(() => {
+      newAirdrops.forEach((airdrop) => {
+        toast("🎁 New Airdrop Received!", {
+          description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
+          duration: 8000,
+          action: {
+            label: "View",
+            onClick: () => navigate("/portfolio/airdrops"),
+          },
         });
-      }, 500);
+      });
+    }, 500);
 
-      prevIdsRef.current = currentIds;
-      return () => clearTimeout(timer);
-    }
-
-    prevIdsRef.current = currentIds;
-  }, [pendingAirdrops, navigate, userId]);
-
-  // Reset initialization when user changes
-  useEffect(() => {
-    initializedRef.current = false;
-    prevIdsRef.current = new Set();
-  }, [userId]);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [pendingAirdrops, hasScanComplete, navigate, userId]);
 
   return null;
 };
