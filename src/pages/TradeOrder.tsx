@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
-import { ExternalLink, ChevronDown } from "lucide-react";
+import { ExternalLink, ChevronDown, Gift } from "lucide-react";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
