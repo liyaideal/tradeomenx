@@ -1,4 +1,4 @@
-import { Gift, CheckCircle2, Star, ArrowRight, TrendingUp, Share2, Users } from "lucide-react";
+import { Gift, CheckCircle2, Star, ArrowRight, TrendingUp, Share2, Users, Link } from "lucide-react";
 import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
