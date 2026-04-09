@@ -33,7 +33,7 @@ const PLATFORMS = [
   {
     id: "kalshi",
     name: "Kalshi",
-    logo: "/platform-logos/kalshi.svg",
+    logo: "/platform-logos/kalshi.png",
     description: "Kalshi integration coming soon",
     status: "coming_soon" as const,
   },
