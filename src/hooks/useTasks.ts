@@ -148,7 +148,7 @@ export const useTasks = () => {
         if ((activated?.length || 0) > 0) return true;
         // Check demo localStorage
         try {
-          const demoStored = localStorage.getItem('omenx-demo-airdrop-positions-v1');
+          const demoStored = localStorage.getItem(`omenx-demo-airdrop-positions:${user.id}`);
           if (demoStored) {
             const parsed = JSON.parse(demoStored);
             if (Array.isArray(parsed) && parsed.some((a: any) => a.status === 'activated')) return true;
