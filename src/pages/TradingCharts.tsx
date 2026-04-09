@@ -98,7 +98,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
       {/* Bottom Tabs */}
       <div className="flex px-4 mt-2 border-b border-border/30">
         {bottomTabs.map((tab) => {
-          const count = tab === "Orders" ? orders.length : tab === "Positions" ? positions.length : null;
+          const count = tab === "Orders" ? orders.length : tab === "Positions" ? totalPositionCount : null;
           return (
             <button
               key={tab}
