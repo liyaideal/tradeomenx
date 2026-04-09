@@ -222,7 +222,7 @@ export default function DesktopTrading() {
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   
   // Airdrop positions for banner and rows
-  const { pendingAirdrops, activatedAirdrops } = useAirdropPositions();
+  const { pendingAirdrops, activatedAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
@@ -1100,7 +1100,7 @@ export default function DesktopTrading() {
                   <div className="mx-4 mt-2 mb-1 px-3 py-2 rounded-lg bg-trading-yellow/10 border border-trading-yellow/30 flex items-center gap-2">
                     <span className="text-sm">🎁</span>
                     <span className="text-xs text-trading-yellow">
-                      You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — make a trade to claim
+                      You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — click Activate to claim
                     </span>
                   </div>
                 )}
@@ -1288,10 +1288,11 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-center text-xs text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-center">
                             <button 
-                              onClick={() => navigate(`/trade?event=${airdrop.counterEventId}`)}
-                              className="px-3 py-1 text-xs text-primary border border-primary/50 rounded hover:bg-primary/10"
+                              onClick={() => activateAirdrop(airdrop.id)}
+                              disabled={isActivating}
+                              className="px-3 py-1 text-xs text-primary border border-primary/50 rounded hover:bg-primary/10 disabled:opacity-50"
                             >
-                              Activate
+                              {isActivating ? "Activating…" : "Activate"}
                             </button>
                           </td>
                         </tr>

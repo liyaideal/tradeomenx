@@ -1,7 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "./useUserProfile";
 import { useConnectedAccounts } from "./useConnectedAccounts";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export interface AirdropPosition {
   id: string;
@@ -77,6 +79,8 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
 export const useAirdropPositions = () => {
   const { user } = useUserProfile();
   const { activeAccounts, isDemoMode } = useConnectedAccounts();
+  const queryClient = useQueryClient();
+  const [isActivating, setIsActivating] = useState(false);
 
   // Only show airdrops when at least one account has finished scanning
   const hasScanComplete = activeAccounts.some((a) => a.scanStatus === "complete");
@@ -87,8 +91,10 @@ export const useAirdropPositions = () => {
     .sort()
     .join(",");
 
+  const queryKey = [...QUERY_KEY, scanKey];
+
   const { data: airdrops = [], isLoading } = useQuery({
-    queryKey: [...QUERY_KEY, scanKey],
+    queryKey,
     queryFn: async () => {
       // Demo mode: only show mock airdrops after scan completes
       if (isDemoMode) {
@@ -132,6 +138,39 @@ export const useAirdropPositions = () => {
     enabled: isDemoMode || !!user,
   });
 
+  const activateAirdrop = async (id: string) => {
+    setIsActivating(true);
+    try {
+      if (isDemoMode) {
+        // Optimistically update the cache for demo mode
+        queryClient.setQueryData<AirdropPosition[]>(queryKey, (old) =>
+          (old ?? []).map((a) =>
+            a.id === id
+              ? { ...a, status: "activated", activatedAt: new Date().toISOString() }
+              : a
+          )
+        );
+      } else {
+        const { error } = await supabase
+          .from("airdrop_positions")
+          .update({ status: "activated", activated_at: new Date().toISOString() })
+          .eq("id", id);
+
+        if (error) {
+          console.error("Error activating airdrop:", error);
+          toast({ title: "Activation failed", description: error.message, variant: "destructive" });
+          return;
+        }
+
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      }
+
+      toast({ title: "🎉 Airdrop activated!", description: "Position is now live" });
+    } finally {
+      setIsActivating(false);
+    }
+  };
+
   const pendingAirdrops = airdrops.filter((a) => a.status === "pending");
   const activatedAirdrops = airdrops.filter((a) => a.status === "activated");
   const expiredAirdrops = airdrops.filter((a) => a.status === "expired");
@@ -142,5 +181,7 @@ export const useAirdropPositions = () => {
     activatedAirdrops,
     expiredAirdrops,
     isLoading,
+    activateAirdrop,
+    isActivating,
   };
 };

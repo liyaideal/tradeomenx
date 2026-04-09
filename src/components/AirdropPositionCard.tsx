@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { Gift, Clock, Zap, AlertTriangle } from "lucide-react";
+import { Gift, Clock, Zap, AlertTriangle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useIsMobile } from "@/hooks/use-mobile";
 import type { AirdropPosition } from "@/hooks/useAirdropPositions";
 
 interface AirdropPositionCardProps {
   airdrop: AirdropPosition;
+  onActivate?: (id: string) => Promise<void>;
+  isActivating?: boolean;
 }
 
 const useCountdown = (expiresAt: string) => {
@@ -35,9 +35,7 @@ const useCountdown = (expiresAt: string) => {
   return { timeLeft, isExpired };
 };
 
-export const AirdropPositionCard = ({ airdrop }: AirdropPositionCardProps) => {
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
+export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: AirdropPositionCardProps) => {
   const { timeLeft, isExpired } = useCountdown(airdrop.expiresAt);
 
   const isPending = airdrop.status === "pending";
@@ -66,13 +64,6 @@ export const AirdropPositionCard = ({ airdrop }: AirdropPositionCardProps) => {
   };
 
   const config = statusConfig[airdrop.status as keyof typeof statusConfig] || statusConfig.expired;
-
-  const handleActivate = () => {
-    const path = isMobile
-      ? `/trade/order?event=${airdrop.counterEventId}`
-      : `/trade?event=${airdrop.counterEventId}`;
-    navigate(path);
-  };
 
   return (
     <div className={`rounded-xl p-3 border ${config.bg} ${config.border}`}>
@@ -128,11 +119,16 @@ export const AirdropPositionCard = ({ airdrop }: AirdropPositionCardProps) => {
       {/* Action */}
       {isPending && !isExpired && (
         <Button
-          onClick={handleActivate}
+          onClick={() => onActivate?.(airdrop.id)}
+          disabled={isActivating}
           className="w-full h-8 text-xs btn-primary gap-1"
         >
-          <Zap className="w-3 h-3" />
-          Activate — Make a Trade
+          {isActivating ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Zap className="w-3 h-3" />
+          )}
+          {isActivating ? "Activating…" : "Activate"}
         </Button>
       )}
 
@@ -146,7 +142,7 @@ export const AirdropPositionCard = ({ airdrop }: AirdropPositionCardProps) => {
       {isActivated && (
         <div className="flex items-center gap-2 text-xs text-trading-green py-1">
           <Zap className="w-3 h-3" />
-          <span>Activated — Position is live</span>
+          <span>Activated — Position is now live</span>
         </div>
       )}
     </div>
