@@ -232,6 +232,7 @@ export default function Portfolio() {
               onTabChange={(tab) => tab === "settlements" ? navigate("/portfolio/settlements") : setActiveTab(tab)}
               positionsCount={positions.length}
               settlementsCount={settlements.length}
+              airdropsCount={airdrops.length}
             />
           }
         />
