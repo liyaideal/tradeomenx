@@ -26,7 +26,7 @@ const PLATFORMS = [
   {
     id: "polymarket",
     name: "Polymarket",
-    logo: "/platform-logos/polymarket.svg",
+    logo: "/platform-logos/polymarket.png",
     description: "Connect your Polymarket wallet to receive counter-position airdrops",
     status: "available" as const,
   },
