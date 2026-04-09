@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react"; // v2
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift } from "lucide-react";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
