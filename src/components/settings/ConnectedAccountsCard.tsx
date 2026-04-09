@@ -268,11 +268,11 @@ export const ConnectedAccountsCard = () => {
             </Button>
             <Button
               onClick={handleConnectWallet}
-              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep === "signing"}
+              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep !== "input"}
               className="flex-1 btn-primary"
             >
-              {connectionStep === "signing" ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Verifying...</>
+              {connectionStep !== "input" ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {connectionStep === "signing" ? "Signing..." : "Verifying..."}</>
               ) : (
                 <><Wallet className="w-4 h-4 mr-2" /> Sign & Connect</>
               )}
