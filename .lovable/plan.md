@@ -1,62 +1,107 @@
 
+### 我已经定位到这 3 个问题的根因了，不需要你再额外帮忙补信息
 
-## H2E Airdrop 完整流程补全
+#### 实际问题是什么
+1. **新注册账号自动“继承”旧钱包**
+   - `useConnectedAccounts.ts` 现在把 demo 钱包写死存在全局 `localStorage` key：`demo_connected_accounts`
+   - 这个 key **没有按用户隔离**，所以换账号后会读到上一个账号的 mock 钱包
 
-### 缺失功能分析
-根据 PRD 和截图，当前实现缺少以下关键功能：
+2. **Airdrop toast 不弹**
+   - `AirdropNotificationToast.tsx` 现在是按“是否有 active account”来触发，不是按“扫描完成后新增 airdrop”来触发
+   - 同时它的 `sessionStorage` 记录也是**全局的，不分用户**
+   - 结果就是 toast 可能：
+     - 提前在连接阶段就触发并被错过
+     - 或被旧账号的 session 标记直接压掉
 
-1. **Pending Activation 按钮应跳转到对应 event 的交易页**（当前跳转到 `/events`）
-2. **交易页的 Positions 面板需要展示 airdrop 仓位**（带 pending activation 提示 banner）
-3. **Airdrop 通知系统**（新 airdrop 到达时的 toast 通知 + 通知入口）
+3. **桌面交易页 Positions pending banner 不显示**
+   - 之前改的是 `src/components/DesktopPositionsPanel.tsx`
+   - 但桌面交易页真正使用的是 **`src/pages/DesktopTrading.tsx` 里内联的 Positions 表格**
+   - 所以之前那次修改基本改到了一个**没接入当前页面的组件**
 
-### 计划
+---
 
-#### 1. Mock 数据添加 `counterEventId` 字段
-**文件**: `src/hooks/useAirdropPositions.ts`
+### 修复方案
 
-- 给 `AirdropPosition` 接口添加 `counterEventId: string`
-- Mock 数据中映射到真实 event ID（如 `mock-airdrop-1` 的 BTC 对应 event `"2"`，Fed 对应 event `"4"`，ETH 对应 event `"3"`）
-- 这样 "Activate" 按钮可以跳转到 `/trade?event={counterEventId}`
+#### 1. 先把 demo 数据彻底改成“按当前用户隔离”
+**文件：`src/hooks/useConnectedAccounts.ts`**
 
-#### 2. AirdropPositionCard 按钮跳转到对应 event
-**文件**: `src/components/AirdropPositionCard.tsx`
+- 把 demo storage key 改成带用户维度，例如：
+  - `demo_connected_accounts:${user.id}`
+- React Query 的 demo query key 也带上 `user.id`
+- 登录 / 注册 / 切换账号后，只读取当前用户自己的 demo 钱包
+- 这样新账号就不会自动看到旧账号的钱包
 
-- 将 `navigate("/events")` 改为 `navigate(`/trade?event=${airdrop.counterEventId}`)`
-- 移动端改为 `/trade/order?event=${airdrop.counterEventId}`
+#### 2. 让 airdrop 只在“扫描完成后”出现
+**文件：`src/hooks/useAirdropPositions.ts` + `src/hooks/useConnectedAccounts.ts`**
 
-#### 3. 交易页 Positions 面板展示 airdrop 仓位
-**文件**: `src/components/DesktopPositionsPanel.tsx`（桌面端）
+- 现在逻辑是：只要 `activeAccounts.length > 0` 就直接返回 mock airdrops
+- 我会改成：只有当连接账户 `scanStatus === "complete"` 后，才返回 mock airdrops
+- `queryKey` 不能只看 `activeAccounts.length`，要包含：
+  - account id
+  - status
+  - scanStatus
+- 这样页面数据会真正跟 “Scanning -> Complete” 联动
 
-- 引入 `useAirdropPositions`
-- 在 Positions tab 的仓位列表上方，如果有 `pendingAirdrops`，显示一个黄色提示 banner：
-  - `🎁 You have {n} airdrop(s) pending activation — make a trade to claim`
-- 已激活的 airdrop 仓位作为特殊行显示在 positions 列表末尾（带 AIRDROP badge）
+#### 3. 重写 toast 触发条件
+**文件：`src/components/AirdropNotificationToast.tsx`**
 
-**文件**: `src/pages/TradeOrder.tsx`（移动端，已有部分实现）
+- 不再按“新 active account”触发
+- 改成按“扫描完成后，新出现的 pending airdrop id”触发
+- `sessionStorage` key 也改成按用户隔离
+- 触发时机调整为：
+  - 扫描完成
+  - pending airdrops 从 0 变成 >0
+  - 当前这些 airdrop 还没 toast 过
+- 这样 toast 才会在正确时间点出现，而不是过早或被旧状态吞掉
 
-- 当前 `pendingAirdrops` 在 Positions tab 之外渲染。需要移到 Positions tab 内部
-- 同样在 Positions 列表上方添加 pending activation banner
+#### 4. 把桌面端 pending banner 修到真正生效的页面
+**文件：`src/pages/DesktopTrading.tsx`**
 
-#### 4. Airdrop 到达通知
-**文件**: 新建 `src/components/AirdropNotificationToast.tsx`
+- 在桌面交易页真实的 Positions 区块里引入 `useAirdropPositions`
+- 在 `bottomTab === "Positions"` 的真实表格上方加 pending banner
+- 同时把 activated airdrop 行也加到这个真实表格区域
+- 不再继续改 `DesktopPositionsPanel.tsx` 这个当前未接入的实现
 
-- 创建一个组件，使用 `useAirdropPositions` 监听 `pendingAirdrops` 变化
-- 当 demo 扫描完成（从 0 到 N 个 pending airdrops）时，触发 sonner toast：
-  - `🎁 New Airdrop Received! You have a $10 counter-position on "BTC End of Q1 2026 Price". Activate it by making a trade.`
-  - toast 带 action 按钮 "View" 跳转到 `/portfolio` 的 airdrops tab
+---
 
-**文件**: `src/App.tsx` 或相关布局
+### 这次会改到的核心文件
+- `src/hooks/useConnectedAccounts.ts`
+- `src/hooks/useAirdropPositions.ts`
+- `src/components/AirdropNotificationToast.tsx`
+- `src/pages/DesktopTrading.tsx`
 
-- 在全局布局中挂载 `AirdropNotificationToast` 组件
+---
 
-#### 5. 文件变更汇总
+### 修完后预期行为
+```text
+注册新账号
+  -> 不会看到旧账号连接过的钱包
 
-| 文件 | 变更 |
-|------|------|
-| `src/hooks/useAirdropPositions.ts` | 添加 `counterEventId` 字段到接口和 mock 数据 |
-| `src/components/AirdropPositionCard.tsx` | 跳转到对应 event 交易页 |
-| `src/components/DesktopPositionsPanel.tsx` | Positions tab 展示 airdrop 仓位 + pending banner |
-| `src/pages/TradeOrder.tsx` | 移动端 Positions tab 内展示 airdrop 仓位 + pending banner |
-| `src/components/AirdropNotificationToast.tsx` | 新建：全局 airdrop 到达通知 |
-| `src/App.tsx` | 挂载通知组件 |
+Settings 连接钱包
+  -> Scanning
+  -> scanStatus = complete
+  -> airdrops 出现
+  -> toast 弹出
 
+进入桌面交易页 Positions
+  -> 顶部看到 pending activation banner
+  -> 同区域能看到 activated/pending 的 airdrop 展示
+```
+
+---
+
+### 为什么这次拖久了
+不是你这边少给了信息，核心是之前有两处判断偏了：
+1. **demo 状态做成了全局存储，导致跨账号串数据**
+2. **桌面端改到了未实际渲染的组件，而不是 `DesktopTrading.tsx`**
+
+这两个点解释了为什么你一直看不到预期结果。
+
+---
+
+### 我接下来会按这个顺序修
+1. 先修 demo 数据按用户隔离
+2. 再修 airdrop 只在 scan complete 后出现
+3. 再修 toast 触发条件
+4. 最后把桌面交易页真正的 banner 接到 `DesktopTrading.tsx` 上
+5. 完成后再用你刚才那条真实复现场景重新验证
