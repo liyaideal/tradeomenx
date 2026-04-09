@@ -4,6 +4,8 @@ import { TrendingUp, TrendingDown, Trophy, ChevronRight, Loader2 } from "lucide-
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { usePositions } from "@/hooks/usePositions";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -27,7 +29,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 
-type TabType = "positions" | "settlements";
+type TabType = "positions" | "settlements" | "airdrops";
 
 // Portfolio Tab 下拉组件
 const PortfolioTabDropdown = ({
@@ -35,15 +37,18 @@ const PortfolioTabDropdown = ({
   onTabChange,
   positionsCount,
   settlementsCount,
+  airdropsCount,
 }: {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
   positionsCount: number;
   settlementsCount: number;
+  airdropsCount: number;
 }) => {
   const tabOptions: { value: TabType; label: string }[] = [
     { value: "positions", label: `Positions (${positionsCount})` },
     { value: "settlements", label: `Settlements (${settlementsCount})` },
+    { value: "airdrops", label: `Airdrops (${airdropsCount})` },
   ];
 
   return (
@@ -67,6 +72,8 @@ export default function PortfolioSettlements() {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useUserProfile();
   const { data: settlements = [], isLoading } = useSettlements();
+  const { airdrops } = useAirdropPositions();
+  const { positions } = usePositions();
 
   // Calculate settlements stats
   const settlementsStats = useMemo(() => {
@@ -91,6 +98,8 @@ export default function PortfolioSettlements() {
   const handleTabChange = (tab: TabType) => {
     if (tab === "positions") {
       navigate("/portfolio");
+    } else if (tab === "airdrops") {
+      navigate("/portfolio", { state: { tab: "airdrops" } });
     }
   };
 
@@ -119,8 +128,9 @@ export default function PortfolioSettlements() {
             <PortfolioTabDropdown
               activeTab="settlements"
               onTabChange={handleTabChange}
-              positionsCount={0}
+              positionsCount={positions.length}
               settlementsCount={settlements.length}
+              airdropsCount={airdrops.length}
             />
           }
         />
