@@ -45,6 +45,7 @@ export const DesktopPositionsPanel = () => {
   const { positions, closePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
   const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
+  const { pendingAirdrops, activatedAirdrops } = useAirdropPositions();
   
   const [activeTab, setActiveTab] = useState("Positions");
   const [tpSlOpen, setTpSlOpen] = useState(false);
