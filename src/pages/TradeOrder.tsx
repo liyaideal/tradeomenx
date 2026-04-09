@@ -32,8 +32,8 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
   // Use unified hooks - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
   const { positions, isLoading: positionsLoading } = usePositions();
-  const { pendingAirdrops, activatedAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
-  const totalPositionCount = positions.length + activatedAirdrops.length + pendingAirdrops.length;
+  const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
+  const totalPositionCount = positions.length + pendingAirdrops.length;
   
   const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
   const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);
