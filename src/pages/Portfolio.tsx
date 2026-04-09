@@ -991,6 +991,25 @@ export default function Portfolio() {
             )}
           </>
         )}
+
+        {activeTab === "airdrops" && (
+          <div className="space-y-3">
+            {airdrops.length === 0 ? (
+              <div className="text-center py-16 space-y-3">
+                <Gift className="w-10 h-10 text-muted-foreground/40 mx-auto" />
+                <p className="text-muted-foreground text-sm">No airdrops yet</p>
+                <p className="text-muted-foreground/60 text-xs">Connect an external account to start receiving counter-position airdrops</p>
+                <Button variant="outline" className="mt-2" onClick={() => navigate("/settings")}>
+                  Connect Account
+                </Button>
+              </div>
+            ) : (
+              airdrops.map((airdrop) => (
+                <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+              ))
+            )}
+          </div>
+        )}
       </main>
       </AuthGateOverlay>
 
