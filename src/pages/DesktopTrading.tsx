@@ -1146,8 +1146,14 @@ export default function DesktopTrading() {
                           }`}
                         >
                           <td className="px-4 py-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-sm font-medium">{position.option}</span>
+                            <div className="flex items-center gap-1.5 flex-nowrap">
+                              {position.isAirdrop && (
+                                <span className="inline-flex items-center gap-0.5 bg-primary/20 text-primary border border-primary/30 text-[9px] font-semibold px-1 py-px rounded whitespace-nowrap flex-shrink-0">
+                                  <Gift className="w-2.5 h-2.5" />
+                                  AIRDROP
+                                </span>
+                              )}
+                              <span className="text-sm font-medium truncate">{position.option}</span>
                               {position.option.toLowerCase() === "yes" && (
                                 <TooltipProvider>
                                   <Tooltip>
