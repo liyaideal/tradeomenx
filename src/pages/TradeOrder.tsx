@@ -13,7 +13,7 @@ import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
-import { useOrderSimulation } from "@/hooks/useOrderSimulation";
+
 
 interface LocationState {
   tab?: string;
