@@ -236,11 +236,11 @@ export const ConnectedAccountsCard = () => {
           <MobileDrawerActions>
             <Button
               onClick={handleConnectWallet}
-              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep === "signing"}
+              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep !== "input"}
               className="w-full btn-primary h-12"
             >
-              {connectionStep === "signing" ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Verifying...</>
+              {connectionStep !== "input" ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {connectionStep === "signing" ? "Signing..." : "Verifying..."}</>
               ) : (
                 <><Wallet className="w-4 h-4 mr-2" /> Sign & Connect</>
               )}
