@@ -20,32 +20,44 @@ export interface ConnectedAccount {
 }
 
 const QUERY_KEY = ["connected-accounts"];
+const DEMO_QUERY_KEY = ["demo-connected-accounts"];
 
 const formatAddress = (addr: string) =>
   `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
+const readDemoAccounts = (): ConnectedAccount[] => {
+  try {
+    const saved = localStorage.getItem("demo_connected_accounts");
+    return saved ? JSON.parse(saved) : [];
+  } catch { return []; }
+};
+
+const writeDemoAccounts = (accounts: ConnectedAccount[]) => {
+  localStorage.setItem("demo_connected_accounts", JSON.stringify(accounts));
+};
 
 export const useConnectedAccounts = () => {
   const queryClient = useQueryClient();
   const { user } = useUserProfile();
 
-  // ── Demo state (persisted to localStorage) ──
-  const [demoAccounts, setDemoAccounts] = useState<ConnectedAccount[]>(() => {
-    try {
-      const saved = localStorage.getItem("demo_connected_accounts");
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
+  // ── Demo state (shared via react-query cache, persisted to localStorage) ──
+  const { data: demoAccounts = [] } = useQuery<ConnectedAccount[]>({
+    queryKey: DEMO_QUERY_KEY,
+    queryFn: readDemoAccounts,
+    staleTime: Infinity,
+    enabled: DEMO_MODE,
   });
+
   const [isDemoVerifying, setIsDemoVerifying] = useState(false);
   const [isDemoDisconnecting, setIsDemoDisconnecting] = useState(false);
 
-  // Persist demo accounts to localStorage
+  // Update demo accounts in both cache and localStorage
   const updateDemoAccounts = useCallback((updater: (prev: ConnectedAccount[]) => ConnectedAccount[]) => {
-    setDemoAccounts((prev) => {
-      const next = updater(prev);
-      localStorage.setItem("demo_connected_accounts", JSON.stringify(next));
-      return next;
-    });
-  }, []);
+    const prev = queryClient.getQueryData<ConnectedAccount[]>(DEMO_QUERY_KEY) ?? [];
+    const next = updater(prev);
+    writeDemoAccounts(next);
+    queryClient.setQueryData(DEMO_QUERY_KEY, next);
+  }, [queryClient]);
 
   const demoVerifyAndConnect = useCallback(
     async (payload: {
