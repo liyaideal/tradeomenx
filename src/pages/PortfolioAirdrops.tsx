@@ -311,7 +311,7 @@ export default function PortfolioAirdrops() {
                             <ChevronRight className="w-4 h-4 ml-1" />
                           </Button>
                         ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          <span className="inline-flex items-center text-muted-foreground/40 pr-1"><ChevronRight className="w-4 h-4" /></span>
                         )}
                       </TableCell>
                     </TableRow>
