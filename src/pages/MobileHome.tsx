@@ -14,6 +14,7 @@ import { usePositions } from "@/hooks/usePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import {
   DropdownMenu,
