@@ -9,6 +9,7 @@ export interface AirdropPosition {
   externalSide: string;
   externalPrice: number;
   counterEventName: string;
+  counterEventId: string;
   counterOptionLabel: string;
   counterSide: string;
   counterPrice: number;
@@ -30,6 +31,7 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     externalSide: "Yes",
     externalPrice: 0.62,
     counterEventName: "BTC End of Q1 2026 Price",
+    counterEventId: "2",
     counterOptionLabel: "Below $120,000",
     counterSide: "short",
     counterPrice: 0.38,
@@ -45,6 +47,7 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     externalSide: "Yes",
     externalPrice: 0.45,
     counterEventName: "Fed Interest Rate Decision June 2026",
+    counterEventId: "4",
     counterOptionLabel: "Hold Steady",
     counterSide: "long",
     counterPrice: 0.55,
@@ -60,6 +63,7 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     externalSide: "No",
     externalPrice: 0.72,
     counterEventName: "ETH Price Prediction April 2026",
+    counterEventId: "3",
     counterOptionLabel: "Above $5,000",
     counterSide: "long",
     counterPrice: 0.28,
@@ -104,6 +108,7 @@ export const useAirdropPositions = () => {
           externalSide: row.external_side,
           externalPrice: Number(row.external_price),
           counterEventName: row.counter_event_name,
+          counterEventId: row.counter_event_id || "",
           counterOptionLabel: row.counter_option_label,
           counterSide: row.counter_side,
           counterPrice: Number(row.counter_price),

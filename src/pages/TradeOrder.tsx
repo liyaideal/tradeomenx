@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
-import { ExternalLink, ChevronDown } from "lucide-react";
+import { ExternalLink, ChevronDown, Gift } from "lucide-react";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
@@ -229,35 +229,48 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
           )
         )}
         {bottomTab === "Positions" && (
-          positionsLoading ? (
-            <div className="text-center text-muted-foreground py-4">Loading positions...</div>
-          ) : positions.length === 0 ? (
-            <div className="text-center text-muted-foreground py-4">No open positions</div>
-          ) : (
-            positions.map((position, index) => (
-              <div 
-                key={index} 
-                ref={(el) => (positionRefs.current[index] = el)}
-                className={`transition-all duration-500 ${
-                  highlightedPosition === index 
-                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-lg" 
-                    : ""
-                }`}
-              >
-                <PositionCard 
-                  {...position}
-                  size={position.size}
-                  sizeDisplay={position.sizeDisplay}
-                  optionId={position.optionId}
-                />
+          <>
+            {/* Pending Airdrop Banner */}
+            {pendingAirdrops.length > 0 && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-trading-yellow/10 border border-trading-yellow/20 mb-3">
+                <Gift className="w-4 h-4 text-trading-yellow flex-shrink-0" />
+                <span className="text-xs text-trading-yellow">
+                  🎁 You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — make a trade to claim
+                </span>
               </div>
-            ))
-          )
+            )}
+            {positionsLoading ? (
+              <div className="text-center text-muted-foreground py-4">Loading positions...</div>
+            ) : positions.length === 0 && pendingAirdrops.length === 0 ? (
+              <div className="text-center text-muted-foreground py-4">No open positions</div>
+            ) : (
+              <>
+                {positions.map((position, index) => (
+                  <div 
+                    key={index} 
+                    ref={(el) => (positionRefs.current[index] = el)}
+                    className={`transition-all duration-500 ${
+                      highlightedPosition === index 
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-lg" 
+                        : ""
+                    }`}
+                  >
+                    <PositionCard 
+                      {...position}
+                      size={position.size}
+                      sizeDisplay={position.sizeDisplay}
+                      optionId={position.optionId}
+                    />
+                  </div>
+                ))}
+                {/* Airdrop Positions inside Positions tab */}
+                {pendingAirdrops.map((airdrop) => (
+                  <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+                ))}
+              </>
+            )}
+          </>
         )}
-        {/* Airdrop Positions */}
-        {pendingAirdrops.map((airdrop) => (
-          <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
-        ))}
       </div>
       </div>
       </AuthGateOverlay>

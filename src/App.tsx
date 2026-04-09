@@ -34,6 +34,7 @@ import TermsOfServicePage from "./pages/TermsOfServicePage";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
+import { AirdropNotificationToast } from "./components/AirdropNotificationToast";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AirdropNotificationToast />
           <ResponsiveLayout>
             <Routes>
               <Route path="/" element={<HomePage />} />
