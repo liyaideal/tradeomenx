@@ -1,4 +1,4 @@
-import { Gift, CheckCircle2, Star, ArrowRight, TrendingUp, Share2, Users } from "lucide-react";
+import { Gift, CheckCircle2, Star, ArrowRight, TrendingUp, Share2, Users, Link } from "lucide-react";
 import { TaskIcon } from "@/components/rewards/TaskIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,6 +22,10 @@ const getGoButtonConfig = (action: string): { label: string; icon: React.ReactNo
       return { label: 'Go Invite', icon: <Users className="w-4 h-4 mr-2" /> };
     case 'join_discord':
       return { label: 'Join Discord', icon: <Users className="w-4 h-4 mr-2" /> };
+    case 'connect_external':
+      return { label: 'Go Connect', icon: <Link className="w-4 h-4 mr-2" /> };
+    case 'activate_airdrop':
+      return { label: 'Go Trade', icon: <TrendingUp className="w-4 h-4 mr-2" /> };
     default:
       return null;
   }
