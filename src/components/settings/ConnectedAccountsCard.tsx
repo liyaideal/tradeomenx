@@ -54,7 +54,7 @@ export const ConnectedAccountsCard = () => {
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
-  const [connectionStep, setConnectionStep] = useState<"input" | "signing">("input");
+  const [connectionStep, setConnectionStep] = useState<"input" | "signing" | "verifying">("input");
 
   const resetDialog = () => {
     setWalletAddress("");
