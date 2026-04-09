@@ -210,7 +210,6 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
       </div>
 
       <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades." compact>
-      <div className="max-h-[280px] overflow-hidden">
       <div className="px-4 py-3 space-y-3">
         {bottomTab === "Orders" && (
           ordersLoading ? (
@@ -271,7 +270,6 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
             )}
           </>
         )}
-      </div>
       </div>
       </AuthGateOverlay>
     </div>
