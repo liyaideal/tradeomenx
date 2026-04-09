@@ -187,7 +187,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
       {/* Orders/Positions Tabs */}
       <div ref={tabSectionRef} className="flex px-4 mt-2 border-b border-border/30 relative z-20">
         {["Orders", "Positions"].map((tab) => {
-          const count = tab === "Orders" ? orders.length : positions.length;
+          const count = tab === "Orders" ? orders.length : totalPositionCount;
           return (
             <button
               key={tab}
