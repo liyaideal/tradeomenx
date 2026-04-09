@@ -26,14 +26,14 @@ const PLATFORMS = [
   {
     id: "polymarket",
     name: "Polymarket",
-    icon: "🔮",
+    logo: "/platform-logos/polymarket.svg",
     description: "Connect your Polymarket wallet to receive counter-position airdrops",
     status: "available" as const,
   },
   {
     id: "kalshi",
     name: "Kalshi",
-    icon: "📊",
+    logo: "/platform-logos/kalshi.svg",
     description: "Kalshi integration coming soon",
     status: "coming_soon" as const,
   },
