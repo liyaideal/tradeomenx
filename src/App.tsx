@@ -72,6 +72,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AirdropNotificationToast />
           <ResponsiveLayout>
             <Routes>
               <Route path="/" element={<HomePage />} />

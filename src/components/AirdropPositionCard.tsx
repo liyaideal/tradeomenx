@@ -3,6 +3,7 @@ import { Gift, Clock, Zap, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { AirdropPosition } from "@/hooks/useAirdropPositions";
 
 interface AirdropPositionCardProps {
@@ -36,6 +37,7 @@ const useCountdown = (expiresAt: string) => {
 
 export const AirdropPositionCard = ({ airdrop }: AirdropPositionCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { timeLeft, isExpired } = useCountdown(airdrop.expiresAt);
 
   const isPending = airdrop.status === "pending";
@@ -64,6 +66,13 @@ export const AirdropPositionCard = ({ airdrop }: AirdropPositionCardProps) => {
   };
 
   const config = statusConfig[airdrop.status as keyof typeof statusConfig] || statusConfig.expired;
+
+  const handleActivate = () => {
+    const path = isMobile
+      ? `/trade/order?event=${airdrop.counterEventId}`
+      : `/trade?event=${airdrop.counterEventId}`;
+    navigate(path);
+  };
 
   return (
     <div className={`rounded-xl p-3 border ${config.bg} ${config.border}`}>
@@ -119,7 +128,7 @@ export const AirdropPositionCard = ({ airdrop }: AirdropPositionCardProps) => {
       {/* Action */}
       {isPending && !isExpired && (
         <Button
-          onClick={() => navigate("/events")}
+          onClick={handleActivate}
           className="w-full h-8 text-xs btn-primary gap-1"
         >
           <Zap className="w-3 h-3" />

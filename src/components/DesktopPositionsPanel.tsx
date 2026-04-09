@@ -353,6 +353,40 @@ export const DesktopPositionsPanel = () => {
                     );
                   })
                 )}
+                {/* Activated airdrop rows */}
+                {activatedAirdrops.map((airdrop) => (
+                  <tr key={airdrop.id} className="border-b border-border/30 bg-trading-green/5">
+                    <td className="px-3 py-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                          airdrop.counterSide === "long"
+                            ? "bg-trading-green/20 text-trading-green"
+                            : "bg-trading-red/20 text-trading-red"
+                        }`}>
+                          {airdrop.counterSide === "long" ? "Long" : "Short"}
+                        </span>
+                        <span className="font-medium max-w-[150px] truncate">{airdrop.counterOptionLabel}</span>
+                        <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
+                          <Gift className="w-3 h-3" />
+                          AIRDROP
+                        </Badge>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-sm font-mono">—</td>
+                    <td className="px-3 py-2 text-sm font-mono text-trading-green">${airdrop.airdropValue.toFixed(2)}</td>
+                    <td className="px-3 py-2 text-sm font-mono">${airdrop.counterPrice.toFixed(4)}</td>
+                    <td className="px-3 py-2 text-sm font-mono">—</td>
+                    <td className="px-3 py-2 text-sm font-mono">—</td>
+                    <td className="px-3 py-2 text-sm font-mono text-muted-foreground">—</td>
+                    <td className="px-3 py-2 text-sm text-muted-foreground">—</td>
+                    <td className="px-3 py-2 text-sm">
+                      <div className="flex items-center gap-1 text-xs text-trading-green">
+                        <Zap className="w-3 h-3" />
+                        Live
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

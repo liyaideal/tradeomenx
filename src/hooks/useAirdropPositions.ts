@@ -108,6 +108,7 @@ export const useAirdropPositions = () => {
           externalSide: row.external_side,
           externalPrice: Number(row.external_price),
           counterEventName: row.counter_event_name,
+          counterEventId: row.counter_event_id || "",
           counterOptionLabel: row.counter_option_label,
           counterSide: row.counter_side,
           counterPrice: Number(row.counter_price),
