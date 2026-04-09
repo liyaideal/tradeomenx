@@ -169,6 +169,12 @@ export default function PortfolioSettlements() {
             >
               Settlements ({settlements.length})
             </button>
+            <button
+              onClick={() => navigate("/portfolio/airdrops")}
+              className="py-2 px-4 text-sm font-medium transition-all text-muted-foreground"
+            >
+              Airdrops ({airdrops.length})
+            </button>
           </div>
         )}
 
