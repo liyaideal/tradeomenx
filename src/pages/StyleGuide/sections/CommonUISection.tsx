@@ -1894,6 +1894,9 @@ navigator.share({ files: [file] });`}
           </Card>
         </SubSection>
       </SectionWrapper>
+
+      {/* Settings Card */}
+      <SettingsCardSection />
     </div>
   );
 };
