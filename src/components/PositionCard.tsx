@@ -41,6 +41,7 @@ interface PositionCardProps {
   leverage: string;
   takeProfit?: string;
   stopLoss?: string;
+  isAirdrop?: boolean;
 }
 
 export const PositionCard = ({
