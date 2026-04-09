@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, ExternalLink, CheckCircle, X, Info } from "lucide-react";
+import { Pencil, ExternalLink, CheckCircle, X, Info, Gift, Zap } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -30,12 +30,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { orderToPosition } from "@/lib/orderUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 
 export const DesktopPositionsPanel = () => {
   // Use unified hooks - Supabase for logged-in users, local for guests
