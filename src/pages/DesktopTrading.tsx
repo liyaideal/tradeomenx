@@ -1105,7 +1105,7 @@ export default function DesktopTrading() {
                   </div>
                 )}
                 <table className="w-full">
-                  <thead className="sticky top-0 bg-background">
+                  <thead className="sticky top-0 z-10 bg-background">
                     <tr className="border-b border-border/30">
                       <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.CONTRACTS}</th>
                       <th className="px-4 py-2 text-xs text-muted-foreground font-normal text-left">{TRADING_TERMS.SIDE}</th>
