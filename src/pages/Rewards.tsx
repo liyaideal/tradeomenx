@@ -167,6 +167,10 @@ export default function Rewards() {
                 onClaim={claimReward} 
                 isClaiming={isClaiming}
                 onGoComplete={handleGoComplete}
+                prerequisiteBlocked={
+                  (task.trigger_condition?.action as string) === 'activate_airdrop' && !hasConnectedAccount
+                }
+                prerequisiteHint="Connect an external account first"
               />
             ))
           )}
