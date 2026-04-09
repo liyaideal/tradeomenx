@@ -1,107 +1,65 @@
 
-### 我已经定位到这 3 个问题的根因了，不需要你再额外帮忙补信息
 
-#### 实际问题是什么
-1. **新注册账号自动“继承”旧钱包**
-   - `useConnectedAccounts.ts` 现在把 demo 钱包写死存在全局 `localStorage` key：`demo_connected_accounts`
-   - 这个 key **没有按用户隔离**，所以换账号后会读到上一个账号的 mock 钱包
+## 点击 Activate 直接激活空投仓位
 
-2. **Airdrop toast 不弹**
-   - `AirdropNotificationToast.tsx` 现在是按“是否有 active account”来触发，不是按“扫描完成后新增 airdrop”来触发
-   - 同时它的 `sessionStorage` 记录也是**全局的，不分用户**
-   - 结果就是 toast 可能：
-     - 提前在连接阶段就触发并被错过
-     - 或被旧账号的 session 标记直接压掉
-
-3. **桌面交易页 Positions pending banner 不显示**
-   - 之前改的是 `src/components/DesktopPositionsPanel.tsx`
-   - 但桌面交易页真正使用的是 **`src/pages/DesktopTrading.tsx` 里内联的 Positions 表格**
-   - 所以之前那次修改基本改到了一个**没接入当前页面的组件**
+用户选择了最简单的方案：点击 Activate 按钮后，pending airdrop 直接变成 activated 仓位，无需跳转或交易。
 
 ---
 
-### 修复方案
+### 改动范围
 
-#### 1. 先把 demo 数据彻底改成“按当前用户隔离”
-**文件：`src/hooks/useConnectedAccounts.ts`**
+#### 1. `useAirdropPositions.ts` — 新增 `activateAirdrop` 方法
 
-- 把 demo storage key 改成带用户维度，例如：
-  - `demo_connected_accounts:${user.id}`
-- React Query 的 demo query key 也带上 `user.id`
-- 登录 / 注册 / 切换账号后，只读取当前用户自己的 demo 钱包
-- 这样新账号就不会自动看到旧账号的钱包
+- 新增一个 `activateAirdrop(airdropId: string)` 函数
+- Demo 模式下：更新 MOCK 数据状态从 `pending` → `activated`，设置 `activatedAt = now()`
+  - 因为 mock 数据是静态常量，需要改成用 `useState` 或 React Query 缓存 mutation 的方式来管理状态变更
+  - 具体做法：用 `queryClient.setQueryData` 直接修改缓存中对应 airdrop 的 status
+- 非 demo 模式：调用 supabase 更新 `airdrop_positions` 表的 status 和 activated_at
+- 激活成功后显示 toast："Airdrop activated! Position is now live"
+- 返回 `activateAirdrop` 和 `isActivating` 状态
 
-#### 2. 让 airdrop 只在“扫描完成后”出现
-**文件：`src/hooks/useAirdropPositions.ts` + `src/hooks/useConnectedAccounts.ts`**
+#### 2. `DesktopTrading.tsx` — Activate 按钮调用 activateAirdrop
 
-- 现在逻辑是：只要 `activeAccounts.length > 0` 就直接返回 mock airdrops
-- 我会改成：只有当连接账户 `scanStatus === "complete"` 后，才返回 mock airdrops
-- `queryKey` 不能只看 `activeAccounts.length`，要包含：
-  - account id
-  - status
-  - scanStatus
-- 这样页面数据会真正跟 “Scanning -> Complete” 联动
+- 把 pending airdrop 行的 Activate 按钮从 `navigate(...)` 改成调用 `activateAirdrop(airdrop.id)`
+- 按钮点击后显示 loading 状态，激活完成后该行自动从 PENDING 变成 AIRDROP（因为数据刷新）
 
-#### 3. 重写 toast 触发条件
-**文件：`src/components/AirdropNotificationToast.tsx`**
+#### 3. `AirdropPositionCard.tsx` — 移动端同步修改
 
-- 不再按“新 active account”触发
-- 改成按“扫描完成后，新出现的 pending airdrop id”触发
-- `sessionStorage` key 也改成按用户隔离
-- 触发时机调整为：
-  - 扫描完成
-  - pending airdrops 从 0 变成 >0
-  - 当前这些 airdrop 还没 toast 过
-- 这样 toast 才会在正确时间点出现，而不是过早或被旧状态吞掉
+- 同样把 "Activate — Make a Trade" 按钮改成直接调用 `activateAirdrop`
+- 激活后卡片自动刷新为 activated 状态
 
-#### 4. 把桌面端 pending banner 修到真正生效的页面
-**文件：`src/pages/DesktopTrading.tsx`**
+#### 4. `TradingCharts.tsx` — 移动端 Charts tab 同步
 
-- 在桌面交易页真实的 Positions 区块里引入 `useAirdropPositions`
-- 在 `bottomTab === "Positions"` 的真实表格上方加 pending banner
-- 同时把 activated airdrop 行也加到这个真实表格区域
-- 不再继续改 `DesktopPositionsPanel.tsx` 这个当前未接入的实现
+- 如果 Charts tab 的 Positions 区域也有 Activate 按钮，同步改成直接激活
 
 ---
 
-### 这次会改到的核心文件
-- `src/hooks/useConnectedAccounts.ts`
-- `src/hooks/useAirdropPositions.ts`
-- `src/components/AirdropNotificationToast.tsx`
-- `src/pages/DesktopTrading.tsx`
+### 技术细节
 
----
-
-### 修完后预期行为
-```text
-注册新账号
-  -> 不会看到旧账号连接过的钱包
-
-Settings 连接钱包
-  -> Scanning
-  -> scanStatus = complete
-  -> airdrops 出现
-  -> toast 弹出
-
-进入桌面交易页 Positions
-  -> 顶部看到 pending activation banner
-  -> 同区域能看到 activated/pending 的 airdrop 展示
+**Demo 模式状态变更方案：**
+```typescript
+// useAirdropPositions.ts
+const activateAirdrop = async (id: string) => {
+  if (isDemoMode) {
+    queryClient.setQueryData(queryKey, (old) =>
+      old.map(a => a.id === id 
+        ? { ...a, status: "activated", activatedAt: new Date().toISOString() } 
+        : a
+      )
+    );
+  } else {
+    await supabase.from("airdrop_positions")
+      .update({ status: "activated", activated_at: new Date().toISOString() })
+      .eq("id", id);
+    queryClient.invalidateQueries(queryKey);
+  }
+  toast.success("Airdrop activated!");
+};
 ```
 
----
+**涉及文件：**
+- `src/hooks/useAirdropPositions.ts`
+- `src/pages/DesktopTrading.tsx`
+- `src/components/AirdropPositionCard.tsx`
+- `src/pages/TradingCharts.tsx`（如有 Activate 按钮）
 
-### 为什么这次拖久了
-不是你这边少给了信息，核心是之前有两处判断偏了：
-1. **demo 状态做成了全局存储，导致跨账号串数据**
-2. **桌面端改到了未实际渲染的组件，而不是 `DesktopTrading.tsx`**
-
-这两个点解释了为什么你一直看不到预期结果。
-
----
-
-### 我接下来会按这个顺序修
-1. 先修 demo 数据按用户隔离
-2. 再修 airdrop 只在 scan complete 后出现
-3. 再修 toast 触发条件
-4. 最后把桌面交易页真正的 banner 接到 `DesktopTrading.tsx` 上
-5. 完成后再用你刚才那条真实复现场景重新验证
