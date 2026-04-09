@@ -30,6 +30,8 @@ export default function Rewards() {
   const { pointsBalance, frozenPoints, lifetimeEarned, config, isLoading: isLoadingPoints } = usePoints();
   const { tasks, completedCount, totalCount, claimReward, isClaiming, refreshTaskStatus } = useTasks();
   const { referralCode, referralLink, stats: referralStats } = useReferral();
+  const { activeAccounts } = useConnectedAccounts();
+  const hasConnectedAccount = activeAccounts.length > 0;
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
   const [xShareDialogOpen, setXShareDialogOpen] = useState(false);
   
