@@ -1288,10 +1288,11 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-center text-xs text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-center">
                             <button 
-                              onClick={() => navigate(`/trade?event=${airdrop.counterEventId}`)}
-                              className="px-3 py-1 text-xs text-primary border border-primary/50 rounded hover:bg-primary/10"
+                              onClick={() => activateAirdrop(airdrop.id)}
+                              disabled={isActivating}
+                              className="px-3 py-1 text-xs text-primary border border-primary/50 rounded hover:bg-primary/10 disabled:opacity-50"
                             >
-                              Activate
+                              {isActivating ? "Activating…" : "Activate"}
                             </button>
                           </td>
                         </tr>
