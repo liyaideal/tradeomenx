@@ -9,6 +9,7 @@ export interface AirdropPosition {
   externalSide: string;
   externalPrice: number;
   counterEventName: string;
+  counterEventId: string;
   counterOptionLabel: string;
   counterSide: string;
   counterPrice: number;
