@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link2, Plus, Loader2, ExternalLink, X, Wallet } from "lucide-react";
+import { Plus, Loader2, X, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
