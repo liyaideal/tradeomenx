@@ -84,6 +84,7 @@ const AirdropModalBody = ({
   airdrop: AirdropPosition;
   onActivate: () => void;
   onDismiss: () => void;
+  showDismiss?: boolean;
   isActivating: boolean;
 }) => {
   const countdown = useCountdown(airdrop.expiresAt);
