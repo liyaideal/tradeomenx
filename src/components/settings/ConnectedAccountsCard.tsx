@@ -303,27 +303,53 @@ export const ConnectedAccountsCard = () => {
             return (
               <div
                 key={platform.id}
-                className="bg-muted/30 rounded-xl p-4 flex items-center gap-3"
+                className="bg-muted/30 rounded-xl p-4"
               >
-                <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center overflow-hidden">
-                  <img src={platform.logo} alt={platform.name} className="w-6 h-6" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{platform.name}</span>
-                    {isComingSoon && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                        Coming Soon
-                      </Badge>
-                    )}
-                    {account && (
-                      <Badge className="bg-trading-green/20 text-trading-green border-trading-green/30 text-[10px] px-1.5 py-0">
-                        Connected
-                      </Badge>
-                    )}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center overflow-hidden shrink-0 p-1.5">
+                    <img src={platform.logo} alt={platform.name} className="w-full h-full object-contain rounded-sm" />
                   </div>
+                  <div className="flex-1 min-w-0 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{platform.name}</span>
+                      {isComingSoon && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          Coming Soon
+                        </Badge>
+                      )}
+                      {account && (
+                        <Badge className="bg-trading-green/20 text-trading-green border-trading-green/30 text-[10px] px-1.5 py-0">
+                          Connected
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="shrink-0">
+                      {account ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDisconnect(account.id)}
+                          disabled={isDisconnecting}
+                          className="text-destructive hover:text-destructive h-8"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      ) : !isComingSoon ? (
+                        <Button
+                          size="sm"
+                          onClick={() => handleOpenConnect(platform.id)}
+                          className="btn-primary h-8 px-3"
+                        >
+                          <Plus className="w-4 h-4 mr-1" /> Connect
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+                {/* Description / account details below */}
+                <div className="mt-2 pl-[52px]">
                   {account ? (
-                    <div className="mt-1 space-y-0.5">
+                    <div className="space-y-0.5">
                       <p className="text-xs font-mono text-muted-foreground truncate">
                         {account.displayAddress}
                       </p>
@@ -340,31 +366,10 @@ export const ConnectedAccountsCard = () => {
                       )}
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-muted-foreground">
                       {platform.description}
                     </p>
                   )}
-                </div>
-                <div className="shrink-0">
-                  {account ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDisconnect(account.id)}
-                      disabled={isDisconnecting}
-                      className="text-destructive hover:text-destructive h-8"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  ) : !isComingSoon ? (
-                    <Button
-                      size="sm"
-                      onClick={() => handleOpenConnect(platform.id)}
-                      className="btn-primary h-8 px-3"
-                    >
-                      <Plus className="w-4 h-4 mr-1" /> Connect
-                    </Button>
-                  ) : null}
                 </div>
               </div>
             );
