@@ -1,41 +1,62 @@
 
 
-## 联动模拟数据：Settings 扫描结果 ↔ Portfolio Airdrops Tab
+## H2E Airdrop 完整流程补全
 
-### 问题
-当前 `useConnectedAccounts` 的 demo 数据和 `useAirdropPositions` 的 mock 数据是完全独立的。Settings 页面可能显示 "positionsDetected: 3"，但 Portfolio 的 Airdrops tab 里的 mock 数据与 connected account 状态无关——无论是否连接了账户，mock airdrops 都会显示。需要把两边的数据联动起来。
+### 缺失功能分析
+根据 PRD 和截图，当前实现缺少以下关键功能：
+
+1. **Pending Activation 按钮应跳转到对应 event 的交易页**（当前跳转到 `/events`）
+2. **交易页的 Positions 面板需要展示 airdrop 仓位**（带 pending activation 提示 banner）
+3. **Airdrop 通知系统**（新 airdrop 到达时的 toast 通知 + 通知入口）
 
 ### 计划
 
-#### 1. 让 `useAirdropPositions` 感知连接状态
+#### 1. Mock 数据添加 `counterEventId` 字段
 **文件**: `src/hooks/useAirdropPositions.ts`
 
-- 引入 `useConnectedAccounts` 获取 `activeAccounts` 和 `isDemoMode`
-- Demo 模式下：只有当 `activeAccounts.length > 0` 时才返回 MOCK_AIRDROPS，否则返回空数组
-- 这样用户在 Settings 连接 Polymarket 后，Portfolio 的 Airdrops tab 才会出现模拟仓位
+- 给 `AirdropPosition` 接口添加 `counterEventId: string`
+- Mock 数据中映射到真实 event ID（如 `mock-airdrop-1` 的 BTC 对应 event `"2"`，Fed 对应 event `"4"`，ETH 对应 event `"3"`）
+- 这样 "Activate" 按钮可以跳转到 `/trade?event={counterEventId}`
 
-#### 2. 给 `ConnectedAccount` 添加扫描统计字段
-**文件**: `src/hooks/useConnectedAccounts.ts`
+#### 2. AirdropPositionCard 按钮跳转到对应 event
+**文件**: `src/components/AirdropPositionCard.tsx`
 
-- 接口扩展：添加 `positionsDetected: number`、`airdropsReceived: number`、`scanStatus: "scanning" | "complete"`
-- `demoVerifyAndConnect` 中：新建账户初始 `scanStatus: "scanning"`，3 秒后自动更新为 `scanStatus: "complete"`, `positionsDetected: 3`, `airdropsReceived: 2`
+- 将 `navigate("/events")` 改为 `navigate(`/trade?event=${airdrop.counterEventId}`)`
+- 移动端改为 `/trade/order?event=${airdrop.counterEventId}`
 
-#### 3. Settings 已连接状态展示扫描进度和统计
-**文件**: `src/components/settings/ConnectedAccountsCard.tsx`
+#### 3. 交易页 Positions 面板展示 airdrop 仓位
+**文件**: `src/components/DesktopPositionsPanel.tsx`（桌面端）
 
-已连接的 platform 行扩展为：
-- **Scanning 中**: 显示 "Scanning positions..." + spinner
-- **Scan 完成**: 显示统计信息（Positions detected: 3, Airdrops received: 2），与 Portfolio 的 mock 数据对应
-- 保留 Disconnect 按钮
+- 引入 `useAirdropPositions`
+- 在 Positions tab 的仓位列表上方，如果有 `pendingAirdrops`，显示一个黄色提示 banner：
+  - `🎁 You have {n} airdrop(s) pending activation — make a trade to claim`
+- 已激活的 airdrop 仓位作为特殊行显示在 positions 列表末尾（带 AIRDROP badge）
 
-#### 4. MOCK_AIRDROPS 数量与 positionsDetected 对齐
-确保 `useAirdropPositions` 中的 MOCK_AIRDROPS 数组有 3 条数据（已有 3 条），其中 2 条 status 为 activated/pending（对应 airdropsReceived: 2）。调整一条 mock 数据的 status 使计数一致。
+**文件**: `src/pages/TradeOrder.tsx`（移动端，已有部分实现）
 
-### 文件变更汇总
+- 当前 `pendingAirdrops` 在 Positions tab 之外渲染。需要移到 Positions tab 内部
+- 同样在 Positions 列表上方添加 pending activation banner
+
+#### 4. Airdrop 到达通知
+**文件**: 新建 `src/components/AirdropNotificationToast.tsx`
+
+- 创建一个组件，使用 `useAirdropPositions` 监听 `pendingAirdrops` 变化
+- 当 demo 扫描完成（从 0 到 N 个 pending airdrops）时，触发 sonner toast：
+  - `🎁 New Airdrop Received! You have a $10 counter-position on "BTC End of Q1 2026 Price". Activate it by making a trade.`
+  - toast 带 action 按钮 "View" 跳转到 `/portfolio` 的 airdrops tab
+
+**文件**: `src/App.tsx` 或相关布局
+
+- 在全局布局中挂载 `AirdropNotificationToast` 组件
+
+#### 5. 文件变更汇总
 
 | 文件 | 变更 |
 |------|------|
-| `src/hooks/useConnectedAccounts.ts` | 扩展接口 + demo 扫描模拟 + setTimeout 自动更新统计 |
-| `src/hooks/useAirdropPositions.ts` | 引入连接状态，demo 模式下根据 activeAccounts 决定是否返回 mock 数据 |
-| `src/components/settings/ConnectedAccountsCard.tsx` | 已连接状态展示扫描动画和统计数字 |
+| `src/hooks/useAirdropPositions.ts` | 添加 `counterEventId` 字段到接口和 mock 数据 |
+| `src/components/AirdropPositionCard.tsx` | 跳转到对应 event 交易页 |
+| `src/components/DesktopPositionsPanel.tsx` | Positions tab 展示 airdrop 仓位 + pending banner |
+| `src/pages/TradeOrder.tsx` | 移动端 Positions tab 内展示 airdrop 仓位 + pending banner |
+| `src/components/AirdropNotificationToast.tsx` | 新建：全局 airdrop 到达通知 |
+| `src/App.tsx` | 挂载通知组件 |
 
