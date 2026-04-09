@@ -15,6 +15,8 @@ import {
   Medal,
   Crown,
   Flame,
+  MessageCircle,
+  Link,
   type LucideIcon
 } from "lucide-react";
 import { XIcon } from "@/components/icons/XIcon";
