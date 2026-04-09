@@ -184,27 +184,27 @@ export default function PortfolioAirdrops() {
         )}
 
         {/* Stats Cards */}
-        <div className={`grid gap-3 ${isMobile ? "grid-cols-3" : "grid-cols-3"}`}>
+        <div className="grid gap-3 grid-cols-3">
           <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
               <Gift className="w-3.5 h-3.5" />
               <span>Total Value</span>
             </div>
-            <p className="text-lg font-bold font-mono text-trading-green">${totalValue.toFixed(2)}</p>
+            <p className="text-xl font-bold font-mono text-trading-green">${totalValue.toFixed(2)}</p>
           </div>
           <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
               <Clock className="w-3.5 h-3.5" />
               <span>Pending</span>
             </div>
-            <p className="text-lg font-bold font-mono text-foreground">{pendingAirdrops.length}</p>
+            <p className="text-xl font-bold font-mono text-foreground">{pendingAirdrops.length}</p>
           </div>
           <div className="bg-card rounded-xl p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
               <Zap className="w-3.5 h-3.5" />
               <span>Activated</span>
             </div>
-            <p className="text-lg font-bold font-mono text-foreground">{activatedAirdrops.length}</p>
+            <p className="text-xl font-bold font-mono text-foreground">{activatedAirdrops.length}</p>
           </div>
         </div>
 
@@ -300,11 +300,18 @@ export default function PortfolioAirdrops() {
                             <Zap className="w-3 h-3" />
                             Activate
                           </Button>
-                        ) : (
-                          <Button variant="ghost" size="sm" className="h-7 text-xs">
+                        ) : airdrop.status === "activated" ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => navigate(`/trade?event=${airdrop.counterEventId}`)}
+                          >
                             View
                             <ChevronRight className="w-4 h-4 ml-1" />
                           </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </TableCell>
                     </TableRow>
