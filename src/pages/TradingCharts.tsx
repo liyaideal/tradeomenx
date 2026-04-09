@@ -27,10 +27,11 @@ interface TradingChartsContentProps {
 function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChartsContentProps) {
   const navigate = useNavigate();
   const { positions, isLoading: positionsLoading } = usePositions();
-  const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
+  const { pendingAirdrops, activatedAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
   // Use unified orders hook - Supabase for logged-in users, local for guests
   const { orders, isLoading: ordersLoading } = useOrders();
   const { profile } = useUserProfile();
+  const totalPositionCount = positions.length + activatedAirdrops.length + pendingAirdrops.length;
   
   const [bottomTab, setBottomTab] = useState("Order Book");
 
@@ -97,7 +98,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
       {/* Bottom Tabs */}
       <div className="flex px-4 mt-2 border-b border-border/30">
         {bottomTabs.map((tab) => {
-          const count = tab === "Orders" ? orders.length : tab === "Positions" ? positions.length : null;
+          const count = tab === "Orders" ? orders.length : tab === "Positions" ? totalPositionCount : null;
           return (
             <button
               key={tab}
@@ -201,7 +202,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
           )}
           {positionsLoading ? (
             <div className="text-center text-muted-foreground py-4">Loading positions...</div>
-          ) : positions.length === 0 && pendingAirdrops.length === 0 ? (
+          ) : positions.length === 0 && activatedAirdrops.length === 0 && pendingAirdrops.length === 0 ? (
             <div className="text-center text-muted-foreground py-4">No open positions</div>
           ) : (
             <>
@@ -214,7 +215,9 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
                   optionId={position.optionId}
                 />
               ))}
-              {/* Airdrop Positions */}
+              {activatedAirdrops.map((airdrop) => (
+                <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+              ))}
               {pendingAirdrops.map((airdrop) => (
                 <AirdropPositionCard key={airdrop.id} airdrop={airdrop} onActivate={activateAirdrop} isActivating={isActivating} />
               ))}

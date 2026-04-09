@@ -221,6 +221,7 @@ export default function DesktopTrading() {
   
   // Airdrop positions for banner and rows
   const { pendingAirdrops, activatedAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
+  const totalPositionCount = positions.length + activatedAirdrops.length + pendingAirdrops.length;
   
   // Position TP/SL edit state
   const [positionTpSlOpen, setPositionTpSlOpen] = useState(false);
@@ -974,7 +975,7 @@ export default function DesktopTrading() {
                 >
                   {tab}
                   <span className="ml-1 text-muted-foreground">
-                    ({tab === "Current Orders" ? unifiedOrders.length : positions.length})
+                    ({tab === "Current Orders" ? unifiedOrders.length : totalPositionCount})
                   </span>
                 </button>
               ))}
@@ -1119,7 +1120,7 @@ export default function DesktopTrading() {
                     </tr>
                   </thead>
                   <tbody>
-                    {positions.length === 0 && activatedAirdrops.length === 0 ? (
+                    {positions.length === 0 && activatedAirdrops.length === 0 && pendingAirdrops.length === 0 ? (
                       <tr>
                         <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">No open positions</td>
                       </tr>
