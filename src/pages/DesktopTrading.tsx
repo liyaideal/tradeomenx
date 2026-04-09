@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift } from "lucide-react";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -55,6 +55,7 @@ import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { Badge } from "@/components/ui/badge";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
@@ -1120,12 +1121,13 @@ export default function DesktopTrading() {
                     </tr>
                   </thead>
                   <tbody>
-                    {positions.length === 0 ? (
+                    {positions.length === 0 && activatedAirdrops.length === 0 ? (
                       <tr>
                         <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">No open positions</td>
                       </tr>
                     ) : (
-                      positions.map((position, index) => {
+                      <>
+                      {positions.map((position, index) => {
                         // Calculate realtime PnL
                         const realtimePnL = calculateRealtimePnL(position);
                         const { pnlStr, pnlPercentStr } = formatPnL(realtimePnL.pnl, realtimePnL.pnlPercent);
@@ -1221,7 +1223,80 @@ export default function DesktopTrading() {
                           </td>
                         </tr>
                         );
-                      })
+                      })}
+                      {/* Activated Airdrop Rows */}
+                      {activatedAirdrops.map((airdrop) => (
+                        <tr key={`airdrop-${airdrop.id}`} className="border-b border-border/30 bg-primary/5">
+                          <td className="px-4 py-2">
+                            <div className="flex items-center gap-1.5">
+                              <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
+                                <Gift className="w-3 h-3" />
+                                AIRDROP
+                              </Badge>
+                              <span className="text-sm font-medium">{airdrop.counterOptionLabel}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">
+                              {airdrop.counterEventName}
+                            </div>
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${airdrop.counterSide === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
+                              {airdrop.counterSide === "long" ? "Long" : "Short"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">{Math.round(airdrop.airdropValue / airdrop.counterPrice)}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">${airdrop.counterPrice.toFixed(4)}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">--</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">${airdrop.airdropValue.toFixed(2)}</td>
+                          <td className="px-4 py-2 text-right">
+                            <span className="text-sm font-mono text-trading-green">+$0.00</span>
+                            <span className="text-xs ml-1 text-trading-green">(+0.0%)</span>
+                          </td>
+                          <td className="px-4 py-2 text-sm">1x</td>
+                          <td className="px-4 py-2 text-center text-xs text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-center text-xs text-muted-foreground">--</td>
+                        </tr>
+                      ))}
+                      {/* Pending Airdrop Rows */}
+                      {pendingAirdrops.map((airdrop) => (
+                        <tr key={`airdrop-pending-${airdrop.id}`} className="border-b border-border/30 bg-trading-yellow/5">
+                          <td className="px-4 py-2">
+                            <div className="flex items-center gap-1.5">
+                              <Badge variant="outline" className="bg-trading-yellow/20 text-trading-yellow border-trading-yellow/30 text-[10px] px-1.5 py-0 gap-1">
+                                <Gift className="w-3 h-3" />
+                                PENDING
+                              </Badge>
+                              <span className="text-sm font-medium">{airdrop.counterOptionLabel}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">
+                              {airdrop.counterEventName}
+                            </div>
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${airdrop.counterSide === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
+                              {airdrop.counterSide === "long" ? "Long" : "Short"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">${airdrop.counterPrice.toFixed(4)}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right">${airdrop.airdropValue.toFixed(2)}</td>
+                          <td className="px-4 py-2 text-right text-xs text-trading-yellow">Activate to claim</td>
+                          <td className="px-4 py-2 text-sm text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-center text-xs text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-center">
+                            <button 
+                              onClick={() => navigate(`/trade?event=${airdrop.counterEventId}`)}
+                              className="px-3 py-1 text-xs text-primary border border-primary/50 rounded hover:bg-primary/10"
+                            >
+                              Activate
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      </>
                     )}
                   </tbody>
                 </table>

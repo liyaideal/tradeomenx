@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { Gift } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
@@ -189,33 +190,36 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
 
       {bottomTab === "Positions" && (
         <div className="px-4 py-3 space-y-3">
+          {/* Pending Airdrop Banner */}
+          {pendingAirdrops.length > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-trading-yellow/10 border border-trading-yellow/20 mb-3">
+              <Gift className="w-4 h-4 text-trading-yellow flex-shrink-0" />
+              <span className="text-xs text-trading-yellow">
+                🎁 You have {pendingAirdrops.length} airdrop{pendingAirdrops.length > 1 ? "s" : ""} pending activation — make a trade to claim
+              </span>
+            </div>
+          )}
           {positionsLoading ? (
             <div className="text-center text-muted-foreground py-4">Loading positions...</div>
-          ) : positions.length === 0 ? (
+          ) : positions.length === 0 && pendingAirdrops.length === 0 ? (
             <div className="text-center text-muted-foreground py-4">No open positions</div>
           ) : (
-            positions.map((position, index) => (
-              <PositionCard 
-                key={position.id} 
-                type={position.type}
-                event={position.event}
-                option={position.option}
-                entryPrice={position.entryPrice}
-                markPrice={position.markPrice}
-                size={position.sizeDisplay}
-                margin={position.margin}
-                pnl={position.pnl}
-                pnlPercent={position.pnlPercent}
-                leverage={position.leverage}
-                takeProfit={position.tp}
-                stopLoss={position.sl}
-              />
-            ))
+            <>
+              {positions.map((position, index) => (
+                <PositionCard 
+                  key={position.id} 
+                  {...position}
+                  size={position.size}
+                  sizeDisplay={position.sizeDisplay}
+                  optionId={position.optionId}
+                />
+              ))}
+              {/* Airdrop Positions */}
+              {pendingAirdrops.map((airdrop) => (
+                <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+              ))}
+            </>
           )}
-          {/* Airdrop Positions */}
-          {pendingAirdrops.map((airdrop) => (
-            <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
-          ))}
         </div>
       )}
 
