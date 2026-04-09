@@ -268,8 +268,8 @@ export const ConnectedAccountsCard = () => {
                 key={platform.id}
                 className="bg-muted/30 rounded-xl p-4 flex items-center gap-3"
               >
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg">
-                  {platform.icon}
+                <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center overflow-hidden">
+                  <img src={platform.logo} alt={platform.name} className="w-6 h-6" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

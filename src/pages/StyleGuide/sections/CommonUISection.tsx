@@ -2095,5 +2095,50 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
         </CardContent>
       </Card>
       </SectionWrapper>
+
+      {/* ── Settings Card ── */}
+      <SectionWrapper title="Settings Card" description="Standard card pattern used on the Settings page. Uses trading-card class with plain text titles (no icons).">
+        <Card>
+          <CardContent className="pt-6 space-y-4">
+            <SubSection title="Anatomy">
+              <div className="trading-card p-4 md:p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold mb-1 text-sm md:text-base">Card Title</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Short description of what this setting controls
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm">Action</Button>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-4 text-sm text-muted-foreground">
+                  Card content area
+                </div>
+              </div>
+            </SubSection>
+
+            <SubSection title="Rules">
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                <li>Container: <code className="text-xs bg-muted px-1 rounded">trading-card p-4 md:p-6</code></li>
+                <li>Title: <code className="text-xs bg-muted px-1 rounded">h3.font-semibold.mb-1</code> — plain text, <strong>no icons</strong></li>
+                <li>Subtitle: <code className="text-xs bg-muted px-1 rounded">p.text-xs.text-muted-foreground</code></li>
+                <li>Layout: <code className="text-xs bg-muted px-1 rounded">flex items-start justify-between</code> for title + action</li>
+                <li>Inner rows: <code className="text-xs bg-muted px-1 rounded">bg-muted/30 rounded-xl p-4</code></li>
+              </ul>
+            </SubSection>
+
+            <CodePreview code={`<div className="trading-card p-4 md:p-6">
+  <div className="flex items-start justify-between mb-4">
+    <div>
+      <h3 className="font-semibold mb-1">Card Title</h3>
+      <p className="text-xs text-muted-foreground">Description</p>
+    </div>
+    <Button variant="outline" size="sm">Action</Button>
+  </div>
+  {/* content */}
+</div>`} />
+          </CardContent>
+        </Card>
+      </SectionWrapper>
   );
 };
