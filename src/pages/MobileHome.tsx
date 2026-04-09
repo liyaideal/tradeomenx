@@ -153,6 +153,7 @@ const MobileHome = () => {
   const { profile, username } = useUserProfile();
   const { user } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
+  const { pendingAirdrops } = useAirdropPositions();
   
   // Fetch events from database
   const { events: dbEvents, isLoading: isLoadingEvents } = useActiveEvents();
