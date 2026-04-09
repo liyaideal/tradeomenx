@@ -111,12 +111,51 @@ export const useTasks = () => {
         return (referrals?.length || 0) > 0;
 
       case 'share_x':
-        // This would be tracked separately when user shares
         return false;
 
       case 'join_discord':
-        // Tracked when user clicks "Join Discord" button
         return false;
+
+      case 'connect_external': {
+        // Check Supabase first
+        const { data: accounts } = await supabase
+          .from('connected_accounts')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .limit(1);
+        if ((accounts?.length || 0) > 0) return true;
+        // Check demo localStorage
+        try {
+          const demoKey = `demo_connected_accounts:${user.id}`;
+          const stored = localStorage.getItem(demoKey);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) return true;
+          }
+        } catch {}
+        return false;
+      }
+
+      case 'activate_airdrop': {
+        // Check Supabase first
+        const { data: activated } = await supabase
+          .from('airdrop_positions')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'activated')
+          .limit(1);
+        if ((activated?.length || 0) > 0) return true;
+        // Check demo localStorage
+        try {
+          const demoStored = localStorage.getItem('omenx-demo-airdrop-positions-v1');
+          if (demoStored) {
+            const parsed = JSON.parse(demoStored);
+            if (Array.isArray(parsed) && parsed.some((a: any) => a.status === 'activated')) return true;
+          }
+        } catch {}
+        return false;
+      }
 
       default:
         return false;
