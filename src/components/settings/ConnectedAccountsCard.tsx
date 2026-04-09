@@ -49,6 +49,7 @@ export const ConnectedAccountsCard = () => {
     isVerifying,
     disconnect,
     isDisconnecting,
+    isDemoMode,
   } = useConnectedAccounts();
 
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
