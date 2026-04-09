@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info, Gift } from "lucide-react";
 import {
   Dialog,
   DialogContent,
