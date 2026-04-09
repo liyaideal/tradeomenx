@@ -29,7 +29,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 
-type TabType = "positions" | "settlements";
+type TabType = "positions" | "settlements" | "airdrops";
 
 // Portfolio Tab 下拉组件
 const PortfolioTabDropdown = ({
@@ -37,15 +37,18 @@ const PortfolioTabDropdown = ({
   onTabChange,
   positionsCount,
   settlementsCount,
+  airdropsCount,
 }: {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
   positionsCount: number;
   settlementsCount: number;
+  airdropsCount: number;
 }) => {
   const tabOptions: { value: TabType; label: string }[] = [
     { value: "positions", label: `Positions (${positionsCount})` },
     { value: "settlements", label: `Settlements (${settlementsCount})` },
+    { value: "airdrops", label: `Airdrops (${airdropsCount})` },
   ];
 
   return (
