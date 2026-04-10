@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Info } from "lucide-react";
 import { Plus, Loader2, X, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
