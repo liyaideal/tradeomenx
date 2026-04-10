@@ -314,6 +314,27 @@ export default function Wallet() {
             </span>
           </div>
         </div>
+
+        {/* Withdrawable / Frozen row */}
+        {h2e.frozenBalance > 0 && (
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <div className="p-3 rounded-lg bg-muted/20">
+              <div className="flex items-center gap-1 mb-1">
+                <span className="text-xs text-muted-foreground">Withdrawable</span>
+                <InfoTooltip text="Available balance minus hedge airdrop locked funds." />
+              </div>
+              <span className="font-mono text-sm font-semibold">${formatCurrency(withdrawableBalance)}</span>
+            </div>
+            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-1 mb-1">
+                <Lock className="w-3 h-3 text-primary" />
+                <span className="text-xs text-muted-foreground">H2E Locked</span>
+                <InfoTooltip text="Hedge airdrop earnings. Available for trading, locked for withdrawal until $10K volume reached." />
+              </div>
+              <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.frozenBalance)}</span>
+            </div>
+          </div>
+        )}
         
         <div className="flex gap-3">
           <Button 
