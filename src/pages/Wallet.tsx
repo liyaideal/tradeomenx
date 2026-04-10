@@ -70,6 +70,7 @@ export default function Wallet() {
   const isMobile = useIsMobile();
   const { balance, trialBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
+  const h2e = useH2eRewardsSummary();
   const { 
     wallets, 
     isLoading: walletsLoading, 
@@ -77,6 +78,8 @@ export default function Wallet() {
     removeWallet, 
     setPrimaryWallet 
   } = useWallets();
+
+  const withdrawableBalance = h2e.isUnlocked ? balance : Math.max(0, balance - h2e.frozenBalance);
 
   // Fetch closed trades for transaction history (only realized P&L)
   const { data: recentTrades = [] } = useQuery({
