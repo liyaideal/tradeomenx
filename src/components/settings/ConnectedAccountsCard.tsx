@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Info } from "lucide-react";
 import { Plus, Loader2, X, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -374,6 +375,23 @@ export const ConnectedAccountsCard = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* Eligibility explainer */}
+        <div className="mt-4 bg-primary/5 border border-primary/10 rounded-xl p-3.5">
+          <div className="flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-foreground">Which positions qualify for airdrops?</p>
+              <ul className="text-[11px] text-muted-foreground space-y-1 list-disc pl-3.5">
+                <li>Open positions on Polymarket that have a matching event on OmenX</li>
+                <li>Each qualifying position receives a <span className="text-foreground font-medium">$10 free hedge</span> on the counter side</li>
+                <li>Up to <span className="text-foreground font-medium">3 active airdrops</span> per account at a time</li>
+                <li>Airdrops expire in 72 hours if not activated</li>
+                <li>Max <span className="text-foreground font-medium">$100 lifetime earnings</span> per linked account</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
