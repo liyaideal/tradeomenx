@@ -1202,6 +1202,16 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2 text-sm">{position.leverage}</td>
                           <td className="px-4 py-2 text-center">
+                            {position.isAirdrop ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="inline-flex items-center justify-center text-muted-foreground mx-auto"><Lock className="w-3.5 h-3.5" /></span>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p className="text-xs">Airdrop positions auto-settle on event resolution</p></TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
                             <button
                               onClick={() => handleEditPositionTpSl(index, position.id)}
                               className="flex items-center gap-1 px-2 py-1 rounded bg-muted hover:bg-muted/80 transition-colors group mx-auto"
@@ -1217,14 +1227,19 @@ export default function DesktopTrading() {
                               )}
                               <Pencil className="w-3 h-3 text-muted-foreground group-hover:text-foreground" />
                             </button>
+                            )}
                           </td>
                           <td className="px-4 py-2 text-center">
+                            {position.isAirdrop ? (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            ) : (
                             <button 
                               onClick={() => handleClosePositionClick(index, position.id)}
                               className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted"
                             >
                               Close
                             </button>
+                            )}
                           </td>
                         </tr>
                         );
