@@ -59,6 +59,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Progress } from "@/components/ui/progress";
+import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 
 
 
