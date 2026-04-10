@@ -82,6 +82,10 @@ const AirdropStatusBadge = ({ status }: { status: string }) => {
       className: "border-border text-muted-foreground bg-muted/50",
       label: "Expired",
     },
+    settled: {
+      className: "border-primary/50 text-primary bg-primary/10",
+      label: "Settled",
+    },
   };
   const c = config[status] || config.expired;
   return (
