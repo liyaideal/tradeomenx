@@ -608,6 +608,9 @@ export default function Wallet() {
                 </div>
               </div>
 
+              {/* H2E Rewards */}
+              <H2eRewardsCard />
+
               {/* Saved Addresses */}
               <div className="trading-card p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -776,6 +779,7 @@ export default function Wallet() {
       <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
       <div className="px-4 py-6 space-y-6">
         <BalanceCard />
+        <H2eRewardsCard />
         <PendingConfirmations />
         <SavedAddressesList />
         <TransactionHistory transactions={transactions} />
