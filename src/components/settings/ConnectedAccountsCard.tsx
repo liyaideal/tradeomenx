@@ -384,7 +384,9 @@ export const ConnectedAccountsCard = () => {
             <div className="space-y-1.5">
               <p className="text-xs font-medium text-foreground">Which positions qualify for airdrops?</p>
               <ul className="text-[11px] text-muted-foreground space-y-1 list-disc pl-3.5">
-                <li>Open positions on Polymarket that have a matching event on OmenX</li>
+                <li>Position notional value <span className="text-foreground font-medium">≥ $200</span> on Polymarket</li>
+                <li>Position held for at least <span className="text-foreground font-medium">3 days</span></li>
+                <li>Matching OmenX event has <span className="text-foreground font-medium">≥ 72 hours</span> until resolution</li>
                 <li>Each qualifying position receives a <span className="text-foreground font-medium">$10 free hedge</span> on the counter side</li>
                 <li>Up to <span className="text-foreground font-medium">3 active airdrops</span> per account at a time</li>
                 <li>Airdrops expire in 72 hours if not activated</li>
