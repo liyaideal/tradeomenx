@@ -188,7 +188,7 @@ export default function PortfolioAirdrops() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid gap-3 grid-cols-3">
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
           <div className="bg-card rounded-xl p-4 flex flex-col justify-between">
             <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
               <Gift className="w-3.5 h-3.5 shrink-0" />
@@ -209,6 +209,13 @@ export default function PortfolioAirdrops() {
               <span>Activated</span>
             </div>
             <p className="text-xl font-bold font-mono text-foreground mt-3">{activatedAirdrops.length}</p>
+          </div>
+          <div className="bg-card rounded-xl p-4 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              <span>Settled</span>
+            </div>
+            <p className="text-xl font-bold font-mono text-foreground mt-3">{settledAirdrops.length}</p>
           </div>
         </div>
 
