@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info, Gift } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info, Gift, Lock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -268,7 +268,8 @@ export const PositionCard = ({
           </div>
         </div>
 
-        {/* TP/SL Row - Always visible */}
+        {/* TP/SL Row - Always visible (hidden for airdrop positions) */}
+        {!isAirdrop && (
         <div className="flex items-center justify-between py-2 mb-2 border-y border-border/30">
           <span className="text-[10px] text-muted-foreground">{TRADING_TERMS.TPSL}</span>
           <button 
@@ -287,8 +288,15 @@ export const PositionCard = ({
             <Pencil className="w-3 h-3 text-muted-foreground" />
           </button>
         </div>
+        )}
 
         {/* Actions at bottom */}
+        {isAirdrop ? (
+          <div className="flex items-center gap-1.5 py-1.5 text-[10px] text-muted-foreground border-t border-border/30 mt-1 pt-2">
+            <Lock className="w-3 h-3" />
+            <span>Auto-settles on event resolution</span>
+          </div>
+        ) : (
         <div className="flex gap-2">
           <button 
             onClick={handleOpenDialog}
@@ -303,6 +311,7 @@ export const PositionCard = ({
             Close
           </button>
         </div>
+        )}
       </div>
 
       {/* TP/SL Edit Dialog */}
