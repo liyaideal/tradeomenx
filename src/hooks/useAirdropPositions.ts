@@ -20,6 +20,9 @@ export interface AirdropPosition {
   expiresAt: string;
   activatedAt: string | null;
   createdAt: string;
+  settlementTrigger?: 'event_resolved' | 'source_closed';
+  settledPnl?: number;
+  settledAt?: string | null;
 }
 
 const QUERY_KEY = ["airdrop-positions"];
@@ -74,6 +77,25 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     expiresAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     activatedAt: null,
     createdAt: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "mock-airdrop-4",
+    externalEventName: "SOL above $300 by May 2026?",
+    externalSide: "Yes",
+    externalPrice: 0.55,
+    counterEventName: "SOL Price Prediction May 2026",
+    counterEventId: "sol-300-2026",
+    counterOptionLabel: "Below $300",
+    counterSide: "short",
+    counterPrice: 0.45,
+    airdropValue: 10,
+    status: "settled",
+    expiresAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
+    activatedAt: new Date(Date.now() - 120 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 168 * 60 * 60 * 1000).toISOString(),
+    settlementTrigger: "event_resolved",
+    settledPnl: 6.50,
+    settledAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 
@@ -202,12 +224,14 @@ export const useAirdropPositions = () => {
   const pendingAirdrops = airdrops.filter((a) => a.status === "pending");
   const activatedAirdrops = airdrops.filter((a) => a.status === "activated");
   const expiredAirdrops = airdrops.filter((a) => a.status === "expired");
+  const settledAirdrops = airdrops.filter((a) => a.status === "settled");
 
   return {
     airdrops,
     pendingAirdrops,
     activatedAirdrops,
     expiredAirdrops,
+    settledAirdrops,
     isLoading,
     activateAirdrop,
     isActivating,

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { TokenConfig } from '@/types/deposit';
 import { useWithdraw } from '@/hooks/useWithdraw';
 import { useWallets } from '@/hooks/useWallets';
+import { useH2eRewardsSummary } from '@/hooks/useH2eRewardsSummary';
 import { LabelText, MonoText } from '@/components/typography';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -20,8 +21,9 @@ interface WithdrawFormProps {
 export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
   const navigate = useNavigate();
   const { wallets } = useWallets();
+  const h2e = useH2eRewardsSummary();
   const {
-    availableBalance,
+    availableBalance: rawAvailableBalance,
     limits,
     isSubmitting,
     currentWithdrawal,
@@ -31,6 +33,9 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
     getWithdrawFee,
     getWithdrawMinimum,
   } = useWithdraw();
+
+  // Deduct frozen H2E balance from withdrawable amount
+  const availableBalance = h2e.isUnlocked ? rawAvailableBalance : Math.max(0, rawAvailableBalance - h2e.frozenBalance);
 
   const [amount, setAmount] = useState('');
   const [selectedAddress, setSelectedAddress] = useState('');
@@ -178,6 +183,11 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
         
         <div className="text-sm text-muted-foreground">
           Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> {token.symbol}
+          {!h2e.isUnlocked && h2e.frozenBalance > 0 && (
+            <span className="block text-[10px] text-primary mt-0.5">
+              ${h2e.frozenBalance.toFixed(2)} locked (hedge airdrop — trade ${(h2e.volumeRequired - h2e.volumeCompleted).toLocaleString()} more to unlock)
+            </span>
+          )}
         </div>
       </div>
 

@@ -52,7 +52,7 @@ export const AirdropNotificationToast = () => {
     timerRef.current = setTimeout(() => {
       newAirdrops.forEach((airdrop) => {
         toast("🎁 New Airdrop Received!", {
-          description: `You have a $${airdrop.airdropValue} counter-position on "${airdrop.counterEventName}". Activate it by making a trade.`,
+          description: `You received a FREE $${airdrop.airdropValue} hedge on "${airdrop.counterEventName}". Activate before it expires!`,
           duration: 8000,
           action: {
             label: "View",

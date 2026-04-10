@@ -140,9 +140,13 @@ const AirdropModalBody = ({
       {/* Countdown */}
       <div className="flex items-center justify-center gap-2 text-sm py-2">
         <Clock className="w-3.5 h-3.5 text-trading-yellow" />
-        <span className="text-muted-foreground text-xs">Activate within</span>
+        <span className="text-muted-foreground text-xs">⏰ Expires in</span>
         <span className="font-mono font-bold text-sm text-foreground">{countdown}</span>
+        <span className="text-muted-foreground text-xs">— tap Activate to claim</span>
       </div>
+
+      {/* Earnings cap notice */}
+      <p className="text-center text-[10px] text-muted-foreground/70">Max $100 earnings per account</p>
 
       {/* Actions */}
       <div className="flex gap-3">
