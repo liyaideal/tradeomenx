@@ -99,7 +99,7 @@ export default function PortfolioAirdrops() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, isLoading, activateAirdrop, isActivating } = useAirdropPositions();
+  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, settledAirdrops, isLoading, activateAirdrop, isActivating } = useAirdropPositions();
   const { positions } = usePositions();
   const { data: settlements = [] } = useSettlements();
 
