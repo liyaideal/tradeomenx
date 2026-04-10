@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight } from "lucide-react";
+import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
@@ -82,6 +82,10 @@ const AirdropStatusBadge = ({ status }: { status: string }) => {
       className: "border-border text-muted-foreground bg-muted/50",
       label: "Expired",
     },
+    settled: {
+      className: "border-primary/50 text-primary bg-primary/10",
+      label: "Settled",
+    },
   };
   const c = config[status] || config.expired;
   return (
@@ -95,7 +99,7 @@ export default function PortfolioAirdrops() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, isLoading, activateAirdrop, isActivating } = useAirdropPositions();
+  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, settledAirdrops, isLoading, activateAirdrop, isActivating } = useAirdropPositions();
   const { positions } = usePositions();
   const { data: settlements = [] } = useSettlements();
 
@@ -184,7 +188,7 @@ export default function PortfolioAirdrops() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid gap-3 grid-cols-3">
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
           <div className="bg-card rounded-xl p-4 flex flex-col justify-between">
             <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
               <Gift className="w-3.5 h-3.5 shrink-0" />
@@ -205,6 +209,13 @@ export default function PortfolioAirdrops() {
               <span>Activated</span>
             </div>
             <p className="text-xl font-bold font-mono text-foreground mt-3">{activatedAirdrops.length}</p>
+          </div>
+          <div className="bg-card rounded-xl p-4 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              <span>Settled</span>
+            </div>
+            <p className="text-xl font-bold font-mono text-foreground mt-3">{settledAirdrops.length}</p>
           </div>
         </div>
 
@@ -293,10 +304,23 @@ export default function PortfolioAirdrops() {
                         ${airdrop.counterPrice.toFixed(4)}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-xs max-w-[160px] truncate">
-                        {airdrop.externalSide} @ ${airdrop.externalPrice.toFixed(2)}
+                        {airdrop.status === "settled" && airdrop.settledPnl != null ? (
+                          <span className={`font-mono ${airdrop.settledPnl >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+                            {airdrop.settledPnl >= 0 ? '+' : ''}${airdrop.settledPnl.toFixed(2)}
+                          </span>
+                        ) : (
+                          <>{airdrop.externalSide} @ ${airdrop.externalPrice.toFixed(2)}</>
+                        )}
                       </TableCell>
                       <TableCell>
-                        <AirdropStatusBadge status={airdrop.status} />
+                        <div className="flex items-center gap-1.5">
+                          <AirdropStatusBadge status={airdrop.status} />
+                          {airdrop.status === "settled" && airdrop.settlementTrigger && (
+                            <Badge variant="outline" className="text-[10px] border-border text-muted-foreground bg-muted/50">
+                              {airdrop.settlementTrigger === "event_resolved" ? "Event Resolved" : "Source Closed"}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         {airdrop.status === "pending" ? (
@@ -319,6 +343,11 @@ export default function PortfolioAirdrops() {
                             View
                             <ChevronRight className="w-4 h-4 ml-1" />
                           </Button>
+                        ) : airdrop.status === "settled" ? (
+                          <span className={`text-xs font-mono ${(airdrop.settledPnl ?? 0) >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+                            <CheckCircle2 className="w-3 h-3 inline mr-1" />
+                            {(airdrop.settledPnl ?? 0) >= 0 ? `+$${(airdrop.settledPnl ?? 0).toFixed(2)}` : `-$${Math.abs(airdrop.settledPnl ?? 0).toFixed(2)}`}
+                          </span>
                         ) : null}
                       </TableCell>
                     </TableRow>
