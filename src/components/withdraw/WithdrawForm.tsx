@@ -183,6 +183,11 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
         
         <div className="text-sm text-muted-foreground">
           Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> {token.symbol}
+          {!h2e.isUnlocked && h2e.frozenBalance > 0 && (
+            <span className="block text-[10px] text-primary mt-0.5">
+              ${h2e.frozenBalance.toFixed(2)} locked (hedge airdrop — trade ${(h2e.volumeRequired - h2e.volumeCompleted).toLocaleString()} more to unlock)
+            </span>
+          )}
         </div>
       </div>
 
