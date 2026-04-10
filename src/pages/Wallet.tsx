@@ -455,6 +455,62 @@ export default function Wallet() {
     </div>
   );
 
+  // H2E Rewards Card Component
+  const H2eRewardsCard = () => {
+    if (h2e.totalEarned === 0 && h2e.settlements.length === 0) return null;
+    
+    return (
+      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-4">
+        <div className="flex items-center gap-2">
+          <Gift className="w-4 h-4 text-primary" />
+          <span className="font-semibold text-sm">Hedge Airdrop Rewards</span>
+        </div>
+
+        {/* Earnings cap */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Earned / Cap</span>
+            <span className="font-mono font-semibold">${h2e.totalEarned.toFixed(2)} / ${h2e.earningsCap}</span>
+          </div>
+          <Progress value={h2e.earningsPercent} className="h-1.5" />
+        </div>
+
+        {/* Volume unlock */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Volume to unlock withdrawals</span>
+            <span className="font-mono font-semibold">
+              ${h2e.volumeCompleted.toLocaleString()} / ${h2e.volumeRequired.toLocaleString()}
+            </span>
+          </div>
+          <Progress value={h2e.volumePercent} className="h-1.5" />
+          {h2e.isUnlocked ? (
+            <p className="text-[10px] text-trading-green">✓ Unlocked — rewards are withdrawable</p>
+          ) : (
+            <p className="text-[10px] text-muted-foreground">Trade ${(h2e.volumeRequired - h2e.volumeCompleted).toLocaleString()} more to unlock</p>
+          )}
+        </div>
+
+        {/* Recent settlements */}
+        {h2e.settlements.length > 0 && (
+          <div className="space-y-2 pt-2 border-t border-border/30">
+            <span className="text-xs text-muted-foreground">Recent Settlements</span>
+            {h2e.settlements.slice(0, 3).map((s) => (
+              <div key={s.id} className="flex items-center justify-between text-xs">
+                <div className="truncate max-w-[60%]">
+                  <span className="text-foreground">{s.eventName}</span>
+                  <span className="text-muted-foreground ml-1">· {s.trigger}</span>
+                </div>
+                <span className={`font-mono ${s.pnl >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+                  {s.pnl >= 0 ? '+' : ''}${s.pnl.toFixed(2)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Desktop Layout
   if (!isMobile) {
