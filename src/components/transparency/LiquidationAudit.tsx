@@ -4,6 +4,15 @@ import { ChevronLeft, Scale, Loader2, CheckCircle2, AlertTriangle, ExternalLink,
 import { useLiquidationAudit, type LiquidationStep } from "@/hooks/useLiquidationAudit";
 import { format } from "date-fns";
 
+/** Smart price formatter: uses enough decimals so the value is never $0.0000 */
+const fmtPrice = (v: number) => {
+  if (v === 0) return "$0.00";
+  const abs = Math.abs(v);
+  if (abs >= 1) return `$${v.toFixed(4)}`;
+  // For small prices, use toPrecision to keep significant digits
+  return `$${v.toPrecision(4)}`;
+};
+
 const STEPS: { key: LiquidationStep; label: string }[] = [
   { key: "select", label: "Select Position" },
   { key: "fetching_chain", label: "On-Chain Log" },
