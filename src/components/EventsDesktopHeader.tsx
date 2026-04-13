@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Globe, ChevronDown, User, Trophy, LogOut, LogIn, Gift, Users, Settings, HelpCircle, Briefcase } from "lucide-react";
+import { Globe, ChevronDown, User, Trophy, LogOut, LogIn, Gift, Users, Settings, HelpCircle, Briefcase, Shield } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -198,6 +198,10 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
                     Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/settings/transparency")}>
+                    <Shield className="w-4 h-4 mr-2 text-emerald-400" />
+                    Transparency Audit
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => window.open("https://discord.gg/AZwP5qtK", "_blank", "noopener,noreferrer")}>
                     <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
