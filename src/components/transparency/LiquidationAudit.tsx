@@ -158,7 +158,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
               </div>
               <div className="grid grid-cols-1 gap-1.5 text-xs">
                 {[
-                  { label: "uid", value: `${audit.uid.slice(0, 10)}...${audit.uid.slice(-6)}`, mono: true },
+                  { label: "uid", value: `${audit.uid.slice(0, 6)}...${audit.uid.slice(-6)}`, mono: true },
                   { label: "positionSide", value: `${audit.positionSide} (${audit.positionSideLabel})`, mono: true },
                   { label: "size", value: audit.liquidationSize.toString(), mono: true },
                   { label: "txHash", value: audit.txHash, mono: true, truncate: true },

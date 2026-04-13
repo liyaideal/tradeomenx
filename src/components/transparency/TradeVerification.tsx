@@ -163,7 +163,7 @@ export const TradeVerification = ({ onBack }: Props) => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">makerUid</span>
                   <div className="flex items-center gap-1">
-                    <code className="text-[10px] font-mono text-foreground">{comparison.onchain.makerUid.slice(0, 10)}...{comparison.onchain.makerUid.slice(-6)}</code>
+                    <code className="text-[10px] font-mono text-foreground">{comparison.onchain.makerUid.slice(0, 6)}...{comparison.onchain.makerUid.slice(-6)}</code>
                     <button onClick={() => copyText(comparison.onchain.makerUid, "maker")} className="text-muted-foreground hover:text-foreground">
                       {copiedField === "maker" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                     </button>
@@ -172,7 +172,7 @@ export const TradeVerification = ({ onBack }: Props) => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">takerUid</span>
                   <div className="flex items-center gap-1">
-                    <code className="text-[10px] font-mono text-foreground">{comparison.onchain.takerUid.slice(0, 10)}...{comparison.onchain.takerUid.slice(-6)}</code>
+                    <code className="text-[10px] font-mono text-foreground">{comparison.onchain.takerUid.slice(0, 6)}...{comparison.onchain.takerUid.slice(-6)}</code>
                     <button onClick={() => copyText(comparison.onchain.takerUid, "taker")} className="text-muted-foreground hover:text-foreground">
                       {copiedField === "taker" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                     </button>
@@ -186,7 +186,7 @@ export const TradeVerification = ({ onBack }: Props) => {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">txHash</span>
                 <div className="flex items-center gap-1">
-                  <code className="text-[10px] font-mono text-foreground/80">{comparison.onchain.txHash.slice(0, 10)}...{comparison.onchain.txHash.slice(-6)}</code>
+                  <code className="text-[10px] font-mono text-foreground/80">{comparison.onchain.txHash.slice(0, 6)}...{comparison.onchain.txHash.slice(-6)}</code>
                   <button onClick={() => copyText(comparison.onchain.txHash, "tx")} className="text-muted-foreground hover:text-foreground">
                     {copiedField === "tx" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                   </button>

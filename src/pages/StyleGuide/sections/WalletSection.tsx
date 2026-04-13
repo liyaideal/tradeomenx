@@ -306,7 +306,7 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
                 </a>
               </div>
               <CodePreview 
-                code={`const truncateTxHash = (hash: string) => \`\${hash.slice(0, 8)}...\${hash.slice(-5)}\`;
+                code={`const truncateTxHash = (hash: string) => \`\${hash.slice(0, 6)}...\${hash.slice(-6)}\`;
 
 <a href={\`\${EXPLORER_URL}\${txHash}\`} target="_blank" className="text-primary font-mono">
   {truncateTxHash(txHash)}

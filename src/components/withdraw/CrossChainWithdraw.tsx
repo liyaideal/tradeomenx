@@ -362,7 +362,7 @@ export const CrossChainWithdraw = () => {
   }
 
   // ── Result ──
-  const displayAddress = selectedWallet?.address || `${selectedAddress.slice(0, 6)}...${selectedAddress.slice(-4)}`;
+  const displayAddress = selectedWallet?.address || `${selectedAddress.slice(0, 6)}...${selectedAddress.slice(-6)}`;
 
   return (
     <div className={cn("flex flex-col items-center py-10 space-y-6", isMobile ? "px-4" : "px-5")}>
