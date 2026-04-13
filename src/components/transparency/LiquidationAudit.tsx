@@ -233,7 +233,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 This operation was recorded and enforced by the smart contract at{" "}
-                <span className="font-mono">{audit.contractAddress.slice(0, 10)}...{audit.contractAddress.slice(-6)}</span>.
+                <span className="font-mono">{audit.contractAddress.slice(0, 6)}...{audit.contractAddress.slice(-6)}</span>.
                 {" "}No manual intervention was involved. The execution is immutable and verifiable on-chain.
               </p>
             </div>
