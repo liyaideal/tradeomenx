@@ -1,17 +1,8 @@
 import { useState } from "react";
-import { FileSearch, Loader2, CheckCircle2, ArrowLeft, ExternalLink, Copy, Check, ArrowRightLeft, Bot } from "lucide-react";
+import { FileSearch, Loader2, CheckCircle2, ArrowLeft, ExternalLink, Copy, Check, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTradeVerification } from "@/hooks/useTradeVerification";
 import { toast } from "sonner";
-
-const COMPARE_FIELDS = [
-  { key: "event", label: "Event" },
-  { key: "option", label: "Option" },
-  { key: "side", label: "Side" },
-  { key: "price", label: "Price" },
-  { key: "quantity", label: "Quantity" },
-  { key: "timestamp", label: "Timestamp" },
-];
 
 interface Props {
   onBack: () => void;
@@ -42,7 +33,7 @@ export const TradeVerification = ({ onBack }: Props) => {
           <div className="space-y-2 max-w-md mx-auto">
             <h2 className="text-xl font-bold">Is My Trade Real?</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Select a recent filled trade and compare its database record against the on-chain transaction log to verify execution integrity.
+              Select a recent filled trade and compare its database record against the on-chain <code className="text-xs bg-muted/50 px-1 rounded">TradeLogged</code> event to verify execution integrity.
             </p>
           </div>
           <Button onClick={openSelector} className="px-8 gap-2">
@@ -71,16 +62,10 @@ export const TradeVerification = ({ onBack }: Props) => {
           ) : (
             <div className="space-y-2 max-h-[50vh] overflow-y-auto">
               {trades.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => selectTrade(t)}
-                  className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group"
-                >
+                <button key={t.id} onClick={() => selectTrade(t)} className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium truncate flex-1">{t.event_name}</span>
-                    <span className={`text-xs font-semibold ml-2 ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>
-                      {t.side.toUpperCase()}
-                    </span>
+                    <span className={`text-xs font-semibold ml-2 ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>{t.side.toUpperCase()}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span>{t.option_label}</span>
@@ -109,11 +94,11 @@ export const TradeVerification = ({ onBack }: Props) => {
         {(step === "fetching" || step === "comparing") && (
           <div className="space-y-3 animate-fade-in">
             {[
-              { key: "fetching", label: "Fetching on-chain transaction log..." },
-              { key: "comparing", label: "Comparing records field by field..." },
+              { key: "fetching", label: "Fetching on-chain TradeLogged event..." },
+              { key: "comparing", label: "Comparing contract fields..." },
             ].map((s, i) => {
               const isActive = s.key === step;
-              const isDone = (s.key === "fetching" && step === "comparing");
+              const isDone = s.key === "fetching" && step === "comparing";
               return (
                 <div key={s.key} className={`flex items-center gap-3 transition-opacity duration-300 ${!isActive && !isDone ? "opacity-30" : ""}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isDone ? "bg-blue-400/20 text-blue-400" : isActive ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
@@ -135,7 +120,7 @@ export const TradeVerification = ({ onBack }: Props) => {
               <div>
                 <h3 className="font-bold text-blue-400">All Fields Match ✓</h3>
                 <p className="text-xs text-muted-foreground">
-                  {comparison.matchedFields.length} of {comparison.matchedFields.length} fields verified against on-chain data.
+                  {comparison.dbFields.filter(f => f.match).length} of {comparison.dbFields.length} contract fields verified against on-chain data.
                 </p>
               </div>
             </div>
@@ -151,39 +136,47 @@ export const TradeVerification = ({ onBack }: Props) => {
               </div>
             </div>
 
-            {/* Side-by-side comparison */}
+            {/* Field-by-field comparison table */}
             <div>
-              <div className="grid grid-cols-[1fr,1fr,1fr] gap-0 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-2">
+              <div className="grid grid-cols-[0.8fr,1fr,1fr,0.7fr] gap-0 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-2">
                 <span>Field</span>
                 <span>DB Record</span>
                 <span>On-Chain Log</span>
+                <span>Raw Value</span>
               </div>
               <div className="space-y-1">
-                {COMPARE_FIELDS.map((f) => {
-                  const dbVal = comparison.dbRecord[f.key] || "—";
-                  const chainVal = comparison.onchainLog[f.key] || "—";
-                  const isMatch = comparison.matchedFields.includes(f.key);
-                  return (
-                    <div key={f.key} className={`grid grid-cols-[1fr,1fr,1fr] gap-0 rounded-lg px-2 py-1.5 text-xs ${isMatch ? "bg-emerald-400/5" : "bg-muted/20"}`}>
-                      <span className="text-muted-foreground">{f.label}</span>
-                      <span className={`font-mono truncate ${isMatch ? "text-emerald-400" : ""}`}>{dbVal}</span>
-                      <span className={`font-mono truncate ${isMatch ? "text-emerald-400" : ""}`}>{chainVal}</span>
-                    </div>
-                  );
-                })}
+                {comparison.dbFields.map((f) => (
+                  <div key={f.key} className={`grid grid-cols-[0.8fr,1fr,1fr,0.7fr] gap-0 rounded-lg px-2 py-1.5 text-xs ${f.match ? "bg-emerald-400/5" : "bg-muted/20"}`}>
+                    <span className="text-muted-foreground">{f.label}</span>
+                    <span className={`font-mono truncate ${f.match ? "text-emerald-400" : ""}`}>{f.dbValue}</span>
+                    <span className={`font-mono truncate ${f.match ? "text-emerald-400" : ""}`}>{f.chainValue}</span>
+                    <span className="font-mono truncate text-muted-foreground/70">{f.chainRaw}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Counterparty */}
-            <div className="bg-muted/20 rounded-xl p-4">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Counterparty</p>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-primary" />
+            {/* Maker / Taker UIDs */}
+            <div className="bg-muted/20 rounded-xl p-4 space-y-3">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Counterparty UIDs (Anonymized)</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">makerUid</span>
+                  <div className="flex items-center gap-1">
+                    <code className="text-[10px] font-mono text-foreground">{comparison.onchain.makerUid.slice(0, 10)}...{comparison.onchain.makerUid.slice(-6)}</code>
+                    <button onClick={() => copyText(comparison.onchain.makerUid, "maker")} className="text-muted-foreground hover:text-foreground">
+                      {copiedField === "maker" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold">{comparison.counterparty}</p>
-                  <p className="text-[10px] text-muted-foreground">Automated market maker — always available liquidity</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">takerUid</span>
+                  <div className="flex items-center gap-1">
+                    <code className="text-[10px] font-mono text-foreground">{comparison.onchain.takerUid.slice(0, 10)}...{comparison.onchain.takerUid.slice(-6)}</code>
+                    <button onClick={() => copyText(comparison.onchain.takerUid, "taker")} className="text-muted-foreground hover:text-foreground">
+                      {copiedField === "taker" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -193,32 +186,27 @@ export const TradeVerification = ({ onBack }: Props) => {
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Tx Hash</span>
                 <div className="flex items-center gap-1">
-                  <code className="text-[10px] font-mono text-foreground">{comparison.txHash.slice(0, 10)}...{comparison.txHash.slice(-8)}</code>
-                  <button onClick={() => copyText(comparison.txHash, "tx")} className="text-muted-foreground hover:text-foreground">
+                  <code className="text-[10px] font-mono text-foreground">{comparison.onchain.txHash.slice(0, 10)}...{comparison.onchain.txHash.slice(-8)}</code>
+                  <button onClick={() => copyText(comparison.onchain.txHash, "tx")} className="text-muted-foreground hover:text-foreground">
                     {copiedField === "tx" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Block</span>
-                <code className="text-[10px] font-mono text-foreground">#{comparison.blockNumber.toLocaleString()}</code>
+                <code className="text-[10px] font-mono text-foreground">#{comparison.onchain.blockNumber.toLocaleString()}</code>
               </div>
             </div>
 
             {/* Actions */}
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-xs gap-1.5"
-                onClick={() => window.open(`https://basescan.org/tx/${comparison.txHash}`, "_blank")}
+              <Button variant="outline" size="sm" className="flex-1 text-xs gap-1.5"
+                onClick={() => window.open(`https://basescan.org/tx/${comparison.onchain.txHash}`, "_blank")}
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                View on BaseScan
+                <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
               </Button>
               <Button size="sm" className="flex-1 text-xs gap-1.5" onClick={openSelector}>
-                <ArrowRightLeft className="w-3.5 h-3.5" />
-                Verify Another
+                <ArrowRightLeft className="w-3.5 h-3.5" /> Verify Another
               </Button>
             </div>
           </div>

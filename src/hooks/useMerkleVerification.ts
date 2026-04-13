@@ -15,8 +15,10 @@ export interface MerkleVerificationData {
   positionsValue: number;
   totalEquity: number;
   leafHash: string;
-  stateRoot: string;
-  batchId: string;
+  oldRoot: string;
+  stateRoot: string; // newRoot
+  batchId: number;
+  commitTimestamp: string;
   proofPath: string[];
   verificationResult: "verified" | "failed";
   verifiedAt: string;
@@ -55,13 +57,16 @@ export const useMerkleVerification = () => {
     setStep("verifying");
     await new Promise((r) => setTimeout(r, 2000));
 
-    // Generate mock data
+    // Generate mock data aligned with real contract fields
     const balance = 13530;
     const positionsValue = 2847.52;
     const totalEquity = balance + positionsValue;
     const leafHash = mockHex(64);
-    const stateRoot = mockHex(64);
-    const batchId = `batch-${Math.floor(Math.random() * 90000) + 10000}`;
+    const oldRoot = mockHex(64);
+    const stateRoot = mockHex(64); // newRoot
+    const batchId = 42000 + Math.floor(Math.random() * 1000); // realistic incrementing integer
+    // Commit timestamp: a recent time, slightly before "now"
+    const commitTimestamp = new Date(Date.now() - Math.floor(Math.random() * 600_000) - 60_000).toISOString();
     const proofPath = Array.from({ length: 5 }, () => mockHex(64));
     const verifiedAt = new Date().toISOString();
 
@@ -70,8 +75,10 @@ export const useMerkleVerification = () => {
       positionsValue,
       totalEquity,
       leafHash,
+      oldRoot,
       stateRoot,
       batchId,
+      commitTimestamp,
       proofPath,
       verificationResult: "verified",
       verifiedAt,
@@ -88,7 +95,7 @@ export const useMerkleVerification = () => {
         total_equity: totalEquity,
         leaf_hash: leafHash,
         state_root: stateRoot,
-        batch_id: batchId,
+        batch_id: batchId.toString(),
         proof_path: proofPath,
         verification_result: "verified",
         verified_at: verifiedAt,

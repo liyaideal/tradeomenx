@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -18,14 +18,34 @@ interface TradeRecord {
   status: string;
 }
 
-export interface TradeComparisonData {
-  trade: TradeRecord;
-  dbRecord: Record<string, string>;
-  onchainLog: Record<string, string>;
-  matchedFields: string[];
-  counterparty: string;
+/** Side enum used in the smart contract: 0=Open Long, 1=Close Long, 2=Open Short, 3=Close Short */
+const SIDE_ENUM: Record<string, { raw: number; label: string }> = {
+  buy: { raw: 0, label: "Open Long" },
+  sell: { raw: 3, label: "Close Short" },
+};
+
+/** Convert a decimal price (e.g. 0.5) to 6-decimal integer (500000) used on-chain */
+const toRawPrice = (price: number) => Math.round(price * 1_000_000);
+
+export interface OnChainTradeLog {
+  eventId: string;
+  outcomeId: number;
+  makerUid: string;
+  takerUid: string;
+  price: number;       // raw 6-decimal integer
+  priceHuman: string;  // human-readable
+  size: number;
+  side: number;        // enum
+  sideLabel: string;
   txHash: string;
   blockNumber: number;
+  timestamp: string;
+}
+
+export interface TradeComparisonData {
+  trade: TradeRecord;
+  onchain: OnChainTradeLog;
+  dbFields: { key: string; label: string; dbValue: string; chainValue: string; chainRaw: string; match: boolean }[];
   verifiedAt: string;
 }
 
@@ -67,7 +87,7 @@ export const useTradeVerification = () => {
     if (!user) return;
     setSelectedTrade(trade);
 
-    // Step: fetching on-chain log
+    // Step: fetching on-chain TradeLogged event
     setStep("fetching");
     await new Promise((r) => setTimeout(r, 1800));
 
@@ -78,41 +98,87 @@ export const useTradeVerification = () => {
     const txHash = mockHex(64);
     const blockNumber = 18_000_000 + Math.floor(Math.random() * 500_000);
     const ts = new Date(trade.created_at).toISOString();
-    const fields = ["event", "option", "side", "price", "quantity", "timestamp"];
 
-    const dbRecord: Record<string, string> = {
-      event: trade.event_name,
-      option: trade.option_label,
-      side: trade.side,
-      price: trade.price.toString(),
-      quantity: trade.quantity.toString(),
-      amount: trade.amount.toString(),
-      fee: trade.fee.toString(),
+    // Map trade side to contract enum
+    const sideInfo = SIDE_ENUM[trade.side] ?? { raw: 0, label: trade.side };
+    const rawPrice = toRawPrice(trade.price);
+    // Simulated event/outcome IDs
+    const eventId = `EVT-${Math.floor(Math.random() * 90000) + 10000}`;
+    const outcomeId = Math.floor(Math.random() * 4); // 0-3
+    const makerUid = mockHex(20); // AMM / liquidity provider
+    const takerUid = mockHex(20); // user (anonymized)
+
+    const onchain: OnChainTradeLog = {
+      eventId,
+      outcomeId,
+      makerUid,
+      takerUid,
+      price: rawPrice,
+      priceHuman: `$${trade.price.toFixed(4)}`,
+      size: trade.quantity,
+      side: sideInfo.raw,
+      sideLabel: sideInfo.label,
+      txHash,
+      blockNumber,
       timestamp: ts,
-      order_type: trade.order_type,
     };
 
-    const onchainLog: Record<string, string> = {
-      event: trade.event_name,
-      option: trade.option_label,
-      side: trade.side,
-      price: trade.price.toString(),
-      quantity: trade.quantity.toString(),
-      amount: trade.amount.toString(),
-      fee: trade.fee.toString(),
-      timestamp: ts,
-      tx_hash: txHash,
-      block: blockNumber.toString(),
-    };
+    // Build comparison fields
+    const dbFields = [
+      {
+        key: "eventId",
+        label: "Event ID",
+        dbValue: trade.event_name,
+        chainValue: eventId,
+        chainRaw: eventId,
+        match: true,
+      },
+      {
+        key: "outcomeId",
+        label: "Outcome ID",
+        dbValue: trade.option_label,
+        chainValue: trade.option_label,
+        chainRaw: outcomeId.toString(),
+        match: true,
+      },
+      {
+        key: "side",
+        label: "Side",
+        dbValue: trade.side.toUpperCase(),
+        chainValue: sideInfo.label,
+        chainRaw: sideInfo.raw.toString(),
+        match: true,
+      },
+      {
+        key: "price",
+        label: "Price",
+        dbValue: `$${trade.price.toFixed(4)}`,
+        chainValue: `$${trade.price.toFixed(4)}`,
+        chainRaw: rawPrice.toLocaleString(),
+        match: true,
+      },
+      {
+        key: "size",
+        label: "Size",
+        dbValue: trade.quantity.toString(),
+        chainValue: trade.quantity.toString(),
+        chainRaw: trade.quantity.toString(),
+        match: true,
+      },
+      {
+        key: "timestamp",
+        label: "Timestamp",
+        dbValue: ts,
+        chainValue: ts,
+        chainRaw: Math.floor(new Date(ts).getTime() / 1000).toString(),
+        match: true,
+      },
+    ];
 
     const data: TradeComparisonData = {
       trade,
-      dbRecord,
-      onchainLog,
-      matchedFields: fields,
-      counterparty: "Official AMM Node",
-      txHash,
-      blockNumber,
+      onchain,
+      dbFields,
       verifiedAt: new Date().toISOString(),
     };
 
@@ -123,10 +189,10 @@ export const useTradeVerification = () => {
       await supabase.from("trade_verifications").insert({
         user_id: user.id,
         trade_id: trade.id,
-        db_record: dbRecord,
-        onchain_log: onchainLog,
-        matched_fields: fields,
-        counterparty: "Official AMM Node",
+        db_record: Object.fromEntries(dbFields.map(f => [f.key, f.dbValue])),
+        onchain_log: Object.fromEntries(dbFields.map(f => [f.key, f.chainRaw])),
+        matched_fields: dbFields.filter(f => f.match).map(f => f.key),
+        counterparty: makerUid,
         verification_result: "matched",
         verified_at: new Date().toISOString(),
       } as any);

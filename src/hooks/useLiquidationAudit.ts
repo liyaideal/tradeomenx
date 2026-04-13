@@ -18,15 +18,29 @@ interface LiquidationRecord {
   closed_at: string;
 }
 
+/** positionSide enum: 0 = Long, 1 = Short */
+const POSITION_SIDE_ENUM: Record<string, { raw: number; label: string }> = {
+  long: { raw: 0, label: "Long" },
+  short: { raw: 1, label: "Short" },
+};
+
+/** Convert decimal price to 6-decimal integer (on-chain representation) */
+const toRawPrice = (price: number) => Math.round(price * 1_000_000);
+
 export interface LiquidationAuditData {
   position: LiquidationRecord;
-  // Module A: on-chain snapshot
+  // On-chain PositionLiquidated event fields
+  uid: string;
+  positionSide: number;
+  positionSideLabel: string;
   onchainMarkPrice: number;
+  rawMarkPrice: number; // 6-decimal integer
+  liquidationSize: number;
   txHash: string;
   blockNumber: number;
   contractAddress: string;
   liquidatedAt: string;
-  // Module B: oracle fair price
+  // Oracle fair price
   oraclePrice: number;
   oracleSource: string;
   oracleTimestamp: string;
@@ -80,64 +94,57 @@ export const useLiquidationAudit = () => {
   const selectPosition = useCallback(async (pos: LiquidationRecord) => {
     setSelectedPosition(pos);
 
-    // Step 1: fetch on-chain log
     setStep("fetching_chain");
     await new Promise((r) => setTimeout(r, 1600));
-
-    // Step 2: fetch oracle
     setStep("fetching_oracle");
     await new Promise((r) => setTimeout(r, 1800));
-
-    // Step 3: analyze
     setStep("analyzing");
     await new Promise((r) => setTimeout(r, 1200));
 
-    // Derive a realistic close price: if mark_price is 0 or missing, compute from entry + pnl
+    // Derive realistic close price
     let closePrice = pos.mark_price;
     if (!closePrice || closePrice === 0) {
-      // pnl = (close - entry) * size for long, (entry - close) * size for short
       const direction = pos.side === "long" ? 1 : -1;
       closePrice = pos.entry_price + (direction * (pos.pnl ?? 0)) / (pos.size || 1);
-      // Ensure non-negative
       closePrice = Math.max(closePrice, 0.0001);
     }
 
     const onchainMarkPrice = parseFloat(closePrice.toPrecision(4));
-    // Random deviation between -0.6% and +0.6%, biased small
+    const rawMarkPrice = toRawPrice(onchainMarkPrice);
+
+    // Oracle deviation
     const deviationPct = (Math.random() - 0.45) * 1.2;
     const oraclePrice = parseFloat((onchainMarkPrice * (1 + deviationPct / 100)).toPrecision(4));
     const deviation = Math.abs(onchainMarkPrice - oraclePrice);
-    const deviationPercent = onchainMarkPrice > 0
-      ? parseFloat(((deviation / onchainMarkPrice) * 100).toFixed(4))
-      : 0;
+    const deviationPercent = onchainMarkPrice > 0 ? parseFloat(((deviation / onchainMarkPrice) * 100).toFixed(4)) : 0;
 
-    // Simulate margin ratio that breached maintenance margin
-    const maintenanceMarginRate = 5; // 5%
-    const marginRatio = parseFloat((2 + Math.random() * 2.8).toFixed(2)); // 2-4.8%, breached
+    const maintenanceMarginRate = 5;
+    const marginRatio = parseFloat((2 + Math.random() * 2.8).toFixed(2));
 
-    const txHash = mockHex(64);
-    const blockNumber = 18_000_000 + Math.floor(Math.random() * 500_000);
-    const liquidatedAt = pos.closed_at;
-    const oracleTimestamp = new Date(new Date(pos.closed_at).getTime() - 1500).toISOString();
-
-    const isFair = deviationPercent < 1.5;
+    const sideInfo = POSITION_SIDE_ENUM[pos.side] ?? { raw: 0, label: pos.side };
+    const uid = mockHex(20);
 
     const auditData: LiquidationAuditData = {
       position: pos,
+      uid,
+      positionSide: sideInfo.raw,
+      positionSideLabel: sideInfo.label,
       onchainMarkPrice,
-      txHash,
-      blockNumber,
+      rawMarkPrice,
+      liquidationSize: pos.size,
+      txHash: mockHex(64),
+      blockNumber: 18_000_000 + Math.floor(Math.random() * 500_000),
       contractAddress: CONTRACT_ADDRESS,
-      liquidatedAt,
+      liquidatedAt: pos.closed_at,
       oraclePrice,
       oracleSource: "Chainlink / Pyth Network (Aggregated)",
-      oracleTimestamp,
+      oracleTimestamp: new Date(new Date(pos.closed_at).getTime() - 1500).toISOString(),
       oracleFeedAddress: mockHex(40),
       deviation: parseFloat(deviation.toFixed(6)),
       deviationPercent,
       marginRatio,
       maintenanceMarginRate,
-      conclusion: isFair ? "fair" : "suspicious",
+      conclusion: deviationPercent < 1.5 ? "fair" : "suspicious",
     };
 
     setAudit(auditData);

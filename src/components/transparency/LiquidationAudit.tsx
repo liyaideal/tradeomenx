@@ -4,12 +4,11 @@ import { ChevronLeft, Scale, Loader2, CheckCircle2, AlertTriangle, ExternalLink,
 import { useLiquidationAudit, type LiquidationStep } from "@/hooks/useLiquidationAudit";
 import { format } from "date-fns";
 
-/** Smart price formatter: uses enough decimals so the value is never $0.0000 */
+/** Smart price formatter */
 const fmtPrice = (v: number) => {
   if (v === 0) return "$0.00";
   const abs = Math.abs(v);
   if (abs >= 1) return `$${v.toFixed(4)}`;
-  // For small prices, use toPrecision to keep significant digits
   return `$${v.toPrecision(4)}`;
 };
 
@@ -49,7 +48,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
           <div>
             <h2 className="text-xl font-bold">Liquidation Price Audit</h2>
             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-              Retrieve the on-chain liquidation snapshot, cross-reference it with third-party oracle prices, and verify that the forced closure was executed fairly by the smart contract.
+              Retrieve the on-chain <code className="text-xs bg-muted/50 px-1 rounded">PositionLiquidated</code> event, cross-reference it with third-party oracle prices, and verify that the forced closure was executed fairly.
             </p>
           </div>
           <Button onClick={openSelector} className="gap-2">
@@ -75,11 +74,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
         ) : (
           <div className="space-y-2">
             {positions.map((pos) => (
-              <button
-                key={pos.id}
-                onClick={() => selectPosition(pos)}
-                className="trading-card p-4 w-full text-left hover:border-primary/30 transition-all"
-              >
+              <button key={pos.id} onClick={() => selectPosition(pos)} className="trading-card p-4 w-full text-left hover:border-primary/30 transition-all">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">{pos.event_name}</p>
@@ -101,9 +96,9 @@ export const LiquidationAudit = ({ onBack }: Props) => {
   /* ── Processing / Result ── */
   const isProcessing = step === "fetching_chain" || step === "fetching_oracle" || step === "analyzing";
   const processingLabel: Record<string, string> = {
-    fetching_chain: "Fetching PositionLiquidated event from on-chain logs\u2026",
-    fetching_oracle: "Querying Chainlink / Pyth oracle historical price\u2026",
-    analyzing: "Comparing mark price against fair market price\u2026",
+    fetching_chain: "Fetching PositionLiquidated event from on-chain logs…",
+    fetching_oracle: "Querying Chainlink / Pyth oracle historical price…",
+    analyzing: "Comparing mark price against fair market price…",
   };
 
   return (
@@ -116,9 +111,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
       <div className="trading-card p-4 space-y-3">
         <div className="flex items-center justify-between text-[10px] text-muted-foreground">
           {STEPS.map((s, i) => (
-            <span key={s.key} className={i <= stepIndex(step) ? "text-amber-400 font-medium" : ""}>
-              {i + 1}. {s.label}
-            </span>
+            <span key={s.key} className={i <= stepIndex(step) ? "text-amber-400 font-medium" : ""}>{i + 1}. {s.label}</span>
           ))}
         </div>
         <Progress value={progress} className="h-1.5 bg-muted/30 [&>div]:bg-amber-400" />
@@ -142,7 +135,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
       {isProcessing && (
         <div className="trading-card p-8 flex flex-col items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
-          <p className="text-sm text-muted-foreground">{processingLabel[step] ?? "Processing\u2026"}</p>
+          <p className="text-sm text-muted-foreground">{processingLabel[step] ?? "Processing…"}</p>
         </div>
       )}
 
@@ -155,17 +148,19 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <div className="px-4 py-3 border-b border-border/30 flex items-center gap-2">
               <Link2 className="w-4 h-4 text-muted-foreground" />
               <h4 className="text-sm font-semibold">On-Chain Liquidation Snapshot</h4>
+              <code className="ml-auto text-[10px] font-mono text-muted-foreground/60 bg-muted/30 px-1.5 py-0.5 rounded">PositionLiquidated</code>
             </div>
             <div className="p-4 space-y-4">
               <div className="text-center py-3">
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">System Mark Price at Liquidation</p>
-                 <p className="text-4xl font-bold font-mono text-trading-red">
-                   {fmtPrice(audit.onchainMarkPrice)}
-                 </p>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">markPrice</p>
+                <p className="text-4xl font-bold font-mono text-trading-red">{fmtPrice(audit.onchainMarkPrice)}</p>
+                <p className="text-[10px] font-mono text-muted-foreground/60 mt-1">Raw: {audit.rawMarkPrice.toLocaleString()}</p>
               </div>
               <div className="grid grid-cols-1 gap-1.5 text-xs">
                 {[
-                  { label: "Event", value: `PositionLiquidated` },
+                  { label: "uid", value: `${audit.uid.slice(0, 10)}...${audit.uid.slice(-6)}`, mono: true },
+                  { label: "positionSide", value: `${audit.positionSide} (${audit.positionSideLabel})`, mono: true },
+                  { label: "size", value: audit.liquidationSize.toString(), mono: true },
                   { label: "Transaction", value: audit.txHash, mono: true, truncate: true },
                   { label: "Block", value: `#${audit.blockNumber.toLocaleString()}` },
                   { label: "Contract", value: audit.contractAddress, mono: true, truncate: true },
@@ -173,16 +168,11 @@ export const LiquidationAudit = ({ onBack }: Props) => {
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
                     <span className="text-muted-foreground shrink-0">{row.label}</span>
-                    <span className={`${row.mono ? "font-mono" : ""} ${row.truncate ? "truncate max-w-[200px]" : ""} text-foreground/80`}>
-                      {row.value}
-                    </span>
+                    <span className={`${row.mono ? "font-mono" : ""} ${row.truncate ? "truncate max-w-[200px]" : ""} text-foreground/80`}>{row.value}</span>
                   </div>
                 ))}
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-[10px] gap-1 text-muted-foreground w-full"
+              <Button variant="ghost" size="sm" className="text-[10px] gap-1 text-muted-foreground w-full"
                 onClick={() => window.open(`https://basescan.org/tx/${audit.txHash}`, "_blank")}
               >
                 <ExternalLink className="w-3 h-3" /> View Transaction on BaseScan
@@ -199,9 +189,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <div className="p-4 space-y-4">
               <div className="text-center py-3">
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Global Spot Fair Price</p>
-                 <p className="text-4xl font-bold font-mono text-emerald-400">
-                   {fmtPrice(audit.oraclePrice)}
-                 </p>
+                <p className="text-4xl font-bold font-mono text-emerald-400">{fmtPrice(audit.oraclePrice)}</p>
               </div>
               <div className="grid grid-cols-1 gap-1.5 text-xs">
                 {[
@@ -224,14 +212,8 @@ export const LiquidationAudit = ({ onBack }: Props) => {
           {/* ── Module C: Conclusion ── */}
           <div className={`trading-card overflow-hidden border ${audit.conclusion === "fair" ? "border-emerald-400/30" : "border-amber-400/30"}`}>
             <div className={`px-4 py-3 border-b border-border/30 flex items-center gap-2 ${audit.conclusion === "fair" ? "bg-emerald-400/5" : "bg-amber-400/5"}`}>
-              {audit.conclusion === "fair" ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              ) : (
-                <AlertTriangle className="w-4 h-4 text-amber-400" />
-              )}
-              <h4 className="text-sm font-semibold">
-                {audit.conclusion === "fair" ? "Verified: Liquidation is Fair" : "Attention: Price Deviation Detected"}
-              </h4>
+              {audit.conclusion === "fair" ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertTriangle className="w-4 h-4 text-amber-400" />}
+              <h4 className="text-sm font-semibold">{audit.conclusion === "fair" ? "Verified: Liquidation is Fair" : "Attention: Price Deviation Detected"}</h4>
             </div>
             <div className="p-5 space-y-3">
               <p className="text-sm leading-relaxed text-foreground/90">
@@ -240,9 +222,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
                 while the global fair market price reported by {audit.oracleSource} was{" "}
                 <span className="font-mono font-bold text-emerald-400">{fmtPrice(audit.oraclePrice)}</span>.
                 {" "}The price deviation is{" "}
-                <span className={`font-mono font-bold ${audit.deviationPercent < 1.5 ? "text-emerald-400" : "text-amber-400"}`}>
-                  {audit.deviationPercent.toFixed(4)}%
-                </span>.
+                <span className={`font-mono font-bold ${audit.deviationPercent < 1.5 ? "text-emerald-400" : "text-amber-400"}`}>{audit.deviationPercent.toFixed(4)}%</span>.
               </p>
               <p className="text-sm leading-relaxed text-foreground/90">
                 Your margin ratio had dropped to{" "}
@@ -261,17 +241,12 @@ export const LiquidationAudit = ({ onBack }: Props) => {
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs gap-1.5 flex-1"
+            <Button variant="outline" size="sm" className="text-xs gap-1.5 flex-1"
               onClick={() => window.open(`https://basescan.org/tx/${audit.txHash}`, "_blank")}
             >
               <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
             </Button>
-            <Button variant="outline" size="sm" className="text-xs flex-1" onClick={reset}>
-              Audit Another Position
-            </Button>
+            <Button variant="outline" size="sm" className="text-xs flex-1" onClick={reset}>Audit Another Position</Button>
           </div>
         </div>
       )}
