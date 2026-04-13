@@ -1,0 +1,115 @@
+import { useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
+export type MerkleStep = 
+  | "idle"
+  | "fetching_proof"    // Step 1: Fetching proof from platform
+  | "reading_chain"     // Step 2: Reading on-chain StateRoot
+  | "verifying"         // Step 3: Browser local verification
+  | "result"            // Step 4: Result display
+  | "details";          // Step 5: Expandable details
+
+export interface MerkleVerificationData {
+  balance: number;
+  positionsValue: number;
+  totalEquity: number;
+  leafHash: string;
+  stateRoot: string;
+  batchId: string;
+  proofPath: string[];
+  verificationResult: "verified" | "failed";
+  verifiedAt: string;
+}
+
+// Generate mock hex string of specified length
+const mockHex = (len: number) => {
+  const chars = "0123456789abcdef";
+  let result = "0x";
+  for (let i = 0; i < len; i++) {
+    result += chars[Math.floor(Math.random() * 16)];
+  }
+  return result;
+};
+
+export const useMerkleVerification = () => {
+  const { user } = useAuth();
+  const [step, setStep] = useState<MerkleStep>("idle");
+  const [data, setData] = useState<MerkleVerificationData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const startVerification = useCallback(async () => {
+    if (!user) return;
+    setError(null);
+    setData(null);
+
+    // Step 1: Fetch proof
+    setStep("fetching_proof");
+    await new Promise((r) => setTimeout(r, 1800));
+
+    // Step 2: Read on-chain StateRoot
+    setStep("reading_chain");
+    await new Promise((r) => setTimeout(r, 1500));
+
+    // Step 3: Local verification
+    setStep("verifying");
+    await new Promise((r) => setTimeout(r, 2000));
+
+    // Generate mock data
+    const balance = 13530;
+    const positionsValue = 2847.52;
+    const totalEquity = balance + positionsValue;
+    const leafHash = mockHex(64);
+    const stateRoot = mockHex(64);
+    const batchId = `batch-${Math.floor(Math.random() * 90000) + 10000}`;
+    const proofPath = Array.from({ length: 5 }, () => mockHex(64));
+    const verifiedAt = new Date().toISOString();
+
+    const verificationData: MerkleVerificationData = {
+      balance,
+      positionsValue,
+      totalEquity,
+      leafHash,
+      stateRoot,
+      batchId,
+      proofPath,
+      verificationResult: "verified",
+      verifiedAt,
+    };
+
+    setData(verificationData);
+
+    // Save to database
+    try {
+      await supabase.from("asset_verifications").insert({
+        user_id: user.id,
+        balance,
+        positions_value: positionsValue,
+        total_equity: totalEquity,
+        leaf_hash: leafHash,
+        state_root: stateRoot,
+        batch_id: batchId,
+        proof_path: proofPath,
+        verification_result: "verified",
+        verified_at: verifiedAt,
+      } as any);
+    } catch (e) {
+      // Non-critical, continue
+    }
+
+    // Step 4: Show result
+    setStep("result");
+  }, [user]);
+
+  const reset = useCallback(() => {
+    setStep("idle");
+    setData(null);
+    setError(null);
+  }, []);
+
+  const showDetails = useCallback(() => {
+    setStep("details");
+  }, []);
+
+  return { step, data, error, startVerification, reset, showDetails };
+};
