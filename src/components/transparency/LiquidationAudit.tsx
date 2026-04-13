@@ -161,10 +161,10 @@ export const LiquidationAudit = ({ onBack }: Props) => {
                   { label: "uid", value: `${audit.uid.slice(0, 10)}...${audit.uid.slice(-6)}`, mono: true },
                   { label: "positionSide", value: `${audit.positionSide} (${audit.positionSideLabel})`, mono: true },
                   { label: "size", value: audit.liquidationSize.toString(), mono: true },
-                  { label: "Transaction", value: audit.txHash, mono: true, truncate: true },
-                  { label: "Block", value: `#${audit.blockNumber.toLocaleString()}` },
-                  { label: "Contract", value: audit.contractAddress, mono: true, truncate: true },
-                  { label: "Timestamp", value: format(new Date(audit.liquidatedAt), "yyyy-MM-dd HH:mm:ss 'UTC'") },
+                  { label: "txHash", value: audit.txHash, mono: true, truncate: true },
+                  { label: "blockNumber", value: `#${audit.blockNumber.toLocaleString()}`, mono: true },
+                  { label: "contract", value: audit.contractAddress, mono: true, truncate: true },
+                  { label: "timestamp", value: format(new Date(audit.liquidatedAt), "yyyy-MM-dd HH:mm:ss 'UTC'"), mono: true },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
                     <span className="text-muted-foreground shrink-0">{row.label}</span>
