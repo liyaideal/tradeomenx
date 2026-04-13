@@ -140,7 +140,7 @@ export default function Wallet() {
 
   const fundTransactions: Transaction[] = walletTransactions.map((tx) => ({
     id: tx.id,
-    type: tx.type as "deposit" | "withdraw" | "platform_credit",
+    type: tx.type as Transaction['type'],
     amount: tx.amount,
     description: tx.description || (tx.type === "platform_credit" ? "Platform Credit" : tx.type === "deposit" ? "Deposit" : "Withdraw"),
     date: new Date(tx.created_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }),
