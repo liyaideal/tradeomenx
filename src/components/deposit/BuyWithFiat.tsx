@@ -166,9 +166,7 @@ export const BuyWithFiat = () => {
       <div className={cn("space-y-5", isMobile ? "px-4 py-5" : "p-5")}>
         {/* Banxa header */}
         <div className="text-center space-y-2 pt-2">
-          <div className="w-12 h-12 rounded-xl bg-[#00D395]/10 mx-auto flex items-center justify-center">
-            <span className="text-2xl font-bold text-[#00D395]">B</span>
-          </div>
+          <img src="/brand-logos/banxa.png" alt="Banxa" className="w-12 h-12 mx-auto object-contain" />
           <h3 className="text-lg font-semibold">Banxa Checkout</h3>
         </div>
 
