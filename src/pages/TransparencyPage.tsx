@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Shield, FileSearch, Scale, ChevronRight, ChevronLeft, ExternalLink, Lock, Eye, Zap } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginPrompt } from "@/components/LoginPrompt";
+import { MerkleProofVerification } from "@/components/transparency/MerkleProofVerification";
 
 const SCENARIOS = [
   {
@@ -51,6 +53,7 @@ const TransparencyPage = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [activeScenario, setActiveScenario] = useState<string | null>(null);
 
   if (!user) {
     return (
@@ -61,27 +64,53 @@ const TransparencyPage = () => {
     );
   }
 
+  // Render active scenario
+  if (activeScenario === "merkle-proof") {
+    const scenarioContent = (
+      <MerkleProofVerification onBack={() => setActiveScenario(null)} />
+    );
+
+    if (isMobile) {
+      return (
+        <div className="min-h-screen bg-background pb-24">
+          <MobileHeader title="Asset Verification" showLogo={false} />
+          <div className="p-4">{scenarioContent}</div>
+          <BottomNav />
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-background flex flex-col"
+        style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(160 50% 15% / 0.15) 0%, hsl(222 47% 6%) 70%)" }}
+      >
+        <EventsDesktopHeader />
+        <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
+          {scenarioContent}
+        </main>
+        <SeoFooter />
+      </div>
+    );
+  }
+
+  // TODO: other scenarios will be added later
+
   const HeroSection = () => (
     <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-br from-emerald-500/5 via-background to-blue-500/5 p-6 md:p-10">
-      {/* Decorative grid */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
         backgroundImage: "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
         backgroundSize: "40px 40px",
       }} />
-
       <div className="relative z-10 flex flex-col items-center text-center gap-4">
         <div className="w-16 h-16 rounded-2xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center">
           <Shield className="w-8 h-8 text-emerald-400" />
         </div>
         <div className="space-y-2 max-w-lg">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            On-Chain Transparency
-          </h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">On-Chain Transparency</h1>
           <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
             Don't trust — verify. Audit your assets, trades, and liquidations directly against on-chain data using cryptographic proofs.
           </p>
         </div>
-
         <div className="flex items-center gap-6 mt-2">
           {[
             { icon: Lock, label: "Cryptographic" },
@@ -102,7 +131,7 @@ const TransparencyPage = () => {
     const Icon = scenario.icon;
     return (
       <button
-        onClick={() => {/* TODO: navigate to scenario detail */}}
+        onClick={() => setActiveScenario(scenario.id)}
         className="trading-card p-5 md:p-6 text-left group hover:border-primary/30 transition-all duration-200 w-full"
       >
         <div className="flex items-start gap-4">
@@ -121,8 +150,6 @@ const TransparencyPage = () => {
             <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
               {scenario.description}
             </p>
-
-            {/* Step preview */}
             <div className="flex items-center gap-1.5 flex-wrap">
               {scenario.steps.map((step, i) => (
                 <div key={i} className="flex items-center gap-1.5">
@@ -155,19 +182,13 @@ const TransparencyPage = () => {
           </code>
         </div>
         <div className="flex flex-col gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-xs gap-1.5"
+          <Button variant="outline" size="sm" className="text-xs gap-1.5"
             onClick={() => window.open(`https://basescan.org/address/${BASE_CONTRACT}`, "_blank")}
           >
             <ExternalLink className="w-3.5 h-3.5" />
             View on BaseScan
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-xs gap-1.5"
+          <Button variant="outline" size="sm" className="text-xs gap-1.5"
             onClick={() => window.open("https://github.com/omenx/auditor", "_blank")}
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -200,9 +221,7 @@ const TransparencyPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col"
-      style={{
-        background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(160 50% 15% / 0.15) 0%, hsl(222 47% 6%) 70%)"
-      }}
+      style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(160 50% 15% / 0.15) 0%, hsl(222 47% 6%) 70%)" }}
     >
       <EventsDesktopHeader />
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
