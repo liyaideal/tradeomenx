@@ -7,3 +7,4 @@ export { WalletSection } from "./WalletSection";
 export { MobilePatternsSection } from "./MobilePatternsSection";
 export { UserIdentitySection } from "./UserIdentitySection";
 export { DepositWithdrawSection } from "./DepositWithdrawSection";
+export { TransparencySection } from "./TransparencySection";

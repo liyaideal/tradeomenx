@@ -59,7 +59,7 @@ export const TransparencySection = ({ isMobile }: Props) => {
   ];
 
   return (
-    <SectionWrapper title="Transparency Audit" description="Design conventions for all 5 on-chain verification scenarios.">
+    <SectionWrapper id="transparency" title="Transparency Audit" description="Design conventions for all 5 on-chain verification scenarios.">
       <div className="space-y-8">
 
         {/* Rule 1: Casing */}

@@ -153,61 +153,53 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
 
             {detailsOpen && (
               <div className="animate-fade-in space-y-3 bg-muted/20 rounded-xl p-4">
-                {/* Batch ID */}
+                {/* batchId */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
-                    Batch ID <span className="text-muted-foreground/50 normal-case">(batchId)</span>
-                  </p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">batchId</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-foreground">#{data.batchId.toLocaleString()}</code>
                     <CopyBtn text={data.batchId.toString()} field="batch" />
                   </div>
                 </div>
 
-                {/* Leaf Hash */}
+                {/* leafHash */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">User Leaf Hash</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">leafHash</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-emerald-400 break-all flex-1">{data.leafHash}</code>
                     <CopyBtn text={data.leafHash} field="leaf" />
                   </div>
                 </div>
 
-                {/* Old Root */}
+                {/* oldRoot */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
-                    Previous State Root <span className="text-muted-foreground/50 normal-case">(oldRoot)</span>
-                  </p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">oldRoot</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-muted-foreground break-all flex-1">{data.oldRoot}</code>
                     <CopyBtn text={data.oldRoot} field="oldRoot" />
                   </div>
                 </div>
 
-                {/* New Root */}
+                {/* newRoot */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
-                    Current State Root <span className="text-muted-foreground/50 normal-case">(newRoot)</span>
-                  </p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">newRoot</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-blue-400 break-all flex-1">{data.stateRoot}</code>
                     <CopyBtn text={data.stateRoot} field="root" />
                   </div>
                 </div>
 
-                {/* Commit Timestamp */}
+                {/* timestamp */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
-                    L2 Commit Time <span className="text-muted-foreground/50 normal-case">(timestamp)</span>
-                  </p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">timestamp</p>
                   <code className="text-xs font-mono text-foreground">
                     {format(new Date(data.commitTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'")}
                   </code>
                 </div>
 
-                {/* Proof Path */}
+                {/* proofPath */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Merkle Proof Path ({data.proofPath.length} nodes)</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">proofPath ({data.proofPath.length} nodes)</p>
                   <div className="space-y-1">
                     {data.proofPath.map((node, i) => (
                       <div key={i} className="flex items-center gap-2">
