@@ -1,60 +1,85 @@
 
 
-## Typography & Design Audit: Deposit/Withdraw Components
+# Plan: Align Transparency Pages with Real On-Chain Data Dictionary
 
-After comparing the Style Guide specs against all 6 deposit/withdraw components, here are all the inconsistencies found:
+## Problem
+The three transparency scenarios currently display generic/invented field names that don't match the actual on-chain contract event logs. The user has provided the real data dictionary of fields committed to the blockchain.
 
-### Issues Found
+## Changes
 
-**1. BuyWithFiat.tsx**
-- Amount input uses `text-lg font-mono` instead of spec `text-2xl font-mono`
-- Fee breakdown uses `text-sm` instead of `text-xs` for inline quote rows
-- "Powered by" footer uses `text-xs` instead of `text-[10px]`
-- Checkout order summary uses `text-sm` — should be `text-sm` for review (OK), but lacks `font-mono` on some values
+### 1. Merkle Proof Verification — align with State Root Snapshot fields
 
-**2. SellToFiat.tsx**
-- Amount input uses `text-lg font-mono` instead of `text-2xl font-mono`
-- Fee breakdown uses `text-sm` instead of `text-xs` for inline rows
-- "Powered by" footer uses `text-xs` instead of `text-[10px]`
-- Result amount uses `text-2xl` instead of `text-3xl`
+**Hook (`useMerkleVerification.ts`)**:
+- Add `oldRoot` (previous batch state root) to mock data
+- Change `batchId` format from `batch-XXXXX` to a realistic incrementing integer (e.g., `42817`)
+- Add `commitTimestamp` (the L2 on-chain commit time)
 
-**3. WalletWithdraw.tsx**
-- Amount input uses `text-xl` (mobile) / `text-lg` (desktop) instead of `text-2xl font-mono`
-- CTA button uses `text-lg` on mobile instead of consistent `text-sm font-semibold`
-- CTA button height is `h-14` on mobile — should be `h-12` to match other flows
+**UI (`MerkleProofVerification.tsx`)**:
+- In Cryptographic Details, show: `Batch ID`, `Old Root (Previous)`, `New Root (Current)`, `Commit Timestamp`
+- Label the existing `stateRoot` as "New Root (newRoot)" and add `oldRoot` as "Previous Root (oldRoot)"
 
-**4. WalletDeposit.tsx**
-- Address text uses `text-base` on mobile — should be `text-xs font-mono` per spec for wallet addresses
-- Generally OK otherwise
+### 2. Trade Verification — use real Trade Logged event fields
 
-**5. CrossChainDeposit.tsx & CrossChainWithdraw.tsx**
-- Mostly correct, but the "Powered by" text size in user screenshots still appears mismatched — need to verify `text-[10px]` is applied consistently
+**Hook (`useTradeVerification.ts`)**:
+- Replace generic on-chain log fields with the real contract fields:
+  - `eventId` → use event name or a mock numeric ID
+  - `outcomeId` → numeric (0, 1, 2...)
+  - `makerUid` → hashed UID (anonymized)
+  - `takerUid` → current user's hashed UID
+  - `price` → 6-decimal integer format (e.g., `500000` = $0.50), plus human-readable
+  - `size` → contract share count
+  - `side` → numeric enum: 0=Open Long, 1=Close Long, 2=Open Short, 3=Close Short
 
-### Plan
+**UI (`TradeVerification.tsx`)**:
+- Update comparison table to show these contract-native field names
+- Add a "Raw Value" column showing the integer/enum values alongside human-readable translations
+- Replace "Counterparty: Official AMM Node" with showing `makerUid` / `takerUid` pair
 
-**Files to modify (5 files):**
+### 3. Liquidation Audit — use real Liquidation event fields
 
-1. **`src/components/deposit/BuyWithFiat.tsx`**
-   - Amount input: `text-lg` → `text-2xl`
-   - Fee rows: `text-sm` → `text-xs`
-   - Powered by: `text-xs` → `text-[10px]`
+**Hook (`useLiquidationAudit.ts`)**:
+- Module A on-chain fields should match the real event: `uid`, `positionSide` (long/short), `markPrice` (6-decimal integer), `size`
+- Keep the oracle comparison (Module B) and conclusion (Module C) as-is since those are the analysis layer
 
-2. **`src/components/withdraw/SellToFiat.tsx`**
-   - Amount input: `text-lg` → `text-2xl`
-   - Fee rows: `text-sm` → `text-xs`
-   - Powered by: `text-xs` → `text-[10px]`
-   - Result amount: `text-2xl` → `text-3xl`
+**UI (`LiquidationAudit.tsx`)**:
+- In Module A "On-Chain Liquidation Snapshot", display the event log fields in their raw contract format:
+  - `uid` (hashed user ID)
+  - `positionSide` (0 or 1, with human label)
+  - `markPrice` (raw integer + formatted dollar value)
+  - `size` (contract units)
+- Keep the big red price display but add the raw 6-decimal integer below it
 
-3. **`src/components/withdraw/WalletWithdraw.tsx`**
-   - Amount input: normalize to `text-2xl font-mono` (remove mobile/desktop split)
-   - CTA button: `h-14 text-lg` → `h-12 text-sm font-semibold` on mobile
-   - Summary "You'll Receive" value: `text-base` → `text-sm font-mono`
+### 4. Add two new scenario cards (Funding Rate + Event Resolution)
 
-4. **`src/components/deposit/WalletDeposit.tsx`**
-   - Address display: `text-base` on mobile → `text-sm` (or `text-xs font-mono` per strict spec)
+**New Scenario: Funding Rate Audit**
+- Card: "Am I Being Overcharged?" / Funding Rate Verification
+- Flow: Select an event/outcome → fetch on-chain `FundingRate` log → display `eventId`, `outcomeId`, `fundingRate` (signed value, positive = longs pay shorts)
+- Simple result: show the on-chain recorded rate vs what was applied to user's position
 
-5. **`src/components/deposit/CrossChainDeposit.tsx`** (minor)
-   - Verify CTA button text includes `text-sm` class explicitly
+**New Scenario: Settlement Verification**  
+- Card: "Was the Result Fair?" / Event Resolution Audit
+- Flow: Select a resolved event → fetch on-chain `EventResolved` log → display `winningOutcomeId`, `oracleProof` (hash/link to external data source)
+- Result: prove the winning outcome matches the oracle proof
 
-All changes are purely class-name adjustments — no logic or layout changes.
+### 5. Update TransparencyPage.tsx
+- Add two new entries to `SCENARIOS` array
+- Add routing for the two new scenario components
+
+## Files to create/modify
+
+| File | Action |
+|------|--------|
+| `src/hooks/useMerkleVerification.ts` | Add oldRoot, fix batchId format, add commitTimestamp |
+| `src/components/transparency/MerkleProofVerification.tsx` | Show oldRoot/newRoot labels, commit timestamp |
+| `src/hooks/useTradeVerification.ts` | Use real contract field names (eventId, outcomeId, makerUid, takerUid, price as 6-dec int, side as enum) |
+| `src/components/transparency/TradeVerification.tsx` | Update comparison table with contract-native fields |
+| `src/hooks/useLiquidationAudit.ts` | Add uid, positionSide enum, raw markPrice integer, size |
+| `src/components/transparency/LiquidationAudit.tsx` | Display raw contract fields in Module A |
+| `src/hooks/useFundingRateAudit.ts` | **New** — fetch positions, simulate funding rate log |
+| `src/components/transparency/FundingRateAudit.tsx` | **New** — UI for funding rate verification |
+| `src/hooks/useSettlementAudit.ts` | **New** — fetch resolved events, simulate EventResolved log |
+| `src/components/transparency/SettlementAudit.tsx` | **New** — UI for settlement/oracle proof verification |
+| `src/pages/TransparencyPage.tsx` | Add 2 new scenario cards + routing |
+
+No database migrations needed — all mock/simulation data, no new tables required.
 
