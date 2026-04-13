@@ -121,8 +121,6 @@ export const CrossChainDeposit = () => {
           onAutoModeChange={setAutoMode}
           slippage={slippage}
           onSlippageChange={setSlippage}
-          gasPreference={gasPreference}
-          onGasPreferenceChange={setGasPreference}
         />
 
         {/* Wallet Connection Bar */}

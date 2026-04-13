@@ -100,8 +100,6 @@ export const CrossChainWithdraw = () => {
           onAutoModeChange={setAutoMode}
           slippage={slippage}
           onSlippageChange={setSlippage}
-          gasPreference={gasPreference}
-          onGasPreferenceChange={setGasPreference}
         />
 
         {/* Wallet Connection Bar */}
