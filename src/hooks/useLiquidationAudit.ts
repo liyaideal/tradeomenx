@@ -92,10 +92,19 @@ export const useLiquidationAudit = () => {
     setStep("analyzing");
     await new Promise((r) => setTimeout(r, 1200));
 
-    // Mock data — use percentage-based deviation so it works for any price magnitude
-    const onchainMarkPrice = pos.mark_price;
-    // Random deviation between -0.8% and +0.8%, biased small
-    const deviationPct = (Math.random() - 0.4) * 1.6; // roughly -0.64% to +0.96%
+    // Derive a realistic close price: if mark_price is 0 or missing, compute from entry + pnl
+    let closePrice = pos.mark_price;
+    if (!closePrice || closePrice === 0) {
+      // pnl = (close - entry) * size for long, (entry - close) * size for short
+      const direction = pos.side === "long" ? 1 : -1;
+      closePrice = pos.entry_price + (direction * (pos.pnl ?? 0)) / (pos.size || 1);
+      // Ensure non-negative
+      closePrice = Math.max(closePrice, 0.0001);
+    }
+
+    const onchainMarkPrice = parseFloat(closePrice.toPrecision(4));
+    // Random deviation between -0.6% and +0.6%, biased small
+    const deviationPct = (Math.random() - 0.45) * 1.2;
     const oraclePrice = parseFloat((onchainMarkPrice * (1 + deviationPct / 100)).toPrecision(4));
     const deviation = Math.abs(onchainMarkPrice - oraclePrice);
     const deviationPercent = onchainMarkPrice > 0
