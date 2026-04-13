@@ -88,7 +88,7 @@ export const BuyWithFiat = () => {
               placeholder="100.00"
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              className="flex-1 h-12 text-lg font-mono"
+              className="flex-1 h-12 text-2xl font-mono"
             />
           </div>
         </div>
