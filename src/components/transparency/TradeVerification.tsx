@@ -113,7 +113,7 @@ export const TradeVerification = ({ onBack }: Props) => {
               { key: "comparing", label: "Comparing records field by field..." },
             ].map((s, i) => {
               const isActive = s.key === step;
-              const isDone = (step === "comparing" && i === 0) || step === "result";
+              const isDone = (s.key === "fetching" && step === "comparing");
               return (
                 <div key={s.key} className={`flex items-center gap-3 transition-opacity duration-300 ${!isActive && !isDone ? "opacity-30" : ""}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isDone ? "bg-blue-400/20 text-blue-400" : isActive ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
