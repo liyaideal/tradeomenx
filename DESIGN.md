@@ -212,18 +212,17 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 ## 6. Address & Hash Truncation
 
-There are **two truncation conventions** depending on context:
+**Unified standard: First 6 + Last 6** — applies to ALL contexts (addresses, tx hashes, UIDs, oracle proofs, contract addresses).
 
-| Context | Rule | Example |
-|---------|------|---------|
-| Transparency / audit data rows | First 10 + last 6 | `0x3b4e780d12...c6b3bf` |
-| Explorer links (Wallet section) | First 8 + last 5 | `0x8f3a2b...9abcd` |
-| `<AddressText truncate>` default | First 6 + last 6 | `0x1234...345678` |
+| Input | Displayed |
+|-------|-----------|
+| `0x1234567890abcdef1234567890abcdef12345678` | `0x1234...345678` |
+| `0xabc123def456...` (any hash) | `0xabc1...ef4567` |
 
 - Always `font-mono`
-- Use `<AddressText address={hash} truncate />` component (default truncateLength=6)
-- For transparency pages, use `truncateLength={10}` to match the 10+6 convention
+- Use `<AddressText address={hash} truncate />` component (default `truncateLength=6`)
 - On mobile: add `max-w-[200px] truncate` if needed
+- **Do NOT** use other truncation lengths (8+5, 10+6, 14+10, 6+4) — they have been eliminated
 
 ### Security: Color-Coded Address Display
 

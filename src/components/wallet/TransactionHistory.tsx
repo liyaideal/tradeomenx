@@ -154,8 +154,8 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
   };
 
   const truncateTxHash = (hash: string): string => {
-    if (hash.length <= 16) return hash;
-    return `${hash.slice(0, 8)}...${hash.slice(-6)}`;
+    if (hash.length <= 15) return hash;
+    return `${hash.slice(0, 6)}...${hash.slice(-6)}`;
   };
 
   const toggleTypeFilter = (type: TransactionType) => {

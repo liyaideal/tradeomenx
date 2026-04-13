@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
     // Store verified account using service role
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    const shortAddress = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+    const shortAddress = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-6)}`;
     const platformName = platform || "polymarket";
 
     const { data, error: insertError } = await supabaseAdmin

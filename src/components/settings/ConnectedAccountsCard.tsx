@@ -127,7 +127,7 @@ export const ConnectedAccountsCard = () => {
 
         if (signerAddress.toLowerCase() !== walletAddress.toLowerCase()) {
           toast.error(
-            `Connected wallet (${signerAddress.slice(0, 6)}...${signerAddress.slice(-4)}) does not match the entered address. Please switch to the correct wallet.`
+            `Connected wallet (${signerAddress.slice(0, 6)}...${signerAddress.slice(-6)}) does not match the entered address. Please switch to the correct wallet.`
           );
           setConnectionStep("input");
           return;

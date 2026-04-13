@@ -330,7 +330,7 @@ export const CrossChainDeposit = () => {
         <div className="p-3 rounded-lg bg-muted/30 border border-border/30 space-y-1">
           <div>
             <p className="text-xs text-muted-foreground">From Wallet</p>
-            <code className="text-xs text-foreground">{wallet.address.slice(0, 10)}...{wallet.address.slice(-8)}</code>
+            <code className="text-xs text-foreground">{wallet.address.slice(0, 6)}...{wallet.address.slice(-6)}</code>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Receiving Address (OmenX)</p>
