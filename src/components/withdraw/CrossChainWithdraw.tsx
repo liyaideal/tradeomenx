@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowDown, Loader2, Check, X, ExternalLink, RotateCcw, AlertCircle } from 'lucide-react';
+import { ArrowDown, Loader2, Check, X, ExternalLink, RotateCcw, AlertCircle, Wallet, Power } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useMockWallet } from '@/hooks/useMockWallet';
 import { AutoModeButton, SettingsButton, SettingsPanel } from '@/components/deposit/CrossChainSettings';
 
 const DEST_CHAINS = [
@@ -34,11 +35,11 @@ type Step = 'swap' | 'review' | 'sign' | 'processing' | 'result';
 export const CrossChainWithdraw = () => {
   const isMobile = useIsMobile();
   const { balance } = useUserProfile();
+  const { wallet, connect, disconnect } = useMockWallet();
   const [step, setStep] = useState<Step>('swap');
   const [toChain, setToChain] = useState('ethereum');
   const [toToken, setToToken] = useState('USDC');
   const [amount, setAmount] = useState('');
-  const [toAddress, setToAddress] = useState('');
   const [processingStage, setProcessingStage] = useState(0);
   const [txResult, setTxResult] = useState<'success' | 'failed'>('success');
   const [autoMode, setAutoMode] = useState(true);
@@ -72,7 +73,8 @@ export const CrossChainWithdraw = () => {
     setProcessingStage(0);
   };
 
-  const canProceed = parsedAmount > 0 && parsedAmount <= balance && toAddress.length > 10;
+  // For withdraw: user sends from OmenX balance, receives to connected wallet
+  const canProceed = wallet.connected && parsedAmount > 0 && parsedAmount <= balance;
 
   // ── Main Swap Card ──
   if (step === 'swap') {
@@ -82,8 +84,12 @@ export const CrossChainWithdraw = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">Swap</h3>
           <div className="flex items-center gap-2">
-            <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
-            <SettingsButton onClick={() => setShowSettings(!showSettings)} />
+            {wallet.connected && (
+              <>
+                <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
+                <SettingsButton onClick={() => setShowSettings(!showSettings)} />
+              </>
+            )}
           </div>
         </div>
 
@@ -99,11 +105,50 @@ export const CrossChainWithdraw = () => {
           onGasPreferenceChange={setGasPreference}
         />
 
+        {/* Wallet Connection Bar */}
+        {wallet.connected ? (
+          <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 border border-border/30">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-trading-green animate-pulse" />
+              <span className="text-xs text-muted-foreground">Receive to:</span>
+              <span className="text-xs font-mono text-foreground">
+                {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
+              </span>
+            </div>
+            <button
+              onClick={disconnect}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Power className="w-3 h-3" />
+              Disconnect
+            </button>
+          </div>
+        ) : (
+          <Button
+            onClick={connect}
+            disabled={wallet.connecting}
+            variant="outline"
+            className={cn("w-full gap-2", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
+          >
+            {wallet.connecting ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>
+            ) : (
+              <><Wallet className="w-4 h-4" /> Connect Receiving Wallet</>
+            )}
+          </Button>
+        )}
+
         {/* From (OmenX Wallet — locked to USDC Base) */}
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">From</span>
-            <span className="text-xs text-muted-foreground">Bal: {balance.toFixed(2)}</span>
+            <button
+              onClick={() => setAmount(balance.toString())}
+              className="text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              Bal: <span className="font-mono">{balance.toFixed(2)}</span>
+              <span className="ml-1 text-primary font-medium">MAX</span>
+            </button>
           </div>
           <div className="flex items-center gap-3">
             <Input
@@ -136,7 +181,10 @@ export const CrossChainWithdraw = () => {
         </div>
 
         {/* To */}
-        <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
+        <div className={cn(
+          "rounded-xl border p-4 space-y-3",
+          wallet.connected ? "border-border/50 bg-muted/20" : "border-border/20 bg-muted/10 opacity-60"
+        )}>
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">To</span>
           </div>
@@ -173,17 +221,6 @@ export const CrossChainWithdraw = () => {
           </div>
         </div>
 
-        {/* Receiving Address */}
-        <div className="space-y-1.5">
-          <label className="text-xs text-muted-foreground">Receiving Address</label>
-          <Input
-            placeholder="0x..."
-            value={toAddress}
-            onChange={e => setToAddress(e.target.value)}
-            className="h-10 font-mono text-sm"
-          />
-        </div>
-
         {/* Inline Quote */}
         {parsedAmount > 0 && (
           <div className="space-y-2 px-1">
@@ -211,13 +248,19 @@ export const CrossChainWithdraw = () => {
         )}
 
         {/* CTA */}
-        <Button
-          onClick={handleReview}
-          disabled={!canProceed}
-          className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
-        >
-          {parsedAmount > 0 && parsedAmount <= balance ? (toAddress.length > 10 ? 'Review Bridge' : 'Enter Address') : parsedAmount > balance ? 'Insufficient Balance' : 'Enter Amount'}
-        </Button>
+        {wallet.connected ? (
+          <Button
+            onClick={handleReview}
+            disabled={!canProceed}
+            className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
+          >
+            {parsedAmount <= 0
+              ? 'Enter Amount'
+              : parsedAmount > balance
+                ? 'Insufficient Balance'
+                : 'Review Bridge'}
+          </Button>
+        ) : null}
 
         <p className="text-[10px] text-center text-muted-foreground">
           Powered by <span className="font-semibold">Bungee</span>
@@ -259,8 +302,8 @@ export const CrossChainWithdraw = () => {
         </div>
 
         <div className="p-3 rounded-lg bg-muted/30 border border-border/30">
-          <p className="text-xs text-muted-foreground">To Address</p>
-          <code className="text-xs text-foreground break-all">{toAddress}</code>
+          <p className="text-xs text-muted-foreground">Receive to Wallet</p>
+          <code className="text-xs text-foreground break-all">{wallet.address}</code>
         </div>
 
         <div className="flex gap-3">
@@ -331,7 +374,7 @@ export const CrossChainWithdraw = () => {
           <div className="text-center space-y-1">
             <h3 className="text-xl font-semibold">Withdrawal Successful</h3>
             <p className="text-3xl font-mono font-bold text-trading-green">{estimatedReceive.toFixed(isStable ? 2 : 6)} <span className="text-lg">{toToken}</span></p>
-            <p className="text-sm text-muted-foreground">Sent to {toAddress.slice(0, 6)}...{toAddress.slice(-4)}</p>
+            <p className="text-sm text-muted-foreground">Sent to {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</p>
           </div>
           <div className="w-full max-w-sm p-3 rounded-lg bg-muted/30 border border-border/30">
             <div className="flex items-center justify-between text-xs">

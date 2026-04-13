@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ArrowDown, Loader2, Check, X, AlertCircle, ExternalLink, RotateCcw, Settings2, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowDown, Loader2, Check, X, AlertCircle, ExternalLink, RotateCcw, Wallet, Power } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDeposit } from '@/hooks/useDeposit';
+import { useMockWallet } from '@/hooks/useMockWallet';
 import { AutoModeButton, SettingsButton, SettingsPanel } from './CrossChainSettings';
 
 const SOURCE_CHAINS = [
@@ -66,9 +67,7 @@ export const CrossChainDeposit = () => {
   const [gasPreference, setGasPreference] = useState<'low' | 'medium' | 'fast'>('medium');
 
   const tokenBalance = getBalance(fromChain, fromToken);
-
   const receivingAddress = getCurrentAddress();
-  const availableTokens = SOURCE_TOKENS[fromChain] || [];
   const selectedChain = SOURCE_CHAINS.find(c => c.id === fromChain);
 
   const parsedAmount = parseFloat(amount) || 0;
@@ -106,8 +105,12 @@ export const CrossChainDeposit = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">Swap</h3>
           <div className="flex items-center gap-2">
-            <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
-            <SettingsButton onClick={() => setShowSettings(!showSettings)} />
+            {wallet.connected && (
+              <>
+                <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
+                <SettingsButton onClick={() => setShowSettings(!showSettings)} />
+              </>
+            )}
           </div>
         </div>
 
@@ -123,10 +126,54 @@ export const CrossChainDeposit = () => {
           onGasPreferenceChange={setGasPreference}
         />
 
+        {/* Wallet Connection Bar */}
+        {wallet.connected ? (
+          <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 border border-border/30">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-trading-green animate-pulse" />
+              <span className="text-xs font-mono text-muted-foreground">
+                {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
+              </span>
+            </div>
+            <button
+              onClick={disconnect}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Power className="w-3 h-3" />
+              Disconnect
+            </button>
+          </div>
+        ) : (
+          <Button
+            onClick={connect}
+            disabled={wallet.connecting}
+            variant="outline"
+            className={cn("w-full gap-2", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
+          >
+            {wallet.connecting ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>
+            ) : (
+              <><Wallet className="w-4 h-4" /> Connect Wallet</>
+            )}
+          </Button>
+        )}
+
         {/* From */}
-        <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
+        <div className={cn(
+          "rounded-xl border p-4 space-y-3",
+          wallet.connected ? "border-border/50 bg-muted/20" : "border-border/20 bg-muted/10 opacity-60"
+        )}>
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">From</span>
+            {wallet.connected && (
+              <button
+                onClick={() => setAmount(tokenBalance.toString())}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
+                Bal: <span className="font-mono">{tokenBalance.toFixed(tokenBalance < 10 ? 4 : 2)}</span>
+                <span className="ml-1 text-primary font-medium">MAX</span>
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <Input
@@ -134,13 +181,19 @@ export const CrossChainDeposit = () => {
               placeholder="0.00"
               value={amount}
               onChange={e => setAmount(e.target.value)}
+              disabled={!wallet.connected}
               className="flex-1 h-12 text-2xl font-mono bg-transparent border-none shadow-none focus-visible:ring-0 p-0"
             />
-            <Select value={`${fromChain}-${fromToken}`} onValueChange={(v) => {
-              const [chain, token] = v.split('-');
-              setFromChain(chain);
-              setFromToken(token);
-            }}>
+            <Select
+              value={`${fromChain}-${fromToken}`}
+              onValueChange={(v) => {
+                const [chain, token] = v.split('-');
+                setFromChain(chain);
+                setFromToken(token);
+                setAmount('');
+              }}
+              disabled={!wallet.connected}
+            >
               <SelectTrigger className="w-auto min-w-[140px] h-10 rounded-full bg-card border-border/50 gap-2">
                 <div className="flex items-center gap-2">
                   {selectedChain && <img src={selectedChain.icon} alt="" className="w-5 h-5" />}
@@ -163,6 +216,11 @@ export const CrossChainDeposit = () => {
               </SelectContent>
             </Select>
           </div>
+          {wallet.connected && parsedAmount > tokenBalance && (
+            <p className="text-xs text-trading-red flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" /> Insufficient {fromToken} balance
+            </p>
+          )}
         </div>
 
         {/* Swap Arrow */}
@@ -192,8 +250,8 @@ export const CrossChainDeposit = () => {
           </div>
         </div>
 
-        {/* Inline Quote Details (shown when amount > 0) */}
-        {parsedAmount > 0 && (
+        {/* Inline Quote Details */}
+        {parsedAmount > 0 && wallet.connected && (
           <div className="space-y-2 px-1">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Rate</span>
@@ -208,6 +266,10 @@ export const CrossChainDeposit = () => {
               <span className="font-mono">~${gasFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Slippage</span>
+              <span className="font-mono">{slippage}%</span>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>Est. Time</span>
               <span className="font-mono">~2 min</span>
             </div>
@@ -215,13 +277,19 @@ export const CrossChainDeposit = () => {
         )}
 
         {/* CTA */}
-        <Button
-          onClick={handleReview}
-          disabled={!canProceed}
-          className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
-        >
-          {canProceed ? 'Review Bridge' : 'Enter Amount'}
-        </Button>
+        {wallet.connected ? (
+          <Button
+            onClick={handleReview}
+            disabled={!canProceed}
+            className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
+          >
+            {parsedAmount <= 0
+              ? 'Enter Amount'
+              : parsedAmount > tokenBalance
+                ? 'Insufficient Balance'
+                : 'Review Bridge'}
+          </Button>
+        ) : null}
 
         <p className="text-[10px] text-center text-muted-foreground">
           Powered by <span className="font-semibold">Bungee</span>
@@ -238,7 +306,6 @@ export const CrossChainDeposit = () => {
           <h3 className="text-lg font-semibold">Confirm Bridge</h3>
         </div>
 
-        {/* Summary cards */}
         <div className="space-y-3">
           <div className="p-3 rounded-lg bg-muted/20 border border-border/30 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -259,18 +326,23 @@ export const CrossChainDeposit = () => {
           </div>
         </div>
 
-        {/* Details */}
         <div className="p-3 rounded-lg border border-border/30 space-y-2">
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Rate</span><span className="font-mono">1 {fromToken} = {mockRate} USDC</span></div>
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Bridge Fee</span><span className="font-mono text-trading-green">Free</span></div>
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Gas (est.)</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Slippage</span><span className="font-mono">0.5%</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Min. Receive</span><span className="font-mono">{(estimatedReceive * 0.995).toFixed(2)} USDC</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Slippage</span><span className="font-mono">{slippage}%</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Min. Receive</span><span className="font-mono">{(estimatedReceive * (1 - slippage / 100)).toFixed(2)} USDC</span></div>
         </div>
 
-        <div className="p-3 rounded-lg bg-muted/30 border border-border/30">
-          <p className="text-xs text-muted-foreground">Receiving Address</p>
-          <code className="text-xs text-foreground break-all">{receivingAddress}</code>
+        <div className="p-3 rounded-lg bg-muted/30 border border-border/30 space-y-1">
+          <div>
+            <p className="text-xs text-muted-foreground">From Wallet</p>
+            <code className="text-xs text-foreground">{wallet.address.slice(0, 10)}...{wallet.address.slice(-8)}</code>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Receiving Address (OmenX)</p>
+            <code className="text-xs text-foreground break-all">{receivingAddress}</code>
+          </div>
         </div>
 
         <div className="flex gap-3">
