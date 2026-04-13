@@ -21,6 +21,7 @@ import {
   WalletSection,
   MobilePatternsSection,
   UserIdentitySection,
+  DepositWithdrawSection,
 } from "./sections";
 
 const StyleGuideIndex = () => {
@@ -42,6 +43,7 @@ const StyleGuideIndex = () => {
     { id: "forms", label: "Forms", icon: "📝" },
     { id: "trading", label: "Trading", icon: "💹" },
     { id: "wallet", label: "Wallet", icon: "💰" },
+    { id: "deposit", label: "Deposit/Withdraw", icon: "🔄" },
     { id: "mobile", label: "Mobile", icon: "📱" },
     { id: "identity", label: "Identity", icon: "👤" },
   ];
@@ -141,6 +143,10 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="wallet" className="mt-0">
             <WalletSection isMobile={isMobile} />
+          </TabsContent>
+
+          <TabsContent value="deposit" className="mt-0">
+            <DepositWithdrawSection isMobile={isMobile} />
           </TabsContent>
 
           <TabsContent value="mobile" className="mt-0">
