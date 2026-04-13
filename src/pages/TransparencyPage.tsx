@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { LoginPrompt } from "@/components/LoginPrompt";
 import { MerkleProofVerification } from "@/components/transparency/MerkleProofVerification";
 import { TradeVerification } from "@/components/transparency/TradeVerification";
+import { LiquidationAudit } from "@/components/transparency/LiquidationAudit";
 
 const SCENARIOS = [
   {
@@ -121,7 +122,32 @@ const TransparencyPage = () => {
     );
   }
 
-  // TODO: other scenarios will be added later
+  // Liquidation audit scenario
+  if (activeScenario === "liquidation-audit") {
+    const scenarioContent = (
+      <LiquidationAudit onBack={() => setActiveScenario(null)} />
+    );
+
+    if (isMobile) {
+      return (
+        <div className="min-h-screen bg-background pb-24">
+          <MobileHeader title="Liquidation Audit" showLogo={false} />
+          <div className="p-4">{scenarioContent}</div>
+          <BottomNav />
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-background flex flex-col"
+        style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(40 50% 15% / 0.15) 0%, hsl(222 47% 6%) 70%)" }}
+      >
+        <EventsDesktopHeader />
+        <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">{scenarioContent}</main>
+        <SeoFooter />
+      </div>
+    );
+  }
 
   const HeroSection = () => (
     <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-br from-emerald-500/5 via-background to-blue-500/5 p-6 md:p-10">
