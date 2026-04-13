@@ -98,6 +98,54 @@ export type Database = {
           },
         ]
       }
+      asset_verifications: {
+        Row: {
+          balance: number
+          batch_id: string
+          created_at: string
+          id: string
+          leaf_hash: string
+          positions_value: number
+          proof_path: Json
+          state_root: string
+          total_equity: number
+          updated_at: string
+          user_id: string
+          verification_result: string
+          verified_at: string | null
+        }
+        Insert: {
+          balance?: number
+          batch_id: string
+          created_at?: string
+          id?: string
+          leaf_hash: string
+          positions_value?: number
+          proof_path?: Json
+          state_root: string
+          total_equity?: number
+          updated_at?: string
+          user_id: string
+          verification_result?: string
+          verified_at?: string | null
+        }
+        Update: {
+          balance?: number
+          batch_id?: string
+          created_at?: string
+          id?: string
+          leaf_hash?: string
+          positions_value?: number
+          proof_path?: Json
+          state_root?: string
+          total_equity?: number
+          updated_at?: string
+          user_id?: string
+          verification_result?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       budget_limits: {
         Row: {
           category: string
