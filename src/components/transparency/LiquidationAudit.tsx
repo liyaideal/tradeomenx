@@ -131,8 +131,8 @@ export const LiquidationAudit = ({ onBack }: Props) => {
           <p className="font-medium text-sm">{selectedPosition.event_name} — {selectedPosition.option_label}</p>
           <div className="grid grid-cols-4 gap-2 mt-2 text-xs">
             <div><span className="text-muted-foreground">Side</span><br /><span className="font-medium">{selectedPosition.side}</span></div>
-            <div><span className="text-muted-foreground">Entry</span><br /><span className="font-mono">${selectedPosition.entry_price.toFixed(4)}</span></div>
-            <div><span className="text-muted-foreground">Close</span><br /><span className="font-mono">${selectedPosition.mark_price.toFixed(4)}</span></div>
+            <div><span className="text-muted-foreground">Entry</span><br /><span className="font-mono">{fmtPrice(selectedPosition.entry_price)}</span></div>
+            <div><span className="text-muted-foreground">Close</span><br /><span className="font-mono">{fmtPrice(selectedPosition.mark_price)}</span></div>
             <div><span className="text-muted-foreground">P&L</span><br /><span className="font-mono text-trading-red">{selectedPosition.pnl?.toFixed(2)}</span></div>
           </div>
         </div>
