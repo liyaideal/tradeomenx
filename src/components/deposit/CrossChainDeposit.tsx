@@ -247,12 +247,12 @@ export const CrossChainDeposit = () => {
           </div>
         </div>
 
-        {/* Inline Quote Details */}
+        {/* Inline Quote Details — Bungee style */}
         {parsedAmount > 0 && wallet.connected && (
           <div className="space-y-2 px-1">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Rate</span>
-              <span className="font-mono">1 {fromToken} = {mockRate} USDC</span>
+              <span className="font-mono">1 {fromToken} = {mockRate.toFixed(2)} USDC</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Bridge Fee</span>
@@ -264,7 +264,7 @@ export const CrossChainDeposit = () => {
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Slippage</span>
-              <span className="font-mono">{slippage}%</span>
+              <span className="font-mono">{slippage === -1 ? '~0.5% ~ Suggested' : `${slippage}%`}</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Est. Time</span>
@@ -324,11 +324,11 @@ export const CrossChainDeposit = () => {
         </div>
 
         <div className="p-3 rounded-lg border border-border/30 space-y-2">
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Rate</span><span className="font-mono">1 {fromToken} = {mockRate} USDC</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Min. USDC</span><span className="font-mono">{(estimatedReceive * (1 - (slippage === -1 ? 0.5 : slippage) / 100)).toFixed(2)} USDC</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Exchange Rate</span><span className="font-mono">1 {fromToken} = {mockRate.toFixed(2)} USDC</span></div>
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Bridge Fee</span><span className="font-mono text-trading-green">Free</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Gas (est.)</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Slippage</span><span className="font-mono">{slippage}%</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Min. Receive</span><span className="font-mono">{(estimatedReceive * (1 - slippage / 100)).toFixed(2)} USDC</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Est. Gas</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Swap Slippage</span><span className="font-mono">{slippage === -1 ? '0.5% ~ Suggested' : `${slippage}%`}</span></div>
         </div>
 
         <div className="p-3 rounded-lg bg-muted/30 border border-border/30 space-y-1">
