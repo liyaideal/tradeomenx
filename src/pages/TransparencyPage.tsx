@@ -220,11 +220,12 @@ const TransparencyPage = () => {
           >
             <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
           </Button>
-          <Button variant="outline" size="sm" className="text-xs gap-1.5"
+          {/* TODO: Unhide when audit report is ready */}
+          {/* <Button variant="outline" size="sm" className="text-xs gap-1.5"
             onClick={() => window.open("https://github.com/omenx/auditor", "_blank")}
           >
             <ExternalLink className="w-3.5 h-3.5" /> Open Source Auditor
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>
