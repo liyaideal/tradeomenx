@@ -53,6 +53,7 @@ type Step = 'swap' | 'review' | 'sign' | 'processing' | 'result';
 export const CrossChainDeposit = () => {
   const isMobile = useIsMobile();
   const { getCurrentAddress } = useDeposit('USDC');
+  const { wallet, connect, disconnect, getBalance } = useMockWallet();
   const [step, setStep] = useState<Step>('swap');
   const [fromChain, setFromChain] = useState('ethereum');
   const [fromToken, setFromToken] = useState('USDC');
@@ -63,6 +64,8 @@ export const CrossChainDeposit = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [slippage, setSlippage] = useState(0.5);
   const [gasPreference, setGasPreference] = useState<'low' | 'medium' | 'fast'>('medium');
+
+  const tokenBalance = getBalance(fromChain, fromToken);
 
   const receivingAddress = getCurrentAddress();
   const availableTokens = SOURCE_TOKENS[fromChain] || [];
@@ -93,7 +96,7 @@ export const CrossChainDeposit = () => {
     setProcessingStage(0);
   };
 
-  const canProceed = parsedAmount > 0;
+  const canProceed = wallet.connected && parsedAmount > 0 && parsedAmount <= tokenBalance;
 
   // ── Main Swap Card ──
   if (step === 'swap') {
