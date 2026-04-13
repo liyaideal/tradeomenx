@@ -32,6 +32,7 @@ import MethodologyPage from "./pages/MethodologyPage";
 import DevelopersPage from "./pages/DevelopersPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
+import TransparencyPage from "./pages/TransparencyPage";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
@@ -101,6 +102,7 @@ const App = () => (
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/settings/transparency" element={<TransparencyPage />} />
               <Route path="/style-guide" element={<StyleGuide />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/glossary" element={<GlossaryPage />} />
