@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ArrowDown, Loader2, Check, X, ExternalLink, RotateCcw, AlertCircle, Wallet, Power } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowDown, Loader2, Check, X, ExternalLink, RotateCcw, AlertCircle, ChevronDown, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -13,8 +13,11 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { useMockWallet } from '@/hooks/useMockWallet';
+import { useWallets } from '@/hooks/useWallets';
+import { MonoText } from '@/components/typography';
 import { AutoModeButton, SettingsButton, SettingsPanel } from '@/components/deposit/CrossChainSettings';
+import { WithdrawAddressSelect } from './WithdrawAddressSelect';
+import { WithdrawAddressSelectDialog } from './WithdrawAddressSelectDialog';
 
 const DEST_CHAINS = [
   { id: 'ethereum', name: 'Ethereum', icon: '/chain-logos/ethereum.svg', chainId: 1 },
@@ -30,22 +33,33 @@ const DEST_TOKENS: Record<string, { symbol: string; name: string }[]> = {
   polygon: [{ symbol: 'USDC', name: 'USD Coin' }, { symbol: 'USDT', name: 'Tether' }, { symbol: 'MATIC', name: 'Polygon' }],
 };
 
-type Step = 'swap' | 'review' | 'sign' | 'processing' | 'result';
+type Step = 'swap' | 'review' | 'processing' | 'result';
 
 export const CrossChainWithdraw = () => {
   const isMobile = useIsMobile();
   const { balance } = useUserProfile();
-  const { wallet, connect, disconnect } = useMockWallet();
+  const { wallets } = useWallets();
   const [step, setStep] = useState<Step>('swap');
   const [toChain, setToChain] = useState('ethereum');
   const [toToken, setToToken] = useState('USDC');
   const [amount, setAmount] = useState('');
+  const [selectedAddress, setSelectedAddress] = useState('');
+  const [showAddressSelect, setShowAddressSelect] = useState(false);
   const [processingStage, setProcessingStage] = useState(0);
   const [txResult, setTxResult] = useState<'success' | 'failed'>('success');
   const [autoMode, setAutoMode] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [slippage, setSlippage] = useState(-1);
 
+  // Auto-select primary wallet
+  useEffect(() => {
+    const primaryWallet = wallets.find(w => w.isPrimary);
+    if (primaryWallet && !selectedAddress) {
+      setSelectedAddress(primaryWallet.fullAddress);
+    }
+  }, [wallets, selectedAddress]);
+
+  const selectedWallet = wallets.find(w => w.fullAddress === selectedAddress);
   const selectedChain = DEST_CHAINS.find(c => c.id === toChain);
   const parsedAmount = parseFloat(amount) || 0;
   const isStable = ['USDC', 'USDT'].includes(toToken);
@@ -53,17 +67,16 @@ export const CrossChainWithdraw = () => {
   const estimatedReceive = parsedAmount * mockRate;
   const gasFee = 0.5;
 
+  const canProceed = parsedAmount > 0 && parsedAmount <= balance && !!selectedAddress;
+
   const handleReview = () => setStep('review');
 
   const handleConfirm = () => {
-    setStep('sign');
-    setTimeout(() => {
-      setStep('processing');
-      setProcessingStage(0);
-      setTimeout(() => setProcessingStage(1), 2000);
-      setTimeout(() => setProcessingStage(2), 5000);
-      setTimeout(() => { setTxResult('success'); setStep('result'); }, 7000);
-    }, 2000);
+    setStep('processing');
+    setProcessingStage(0);
+    setTimeout(() => setProcessingStage(1), 2000);
+    setTimeout(() => setProcessingStage(2), 5000);
+    setTimeout(() => { setTxResult('success'); setStep('result'); }, 7000);
   };
 
   const handleRetry = () => {
@@ -71,9 +84,6 @@ export const CrossChainWithdraw = () => {
     setAmount('');
     setProcessingStage(0);
   };
-
-  // For withdraw: user sends from OmenX balance, receives to connected wallet
-  const canProceed = wallet.connected && parsedAmount > 0 && parsedAmount <= balance;
 
   // ── Main Swap Card ──
   if (step === 'swap') {
@@ -83,12 +93,8 @@ export const CrossChainWithdraw = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">Swap</h3>
           <div className="flex items-center gap-2">
-            {wallet.connected && (
-              <>
-                <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
-                <SettingsButton onClick={() => setShowSettings(!showSettings)} />
-              </>
-            )}
+            <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
+            <SettingsButton onClick={() => setShowSettings(!showSettings)} />
           </div>
         </div>
 
@@ -102,40 +108,33 @@ export const CrossChainWithdraw = () => {
           onSlippageChange={setSlippage}
         />
 
-        {/* Wallet Connection Bar */}
-        {wallet.connected ? (
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 border border-border/30">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-trading-green animate-pulse" />
-              <span className="text-xs text-muted-foreground">Receive to:</span>
-              <span className="text-xs font-mono text-foreground">
-                {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
-              </span>
-            </div>
-            <button
-              onClick={disconnect}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Power className="w-3 h-3" />
-              Disconnect
-            </button>
-          </div>
-        ) : (
-          <Button
-            onClick={connect}
-            disabled={wallet.connecting}
-            variant="outline"
-            className={cn("w-full gap-2", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
-          >
-            {wallet.connecting ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>
-            ) : (
-              <><Wallet className="w-4 h-4" /> Connect Receiving Wallet</>
+        {/* Receive Address */}
+        <div className="space-y-1.5">
+          <span className="text-xs text-muted-foreground">Receive to</span>
+          <button
+            onClick={() => setShowAddressSelect(true)}
+            className={cn(
+              "w-full flex items-center justify-between bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors",
+              isMobile ? "p-3 rounded-xl" : "p-2.5 rounded-lg"
             )}
-          </Button>
-        )}
+          >
+            {selectedWallet ? (
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-trading-green" />
+                <img src={selectedWallet.icon} alt="" className="w-4 h-4" />
+                <MonoText className="text-xs">{selectedWallet.address}</MonoText>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Wallet className="w-4 h-4" />
+                <span className="text-sm">Select receive address</span>
+              </div>
+            )}
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
 
-        {/* From (OmenX Wallet — locked to USDC Base) */}
+        {/* From (OmenX Wallet — USDC Base) */}
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">From</span>
@@ -176,10 +175,7 @@ export const CrossChainWithdraw = () => {
         </div>
 
         {/* To */}
-        <div className={cn(
-          "rounded-xl border p-4 space-y-3",
-          wallet.connected ? "border-border/50 bg-muted/20" : "border-border/20 bg-muted/10 opacity-60"
-        )}>
+        <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">To</span>
           </div>
@@ -216,7 +212,7 @@ export const CrossChainWithdraw = () => {
           </div>
         </div>
 
-        {/* Inline Quote — Bungee style */}
+        {/* Inline Quote */}
         {parsedAmount > 0 && (
           <div className="space-y-2 px-1">
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -243,23 +239,40 @@ export const CrossChainWithdraw = () => {
         )}
 
         {/* CTA */}
-        {wallet.connected ? (
-          <Button
-            onClick={handleReview}
-            disabled={!canProceed}
-            className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
-          >
-            {parsedAmount <= 0
+        <Button
+          onClick={handleReview}
+          disabled={!canProceed}
+          className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
+        >
+          {!selectedAddress
+            ? 'Select Address'
+            : parsedAmount <= 0
               ? 'Enter Amount'
               : parsedAmount > balance
                 ? 'Insufficient Balance'
                 : 'Review Bridge'}
-          </Button>
-        ) : null}
+        </Button>
 
         <p className="text-[10px] text-center text-muted-foreground">
           Powered by <span className="font-semibold">SOCKET</span>
         </p>
+
+        {/* Address Selection */}
+        {isMobile ? (
+          <WithdrawAddressSelect
+            open={showAddressSelect}
+            onClose={() => setShowAddressSelect(false)}
+            selectedAddress={selectedAddress}
+            onSelectAddress={(addr) => { setSelectedAddress(addr); setShowAddressSelect(false); }}
+          />
+        ) : (
+          <WithdrawAddressSelectDialog
+            open={showAddressSelect}
+            onClose={() => setShowAddressSelect(false)}
+            selectedAddress={selectedAddress}
+            onSelectAddress={(addr) => { setSelectedAddress(addr); setShowAddressSelect(false); }}
+          />
+        )}
       </div>
     );
   }
@@ -297,28 +310,22 @@ export const CrossChainWithdraw = () => {
         </div>
 
         <div className="p-3 rounded-lg bg-muted/30 border border-border/30">
-          <p className="text-xs text-muted-foreground">Receive to Wallet</p>
-          <code className="text-xs text-foreground break-all">{wallet.address}</code>
+          <p className="text-xs text-muted-foreground">Receive to</p>
+          {selectedWallet ? (
+            <div className="flex items-center gap-2 mt-1">
+              <img src={selectedWallet.icon} alt="" className="w-4 h-4" />
+              <span className="text-sm font-medium">{selectedWallet.label}</span>
+              <MonoText className="text-xs text-muted-foreground">{selectedWallet.address}</MonoText>
+            </div>
+          ) : (
+            <code className="text-xs text-foreground break-all">{selectedAddress}</code>
+          )}
         </div>
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={() => setStep('swap')} className="flex-1">Back</Button>
           <Button onClick={handleConfirm} className="flex-1 bg-primary hover:bg-primary-hover">Confirm & Bridge</Button>
         </div>
-      </div>
-    );
-  }
-
-  // ── Sign ──
-  if (step === 'sign') {
-    return (
-      <div className={cn("flex flex-col items-center justify-center py-12 space-y-6", isMobile ? "px-4" : "px-5")}>
-        <div className="w-16 h-16 rounded-2xl bg-muted/50 border border-border/50 flex items-center justify-center"><span className="text-3xl">🦊</span></div>
-        <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold">Waiting for Signature</h3>
-          <p className="text-sm text-muted-foreground">Confirm the transaction in your wallet</p>
-        </div>
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -361,6 +368,8 @@ export const CrossChainWithdraw = () => {
   }
 
   // ── Result ──
+  const displayAddress = selectedWallet?.address || `${selectedAddress.slice(0, 6)}...${selectedAddress.slice(-4)}`;
+
   return (
     <div className={cn("flex flex-col items-center py-10 space-y-6", isMobile ? "px-4" : "px-5")}>
       {txResult === 'success' ? (
@@ -369,7 +378,7 @@ export const CrossChainWithdraw = () => {
           <div className="text-center space-y-1">
             <h3 className="text-xl font-semibold">Withdrawal Successful</h3>
             <p className="text-3xl font-mono font-bold text-trading-green">{estimatedReceive.toFixed(isStable ? 2 : 6)} <span className="text-lg">{toToken}</span></p>
-            <p className="text-sm text-muted-foreground">Sent to {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</p>
+            <p className="text-sm text-muted-foreground">Sent to {displayAddress}</p>
           </div>
           <div className="w-full max-w-sm p-3 rounded-lg bg-muted/30 border border-border/30">
             <div className="flex items-center justify-between text-xs">
