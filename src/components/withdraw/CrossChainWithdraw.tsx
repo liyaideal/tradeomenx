@@ -44,8 +44,7 @@ export const CrossChainWithdraw = () => {
   const [txResult, setTxResult] = useState<'success' | 'failed'>('success');
   const [autoMode, setAutoMode] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
-  const [slippage, setSlippage] = useState(0.5);
-  const [gasPreference, setGasPreference] = useState<'low' | 'medium' | 'fast'>('medium');
+  const [slippage, setSlippage] = useState(-1);
 
   const selectedChain = DEST_CHAINS.find(c => c.id === toChain);
   const parsedAmount = parseFloat(amount) || 0;
