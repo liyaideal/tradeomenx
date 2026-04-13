@@ -212,10 +212,17 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 ## 6. Address & Hash Truncation
 
-- Show first **10** + `...` + last **6** characters
-- Example: `0x3b4e780d12...c6b3bf`
+There are **two truncation conventions** depending on context:
+
+| Context | Rule | Example |
+|---------|------|---------|
+| Transparency / audit data rows | First 10 + last 6 | `0x3b4e780d12...c6b3bf` |
+| Explorer links (Wallet section) | First 8 + last 5 | `0x8f3a2b...9abcd` |
+| `<AddressText truncate>` default | First 6 + last 6 | `0x1234...345678` |
+
 - Always `font-mono`
-- Use `<AddressText address={hash} truncate />` component
+- Use `<AddressText address={hash} truncate />` component (default truncateLength=6)
+- For transparency pages, use `truncateLength={10}` to match the 10+6 convention
 - On mobile: add `max-w-[200px] truncate` if needed
 
 ### Security: Color-Coded Address Display
@@ -313,7 +320,7 @@ Used in withdrawal flow and deposit tracking:
 ### Explorer Link Pattern
 
 - Always `font-mono` for hashes
-- Truncate: `hash.slice(0, 8)...hash.slice(-5)`
+- Truncate: `hash.slice(0, 8)...hash.slice(-5)` (Wallet convention, differs from transparency 10+6)
 - Include `<ExternalLink className="h-3 w-3" />` icon
 - Use `text-primary hover:underline`
 
