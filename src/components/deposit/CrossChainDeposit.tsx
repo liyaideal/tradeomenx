@@ -63,8 +63,7 @@ export const CrossChainDeposit = () => {
   const [txResult, setTxResult] = useState<'success' | 'failed'>('success');
   const [autoMode, setAutoMode] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
-  const [slippage, setSlippage] = useState(0.5);
-  const [gasPreference, setGasPreference] = useState<'low' | 'medium' | 'fast'>('medium');
+  const [slippage, setSlippage] = useState(-1);
 
   const tokenBalance = getBalance(fromChain, fromToken);
   const receivingAddress = getCurrentAddress();
@@ -122,8 +121,6 @@ export const CrossChainDeposit = () => {
           onAutoModeChange={setAutoMode}
           slippage={slippage}
           onSlippageChange={setSlippage}
-          gasPreference={gasPreference}
-          onGasPreferenceChange={setGasPreference}
         />
 
         {/* Wallet Connection Bar */}
