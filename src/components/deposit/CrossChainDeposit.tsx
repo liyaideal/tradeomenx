@@ -124,7 +124,6 @@ export const CrossChainDeposit = () => {
         <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">From</span>
-            <span className="text-xs text-muted-foreground">Bal: 0</span>
           </div>
           <div className="flex items-center gap-3">
             <Input
