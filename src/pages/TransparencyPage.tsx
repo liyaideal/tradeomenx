@@ -10,6 +10,7 @@ import { SeoFooter } from "@/components/seo/SeoFooter";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginPrompt } from "@/components/LoginPrompt";
 import { MerkleProofVerification } from "@/components/transparency/MerkleProofVerification";
+import { TradeVerification } from "@/components/transparency/TradeVerification";
 
 const SCENARIOS = [
   {
@@ -88,6 +89,33 @@ const TransparencyPage = () => {
         <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
           {scenarioContent}
         </main>
+        <SeoFooter />
+      </div>
+    );
+  }
+
+  // Trade verification scenario
+  if (activeScenario === "trade-verification") {
+    const scenarioContent = (
+      <TradeVerification onBack={() => setActiveScenario(null)} />
+    );
+
+    if (isMobile) {
+      return (
+        <div className="min-h-screen bg-background pb-24">
+          <MobileHeader title="Trade Verification" showLogo={false} />
+          <div className="p-4">{scenarioContent}</div>
+          <BottomNav />
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-background flex flex-col"
+        style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210 50% 15% / 0.15) 0%, hsl(222 47% 6%) 70%)" }}
+      >
+        <EventsDesktopHeader />
+        <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">{scenarioContent}</main>
         <SeoFooter />
       </div>
     );
