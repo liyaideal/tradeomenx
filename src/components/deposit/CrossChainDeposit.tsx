@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDeposit } from '@/hooks/useDeposit';
+import { AutoModeButton, SettingsButton, SettingsPanel } from './CrossChainSettings';
 
 const SOURCE_CHAINS = [
   { id: 'ethereum', name: 'Ethereum', icon: '/chain-logos/ethereum.svg', chainId: 1 },
@@ -58,6 +59,10 @@ export const CrossChainDeposit = () => {
   const [amount, setAmount] = useState('');
   const [processingStage, setProcessingStage] = useState(0);
   const [txResult, setTxResult] = useState<'success' | 'failed'>('success');
+  const [autoMode, setAutoMode] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
+  const [slippage, setSlippage] = useState(0.5);
+  const [gasPreference, setGasPreference] = useState<'low' | 'medium' | 'fast'>('medium');
 
   const receivingAddress = getCurrentAddress();
   const availableTokens = SOURCE_TOKENS[fromChain] || [];
@@ -98,15 +103,22 @@ export const CrossChainDeposit = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">Swap</h3>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-              <Sparkles className="w-3 h-3" />
-              Auto Mode
-            </button>
-            <button className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground">
-              <Settings2 className="w-4 h-4" />
-            </button>
+            <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
+            <SettingsButton onClick={() => setShowSettings(!showSettings)} />
           </div>
         </div>
+
+        {/* Settings Panel */}
+        <SettingsPanel
+          open={showSettings}
+          onClose={() => setShowSettings(false)}
+          autoMode={autoMode}
+          onAutoModeChange={setAutoMode}
+          slippage={slippage}
+          onSlippageChange={setSlippage}
+          gasPreference={gasPreference}
+          onGasPreferenceChange={setGasPreference}
+        />
 
         {/* From */}
         <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
