@@ -162,8 +162,8 @@ export const FundingRateAudit = ({ onBack }: Props) => {
               { label: "eventId", value: audit.eventId },
               { label: "outcomeId", value: audit.outcomeId.toString() },
               { label: "fundingRate", value: audit.fundingRate.toFixed(6) },
-              { label: "Tx Hash", value: `${audit.txHash.slice(0, 10)}...${audit.txHash.slice(-8)}`, mono: true },
-              { label: "Block", value: `#${audit.blockNumber.toLocaleString()}` },
+              { label: "txHash", value: `${audit.txHash.slice(0, 10)}...${audit.txHash.slice(-6)}`, mono: true },
+              { label: "blockNumber", value: `#${audit.blockNumber.toLocaleString()}` },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs">
                 <span className="text-muted-foreground">{row.label}</span>

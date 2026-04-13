@@ -193,10 +193,10 @@ export const LiquidationAudit = ({ onBack }: Props) => {
               </div>
               <div className="grid grid-cols-1 gap-1.5 text-xs">
                 {[
-                  { label: "Oracle Source", value: audit.oracleSource },
-                  { label: "Feed Contract", value: audit.oracleFeedAddress, mono: true, truncate: true },
-                  { label: "Queried At", value: format(new Date(audit.oracleTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'") },
-                  { label: "Price Deviation", value: `${audit.deviation.toPrecision(3)} (${audit.deviationPercent.toFixed(4)}%)`, highlight: true },
+                  { label: "oracleSource", value: audit.oracleSource },
+                  { label: "feedContract", value: audit.oracleFeedAddress, mono: true, truncate: true },
+                  { label: "queriedAt", value: format(new Date(audit.oracleTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'") },
+                  { label: "priceDeviation", value: `${audit.deviation.toPrecision(3)} (${audit.deviationPercent.toFixed(4)}%)`, highlight: true },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
                     <span className="text-muted-foreground shrink-0">{row.label}</span>

@@ -184,17 +184,17 @@ export const TradeVerification = ({ onBack }: Props) => {
             {/* TX details */}
             <div className="bg-muted/20 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Tx Hash</span>
+                <span className="text-xs text-muted-foreground">txHash</span>
                 <div className="flex items-center gap-1">
-                  <code className="text-[10px] font-mono text-foreground">{comparison.onchain.txHash.slice(0, 10)}...{comparison.onchain.txHash.slice(-8)}</code>
+                  <code className="text-[10px] font-mono text-foreground/80">{comparison.onchain.txHash.slice(0, 10)}...{comparison.onchain.txHash.slice(-6)}</code>
                   <button onClick={() => copyText(comparison.onchain.txHash, "tx")} className="text-muted-foreground hover:text-foreground">
                     {copiedField === "tx" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Block</span>
-                <code className="text-[10px] font-mono text-foreground">#{comparison.onchain.blockNumber.toLocaleString()}</code>
+                <span className="text-xs text-muted-foreground">blockNumber</span>
+                <code className="text-[10px] font-mono text-foreground/80">#{comparison.onchain.blockNumber.toLocaleString()}</code>
               </div>
             </div>
 

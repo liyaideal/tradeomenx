@@ -22,6 +22,7 @@ import {
   MobilePatternsSection,
   UserIdentitySection,
   DepositWithdrawSection,
+  TransparencySection,
 } from "./sections";
 
 const StyleGuideIndex = () => {
@@ -46,6 +47,7 @@ const StyleGuideIndex = () => {
     { id: "deposit", label: "Deposit/Withdraw", icon: "🔄" },
     { id: "mobile", label: "Mobile", icon: "📱" },
     { id: "identity", label: "Identity", icon: "👤" },
+    { id: "transparency", label: "Transparency", icon: "🔗" },
   ];
 
   return (
@@ -155,6 +157,10 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="identity" className="mt-0">
             <UserIdentitySection isMobile={isMobile} />
+          </TabsContent>
+
+          <TabsContent value="transparency" className="mt-0">
+            <TransparencySection isMobile={isMobile} />
           </TabsContent>
         </Tabs>
       </main>

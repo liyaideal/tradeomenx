@@ -160,9 +160,9 @@ export const SettlementAudit = ({ onBack }: Props) => {
             </div>
             {[
               { label: "oracleProof", value: `${audit.oracleProof.slice(0, 14)}...${audit.oracleProof.slice(-10)}`, mono: true },
-              { label: "Source", value: audit.oracleSourceName },
-              { label: "Tx Hash", value: `${audit.txHash.slice(0, 10)}...${audit.txHash.slice(-8)}`, mono: true },
-              { label: "Block", value: `#${audit.blockNumber.toLocaleString()}` },
+              { label: "sourceName", value: audit.oracleSourceName },
+              { label: "txHash", value: `${audit.txHash.slice(0, 10)}...${audit.txHash.slice(-6)}`, mono: true },
+              { label: "blockNumber", value: `#${audit.blockNumber.toLocaleString()}` },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs">
                 <span className="text-muted-foreground">{row.label}</span>
