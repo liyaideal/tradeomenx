@@ -15,6 +15,7 @@ const footerLinks = {
     { label: "FAQ", path: "/faq" },
     { label: "Glossary", path: "/glossary" },
     { label: "Methodology", path: "/methodology" },
+    { label: "Open Source Auditor", path: "/settings/transparency" },
   ],
   Legal: [
     { label: "Privacy Policy", path: "/privacy-policy" },

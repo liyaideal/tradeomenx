@@ -375,6 +375,21 @@ const Settings = () => {
           <EmailCard />
           <LinkedAccountCard />
           <ConnectedAccountsCard />
+          
+          {/* Transparency Audit entry */}
+          <button
+            onClick={() => navigate("/settings/transparency")}
+            className="trading-card p-4 w-full text-left flex items-center gap-3 hover:border-primary/30 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-xl bg-emerald-400/10 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-sm">Transparency Audit</h3>
+              <p className="text-xs text-muted-foreground">Verify assets, trades & liquidations on-chain</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
         </div>
 
         <BottomNav />
@@ -512,6 +527,21 @@ const Settings = () => {
           <EmailCard />
           <LinkedAccountCard />
           <ConnectedAccountsCard />
+          
+          {/* Transparency Audit entry */}
+          <button
+            onClick={() => navigate("/settings/transparency")}
+            className="trading-card p-6 w-full text-left flex items-center gap-4 hover:border-primary/30 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-xl bg-emerald-400/10 flex items-center justify-center">
+              <Shield className="w-6 h-6 text-emerald-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold">Transparency Audit</h3>
+              <p className="text-sm text-muted-foreground">Verify your assets, trades, and liquidations against on-chain data</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
       </div>
 
