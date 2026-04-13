@@ -376,6 +376,15 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                         <span className="text-sm font-medium truncate">
                           {formatDescription(tx)}
                         </span>
+                        {/* Type badge for cross-chain and fiat */}
+                        {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell'].includes(tx.type) && (
+                          <span className={cn(
+                            "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
+                            TYPE_BADGE_CONFIG[tx.type].className
+                          )}>
+                            {TYPE_BADGE_CONFIG[tx.type].label}
+                          </span>
+                        )}
                         {/* Show status icon inline if pending/processing */}
                         {tx.status && tx.status !== 'completed' && (
                           <StatusIcon className={cn(
