@@ -55,7 +55,7 @@ const EXPLORER_URLS: Record<string, string> = {
   'Tron (TRC20)': 'https://tronscan.org/#/transaction/',
 };
 
-export type TransactionType = 'deposit' | 'withdraw' | 'trade_profit' | 'trade_loss' | 'platform_credit';
+export type TransactionType = 'deposit' | 'withdraw' | 'trade_profit' | 'trade_loss' | 'platform_credit' | 'cross_chain_in' | 'cross_chain_out' | 'fiat_buy' | 'fiat_sell';
 export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'rejected';
 
 export interface Transaction {
@@ -68,6 +68,11 @@ export interface Transaction {
   txHash?: string | null;
   network?: string | null;
   status?: TransactionStatus;
+  fee?: number | null;
+  sourceChain?: string | null;
+  destChain?: string | null;
+  sourceToken?: string | null;
+  destToken?: string | null;
 }
 
 interface TransactionHistoryProps {
@@ -89,6 +94,22 @@ const TYPE_LABELS: Record<TransactionType, string> = {
   trade_profit: 'Trade Profits',
   trade_loss: 'Trade Losses',
   platform_credit: 'Platform Credits',
+  cross_chain_in: 'Cross-Chain In',
+  cross_chain_out: 'Cross-Chain Out',
+  fiat_buy: 'Fiat Buy',
+  fiat_sell: 'Fiat Sell',
+};
+
+const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: string }> = {
+  deposit: { label: 'Deposit', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  withdraw: { label: 'Withdraw', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
+  trade_profit: { label: 'Trade P&L', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  trade_loss: { label: 'Trade P&L', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
+  platform_credit: { label: 'Credit', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  cross_chain_in: { label: 'Cross-Chain In', className: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
+  cross_chain_out: { label: 'Cross-Chain Out', className: 'border-orange-500/30 bg-orange-500/10 text-orange-400' },
+  fiat_buy: { label: 'Fiat Buy', className: 'border-purple-500/30 bg-purple-500/10 text-purple-400' },
+  fiat_sell: { label: 'Fiat Sell', className: 'border-pink-500/30 bg-pink-500/10 text-pink-400' },
 };
 
 export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
