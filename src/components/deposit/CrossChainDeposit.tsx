@@ -289,7 +289,7 @@ export const CrossChainDeposit = () => {
         ) : null}
 
         <p className="text-[10px] text-center text-muted-foreground">
-          Powered by <span className="font-semibold">Bungee</span>
+          Powered by <span className="font-semibold">SOCKET</span>
         </p>
       </div>
     );
