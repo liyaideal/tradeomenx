@@ -22,7 +22,13 @@ export const useRealtimeTransactions = () => {
       maximumFractionDigits: 2,
     });
 
-    const typeLabel = type === 'deposit' ? 'Deposit' : type === 'withdraw' ? 'Withdrawal' : 'Transaction';
+    const typeLabel = type === 'deposit' ? 'Deposit' 
+      : type === 'withdraw' ? 'Withdrawal' 
+      : type === 'cross_chain_in' ? 'Cross-Chain Deposit'
+      : type === 'cross_chain_out' ? 'Cross-Chain Withdrawal'
+      : type === 'fiat_buy' ? 'Fiat Purchase'
+      : type === 'fiat_sell' ? 'Fiat Sale'
+      : 'Transaction';
 
     switch (status) {
       case 'processing':

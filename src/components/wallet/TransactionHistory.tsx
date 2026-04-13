@@ -15,6 +15,8 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ArrowLeftRight,
+  Banknote,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -53,7 +55,7 @@ const EXPLORER_URLS: Record<string, string> = {
   'Tron (TRC20)': 'https://tronscan.org/#/transaction/',
 };
 
-export type TransactionType = 'deposit' | 'withdraw' | 'trade_profit' | 'trade_loss' | 'platform_credit';
+export type TransactionType = 'deposit' | 'withdraw' | 'trade_profit' | 'trade_loss' | 'platform_credit' | 'cross_chain_in' | 'cross_chain_out' | 'fiat_buy' | 'fiat_sell';
 export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'rejected';
 
 export interface Transaction {
@@ -66,6 +68,11 @@ export interface Transaction {
   txHash?: string | null;
   network?: string | null;
   status?: TransactionStatus;
+  fee?: number | null;
+  sourceChain?: string | null;
+  destChain?: string | null;
+  sourceToken?: string | null;
+  destToken?: string | null;
 }
 
 interface TransactionHistoryProps {
@@ -87,6 +94,22 @@ const TYPE_LABELS: Record<TransactionType, string> = {
   trade_profit: 'Trade Profits',
   trade_loss: 'Trade Losses',
   platform_credit: 'Platform Credits',
+  cross_chain_in: 'Cross-Chain In',
+  cross_chain_out: 'Cross-Chain Out',
+  fiat_buy: 'Fiat Buy',
+  fiat_sell: 'Fiat Sell',
+};
+
+const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: string }> = {
+  deposit: { label: 'Deposit', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  withdraw: { label: 'Withdraw', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
+  trade_profit: { label: 'Trade P&L', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  trade_loss: { label: 'Trade P&L', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
+  platform_credit: { label: 'Credit', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  cross_chain_in: { label: 'Cross-Chain In', className: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
+  cross_chain_out: { label: 'Cross-Chain Out', className: 'border-orange-500/30 bg-orange-500/10 text-orange-400' },
+  fiat_buy: { label: 'Fiat Buy', className: 'border-purple-500/30 bg-purple-500/10 text-purple-400' },
+  fiat_sell: { label: 'Fiat Sell', className: 'border-pink-500/30 bg-pink-500/10 text-pink-400' },
 };
 
 export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
@@ -195,24 +218,30 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
   };
 
   const getTransactionIcon = (tx: Transaction) => {
-    if (tx.type === 'deposit') {
-      return <ArrowDownLeft className="w-5 h-5 text-trading-green" />;
-    } else if (tx.type === 'withdraw') {
-      return <ArrowUpRight className="w-5 h-5 text-trading-red" />;
-    } else if (tx.type === 'platform_credit') {
-      return <WalletIcon className="w-5 h-5 text-trading-green" />;
-    } else if (tx.type === 'trade_profit') {
-      return <TrendingUp className="w-5 h-5 text-trading-green" />;
-    } else {
-      return <TrendingDown className="w-5 h-5 text-trading-red" />;
+    switch (tx.type) {
+      case 'deposit': return <ArrowDownLeft className="w-5 h-5 text-trading-green" />;
+      case 'withdraw': return <ArrowUpRight className="w-5 h-5 text-trading-red" />;
+      case 'platform_credit': return <WalletIcon className="w-5 h-5 text-trading-green" />;
+      case 'trade_profit': return <TrendingUp className="w-5 h-5 text-trading-green" />;
+      case 'trade_loss': return <TrendingDown className="w-5 h-5 text-trading-red" />;
+      case 'cross_chain_in': return <ArrowLeftRight className="w-5 h-5 text-blue-400" />;
+      case 'cross_chain_out': return <ArrowLeftRight className="w-5 h-5 text-orange-400" />;
+      case 'fiat_buy': return <Banknote className="w-5 h-5 text-purple-400" />;
+      case 'fiat_sell': return <Banknote className="w-5 h-5 text-pink-400" />;
+      default: return <TrendingDown className="w-5 h-5 text-trading-red" />;
     }
   };
 
   const getTransactionBgColor = (tx: Transaction) => {
-    if (tx.type === 'deposit' || tx.type === 'platform_credit' || tx.type === 'trade_profit') {
-      return 'bg-trading-green/20';
+    switch (tx.type) {
+      case 'deposit': case 'platform_credit': case 'trade_profit': return 'bg-trading-green/20';
+      case 'withdraw': case 'trade_loss': return 'bg-trading-red/20';
+      case 'cross_chain_in': return 'bg-blue-500/20';
+      case 'cross_chain_out': return 'bg-orange-500/20';
+      case 'fiat_buy': return 'bg-purple-500/20';
+      case 'fiat_sell': return 'bg-pink-500/20';
+      default: return 'bg-muted/20';
     }
-    return 'bg-trading-red/20';
   };
 
   const toggleExpand = (id: string) => {
@@ -221,7 +250,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
 
   // Check if a transaction has extra details worth showing
   const hasDetails = (tx: Transaction) => {
-    return tx.txHash || (tx.status && tx.status !== 'completed') || tx.network;
+    return tx.txHash || (tx.status && tx.status !== 'completed') || tx.network || tx.fee || tx.sourceChain || tx.destChain;
   };
 
   return (
@@ -347,6 +376,15 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                         <span className="text-sm font-medium truncate">
                           {formatDescription(tx)}
                         </span>
+                        {/* Type badge for cross-chain and fiat */}
+                        {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell'].includes(tx.type) && (
+                          <span className={cn(
+                            "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
+                            TYPE_BADGE_CONFIG[tx.type].className
+                          )}>
+                            {TYPE_BADGE_CONFIG[tx.type].label}
+                          </span>
+                        )}
                         {/* Show status icon inline if pending/processing */}
                         {tx.status && tx.status !== 'completed' && (
                           <StatusIcon className={cn(
@@ -391,11 +429,28 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                         </span>
                       </div>
                     )}
+
+                    {/* Route info for cross-chain */}
+                    {tx.sourceChain && tx.destChain && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Route</span>
+                        <span className="text-foreground font-mono text-xs">
+                          {tx.sourceToken || 'USDC'} ({tx.sourceChain}) → {tx.destToken || 'USDC'} ({tx.destChain})
+                        </span>
+                      </div>
+                    )}
                     
                     {tx.network && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Network</span>
                         <span className="text-foreground">{tx.network}</span>
+                      </div>
+                    )}
+
+                    {tx.fee != null && tx.fee > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Fee</span>
+                        <span className="text-foreground font-mono">${tx.fee.toFixed(2)}</span>
                       </div>
                     )}
                     
