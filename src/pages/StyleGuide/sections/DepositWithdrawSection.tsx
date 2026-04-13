@@ -26,6 +26,11 @@ const TOKEN_LOGOS = [
   { name: "USDT", src: "/token-logos/usdt.svg" },
 ];
 
+const BRAND_LOGOS = [
+  { name: "Banxa", src: "/brand-logos/banxa.png" },
+  { name: "SOCKET", src: "" },
+];
+
 export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps) => (
   <SectionWrapper
     id="deposit-withdraw"
