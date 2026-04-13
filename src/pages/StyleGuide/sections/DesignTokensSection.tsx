@@ -50,12 +50,12 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
       title: "Trading Semantic Colors",
       description: "Green = Success/Profit, Red = Loss/Error, Yellow = Alert, Purple = Brand emphasis",
       colors: [
-        { name: "Trading Green", variable: "--trading-green", class: "bg-trading-green", value: "142 71% 45%", usage: "Profit, buy, success" },
-        { name: "Trading Green Muted", variable: "--trading-green-muted", class: "bg-trading-green-muted", value: "142 50% 20%", usage: "Green backgrounds" },
-        { name: "Trading Red", variable: "--trading-red", class: "bg-trading-red", value: "0 72% 51%", usage: "Loss, sell, error" },
-        { name: "Trading Red Muted", variable: "--trading-red-muted", class: "bg-trading-red-muted", value: "0 50% 20%", usage: "Red backgrounds" },
-        { name: "Trading Purple", variable: "--trading-purple", class: "bg-trading-purple", value: "260 60% 55%", usage: "Brand emphasis" },
-        { name: "Trading Yellow", variable: "--trading-yellow", class: "bg-trading-yellow", value: "45 93% 58%", usage: "Alerts, warnings" },
+        { name: "Trading Green", variable: "--trading-green", class: "bg-trading-green", value: "145 80% 42%", usage: "Profit, buy, success" },
+        { name: "Trading Green Muted", variable: "--trading-green-muted", class: "bg-trading-green-muted", value: "145 60% 22%", usage: "Green backgrounds" },
+        { name: "Trading Red", variable: "--trading-red", class: "bg-trading-red", value: "0 85% 55%", usage: "Loss, sell, error" },
+        { name: "Trading Red Muted", variable: "--trading-red-muted", class: "bg-trading-red-muted", value: "0 60% 22%", usage: "Red backgrounds" },
+        { name: "Trading Purple", variable: "--trading-purple", class: "bg-trading-purple", value: "260 65% 58%", usage: "Brand emphasis" },
+        { name: "Trading Yellow", variable: "--trading-yellow", class: "bg-trading-yellow", value: "48 100% 55%", usage: "Alerts, warnings" },
       ]
     },
     {
