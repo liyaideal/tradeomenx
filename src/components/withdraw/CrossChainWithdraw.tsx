@@ -218,7 +218,7 @@ export const CrossChainWithdraw = () => {
           </div>
         </div>
 
-        {/* Inline Quote */}
+        {/* Inline Quote — Bungee style */}
         {parsedAmount > 0 && (
           <div className="space-y-2 px-1">
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -235,7 +235,7 @@ export const CrossChainWithdraw = () => {
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Slippage</span>
-              <span className="font-mono">{slippage}%</span>
+              <span className="font-mono">{slippage === -1 ? '~0.5% ~ Suggested' : `${slippage}%`}</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Est. Time</span>
@@ -293,9 +293,11 @@ export const CrossChainWithdraw = () => {
         </div>
 
         <div className="p-3 rounded-lg border border-border/30 space-y-2">
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Min. Receive</span><span className="font-mono">{(estimatedReceive * (1 - (slippage === -1 ? 0.5 : slippage) / 100)).toFixed(isStable ? 2 : 6)} {toToken}</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Exchange Rate</span><span className="font-mono">1 USDC = {(1 / mockRate).toFixed(isStable ? 2 : 4)} {toToken}</span></div>
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Bridge Fee</span><span className="font-mono text-trading-green">Free</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Gas (est.)</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Slippage</span><span className="font-mono">{slippage}%</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Est. Gas</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Swap Slippage</span><span className="font-mono">{slippage === -1 ? '0.5% ~ Suggested' : `${slippage}%`}</span></div>
         </div>
 
         <div className="p-3 rounded-lg bg-muted/30 border border-border/30">
