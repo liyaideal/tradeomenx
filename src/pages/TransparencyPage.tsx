@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, FileSearch, Scale, ChevronRight, ChevronLeft, ExternalLink, Lock, Eye, Zap, Percent, Gavel } from "lucide-react";
+import { Shield, FileSearch, Scale, ChevronRight, ChevronLeft, ExternalLink, Lock, Eye, Zap, Percent } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -13,7 +13,7 @@ import { MerkleProofVerification } from "@/components/transparency/MerkleProofVe
 import { TradeVerification } from "@/components/transparency/TradeVerification";
 import { LiquidationAudit } from "@/components/transparency/LiquidationAudit";
 import { FundingRateAudit } from "@/components/transparency/FundingRateAudit";
-import { SettlementAudit } from "@/components/transparency/SettlementAudit";
+
 
 const SCENARIOS = [
   {
@@ -60,17 +60,6 @@ const SCENARIOS = [
     steps: ["Select a position", "Fetch on-chain log", "Rate comparison", "Fee verification"],
     badge: "Fee Transparency",
   },
-  {
-    id: "settlement-audit",
-    icon: Gavel,
-    iconColor: "text-cyan-400",
-    iconBg: "bg-cyan-400/10",
-    title: "Was the Result Fair?",
-    subtitle: "EventResolved Audit",
-    description: "Verify a resolved event's on-chain EventResolved record (winningOutcomeId, oracleProof) against external data sources to confirm the outcome is authentic.",
-    steps: ["Select resolved event", "Fetch on-chain log", "Oracle proof verification", "Conclusion"],
-    badge: "Result Integrity",
-  },
 ];
 
 const SCENARIO_GRADIENTS: Record<string, string> = {
@@ -78,7 +67,7 @@ const SCENARIO_GRADIENTS: Record<string, string> = {
   "trade-verification": "hsl(210 50% 15% / 0.15)",
   "liquidation-audit": "hsl(40 50% 15% / 0.15)",
   "funding-rate-audit": "hsl(270 50% 15% / 0.15)",
-  "settlement-audit": "hsl(190 50% 15% / 0.15)",
+  
 };
 
 const SCENARIO_TITLES: Record<string, string> = {
@@ -86,7 +75,7 @@ const SCENARIO_TITLES: Record<string, string> = {
   "trade-verification": "Trade Verification",
   "liquidation-audit": "Liquidation Audit",
   "funding-rate-audit": "Funding Rate Audit",
-  "settlement-audit": "Settlement Audit",
+  
 };
 
 const BASE_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
@@ -114,7 +103,7 @@ const TransparencyPage = () => {
       case "trade-verification": return <TradeVerification onBack={onBack} />;
       case "liquidation-audit": return <LiquidationAudit onBack={onBack} />;
       case "funding-rate-audit": return <FundingRateAudit onBack={onBack} />;
-      case "settlement-audit": return <SettlementAudit onBack={onBack} />;
+      
       default: return null;
     }
   };
