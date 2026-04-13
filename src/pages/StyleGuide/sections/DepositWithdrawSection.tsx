@@ -76,9 +76,28 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
         </Card>
       </div>
 
+      <Card className="mt-4">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">Brand / Partner Logos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-6 items-center">
+            <div className="flex flex-col items-center gap-1.5">
+              <img src="/brand-logos/banxa.png" alt="Banxa" className="h-6 object-contain" />
+              <span className="text-[10px] text-muted-foreground">Banxa (Fiat Ramp)</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="font-semibold text-sm">SOCKET</span>
+              <span className="text-[10px] text-muted-foreground">Cross-Chain Bridge</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <CodePreview code={`// Usage
 <img src="/chain-logos/base.svg" alt="Base" className="w-5 h-5" />
 <img src="/token-logos/usdc.svg" alt="USDC" className="w-5 h-5" />
+<img src="/brand-logos/banxa.png" alt="Banxa" className="h-5 object-contain" />
 
 // WRONG — never do this:
 <div className="bg-[#0052FF]"><span>B</span></div>`} />
