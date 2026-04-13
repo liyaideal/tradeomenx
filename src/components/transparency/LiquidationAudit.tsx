@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, Scale, Loader2, CheckCircle2, AlertTriangle, ExternalLink, Activity } from "lucide-react";
+import { ChevronLeft, Scale, Loader2, CheckCircle2, AlertTriangle, ExternalLink, Activity, Link2, ShieldCheck } from "lucide-react";
 import { useLiquidationAudit, type LiquidationStep } from "@/hooks/useLiquidationAudit";
 import { format } from "date-fns";
 
 const STEPS: { key: LiquidationStep; label: string }[] = [
-  { key: "select", label: "Select Record" },
-  { key: "fetching_oracle", label: "Fetch Oracle" },
-  { key: "analyzing", label: "Analyze Deviation" },
+  { key: "select", label: "Select Position" },
+  { key: "fetching_chain", label: "On-Chain Log" },
+  { key: "fetching_oracle", label: "Oracle Feed" },
+  { key: "analyzing", label: "Analysis" },
   { key: "result", label: "Conclusion" },
 ];
 
@@ -25,7 +26,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
 
   const progress = step === "result" ? 100 : ((stepIndex(step) + 0.5) / STEPS.length) * 100;
 
-  // --- Idle ---
+  /* ── Idle ── */
   if (step === "idle") {
     return (
       <div className="space-y-6">
@@ -39,7 +40,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
           <div>
             <h2 className="text-xl font-bold">Liquidation Price Audit</h2>
             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-              Compare platform liquidation trigger prices against third-party oracle feeds to ensure price fairness.
+              Retrieve the on-chain liquidation snapshot, cross-reference it with third-party oracle prices, and verify that the forced closure was executed fairly by the smart contract.
             </p>
           </div>
           <Button onClick={openSelector} className="gap-2">
@@ -50,7 +51,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
     );
   }
 
-  // --- Select ---
+  /* ── Select ── */
   if (step === "select") {
     return (
       <div className="space-y-4">
@@ -88,8 +89,13 @@ export const LiquidationAudit = ({ onBack }: Props) => {
     );
   }
 
-  // --- Processing / Result ---
-  const isProcessing = step === "fetching_oracle" || step === "analyzing";
+  /* ── Processing / Result ── */
+  const isProcessing = step === "fetching_chain" || step === "fetching_oracle" || step === "analyzing";
+  const processingLabel: Record<string, string> = {
+    fetching_chain: "Fetching PositionLiquidated event from on-chain logs\u2026",
+    fetching_oracle: "Querying Chainlink / Pyth oracle historical price\u2026",
+    analyzing: "Comparing mark price against fair market price\u2026",
+  };
 
   return (
     <div className="space-y-4">
@@ -97,9 +103,9 @@ export const LiquidationAudit = ({ onBack }: Props) => {
         <ChevronLeft className="w-4 h-4" /> Back
       </button>
 
-      {/* Progress */}
+      {/* Progress stepper */}
       <div className="trading-card p-4 space-y-3">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
           {STEPS.map((s, i) => (
             <span key={s.key} className={i <= stepIndex(step) ? "text-amber-400 font-medium" : ""}>
               {i + 1}. {s.label}
@@ -114,87 +120,148 @@ export const LiquidationAudit = ({ onBack }: Props) => {
         <div className="trading-card p-4">
           <p className="text-xs text-muted-foreground mb-1">Auditing Position</p>
           <p className="font-medium text-sm">{selectedPosition.event_name} — {selectedPosition.option_label}</p>
-          <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
-            <div><span className="text-muted-foreground">Side</span><br />{selectedPosition.side}</div>
-            <div><span className="text-muted-foreground">Entry</span><br />{selectedPosition.entry_price.toFixed(4)}</div>
-            <div><span className="text-muted-foreground">Close</span><br />{selectedPosition.mark_price.toFixed(4)}</div>
+          <div className="grid grid-cols-4 gap-2 mt-2 text-xs">
+            <div><span className="text-muted-foreground">Side</span><br /><span className="font-medium">{selectedPosition.side}</span></div>
+            <div><span className="text-muted-foreground">Entry</span><br /><span className="font-mono">${selectedPosition.entry_price.toFixed(4)}</span></div>
+            <div><span className="text-muted-foreground">Close</span><br /><span className="font-mono">${selectedPosition.mark_price.toFixed(4)}</span></div>
+            <div><span className="text-muted-foreground">P&L</span><br /><span className="font-mono text-trading-red">{selectedPosition.pnl?.toFixed(2)}</span></div>
           </div>
         </div>
       )}
 
-      {/* Processing */}
+      {/* Processing spinner */}
       {isProcessing && (
         <div className="trading-card p-8 flex flex-col items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
-          <p className="text-sm text-muted-foreground">
-            {step === "fetching_oracle" ? "Fetching oracle price feeds…" : "Analyzing price deviation…"}
-          </p>
+          <p className="text-sm text-muted-foreground">{processingLabel[step] ?? "Processing\u2026"}</p>
         </div>
       )}
 
-      {/* Result */}
+      {/* ═══════════════════ RESULT ═══════════════════ */}
       {step === "result" && audit && (
-        <div className="space-y-3">
-          {/* Verdict */}
-          <div className={`trading-card p-5 border ${audit.conclusion === "fair" ? "border-emerald-400/30 bg-emerald-400/5" : "border-amber-400/30 bg-amber-400/5"}`}>
-            <div className="flex items-center gap-3">
-              {audit.conclusion === "fair" ? (
-                <CheckCircle2 className="w-8 h-8 text-emerald-400 shrink-0" />
-              ) : (
-                <AlertTriangle className="w-8 h-8 text-amber-400 shrink-0" />
-              )}
-              <div>
-                <h3 className="font-bold text-lg">
-                  {audit.conclusion === "fair" ? "Price is Fair" : "Deviation Detected"}
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {audit.conclusion === "fair"
-                    ? "The platform's trigger price is within acceptable tolerance of oracle feeds."
-                    : "The platform's trigger price deviates more than 1.5% from oracle feeds."}
+        <div className="space-y-4">
+
+          {/* ── Module A: On-Chain Liquidation Snapshot ── */}
+          <div className="trading-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border/30 flex items-center gap-2">
+              <Link2 className="w-4 h-4 text-muted-foreground" />
+              <h4 className="text-sm font-semibold">On-Chain Liquidation Snapshot</h4>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="text-center py-3">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">System Mark Price at Liquidation</p>
+                <p className="text-4xl font-bold font-mono text-trading-red">
+                  ${audit.onchainMarkPrice.toFixed(4)}
                 </p>
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 text-xs">
+                {[
+                  { label: "Event", value: `PositionLiquidated` },
+                  { label: "Transaction", value: audit.txHash, mono: true, truncate: true },
+                  { label: "Block", value: `#${audit.blockNumber.toLocaleString()}` },
+                  { label: "Contract", value: audit.contractAddress, mono: true, truncate: true },
+                  { label: "Timestamp", value: format(new Date(audit.liquidatedAt), "yyyy-MM-dd HH:mm:ss 'UTC'") },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
+                    <span className="text-muted-foreground shrink-0">{row.label}</span>
+                    <span className={`${row.mono ? "font-mono" : ""} ${row.truncate ? "truncate max-w-[200px]" : ""} text-foreground/80`}>
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-[10px] gap-1 text-muted-foreground w-full"
+                onClick={() => window.open(`https://basescan.org/tx/${audit.txHash}`, "_blank")}
+              >
+                <ExternalLink className="w-3 h-3" /> View Transaction on BaseScan
+              </Button>
+            </div>
+          </div>
+
+          {/* ── Module B: Oracle Fair Price ── */}
+          <div className="trading-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border/30 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-muted-foreground" />
+              <h4 className="text-sm font-semibold">Fair Market Price (Oracle)</h4>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="text-center py-3">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Global Spot Fair Price</p>
+                <p className="text-4xl font-bold font-mono text-emerald-400">
+                  ${audit.oraclePrice.toFixed(4)}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 text-xs">
+                {[
+                  { label: "Oracle Source", value: audit.oracleSource },
+                  { label: "Feed Contract", value: audit.oracleFeedAddress, mono: true, truncate: true },
+                  { label: "Queried At", value: format(new Date(audit.oracleTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'") },
+                  { label: "Price Deviation", value: `${audit.deviation.toFixed(6)} ($${audit.deviationPercent.toFixed(4)}%)`, highlight: true },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
+                    <span className="text-muted-foreground shrink-0">{row.label}</span>
+                    <span className={`${row.mono ? "font-mono" : ""} ${row.truncate ? "truncate max-w-[200px]" : ""} ${"highlight" in row && row.highlight ? (audit.deviationPercent < 1.5 ? "text-emerald-400 font-medium" : "text-amber-400 font-medium") : "text-foreground/80"}`}>
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Comparison table */}
-          <div className="trading-card p-4 space-y-2">
-            <h4 className="text-sm font-semibold mb-2">Price Comparison</h4>
-            {[
-              { label: "Platform Trigger Price", value: audit.platformPrice.toFixed(4) },
-              { label: "Oracle Price", value: audit.oraclePrice.toFixed(4) },
-              { label: "Absolute Deviation", value: audit.deviation.toFixed(6) },
-              { label: "Deviation %", value: `${audit.deviationPercent.toFixed(4)}%`, highlight: true },
-            ].map((row) => (
-              <div key={row.label} className="flex items-center justify-between text-xs py-1 border-b border-border/20 last:border-0">
-                <span className="text-muted-foreground">{row.label}</span>
-                <span className={`font-mono ${row.highlight ? (audit.deviationPercent < 1.5 ? "text-emerald-400" : "text-amber-400") : ""}`}>
-                  {row.value}
-                </span>
-              </div>
-            ))}
+          {/* ── Module C: Conclusion ── */}
+          <div className={`trading-card overflow-hidden border ${audit.conclusion === "fair" ? "border-emerald-400/30" : "border-amber-400/30"}`}>
+            <div className={`px-4 py-3 border-b border-border/30 flex items-center gap-2 ${audit.conclusion === "fair" ? "bg-emerald-400/5" : "bg-amber-400/5"}`}>
+              {audit.conclusion === "fair" ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-amber-400" />
+              )}
+              <h4 className="text-sm font-semibold">
+                {audit.conclusion === "fair" ? "Verified: Liquidation is Fair" : "Attention: Price Deviation Detected"}
+              </h4>
+            </div>
+            <div className="p-5 space-y-3">
+              <p className="text-sm leading-relaxed text-foreground/90">
+                At the time of liquidation, the on-chain system mark price was{" "}
+                <span className="font-mono font-bold text-trading-red">${audit.onchainMarkPrice.toFixed(4)}</span>,
+                while the global fair market price reported by {audit.oracleSource} was{" "}
+                <span className="font-mono font-bold text-emerald-400">${audit.oraclePrice.toFixed(4)}</span>.
+                {" "}The price deviation is{" "}
+                <span className={`font-mono font-bold ${audit.deviationPercent < 1.5 ? "text-emerald-400" : "text-amber-400"}`}>
+                  {audit.deviationPercent.toFixed(4)}%
+                </span>.
+              </p>
+              <p className="text-sm leading-relaxed text-foreground/90">
+                Your margin ratio had dropped to{" "}
+                <span className="font-mono font-bold text-trading-red">{audit.marginRatio.toFixed(2)}%</span>,
+                which is below the maintenance margin requirement of{" "}
+                <span className="font-mono font-bold">{audit.maintenanceMarginRate}%</span>.
+                {" "}This triggered an automatic forced liquidation.
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                This operation was recorded and enforced by the smart contract at{" "}
+                <span className="font-mono">{audit.contractAddress.slice(0, 10)}...{audit.contractAddress.slice(-6)}</span>.
+                {" "}No manual intervention was involved. The execution is immutable and verifiable on-chain.
+              </p>
+            </div>
           </div>
 
-          {/* Oracle details */}
-          <div className="trading-card p-4 space-y-2">
-            <h4 className="text-sm font-semibold mb-2">Oracle Details</h4>
-            {[
-              { label: "Source", value: audit.oracleSource },
-              { label: "Oracle Timestamp", value: format(new Date(audit.oracleTimestamp), "yyyy-MM-dd HH:mm:ss") },
-              { label: "Block Number", value: `#${audit.blockNumber.toLocaleString()}` },
-            ].map((row) => (
-              <div key={row.label} className="flex items-center justify-between text-xs py-1 border-b border-border/20 last:border-0">
-                <span className="text-muted-foreground">{row.label}</span>
-                <span className="font-mono text-foreground/80">{row.value}</span>
-              </div>
-            ))}
-          </div>
-
+          {/* Actions */}
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="text-xs gap-1.5 flex-1" onClick={() => window.open(`https://basescan.org/block/${audit.blockNumber}`, "_blank")}>
-              <ExternalLink className="w-3.5 h-3.5" /> View Block on BaseScan
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1.5 flex-1"
+              onClick={() => window.open(`https://basescan.org/tx/${audit.txHash}`, "_blank")}
+            >
+              <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
             </Button>
             <Button variant="outline" size="sm" className="text-xs flex-1" onClick={reset}>
-              Audit Another
+              Audit Another Position
             </Button>
           </div>
         </div>
