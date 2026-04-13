@@ -7,15 +7,12 @@ interface CrossChainSettingsProps {
   onAutoModeChange: (v: boolean) => void;
   slippage: number;
   onSlippageChange: (v: number) => void;
-  gasPreference: 'low' | 'medium' | 'fast';
-  onGasPreferenceChange: (v: 'low' | 'medium' | 'fast') => void;
 }
 
-const SLIPPAGE_PRESETS = [0.1, 0.5, 1.0];
-const GAS_OPTIONS: { value: 'low' | 'medium' | 'fast'; label: string; icon: string }[] = [
-  { value: 'low', label: 'Slow', icon: '🐢' },
-  { value: 'medium', label: 'Normal', icon: '⚡' },
-  { value: 'fast', label: 'Fast', icon: '🚀' },
+const SLIPPAGE_PRESETS = [
+  { value: -1, label: 'Suggested' },
+  { value: 0.5, label: '0.5%' },
+  { value: 1.0, label: '1%' },
 ];
 
 const AUTO_FEATURES = [
@@ -48,7 +45,6 @@ export const SwapModeCard = ({
         Swap Mode
       </p>
 
-      {/* Toggle buttons */}
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => onAutoModeChange(true)}
@@ -81,7 +77,6 @@ export const SwapModeCard = ({
         </button>
       </div>
 
-      {/* Feature list */}
       <div className="space-y-3">
         {features.map((f, i) => (
           <div key={i} className="flex items-start gap-3">
@@ -98,7 +93,6 @@ export const SwapModeCard = ({
   );
 };
 
-/** Small inline button to show current mode */
 export const AutoModeButton = ({ active, onClick }: { active: boolean; onClick: () => void }) => (
   <button
     onClick={onClick}
@@ -118,12 +112,11 @@ export const SettingsPanel = ({
   onClose,
   slippage,
   onSlippageChange,
-  gasPreference,
-  onGasPreferenceChange,
   autoMode,
   onAutoModeChange,
 }: CrossChainSettingsProps & { open: boolean; onClose: () => void }) => {
   const [customSlippage, setCustomSlippage] = useState('');
+  const isSuggested = slippage === -1;
 
   if (!open) return null;
 
@@ -140,66 +133,53 @@ export const SettingsPanel = ({
       <SwapModeCard autoMode={autoMode} onAutoModeChange={onAutoModeChange} />
 
       {/* Slippage */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Slippage Tolerance</p>
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium">Slippage</p>
+          <span className="text-xs text-muted-foreground">
+            {isSuggested ? 'Suggested' : `${slippage}%`}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
-          {SLIPPAGE_PRESETS.map((v) => (
+          {SLIPPAGE_PRESETS.map((p) => (
             <button
-              key={v}
-              onClick={() => { onSlippageChange(v); setCustomSlippage(''); }}
+              key={p.label}
+              onClick={() => { onSlippageChange(p.value); setCustomSlippage(''); }}
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                slippage === v && !customSlippage
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                (p.value === slippage || (p.value === -1 && isSuggested)) && !customSlippage
+                  ? "border border-primary text-primary bg-card"
+                  : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
               )}
             >
-              {v}%
+              {p.label}
             </button>
           ))}
           <div className="relative flex-1">
             <input
               type="number"
-              placeholder="Custom"
+              placeholder="Custom %"
               value={customSlippage}
               onChange={(e) => {
                 setCustomSlippage(e.target.value);
                 const val = parseFloat(e.target.value);
                 if (val > 0 && val <= 50) onSlippageChange(val);
               }}
-              className="w-full h-8 px-2 pr-6 rounded-lg bg-muted/50 border border-border/30 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full h-8 px-2 pr-6 rounded-lg bg-muted/40 border border-border/30 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary"
             />
             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">%</span>
           </div>
         </div>
-        {slippage > 3 && (
+        {isSuggested && (
+          <p className="text-xs text-muted-foreground">
+            We'll find the best slippage for a successful swap.
+          </p>
+        )}
+        {!isSuggested && slippage > 3 && (
           <p className="text-xs text-yellow-500 flex items-center gap-1">
             ⚠️ High slippage may result in unfavorable rates
           </p>
         )}
-      </div>
-
-      {/* Gas Preference */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Gas Price</p>
-        <p className="text-xs text-muted-foreground">Display only — actual gas is determined by the bridge provider</p>
-        <div className="flex gap-2">
-          {GAS_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => onGasPreferenceChange(opt.value)}
-              className={cn(
-                "flex-1 flex flex-col items-center gap-1 py-2.5 rounded-lg text-xs font-medium transition-colors",
-                gasPreference === opt.value
-                  ? "bg-primary/10 text-primary border border-primary/30"
-                  : "bg-muted/30 text-muted-foreground hover:bg-muted/50 border border-transparent"
-              )}
-            >
-              <span className="text-base">{opt.icon}</span>
-              <span>{opt.label}</span>
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );
