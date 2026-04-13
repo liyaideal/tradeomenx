@@ -250,7 +250,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
 
   // Check if a transaction has extra details worth showing
   const hasDetails = (tx: Transaction) => {
-    return tx.txHash || (tx.status && tx.status !== 'completed') || tx.network;
+    return tx.txHash || (tx.status && tx.status !== 'completed') || tx.network || tx.fee || tx.sourceChain || tx.destChain;
   };
 
   return (
