@@ -108,32 +108,6 @@ export const CrossChainWithdraw = () => {
           onSlippageChange={setSlippage}
         />
 
-        {/* Receive Address */}
-        <div className="space-y-1.5">
-          <span className="text-xs text-muted-foreground">Receive to</span>
-          <button
-            onClick={() => setShowAddressSelect(true)}
-            className={cn(
-              "w-full flex items-center justify-between bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors",
-              isMobile ? "p-3 rounded-xl" : "p-2.5 rounded-lg"
-            )}
-          >
-            {selectedWallet ? (
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-trading-green" />
-                <img src={selectedWallet.icon} alt="" className="w-4 h-4" />
-                <MonoText className="text-xs">{selectedWallet.address}</MonoText>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Wallet className="w-4 h-4" />
-                <span className="text-sm">Select receive address</span>
-              </div>
-            )}
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-          </button>
-        </div>
-
         {/* From (OmenX Wallet — USDC Base) */}
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
           <div className="flex items-center justify-between">
