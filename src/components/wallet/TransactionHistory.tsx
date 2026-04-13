@@ -429,11 +429,28 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                         </span>
                       </div>
                     )}
+
+                    {/* Route info for cross-chain */}
+                    {tx.sourceChain && tx.destChain && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Route</span>
+                        <span className="text-foreground font-mono text-xs">
+                          {tx.sourceToken || 'USDC'} ({tx.sourceChain}) → {tx.destToken || 'USDC'} ({tx.destChain})
+                        </span>
+                      </div>
+                    )}
                     
                     {tx.network && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Network</span>
                         <span className="text-foreground">{tx.network}</span>
+                      </div>
+                    )}
+
+                    {tx.fee != null && tx.fee > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Fee</span>
+                        <span className="text-foreground font-mono">${tx.fee.toFixed(2)}</span>
                       </div>
                     )}
                     
