@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowDown, Loader2, Check, X, ExternalLink, RotateCcw, AlertCircle, Settings2, Sparkles } from 'lucide-react';
+import { ArrowDown, Loader2, Check, X, ExternalLink, RotateCcw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { AutoModeButton, SettingsButton, SettingsPanel } from '@/components/deposit/CrossChainSettings';
 
 const DEST_CHAINS = [
   { id: 'ethereum', name: 'Ethereum', icon: '/chain-logos/ethereum.svg', chainId: 1 },
@@ -40,6 +41,10 @@ export const CrossChainWithdraw = () => {
   const [toAddress, setToAddress] = useState('');
   const [processingStage, setProcessingStage] = useState(0);
   const [txResult, setTxResult] = useState<'success' | 'failed'>('success');
+  const [autoMode, setAutoMode] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
+  const [slippage, setSlippage] = useState(0.5);
+  const [gasPreference, setGasPreference] = useState<'low' | 'medium' | 'fast'>('medium');
 
   const selectedChain = DEST_CHAINS.find(c => c.id === toChain);
   const parsedAmount = parseFloat(amount) || 0;
@@ -77,15 +82,22 @@ export const CrossChainWithdraw = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">Swap</h3>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-              <Sparkles className="w-3 h-3" />
-              Auto Mode
-            </button>
-            <button className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground">
-              <Settings2 className="w-4 h-4" />
-            </button>
+            <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
+            <SettingsButton onClick={() => setShowSettings(!showSettings)} />
           </div>
         </div>
+
+        {/* Settings Panel */}
+        <SettingsPanel
+          open={showSettings}
+          onClose={() => setShowSettings(false)}
+          autoMode={autoMode}
+          onAutoModeChange={setAutoMode}
+          slippage={slippage}
+          onSlippageChange={setSlippage}
+          gasPreference={gasPreference}
+          onGasPreferenceChange={setGasPreference}
+        />
 
         {/* From (OmenX Wallet — locked to USDC Base) */}
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
@@ -188,6 +200,10 @@ export const CrossChainWithdraw = () => {
               <span className="font-mono">~${gasFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Slippage</span>
+              <span className="font-mono">{slippage}%</span>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>Est. Time</span>
               <span className="font-mono">~2 min</span>
             </div>
@@ -239,7 +255,7 @@ export const CrossChainWithdraw = () => {
         <div className="p-3 rounded-lg border border-border/30 space-y-2">
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Bridge Fee</span><span className="font-mono text-trading-green">Free</span></div>
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Gas (est.)</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Slippage</span><span className="font-mono">0.5%</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Slippage</span><span className="font-mono">{slippage}%</span></div>
         </div>
 
         <div className="p-3 rounded-lg bg-muted/30 border border-border/30">
