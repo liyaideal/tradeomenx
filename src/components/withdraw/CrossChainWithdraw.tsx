@@ -156,9 +156,7 @@ export const CrossChainWithdraw = () => {
               className="flex-1 h-12 text-2xl font-mono bg-transparent border-none shadow-none focus-visible:ring-0 p-0"
             />
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-card border border-border/50">
-              <div className="w-5 h-5 rounded-full bg-[#0052FF] flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold">B</span>
-              </div>
+              <img src="/chain-logos/base.svg" alt="Base" className="w-5 h-5" />
               <span className="font-medium text-sm">USDC</span>
               <span className="text-xs text-muted-foreground">Base</span>
             </div>
@@ -275,9 +273,7 @@ export const CrossChainWithdraw = () => {
         <div className="space-y-3">
           <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-[#0052FF] flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold">B</span>
-              </div>
+              <img src="/chain-logos/base.svg" alt="Base" className="w-5 h-5" />
               <span className="text-sm">USDC on Base</span>
             </div>
             <span className="font-mono font-semibold">{parsedAmount}</span>
