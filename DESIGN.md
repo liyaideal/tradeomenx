@@ -218,9 +218,221 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - Use `<AddressText address={hash} truncate />` component
 - On mobile: add `max-w-[200px] truncate` if needed
 
+### Security: Color-Coded Address Display
+
+For full deposit address displays (e.g., `FullAddressSheet`), apply color differentiation:
+- **Digits (0–9)**: `text-primary` (purple)
+- **Letters (a–f)**: `text-foreground` (white)
+
+This prevents character confusion (e.g., `6` vs `b`, `0` vs `O`).
+
 ---
 
-## 7. Animations
+## 7. Trading Patterns
+
+### Trading Color Semantics
+
+| Color | Token | Meaning |
+|-------|-------|---------|
+| Green | `text-trading-green` | Profit, Buy/Long, Success |
+| Red | `text-trading-red` | Loss, Sell/Short, Error |
+| Yellow | `text-trading-yellow` | Warning, Pending |
+| Purple | `text-trading-purple` | Brand emphasis, Active state |
+
+### Account Risk Indicator (4-Tier)
+
+Formula: `Risk Ratio = Initial Margin / Equity × 100` where `Equity = Balance + Unrealized PnL`
+
+| Tier | Range | Color | Behavior |
+|------|-------|-------|----------|
+| SAFE | < 80% | `trading-green` | Normal trading |
+| WARNING | 80–95% | `trading-yellow` | Reduce positions suggested |
+| RESTRICTION | 95–100% | `trading-red` | Close-only mode |
+| LIQUIDATION | ≥ 100% | `trading-red` + `animate-pulse` | Forced liquidation |
+
+### Order Status Badges
+
+| Status | Colors |
+|--------|--------|
+| Pending | `bg-amber-500/20 text-amber-400` |
+| Partial Filled | `bg-cyan-500/20 text-cyan-400` |
+| Filled | `bg-trading-green/20 text-trading-green` |
+| Cancelled | `bg-trading-red/20 text-trading-red` |
+
+### Option Chips
+
+Use `<OptionChips>` component for event option selection:
+- Active: `option-chip-active` (primary border + bg)
+- Inactive: `option-chip-inactive` (muted bg, transparent border)
+- Always show price in `font-mono` next to label
+
+### Event Category Badges
+
+Use `CATEGORY_STYLES` from `@/lib/categoryUtils` — never hardcode category colors:
+```tsx
+import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
+```
+
+---
+
+## 8. Wallet & Transaction Patterns
+
+### Transaction Status Config
+
+| Status | Icon | Color | Animation |
+|--------|------|-------|-----------|
+| pending | `Clock` | `text-trading-yellow` | — |
+| processing | `Loader2` | `text-trading-yellow` | `animate-spin` |
+| completed | `CheckCircle2` | `text-trading-green` | — |
+| failed | `XCircle` | `text-trading-red` | — |
+| cancelled | `AlertCircle` | `text-muted-foreground` | — |
+
+### Transaction Card Layout
+
+```
+flex items-center justify-between p-3 bg-card rounded-lg border border-border/50
+```
+
+- Left: Icon (colored circle) + amount + description
+- Right: Status badge
+
+### Vertical Stepper
+
+Used in withdrawal flow and deposit tracking:
+- Completed steps: `bg-trading-green border-trading-green` with `CheckCircle2` icon
+- Current step: `bg-trading-yellow/20 border-trading-yellow` with spinning `Loader2`
+- Pending steps: `bg-muted border-border` with step number
+- Connector line: `w-0.5 h-8` — green if previous step completed, `bg-border` otherwise
+
+### Block Confirmations
+
+- In-progress: Yellow-themed card with `animate-pulse` progress bar
+- Completed: Green-themed card with full progress bar
+- Format: `{current}/{required}` in `font-mono`
+
+### Explorer Link Pattern
+
+- Always `font-mono` for hashes
+- Truncate: `hash.slice(0, 8)...hash.slice(-5)`
+- Include `<ExternalLink className="h-3 w-3" />` icon
+- Use `text-primary hover:underline`
+
+---
+
+## 9. Deposit & Withdraw Patterns
+
+### Chain & Token Logos
+
+- Always use official SVGs from `/chain-logos/` and `/token-logos/`
+- Standard size: `w-5 h-5` (inline), `w-8 h-8` (selector)
+- **Never** use emoji, text, or generic icons for chains/tokens
+
+### Deposit/Withdraw Typography
+
+| Element | Spec |
+|---------|------|
+| Section title | `text-base font-semibold` (16px) |
+| Card label (From / To) | `text-sm text-muted-foreground` (14px) |
+| Amount input | `text-2xl font-mono` (24px) |
+| Token selector text | `text-sm font-medium` (14px) |
+| Chain name in selector | `text-xs text-muted-foreground` (12px) |
+| Quote detail label | `text-xs text-muted-foreground` (12px) |
+| Quote detail value | `text-xs font-mono` (12px) |
+| Balance display | `text-xs font-mono` |
+| Result amount | `text-3xl font-mono font-bold` |
+| CTA button | `text-sm font-semibold` (14px) |
+| Powered by footer | `text-[10px] text-muted-foreground` |
+
+### Swap Card Layout
+
+- **From card**: `rounded-xl border border-border/50 bg-muted/20 p-4`
+- **Arrow divider**: `w-9 h-9 rounded-lg bg-card border border-border/50` with `ArrowDown` icon, centered `-my-2 relative z-10`
+- **To card**: `rounded-xl border border-primary/30 bg-primary/5 p-4`
+
+### Quote Detail Rows
+
+```
+flex justify-between text-xs text-muted-foreground
+```
+- Values: `font-mono`
+- Free/zero fees: `text-trading-green`
+
+### Powered By Footer
+
+```html
+<p className="text-[10px] text-center text-muted-foreground">
+  Powered by <span className="font-semibold">SOCKET</span>
+</p>
+```
+
+---
+
+## 10. Mobile Patterns
+
+### Logo Usage
+
+| Context | Size | Notes |
+|---------|------|-------|
+| MobileHome, EventsPage headers | `md` (h-5) | Left-aligned, no back button |
+| Trade pages | — | Logo hidden, back button only |
+| Detail pages with back button | `md` | Back + Logo together |
+| Desktop navigation | `lg` (h-6) | Left side of top nav |
+| Marketing / landing pages | `xl` (h-8) | Hero sections, footers |
+
+Logo rules:
+- Always use `<Logo>` component from `@/components/Logo`
+- On light backgrounds: use `className="invert"` or wrap in dark container
+- Never stretch, add effects, or use raw SVG import
+
+### Page Type Classification
+
+| Type | Back Button | Logo | Examples |
+|------|------------|------|----------|
+| Functional | Never | Yes | `/`, `/events`, `/leaderboard`, `/portfolio` |
+| Operational (Logo) | Yes | Yes | `/trade/:id`, `/resolved/:id` |
+| Operational (No Logo) | Yes | No | `/deposit`, `/withdraw`, `/settings` |
+
+### Mobile Bottom Nav
+
+- Safe area: `--safe-area-bottom: 5rem`
+- Content padding: `pb-safe` to avoid bottom nav overlap
+
+---
+
+## 11. User Identity
+
+### Username Generation
+
+- Library: `sillyname`
+- Format: `sillyname().replace(/ /g, '_')` → e.g., "Fluffy_Bunny"
+
+### Default Avatars
+
+- Provider: DiceBear `adventurer-neutral` style
+- API: `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed={seed}&backgroundColor={bg}`
+- Use `generateAvatarUrl()` and `getRandomAvatarUrl()` from `@/hooks/useUserProfile`
+
+---
+
+## 12. Forms & Tables
+
+### Form Validation
+
+- Schema: Zod (`z.object(...)`)
+- Integration: `react-hook-form` with `zodResolver`
+- Error display: `<FormMessage />` component
+
+### Table Patterns
+
+- Use `<Table>` components from `@/components/ui/table`
+- Numeric columns: `font-mono`
+- PnL values: Color by sign (`text-trading-green` / `text-trading-red`)
+- Status cells: Use trading status badges
+- Selection: `<Checkbox>` with `data-state="selected"` row styling
+
+---
+
+## 13. Animations
 
 | Animation | Class | Duration | Usage |
 |-----------|-------|----------|-------|
@@ -236,9 +448,15 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - Price decrease: `flash-update-red` (0.5s)
 - New trade: `flash-new-trade` (0.8s)
 
+### Web3 Card Glow
+
+- `.web3-card`: Animated gradient border + radial glow
+- `.web3-card-intense`: Higher opacity/intensity variant
+- Animations: `gradient-rotate` (4s) + `glow-pulse` (3s)
+
 ---
 
-## 8. Do / Don't
+## 14. Do / Don't
 
 ### ✅ Do
 
@@ -249,6 +467,10 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - Use `Title Case` for section headers and page titles
 - Keep all buttons' text white on colored backgrounds
 - Use `trading-card` class for card containers
+- Use official chain/token SVG logos from `/chain-logos/` and `/token-logos/`
+- Use `<Logo>` component — never raw SVG imports
+- Use `CATEGORY_STYLES` for event category badges
+- Use `STATUS_CONFIG` pattern for transaction status badges
 
 ### ❌ Don't
 
@@ -259,14 +481,20 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - Create custom color classes — add to `index.css` tokens instead
 - Use light mode colors — the app is dark-only
 - Hardcode pixel values for spacing — use Tailwind scale
+- Use emoji or generic icons for chain/token logos
+- Stretch, add effects to, or modify the OMENX logo
+- Place white logo on light backgrounds without `invert`
 
 ---
 
-## 9. File References
+## 15. File References
 
 | File | Contains |
 |------|----------|
 | `src/index.css` | All CSS custom properties, component classes, animations |
 | `tailwind.config.ts` | Token → Tailwind class mappings, keyframes |
 | `src/components/typography/` | PriceText, PercentText, AmountText, AddressText, MonoText, LabelText |
+| `src/lib/categoryUtils.ts` | Event category styles and badge mappings |
+| `src/components/Logo.tsx` | Logo component with size variants |
+| `src/hooks/useUserProfile.ts` | Avatar generation utilities |
 | `/style-guide` | Interactive playground for all design tokens |
