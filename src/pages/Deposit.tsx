@@ -1,52 +1,35 @@
+import { useState } from 'react';
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, X, HelpCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { BottomNav } from '@/components/BottomNav';
-import { AssetSelect } from '@/components/shared/AssetSelect';
-import { DepositDetails } from '@/components/deposit/DepositDetails';
-import { SupportedToken, getTokenConfig } from '@/types/deposit';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { WalletDeposit } from '@/components/deposit/WalletDeposit';
+import { CrossChainDeposit } from '@/components/deposit/CrossChainDeposit';
+import { BuyWithFiat } from '@/components/deposit/BuyWithFiat';
 
 export default function Deposit() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState('wallet');
   
-  // On desktop, redirect to wallet page (deposit uses dialog there)
-  // Only redirect when isMobile is explicitly false (not undefined during initial load)
+  // On desktop, redirect to wallet page
   useEffect(() => {
     if (isMobile !== undefined && isMobile === false) {
       navigate('/wallet', { replace: true });
     }
   }, [isMobile, navigate]);
-  
-  // Get token from URL params if present (for step 2)
-  const tokenFromUrl = searchParams.get('token') as SupportedToken | null;
-  const selectedToken = tokenFromUrl && getTokenConfig(tokenFromUrl) ? tokenFromUrl : null;
-
-  const handleSelectToken = (token: SupportedToken) => {
-    navigate(`/deposit?token=${token}`);
-  };
 
   const handleBack = () => {
-    if (selectedToken) {
-      // Go back to asset selection - use replace to avoid history stack issues
-      navigate('/deposit', { replace: true });
-    } else {
-      // Go back to previous page (could be /trade/order or /wallet)
-      navigate(-1);
-    }
-  };
-
-  const handleClose = () => {
-    // Go back to previous page instead of always going to /wallet
     navigate(-1);
   };
 
-  const tokenConfig = selectedToken ? getTokenConfig(selectedToken) : null;
-  const title = tokenConfig ? `Deposit ${tokenConfig.symbol}` : 'Deposit';
+  const handleClose = () => {
+    navigate(-1);
+  };
 
-  // Don't render on desktop (will redirect) or during initial load
+  // Don't render on desktop or during initial load
   if (isMobile === undefined || isMobile === false) {
     return null;
   }
@@ -63,7 +46,7 @@ export default function Deposit() {
             <ChevronLeft className="w-6 h-6" />
           </button>
           
-          <h1 className="text-lg font-semibold">{title}</h1>
+          <h1 className="text-lg font-semibold">Deposit</h1>
           
           <div className="flex items-center gap-2">
             <a
@@ -82,17 +65,31 @@ export default function Deposit() {
         </div>
       </header>
 
-      {/* Content */}
-      <main className="flex-1 overflow-auto pb-24">
-        {selectedToken && tokenConfig ? (
-          <DepositDetails token={tokenConfig} />
-        ) : (
-          <AssetSelect onSelectToken={handleSelectToken} />
-        )}
-      </main>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">
+        <div className="px-4 pt-3 bg-background">
+          <TabsList className="w-full grid grid-cols-3 h-10">
+            <TabsTrigger value="wallet" className="text-xs">Wallet</TabsTrigger>
+            <TabsTrigger value="crosschain" className="text-xs">Cross-Chain</TabsTrigger>
+            <TabsTrigger value="fiat" className="text-xs">Buy Crypto</TabsTrigger>
+          </TabsList>
+        </div>
+        
+        <main className="flex-1 overflow-auto pb-24">
+          <TabsContent value="wallet" className="mt-0">
+            <WalletDeposit />
+          </TabsContent>
+          <TabsContent value="crosschain" className="mt-0">
+            <CrossChainDeposit />
+          </TabsContent>
+          <TabsContent value="fiat" className="mt-0">
+            <BuyWithFiat />
+          </TabsContent>
+        </main>
+      </Tabs>
 
-      {/* Bottom Nav - Mobile Only */}
-      {isMobile && <BottomNav />}
+      {/* Bottom Nav */}
+      <BottomNav />
     </div>
   );
 }
