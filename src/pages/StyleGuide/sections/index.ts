@@ -6,3 +6,4 @@ export { TradingSection } from "./TradingSection";
 export { WalletSection } from "./WalletSection";
 export { MobilePatternsSection } from "./MobilePatternsSection";
 export { UserIdentitySection } from "./UserIdentitySection";
+export { DepositWithdrawSection } from "./DepositWithdrawSection";

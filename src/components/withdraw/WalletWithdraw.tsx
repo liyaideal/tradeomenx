@@ -121,9 +121,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
     <div className={cn("space-y-5", isMobile ? "px-4 py-5" : "p-5")}>
       {/* Base-USDC info */}
       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-        <div className="w-10 h-10 rounded-full bg-[#0052FF]/10 flex items-center justify-center">
-          <span className="text-lg font-bold text-[#0052FF]">B</span>
-        </div>
+        <img src="/chain-logos/base.svg" alt="Base" className="w-10 h-10" />
         <div>
           <div className="font-semibold text-sm">USDC</div>
           <div className="text-xs text-muted-foreground">Base Network</div>

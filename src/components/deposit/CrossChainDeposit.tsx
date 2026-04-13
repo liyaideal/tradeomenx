@@ -238,9 +238,7 @@ export const CrossChainDeposit = () => {
               {parsedAmount > 0 ? estimatedReceive.toFixed(2) : '0.00'}
             </span>
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-card border border-border/50">
-              <div className="w-5 h-5 rounded-full bg-[#0052FF] flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold">B</span>
-              </div>
+              <img src="/chain-logos/base.svg" alt="Base" className="w-5 h-5" />
               <span className="font-medium text-sm">USDC</span>
               <span className="text-xs text-muted-foreground">Base</span>
             </div>
@@ -314,9 +312,7 @@ export const CrossChainDeposit = () => {
           <div className="flex justify-center"><ArrowDown className="w-4 h-4 text-muted-foreground" /></div>
           <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-[#0052FF] flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold">B</span>
-              </div>
+              <img src="/chain-logos/base.svg" alt="Base" className="w-5 h-5" />
               <span className="text-sm">USDC on Base</span>
             </div>
             <span className="font-mono font-semibold text-trading-green">~{estimatedReceive.toFixed(2)}</span>
