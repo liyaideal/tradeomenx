@@ -218,24 +218,30 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
   };
 
   const getTransactionIcon = (tx: Transaction) => {
-    if (tx.type === 'deposit') {
-      return <ArrowDownLeft className="w-5 h-5 text-trading-green" />;
-    } else if (tx.type === 'withdraw') {
-      return <ArrowUpRight className="w-5 h-5 text-trading-red" />;
-    } else if (tx.type === 'platform_credit') {
-      return <WalletIcon className="w-5 h-5 text-trading-green" />;
-    } else if (tx.type === 'trade_profit') {
-      return <TrendingUp className="w-5 h-5 text-trading-green" />;
-    } else {
-      return <TrendingDown className="w-5 h-5 text-trading-red" />;
+    switch (tx.type) {
+      case 'deposit': return <ArrowDownLeft className="w-5 h-5 text-trading-green" />;
+      case 'withdraw': return <ArrowUpRight className="w-5 h-5 text-trading-red" />;
+      case 'platform_credit': return <WalletIcon className="w-5 h-5 text-trading-green" />;
+      case 'trade_profit': return <TrendingUp className="w-5 h-5 text-trading-green" />;
+      case 'trade_loss': return <TrendingDown className="w-5 h-5 text-trading-red" />;
+      case 'cross_chain_in': return <ArrowLeftRight className="w-5 h-5 text-blue-400" />;
+      case 'cross_chain_out': return <ArrowLeftRight className="w-5 h-5 text-orange-400" />;
+      case 'fiat_buy': return <Banknote className="w-5 h-5 text-purple-400" />;
+      case 'fiat_sell': return <Banknote className="w-5 h-5 text-pink-400" />;
+      default: return <TrendingDown className="w-5 h-5 text-trading-red" />;
     }
   };
 
   const getTransactionBgColor = (tx: Transaction) => {
-    if (tx.type === 'deposit' || tx.type === 'platform_credit' || tx.type === 'trade_profit') {
-      return 'bg-trading-green/20';
+    switch (tx.type) {
+      case 'deposit': case 'platform_credit': case 'trade_profit': return 'bg-trading-green/20';
+      case 'withdraw': case 'trade_loss': return 'bg-trading-red/20';
+      case 'cross_chain_in': return 'bg-blue-500/20';
+      case 'cross_chain_out': return 'bg-orange-500/20';
+      case 'fiat_buy': return 'bg-purple-500/20';
+      case 'fiat_sell': return 'bg-pink-500/20';
+      default: return 'bg-muted/20';
     }
-    return 'bg-trading-red/20';
   };
 
   const toggleExpand = (id: string) => {
