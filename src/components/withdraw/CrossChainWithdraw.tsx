@@ -184,6 +184,26 @@ export const CrossChainWithdraw = () => {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Receive address inside To card */}
+          <button
+            onClick={() => setShowAddressSelect(true)}
+            className="w-full flex items-center justify-between p-2.5 rounded-lg bg-card/50 border border-border/30 hover:bg-card transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Receive to:</span>
+              {selectedWallet ? (
+                <>
+                  <div className="w-2 h-2 rounded-full bg-trading-green" />
+                  <img src={selectedWallet.icon} alt="" className="w-4 h-4" />
+                  <MonoText className="text-xs">{selectedWallet.address}</MonoText>
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground">Select address</span>
+              )}
+            </div>
+            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
         </div>
 
         {/* Inline Quote */}
