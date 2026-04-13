@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Settings2, Sparkles, Zap, X } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
+import { Settings2, X, Check, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CrossChainSettingsProps {
@@ -19,6 +18,87 @@ const GAS_OPTIONS: { value: 'low' | 'medium' | 'fast'; label: string; icon: stri
   { value: 'fast', label: 'Fast', icon: '🚀' },
 ];
 
+const AUTO_FEATURES = [
+  { text: 'Smart routing based on your swap preferences', pro: true },
+  { text: 'Optimised slippage and protection', pro: true },
+  { text: 'Swap any token across any chain', pro: true },
+  { text: 'Swap tokens with a signature only', pro: true },
+];
+
+const MANUAL_FEATURES = [
+  { text: 'Manual control over routing and execution', pro: true },
+  { text: 'No automated refunds for some bridges', pro: false },
+  { text: 'Limited token pair availability', pro: false },
+  { text: 'Requires gas to execute transactions', pro: false },
+];
+
+/** Bungee-style Auto / Manual toggle card */
+export const SwapModeCard = ({
+  autoMode,
+  onAutoModeChange,
+}: {
+  autoMode: boolean;
+  onAutoModeChange: (v: boolean) => void;
+}) => {
+  const features = autoMode ? AUTO_FEATURES : MANUAL_FEATURES;
+
+  return (
+    <div className="rounded-xl border border-border/50 bg-card p-4 space-y-4">
+      <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+        Swap Mode
+      </p>
+
+      {/* Toggle buttons */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => onAutoModeChange(true)}
+          className={cn(
+            "rounded-lg px-4 py-3 text-left transition-all",
+            autoMode
+              ? "border-2 border-primary bg-card"
+              : "border border-border/50 bg-muted/20 hover:bg-muted/40"
+          )}
+        >
+          <span className={cn("text-sm font-semibold", autoMode ? "text-primary" : "text-foreground")}>
+            Auto
+          </span>
+          <p className="text-xs text-muted-foreground mt-0.5">Optimized Execution</p>
+        </button>
+
+        <button
+          onClick={() => onAutoModeChange(false)}
+          className={cn(
+            "rounded-lg px-4 py-3 text-left transition-all",
+            !autoMode
+              ? "border-2 border-primary bg-card"
+              : "border border-border/50 bg-muted/20 hover:bg-muted/40"
+          )}
+        >
+          <span className={cn("text-sm font-semibold", !autoMode ? "text-primary" : "text-foreground")}>
+            Manual
+          </span>
+          <p className="text-xs text-muted-foreground mt-0.5">Custom Routing</p>
+        </button>
+      </div>
+
+      {/* Feature list */}
+      <div className="space-y-3">
+        {features.map((f, i) => (
+          <div key={i} className="flex items-start gap-3">
+            {f.pro ? (
+              <Check className="w-4 h-4 mt-0.5 text-emerald-400 shrink-0" />
+            ) : (
+              <XCircle className="w-4 h-4 mt-0.5 text-orange-400 shrink-0" />
+            )}
+            <span className="text-sm text-foreground/90">{f.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/** Small inline button to show current mode */
 export const AutoModeButton = ({ active, onClick }: { active: boolean; onClick: () => void }) => (
   <button
     onClick={onClick}
@@ -29,7 +109,6 @@ export const AutoModeButton = ({ active, onClick }: { active: boolean; onClick: 
         : "bg-muted/50 text-muted-foreground hover:bg-muted"
     )}
   >
-    {active ? <Sparkles className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
     {active ? 'Auto' : 'Manual'}
   </button>
 );
@@ -49,7 +128,7 @@ export const SettingsPanel = ({
   if (!open) return null;
 
   return (
-    <div className="rounded-xl border border-border/50 bg-card p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+    <div className="rounded-xl border border-border/50 bg-card p-4 space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold">Bridge Settings</h4>
         <button onClick={onClose} className="p-1 rounded-md hover:bg-muted/50 text-muted-foreground">
@@ -57,14 +136,8 @@ export const SettingsPanel = ({
         </button>
       </div>
 
-      {/* Auto Mode */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
-          <p className="text-sm font-medium">Auto Mode</p>
-          <p className="text-xs text-muted-foreground">Automatically pick the best route</p>
-        </div>
-        <Switch checked={autoMode} onCheckedChange={onAutoModeChange} />
-      </div>
+      {/* Swap Mode Card */}
+      <SwapModeCard autoMode={autoMode} onAutoModeChange={onAutoModeChange} />
 
       {/* Slippage */}
       <div className="space-y-2">
@@ -109,19 +182,20 @@ export const SettingsPanel = ({
       {/* Gas Preference */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Gas Price</p>
+        <p className="text-xs text-muted-foreground">Display only — actual gas is determined by the bridge provider</p>
         <div className="flex gap-2">
           {GAS_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => onGasPreferenceChange(opt.value)}
               className={cn(
-                "flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-xs font-medium transition-colors",
+                "flex-1 flex flex-col items-center gap-1 py-2.5 rounded-lg text-xs font-medium transition-colors",
                 gasPreference === opt.value
                   ? "bg-primary/10 text-primary border border-primary/30"
                   : "bg-muted/30 text-muted-foreground hover:bg-muted/50 border border-transparent"
               )}
             >
-              <span>{opt.icon}</span>
+              <span className="text-base">{opt.icon}</span>
               <span>{opt.label}</span>
             </button>
           ))}
