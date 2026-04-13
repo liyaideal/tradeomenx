@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, FileSearch, Scale, ChevronRight, ChevronLeft, ExternalLink, Lock, Eye, Zap } from "lucide-react";
+import { Shield, FileSearch, Scale, ChevronRight, ChevronLeft, ExternalLink, Lock, Eye, Zap, Percent, Gavel } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -12,6 +12,8 @@ import { LoginPrompt } from "@/components/LoginPrompt";
 import { MerkleProofVerification } from "@/components/transparency/MerkleProofVerification";
 import { TradeVerification } from "@/components/transparency/TradeVerification";
 import { LiquidationAudit } from "@/components/transparency/LiquidationAudit";
+import { FundingRateAudit } from "@/components/transparency/FundingRateAudit";
+import { SettlementAudit } from "@/components/transparency/SettlementAudit";
 
 const SCENARIOS = [
   {
@@ -20,8 +22,8 @@ const SCENARIOS = [
     iconColor: "text-emerald-400",
     iconBg: "bg-emerald-400/10",
     title: "My Funds Are Really There?",
-    subtitle: "Asset Merkle Proof Verification",
-    description: "Verify your account balance and positions are included in the platform's on-chain state root using cryptographic Merkle proofs.",
+    subtitle: "State Root Verification",
+    description: "Verify your account balance and positions are included in the platform's on-chain state root (batchId, oldRoot → newRoot) using cryptographic Merkle proofs.",
     steps: ["Fetch proof from platform", "Read on-chain StateRoot", "Local browser verification", "Result display"],
     badge: "Proof of Reserves",
   },
@@ -31,9 +33,9 @@ const SCENARIOS = [
     iconColor: "text-blue-400",
     iconBg: "bg-blue-400/10",
     title: "Is My Trade Real?",
-    subtitle: "Historical Trade Sourcing",
-    description: "Compare your trade records against on-chain transaction logs to verify execution integrity and counterparty transparency.",
-    steps: ["Select a trade", "Fetch on-chain log", "Side-by-side comparison", "Counterparty verification"],
+    subtitle: "TradeLogged Event Audit",
+    description: "Compare your trade records against on-chain TradeLogged events (eventId, outcomeId, makerUid, takerUid, price, size, side) to verify execution integrity.",
+    steps: ["Select a trade", "Fetch on-chain log", "Field-by-field comparison", "Counterparty verification"],
     badge: "Trade Audit",
   },
   {
@@ -42,12 +44,50 @@ const SCENARIOS = [
     iconColor: "text-amber-400",
     iconBg: "bg-amber-400/10",
     title: "Why Was I Liquidated?",
-    subtitle: "Liquidation Price Audit",
-    description: "Audit forced liquidation events by comparing the platform's trigger price against third-party oracle feeds to ensure fairness.",
-    steps: ["Select liquidation record", "Fetch oracle prices", "Price deviation analysis", "Fairness conclusion"],
+    subtitle: "PositionLiquidated Event Audit",
+    description: "Audit forced liquidation events by comparing the on-chain markPrice against third-party oracle feeds (Chainlink / Pyth) to ensure no price manipulation.",
+    steps: ["Select position", "Fetch on-chain event", "Oracle price comparison", "Fairness conclusion"],
     badge: "Price Fairness",
   },
+  {
+    id: "funding-rate-audit",
+    icon: Percent,
+    iconColor: "text-purple-400",
+    iconBg: "bg-purple-400/10",
+    title: "Am I Being Overcharged?",
+    subtitle: "FundingRate Event Audit",
+    description: "Compare the funding rate applied to your position against the on-chain FundingRate event log (eventId, outcomeId, fundingRate) to verify no unfair fees.",
+    steps: ["Select a position", "Fetch on-chain log", "Rate comparison", "Fee verification"],
+    badge: "Fee Transparency",
+  },
+  {
+    id: "settlement-audit",
+    icon: Gavel,
+    iconColor: "text-cyan-400",
+    iconBg: "bg-cyan-400/10",
+    title: "Was the Result Fair?",
+    subtitle: "EventResolved Audit",
+    description: "Verify a resolved event's on-chain EventResolved record (winningOutcomeId, oracleProof) against external data sources to confirm the outcome is authentic.",
+    steps: ["Select resolved event", "Fetch on-chain log", "Oracle proof verification", "Conclusion"],
+    badge: "Result Integrity",
+  },
 ];
+
+const SCENARIO_GRADIENTS: Record<string, string> = {
+  "merkle-proof": "hsl(160 50% 15% / 0.15)",
+  "trade-verification": "hsl(210 50% 15% / 0.15)",
+  "liquidation-audit": "hsl(40 50% 15% / 0.15)",
+  "funding-rate-audit": "hsl(270 50% 15% / 0.15)",
+  "settlement-audit": "hsl(190 50% 15% / 0.15)",
+};
+
+const SCENARIO_TITLES: Record<string, string> = {
+  "merkle-proof": "Asset Verification",
+  "trade-verification": "Trade Verification",
+  "liquidation-audit": "Liquidation Audit",
+  "funding-rate-audit": "Funding Rate Audit",
+  "settlement-audit": "Settlement Audit",
+};
 
 const BASE_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
@@ -67,15 +107,27 @@ const TransparencyPage = () => {
   }
 
   // Render active scenario
-  if (activeScenario === "merkle-proof") {
-    const scenarioContent = (
-      <MerkleProofVerification onBack={() => setActiveScenario(null)} />
-    );
+  const renderScenario = () => {
+    const onBack = () => setActiveScenario(null);
+    switch (activeScenario) {
+      case "merkle-proof": return <MerkleProofVerification onBack={onBack} />;
+      case "trade-verification": return <TradeVerification onBack={onBack} />;
+      case "liquidation-audit": return <LiquidationAudit onBack={onBack} />;
+      case "funding-rate-audit": return <FundingRateAudit onBack={onBack} />;
+      case "settlement-audit": return <SettlementAudit onBack={onBack} />;
+      default: return null;
+    }
+  };
+
+  if (activeScenario) {
+    const scenarioContent = renderScenario();
+    const gradient = SCENARIO_GRADIENTS[activeScenario] || "hsl(160 50% 15% / 0.15)";
+    const title = SCENARIO_TITLES[activeScenario] || "Transparency";
 
     if (isMobile) {
       return (
         <div className="min-h-screen bg-background pb-24">
-          <MobileHeader title="Asset Verification" showLogo={false} />
+          <MobileHeader title={title} showLogo={false} />
           <div className="p-4">{scenarioContent}</div>
           <BottomNav />
         </div>
@@ -84,63 +136,7 @@ const TransparencyPage = () => {
 
     return (
       <div className="min-h-screen bg-background flex flex-col"
-        style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(160 50% 15% / 0.15) 0%, hsl(222 47% 6%) 70%)" }}
-      >
-        <EventsDesktopHeader />
-        <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
-          {scenarioContent}
-        </main>
-        <SeoFooter />
-      </div>
-    );
-  }
-
-  // Trade verification scenario
-  if (activeScenario === "trade-verification") {
-    const scenarioContent = (
-      <TradeVerification onBack={() => setActiveScenario(null)} />
-    );
-
-    if (isMobile) {
-      return (
-        <div className="min-h-screen bg-background pb-24">
-          <MobileHeader title="Trade Verification" showLogo={false} />
-          <div className="p-4">{scenarioContent}</div>
-          <BottomNav />
-        </div>
-      );
-    }
-
-    return (
-      <div className="min-h-screen bg-background flex flex-col"
-        style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210 50% 15% / 0.15) 0%, hsl(222 47% 6%) 70%)" }}
-      >
-        <EventsDesktopHeader />
-        <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">{scenarioContent}</main>
-        <SeoFooter />
-      </div>
-    );
-  }
-
-  // Liquidation audit scenario
-  if (activeScenario === "liquidation-audit") {
-    const scenarioContent = (
-      <LiquidationAudit onBack={() => setActiveScenario(null)} />
-    );
-
-    if (isMobile) {
-      return (
-        <div className="min-h-screen bg-background pb-24">
-          <MobileHeader title="Liquidation Audit" showLogo={false} />
-          <div className="p-4">{scenarioContent}</div>
-          <BottomNav />
-        </div>
-      );
-    }
-
-    return (
-      <div className="min-h-screen bg-background flex flex-col"
-        style={{ background: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(40 50% 15% / 0.15) 0%, hsl(222 47% 6%) 70%)" }}
+        style={{ background: `radial-gradient(ellipse 80% 50% at 50% -20%, ${gradient} 0%, hsl(222 47% 6%) 70%)` }}
       >
         <EventsDesktopHeader />
         <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">{scenarioContent}</main>
@@ -162,7 +158,7 @@ const TransparencyPage = () => {
         <div className="space-y-2 max-w-lg">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">On-Chain Transparency</h1>
           <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-            Don't trust — verify. Audit your assets, trades, and liquidations directly against on-chain data using cryptographic proofs.
+            Don't trust — verify. Audit your assets, trades, liquidations, fees, and settlements directly against on-chain data using cryptographic proofs.
           </p>
         </div>
         <div className="flex items-center gap-6 mt-2">
@@ -205,14 +201,12 @@ const TransparencyPage = () => {
               {scenario.description}
             </p>
             <div className="flex items-center gap-1.5 flex-wrap">
-              {scenario.steps.map((step, i) => (
+              {scenario.steps.map((s, i) => (
                 <div key={i} className="flex items-center gap-1.5">
                   <span className="text-[10px] text-muted-foreground/70 bg-muted/30 px-2 py-0.5 rounded">
-                    {i + 1}. {step}
+                    {i + 1}. {s}
                   </span>
-                  {i < scenario.steps.length - 1 && (
-                    <ChevronRight className="w-3 h-3 text-muted-foreground/30" />
-                  )}
+                  {i < scenario.steps.length - 1 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
                 </div>
               ))}
             </div>
@@ -228,25 +222,19 @@ const TransparencyPage = () => {
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex-1">
           <h3 className="font-semibold text-sm mb-1">Smart Contract</h3>
-          <p className="text-xs text-muted-foreground mb-2">
-            All user funds are held in the OmenX smart contract on Base network.
-          </p>
-          <code className="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded break-all">
-            {BASE_CONTRACT}
-          </code>
+          <p className="text-xs text-muted-foreground mb-2">All user funds are held in the OmenX smart contract on Base network.</p>
+          <code className="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded break-all">{BASE_CONTRACT}</code>
         </div>
         <div className="flex flex-col gap-2">
           <Button variant="outline" size="sm" className="text-xs gap-1.5"
             onClick={() => window.open(`https://basescan.org/address/${BASE_CONTRACT}`, "_blank")}
           >
-            <ExternalLink className="w-3.5 h-3.5" />
-            View on BaseScan
+            <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
           </Button>
           <Button variant="outline" size="sm" className="text-xs gap-1.5"
             onClick={() => window.open("https://github.com/omenx/auditor", "_blank")}
           >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Open Source Auditor
+            <ExternalLink className="w-3.5 h-3.5" /> Open Source Auditor
           </Button>
         </div>
       </div>
@@ -279,12 +267,8 @@ const TransparencyPage = () => {
     >
       <EventsDesktopHeader />
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
-        <button
-          onClick={() => navigate("/settings")}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back to Settings
+        <button onClick={() => navigate("/settings")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+          <ChevronLeft className="w-4 h-4" /> Back to Settings
         </button>
         {content}
       </main>

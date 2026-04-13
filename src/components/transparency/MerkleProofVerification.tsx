@@ -3,6 +3,7 @@ import { Shield, Loader2, CheckCircle2, ChevronDown, ChevronUp, Copy, Check, Ext
 import { Button } from "@/components/ui/button";
 import { useMerkleVerification, type MerkleStep } from "@/hooks/useMerkleVerification";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const STEPS_CONFIG = [
   { key: "fetching_proof", label: "Fetching Merkle proof", description: "Requesting cryptographic proof from the platform..." },
@@ -48,15 +49,13 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
     </button>
   );
 
-  // Idle state - start button
+  // Idle state
   if (step === "idle") {
     return (
       <div className="space-y-6">
         <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          Back
+          <ArrowLeft className="w-4 h-4" /> Back
         </button>
-
         <div className="trading-card p-6 md:p-8 text-center space-y-5">
           <div className="w-20 h-20 mx-auto rounded-2xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center">
             <Shield className="w-10 h-10 text-emerald-400" />
@@ -67,7 +66,6 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
               This verification proves your account balance and open positions are included in OmenX's on-chain Merkle state tree committed to Base network.
             </p>
           </div>
-
           <div className="bg-muted/30 rounded-xl p-4 text-left max-w-sm mx-auto space-y-2">
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">How it works</h4>
             {STEPS_CONFIG.slice(0, 3).map((s, i) => (
@@ -79,22 +77,19 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
               </div>
             ))}
           </div>
-
           <Button onClick={startVerification} className="px-8 gap-2">
-            <Shield className="w-4 h-4" />
-            Start Verification
+            <Shield className="w-4 h-4" /> Start Verification
           </Button>
         </div>
       </div>
     );
   }
 
-  // Processing / Result states
+  // Processing / Result
   return (
     <div className="space-y-6">
       <button onClick={() => { reset(); onBack(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ArrowLeft className="w-4 h-4" />
-        Back
+        <ArrowLeft className="w-4 h-4" /> Back
       </button>
 
       <div className="trading-card p-6 md:p-8 space-y-6">
@@ -103,49 +98,23 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
           {STEPS_CONFIG.map((s, i) => {
             const isActive = i === currentIdx && step !== "result" && step !== "details";
             const isDone = i < currentIdx || step === "result" || step === "details";
-
             return (
-              <div
-                key={s.key}
-                className={`flex items-start gap-3 transition-all duration-500 ${
-                  i > currentIdx && step !== "result" && step !== "details" ? "opacity-30" : "opacity-100"
-                }`}
-              >
-                {/* Step indicator */}
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-500 ${
-                  isDone
-                    ? "bg-emerald-400/20 text-emerald-400"
-                    : isActive
-                    ? "bg-primary/20 text-primary"
-                    : "bg-muted text-muted-foreground"
-                }`}>
-                  {isDone ? (
-                    <CheckCircle2 className="w-4.5 h-4.5" />
-                  ) : isActive ? (
-                    <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                  ) : (
-                    <span className="text-xs font-bold">{i + 1}</span>
-                  )}
+              <div key={s.key} className={`flex items-start gap-3 transition-all duration-500 ${i > currentIdx && step !== "result" && step !== "details" ? "opacity-30" : "opacity-100"}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-500 ${isDone ? "bg-emerald-400/20 text-emerald-400" : isActive ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                  {isDone ? <CheckCircle2 className="w-4.5 h-4.5" /> : isActive ? <Loader2 className="w-4.5 h-4.5 animate-spin" /> : <span className="text-xs font-bold">{i + 1}</span>}
                 </div>
-
-                {/* Step text */}
                 <div className="pt-1">
-                  <p className={`text-sm font-medium ${isDone ? "text-emerald-400" : isActive ? "text-foreground" : "text-muted-foreground"}`}>
-                    {s.label}
-                  </p>
-                  {isActive && s.description && (
-                    <p className="text-xs text-muted-foreground mt-0.5 animate-fade-in">{s.description}</p>
-                  )}
+                  <p className={`text-sm font-medium ${isDone ? "text-emerald-400" : isActive ? "text-foreground" : "text-muted-foreground"}`}>{s.label}</p>
+                  {isActive && s.description && <p className="text-xs text-muted-foreground mt-0.5 animate-fade-in">{s.description}</p>}
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Connecting line between steps */}
         <div className="ml-4 -mt-3 h-0" />
 
-        {/* Result section */}
+        {/* Result */}
         {(step === "result" || step === "details") && data && (
           <div className="animate-fade-in space-y-4">
             {/* Success banner */}
@@ -155,9 +124,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
               </div>
               <div>
                 <h3 className="font-bold text-emerald-400 text-lg">Verified ✓</h3>
-                <p className="text-sm text-muted-foreground">
-                  Your assets are cryptographically proven to exist in the platform's on-chain state.
-                </p>
+                <p className="text-sm text-muted-foreground">Your assets are cryptographically proven to exist in the platform's on-chain state.</p>
               </div>
             </div>
 
@@ -175,7 +142,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
               ))}
             </div>
 
-            {/* Expandable details */}
+            {/* Expandable cryptographic details */}
             <button
               onClick={() => setDetailsOpen(!detailsOpen)}
               className="w-full flex items-center justify-between text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
@@ -186,31 +153,56 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
 
             {detailsOpen && (
               <div className="animate-fade-in space-y-3 bg-muted/20 rounded-xl p-4">
+                {/* Batch ID */}
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                    Batch ID <span className="text-muted-foreground/50 normal-case">(batchId)</span>
+                  </p>
+                  <div className="flex items-center">
+                    <code className="text-xs font-mono text-foreground">#{data.batchId.toLocaleString()}</code>
+                    <CopyBtn text={data.batchId.toString()} field="batch" />
+                  </div>
+                </div>
+
                 {/* Leaf Hash */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Leaf Hash</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">User Leaf Hash</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-emerald-400 break-all flex-1">{data.leafHash}</code>
                     <CopyBtn text={data.leafHash} field="leaf" />
                   </div>
                 </div>
 
-                {/* State Root */}
+                {/* Old Root */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">State Root (On-Chain)</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                    Previous State Root <span className="text-muted-foreground/50 normal-case">(oldRoot)</span>
+                  </p>
+                  <div className="flex items-center">
+                    <code className="text-xs font-mono text-muted-foreground break-all flex-1">{data.oldRoot}</code>
+                    <CopyBtn text={data.oldRoot} field="oldRoot" />
+                  </div>
+                </div>
+
+                {/* New Root */}
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                    Current State Root <span className="text-muted-foreground/50 normal-case">(newRoot)</span>
+                  </p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-blue-400 break-all flex-1">{data.stateRoot}</code>
                     <CopyBtn text={data.stateRoot} field="root" />
                   </div>
                 </div>
 
-                {/* Batch ID */}
+                {/* Commit Timestamp */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Batch ID</p>
-                  <div className="flex items-center">
-                    <code className="text-xs font-mono text-foreground">{data.batchId}</code>
-                    <CopyBtn text={data.batchId} field="batch" />
-                  </div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                    L2 Commit Time <span className="text-muted-foreground/50 normal-case">(timestamp)</span>
+                  </p>
+                  <code className="text-xs font-mono text-foreground">
+                    {format(new Date(data.commitTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'")}
+                  </code>
                 </div>
 
                 {/* Proof Path */}
@@ -233,15 +225,10 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
                   </p>
                 </div>
 
-                {/* BaseScan link */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs gap-1.5 w-full"
+                <Button variant="outline" size="sm" className="text-xs gap-1.5 w-full"
                   onClick={() => window.open(`https://basescan.org/tx/${data.stateRoot}`, "_blank")}
                 >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  View State Root on BaseScan
+                  <ExternalLink className="w-3.5 h-3.5" /> View State Root on BaseScan
                 </Button>
               </div>
             )}
@@ -249,12 +236,9 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
             {/* Actions */}
             <div className="flex gap-3">
               <Button onClick={startVerification} className="flex-1 gap-2">
-                <Shield className="w-4 h-4" />
-                Verify Again
+                <Shield className="w-4 h-4" /> Verify Again
               </Button>
-              <Button variant="outline" onClick={() => { reset(); onBack(); }} className="flex-1">
-                Done
-              </Button>
+              <Button variant="outline" onClick={() => { reset(); onBack(); }} className="flex-1">Done</Button>
             </div>
           </div>
         )}
