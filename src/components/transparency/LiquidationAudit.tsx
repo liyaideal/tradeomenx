@@ -4,6 +4,15 @@ import { ChevronLeft, Scale, Loader2, CheckCircle2, AlertTriangle, ExternalLink,
 import { useLiquidationAudit, type LiquidationStep } from "@/hooks/useLiquidationAudit";
 import { format } from "date-fns";
 
+/** Smart price formatter: uses enough decimals so the value is never $0.0000 */
+const fmtPrice = (v: number) => {
+  if (v === 0) return "$0.00";
+  const abs = Math.abs(v);
+  if (abs >= 1) return `$${v.toFixed(4)}`;
+  // For small prices, use toPrecision to keep significant digits
+  return `$${v.toPrecision(4)}`;
+};
+
 const STEPS: { key: LiquidationStep; label: string }[] = [
   { key: "select", label: "Select Position" },
   { key: "fetching_chain", label: "On-Chain Log" },
@@ -122,8 +131,8 @@ export const LiquidationAudit = ({ onBack }: Props) => {
           <p className="font-medium text-sm">{selectedPosition.event_name} — {selectedPosition.option_label}</p>
           <div className="grid grid-cols-4 gap-2 mt-2 text-xs">
             <div><span className="text-muted-foreground">Side</span><br /><span className="font-medium">{selectedPosition.side}</span></div>
-            <div><span className="text-muted-foreground">Entry</span><br /><span className="font-mono">${selectedPosition.entry_price.toFixed(4)}</span></div>
-            <div><span className="text-muted-foreground">Close</span><br /><span className="font-mono">${selectedPosition.mark_price.toFixed(4)}</span></div>
+            <div><span className="text-muted-foreground">Entry</span><br /><span className="font-mono">{fmtPrice(selectedPosition.entry_price)}</span></div>
+            <div><span className="text-muted-foreground">Close</span><br /><span className="font-mono">{fmtPrice(selectedPosition.mark_price)}</span></div>
             <div><span className="text-muted-foreground">P&L</span><br /><span className="font-mono text-trading-red">{selectedPosition.pnl?.toFixed(2)}</span></div>
           </div>
         </div>
@@ -150,9 +159,9 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <div className="p-4 space-y-4">
               <div className="text-center py-3">
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">System Mark Price at Liquidation</p>
-                <p className="text-4xl font-bold font-mono text-trading-red">
-                  ${audit.onchainMarkPrice.toFixed(4)}
-                </p>
+                 <p className="text-4xl font-bold font-mono text-trading-red">
+                   {fmtPrice(audit.onchainMarkPrice)}
+                 </p>
               </div>
               <div className="grid grid-cols-1 gap-1.5 text-xs">
                 {[
@@ -190,16 +199,16 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <div className="p-4 space-y-4">
               <div className="text-center py-3">
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Global Spot Fair Price</p>
-                <p className="text-4xl font-bold font-mono text-emerald-400">
-                  ${audit.oraclePrice.toFixed(4)}
-                </p>
+                 <p className="text-4xl font-bold font-mono text-emerald-400">
+                   {fmtPrice(audit.oraclePrice)}
+                 </p>
               </div>
               <div className="grid grid-cols-1 gap-1.5 text-xs">
                 {[
                   { label: "Oracle Source", value: audit.oracleSource },
                   { label: "Feed Contract", value: audit.oracleFeedAddress, mono: true, truncate: true },
                   { label: "Queried At", value: format(new Date(audit.oracleTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'") },
-                  { label: "Price Deviation", value: `${audit.deviation.toFixed(6)} ($${audit.deviationPercent.toFixed(4)}%)`, highlight: true },
+                  { label: "Price Deviation", value: `${audit.deviation.toPrecision(3)} (${audit.deviationPercent.toFixed(4)}%)`, highlight: true },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
                     <span className="text-muted-foreground shrink-0">{row.label}</span>
@@ -227,9 +236,9 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <div className="p-5 space-y-3">
               <p className="text-sm leading-relaxed text-foreground/90">
                 At the time of liquidation, the on-chain system mark price was{" "}
-                <span className="font-mono font-bold text-trading-red">${audit.onchainMarkPrice.toFixed(4)}</span>,
+                <span className="font-mono font-bold text-trading-red">{fmtPrice(audit.onchainMarkPrice)}</span>,
                 while the global fair market price reported by {audit.oracleSource} was{" "}
-                <span className="font-mono font-bold text-emerald-400">${audit.oraclePrice.toFixed(4)}</span>.
+                <span className="font-mono font-bold text-emerald-400">{fmtPrice(audit.oraclePrice)}</span>.
                 {" "}The price deviation is{" "}
                 <span className={`font-mono font-bold ${audit.deviationPercent < 1.5 ? "text-emerald-400" : "text-amber-400"}`}>
                   {audit.deviationPercent.toFixed(4)}%

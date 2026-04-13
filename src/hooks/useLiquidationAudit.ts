@@ -92,10 +92,11 @@ export const useLiquidationAudit = () => {
     setStep("analyzing");
     await new Promise((r) => setTimeout(r, 1200));
 
-    // Mock data
+    // Mock data — use percentage-based deviation so it works for any price magnitude
     const onchainMarkPrice = pos.mark_price;
-    const deviationBps = (Math.random() - 0.3) * 0.008; // slight bias toward small deviation
-    const oraclePrice = parseFloat((onchainMarkPrice + deviationBps).toFixed(4));
+    // Random deviation between -0.8% and +0.8%, biased small
+    const deviationPct = (Math.random() - 0.4) * 1.6; // roughly -0.64% to +0.96%
+    const oraclePrice = parseFloat((onchainMarkPrice * (1 + deviationPct / 100)).toPrecision(4));
     const deviation = Math.abs(onchainMarkPrice - oraclePrice);
     const deviationPercent = onchainMarkPrice > 0
       ? parseFloat(((deviation / onchainMarkPrice) * 100).toFixed(4))
@@ -103,7 +104,7 @@ export const useLiquidationAudit = () => {
 
     // Simulate margin ratio that breached maintenance margin
     const maintenanceMarginRate = 5; // 5%
-    const marginRatio = parseFloat((2 + Math.random() * 3).toFixed(2)); // 2-5%, breached
+    const marginRatio = parseFloat((2 + Math.random() * 2.8).toFixed(2)); // 2-4.8%, breached
 
     const txHash = mockHex(64);
     const blockNumber = 18_000_000 + Math.floor(Math.random() * 500_000);
