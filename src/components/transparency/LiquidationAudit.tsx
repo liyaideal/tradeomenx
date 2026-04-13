@@ -159,9 +159,9 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <div className="p-4 space-y-4">
               <div className="text-center py-3">
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">System Mark Price at Liquidation</p>
-                <p className="text-4xl font-bold font-mono text-trading-red">
-                  ${audit.onchainMarkPrice.toFixed(4)}
-                </p>
+                 <p className="text-4xl font-bold font-mono text-trading-red">
+                   {fmtPrice(audit.onchainMarkPrice)}
+                 </p>
               </div>
               <div className="grid grid-cols-1 gap-1.5 text-xs">
                 {[
@@ -199,16 +199,16 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <div className="p-4 space-y-4">
               <div className="text-center py-3">
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Global Spot Fair Price</p>
-                <p className="text-4xl font-bold font-mono text-emerald-400">
-                  ${audit.oraclePrice.toFixed(4)}
-                </p>
+                 <p className="text-4xl font-bold font-mono text-emerald-400">
+                   {fmtPrice(audit.oraclePrice)}
+                 </p>
               </div>
               <div className="grid grid-cols-1 gap-1.5 text-xs">
                 {[
                   { label: "Oracle Source", value: audit.oracleSource },
                   { label: "Feed Contract", value: audit.oracleFeedAddress, mono: true, truncate: true },
                   { label: "Queried At", value: format(new Date(audit.oracleTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'") },
-                  { label: "Price Deviation", value: `${audit.deviation.toFixed(6)} ($${audit.deviationPercent.toFixed(4)}%)`, highlight: true },
+                  { label: "Price Deviation", value: `${audit.deviation.toPrecision(3)} (${audit.deviationPercent.toFixed(4)}%)`, highlight: true },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
                     <span className="text-muted-foreground shrink-0">{row.label}</span>
@@ -236,9 +236,9 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <div className="p-5 space-y-3">
               <p className="text-sm leading-relaxed text-foreground/90">
                 At the time of liquidation, the on-chain system mark price was{" "}
-                <span className="font-mono font-bold text-trading-red">${audit.onchainMarkPrice.toFixed(4)}</span>,
+                <span className="font-mono font-bold text-trading-red">{fmtPrice(audit.onchainMarkPrice)}</span>,
                 while the global fair market price reported by {audit.oracleSource} was{" "}
-                <span className="font-mono font-bold text-emerald-400">${audit.oraclePrice.toFixed(4)}</span>.
+                <span className="font-mono font-bold text-emerald-400">{fmtPrice(audit.oraclePrice)}</span>.
                 {" "}The price deviation is{" "}
                 <span className={`font-mono font-bold ${audit.deviationPercent < 1.5 ? "text-emerald-400" : "text-amber-400"}`}>
                   {audit.deviationPercent.toFixed(4)}%
