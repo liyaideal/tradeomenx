@@ -88,7 +88,7 @@ export const BuyWithFiat = () => {
               placeholder="100.00"
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              className="flex-1 h-12 text-lg font-mono"
+              className="flex-1 h-12 text-2xl font-mono"
             />
           </div>
         </div>
@@ -133,7 +133,7 @@ export const BuyWithFiat = () => {
 
         {/* Fee breakdown */}
         {parsedAmount > 0 && (
-          <div className="p-3 rounded-lg bg-muted/30 space-y-2 text-sm">
+          <div className="p-3 rounded-lg bg-muted/30 space-y-2 text-xs">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Processing fee</span>
               <span className="font-mono">{selectedCurrency.flag} {fee.toFixed(2)} {currency}</span>
@@ -153,7 +153,7 @@ export const BuyWithFiat = () => {
           Continue to Payment
         </Button>
 
-        <p className="text-xs text-center text-muted-foreground">
+        <p className="text-[10px] text-center text-muted-foreground">
           Powered by <span className="font-semibold">Banxa</span> • Min. $10
         </p>
       </div>

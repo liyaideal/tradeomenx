@@ -170,8 +170,8 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
             value={amount}
             onChange={(e) => handleAmountChange(e.target.value)}
             className={cn(
-              "font-mono pr-16 bg-muted/30 border-border/50",
-              isMobile ? "h-14 text-xl rounded-xl pr-20" : "h-12 text-lg rounded-lg",
+              "font-mono pr-16 bg-muted/30 border-border/50 h-12 text-2xl rounded-lg",
+              isMobile && "rounded-xl pr-20",
               error && "border-trading-red focus-visible:ring-trading-red"
             )}
           />
@@ -206,7 +206,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         <div className="h-px bg-border/50" />
         <div className="flex items-center justify-between">
           <span className="font-medium text-sm">You'll Receive</span>
-          <MonoText className="text-base font-bold">{netAmount.toFixed(2)} USDC</MonoText>
+          <MonoText className="text-sm font-bold">{netAmount.toFixed(2)} USDC</MonoText>
         </div>
       </div>
 
@@ -221,7 +221,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
       <Button
         onClick={handleSubmit}
         disabled={isSubmitting || !amount || !selectedAddress}
-        className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-14 rounded-xl text-lg" : "h-11 rounded-lg")}
+        className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl text-sm" : "h-11 rounded-lg")}
       >
         {isSubmitting ? (
           <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
