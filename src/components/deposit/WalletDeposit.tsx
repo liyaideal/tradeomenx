@@ -114,7 +114,7 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
           USDC deposit address (Base)
         </LabelText>
         <div className="px-2">
-          <MonoText className={cn("leading-relaxed break-all", isMobile ? "text-base" : "text-sm")}>
+          <MonoText className={cn("leading-relaxed break-all", isMobile ? "text-xs" : "text-sm")}>
             {custodyAddress}
           </MonoText>
         </div>

@@ -76,7 +76,7 @@ export const SellToFiat = () => {
               placeholder="0.00"
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              className="h-12 text-lg font-mono bg-background"
+              className="h-12 text-2xl font-mono bg-background"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Available: {balance.toFixed(2)} USDC</span>
@@ -142,7 +142,7 @@ export const SellToFiat = () => {
 
         {/* Fee */}
         {parsedAmount > 0 && (
-          <div className="p-3 rounded-lg bg-muted/30 space-y-2 text-sm">
+          <div className="p-3 rounded-lg bg-muted/30 space-y-2 text-xs">
             <div className="flex justify-between"><span className="text-muted-foreground">Fee</span><span className="font-mono">{fee.toFixed(2)} USDC</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Rate</span><span className="font-mono">1 USDC = {selectedCurrency.rate.toFixed(2)} {currency}</span></div>
           </div>
@@ -151,7 +151,7 @@ export const SellToFiat = () => {
         <Button onClick={handleProceed} disabled={parsedAmount < 10 || parsedAmount > balance} className={cn("w-full bg-primary hover:bg-primary-hover", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}>
           Continue
         </Button>
-        <p className="text-xs text-center text-muted-foreground">Powered by <span className="font-semibold">Banxa</span> • Min. 10 USDC</p>
+        <p className="text-[10px] text-center text-muted-foreground">Powered by <span className="font-semibold">Banxa</span> • Min. 10 USDC</p>
       </div>
     );
   }
@@ -249,7 +249,7 @@ export const SellToFiat = () => {
       <div className="w-20 h-20 rounded-full bg-trading-green/20 flex items-center justify-center"><Check className="w-10 h-10 text-trading-green" /></div>
       <div className="text-center space-y-1">
         <h3 className="text-xl font-semibold">Sale Submitted</h3>
-        <p className="text-2xl font-mono font-bold">{selectedCurrency.flag} {fiatReceive.toFixed(2)} <span className="text-sm">{currency}</span></p>
+        <p className="text-3xl font-mono font-bold">{selectedCurrency.flag} {fiatReceive.toFixed(2)} <span className="text-sm">{currency}</span></p>
         <p className="text-sm text-muted-foreground">Expected in {selectedPayout.est}</p>
       </div>
       <Button onClick={handleReset} variant="secondary" className={cn("w-full max-w-sm", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}>Done</Button>
