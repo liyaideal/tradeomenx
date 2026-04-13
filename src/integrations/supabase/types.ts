@@ -880,6 +880,48 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_verifications: {
+        Row: {
+          counterparty: string
+          created_at: string
+          db_record: Json
+          id: string
+          matched_fields: Json
+          onchain_log: Json
+          trade_id: string
+          updated_at: string
+          user_id: string
+          verification_result: string
+          verified_at: string | null
+        }
+        Insert: {
+          counterparty?: string
+          created_at?: string
+          db_record?: Json
+          id?: string
+          matched_fields?: Json
+          onchain_log?: Json
+          trade_id: string
+          updated_at?: string
+          user_id: string
+          verification_result?: string
+          verified_at?: string | null
+        }
+        Update: {
+          counterparty?: string
+          created_at?: string
+          db_record?: Json
+          id?: string
+          matched_fields?: Json
+          onchain_log?: Json
+          trade_id?: string
+          updated_at?: string
+          user_id?: string
+          verification_result?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       trades: {
         Row: {
           amount: number
