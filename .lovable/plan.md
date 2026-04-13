@@ -1,85 +1,40 @@
 
 
-# Plan: Align Transparency Pages with Real On-Chain Data Dictionary
+# Plan: Create DESIGN.md for OmenX Project
 
 ## Problem
-The three transparency scenarios currently display generic/invented field names that don't match the actual on-chain contract event logs. The user has provided the real data dictionary of fields committed to the blockchain.
+Design consistency has been degrading — inconsistent casing, typography, spacing, and color usage across pages. The Style Guide exists but isn't being systematically referenced. A `DESIGN.md` file at the project root would serve as a persistent, authoritative design spec that gets referenced every time UI changes are made.
 
-## Changes
+## What is DESIGN.md
+A plain-text markdown file at the project root that codifies the design system — colors, typography, spacing, component patterns, and rules. Inspired by the [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) concept from Google Stitch.
 
-### 1. Merkle Proof Verification — align with State Root Snapshot fields
+## What the DESIGN.md will contain
 
-**Hook (`useMerkleVerification.ts`)**:
-- Add `oldRoot` (previous batch state root) to mock data
-- Change `batchId` format from `batch-XXXXX` to a realistic incrementing integer (e.g., `42817`)
-- Add `commitTimestamp` (the L2 on-chain commit time)
+Based on your existing `index.css` tokens, `tailwind.config.ts`, and Style Guide sections, the file will codify:
 
-**UI (`MerkleProofVerification.tsx`)**:
-- In Cryptographic Details, show: `Batch ID`, `Old Root (Previous)`, `New Root (Current)`, `Commit Timestamp`
-- Label the existing `stateRoot` as "New Root (newRoot)" and add `oldRoot` as "Previous Root (oldRoot)"
+1. **Brand Identity** — OmenX as a dark-first crypto prediction market platform, purple primary accent
+2. **Color Tokens** — All CSS custom properties mapped to their semantic usage (surfaces, trading green/red, scenario accents for transparency pages, etc.)
+3. **Typography Rules**
+   - Font stack: Inter (sans) + JetBrains Mono (mono)
+   - Weight hierarchy: 400 body, 500 medium labels, 600 semibold headers, 700 bold hero numbers
+   - Size scale with specific use cases
+   - **Casing rules**: camelCase for on-chain fields, Title Case for section headers only, sentence case for descriptions
+4. **Spacing & Layout** — Card padding, gap conventions, mobile vs desktop breakpoints
+5. **Component Patterns** — trading-card class, data row layout (flex justify-between), badge styles, button variants
+6. **Scenario Accent Colors** — Merkle/emerald, Trade/blue, Liquidation/amber, Funding/purple
+7. **Address/Hash Truncation** — first 10 + last 6, always font-mono
+8. **Do / Don't Rules** — Explicit anti-patterns to avoid (e.g., "Never mix Title Case and camelCase in data rows")
 
-### 2. Trade Verification — use real Trade Logged event fields
-
-**Hook (`useTradeVerification.ts`)**:
-- Replace generic on-chain log fields with the real contract fields:
-  - `eventId` → use event name or a mock numeric ID
-  - `outcomeId` → numeric (0, 1, 2...)
-  - `makerUid` → hashed UID (anonymized)
-  - `takerUid` → current user's hashed UID
-  - `price` → 6-decimal integer format (e.g., `500000` = $0.50), plus human-readable
-  - `size` → contract share count
-  - `side` → numeric enum: 0=Open Long, 1=Close Long, 2=Open Short, 3=Close Short
-
-**UI (`TradeVerification.tsx`)**:
-- Update comparison table to show these contract-native field names
-- Add a "Raw Value" column showing the integer/enum values alongside human-readable translations
-- Replace "Counterparty: Official AMM Node" with showing `makerUid` / `takerUid` pair
-
-### 3. Liquidation Audit — use real Liquidation event fields
-
-**Hook (`useLiquidationAudit.ts`)**:
-- Module A on-chain fields should match the real event: `uid`, `positionSide` (long/short), `markPrice` (6-decimal integer), `size`
-- Keep the oracle comparison (Module B) and conclusion (Module C) as-is since those are the analysis layer
-
-**UI (`LiquidationAudit.tsx`)**:
-- In Module A "On-Chain Liquidation Snapshot", display the event log fields in their raw contract format:
-  - `uid` (hashed user ID)
-  - `positionSide` (0 or 1, with human label)
-  - `markPrice` (raw integer + formatted dollar value)
-  - `size` (contract units)
-- Keep the big red price display but add the raw 6-decimal integer below it
-
-### 4. Add two new scenario cards (Funding Rate + Event Resolution)
-
-**New Scenario: Funding Rate Audit**
-- Card: "Am I Being Overcharged?" / Funding Rate Verification
-- Flow: Select an event/outcome → fetch on-chain `FundingRate` log → display `eventId`, `outcomeId`, `fundingRate` (signed value, positive = longs pay shorts)
-- Simple result: show the on-chain recorded rate vs what was applied to user's position
-
-**New Scenario: Settlement Verification**  
-- Card: "Was the Result Fair?" / Event Resolution Audit
-- Flow: Select a resolved event → fetch on-chain `EventResolved` log → display `winningOutcomeId`, `oracleProof` (hash/link to external data source)
-- Result: prove the winning outcome matches the oracle proof
-
-### 5. Update TransparencyPage.tsx
-- Add two new entries to `SCENARIOS` array
-- Add routing for the two new scenario components
-
-## Files to create/modify
+## Files Changed
 
 | File | Action |
 |------|--------|
-| `src/hooks/useMerkleVerification.ts` | Add oldRoot, fix batchId format, add commitTimestamp |
-| `src/components/transparency/MerkleProofVerification.tsx` | Show oldRoot/newRoot labels, commit timestamp |
-| `src/hooks/useTradeVerification.ts` | Use real contract field names (eventId, outcomeId, makerUid, takerUid, price as 6-dec int, side as enum) |
-| `src/components/transparency/TradeVerification.tsx` | Update comparison table with contract-native fields |
-| `src/hooks/useLiquidationAudit.ts` | Add uid, positionSide enum, raw markPrice integer, size |
-| `src/components/transparency/LiquidationAudit.tsx` | Display raw contract fields in Module A |
-| `src/hooks/useFundingRateAudit.ts` | **New** — fetch positions, simulate funding rate log |
-| `src/components/transparency/FundingRateAudit.tsx` | **New** — UI for funding rate verification |
-| `src/hooks/useSettlementAudit.ts` | **New** — fetch resolved events, simulate EventResolved log |
-| `src/components/transparency/SettlementAudit.tsx` | **New** — UI for settlement/oracle proof verification |
-| `src/pages/TransparencyPage.tsx` | Add 2 new scenario cards + routing |
+| `DESIGN.md` | **Create** — Project-root design system document (~200 lines) |
 
-No database migrations needed — all mock/simulation data, no new tables required.
+No code changes — this is a reference document only. Once created, it will be consulted before any future UI work.
+
+## Why this helps
+- Single source of truth that persists across conversations
+- Prevents the drift you've been seeing (mixed casing, inconsistent typography)
+- Complements the interactive Style Guide with a machine-readable spec
 
