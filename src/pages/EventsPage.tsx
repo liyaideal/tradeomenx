@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, RefreshCw, Star } from "lucide-react";
+import { Loader2, RefreshCw, Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
@@ -207,7 +207,22 @@ const EventsPage = () => {
       }}
     >
       {/* Header */}
-      {isMobile ? <MobileHeader showLogo /> : <EventsDesktopHeader />}
+      {isMobile ? (
+        <MobileHeader
+          showLogo
+          rightContent={
+            <button
+              onClick={() => navigate("/resolved")}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              <span>Resolved</span>
+            </button>
+          }
+        />
+      ) : (
+        <EventsDesktopHeader />
+      )}
 
       <main className={`${isMobile ? "px-4 py-4" : "px-8 py-6 max-w-[1400px] mx-auto"} space-y-4`}>
         {/* Tabs */}
