@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { Logo, omenxLogo } from "@/components/Logo";
-import { Check, X, AlertCircle, ChevronLeft, Heart, Share2, Loader2 } from "lucide-react";
+import { Check, X, AlertCircle, ChevronLeft, Star, Share2, Loader2 } from "lucide-react";
 
 interface MobilePatternsSectionProps {
   isMobile: boolean;
@@ -479,7 +479,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                   </tr>
                   <tr>
                     <td className="py-2 font-medium flex items-center gap-2">
-                      <Heart className="h-3 w-3" />
+                      <Star className="h-3 w-3" />
                       <Share2 className="h-3 w-3" />
                       Actions
                     </td>
@@ -548,7 +548,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                     <h1 className="text-sm font-semibold text-center flex-1">BTC to $100k?</h1>
                     <div className="flex items-center gap-1">
                       <button className="h-9 w-9 flex items-center justify-center">
-                        <Heart className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                        <Star className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
                       </button>
                       <button className="h-9 w-9 flex items-center justify-center">
                         <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
