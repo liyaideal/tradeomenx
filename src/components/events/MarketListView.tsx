@@ -196,7 +196,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
           {markets.map((row) => {
             const isExp = expanded.has(row.id);
             return (
-              <tbody key={row.id} className="group">
+              <RowGroup key={row.id}>
                 <RowContent
                   row={row}
                   isExpanded={isExp}
@@ -216,7 +216,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
                       onClick={() => navigate(`/trade?event=${row.eventId}`)}
                     />
                   ))}
-              </tbody>
+              </RowGroup>
             );
           })}
         </tbody>
@@ -224,3 +224,6 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
     </div>
   );
 };
+
+// Fragment wrapper to avoid nested tbody
+const RowGroup = ({ children }: { children: React.ReactNode }) => <>{children}</>;
