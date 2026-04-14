@@ -74,7 +74,7 @@ const ResolvedPage = () => {
         <EventsDesktopHeader />
       )}
 
-      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-8`}>
+      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-6`}>
         {/* Page Title */}
         <div className="relative">
           {!isMobile && (
@@ -86,7 +86,7 @@ const ResolvedPage = () => {
                 Resolved Events
               </h1>
               <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
-                View results from all completed prediction events
+                Every prediction has an ending — see who called it right
               </p>
             </div>
             {/* Mobile Filter Button */}

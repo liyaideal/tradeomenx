@@ -225,14 +225,14 @@ const EventsPage = () => {
         <EventsDesktopHeader />
       )}
 
-      <main className={`${isMobile ? "px-4 py-4" : "px-8 py-6 max-w-[1400px] mx-auto"} space-y-4`}>
-        {/* Page Title — mobile only, mirrors ResolvedPage */}
+      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-6 max-w-[1400px] mx-auto"} space-y-4`}>
+        {/* Page Title — mobile only */}
         {isMobile && (
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Active Events</h1>
               <p className="text-muted-foreground text-sm mt-1.5">
-                Browse and trade live prediction markets
+                Real-time markets, real-time edge
               </p>
             </div>
             <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
