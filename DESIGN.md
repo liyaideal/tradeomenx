@@ -175,6 +175,35 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 | Mobile | < 768px | Single column, bottom nav |
 | Desktop | ≥ 768px (`md:`) | Multi-column, side panels, top header |
 
+### Desktop Page Layout 规范
+
+所有桌面端列表页面（Events、Resolved、Portfolio 等）必须遵循统一的页面结构：
+
+1. **共享导航栏**：`<EventsDesktopHeader />` 顶部导航
+2. **`<main>` 容器**：`px-8 py-10 max-w-7xl mx-auto space-y-6`
+3. **标题区**：
+   - 外层 `<div className="relative">`
+   - 左侧紫色竖线：`absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent`
+   - 标题：`text-3xl font-bold text-foreground`（移动端 `text-2xl`）
+   - 副标题：`text-muted-foreground text-sm mt-1.5`
+4. **筛选/Tabs 区**：标题下方，`space-y-6` 间距
+5. **内容区**：列表或网格
+
+```tsx
+// 标准桌面端页面结构模板
+<main className="px-8 py-10 max-w-7xl mx-auto space-y-6">
+  <div className="relative">
+    <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
+    <h1 className="text-3xl font-bold text-foreground">Page Title</h1>
+    <p className="text-muted-foreground text-sm mt-1.5">Subtitle</p>
+  </div>
+  {/* Filters / Tabs */}
+  {/* Content */}
+</main>
+```
+
+**❌ 不允许**：桌面端跳过标题区直接渲染 Tabs/内容；使用非标准 `max-w` 或 `py` 值。
+
 ---
 
 ## 5. Component Patterns
