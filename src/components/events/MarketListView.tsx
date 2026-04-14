@@ -237,6 +237,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                   isWatched={isWatched(row.eventId)}
                   onToggleWatch={(e) => onToggleWatch(row.eventId, e)}
                   onClick={() => navigate(`/trade?event=${row.eventId}`)}
+                  chgTimeframe={chgTimeframe}
                 />
                 {isExp && (
                   <>
