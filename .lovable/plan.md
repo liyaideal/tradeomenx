@@ -1,27 +1,38 @@
 
 
-# 桌面筛选栏优化 + 排序跟随时间段
+# EventsPage 桌面端对齐其他页面规范
+
+## 问题
+
+Resolved 和 Portfolio 桌面端遵循统一规范：
+1. 共享 `EventsDesktopHeader` 导航栏
+2. 页面标题区：左侧紫色竖线 + `text-3xl` 标题 + `text-sm` 副标题
+3. 筛选器在标题下方
+4. `px-8 py-10 max-w-7xl mx-auto`
+
+EventsPage 桌面端缺少标题区，且 padding/max-width 不一致（`py-6 max-w-[1400px]`）。
 
 ## 改动
 
-### 1. `FilterChips.tsx` — 移除 Chain & Leverage 筛选，排序选项跟随时间段
-
-- 删除 Chain 下拉（`All Chains`）和 Leverage 下拉（`All Leverage`）
-- 从 `FilterState` 中移除 `chain` 和 `leverage` 字段
-- 排序选项从固定的 `24h Change` 改为通用的 `Change ↓`、`Volume ↓`（实际排序依据由当前 `chgTimeframe` 决定）
-- 移除 `funding` 和 `price` 排序选项（无实际数据支撑），保留 `volume`、`change`、`oi`
-- `FilterChips` 接收 `chgTimeframe` prop 用于显示当前时间段标签（如 `Volume ↓` 旁可显示 `(1H)` 等）
-
-### 2. `EventsPage.tsx` — 排序逻辑跟随 chgTimeframe
-
-- 排序时使用 `getChange(row, chgTimeframe)` 和 `getVolume(row, chgTimeframe)` 而非固定的 `volume24h` / `change24h`
-- 将 `chgTimeframe` 传给 `FilterChips`
-- 清理 `chain` / `leverage` 相关引用
-
-### 3. `MobileActiveFilterDrawer`（同文件）— 同步移除 chain/leverage，排序选项对齐
-
 | 文件 | 改动 |
 |------|------|
-| `FilterChips.tsx` | 删除 chain/leverage 下拉及 FilterState 字段；简化排序选项为 Volume/Change/OI；接收 chgTimeframe prop |
-| `EventsPage.tsx` | 排序逻辑用 getChange/getVolume 替代固定 24h 字段；传 chgTimeframe 给 FilterChips；删除 chain/leverage 初始值 |
+| `src/pages/EventsPage.tsx` | 1. `max-w-[1400px]` → `max-w-7xl`，`py-6` → `py-10`，`space-y-4` → `space-y-6`，对齐其他页面 |
+| | 2. 桌面端添加标题区：左侧紫色竖线 + "Explore Events"（text-3xl）+ 副标题，与 Resolved/Portfolio 相同结构 |
+| | 3. Tabs 行和 Filters 行保持在标题区下方，逻辑不变 |
+
+桌面端最终结构：
+```text
+┌─ EventsDesktopHeader (nav bar) ──────────────────┐
+├──────────────────────────────────────────────────────┤
+│ ▌Explore Events                                      │
+│   Real-time markets, real-time edge                  │
+│                                                      │
+│ All  Hot  Watchlist  Crypto ... ── [1H 4H 24H]      │
+│ 🔍 Search...  All Expiry ▾  Volume ↓ ▾   [≡] [⊞]   │
+├──────────────────────────────────────────────────────┤
+│ Market list / grid                                   │
+└──────────────────────────────────────────────────────┘
+```
+
+只改 `EventsPage.tsx` 一个文件，移动端不受影响。
 
