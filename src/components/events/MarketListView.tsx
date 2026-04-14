@@ -80,7 +80,7 @@ const RowContent = ({
               {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
             </button>
           )}
-          <span className="text-base mr-1">{row.eventIcon}</span>
+          
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 truncate">
               <span className="text-sm font-medium text-foreground truncate">
@@ -180,7 +180,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
         <thead>
           <tr className="border-b border-border/30 text-[11px] uppercase tracking-wider text-muted-foreground">
             <th className="w-10" />
-            <th className="text-left py-3 pr-3 font-medium">Market</th>
+            <th className="text-left py-3 pr-3 font-medium">Event</th>
             <th className="text-left py-3 font-medium w-[100px]">Category</th>
             <th className="text-right py-3 font-medium w-[100px]">Price</th>
             <th className="text-right py-3 font-medium w-[100px]">24h Chg</th>

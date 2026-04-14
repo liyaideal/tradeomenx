@@ -49,7 +49,7 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
 
       {/* Title */}
       <h3 className="text-sm font-semibold text-foreground leading-snug mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-        {market.eventIcon} {market.eventName}
+        {market.eventName}
       </h3>
 
       {/* Price row */}
