@@ -3,10 +3,14 @@ import { EventWithOptions } from "@/hooks/useActiveEvents";
 import { isClosingSoon, isNewEvent } from "@/components/events/ClosingSoonCountdown";
 import { getCategoryInfo } from "@/lib/categoryUtils";
 
+export type ChgTimeframe = "1h" | "4h" | "24h";
+
 export interface MarketChildRow {
   id: string;
   optionLabel: string;
   markPrice: number;
+  change1h: number;
+  change4h: number;
   change24h: number;
   volume24h: number;
   openInterest: number;
@@ -23,6 +27,8 @@ export interface EventRow {
   categoryLabel: string;
 
   // Event-level aggregated metrics
+  change1h: number;
+  change4h: number;
   change24h: number;
   volume24h: number;
   openInterest: number;
@@ -52,6 +58,18 @@ const seededRandom = (seed: number) => {
 const mockValue = (seed: number, min: number, max: number) =>
   min + seededRandom(seed) * (max - min);
 
+/** Helper: get the change value for a given timeframe */
+export const getChange = (
+  row: Pick<EventRow, "change1h" | "change4h" | "change24h"> | Pick<MarketChildRow, "change1h" | "change4h" | "change24h">,
+  tf: ChgTimeframe
+): number => {
+  switch (tf) {
+    case "1h": return row.change1h;
+    case "4h": return row.change4h;
+    case "24h": return row.change24h;
+  }
+};
+
 export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
   return useMemo(() => {
     return events.map((event) => {
@@ -68,6 +86,8 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
           id: opt.id,
           optionLabel: opt.label,
           markPrice: opt.price,
+          change1h: parseFloat(mockValue(optSeed + 10, -5, 5).toFixed(2)),
+          change4h: parseFloat(mockValue(optSeed + 11, -10, 10).toFixed(2)),
           change24h: parseFloat(mockValue(optSeed + 1, -15, 15).toFixed(2)),
           volume24h: parseFloat(mockValue(optSeed + 2, 50000, 5000000).toFixed(0)),
           openInterest: parseFloat(mockValue(optSeed + 3, 10000, 2000000).toFixed(0)),
@@ -75,7 +95,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         };
       });
 
-      // Event-level change24h: use change of the child with max volume
+      // Event-level change: use change of the child with max volume
       const maxVolChild = children.length > 0
         ? children.reduce((best, c) => (c.volume24h > best.volume24h ? c : best), children[0])
         : null;
@@ -87,6 +107,8 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         eventIcon: event.icon,
         category: event.category,
         categoryLabel: catInfo.label,
+        change1h: maxVolChild?.change1h || 0,
+        change4h: maxVolChild?.change4h || 0,
         change24h: maxVolChild?.change24h || 0,
         volume24h: children.reduce((s, c) => s + c.volume24h, 0),
         openInterest: children.reduce((s, c) => s + c.openInterest, 0),
