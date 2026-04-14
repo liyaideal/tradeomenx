@@ -51,6 +51,9 @@ const EventsPage = () => {
     isMobile ? "grid" : getStoredView()
   );
 
+  // Change timeframe
+  const [chgTimeframe, setChgTimeframe] = useState<ChgTimeframe>("24h");
+
   // Filters
   const [filters, setFilters] = useState<FilterState>({
     search: "",
