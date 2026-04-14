@@ -100,9 +100,9 @@ const EventRowContent = ({
         {getChange(row, chgTimeframe) >= 0 ? "+" : ""}{getChange(row, chgTimeframe).toFixed(2)}%
       </td>
 
-      {/* 24h Volume */}
+      {/* Volume */}
       <td className="w-[110px] text-right font-mono text-sm text-muted-foreground">
-        {formatUSD(row.volume24h)}
+        {formatUSD(getVolume(row, chgTimeframe))}
       </td>
 
       {/* OI */}
