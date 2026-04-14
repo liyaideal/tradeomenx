@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactNode } from "react";
-import { ChevronLeft, ChevronDown, Heart, Share2, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronDown, Star, Share2, ExternalLink } from "lucide-react";
 import { useNavigate, useNavigationType, useLocation } from "react-router-dom";
 import {
   Popover,
@@ -214,8 +214,8 @@ export const MobileHeader = ({
             onClick={handleFavorite}
             className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
           >
-            <Heart 
-              className={`w-5 h-5 transition-colors ${isFavorite ? "text-trading-red fill-trading-red" : "text-muted-foreground"}`} 
+            <Star 
+              className={`w-5 h-5 transition-colors ${isFavorite ? "text-trading-yellow fill-trading-yellow" : "text-muted-foreground"}`} 
               strokeWidth={1.5} 
             />
           </button>

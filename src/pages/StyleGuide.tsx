@@ -3786,7 +3786,7 @@ toast.promise(asyncFn(), {
                 <div className="bg-muted/30 rounded-xl p-4">
                   <p className="text-sm font-medium mb-2">showActions={"{true}"}</p>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• 显示收藏按钮 (Heart)</li>
+                    <li>• 显示收藏按钮 (Star)</li>
                     <li>• 显示分享按钮 (Share2)</li>
                     <li>• 需配合 isFavorite, onFavoriteToggle</li>
                   </ul>
