@@ -219,7 +219,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                 </Tooltip>
               </TooltipProvider>
             </th>
-            <th className="text-right py-3 font-medium w-[110px]">24h Vol</th>
+            <th className="text-right py-3 font-medium w-[110px]">{chgTimeframe.toUpperCase()} Vol</th>
             <th className="text-right py-3 font-medium w-[100px]">OI</th>
             <th className="text-right py-3 font-medium w-[100px]">Expiry</th>
             <th className="w-10" />
