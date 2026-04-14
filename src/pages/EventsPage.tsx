@@ -226,26 +226,31 @@ const EventsPage = () => {
       )}
 
       <main className={`${isMobile ? "px-4 py-4" : "px-8 py-6 max-w-[1400px] mx-auto"} space-y-4`}>
-        {/* Mobile: Tabs + Filter button row */}
-        {isMobile ? (
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0 overflow-x-auto">
-              <EventTabs active={activeTab} onChange={setActiveTab} />
+        {/* Page Title — mobile only, mirrors ResolvedPage */}
+        {isMobile && (
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Active Events</h1>
+              <p className="text-muted-foreground text-sm mt-1.5">
+                Browse and trade live prediction markets
+              </p>
             </div>
             <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
           </div>
-        ) : (
-          <>
-            {/* Desktop: Tabs then Filters */}
-            <EventTabs active={activeTab} onChange={setActiveTab} />
-            <FilterChips
-              filters={filters}
-              onChange={setFilters}
-              view={view}
-              onViewChange={setView}
-              showViewToggle
-            />
-          </>
+        )}
+
+        {/* Tabs */}
+        <EventTabs active={activeTab} onChange={setActiveTab} />
+
+        {/* Desktop Filters */}
+        {!isMobile && (
+          <FilterChips
+            filters={filters}
+            onChange={setFilters}
+            view={view}
+            onViewChange={setView}
+            showViewToggle
+          />
         )}
 
         {/* Search indicator */}
