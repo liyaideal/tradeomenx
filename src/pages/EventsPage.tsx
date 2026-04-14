@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, RefreshCw, Star, CheckCircle2 } from "lucide-react";
+import { Loader2, RefreshCw, Star } from "lucide-react";
+import { MobileStatusDropdown } from "@/components/EventFilters";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
@@ -211,13 +212,12 @@ const EventsPage = () => {
         <MobileHeader
           showLogo
           rightContent={
-            <button
-              onClick={() => navigate("/resolved")}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Resolved</span>
-            </button>
+            <MobileStatusDropdown
+              statusFilter="active"
+              onStatusFilterChange={(status) => {
+                if (status === "resolved") navigate("/resolved");
+              }}
+            />
           }
         />
       ) : (
