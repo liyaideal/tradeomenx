@@ -179,7 +179,7 @@ const ChildRowContent = ({
   </tr>
 );
 
-export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketListViewProps) => {
+export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe = "24h" }: MarketListViewProps) => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState<Set<string>>(() => {
     try {
@@ -210,7 +210,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-flex items-center gap-1 cursor-help">
-                      24h Chg <Info className="h-3 w-3 text-muted-foreground/60" />
+                      {chgTimeframe.toUpperCase()} Chg <Info className="h-3 w-3 text-muted-foreground/60" />
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="text-xs max-w-[200px]">
