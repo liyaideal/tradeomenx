@@ -1,90 +1,61 @@
 
 
-# Event/Market 维度分层重构计划
+# Market 子行列对齐优化 — 方案比较
 
-## 问题总结
+## 问题回顾
 
-当前实现将 Event 级字段和 Market 级字段混在同一行/卡片中展示。PRD V1.2 明确了维度分离原则：
+展开子行后，8 列中有 2 列（Category→Price、Expiry→Funding）和 header 对不上，用户看不懂。之前提的"只给错位列加迷你标签"方案会导致中间 3 列上方空白，更丑。
+
+## 三个替代方案
+
+### 方案 A：展开时插入一行子表头（推荐）
+
+展开 children 前，先插一行半高的 `子表头行`（浅色背景 + 10px 字号），专门标注子行的列含义：
 
 ```text
-Event 行/卡片:  24h Change, 24h Volume, Open Interest, Expiry
-Market 子行:    Mark Price, 24h Change, 24h Volume, OI, Funding Rate (无 Leverage)
+★ | Event                    | Category | 24h Chg | 24h Vol | OI    | Expiry | →
+★ | BTC > $120K by Sep 2025  | Crypto   | -5.78%  | $20.3M  | $5.7M | 2mo    | →
+  |  Market                  | Price    | 24h Chg | 24h Vol | OI    | Funding| →   ← 子表头（h-8, bg-muted/40, text-[10px]）
+  |  ● Yes                   | $0.65    | +4.96%  | $2.9M   | $121K | +0.025%| →
+  |  ● No                    | $0.35    | -3.21%  | $1.8M   | $89K  | -0.012%| →
 ```
 
-## 改动范围
+- 子表头只在展开时出现，收起时消失
+- 所有 8 列全部有标签，清晰无歧义
+- 子行本身干干净净只放数据，不需要任何迷你标签
+- "└ " 替换为 `●` 圆点或直接去掉前缀
 
-### 1. 数据层 — `useMarketListData.ts`
+**优点**：最清晰，用户一眼看懂列含义切换；子行保持整洁
+**缺点**：多一行视觉元素
 
-**拆分 `MarketRow` 接口为两个类型：**
+### 方案 B：子行全列迷你标签
 
-- `EventRow`：Event 级聚合数据（id, name, icon, category, change24h, volume24h, openInterest, expiry, children, childCount, isNew, isClosingSoon）
-  - 去掉 `markPrice`、`fundingRate`、`maxLeverage`
-  - `change24h` 口径：取 24h Volume 最大 market 的 change（当前 mock 逻辑不变，只是从 children 中取 volume 最大的那个 child 的 change24h）
-  - `volume24h` / `openInterest`：所有 children 求和（已正确）
+所有 6 个数据列（不只 Price/Funding）都加 9px 标签，保持一致性：
 
-- `MarketChildRow`：Market 级数据（id, optionLabel, markPrice, change24h, volume24h, openInterest, fundingRate）
-  - 去掉 `maxLeverage`（用户确认不需要）
-  - 保留独立的 change24h / volume24h / openInterest（market 自身的值）
+```text
+  |  Yes       | Price    | 24h Chg  | 24h Vol  | OI     | Funding  |
+  |            | $0.65    | +4.96%   | $2.9M    | $121K  | +0.025%  |
+```
 
-**hook 返回类型改为 `EventRow[]`，其中 `children: MarketChildRow[]`。**
+**优点**：无需额外行
+**缺点**：每个单元格两行结构，子行变高；信息密度下降
 
-### 2. 桌面端 List View — `MarketListView.tsx`
+### 方案 C：子行缩进为独立卡片区域
 
-**Event 父行：8 列（从当前 10 列精简）**
+展开后不用表格行，而是在 Event 行下方渲染一个缩进的小面板/卡片区域，内含独立的迷你表格或 tag 式布局。
 
-| # | 列 | 变化 |
-|---|------|------|
-| 1 | ★ | 不变 |
-| 2 | Event | 不变，保留 ▾ N markets 标识 |
-| 3 | Category | 不变 |
-| 4 | 24h Change | 不变（Event 级，绿红 + %） |
-| 5 | 24h Volume | 不变 |
-| 6 | Open Interest | 不变 |
-| 7 | Expiry | 不变 |
-| 8 | → | 不变 |
+**优点**：完全脱离父表列对齐限制
+**缺点**：实现复杂，与表格风格不统一
 
-**删除**：`Price` 列和 `Funding` 列从父行移除。
+---
 
-**Market 子行：8 列（展开后）**
+## 推荐方案 A
 
-| # | 列 | 说明 |
-|---|------|------|
-| 1 | (空) | 对齐星星列，留空 |
-| 2 | Market Name | 缩进 24px + └ 图标 |
-| 3 | Mark Price | `$0.65` 格式（**新增到子行**） |
-| 4 | 24h Change | Market 自身的 change |
-| 5 | 24h Volume | Market 自身的 volume |
-| 6 | Open Interest | Market 自身的 OI |
-| 7 | Funding Rate | `+0.012%/8h`（**新增到子行**） |
-| 8 | → | 进入该 market 交易页 |
+最干净的解法：展开时插入一行子表头。改动仅限 `MarketListView.tsx`，在 `{isExp && ...}` 块前插入一个 `<tr>` 子表头行。同时把 `└ ` 替换为 `●` 小圆点前缀。
 
-**表头需要适配两套列定义**：父行 8 列和子行 8 列共用同一 `<thead>`，子行 Category 列替换为 Price，Expiry 列替换为 Funding。通过 colspan 或条件渲染对齐。
+### 改动文件
 
-### 3. 移动端 Grid View — `MarketCard.tsx`
-
-**按 PRD 5.2 重构卡片内容，只保留 Event 级字段：**
-
-- **删除**：Mark Price 格子
-- **保留**：24h Change / 24h Volume / Open Interest / Expiry（2x2 grid）
-- **新增**：标题下方加 `▾ N markets` 指示器（多 market 时显示）
-- **新增**：底部 CTA 区域
-  - 多 market：`[View Markets →]`
-  - 单 market：`[Trade →]`
-- **调整**：2x2 grid 字段标签更新（去掉 Mark Price，加上 Expires in）
-
-### 4. 不改动的部分
-
-- `change24h` 的 mock 逻辑保持不变（纯随机 mock）
-- 排序、筛选、Watchlist 等功能不变
-- 桌面端 Grid 视图 (`MarketGridView.tsx`) 复用同一 `MarketCard`，自动生效
-- DESIGN.md 暂不更新（等 UI 稳定后统一补充）
-
-## 文件清单
-
-| 文件 | 操作 |
+| 文件 | 改动 |
 |------|------|
-| `src/hooks/useMarketListData.ts` | 重构类型 + 数据映射逻辑 |
-| `src/components/events/MarketListView.tsx` | 父行去掉 Price/Funding 列，子行加回 Price/Funding 列 |
-| `src/components/events/MarketCard.tsx` | 去掉 Mark Price，加 ▾ N markets + CTA |
-| `src/components/events/MarketGridView.tsx` | 可能需要微调 props 类型 |
+| `MarketListView.tsx` | 展开区域前插入子表头行；子行去掉 `└ ` 改为 `●`；子表头样式 `h-8 bg-muted/40 text-[10px]` |
 
