@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, ChevronRight, ChevronDown } from "lucide-react";
+import { Star, ChevronRight, ChevronDown, Info } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
@@ -201,7 +202,20 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
             <th className="w-10" />
             <th className="text-left py-3 pr-3 font-medium">Event</th>
             <th className="text-left py-3 font-medium w-[100px]">Category</th>
-            <th className="text-right py-3 font-medium w-[100px]">24h Chg</th>
+            <th className="text-right py-3 font-medium w-[100px]">
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex items-center gap-1 cursor-help">
+                      24h Chg <Info className="h-3 w-3 text-muted-foreground/60" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="text-xs max-w-[200px]">
+                    Based on the market with highest 24h volume
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </th>
             <th className="text-right py-3 font-medium w-[110px]">24h Vol</th>
             <th className="text-right py-3 font-medium w-[100px]">OI</th>
             <th className="text-right py-3 font-medium w-[100px]">Expiry</th>
