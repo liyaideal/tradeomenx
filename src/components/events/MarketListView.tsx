@@ -157,14 +157,14 @@ const ChildRowContent = ({
       ${child.markPrice.toFixed(2)}
     </td>
 
-    {/* 24h Change */}
-    <td className={cn("w-[100px] text-right font-mono text-sm", child.change24h >= 0 ? "text-trading-green" : "text-trading-red")}>
-      {child.change24h >= 0 ? "+" : ""}{child.change24h.toFixed(2)}%
+    {/* Change */}
+    <td className={cn("w-[100px] text-right font-mono text-sm", chgVal >= 0 ? "text-trading-green" : "text-trading-red")}>
+      {chgVal >= 0 ? "+" : ""}{chgVal.toFixed(2)}%
     </td>
 
-    {/* 24h Volume */}
+    {/* Volume */}
     <td className="w-[110px] text-right font-mono text-sm text-muted-foreground">
-      {formatUSD(child.volume24h)}
+      {formatUSD(volVal)}
     </td>
 
     {/* OI */}
@@ -182,7 +182,8 @@ const ChildRowContent = ({
       <ChevronRight className="h-4 w-4 text-muted-foreground inline-block" />
     </td>
   </tr>
-);
+  );
+};
 
 export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe = "24h" }: MarketListViewProps) => {
   const navigate = useNavigate();
