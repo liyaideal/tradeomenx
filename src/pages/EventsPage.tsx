@@ -12,11 +12,12 @@ import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButto
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
-import { useMarketListData, EventRow } from "@/hooks/useMarketListData";
+import { useMarketListData, EventRow, ChgTimeframe } from "@/hooks/useMarketListData";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { EventTabs, EventTab } from "@/components/events/EventTabs";
 import { FilterChips, FilterState } from "@/components/events/FilterChips";
 import { ViewMode } from "@/components/events/ViewToggle";
+import { ChgTimeframePicker } from "@/components/events/ChgTimeframePicker";
 import { MarketListView } from "@/components/events/MarketListView";
 import { MarketGridView } from "@/components/events/MarketGridView";
 import { HotShelf } from "@/components/events/HotShelf";
