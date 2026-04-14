@@ -12,7 +12,7 @@ import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButto
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
-import { useMarketListData, MarketRow } from "@/hooks/useMarketListData";
+import { useMarketListData, EventRow } from "@/hooks/useMarketListData";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { EventTabs, EventTab } from "@/components/events/EventTabs";
 import { FilterChips, FilterState } from "@/components/events/FilterChips";
@@ -103,7 +103,7 @@ const EventsPage = () => {
       result = result.filter(
         (m) =>
           m.eventName.toLowerCase().includes(q) ||
-          m.optionLabel.toLowerCase().includes(q)
+          m.children.some((c) => c.optionLabel.toLowerCase().includes(q))
       );
     }
 
@@ -128,10 +128,8 @@ const EventsPage = () => {
     result.sort((a, b) => {
       switch (sortKey) {
         case "volume": return b.volume24h - a.volume24h;
-        case "price": return b.markPrice - a.markPrice;
         case "change": return Math.abs(b.change24h) - Math.abs(a.change24h);
         case "oi": return b.openInterest - a.openInterest;
-        case "funding": return Math.abs(b.fundingRate) - Math.abs(a.fundingRate);
         default: return 0;
       }
     });
