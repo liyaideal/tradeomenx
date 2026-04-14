@@ -398,6 +398,19 @@ Logo rules:
 | Operational (Logo) | Yes | Yes | `/trade/:id`, `/resolved/:id` |
 | Operational (No Logo) | Yes | No | `/deposit`, `/withdraw`, `/settings` |
 
+### Mobile Header `rightContent` 规范
+
+**关键规则：EventsPage 与 ResolvedPage 的移动端 Header 右上角必须使用 `MobileStatusDropdown` 组件**，允许用户通过下拉菜单在 "Active" 和 "Resolved" 之间切换页面。**严禁**替换为普通按钮、图标链接或其他自定义 UI。
+
+| Page | rightContent | Component | Behavior |
+|------|-------------|-----------|----------|
+| EventsPage (`/events`) | Status dropdown | `<MobileStatusDropdown statusFilter="active" />` | 选择 "Resolved" → `navigate("/resolved")` |
+| ResolvedPage (`/resolved`) | Status dropdown | `<MobileStatusDropdown statusFilter="resolved" />` | 选择 "Active" → `navigate("/events")` |
+
+- 组件来源：`import { MobileStatusDropdown } from "@/components/EventFilters"`
+- 两个页面的行为必须**镜像对称**，保持一致体验
+- 修改这两个页面的 Header 时，必须先确认此规范
+
 ### Mobile Bottom Nav
 
 - Safe area: `--safe-area-bottom: 5rem`
