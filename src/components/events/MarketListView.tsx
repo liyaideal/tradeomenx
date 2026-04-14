@@ -131,10 +131,15 @@ const EventRowContent = ({
 const ChildRowContent = ({
   child,
   onClick,
+  chgTimeframe = "24h",
 }: {
   child: MarketChildRow;
   onClick: () => void;
-}) => (
+  chgTimeframe?: ChgTimeframe;
+}) => {
+  const chgVal = getChange(child, chgTimeframe);
+  const volVal = getVolume(child, chgTimeframe);
+  return (
   <tr
     className="h-12 border-b border-border/20 transition-colors cursor-pointer bg-muted/20 hover:bg-muted/30"
     onClick={onClick}
