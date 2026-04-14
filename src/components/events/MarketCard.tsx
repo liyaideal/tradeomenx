@@ -31,7 +31,7 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
       }}
       onClick={() => navigate(`/trade?event=${market.eventId}`)}
     >
-      {/* Top Row: Star + Badge + NEW */}
+      {/* Top Row: Star + Badge + NEW + Expiry */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <button
@@ -45,6 +45,15 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
             {market.categoryLabel}
           </Badge>
         </div>
+        <div className="text-[11px]">
+          {market.isClosingSoon && market.expiry ? (
+            <ClosingSoonCountdown endDate={market.expiry} />
+          ) : (
+            <span className="text-muted-foreground font-mono">
+              {market.expiry ? `${Math.ceil((market.expiry.getTime() - Date.now()) / 86400000)}d` : "—"}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Title */}
@@ -53,7 +62,7 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
       </h3>
 
       {/* Price row */}
-      <div className="grid grid-cols-2 gap-y-2 mb-3">
+      <div className="grid grid-cols-2 gap-y-2">
         <div>
           <div className="text-[10px] text-muted-foreground uppercase">Mark Price</div>
           <div className="text-sm font-mono font-semibold text-foreground">${market.markPrice.toFixed(2)}</div>
@@ -71,24 +80,6 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
         <div className="text-right">
           <div className="text-[10px] text-muted-foreground uppercase">Open Interest</div>
           <div className="text-sm font-mono text-muted-foreground">{formatUSD(market.openInterest)}</div>
-        </div>
-      </div>
-
-      {/* Bottom row */}
-      <div className="flex items-center justify-between pt-2 border-t border-border/20">
-        <div className="flex items-center gap-3 text-[11px]">
-          <span className={cn("font-mono", market.fundingRate >= 0 ? "text-trading-green" : "text-trading-red")}>
-            Funding: {market.fundingRate >= 0 ? "+" : ""}{(market.fundingRate * 100).toFixed(3)}%
-          </span>
-        </div>
-        <div className="text-[11px]">
-          {market.isClosingSoon && market.expiry ? (
-            <ClosingSoonCountdown endDate={market.expiry} />
-          ) : (
-            <span className="text-muted-foreground font-mono">
-              {market.expiry ? `${Math.ceil((market.expiry.getTime() - Date.now()) / 86400000)}d` : "—"}
-            </span>
-          )}
         </div>
       </div>
 
