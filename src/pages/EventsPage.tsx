@@ -230,7 +230,7 @@ const EventsPage = () => {
         {isMobile && (
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Active Events</h1>
+              <h1 className="text-2xl font-bold text-foreground">Explore Events</h1>
               <p className="text-muted-foreground text-sm mt-1.5">
                 Real-time markets, real-time edge
               </p>
