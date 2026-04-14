@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, ChevronRight, ChevronDown } from "lucide-react";
+import { Star, ChevronRight, ChevronDown, Info } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
