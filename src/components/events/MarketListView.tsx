@@ -132,12 +132,6 @@ const RowContent = ({
         {row.fundingRate >= 0 ? "+" : ""}{(row.fundingRate * 100).toFixed(3)}%
       </td>
 
-      {/* Max Leverage */}
-      <td className="w-[80px] text-center">
-        <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-border/50">
-          {row.maxLeverage}x
-        </Badge>
-      </td>
 
       {/* Expiry */}
       <td className="w-[100px] text-right text-sm">
@@ -187,7 +181,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
             <th className="text-right py-3 font-medium w-[110px]">24h Vol</th>
             <th className="text-right py-3 font-medium w-[100px]">OI</th>
             <th className="text-right py-3 font-medium w-[110px]">Funding</th>
-            <th className="text-center py-3 font-medium w-[80px]">Lev</th>
+            
             <th className="text-right py-3 font-medium w-[100px]">Expiry</th>
             <th className="w-10" />
           </tr>

@@ -80,9 +80,6 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
           <span className={cn("font-mono", market.fundingRate >= 0 ? "text-trading-green" : "text-trading-red")}>
             Funding: {market.fundingRate >= 0 ? "+" : ""}{(market.fundingRate * 100).toFixed(3)}%
           </span>
-          <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-border/50">
-            {market.maxLeverage}x
-          </Badge>
         </div>
         <div className="text-[11px]">
           {market.isClosingSoon && market.expiry ? (
