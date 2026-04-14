@@ -12,6 +12,8 @@ export interface MarketChildRow {
   change1h: number;
   change4h: number;
   change24h: number;
+  volume1h: number;
+  volume4h: number;
   volume24h: number;
   openInterest: number;
   fundingRate: number;
@@ -30,6 +32,8 @@ export interface EventRow {
   change1h: number;
   change4h: number;
   change24h: number;
+  volume1h: number;
+  volume4h: number;
   volume24h: number;
   openInterest: number;
 
@@ -70,6 +74,18 @@ export const getChange = (
   }
 };
 
+/** Helper: get the volume for a given timeframe */
+export const getVolume = (
+  row: Pick<EventRow, "volume1h" | "volume4h" | "volume24h"> | Pick<MarketChildRow, "volume1h" | "volume4h" | "volume24h">,
+  tf: ChgTimeframe
+): number => {
+  switch (tf) {
+    case "1h": return row.volume1h;
+    case "4h": return row.volume4h;
+    case "24h": return row.volume24h;
+  }
+};
+
 export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
   return useMemo(() => {
     return events.map((event) => {
@@ -89,6 +105,8 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
           change1h: parseFloat(mockValue(optSeed + 10, -5, 5).toFixed(2)),
           change4h: parseFloat(mockValue(optSeed + 11, -10, 10).toFixed(2)),
           change24h: parseFloat(mockValue(optSeed + 1, -15, 15).toFixed(2)),
+          volume1h: parseFloat(mockValue(optSeed + 12, 5000, 500000).toFixed(0)),
+          volume4h: parseFloat(mockValue(optSeed + 13, 20000, 2000000).toFixed(0)),
           volume24h: parseFloat(mockValue(optSeed + 2, 50000, 5000000).toFixed(0)),
           openInterest: parseFloat(mockValue(optSeed + 3, 10000, 2000000).toFixed(0)),
           fundingRate: parseFloat(mockValue(optSeed + 4, -0.05, 0.05).toFixed(4)),
@@ -110,6 +128,8 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         change1h: maxVolChild?.change1h || 0,
         change4h: maxVolChild?.change4h || 0,
         change24h: maxVolChild?.change24h || 0,
+        volume1h: children.reduce((s, c) => s + c.volume1h, 0),
+        volume4h: children.reduce((s, c) => s + c.volume4h, 0),
         volume24h: children.reduce((s, c) => s + c.volume24h, 0),
         openInterest: children.reduce((s, c) => s + c.openInterest, 0),
         expiry: endDate,

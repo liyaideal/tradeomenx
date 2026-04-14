@@ -5,7 +5,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/comp
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
-import { EventRow, MarketChildRow, ChgTimeframe, getChange } from "@/hooks/useMarketListData";
+import { EventRow, MarketChildRow, ChgTimeframe, getChange, getVolume } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { cn } from "@/lib/utils";
 
@@ -100,9 +100,9 @@ const EventRowContent = ({
         {getChange(row, chgTimeframe) >= 0 ? "+" : ""}{getChange(row, chgTimeframe).toFixed(2)}%
       </td>
 
-      {/* 24h Volume */}
+      {/* Volume */}
       <td className="w-[110px] text-right font-mono text-sm text-muted-foreground">
-        {formatUSD(row.volume24h)}
+        {formatUSD(getVolume(row, chgTimeframe))}
       </td>
 
       {/* OI */}
@@ -219,7 +219,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                 </Tooltip>
               </TooltipProvider>
             </th>
-            <th className="text-right py-3 font-medium w-[110px]">24h Vol</th>
+            <th className="text-right py-3 font-medium w-[110px]">{chgTimeframe.toUpperCase()} Vol</th>
             <th className="text-right py-3 font-medium w-[100px]">OI</th>
             <th className="text-right py-3 font-medium w-[100px]">Expiry</th>
             <th className="w-10" />

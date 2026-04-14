@@ -3,7 +3,7 @@ import { Star, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
-import { EventRow, ChgTimeframe, getChange } from "@/hooks/useMarketListData";
+import { EventRow, ChgTimeframe, getChange, getVolume } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +40,7 @@ export const MarketCard = ({ market, isWatched, onToggleWatch, chgTimeframe = "2
   const catStyle = CATEGORY_STYLES[market.categoryLabel as CategoryType] || CATEGORY_STYLES.General;
   const hasMultipleMarkets = market.children.length > 0;
   const chgValue = getChange(market, chgTimeframe);
+  const volValue = getVolume(market, chgTimeframe);
 
   return (
     <div
@@ -88,8 +89,8 @@ export const MarketCard = ({ market, isWatched, onToggleWatch, chgTimeframe = "2
           </div>
         </div>
         <div className="text-right">
-          <div className="text-[10px] text-muted-foreground uppercase">Volume 24h</div>
-          <div className="text-sm font-mono text-muted-foreground">{formatUSD(market.volume24h)}</div>
+          <div className="text-[10px] text-muted-foreground uppercase">{chgTimeframe.toUpperCase()} Vol</div>
+          <div className="text-sm font-mono text-muted-foreground">{formatUSD(volValue)}</div>
         </div>
         <div>
           <div className="text-[10px] text-muted-foreground uppercase">Open Interest</div>
