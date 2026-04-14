@@ -191,12 +191,14 @@ const EventsPage = () => {
         markets={filteredMarkets}
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
+        chgTimeframe={chgTimeframe}
       />
     ) : (
       <MarketGridView
         markets={filteredMarkets}
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
+        chgTimeframe={chgTimeframe}
       />
     );
   };
