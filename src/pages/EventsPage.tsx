@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, RefreshCw, Star } from "lucide-react";
 import { MobileStatusDropdown } from "@/components/EventFilters";
+import { MobileActiveFilterDrawer } from "@/components/events/FilterChips";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
