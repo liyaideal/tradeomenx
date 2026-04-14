@@ -107,7 +107,7 @@ export const useMarketListData = (events: EventWithOptions[]): MarketRow[] => {
         isClosingSoon: closingSoon,
         isParent: true,
         childCount: children.length,
-        children: children.length > 2 ? children : [],
+        children: children.length >= 2 ? children : [],
       };
 
       return parent;
