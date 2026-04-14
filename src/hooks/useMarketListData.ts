@@ -74,6 +74,18 @@ export const getChange = (
   }
 };
 
+/** Helper: get the volume for a given timeframe */
+export const getVolume = (
+  row: Pick<EventRow, "volume1h" | "volume4h" | "volume24h"> | Pick<MarketChildRow, "volume1h" | "volume4h" | "volume24h">,
+  tf: ChgTimeframe
+): number => {
+  switch (tf) {
+    case "1h": return row.volume1h;
+    case "4h": return row.volume4h;
+    case "24h": return row.volume24h;
+  }
+};
+
 export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
   return useMemo(() => {
     return events.map((event) => {
