@@ -1,88 +1,141 @@
-import { useState, useMemo } from "react";
-import { useNavigate, useNavigationType } from "react-router-dom";
-import { RefreshCw, Loader2 } from "lucide-react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Loader2, RefreshCw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
-import { EventCard, EventData } from "@/components/EventCard";
-import { EventStatsOverview } from "@/components/EventStatsOverview";
-import { EventFilters, EventStatusFilter, MobileStatusDropdown, MobileFilterDrawer } from "@/components/EventFilters";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
-import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
-import { format } from "date-fns";
+import { useActiveEvents } from "@/hooks/useActiveEvents";
+import { useMarketListData, MarketRow } from "@/hooks/useMarketListData";
+import { useWatchlist } from "@/hooks/useWatchlist";
+import { EventTabs, EventTab } from "@/components/events/EventTabs";
+import { FilterChips, FilterState } from "@/components/events/FilterChips";
+import { ViewMode } from "@/components/events/ViewToggle";
+import { MarketListView } from "@/components/events/MarketListView";
+import { MarketGridView } from "@/components/events/MarketGridView";
+import { HotShelf } from "@/components/events/HotShelf";
+
+// Persist view preference
+const getStoredView = (): ViewMode => {
+  try {
+    return (localStorage.getItem("events_view") as ViewMode) || "list";
+  } catch {
+    return "list";
+  }
+};
 
 const EventsPage = () => {
   const navigate = useNavigate();
-  const navigationType = useNavigationType();
   const isMobile = useIsMobile();
-  
-  // Fetch events from database
-  const { events: dbEvents, isLoading: isLoadingEvents, refetch } = useActiveEvents();
-  
-  // Show back button only if user navigated here (PUSH), not if they used bottom nav or direct URL
-  const showBackButton = navigationType === "PUSH";
-  
-  // Filter states
-  const [statusFilter, setStatusFilter] = useState<EventStatusFilter>("active");
-  const [settlementFilter, setSettlementFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("volume");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Data
+  const { events: dbEvents, isLoading, refetch } = useActiveEvents();
+  const markets = useMarketListData(dbEvents);
+  const { isWatched, toggle: toggleWatch } = useWatchlist();
+
+  // Tab from URL
+  const [activeTab, setActiveTab] = useState<EventTab>(
+    () => (searchParams.get("tab") as EventTab) || "all"
+  );
+
+  // View mode: mobile forces grid
+  const [view, setView] = useState<ViewMode>(() =>
+    isMobile ? "grid" : getStoredView()
+  );
+
+  // Filters
+  const [filters, setFilters] = useState<FilterState>({
+    search: "",
+    chain: "all",
+    expiry: "all",
+    leverage: "all",
+    sort: "volume",
+  });
+
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Transform database events to EventData format for EventCard
-  const transformedEvents: EventData[] = useMemo(() => {
-    return dbEvents.map((event) => {
-      const endDate = event.end_date ? new Date(event.end_date) : new Date();
-      const isActive = endDate > new Date();
-      
-      return {
-        id: event.id,
-        title: event.name,
-        status: isActive ? "active" : "locked",
-        hasMultipleOptions: event.options.length > 2,
-        settlementDate: event.end_date ? format(new Date(event.end_date), "MMM d, yyyy") : "TBD",
-        options: event.options.map(opt => ({
-          id: opt.id,
-          label: opt.label,
-          price: opt.price.toFixed(2),
-        })),
-        totalVolume: event.volume || "$0",
-        volume24h: "$0.1M",
-        participants: Math.floor(Math.random() * 200 + 100),
-      };
-    });
-  }, [dbEvents]);
+  // Sync tab → URL
+  useEffect(() => {
+    const current = searchParams.get("tab") || "all";
+    if (current !== activeTab) {
+      setSearchParams({ tab: activeTab }, { replace: true });
+    }
+  }, [activeTab]);
 
-  // Filter events
-  const filteredEvents = useMemo(() => {
-    return transformedEvents.filter((event) => {
-      // For "active" filter, show only active events
-      if (statusFilter === "active" && event.status !== "active") {
-        return false;
-      }
-      // Category filter could be added here
-      return true;
-    });
-  }, [transformedEvents, statusFilter]);
+  // Persist view
+  useEffect(() => {
+    if (!isMobile) localStorage.setItem("events_view", view);
+  }, [view, isMobile]);
 
-  // Sort events
-  const sortedEvents = useMemo(() => {
-    return [...filteredEvents].sort((a, b) => {
-      if (sortBy === "volume") {
-        const volA = parseFloat(a.totalVolume.replace(/[$M,]/g, "")) || 0;
-        const volB = parseFloat(b.totalVolume.replace(/[$M,]/g, "")) || 0;
-        return volB - volA;
+  // Force grid on mobile
+  useEffect(() => {
+    if (isMobile) setView("grid");
+  }, [isMobile]);
+
+  // Filter & sort markets
+  const filteredMarkets = useMemo(() => {
+    let result = [...markets];
+
+    // Tab-level filtering (category tabs)
+    if (activeTab === "watchlist") {
+      result = result.filter((m) => isWatched(m.eventId));
+    } else if (activeTab === "crypto") {
+      result = result.filter((m) => m.category === "crypto");
+    } else if (activeTab === "macro") {
+      result = result.filter((m) => m.category === "finance" || m.category === "macro");
+    } else if (activeTab === "sports") {
+      result = result.filter((m) => m.category === "sports");
+    } else if (activeTab === "politics") {
+      result = result.filter((m) => m.category === "politics");
+    }
+    // "all" and "hot" show everything (hot has its own layout)
+
+    // Search
+    if (filters.search.trim()) {
+      const q = filters.search.toLowerCase();
+      result = result.filter(
+        (m) =>
+          m.eventName.toLowerCase().includes(q) ||
+          m.optionLabel.toLowerCase().includes(q)
+      );
+    }
+
+    // Expiry filter
+    if (filters.expiry !== "all") {
+      const now = Date.now();
+      result = result.filter((m) => {
+        if (!m.expiry) return false;
+        const diff = m.expiry.getTime() - now;
+        switch (filters.expiry) {
+          case "24h": return diff <= 86400000 && diff > 0;
+          case "7d": return diff <= 7 * 86400000 && diff > 0;
+          case "30d": return diff <= 30 * 86400000 && diff > 0;
+          case "30d+": return diff > 30 * 86400000;
+          default: return true;
+        }
+      });
+    }
+
+    // Sort
+    const sortKey = filters.sort;
+    result.sort((a, b) => {
+      switch (sortKey) {
+        case "volume": return b.volume24h - a.volume24h;
+        case "price": return b.markPrice - a.markPrice;
+        case "change": return Math.abs(b.change24h) - Math.abs(a.change24h);
+        case "oi": return b.openInterest - a.openInterest;
+        case "funding": return Math.abs(b.fundingRate) - Math.abs(a.fundingRate);
+        default: return 0;
       }
-      if (sortBy === "participants") {
-        return b.participants - a.participants;
-      }
-      return 0;
     });
-  }, [filteredEvents, sortBy]);
+
+    return result;
+  }, [markets, activeTab, filters, isWatched]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -90,150 +143,123 @@ const EventsPage = () => {
     setIsRefreshing(false);
   };
 
-  const handleEventClick = (eventId: string) => {
-    navigate(`/trade?event=${eventId}`);
+  const effectiveView: ViewMode = isMobile ? "grid" : view;
+
+  const renderContent = () => {
+    if (activeTab === "hot") {
+      return (
+        <HotShelf
+          markets={markets}
+          view={effectiveView}
+          isWatched={isWatched}
+          onToggleWatch={toggleWatch}
+        />
+      );
+    }
+
+    // Watchlist empty state
+    if (activeTab === "watchlist" && filteredMarkets.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Star className="h-10 w-10 text-muted-foreground mb-4" />
+          <h3 className="text-base font-medium text-foreground mb-1">No watchlist items</h3>
+          <p className="text-sm text-muted-foreground max-w-xs">
+            Click ⭐ to save markets you're interested in for quick access.
+          </p>
+        </div>
+      );
+    }
+
+    if (filteredMarkets.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <RefreshCw className="h-8 w-8 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">No events found</h3>
+          <p className="text-sm text-muted-foreground">
+            Try adjusting your filters or check back later.
+          </p>
+        </div>
+      );
+    }
+
+    return effectiveView === "list" ? (
+      <MarketListView
+        markets={filteredMarkets}
+        isWatched={isWatched}
+        onToggleWatch={toggleWatch}
+      />
+    ) : (
+      <MarketGridView
+        markets={filteredMarkets}
+        isWatched={isWatched}
+        onToggleWatch={toggleWatch}
+      />
+    );
   };
 
   return (
-    <div className={`min-h-screen ${isMobile ? "pb-24" : ""}`}
+    <div
+      className={`min-h-screen ${isMobile ? "pb-24" : ""}`}
       style={{
-        background: isMobile 
-          ? "hsl(222 47% 6%)" 
-          : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)"
+        background: isMobile
+          ? "hsl(222 47% 6%)"
+          : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)",
       }}
     >
       {/* Header */}
-      {isMobile ? (
-        <MobileHeader
-          showLogo
-          rightContent={
-            <MobileStatusDropdown
-              statusFilter={statusFilter}
-              onStatusFilterChange={(status) => {
-                if (status === "resolved") {
-                  navigate("/resolved");
-                } else {
-                  setStatusFilter(status);
-                }
-              }}
-            />
-          }
+      {isMobile ? <MobileHeader showLogo /> : <EventsDesktopHeader />}
+
+      <main className={`${isMobile ? "px-4 py-4" : "px-8 py-6 max-w-[1400px] mx-auto"} space-y-4`}>
+        {/* Tabs */}
+        <EventTabs active={activeTab} onChange={setActiveTab} />
+
+        {/* Filters */}
+        <FilterChips
+          filters={filters}
+          onChange={setFilters}
+          view={view}
+          onViewChange={setView}
+          showViewToggle={!isMobile}
         />
-      ) : (
-        <EventsDesktopHeader />
-      )}
 
-      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-8`}>
-        {/* Page Title with more personality */}
-        <div className="relative">
-          {!isMobile && (
-            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
-          )}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
-                Explore Events
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
-                Discover prediction markets and trade on real-world outcomes with leverage
-              </p>
-            </div>
-            {/* Filter button at Explore Events level - Mobile only */}
-            {isMobile && (
-              <MobileFilterDrawer
-                statusFilter={statusFilter}
-                settlementFilter={settlementFilter}
-                onSettlementFilterChange={setSettlementFilter}
-                categoryFilter={categoryFilter}
-                onCategoryFilterChange={setCategoryFilter}
-                sortBy={sortBy}
-                onSortByChange={setSortBy}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Stats Overview - Hidden for now, uncomment when more data available */}
-        {/* {!isMobile && <EventStatsOverview />} */}
-
-        {/* Filters - Desktop */}
-        {!isMobile && (
-          <EventFilters
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            settlementFilter={settlementFilter}
-            onSettlementFilterChange={setSettlementFilter}
-            categoryFilter={categoryFilter}
-            onCategoryFilterChange={setCategoryFilter}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
-          />
+        {/* Search indicator */}
+        {filters.search.trim() && (
+          <p className="text-xs text-muted-foreground">
+            Showing results for "<span className="text-foreground">{filters.search}</span>"
+          </p>
         )}
 
-        {/* Loading State */}
-        {isLoadingEvents ? (
+        {/* Main content */}
+        {isLoading ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Loading events...</p>
+            <p className="text-muted-foreground">Loading markets...</p>
           </div>
         ) : (
-          <>
-            {/* Events Grid */}
-            <div className={`grid gap-5 ${isMobile ? "grid-cols-1" : "grid-cols-2 xl:grid-cols-2"}`}>
-              {sortedEvents.map((event, index) => (
-                <div 
-                  key={event.id} 
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 80}ms` }}
-                >
-                  <EventCard
-                    event={event}
-                    onEventClick={handleEventClick}
-                  />
-                </div>
-              ))}
-            </div>
+          renderContent()
+        )}
 
-            {/* Empty State */}
-            {sortedEvents.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
-                  <RefreshCw className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-medium text-foreground mb-2">No events found</h3>
-                <p className="text-sm text-muted-foreground max-w-sm">
-                  Try adjusting your filters or check back later for new events.
-                </p>
-              </div>
-            )}
-
-            {/* Refresh Button */}
-            {sortedEvents.length > 0 && (
-              <div className="flex justify-center pt-6">
-                <Button 
-                  variant="outline" 
-                  className="gap-2 border-border/50 hover:border-primary hover:text-primary transition-colors" 
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                >
-                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                  {isRefreshing ? "Refreshing..." : "Refresh Events"}
-                </Button>
-              </div>
-            )}
-          </>
+        {/* Refresh */}
+        {!isLoading && filteredMarkets.length > 0 && activeTab !== "hot" && (
+          <div className="flex justify-center pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 border-border/50 hover:border-primary hover:text-primary"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+              {isRefreshing ? "Refreshing..." : "Refresh"}
+            </Button>
+          </div>
         )}
       </main>
 
       {isMobile && <BottomNav />}
-      
-      {/* Rewards: Welcome modal for unclaimed users, floating button for claimed */}
       {!isMobile && <RewardsWelcomeModal />}
       {!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}
-      
-      {/* Airdrop homepage modal - desktop only (mobile uses MobileHome) */}
       {!isMobile && <AirdropHomepageModal />}
-      
     </div>
   );
 };
