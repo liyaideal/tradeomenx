@@ -3,7 +3,7 @@ import { Star, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
-import { EventRow } from "@/hooks/useMarketListData";
+import { EventRow, ChgTimeframe, getChange } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ interface MarketCardProps {
   market: EventRow;
   isWatched: boolean;
   onToggleWatch: (e?: React.MouseEvent) => void;
+  chgTimeframe?: ChgTimeframe;
 }
 
 const formatUSD = (val: number): string => {
@@ -28,10 +29,17 @@ const formatExpiry = (date: Date | null) => {
   return `${days}d`;
 };
 
-export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps) => {
+const TF_LABELS: Record<ChgTimeframe, string> = {
+  "1h": "1H CHG (TOP MKT)",
+  "4h": "4H CHG (TOP MKT)",
+  "24h": "24H CHG (TOP MKT)",
+};
+
+export const MarketCard = ({ market, isWatched, onToggleWatch, chgTimeframe = "24h" }: MarketCardProps) => {
   const navigate = useNavigate();
   const catStyle = CATEGORY_STYLES[market.categoryLabel as CategoryType] || CATEGORY_STYLES.General;
   const hasMultipleMarkets = market.children.length > 0;
+  const chgValue = getChange(market, chgTimeframe);
 
   return (
     <div
@@ -74,9 +82,9 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
       {/* 2×2 Event-level stats */}
       <div className="grid grid-cols-2 gap-y-2">
         <div>
-          <div className="text-[10px] text-muted-foreground uppercase">24h Chg (top mkt)</div>
-          <div className={cn("text-sm font-mono font-semibold", market.change24h >= 0 ? "text-trading-green" : "text-trading-red")}>
-            {market.change24h >= 0 ? "▲" : "▼"} {market.change24h >= 0 ? "+" : ""}{market.change24h.toFixed(2)}%
+          <div className="text-[10px] text-muted-foreground uppercase">{TF_LABELS[chgTimeframe]}</div>
+          <div className={cn("text-sm font-mono font-semibold", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
+            {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
           </div>
         </div>
         <div className="text-right">

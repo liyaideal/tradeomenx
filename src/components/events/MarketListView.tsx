@@ -5,7 +5,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/comp
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
-import { EventRow, MarketChildRow } from "@/hooks/useMarketListData";
+import { EventRow, MarketChildRow, ChgTimeframe, getChange } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ interface MarketListViewProps {
   markets: EventRow[];
   isWatched: (id: string) => boolean;
   onToggleWatch: (id: string, e?: React.MouseEvent) => void;
+  chgTimeframe?: ChgTimeframe;
 }
 
 const formatUSD = (val: number): string => {
@@ -40,6 +41,7 @@ const EventRowContent = ({
   isWatched,
   onToggleWatch,
   onClick,
+  chgTimeframe = "24h",
 }: {
   row: EventRow;
   isExpanded?: boolean;
@@ -47,6 +49,7 @@ const EventRowContent = ({
   isWatched: boolean;
   onToggleWatch: (e?: React.MouseEvent) => void;
   onClick: () => void;
+  chgTimeframe?: ChgTimeframe;
 }) => {
   const catStyle = CATEGORY_STYLES[row.categoryLabel as CategoryType] || CATEGORY_STYLES.General;
 
@@ -92,9 +95,9 @@ const EventRowContent = ({
         </Badge>
       </td>
 
-      {/* 24h Change */}
-      <td className={cn("w-[100px] text-right font-mono text-sm", row.change24h >= 0 ? "text-trading-green" : "text-trading-red")}>
-        {row.change24h >= 0 ? "+" : ""}{row.change24h.toFixed(2)}%
+      {/* Change */}
+      <td className={cn("w-[100px] text-right font-mono text-sm", getChange(row, chgTimeframe) >= 0 ? "text-trading-green" : "text-trading-red")}>
+        {getChange(row, chgTimeframe) >= 0 ? "+" : ""}{getChange(row, chgTimeframe).toFixed(2)}%
       </td>
 
       {/* 24h Volume */}
@@ -176,7 +179,7 @@ const ChildRowContent = ({
   </tr>
 );
 
-export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketListViewProps) => {
+export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe = "24h" }: MarketListViewProps) => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState<Set<string>>(() => {
     try {
@@ -207,7 +210,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-flex items-center gap-1 cursor-help">
-                      24h Chg <Info className="h-3 w-3 text-muted-foreground/60" />
+                      {chgTimeframe.toUpperCase()} Chg <Info className="h-3 w-3 text-muted-foreground/60" />
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="text-xs max-w-[200px]">
@@ -234,6 +237,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
                   isWatched={isWatched(row.eventId)}
                   onToggleWatch={(e) => onToggleWatch(row.eventId, e)}
                   onClick={() => navigate(`/trade?event=${row.eventId}`)}
+                  chgTimeframe={chgTimeframe}
                 />
                 {isExp && (
                   <>
