@@ -243,8 +243,11 @@ const EventsPage = () => {
           </div>
         )}
 
-        {/* Tabs */}
-        <EventTabs active={activeTab} onChange={setActiveTab} />
+        {/* Tabs + Timeframe picker */}
+        <div className="flex items-center justify-between gap-3">
+          <EventTabs active={activeTab} onChange={setActiveTab} />
+          <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} />
+        </div>
 
         {/* Desktop Filters */}
         {!isMobile && (
