@@ -212,13 +212,12 @@ const EventsPage = () => {
         <MobileHeader
           showLogo
           rightContent={
-            <button
-              onClick={() => navigate("/resolved")}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Resolved</span>
-            </button>
+            <MobileStatusDropdown
+              statusFilter="active"
+              onStatusFilterChange={(status) => {
+                if (status === "resolved") navigate("/resolved");
+              }}
+            />
           }
         />
       ) : (
