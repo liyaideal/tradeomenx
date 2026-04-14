@@ -504,3 +504,10 @@ Logo rules:
 | `src/components/Logo.tsx` | Logo component with size variants |
 | `src/hooks/useUserProfile.ts` | Avatar generation utilities |
 | `/style-guide` | Interactive playground for all design tokens |
+
+---
+
+## 16. Content Rules
+
+- **No icons on events or markets**: Events and markets (options) do not have icons or emoji. Never render `eventIcon` or any icon/emoji next to event or market names in any view (list, grid, card, shelf).
+- **Terminology**: "Event" is the parent prediction question; "Market" is an individual option/outcome within an event.
