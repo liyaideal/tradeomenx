@@ -5,7 +5,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/comp
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
-import { EventRow, MarketChildRow, ChgTimeframe, getChange } from "@/hooks/useMarketListData";
+import { EventRow, MarketChildRow, ChgTimeframe, getChange, getVolume } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { cn } from "@/lib/utils";
 
