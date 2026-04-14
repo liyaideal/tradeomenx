@@ -1,9 +1,9 @@
 import { MarketCard } from "./MarketCard";
-import { MarketRow } from "@/hooks/useMarketListData";
+import { EventRow } from "@/hooks/useMarketListData";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MarketGridViewProps {
-  markets: MarketRow[];
+  markets: EventRow[];
   isWatched: (id: string) => boolean;
   onToggleWatch: (id: string, e?: React.MouseEvent) => void;
 }

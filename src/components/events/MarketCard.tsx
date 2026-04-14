@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { Star, ChevronRight } from "lucide-react";
+import { Star, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
-import { MarketRow } from "@/hooks/useMarketListData";
+import { EventRow } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { cn } from "@/lib/utils";
 
 interface MarketCardProps {
-  market: MarketRow;
+  market: EventRow;
   isWatched: boolean;
   onToggleWatch: (e?: React.MouseEvent) => void;
 }
@@ -19,9 +19,19 @@ const formatUSD = (val: number): string => {
   return `$${val.toFixed(0)}`;
 };
 
+const formatExpiry = (date: Date | null) => {
+  if (!date) return "—";
+  const diff = date.getTime() - Date.now();
+  if (diff <= 0) return "Expired";
+  const days = Math.ceil(diff / 86400000);
+  if (days > 30) return `${Math.floor(days / 30)}mo`;
+  return `${days}d`;
+};
+
 export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps) => {
   const navigate = useNavigate();
   const catStyle = CATEGORY_STYLES[market.categoryLabel as CategoryType] || CATEGORY_STYLES.General;
+  const hasMultipleMarkets = market.children.length > 0;
 
   return (
     <div
@@ -31,7 +41,7 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
       }}
       onClick={() => navigate(`/trade?event=${market.eventId}`)}
     >
-      {/* Top Row: Star + Badge + NEW + Expiry */}
+      {/* Top Row: Star + Badge + NEW */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <button
@@ -45,51 +55,57 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
             {market.categoryLabel}
           </Badge>
         </div>
-        <div className="text-[11px]">
-          {market.isClosingSoon && market.expiry ? (
-            <ClosingSoonCountdown endDate={market.expiry} />
-          ) : (
-            <span className="text-muted-foreground font-mono">
-              {market.expiry ? `${Math.ceil((market.expiry.getTime() - Date.now()) / 86400000)}d` : "—"}
-            </span>
-          )}
-        </div>
       </div>
 
       {/* Title */}
-      <h3 className="text-sm font-semibold text-foreground leading-snug mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+      <h3 className="text-sm font-semibold text-foreground leading-snug mb-1 line-clamp-2 group-hover:text-primary transition-colors">
         {market.eventName}
       </h3>
 
-      {/* Price row */}
+      {/* Multi-market indicator */}
+      {hasMultipleMarkets && (
+        <div className="flex items-center gap-1 mb-3">
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          <span className="text-[11px] text-muted-foreground">{market.childCount} markets</span>
+        </div>
+      )}
+      {!hasMultipleMarkets && <div className="mb-3" />}
+
+      {/* 2×2 Event-level stats */}
       <div className="grid grid-cols-2 gap-y-2">
         <div>
-          <div className="text-[10px] text-muted-foreground uppercase">Mark Price</div>
-          <div className="text-sm font-mono font-semibold text-foreground">${market.markPrice.toFixed(2)}</div>
-        </div>
-        <div className="text-right">
           <div className="text-[10px] text-muted-foreground uppercase">24h Change</div>
           <div className={cn("text-sm font-mono font-semibold", market.change24h >= 0 ? "text-trading-green" : "text-trading-red")}>
             {market.change24h >= 0 ? "▲" : "▼"} {market.change24h >= 0 ? "+" : ""}{market.change24h.toFixed(2)}%
           </div>
         </div>
-        <div>
+        <div className="text-right">
           <div className="text-[10px] text-muted-foreground uppercase">Volume 24h</div>
           <div className="text-sm font-mono text-muted-foreground">{formatUSD(market.volume24h)}</div>
         </div>
-        <div className="text-right">
+        <div>
           <div className="text-[10px] text-muted-foreground uppercase">Open Interest</div>
           <div className="text-sm font-mono text-muted-foreground">{formatUSD(market.openInterest)}</div>
         </div>
+        <div className="text-right">
+          <div className="text-[10px] text-muted-foreground uppercase">Expires in</div>
+          <div className="text-sm font-mono text-muted-foreground">
+            {market.isClosingSoon && market.expiry ? (
+              <ClosingSoonCountdown endDate={market.expiry} />
+            ) : (
+              formatExpiry(market.expiry)
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Multi-market indicator */}
-      {market.children.length > 0 && (
-        <div className="mt-2 pt-2 border-t border-border/20 flex items-center justify-between">
-          <span className="text-[11px] text-muted-foreground">{market.childCount} markets</span>
-          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-        </div>
-      )}
+      {/* CTA */}
+      <div className="mt-3 pt-2 border-t border-border/20 flex items-center justify-between">
+        <span className="text-[11px] font-medium text-primary">
+          {hasMultipleMarkets ? "View Markets" : "Trade"}
+        </span>
+        <ChevronRight className="h-3.5 w-3.5 text-primary" />
+      </div>
     </div>
   );
 };

@@ -1,13 +1,13 @@
 import { useMemo } from "react";
 import { Flame, Sparkles, Clock } from "lucide-react";
-import { MarketRow } from "@/hooks/useMarketListData";
+import { EventRow } from "@/hooks/useMarketListData";
 import { MarketListView } from "./MarketListView";
 import { MarketGridView } from "./MarketGridView";
 import { ViewMode } from "./ViewToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HotShelfProps {
-  markets: MarketRow[];
+  markets: EventRow[];
   view: ViewMode;
   isWatched: (id: string) => boolean;
   onToggleWatch: (id: string, e?: React.MouseEvent) => void;
@@ -38,7 +38,7 @@ const RenderView = ({
   onToggleWatch,
 }: {
   view: ViewMode;
-  markets: MarketRow[];
+  markets: EventRow[];
   isWatched: (id: string) => boolean;
   onToggleWatch: (id: string, e?: React.MouseEvent) => void;
 }) => {
