@@ -1,16 +1,19 @@
 
 
-# Event 级 24h Chg 字段加 ⓘ Tooltip 说明
+# 卡片 24h Change 标签优化
+
+卡片空间充裕，不需要像桌面表头那样用 tooltip，可以直接在标签文字中说明口径。
 
 ## 改动
 
-在 `MarketListView.tsx` 的表头 `24h Chg` 旁加一个 ⓘ 图标，hover 时显示 tooltip 解释口径："Based on the market with highest 24h volume"。
+**`src/components/events/MarketCard.tsx`** 第 77 行：
 
-子表头行的 `24h Chg` 不加 tooltip（子行是 market 自身的值，无歧义）。
+将 `24h Change` 改为 `24h Chg (top mkt)`，明确告诉用户这是取自成交量最大的子市场的变化值。
 
-### 文件
+```text
+之前: 24H CHANGE
+之后: 24H CHG (TOP MKT)
+```
 
-| 文件 | 改动 |
-|------|------|
-| `MarketListView.tsx` | 表头第 4 列加 `<Info>` 图标 + `<Tooltip>` 组件，tooltip 文案说明取值口径 |
+只改这一行标签文案，其他不动。
 
