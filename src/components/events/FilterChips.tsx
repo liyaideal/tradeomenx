@@ -12,12 +12,11 @@ import { Button } from "@/components/ui/button";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { ViewToggle, ViewMode } from "./ViewToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ChgTimeframe } from "@/hooks/useMarketListData";
 
 export interface FilterState {
   search: string;
-  chain: string;
   expiry: string;
-  leverage: string;
   sort: string;
 }
 
@@ -27,6 +26,7 @@ interface FilterChipsProps {
   view: ViewMode;
   onViewChange: (v: ViewMode) => void;
   showViewToggle?: boolean;
+  chgTimeframe?: ChgTimeframe;
 }
 
 const isActive = (val: string) => val !== "all" && val !== "";
@@ -41,10 +41,8 @@ const expiryOptions = [
 
 const sortOptions = [
   { value: "volume", label: "Volume ↓" },
-  { value: "price", label: "Price ↓" },
-  { value: "change", label: "24h Change ↓" },
+  { value: "change", label: "Change ↓" },
   { value: "oi", label: "OI ↓" },
-  { value: "funding", label: "Funding ↓" },
 ];
 
 // Mobile Filter Drawer for Active events page
@@ -69,7 +67,7 @@ export const MobileActiveFilterDrawer = ({
   };
 
   const handleReset = () => {
-    const reset: FilterState = { search: "", chain: "all", expiry: "all", leverage: "all", sort: "volume" };
+    const reset: FilterState = { search: "", expiry: "all", sort: "volume" };
     setLocal(reset);
     onChange(reset);
   };
@@ -166,7 +164,7 @@ export const MobileActiveFilterDrawer = ({
   );
 };
 
-// Desktop filter chips (unchanged)
+// Desktop filter chips
 export const FilterChips = ({
   filters,
   onChange,
@@ -179,13 +177,11 @@ export const FilterChips = ({
     onChange({ ...filters, [key]: val });
 
   const hasActive =
-    isActive(filters.chain) ||
     isActive(filters.expiry) ||
-    isActive(filters.leverage) ||
     filters.sort !== "volume";
 
   const clearAll = () =>
-    onChange({ ...filters, chain: "all", expiry: "all", leverage: "all", sort: "volume" });
+    onChange({ ...filters, expiry: "all", sort: "volume" });
 
   // Mobile: don't render inline chips — use MobileActiveFilterDrawer instead
   if (isMobile) return null;
@@ -203,21 +199,6 @@ export const FilterChips = ({
         />
       </div>
 
-      {/* Chain */}
-      <Select value={filters.chain} onValueChange={(v) => update("chain", v)}>
-        <SelectTrigger
-          className={`h-8 w-[90px] text-xs ${
-            isActive(filters.chain) ? "bg-primary/15 text-primary border-primary/40" : "bg-muted/50 border-border/40"
-          }`}
-        >
-          <SelectValue placeholder="Chain" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Chains</SelectItem>
-          <SelectItem value="base">Base</SelectItem>
-        </SelectContent>
-      </Select>
-
       {/* Expiry */}
       <Select value={filters.expiry} onValueChange={(v) => update("expiry", v)}>
         <SelectTrigger
@@ -231,23 +212,6 @@ export const FilterChips = ({
           {expiryOptions.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
           ))}
-        </SelectContent>
-      </Select>
-
-      {/* Leverage */}
-      <Select value={filters.leverage} onValueChange={(v) => update("leverage", v)}>
-        <SelectTrigger
-          className={`h-8 w-[100px] text-xs ${
-            isActive(filters.leverage) ? "bg-primary/15 text-primary border-primary/40" : "bg-muted/50 border-border/40"
-          }`}
-        >
-          <SelectValue placeholder="Leverage" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Leverage</SelectItem>
-          <SelectItem value="2x">2x</SelectItem>
-          <SelectItem value="5x">5x</SelectItem>
-          <SelectItem value="10x">10x</SelectItem>
         </SelectContent>
       </Select>
 

@@ -12,7 +12,7 @@ import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButto
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
-import { useMarketListData, EventRow, ChgTimeframe } from "@/hooks/useMarketListData";
+import { useMarketListData, EventRow, ChgTimeframe, getChange, getVolume } from "@/hooks/useMarketListData";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { EventTabs, EventTab } from "@/components/events/EventTabs";
 import { FilterChips, FilterState } from "@/components/events/FilterChips";
@@ -57,9 +57,7 @@ const EventsPage = () => {
   // Filters
   const [filters, setFilters] = useState<FilterState>({
     search: "",
-    chain: "all",
     expiry: "all",
-    leverage: "all",
     sort: "volume",
   });
 
@@ -127,12 +125,12 @@ const EventsPage = () => {
       });
     }
 
-    // Sort
+    // Sort — follows chgTimeframe
     const sortKey = filters.sort;
     result.sort((a, b) => {
       switch (sortKey) {
-        case "volume": return b.volume24h - a.volume24h;
-        case "change": return Math.abs(b.change24h) - Math.abs(a.change24h);
+        case "volume": return getVolume(b, chgTimeframe) - getVolume(a, chgTimeframe);
+        case "change": return Math.abs(getChange(b, chgTimeframe)) - Math.abs(getChange(a, chgTimeframe));
         case "oi": return b.openInterest - a.openInterest;
         default: return 0;
       }
