@@ -140,7 +140,7 @@ const ChildRowContent = ({
 
     {/* Market name (indented) */}
     <td className="pr-3 pl-8">
-      <span className="text-sm text-muted-foreground">└ {child.optionLabel}</span>
+      <span className="text-sm text-muted-foreground">● {child.optionLabel}</span>
     </td>
 
     {/* Mark Price (replaces Category position) */}
@@ -221,14 +221,27 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
                   onToggleWatch={(e) => onToggleWatch(row.eventId, e)}
                   onClick={() => navigate(`/trade?event=${row.eventId}`)}
                 />
-                {isExp &&
-                  row.children.map((child) => (
-                    <ChildRowContent
-                      key={child.id}
-                      child={child}
-                      onClick={() => navigate(`/trade?event=${row.eventId}`)}
-                    />
-                  ))}
+                {isExp && (
+                  <>
+                    <tr className="h-8 bg-muted/40 border-b border-border/20">
+                      <td className="w-10" />
+                      <td className="pr-3 pl-8 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Market</td>
+                      <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Price</td>
+                      <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">24h Chg</td>
+                      <td className="w-[110px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">24h Vol</td>
+                      <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">OI</td>
+                      <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Funding</td>
+                      <td className="w-10" />
+                    </tr>
+                    {row.children.map((child) => (
+                      <ChildRowContent
+                        key={child.id}
+                        child={child}
+                        onClick={() => navigate(`/trade?event=${row.eventId}`)}
+                      />
+                    ))}
+                  </>
+                )}
               </RowGroup>
             );
           })}
