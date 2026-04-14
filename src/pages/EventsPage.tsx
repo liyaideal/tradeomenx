@@ -227,22 +227,29 @@ const EventsPage = () => {
         <EventsDesktopHeader />
       )}
 
-      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-6 max-w-[1400px] mx-auto"} space-y-4`}>
-        {/* Page Title — mobile only */}
-        {isMobile && (
+      <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-6`}>
+        {/* Page Title */}
+        <div className="relative">
+          {!isMobile && (
+            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
+          )}
           <div className="flex items-center justify-between">
-          <div>
-              <h1 className="text-2xl font-bold text-foreground">Explore Events</h1>
+            <div>
+              <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
+                Explore Events
+              </h1>
               <p className="text-muted-foreground text-sm mt-1.5">
                 Real-time markets, real-time edge
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
-              <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
-            </div>
+            {isMobile && (
+              <div className="flex items-center gap-2">
+                <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
+                <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Tabs + Timeframe picker */}
         <div className="flex items-center justify-between gap-3">
