@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, RefreshCw, Star } from "lucide-react";
 import { MobileStatusDropdown } from "@/components/EventFilters";
+import { MobileActiveFilterDrawer } from "@/components/events/FilterChips";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
@@ -225,17 +226,27 @@ const EventsPage = () => {
       )}
 
       <main className={`${isMobile ? "px-4 py-4" : "px-8 py-6 max-w-[1400px] mx-auto"} space-y-4`}>
-        {/* Tabs */}
-        <EventTabs active={activeTab} onChange={setActiveTab} />
-
-        {/* Filters */}
-        <FilterChips
-          filters={filters}
-          onChange={setFilters}
-          view={view}
-          onViewChange={setView}
-          showViewToggle={!isMobile}
-        />
+        {/* Mobile: Tabs + Filter button row */}
+        {isMobile ? (
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0 overflow-x-auto">
+              <EventTabs active={activeTab} onChange={setActiveTab} />
+            </div>
+            <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
+          </div>
+        ) : (
+          <>
+            {/* Desktop: Tabs then Filters */}
+            <EventTabs active={activeTab} onChange={setActiveTab} />
+            <FilterChips
+              filters={filters}
+              onChange={setFilters}
+              view={view}
+              onViewChange={setView}
+              showViewToggle
+            />
+          </>
+        )}
 
         {/* Search indicator */}
         {filters.search.trim() && (
