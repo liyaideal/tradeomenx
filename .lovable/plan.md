@@ -1,19 +1,31 @@
 
 
-# 卡片 24h Change 标签优化
+# 移动端时间段切换器压缩方案
 
-卡片空间充裕，不需要像桌面表头那样用 tooltip，可以直接在标签文字中说明口径。
+## 问题
+
+移动端 390px 宽度下，7 个 Tab 已经撑满横向空间，`ChgTimeframePicker`（三个平铺按钮）无论放 Tabs 行还是标题行都太挤。
+
+## 方案
+
+移动端将 `ChgTimeframePicker` 压缩为一个 **下拉按钮**，只显示当前选中值（如 `24H ▾`），点击弹出小菜单选择。桌面端保持三个平铺按钮不变。
+
+```text
+移动端标题行:
+┌─ Explore Events ──────── [24H▾] [🔽] ─┐
+│ Real-time markets...                    │
+├─ All  Hot  Watchlist  Crypto  Macro ... ┤
+
+桌面端 (不变):
+├─ All  Hot  Watchlist ... ── [1H 4H 24H] ┤
+```
 
 ## 改动
 
-**`src/components/events/MarketCard.tsx`** 第 77 行：
+| 文件 | 改动 |
+|------|------|
+| `ChgTimeframePicker.tsx` | 新增 `compact` prop；当 `compact=true` 时渲染为 Popover 触发器（按钮显示 `24H ▾`），点击展开三个选项；`compact=false`（默认）保持现有平铺样式 |
+| `EventsPage.tsx` | 移动端：将 compact 版 picker 移入标题行右侧（filter 按钮左边）；桌面端：保持 picker 在 Tabs 行且 `compact=false`；Tabs 行在移动端不再渲染 picker |
 
-将 `24h Change` 改为 `24h Chg (top mkt)`，明确告诉用户这是取自成交量最大的子市场的变化值。
-
-```text
-之前: 24H CHANGE
-之后: 24H CHG (TOP MKT)
-```
-
-只改这一行标签文案，其他不动。
+只改布局和组件的渲染模式，数据逻辑不变。
 
