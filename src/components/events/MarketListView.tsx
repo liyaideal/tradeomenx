@@ -41,6 +41,7 @@ const EventRowContent = ({
   isWatched,
   onToggleWatch,
   onClick,
+  chgTimeframe = "24h",
 }: {
   row: EventRow;
   isExpanded?: boolean;
@@ -48,6 +49,7 @@ const EventRowContent = ({
   isWatched: boolean;
   onToggleWatch: (e?: React.MouseEvent) => void;
   onClick: () => void;
+  chgTimeframe?: ChgTimeframe;
 }) => {
   const catStyle = CATEGORY_STYLES[row.categoryLabel as CategoryType] || CATEGORY_STYLES.General;
 
