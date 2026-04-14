@@ -80,37 +80,30 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
     setIsExpanded(!isExpanded);
   };
 
-  // Mobile layout - unified with Active card structure
+  // Mobile layout - unified with MarketCard structure
   if (isMobile) {
     return (
-      <Card 
-        className="group relative overflow-hidden cursor-pointer transition-all duration-300 border-border/40 hover:border-primary/40"
-        onClick={onClick}
+      <div
+        className="group relative rounded-xl border border-border/40 p-4 cursor-pointer transition-all hover:border-primary/40"
         style={{
           background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
         }}
+        onClick={onClick}
       >
-        <CardHeader className="pb-3 relative">
-          {/* Row 1: Title + Status Badge */}
-          <div className="flex items-start justify-between gap-3">
-            <h3 className="font-semibold text-foreground leading-snug text-[15px] group-hover:text-primary transition-colors">
-              {event.name}
-            </h3>
-            <Badge 
-              variant="outline"
-              className="flex-shrink-0 text-[11px] font-semibold uppercase tracking-wide bg-muted/50 text-muted-foreground border-border/50"
-            >
-              Settled
-            </Badge>
-          </div>
-          
-          {/* Row 2: Category + Participation + Date */}
-          <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+        {/* Top Row: Badges left, Date right — mirrors MarketCard */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
             <Badge 
               variant={CATEGORY_STYLES[categoryInfo.label as CategoryType]?.variant || "general"}
-              className="text-[10px] font-medium border-0 px-2 py-0.5"
+              className="text-[10px] border-0 px-2 py-0.5"
             >
               {categoryInfo.label}
+            </Badge>
+            <Badge 
+              variant="outline"
+              className="text-[10px] font-semibold uppercase tracking-wide bg-muted/50 text-muted-foreground border-border/50"
+            >
+              Settled
             </Badge>
             {event.userParticipated && event.userPnl !== null && (
               <Badge 
@@ -124,51 +117,54 @@ export const ResolvedEventCard = ({ event, onClick }: ResolvedEventCardProps) =>
                 {event.userPnl >= 0 ? "+" : "-"}${Math.abs(event.userPnl).toFixed(0)}
               </Badge>
             )}
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span className="font-mono text-[11px]">{settledDate}</span>
-            </div>
           </div>
-        </CardHeader>
-
-        <CardContent className="space-y-3 pt-0">
-          {/* Options List - single column vertical layout for mobile */}
-          <div className="space-y-1.5">
-            {visibleOptions.map((option) => (
-              <OptionItem 
-                key={option.id} 
-                option={option} 
-              />
-            ))}
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            <span className="font-mono">{settledDate}</span>
           </div>
+        </div>
 
-          {/* Expand/Collapse Button */}
-          {shouldCollapse && (
-            <button
-              onClick={handleExpandClick}
-              className="flex items-center justify-center gap-1.5 w-full py-2 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              {isExpanded ? (
-                <>
-                  <ChevronUp className="h-3.5 w-3.5" />
-                  <span>Show Less</span>
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-3.5 w-3.5" />
-                  <span>Show More ({hiddenCount})</span>
-                </>
-              )}
-            </button>
-          )}
+        {/* Title — same as MarketCard */}
+        <h3 className="text-sm font-semibold text-foreground leading-snug mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+          {event.name}
+        </h3>
 
-          {/* Total Volume */}
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-2 border-t border-border/30">
-            <BarChart3 className="h-3.5 w-3.5 text-primary/60" />
-            <span>Vol: <span className="text-foreground font-mono font-medium">{formatVolume(event.volume)}</span></span>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Options List */}
+        <div className="space-y-1.5">
+          {visibleOptions.map((option) => (
+            <OptionItem 
+              key={option.id} 
+              option={option} 
+            />
+          ))}
+        </div>
+
+        {/* Expand/Collapse Button */}
+        {shouldCollapse && (
+          <button
+            onClick={handleExpandClick}
+            className="flex items-center justify-center gap-1.5 w-full py-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="h-3.5 w-3.5" />
+                <span>Show Less</span>
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-3.5 w-3.5" />
+                <span>Show More ({hiddenCount})</span>
+              </>
+            )}
+          </button>
+        )}
+
+        {/* Total Volume */}
+        <div className="mt-2 pt-2 border-t border-border/20 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <BarChart3 className="h-3.5 w-3.5 text-primary/60" />
+          <span>Vol: <span className="text-foreground font-mono font-medium">{formatVolume(event.volume)}</span></span>
+        </div>
+      </div>
     );
   }
 

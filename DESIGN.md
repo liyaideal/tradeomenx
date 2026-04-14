@@ -506,7 +506,24 @@ Logo rules:
 
 ---
 
-## 15. File References
+## 15. 移动端卡片一致性规范（Mobile Card Consistency）
+
+Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **必须** 共享以下设计 token，禁止使用 `<Card>` 组件的默认样式：
+
+| Token | Value | Notes |
+|-------|-------|-------|
+| 外壳 | raw `<div>` + `rounded-xl border border-border/40 p-4` | 不使用 `<Card>`/`<CardHeader>`/`<CardContent>` |
+| 背景 | `linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)` | inline style |
+| 标题 | `text-sm font-semibold text-foreground leading-snug line-clamp-2 mb-3` | 不用 `text-[15px]` |
+| 顶行 | 左侧 badges（Category + 状态），右侧时间信息 | `mb-2` |
+| hover | `hover:border-primary/40`，无 glow | 移动端不需要发光效果 |
+| 底部分隔 | `mt-2 pt-2 border-t border-border/20` | Volume 等附加信息 |
+
+**禁止**：在移动端卡片中使用 `<Card>` 组件（其默认 `p-6` 和 `rounded-lg` 会破坏一致性）。
+
+---
+
+## 16. File References
 
 | File | Contains |
 |------|----------|
@@ -520,7 +537,7 @@ Logo rules:
 
 ---
 
-## 16. Content Rules
+## 17. Content Rules
 
 - **No icons on events or markets**: Events and markets (options) do not have icons or emoji. Never render `eventIcon` or any icon/emoji next to event or market names in any view (list, grid, card, shelf).
 - **Icons must use Lucide**: All UI icons must use Lucide React SVG icons (`lucide-react`). Never use emoji (🔥✨⏰ etc.) as icons anywhere in the interface.
