@@ -4,12 +4,12 @@ import { Star, ChevronRight, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
-import { MarketRow } from "@/hooks/useMarketListData";
+import { EventRow, MarketChildRow } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { cn } from "@/lib/utils";
 
 interface MarketListViewProps {
-  markets: MarketRow[];
+  markets: EventRow[];
   isWatched: (id: string) => boolean;
   onToggleWatch: (id: string, e?: React.MouseEvent) => void;
 }
@@ -31,17 +31,16 @@ const formatExpiry = (date: Date | null) => {
   return `${hours}h`;
 };
 
-const RowContent = ({
+/* ── Event parent row ── */
+const EventRowContent = ({
   row,
-  isChild,
   isExpanded,
   onToggleExpand,
   isWatched,
   onToggleWatch,
   onClick,
 }: {
-  row: MarketRow;
-  isChild?: boolean;
+  row: EventRow;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   isWatched: boolean;
@@ -52,27 +51,20 @@ const RowContent = ({
 
   return (
     <tr
-      className={cn(
-        "h-14 border-b border-border/20 transition-colors cursor-pointer",
-        isChild ? "bg-muted/20" : "hover:bg-muted/30"
-      )}
+      className="h-14 border-b border-border/20 transition-colors cursor-pointer hover:bg-muted/30"
       onClick={onClick}
     >
       {/* Star */}
-      <td className="w-10 text-center" onClick={(e) => { e.stopPropagation(); }}>
-        {!isChild && (
-          <button onClick={(e) => onToggleWatch(e)} className="p-1 transition-transform active:scale-125">
-            <Star
-              className={cn("h-4 w-4", isWatched ? "fill-trading-yellow text-trading-yellow" : "text-muted-foreground")}
-            />
-          </button>
-        )}
+      <td className="w-10 text-center" onClick={(e) => e.stopPropagation()}>
+        <button onClick={(e) => onToggleWatch(e)} className="p-1 transition-transform active:scale-125">
+          <Star className={cn("h-4 w-4", isWatched ? "fill-trading-yellow text-trading-yellow" : "text-muted-foreground")} />
+        </button>
       </td>
 
-      {/* Market */}
-      <td className={cn("pr-3", isChild && "pl-8")}>
+      {/* Event */}
+      <td className="pr-3">
         <div className="flex items-center gap-2 min-w-0">
-          {row.isParent && row.children.length > 0 && (
+          {row.children.length > 0 && (
             <button
               onClick={(e) => { e.stopPropagation(); onToggleExpand?.(); }}
               className="p-0.5 text-muted-foreground hover:text-foreground"
@@ -80,22 +72,14 @@ const RowContent = ({
               {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
             </button>
           )}
-          
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 truncate">
-              <span className="text-sm font-medium text-foreground truncate">
-                {isChild ? row.optionLabel : row.eventName}
-              </span>
+              <span className="text-sm font-medium text-foreground truncate">{row.eventName}</span>
               {row.isNew && <NewBadge />}
-              {row.isParent && row.children.length > 0 && (
-                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                  {row.childCount} markets
-                </span>
+              {row.children.length > 0 && (
+                <span className="text-[10px] text-muted-foreground whitespace-nowrap">{row.childCount} markets</span>
               )}
             </div>
-            {!isChild && row.children.length === 0 && row.optionLabel && (
-              <span className="text-[11px] text-muted-foreground truncate block">{row.optionLabel}</span>
-            )}
           </div>
         </div>
       </td>
@@ -105,11 +89,6 @@ const RowContent = ({
         <Badge variant={catStyle.variant || "general"} className="text-[10px] border-0 px-2 py-0.5">
           {row.categoryLabel}
         </Badge>
-      </td>
-
-      {/* Mark Price */}
-      <td className="w-[100px] text-right font-mono text-sm text-foreground">
-        ${row.markPrice.toFixed(2)}
       </td>
 
       {/* 24h Change */}
@@ -127,12 +106,6 @@ const RowContent = ({
         {formatUSD(row.openInterest)}
       </td>
 
-      {/* Funding Rate */}
-      <td className={cn("w-[110px] text-right font-mono text-sm", row.fundingRate >= 0 ? "text-trading-green" : "text-trading-red")}>
-        {row.fundingRate >= 0 ? "+" : ""}{(row.fundingRate * 100).toFixed(3)}%
-      </td>
-
-
       {/* Expiry */}
       <td className="w-[100px] text-right text-sm">
         {row.isClosingSoon && row.expiry ? (
@@ -149,6 +122,58 @@ const RowContent = ({
     </tr>
   );
 };
+
+/* ── Market child row ── */
+const ChildRowContent = ({
+  child,
+  onClick,
+}: {
+  child: MarketChildRow;
+  onClick: () => void;
+}) => (
+  <tr
+    className="h-12 border-b border-border/20 transition-colors cursor-pointer bg-muted/20 hover:bg-muted/30"
+    onClick={onClick}
+  >
+    {/* empty star column */}
+    <td className="w-10" />
+
+    {/* Market name (indented) */}
+    <td className="pr-3 pl-8">
+      <span className="text-sm text-muted-foreground">└ {child.optionLabel}</span>
+    </td>
+
+    {/* Mark Price (replaces Category position) */}
+    <td className="w-[100px] text-right font-mono text-sm text-foreground">
+      ${child.markPrice.toFixed(2)}
+    </td>
+
+    {/* 24h Change */}
+    <td className={cn("w-[100px] text-right font-mono text-sm", child.change24h >= 0 ? "text-trading-green" : "text-trading-red")}>
+      {child.change24h >= 0 ? "+" : ""}{child.change24h.toFixed(2)}%
+    </td>
+
+    {/* 24h Volume */}
+    <td className="w-[110px] text-right font-mono text-sm text-muted-foreground">
+      {formatUSD(child.volume24h)}
+    </td>
+
+    {/* OI */}
+    <td className="w-[100px] text-right font-mono text-sm text-muted-foreground">
+      {formatUSD(child.openInterest)}
+    </td>
+
+    {/* Funding Rate (replaces Expiry position) */}
+    <td className={cn("w-[100px] text-right font-mono text-sm", child.fundingRate >= 0 ? "text-trading-green" : "text-trading-red")}>
+      {child.fundingRate >= 0 ? "+" : ""}{(child.fundingRate * 100).toFixed(3)}%
+    </td>
+
+    {/* Arrow */}
+    <td className="w-10 text-center">
+      <ChevronRight className="h-4 w-4 text-muted-foreground inline-block" />
+    </td>
+  </tr>
+);
 
 export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketListViewProps) => {
   const navigate = useNavigate();
@@ -176,12 +201,9 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
             <th className="w-10" />
             <th className="text-left py-3 pr-3 font-medium">Event</th>
             <th className="text-left py-3 font-medium w-[100px]">Category</th>
-            <th className="text-right py-3 font-medium w-[100px]">Price</th>
             <th className="text-right py-3 font-medium w-[100px]">24h Chg</th>
             <th className="text-right py-3 font-medium w-[110px]">24h Vol</th>
             <th className="text-right py-3 font-medium w-[100px]">OI</th>
-            <th className="text-right py-3 font-medium w-[110px]">Funding</th>
-            
             <th className="text-right py-3 font-medium w-[100px]">Expiry</th>
             <th className="w-10" />
           </tr>
@@ -191,7 +213,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
             const isExp = expanded.has(row.id);
             return (
               <RowGroup key={row.id}>
-                <RowContent
+                <EventRowContent
                   row={row}
                   isExpanded={isExp}
                   onToggleExpand={() => toggleExpand(row.id)}
@@ -201,12 +223,9 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
                 />
                 {isExp &&
                   row.children.map((child) => (
-                    <RowContent
+                    <ChildRowContent
                       key={child.id}
-                      row={child}
-                      isChild
-                      isWatched={false}
-                      onToggleWatch={() => {}}
+                      child={child}
                       onClick={() => navigate(`/trade?event=${row.eventId}`)}
                     />
                   ))}
@@ -219,5 +238,4 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch }: MarketList
   );
 };
 
-// Fragment wrapper to avoid nested tbody
 const RowGroup = ({ children }: { children: React.ReactNode }) => <>{children}</>;
