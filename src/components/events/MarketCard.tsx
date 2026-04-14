@@ -74,7 +74,7 @@ export const MarketCard = ({ market, isWatched, onToggleWatch }: MarketCardProps
       {/* 2×2 Event-level stats */}
       <div className="grid grid-cols-2 gap-y-2">
         <div>
-          <div className="text-[10px] text-muted-foreground uppercase">24h Change</div>
+          <div className="text-[10px] text-muted-foreground uppercase">24h Chg (top mkt)</div>
           <div className={cn("text-sm font-mono font-semibold", market.change24h >= 0 ? "text-trading-green" : "text-trading-red")}>
             {market.change24h >= 0 ? "▲" : "▼"} {market.change24h >= 0 ? "+" : ""}{market.change24h.toFixed(2)}%
           </div>
