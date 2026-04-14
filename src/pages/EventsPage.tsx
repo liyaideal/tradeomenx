@@ -137,7 +137,7 @@ const EventsPage = () => {
     });
 
     return result;
-  }, [markets, activeTab, filters, isWatched]);
+  }, [markets, activeTab, filters, isWatched, chgTimeframe]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
