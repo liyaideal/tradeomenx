@@ -233,20 +233,23 @@ const EventsPage = () => {
         {/* Page Title — mobile only */}
         {isMobile && (
           <div className="flex items-center justify-between">
-            <div>
+          <div>
               <h1 className="text-2xl font-bold text-foreground">Explore Events</h1>
               <p className="text-muted-foreground text-sm mt-1.5">
                 Real-time markets, real-time edge
               </p>
             </div>
-            <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
+            <div className="flex items-center gap-2">
+              <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
+              <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
+            </div>
           </div>
         )}
 
         {/* Tabs + Timeframe picker */}
         <div className="flex items-center justify-between gap-3">
           <EventTabs active={activeTab} onChange={setActiveTab} />
-          <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} />
+          {!isMobile && <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} />}
         </div>
 
         {/* Desktop Filters */}
