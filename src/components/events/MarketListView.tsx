@@ -95,9 +95,9 @@ const EventRowContent = ({
         </Badge>
       </td>
 
-      {/* 24h Change */}
-      <td className={cn("w-[100px] text-right font-mono text-sm", row.change24h >= 0 ? "text-trading-green" : "text-trading-red")}>
-        {row.change24h >= 0 ? "+" : ""}{row.change24h.toFixed(2)}%
+      {/* Change */}
+      <td className={cn("w-[100px] text-right font-mono text-sm", getChange(row, chgTimeframe) >= 0 ? "text-trading-green" : "text-trading-red")}>
+        {getChange(row, chgTimeframe) >= 0 ? "+" : ""}{getChange(row, chgTimeframe).toFixed(2)}%
       </td>
 
       {/* 24h Volume */}
