@@ -510,4 +510,5 @@ Logo rules:
 ## 16. Content Rules
 
 - **No icons on events or markets**: Events and markets (options) do not have icons or emoji. Never render `eventIcon` or any icon/emoji next to event or market names in any view (list, grid, card, shelf).
+- **Icons must use Lucide**: All UI icons must use Lucide React SVG icons (`lucide-react`). Never use emoji (🔥✨⏰ etc.) as icons anywhere in the interface.
 - **Terminology**: "Event" is the parent prediction question; "Market" is an individual option/outcome within an event.
