@@ -251,8 +251,8 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                       <td className="w-10" />
                       <td className="pr-3 pl-8 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Market</td>
                       <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Price</td>
-                      <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">24h Chg</td>
-                      <td className="w-[110px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">24h Vol</td>
+                      <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{chgTimeframe.toUpperCase()} Chg</td>
+                      <td className="w-[110px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{chgTimeframe.toUpperCase()} Vol</td>
                       <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">OI</td>
                       <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Funding</td>
                       <td className="w-10" />
@@ -262,6 +262,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                         key={child.id}
                         child={child}
                         onClick={() => navigate(`/trade?event=${row.eventId}`)}
+                        chgTimeframe={chgTimeframe}
                       />
                     ))}
                   </>
