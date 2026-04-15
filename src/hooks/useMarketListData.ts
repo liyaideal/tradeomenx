@@ -15,6 +15,7 @@ export interface MarketChildRow {
   volume1h: number;
   volume4h: number;
   volume24h: number;
+  totalVolume: number;
   openInterest: number;
   fundingRate: number;
 }
@@ -35,6 +36,7 @@ export interface EventRow {
   volume1h: number;
   volume4h: number;
   volume24h: number;
+  totalVolume: number;
   openInterest: number;
 
   // Dates
