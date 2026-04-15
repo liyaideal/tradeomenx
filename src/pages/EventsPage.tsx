@@ -158,7 +158,7 @@ const EventsPage = () => {
     setIsRefreshing(false);
   };
 
-  const effectiveView: ViewMode = isMobile ? "grid-a" : view;
+  const effectiveView: ViewMode = isMobile ? (view === "grid-b" ? "grid-b" : "grid-a") : view;
 
   const renderContent = () => {
     if (activeTab === "hot") {
