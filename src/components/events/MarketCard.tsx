@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Star, ChevronDown, ChevronRight } from "lucide-react";
+import { Star, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
