@@ -41,15 +41,31 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
   const hasMultipleMarkets = market.children.length > 0;
   const chgValue = getChange(market, chgTimeframe);
   const volValue = getVolume(market, chgTimeframe);
+  const cardBg = catStyle.cardBg;
 
   return (
     <div
-      className="group relative rounded-xl border border-border/40 p-3 cursor-pointer transition-all hover:border-primary/40"
+      className="group relative rounded-xl border border-border/40 p-3 cursor-pointer transition-all hover:border-primary/40 overflow-hidden"
       style={{
         background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
       }}
       onClick={() => navigate(`/trade?event=${market.eventId}`)}
     >
+      {/* Category background image */}
+      {cardBg && (
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <img
+            src={cardBg}
+            alt=""
+            loading="lazy"
+            className="w-full h-full object-cover opacity-[0.12]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(225_40%_7%)] via-[hsl(225_40%_7%/0.7)] to-transparent" />
+        </div>
+      )}
+
+      {/* Content layer above background */}
+      <div className="relative z-10">
       {/* Top Row: Star + Badge + NEW ... Expiry */}
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
@@ -102,6 +118,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           {hasMultipleMarkets ? `View ${market.childCount} Markets` : "Trade"}
         </span>
         <ChevronRight className="h-3.5 w-3.5 text-primary" />
+      </div>
       </div>
     </div>
   );
