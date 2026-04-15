@@ -48,8 +48,8 @@ const EventsPage = () => {
   const { isWatched, toggle: toggleWatch } = useWatchlist();
 
   // Tab from URL
-  const [activeTab, setActiveTab] = useState<EventTab>(
-    () => (searchParams.get("tab") as EventTab) || "all"
+  const [activeTab, setActiveTab] = useState<string>(
+    () => searchParams.get("tab") || "all"
   );
 
   // View mode: mobile forces grid-a
