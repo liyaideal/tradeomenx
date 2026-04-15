@@ -12,29 +12,29 @@ export interface CategoryInfo {
 // variant: Badge variant for proper hover states (matches badge.tsx variants)
 export const CATEGORY_STYLES = {
   // Purple - Social media & influencers
-  Social: { class: "bg-primary/20 text-primary", hsl: "260 60% 55%", variant: "social" as const },
+  Social: { class: "bg-primary/20 text-primary", hsl: "260 60% 55%", variant: "social" as const, cardBg: "/card-bg/social.jpg" },
   
   // Yellow - Cryptocurrency
-  Crypto: { class: "bg-trading-yellow/20 text-trading-yellow", hsl: "48 100% 55%", variant: "crypto" as const },
+  Crypto: { class: "bg-trading-yellow/20 text-trading-yellow", hsl: "48 100% 55%", variant: "crypto" as const, cardBg: "/card-bg/crypto.jpg" },
   
   // Green - Finance & economy
-  Finance: { class: "bg-trading-green/20 text-trading-green", hsl: "145 80% 42%", variant: "finance" as const },
+  Finance: { class: "bg-trading-green/20 text-trading-green", hsl: "145 80% 42%", variant: "finance" as const, cardBg: "/card-bg/finance.jpg" },
   
   // Red - Politics & government
-  Politics: { class: "bg-trading-red/20 text-trading-red", hsl: "0 85% 60%", variant: "politics" as const },
+  Politics: { class: "bg-trading-red/20 text-trading-red", hsl: "0 85% 60%", variant: "politics" as const, cardBg: "/card-bg/politics.jpg" },
   
   // Cyan - Technology & space
-  Tech: { class: "bg-cyan-500/20 text-cyan-400", hsl: "190 90% 50%", variant: "tech" as const },
+  Tech: { class: "bg-cyan-500/20 text-cyan-400", hsl: "190 90% 50%", variant: "tech" as const, cardBg: "/card-bg/tech.jpg" },
   
   // Orange - Entertainment & awards
-  Entertainment: { class: "bg-orange-500/20 text-orange-400", hsl: "25 95% 55%", variant: "entertainment" as const },
+  Entertainment: { class: "bg-orange-500/20 text-orange-400", hsl: "25 95% 55%", variant: "entertainment" as const, cardBg: "/card-bg/entertainment.jpg" },
   
   // Blue - Sports & competitions
-  Sports: { class: "bg-blue-500/20 text-blue-400", hsl: "210 90% 55%", variant: "sports" as const },
+  Sports: { class: "bg-blue-500/20 text-blue-400", hsl: "210 90% 55%", variant: "sports" as const, cardBg: "/card-bg/sports.jpg" },
   
   // Gray - Generic/fallback
-  Market: { class: "bg-muted text-foreground", hsl: "222 25% 55%", variant: "general" as const },
-  General: { class: "bg-muted text-foreground", hsl: "222 25% 55%", variant: "general" as const },
+  Market: { class: "bg-muted text-foreground", hsl: "222 25% 55%", variant: "general" as const, cardBg: null },
+  General: { class: "bg-muted text-foreground", hsl: "222 25% 55%", variant: "general" as const, cardBg: null },
 } as const;
 
 export type CategoryType = keyof typeof CATEGORY_STYLES;
