@@ -793,6 +793,38 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
           </Card>
         </div>
       </SectionWrapper>
+
+      {/* Category Card Backgrounds */}
+      <SectionWrapper title="Category Card Backgrounds" description="Themed background images for market cards. Displayed at 15% opacity with a dark gradient overlay.">
+        <div className={`grid ${isMobile ? "grid-cols-2" : "grid-cols-4"} gap-4`}>
+          {[
+            { name: "Social", file: "/card-bg/social.jpg", hsl: "260 60% 55%" },
+            { name: "Crypto", file: "/card-bg/crypto.jpg", hsl: "48 100% 55%" },
+            { name: "Finance", file: "/card-bg/finance.jpg", hsl: "145 80% 42%" },
+            { name: "Politics", file: "/card-bg/politics.jpg", hsl: "0 85% 60%" },
+            { name: "Tech", file: "/card-bg/tech.jpg", hsl: "190 90% 50%" },
+            { name: "Entertainment", file: "/card-bg/entertainment.jpg", hsl: "25 95% 55%" },
+            { name: "Sports", file: "/card-bg/sports.jpg", hsl: "210 90% 55%" },
+          ].map((cat) => (
+            <Card key={cat.name} className="overflow-hidden">
+              <div className="relative h-24">
+                <img src={cat.file} alt={cat.name} className="w-full h-full object-cover opacity-[0.15]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[hsl(225_40%_7%)] via-[hsl(225_40%_7%/0.65)] to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-sm font-semibold text-foreground">{cat.name}</span>
+                </div>
+              </div>
+              <CardContent className="p-2">
+                <code className="text-[10px] text-muted-foreground block truncate">{cat.file}</code>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <div className="w-3 h-3 rounded-full" style={{ background: `hsl(${cat.hsl})` }} />
+                  <span className="text-[10px] text-muted-foreground">{cat.hsl}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </SectionWrapper>
     </div>
   );
 };
