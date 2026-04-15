@@ -96,20 +96,20 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
 
       {/* Outcome mini-table */}
       {market.children.length > 0 ? (
-        <div className="space-y-1 mb-2">
+        <div className="space-y-1.5 mb-2">
           {market.children.slice(0, 3).map((child) => {
             const chg = getChange(child, chgTimeframe);
             return (
               <div key={child.id} className="flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground truncate max-w-[60%]">{child.optionLabel}</span>
-                <span className={cn("text-[10px] font-mono font-semibold whitespace-nowrap", chg >= 0 ? "text-trading-green" : "text-trading-red")}>
+                <span className="text-[11px] text-muted-foreground truncate max-w-[60%]">{child.optionLabel}</span>
+                <span className={cn("text-[11px] font-mono font-semibold whitespace-nowrap tabular-nums", chg >= 0 ? "text-trading-green" : "text-trading-red")}>
                   {chg >= 0 ? "▲" : "▼"} {chg >= 0 ? "+" : ""}{chg.toFixed(2)}%
                 </span>
               </div>
             );
           })}
           {market.children.length > 3 && (
-            <div className="flex items-center gap-1 justify-end">
+            <div className="flex items-center gap-1 justify-end pl-2 border-l border-border/20">
               <span className="text-[10px] font-medium text-primary">+{market.children.length - 3} more</span>
               <ChevronRight className="h-3 w-3 text-primary" />
             </div>
@@ -117,22 +117,17 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
       ) : (
         <div className="flex items-center gap-1.5 mb-2">
-          <span className={cn("text-[10px] font-mono font-semibold", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
+          <span className={cn("text-[11px] font-mono font-semibold tabular-nums", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
             {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
           </span>
         </div>
       )}
 
-      {/* Stats row */}
-      <div className="pt-1.5 border-t border-border/10 flex items-center gap-3">
-        <div>
-          <div className="text-[10px] text-muted-foreground uppercase">{chgTimeframe.toUpperCase()} Vol</div>
-          <div className="text-[10px] font-mono text-muted-foreground">{formatUSD(volValue)}</div>
-        </div>
-        <div>
-          <div className="text-[10px] text-muted-foreground uppercase">Total Vol</div>
-          <div className="text-[10px] font-mono text-muted-foreground">{formatUSD(market.totalVolume)}</div>
-        </div>
+      {/* Stats row – compact single line */}
+      <div className="pt-1.5 border-t border-border/20 flex items-center gap-1 text-[10px] text-muted-foreground">
+        <span className="font-mono">{chgTimeframe.toUpperCase()} Vol: {formatUSD(volValue)}</span>
+        <span>·</span>
+        <span className="font-mono">Total Vol: {formatUSD(market.totalVolume)}</span>
       </div>
       </div>
     </div>
