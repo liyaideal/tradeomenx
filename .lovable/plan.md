@@ -1,27 +1,51 @@
 
 
-# 卡片样式 A/B 版本选择器
+# MarketCardB 紧凑版卡片
 
-## 方案
-
-扩展 `ViewMode` 类型，将 grid 拆分为 `grid-a` 和 `grid-b`。在 `ViewToggle` 的 Grid 按钮上添加下拉菜单，点击可选择 A/B 两种卡片样式。
+## 布局
 
 ```text
-桌面端 ViewToggle:
-  [≡ List] [⊞ Grid ▾]
-                ├─ Style A (current) ✓
-                └─ Style B
+┌──────────────────────────┐
+│ ⭐ [Crypto] NEW      3d ⏱│
+│ BTC to hit $100K?        │
+│ CHG       Vol       OI   │
+│ ▲+2.31%   $45K     $120K │
+│ View 3 Markets >         │
+└──────────────────────────┘
 ```
+
+## 与 A 版差异
+
+- padding `p-4` → `p-3`
+- 标题 `line-clamp-2` → `line-clamp-1`
+- 倒计时移到右上角（与 ⭐/Category/NEW 同行）
+- 数据区从 2×2 grid 改为 1×3（label 在上，值在下，保留 label 文字）
+- 删除中间 "▽ X markets" 行，合并到底部 CTA："View X Markets >" 或 "Trade >"
+- CTA 行去掉 `border-t`，间距缩小 `mt-3 pt-2` → `mt-2`
 
 ## 改动
 
 | 文件 | 改动 |
 |------|------|
-| `ViewToggle.tsx` | `ViewMode` 改为 `"list" \| "grid-a" \| "grid-b"`；Grid 按钮改为 Popover/DropdownMenu，点击展开两个选项（Style A / Style B），当前选中项打勾；外观上 grid 选中态不变，只是点击时弹出子菜单 |
-| `MarketGridView.tsx` | 接收 `viewMode` prop，根据 `grid-a` 渲染现有 `MarketCard`，`grid-b` 渲染占位的 `MarketCardB`（先用现有卡片 + 角标 "B" 占位，等你提供 B 版设计后替换） |
-| `MarketCardB.tsx` | 新建占位组件，暂时复用 `MarketCard` 并加一个 "B" 标记，后续替换 |
-| `EventsPage.tsx` | `view` 状态类型对齐新 `ViewMode`；`isMobile` 时默认 `grid-a`；localStorage 持久化包含 a/b；`effectiveView` 判断 `grid-a \| grid-b` 都走 `MarketGridView` |
-| `FilterChips.tsx` | `ViewToggle` 引用已更新，无需额外改动（props 透传） |
+| `MarketCardB.tsx` | 完全重写为独立紧凑组件，不再包裹 MarketCard |
 
-移动端：强制 grid 模式，但也可通过某个入口切换 A/B（如长按或小下拉），或暂时只用 A。
+数据行结构：
+```text
+<div className="grid grid-cols-3 gap-2">
+  <div>
+    <div className="text-[10px] text-muted-foreground uppercase">CHG</div>
+    <div className="text-xs font-mono text-trading-green">▲+2.31%</div>
+  </div>
+  <div>
+    <div className="text-[10px] text-muted-foreground uppercase">Vol</div>
+    <div className="text-xs font-mono text-muted-foreground">$45K</div>
+  </div>
+  <div>
+    <div className="text-[10px] text-muted-foreground uppercase">OI</div>
+    <div className="text-xs font-mono text-muted-foreground">$120K</div>
+  </div>
+</div>
+```
+
+只改一个文件。
 
