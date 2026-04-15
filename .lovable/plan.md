@@ -1,51 +1,42 @@
 
 
-# MarketCardB 紧凑版卡片
+# MarketCardB 分类底图
 
-## 布局
+## 图片规格
 
-```text
-┌──────────────────────────┐
-│ ⭐ [Crypto] NEW      3d ⏱│
-│ BTC to hit $100K?        │
-│ CHG       Vol       OI   │
-│ ▲+2.31%   $45K     $120K │
-│ View 3 Markets >         │
-└──────────────────────────┘
-```
+| 用法 | 推荐比例 | 推荐尺寸 (@2x) | 说明 |
+|------|---------|----------------|------|
+| 全宽底图 | **3:1** | 900 × 300 px | 覆盖整个卡片背景 |
+| 右侧装饰 | **1:1** | 300 × 300 px | 定位到卡片右侧，左侧留给文字 |
 
-## 与 A 版差异
+取决于你的设计风格。**请确认你倾向哪种**，然后把图发给我。
 
-- padding `p-4` → `p-3`
-- 标题 `line-clamp-2` → `line-clamp-1`
-- 倒计时移到右上角（与 ⭐/Category/NEW 同行）
-- 数据区从 2×2 grid 改为 1×3（label 在上，值在下，保留 label 文字）
-- 删除中间 "▽ X markets" 行，合并到底部 CTA："View X Markets >" 或 "Trade >"
-- CTA 行去掉 `border-t`，间距缩小 `mt-3 pt-2` → `mt-2`
-
-## 改动
+## 技术实现（确认图片后）
 
 | 文件 | 改动 |
 |------|------|
-| `MarketCardB.tsx` | 完全重写为独立紧凑组件，不再包裹 MarketCard |
+| `public/card-bg/` | 新建目录，存放各分类底图（crypto.png、politics.png 等） |
+| `MarketCardB.tsx` | 根据 `market.categoryLabel` 映射底图路径，用 `absolute inset-0` 的 img/div 渲染，叠加半透明渐变遮罩保证文字可读 |
+| `categoryUtils.ts` | 新增 `cardBg` 字段到 `CATEGORY_STYLES`，映射分类→底图文件名 |
 
-数据行结构：
+### 底图渲染方式
+
 ```text
-<div className="grid grid-cols-3 gap-2">
-  <div>
-    <div className="text-[10px] text-muted-foreground uppercase">CHG</div>
-    <div className="text-xs font-mono text-trading-green">▲+2.31%</div>
-  </div>
-  <div>
-    <div className="text-[10px] text-muted-foreground uppercase">Vol</div>
-    <div className="text-xs font-mono text-muted-foreground">$45K</div>
-  </div>
-  <div>
-    <div className="text-[10px] text-muted-foreground uppercase">OI</div>
-    <div className="text-xs font-mono text-muted-foreground">$120K</div>
-  </div>
-</div>
+┌──────────────────────────┐
+│ [文字内容 z-10]           │
+│  ⭐ [Crypto] NEW    3d   │
+│  BTC to hit $100K?       │
+│  CHG    Vol    Total Vol  │
+│  View 3 Markets >        │
+│                          │
+│ ░░░░░ 底图 (opacity 15-20%, z-0) ░░░░░ │
+│ ░░░░░ + 渐变遮罩从左到右 ░░░░░░░░░░░░ │
+└──────────────────────────┘
 ```
 
-只改一个文件。
+- 底图 `opacity: 0.15–0.20`，不影响文字可读性
+- 叠加从左到右的渐变遮罩（左侧更暗保护文字，右侧稍透让底图可见）
+- `overflow-hidden rounded-xl` 确保图片不溢出圆角
+
+等你确认比例和风格后，发图即可实施。
 
