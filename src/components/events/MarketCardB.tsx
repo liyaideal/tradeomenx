@@ -92,7 +92,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
         <div>
           <div className="text-[10px] text-muted-foreground uppercase">Total Vol</div>
-          <div className="text-xs font-mono text-muted-foreground">{formatUSD(market.volume24h)}</div>
+          <div className="text-xs font-mono text-muted-foreground">{formatUSD(market.totalVolume)}</div>
         </div>
       </div>
 

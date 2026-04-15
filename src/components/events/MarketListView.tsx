@@ -107,7 +107,7 @@ const EventRowContent = ({
 
       {/* Total Vol */}
       <td className="w-[100px] text-right font-mono text-sm text-muted-foreground">
-        {formatUSD(row.volume24h)}
+        {formatUSD(row.totalVolume)}
       </td>
 
       {/* Expiry */}
@@ -169,7 +169,7 @@ const ChildRowContent = ({
 
     {/* Total Vol */}
     <td className="w-[100px] text-right font-mono text-sm text-muted-foreground">
-      {formatUSD(child.volume24h)}
+      {formatUSD(child.totalVolume)}
     </td>
 
     {/* Funding Rate (replaces Expiry position) */}
