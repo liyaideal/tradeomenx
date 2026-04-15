@@ -147,13 +147,10 @@ const EventsPage = () => {
     return result;
   }, [markets, activeTab, filters, isWatched, chgTimeframe]);
 
-  // Paginated markets
-  const totalPages = Math.max(1, Math.ceil(filteredMarkets.length / pageSize));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedMarkets = useMemo(() => {
-    const start = (safePage - 1) * pageSize;
-    return filteredMarkets.slice(start, start + pageSize);
-  }, [filteredMarkets, safePage, pageSize]);
+  // Visible markets (cumulative load more)
+  const visibleMarkets = useMemo(() => {
+    return filteredMarkets.slice(0, currentPage * pageSize);
+  }, [filteredMarkets, currentPage, pageSize]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
