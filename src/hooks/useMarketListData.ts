@@ -110,6 +110,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
           volume1h: parseFloat(mockValue(optSeed + 12, 5000, 500000).toFixed(0)),
           volume4h: parseFloat(mockValue(optSeed + 13, 20000, 2000000).toFixed(0)),
           volume24h: parseFloat(mockValue(optSeed + 2, 50000, 5000000).toFixed(0)),
+          totalVolume: parseFloat(mockValue(optSeed + 20, 500000, 50000000).toFixed(0)),
           openInterest: parseFloat(mockValue(optSeed + 3, 10000, 2000000).toFixed(0)),
           fundingRate: parseFloat(mockValue(optSeed + 4, -0.05, 0.05).toFixed(4)),
         };
@@ -133,6 +134,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         volume1h: children.reduce((s, c) => s + c.volume1h, 0),
         volume4h: children.reduce((s, c) => s + c.volume4h, 0),
         volume24h: children.reduce((s, c) => s + c.volume24h, 0),
+        totalVolume: children.reduce((s, c) => s + c.totalVolume, 0),
         openInterest: children.reduce((s, c) => s + c.openInterest, 0),
         expiry: endDate,
         createdAt: event.created_at,
