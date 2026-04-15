@@ -1,35 +1,14 @@
 
 
-# 更新事件分类 Tabs 匹配实际数据
+# 替换 Finance 底图
 
-## 问题
+用户提供的 finance 底图（世界地图 + 货币符号 + K线图）未被正确替换。
 
-数据库中实际存在的活动分类为：`crypto`、`finance`、`politics`、`social`、`sports`、`tech`。
+## 改动
 
-当前 Tabs（Crypto、Macro、Sports、Politics）缺少 Social 和 Tech，且 Macro 实际对应的是 `finance` 分类。
-
-## 改动方案
-
-| 文件 | 改动 |
+| 操作 | 说明 |
 |------|------|
-| `src/components/events/EventTabs.tsx` | 更新 Tab 列表：All、Hot、Watchlist、Crypto、Finance、Politics、Social、Tech、Sports |
-| `src/pages/EventsPage.tsx` | 更新过滤逻辑，新增 `social`、`tech`、`finance` 分支，移除 `macro` |
+| 复制 `user-uploads://Generated_Image_April_15_2026_-_3_21PM-2.jpg` → `public/card-bg/finance.jpg` | 用用户提供的图片覆盖现有 finance 底图 |
 
-### 新 Tab 顺序
-
-```text
-All | 🔥 Hot | ⭐ Watchlist | Crypto | Finance | Politics | Social | Tech | Sports
-```
-
-- **Macro → Finance**：标签改名，过滤条件改为 `m.category === "finance"`
-- **新增 Social**：过滤 `m.category === "social"`
-- **新增 Tech**：过滤 `m.category === "tech"`
-
-### EventTab 类型更新
-
-```typescript
-export type EventTab = "all" | "hot" | "watchlist" | "crypto" | "finance" | "politics" | "social" | "tech" | "sports";
-```
-
-只改两个文件，不影响其他组件。
+一个文件操作，无代码改动。
 
