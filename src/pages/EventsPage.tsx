@@ -269,7 +269,7 @@ const EventsPage = () => {
 
         {/* Tabs + Timeframe picker */}
         <div className="flex items-center justify-between gap-3">
-          <EventTabs active={activeTab} onChange={setActiveTab} />
+          <EventTabs active={activeTab} onChange={setActiveTab} categories={[...new Set(markets.map((m) => m.category))]} />
           {!isMobile && <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} />}
         </div>
 
