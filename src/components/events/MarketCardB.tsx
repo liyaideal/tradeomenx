@@ -122,7 +122,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         <span className="font-mono text-muted-foreground">Vol: {formatUSD(market.totalVolume)}</span>
         {market.children.length > 3 ? (
           <div className="flex items-center gap-1 text-primary">
-            <span className="font-medium">+{market.children.length - 3} more</span>
+            <span className="font-medium">+{market.children.length - 3} more markets</span>
             <ChevronRight className="h-3 w-3" />
           </div>
         ) : (
