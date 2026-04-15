@@ -48,7 +48,7 @@ export interface EventRow {
   isClosingSoon: boolean;
 
   // Top market preview
-  topMarket: { label: string; price: number } | null;
+  topMarket: { label: string } | null;
 
   // Children
   childCount: number;
