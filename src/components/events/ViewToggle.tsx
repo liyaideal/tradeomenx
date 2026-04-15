@@ -7,14 +7,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export type ViewMode = "list" | "grid-a" | "grid-b";
+export type ViewMode = "list" | "grid-a" | "grid-b" | "grid-c";
 
 interface ViewToggleProps {
   view: ViewMode;
   onChange: (v: ViewMode) => void;
 }
 
-const isGrid = (v: ViewMode) => v === "grid-a" || v === "grid-b";
+const isGrid = (v: ViewMode) => v === "grid-a" || v === "grid-b" || v === "grid-c";
 
 export const ViewToggle = ({ view, onChange }: ViewToggleProps) => (
   <div className="flex items-center rounded-lg border border-border/50 overflow-hidden">
@@ -56,6 +56,13 @@ export const ViewToggle = ({ view, onChange }: ViewToggleProps) => (
         >
           Style B
           {view === "grid-b" && <Check className="h-3.5 w-3.5 text-primary" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => onChange("grid-c")}
+          className="flex items-center justify-between text-xs"
+        >
+          Style C
+          {view === "grid-c" && <Check className="h-3.5 w-3.5 text-primary" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
