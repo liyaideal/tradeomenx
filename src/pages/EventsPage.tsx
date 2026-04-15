@@ -92,14 +92,8 @@ const EventsPage = () => {
     // Tab-level filtering (category tabs)
     if (activeTab === "watchlist") {
       result = result.filter((m) => isWatched(m.eventId));
-    } else if (activeTab === "crypto") {
-      result = result.filter((m) => m.category === "crypto");
-    } else if (activeTab === "macro") {
-      result = result.filter((m) => m.category === "finance" || m.category === "macro");
-    } else if (activeTab === "sports") {
-      result = result.filter((m) => m.category === "sports");
-    } else if (activeTab === "politics") {
-      result = result.filter((m) => m.category === "politics");
+    } else if (activeTab !== "all" && activeTab !== "hot") {
+      result = result.filter((m) => m.category === activeTab);
     }
     // "all" and "hot" show everything (hot has its own layout)
 
