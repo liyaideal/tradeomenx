@@ -30,9 +30,9 @@ const formatExpiry = (date: Date | null) => {
 };
 
 const TF_LABELS: Record<ChgTimeframe, string> = {
-  "1h": "1H CHG (TOP MKT)",
-  "4h": "4H CHG (TOP MKT)",
-  "24h": "24H CHG (TOP MKT)",
+  "1h": "1H CHG",
+  "4h": "4H CHG",
+  "24h": "24H CHG",
 };
 
 export const MarketCard = ({ market, isWatched, onToggleWatch, chgTimeframe = "24h" }: MarketCardProps) => {
@@ -107,6 +107,21 @@ export const MarketCard = ({ market, isWatched, onToggleWatch, chgTimeframe = "2
           </div>
         </div>
       </div>
+
+      {/* Top Market Preview */}
+      {market.topMarket && (
+        <div className="mt-2 pt-1.5 border-t border-border/10 flex items-center justify-between">
+          <span className="text-[11px] text-muted-foreground truncate max-w-[55%]">
+            {market.topMarket.label}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-foreground">¢{(market.topMarket.price * 100).toFixed(1)}</span>
+            <span className={cn("text-[11px] font-mono font-semibold", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
+              {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* CTA */}
       <div className="mt-3 pt-2 border-t border-border/20 flex items-center justify-between">
