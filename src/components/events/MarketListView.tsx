@@ -105,9 +105,9 @@ const EventRowContent = ({
         {formatUSD(getVolume(row, chgTimeframe))}
       </td>
 
-      {/* OI */}
+      {/* Total Vol */}
       <td className="w-[100px] text-right font-mono text-sm text-muted-foreground">
-        {formatUSD(row.openInterest)}
+        {formatUSD(row.volume24h)}
       </td>
 
       {/* Expiry */}
@@ -167,9 +167,9 @@ const ChildRowContent = ({
       {formatUSD(volVal)}
     </td>
 
-    {/* OI */}
+    {/* Total Vol */}
     <td className="w-[100px] text-right font-mono text-sm text-muted-foreground">
-      {formatUSD(child.openInterest)}
+      {formatUSD(child.volume24h)}
     </td>
 
     {/* Funding Rate (replaces Expiry position) */}
@@ -226,7 +226,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
               </TooltipProvider>
             </th>
             <th className="text-right py-3 font-medium w-[110px]">{chgTimeframe.toUpperCase()} Vol</th>
-            <th className="text-right py-3 font-medium w-[100px]">OI</th>
+            <th className="text-right py-3 font-medium w-[100px]">Total Vol</th>
             <th className="text-right py-3 font-medium w-[100px]">Expiry</th>
             <th className="w-10" />
           </tr>
@@ -253,7 +253,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                       <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Price</td>
                       <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{chgTimeframe.toUpperCase()} Chg</td>
                       <td className="w-[110px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{chgTimeframe.toUpperCase()} Vol</td>
-                      <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">OI</td>
+                      <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Total Vol</td>
                       <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Funding</td>
                       <td className="w-10" />
                     </tr>

@@ -93,8 +93,8 @@ export const MarketCard = ({ market, isWatched, onToggleWatch, chgTimeframe = "2
           <div className="text-sm font-mono text-muted-foreground">{formatUSD(volValue)}</div>
         </div>
         <div>
-          <div className="text-[10px] text-muted-foreground uppercase">Open Interest</div>
-          <div className="text-sm font-mono text-muted-foreground">{formatUSD(market.openInterest)}</div>
+          <div className="text-[10px] text-muted-foreground uppercase">Total Vol</div>
+          <div className="text-sm font-mono text-muted-foreground">{formatUSD(market.volume24h)}</div>
         </div>
         <div className="text-right">
           <div className="text-[10px] text-muted-foreground uppercase">Expires in</div>

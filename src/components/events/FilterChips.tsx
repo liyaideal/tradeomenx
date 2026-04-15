@@ -42,7 +42,7 @@ const expiryOptions = [
 const sortOptions = [
   { value: "volume", label: "Volume ↓" },
   { value: "change", label: "Change ↓" },
-  { value: "oi", label: "OI ↓" },
+  { value: "oi", label: "Total Vol ↓" },
 ];
 
 // Mobile Filter Drawer for Active events page
