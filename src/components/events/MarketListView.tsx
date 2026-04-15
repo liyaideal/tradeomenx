@@ -105,9 +105,9 @@ const EventRowContent = ({
         {formatUSD(getVolume(row, chgTimeframe))}
       </td>
 
-      {/* OI */}
+      {/* Total Vol */}
       <td className="w-[100px] text-right font-mono text-sm text-muted-foreground">
-        {formatUSD(row.openInterest)}
+        {formatUSD(row.volume24h)}
       </td>
 
       {/* Expiry */}
@@ -226,7 +226,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
               </TooltipProvider>
             </th>
             <th className="text-right py-3 font-medium w-[110px]">{chgTimeframe.toUpperCase()} Vol</th>
-            <th className="text-right py-3 font-medium w-[100px]">OI</th>
+            <th className="text-right py-3 font-medium w-[100px]">Total Vol</th>
             <th className="text-right py-3 font-medium w-[100px]">Expiry</th>
             <th className="w-10" />
           </tr>
