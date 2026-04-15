@@ -795,7 +795,7 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
       </SectionWrapper>
 
       {/* Category Card Backgrounds */}
-      <SectionWrapper title="Category Card Backgrounds" description="Themed background images for market cards. Displayed at 15% opacity with a dark gradient overlay.">
+      <SectionWrapper id="card-backgrounds" title="Category Card Backgrounds" description="Themed background images for market cards. Displayed at 15% opacity with a dark gradient overlay.">
         <div className={`grid ${isMobile ? "grid-cols-2" : "grid-cols-4"} gap-4`}>
           {[
             { name: "Social", file: "/card-bg/social.jpg", hsl: "260 60% 55%" },
