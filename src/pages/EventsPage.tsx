@@ -25,7 +25,11 @@ import { HotShelf } from "@/components/events/HotShelf";
 // Persist view preference
 const getStoredView = (): ViewMode => {
   try {
-    return (localStorage.getItem("events_view") as ViewMode) || "list";
+    const stored = localStorage.getItem("events_view") as ViewMode;
+    if (stored === "list" || stored === "grid-a" || stored === "grid-b") return stored;
+    // migrate old "grid" value
+    if (stored === "grid") return "grid-a";
+    return "list";
   } catch {
     return "list";
   }
@@ -46,9 +50,9 @@ const EventsPage = () => {
     () => (searchParams.get("tab") as EventTab) || "all"
   );
 
-  // View mode: mobile forces grid
+  // View mode: mobile forces grid-a
   const [view, setView] = useState<ViewMode>(() =>
-    isMobile ? "grid" : getStoredView()
+    isMobile ? "grid-a" : getStoredView()
   );
 
   // Change timeframe
@@ -78,7 +82,7 @@ const EventsPage = () => {
 
   // Force grid on mobile
   useEffect(() => {
-    if (isMobile) setView("grid");
+    if (isMobile) setView("grid-a");
   }, [isMobile]);
 
   // Filter & sort markets
@@ -145,7 +149,7 @@ const EventsPage = () => {
     setIsRefreshing(false);
   };
 
-  const effectiveView: ViewMode = isMobile ? "grid" : view;
+  const effectiveView: ViewMode = isMobile ? "grid-a" : view;
 
   const renderContent = () => {
     if (activeTab === "hot") {
@@ -197,6 +201,7 @@ const EventsPage = () => {
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
         chgTimeframe={chgTimeframe}
+        viewMode={effectiveView}
       />
     );
   };
