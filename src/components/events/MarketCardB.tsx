@@ -112,6 +112,21 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
       </div>
 
+      {/* Top Market Preview */}
+      {market.topMarket && (
+        <div className="mt-1.5 pt-1.5 border-t border-border/10 flex items-center justify-between">
+          <span className="text-[10px] text-muted-foreground truncate max-w-[50%]">
+            {market.topMarket.label}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-mono text-foreground">¢{(market.topMarket.price * 100).toFixed(1)}</span>
+            <span className={cn("text-[10px] font-mono font-semibold", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
+              {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* CTA */}
       <div className="mt-2 flex items-center justify-between">
         <span className="text-[11px] font-medium text-primary">
