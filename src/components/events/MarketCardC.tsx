@@ -66,7 +66,6 @@ export const MarketCardC = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           {market.isNew && <NewBadge />}
         </div>
         <div className="flex items-center gap-2">
-          {market.expiry && <ClosingSoonCountdown endDate={market.expiry} />}
           <span className="text-[10px] text-muted-foreground font-mono">{formatExpiry(market.expiry)}</span>
         </div>
       </div>
