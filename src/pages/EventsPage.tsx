@@ -199,14 +199,14 @@ const EventsPage = () => {
 
     return effectiveView === "list" ? (
       <MarketListView
-        markets={paginatedMarkets}
+        markets={visibleMarkets}
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
         chgTimeframe={chgTimeframe}
       />
     ) : (
       <MarketGridView
-        markets={paginatedMarkets}
+        markets={visibleMarkets}
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
         chgTimeframe={chgTimeframe}
