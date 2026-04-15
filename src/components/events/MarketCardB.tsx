@@ -58,9 +58,9 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
             src={cardBg}
             alt=""
             loading="lazy"
-            className="w-full h-full object-cover opacity-[0.12]"
+            className="w-full h-full object-cover opacity-[0.28]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(225_40%_7%)] via-[hsl(225_40%_7%/0.7)] to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(225_40%_7%)] via-[hsl(225_40%_7%/0.45)] to-transparent" />
         </div>
       )}
 
