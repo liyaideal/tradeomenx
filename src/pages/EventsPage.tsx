@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, RefreshCw, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, RefreshCw, Star, ChevronDown } from "lucide-react";
 import { MobileStatusDropdown } from "@/components/EventFilters";
 import { MobileActiveFilterDrawer } from "@/components/events/FilterChips";
 import { Button } from "@/components/ui/button";
@@ -147,13 +147,10 @@ const EventsPage = () => {
     return result;
   }, [markets, activeTab, filters, isWatched, chgTimeframe]);
 
-  // Paginated markets
-  const totalPages = Math.max(1, Math.ceil(filteredMarkets.length / pageSize));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedMarkets = useMemo(() => {
-    const start = (safePage - 1) * pageSize;
-    return filteredMarkets.slice(start, start + pageSize);
-  }, [filteredMarkets, safePage, pageSize]);
+  // Visible markets (cumulative load more)
+  const visibleMarkets = useMemo(() => {
+    return filteredMarkets.slice(0, currentPage * pageSize);
+  }, [filteredMarkets, currentPage, pageSize]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -202,14 +199,14 @@ const EventsPage = () => {
 
     return effectiveView === "list" ? (
       <MarketListView
-        markets={paginatedMarkets}
+        markets={visibleMarkets}
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
         chgTimeframe={chgTimeframe}
       />
     ) : (
       <MarketGridView
-        markets={paginatedMarkets}
+        markets={visibleMarkets}
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
         chgTimeframe={chgTimeframe}
@@ -218,18 +215,7 @@ const EventsPage = () => {
     );
   };
 
-  // Generate page numbers to display
-  const getPageNumbers = (): (number | "...")[] => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | "...")[] = [1];
-    if (safePage > 3) pages.push("...");
-    for (let i = Math.max(2, safePage - 1); i <= Math.min(totalPages - 1, safePage + 1); i++) {
-      pages.push(i);
-    }
-    if (safePage < totalPages - 2) pages.push("...");
-    pages.push(totalPages);
-    return pages;
-  };
+  const hasMore = visibleMarkets.length < filteredMarkets.length;
 
   return (
     <div
@@ -315,60 +301,20 @@ const EventsPage = () => {
           renderContent()
         )}
 
-        {/* Pagination */}
-        {!isLoading && filteredMarkets.length > 0 && activeTab !== "hot" && totalPages > 1 && (
-          <div className="flex items-center justify-center gap-1 pt-4">
+        {/* Load More */}
+        {!isLoading && hasMore && activeTab !== "hot" && (
+          <div className="flex flex-col items-center gap-2 pt-4">
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-              disabled={safePage <= 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {getPageNumbers().map((p, i) =>
-              p === "..." ? (
-                <span key={`dots-${i}`} className="px-1 text-muted-foreground text-sm">...</span>
-              ) : (
-                <Button
-                  key={p}
-                  variant={p === safePage ? "default" : "ghost"}
-                  size="icon"
-                  className={`h-8 w-8 text-sm ${p === safePage ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  onClick={() => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                >
-                  {p}
-                </Button>
-              )
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => { setCurrentPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-              disabled={safePage >= totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <span className="ml-3 text-xs text-muted-foreground font-mono">
-              {filteredMarkets.length} events
-            </span>
-          </div>
-        )}
-
-        {/* Refresh (show only on single page or below pagination) */}
-        {!isLoading && filteredMarkets.length > 0 && activeTab !== "hot" && (
-          <div className="flex justify-center pt-2">
-            <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="gap-2 text-muted-foreground hover:text-primary text-xs"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
+              className="gap-2 text-muted-foreground hover:text-foreground border-border/60"
+              onClick={() => setCurrentPage((p) => p + 1)}
             >
-              <RefreshCw className={`h-3 w-3 ${isRefreshing ? "animate-spin" : ""}`} />
-              {isRefreshing ? "Refreshing..." : "Refresh"}
+              <ChevronDown className="h-4 w-4" />
+              Load More
+              <span className="text-xs font-mono opacity-60">
+                {visibleMarkets.length}/{filteredMarkets.length}
+              </span>
             </Button>
           </div>
         )}
