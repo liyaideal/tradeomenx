@@ -1,5 +1,6 @@
 import { MarketCard } from "./MarketCard";
 import { MarketCardB } from "./MarketCardB";
+import { MarketCardC } from "./MarketCardC";
 import { EventRow, ChgTimeframe } from "@/hooks/useMarketListData";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ViewMode } from "./ViewToggle";
@@ -14,7 +15,7 @@ interface MarketGridViewProps {
 
 export const MarketGridView = ({ markets, isWatched, onToggleWatch, chgTimeframe = "24h", viewMode = "grid-a" }: MarketGridViewProps) => {
   const isMobile = useIsMobile();
-  const CardComponent = viewMode === "grid-b" ? MarketCardB : MarketCard;
+  const CardComponent = viewMode === "grid-c" ? MarketCardC : viewMode === "grid-b" ? MarketCardB : MarketCard;
 
   return (
     <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2 xl:grid-cols-3"}`}>
