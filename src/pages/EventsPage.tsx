@@ -91,9 +91,9 @@ const EventsPage = () => {
     if (!isMobile) localStorage.setItem("events_view", view);
   }, [view, isMobile]);
 
-  // Force grid on mobile
+  // Default to grid-a on mobile (only on mount)
   useEffect(() => {
-    if (isMobile) setView("grid-a");
+    if (isMobile && view !== "grid-a" && view !== "grid-b") setView("grid-a");
   }, [isMobile]);
 
   // Filter & sort markets
