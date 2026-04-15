@@ -1,41 +1,38 @@
 
 
-# 卡片层级调整：交换 Stats 和 Top Market 行的位置
+# Outcome 缩略表方案
 
-## 问题
-当前从上到下：Title → Stats（Vol）→ CTA（Top Market + CHG）。但 Top Market + CHG 是用户做点击决策的核心信息，却被压在最底部。
+## 布局
 
-## 方案：纯位置互换 + 视觉微调
-
-保持现有样式不变，只把两个区块的顺序对调：
+用 `market.children` 数组的前 3 个子 market，在标题下方展示迷你列表，每行显示 outcome label + CHG（不要价格）。替换掉现有的单个 top market + CHG 行。
 
 ```text
 ┌─────────────────────────────────────┐
-│ ★ [Crypto]  NEW              4mo   │
+│ ★ [Crypto]  NEW                     │
 │ Bitcoin Price End of Q3             │
-│ ▾ 6 markets                        │
 │                                     │
-│ Above $100K      ▲ +3.52%         │  ← 上移：决策信息
+│  Above $100K              ▲ +3.52% │
+│  $80K-$100K               ▼ -1.20% │
+│  Below $80K               ▲ +0.80% │
+│                       +3 more →    │
 │ ─────────────────────────────────── │
-│ 24H VOL  $1.2M      TOTAL  $12.5M │  ← 下沉：辅助数据
-│                      View Mkts  →  │
+│ 24H VOL $1.2M    TOTAL VOL $12.5M │
 └─────────────────────────────────────┘
 ```
 
-要点：
-- **Top Market + CHG 行**上移到标题/market count 下方，紧跟标题，视觉权重最高
-- **Stats（Vol）行**下移，字号可略缩小（`text-xs` → `text-[10px]`），降低权重
-- **CTA 按钮**（View Markets → / Trade →）保持在最底部右对齐，与 Vol 行同行或紧接其下
-- 单 market 事件（无 topMarket）：CHG 独立显示在同一位置
+## 要点
 
-## 改动
+- 从 `market.children` 取前 3 个（按 volume 排序），每行用 `flex justify-between`：左边 label（truncate），右边 CHG 值（带颜色 + 箭头）
+- 超过 3 个子 market 时，底部显示 `+N more →`（text-primary，可点击感）
+- 单 market 事件（`children.length === 0`）：只显示 event 级别 CHG，无列表
+- CHG 值根据 `chgTimeframe` 动态切换（复用 `getChange` helper）
+- 移除现有的 "▾ 6 markets" 指示行和单独的 top market + CHG 行，用缩略表替代
+- 底部 Vol 行保留，移除 "View Markets →" CTA（整卡可点击已足够）
 
-### MarketCard.tsx（Version A）
-- 将第 96-117 行的 CTA 区块中 top market label + CHG 部分移到第 83 行（stats 上方）
-- Stats 行保留在下方，与 CTA 按钮合并为一行（左侧 Vol 数据，右侧 View Markets →）
+## 改动文件
 
-### MarketCardB.tsx（Version B）
-- 同样调整顺序
+1. **MarketCard.tsx** — 替换第 74-97 行（multi-market indicator + top market CHG）为 outcome 缩略表
+2. **MarketCardB.tsx** — 同样替换第 97-111 行
 
-约改动 2 个文件，每文件重排约 15 行，无新增组件。
+每文件改动约 20 行，无新组件。
 
