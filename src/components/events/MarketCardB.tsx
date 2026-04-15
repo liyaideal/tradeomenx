@@ -91,8 +91,8 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           <div className="text-xs font-mono text-muted-foreground">{formatUSD(volValue)}</div>
         </div>
         <div>
-          <div className="text-[10px] text-muted-foreground uppercase">OI</div>
-          <div className="text-xs font-mono text-muted-foreground">{formatUSD(market.openInterest)}</div>
+          <div className="text-[10px] text-muted-foreground uppercase">Total Vol</div>
+          <div className="text-xs font-mono text-muted-foreground">{formatUSD(market.volume24h)}</div>
         </div>
       </div>
 
