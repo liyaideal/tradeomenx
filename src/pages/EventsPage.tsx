@@ -260,7 +260,6 @@ const EventsPage = () => {
             </div>
             {isMobile && (
               <div className="flex items-center gap-2">
-                <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
                 <div className="flex items-center gap-0.5 p-0.5 rounded-lg border border-border/40 bg-muted/30">
                   <button
                     onClick={() => setView("grid-a")}
@@ -271,6 +270,7 @@ const EventsPage = () => {
                     className={`px-2 py-0.5 text-[11px] font-medium rounded-md transition-colors ${effectiveView === "grid-b" ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}
                   >B</button>
                 </div>
+                <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
                 <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
               </div>
             )}
