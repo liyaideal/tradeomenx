@@ -115,6 +115,7 @@ export const MarketCardC = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </span>
         <ChevronRight className="h-3.5 w-3.5 text-primary" />
       </div>
+      </div>
     </div>
   );
 };
