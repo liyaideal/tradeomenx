@@ -1,44 +1,24 @@
 
 
-# 优化卡片底图加载速度 + 文档更新
+# 动态生成分类 Tabs
 
 ## 问题
-
-| 文件 | 当前大小 | 目标 |
-|------|---------|------|
-| sports.jpg | 1.4 MB | ~50 KB |
-| politics.jpg | 689 KB | ~40 KB |
-| finance.jpg | 607 KB | ~40 KB |
-| tech.jpg | 462 KB | ~35 KB |
-| social.jpg | 243 KB | ~30 KB |
-| crypto.jpg | 195 KB | ~25 KB |
-| entertainment.jpg | 154 KB | ~25 KB |
-
-卡片宽度最多 ~400px，且图片只以 15% 透明度显示，完全不需要高分辨率原图。
+`EventTabs` 中的分类列表是硬编码的，缺少 `entertainment` 等新增分类。当数据库中出现新分类的 event 时，Tab 栏不会自动显示。
 
 ## 改动
 
-### 1. 压缩所有底图（脚本处理）
-- 使用 ImageMagick 将所有 7 张图片缩放到 **600px 宽度**
-- JPEG 质量降到 **60%**（反正只有 15% 透明度，看不出画质差异）
-- 预计总大小从 3.7MB 降到 ~250KB
+**文件：`src/components/events/EventTabs.tsx`**
 
-### 2. 添加 CSS 预加载提示
-- 在 `MarketCardB` 中把 `loading="lazy"` 保留（已有），确保首屏外的卡片不阻塞加载
+1. 改为接收一个 `categories` prop（从实际市场数据中提取的分类列表）
+2. 固定 tabs：`All`、`Hot`、`Watchlist` 始终显示在最前面
+3. 分类 tabs：根据传入的 `categories` 动态渲染，按 `categoryUtils.ts` 中定义的顺序排列
+4. `EventTab` 类型改为 `string`（不再是固定联合类型）
 
-### 3. 更新 DESIGN.md
-- 新增「Category Card Backgrounds」章节，记录：
-  - 每个分类对应的底图文件路径
-  - 透明度规范（0.15）
-  - 渐变遮罩参数
-  - 图片尺寸/质量要求（≤600px, JPEG 60%）
+**文件：`src/pages/EventsPage.tsx`**
 
-### 4. 更新 Style Guide
-- 在 Design Tokens 或 Trading section 新增底图预览子区域
-- 展示 7 个分类的底图缩略图 + 对应的分类名和文件路径
+1. 从 `markets` 数据中提取去重的分类列表：`[...new Set(markets.map(m => m.category))]`
+2. 将分类列表传给 `EventTabs`
+3. `activeTab` 类型放宽为 `string`
 
-## 效果
-- 页面总图片负载从 **3.7MB → ~250KB**（减少 93%）
-- 加载速度显著提升，特别是移动端
-- 底图规范有据可查
+**排序逻辑：** 分类 tab 按 `CATEGORY_STYLES`（categoryUtils.ts）中定义的键顺序排列，确保一致性。未在样式表中定义的新分类排在最后。
 
