@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, RefreshCw, Star } from "lucide-react";
+import { Loader2, RefreshCw, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { MobileStatusDropdown } from "@/components/EventFilters";
 import { MobileActiveFilterDrawer } from "@/components/events/FilterChips";
 import { Button } from "@/components/ui/button";
@@ -27,13 +27,15 @@ const getStoredView = (): ViewMode => {
   try {
     const stored = localStorage.getItem("events_view") as ViewMode;
     if (stored === "list" || stored === "grid-a" || stored === "grid-b") return stored;
-    // migrate old "grid" value
     if (stored === "grid") return "grid-a";
     return "list";
   } catch {
     return "list";
   }
 };
+
+const PAGE_SIZE_DESKTOP = 20;
+const PAGE_SIZE_MOBILE = 10;
 
 const EventsPage = () => {
   const navigate = useNavigate();
@@ -67,6 +69,15 @@ const EventsPage = () => {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = isMobile ? PAGE_SIZE_MOBILE : PAGE_SIZE_DESKTOP;
+
+  // Reset page when filters/tab change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, filters, chgTimeframe]);
+
   // Sync tab → URL
   useEffect(() => {
     const current = searchParams.get("tab") || "all";
@@ -95,7 +106,6 @@ const EventsPage = () => {
     } else if (activeTab !== "all" && activeTab !== "hot") {
       result = result.filter((m) => m.category === activeTab);
     }
-    // "all" and "hot" show everything (hot has its own layout)
 
     // Search
     if (filters.search.trim()) {
@@ -123,7 +133,7 @@ const EventsPage = () => {
       });
     }
 
-    // Sort — follows chgTimeframe
+    // Sort
     const sortKey = filters.sort;
     result.sort((a, b) => {
       switch (sortKey) {
@@ -136,6 +146,14 @@ const EventsPage = () => {
 
     return result;
   }, [markets, activeTab, filters, isWatched, chgTimeframe]);
+
+  // Paginated markets
+  const totalPages = Math.max(1, Math.ceil(filteredMarkets.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedMarkets = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return filteredMarkets.slice(start, start + pageSize);
+  }, [filteredMarkets, safePage, pageSize]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -184,20 +202,33 @@ const EventsPage = () => {
 
     return effectiveView === "list" ? (
       <MarketListView
-        markets={filteredMarkets}
+        markets={paginatedMarkets}
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
         chgTimeframe={chgTimeframe}
       />
     ) : (
       <MarketGridView
-        markets={filteredMarkets}
+        markets={paginatedMarkets}
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
         chgTimeframe={chgTimeframe}
         viewMode={effectiveView}
       />
     );
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = (): (number | "...")[] => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | "...")[] = [1];
+    if (safePage > 3) pages.push("...");
+    for (let i = Math.max(2, safePage - 1); i <= Math.min(totalPages - 1, safePage + 1); i++) {
+      pages.push(i);
+    }
+    if (safePage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
   };
 
   return (
@@ -284,17 +315,59 @@ const EventsPage = () => {
           renderContent()
         )}
 
-        {/* Refresh */}
-        {!isLoading && filteredMarkets.length > 0 && activeTab !== "hot" && (
-          <div className="flex justify-center pt-4">
+        {/* Pagination */}
+        {!isLoading && filteredMarkets.length > 0 && activeTab !== "hot" && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-1 pt-4">
             <Button
-              variant="outline"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              disabled={safePage <= 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {getPageNumbers().map((p, i) =>
+              p === "..." ? (
+                <span key={`dots-${i}`} className="px-1 text-muted-foreground text-sm">...</span>
+              ) : (
+                <Button
+                  key={p}
+                  variant={p === safePage ? "default" : "ghost"}
+                  size="icon"
+                  className={`h-8 w-8 text-sm ${p === safePage ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                >
+                  {p}
+                </Button>
+              )
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => { setCurrentPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              disabled={safePage >= totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <span className="ml-3 text-xs text-muted-foreground font-mono">
+              {filteredMarkets.length} events
+            </span>
+          </div>
+        )}
+
+        {/* Refresh (show only on single page or below pagination) */}
+        {!isLoading && filteredMarkets.length > 0 && activeTab !== "hot" && (
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="ghost"
               size="sm"
-              className="gap-2 border-border/50 hover:border-primary hover:text-primary"
+              className="gap-2 text-muted-foreground hover:text-primary text-xs"
               onClick={handleRefresh}
               disabled={isRefreshing}
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-3 w-3 ${isRefreshing ? "animate-spin" : ""}`} />
               {isRefreshing ? "Refreshing..." : "Refresh"}
             </Button>
           </div>
