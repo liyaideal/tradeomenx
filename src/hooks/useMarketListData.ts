@@ -48,7 +48,7 @@ export interface EventRow {
   isClosingSoon: boolean;
 
   // Top market preview
-  topMarket: { label: string; price: number } | null;
+  topMarket: { label: string } | null;
 
   // Children
   childCount: number;
@@ -144,7 +144,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         isNew: newEvent,
         isClosingSoon: closingSoon,
         topMarket: maxVolChild && children.length >= 2
-          ? { label: maxVolChild.optionLabel, price: maxVolChild.markPrice }
+          ? { label: maxVolChild.optionLabel }
           : null,
         childCount: children.length,
         children: children.length >= 2 ? children : [],

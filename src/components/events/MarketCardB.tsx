@@ -94,14 +94,8 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         {market.eventName}
       </h3>
 
-      {/* 1×3 Stats Row */}
-      <div className="grid grid-cols-3 gap-2 mb-2">
-        <div>
-          <div className="text-[10px] text-muted-foreground uppercase">{TF_LABELS[chgTimeframe]}</div>
-          <div className={cn("text-xs font-mono font-semibold", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
-            {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
-          </div>
-        </div>
+      {/* Stats: Vol only */}
+      <div className="grid grid-cols-2 gap-2 mb-2">
         <div>
           <div className="text-[10px] text-muted-foreground uppercase">{chgTimeframe.toUpperCase()} Vol</div>
           <div className="text-xs font-mono text-muted-foreground">{formatUSD(volValue)}</div>
@@ -112,27 +106,28 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
       </div>
 
-      {/* Top Market Preview */}
-      {market.topMarket && (
-        <div className="mt-1.5 pt-1.5 border-t border-border/10 flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground truncate max-w-[50%]">
-            {market.topMarket.label}
-          </span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-mono text-foreground">¢{(market.topMarket.price * 100).toFixed(1)}</span>
+      {/* CTA row with top market info */}
+      <div className="pt-1.5 border-t border-border/10 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 min-w-0">
+          {market.topMarket ? (
+            <>
+              <span className="text-[10px] text-muted-foreground truncate max-w-[100px]">{market.topMarket.label}</span>
+              <span className={cn("text-[10px] font-mono font-semibold whitespace-nowrap", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
+                {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
+              </span>
+            </>
+          ) : (
             <span className={cn("text-[10px] font-mono font-semibold", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
-              {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
+              {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
             </span>
-          </div>
+          )}
         </div>
-      )}
-
-      {/* CTA */}
-      <div className="mt-2 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-primary">
-          {hasMultipleMarkets ? `View ${market.childCount} Markets` : "Trade"}
-        </span>
-        <ChevronRight className="h-3.5 w-3.5 text-primary" />
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="text-[11px] font-medium text-primary">
+            {hasMultipleMarkets ? `View ${market.childCount} Markets` : "Trade"}
+          </span>
+          <ChevronRight className="h-3.5 w-3.5 text-primary" />
+        </div>
       </div>
       </div>
     </div>

@@ -80,55 +80,40 @@ export const MarketCard = ({ market, isWatched, onToggleWatch, chgTimeframe = "2
       )}
       {!hasMultipleMarkets && <div className="mb-3" />}
 
-      {/* 2×2 Event-level stats */}
-      <div className="grid grid-cols-2 gap-y-2">
+      {/* Stats: Vol only */}
+      <div className="grid grid-cols-2 gap-y-2 mb-2">
         <div>
-          <div className="text-[10px] text-muted-foreground uppercase">{TF_LABELS[chgTimeframe]}</div>
-          <div className={cn("text-sm font-mono font-semibold", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
-            {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
-          </div>
-        </div>
-        <div className="text-right">
           <div className="text-[10px] text-muted-foreground uppercase">{chgTimeframe.toUpperCase()} Vol</div>
           <div className="text-sm font-mono text-muted-foreground">{formatUSD(volValue)}</div>
         </div>
-        <div>
+        <div className="text-right">
           <div className="text-[10px] text-muted-foreground uppercase">Total Vol</div>
           <div className="text-sm font-mono text-muted-foreground">{formatUSD(market.totalVolume)}</div>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] text-muted-foreground uppercase">Expires in</div>
-          <div className="text-sm font-mono text-muted-foreground">
-            {market.isClosingSoon && market.expiry ? (
-              <ClosingSoonCountdown endDate={market.expiry} />
-            ) : (
-              formatExpiry(market.expiry)
-            )}
-          </div>
-        </div>
       </div>
 
-      {/* Top Market Preview */}
-      {market.topMarket && (
-        <div className="mt-2 pt-1.5 border-t border-border/10 flex items-center justify-between">
-          <span className="text-[11px] text-muted-foreground truncate max-w-[55%]">
-            {market.topMarket.label}
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono text-foreground">¢{(market.topMarket.price * 100).toFixed(1)}</span>
+      {/* CTA row with top market info */}
+      <div className="pt-2 border-t border-border/20 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 min-w-0">
+          {market.topMarket ? (
+            <>
+              <span className="text-[11px] text-muted-foreground truncate max-w-[120px]">{market.topMarket.label}</span>
+              <span className={cn("text-[11px] font-mono font-semibold whitespace-nowrap", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
+                {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
+              </span>
+            </>
+          ) : (
             <span className={cn("text-[11px] font-mono font-semibold", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
-              {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
+              {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
             </span>
-          </div>
+          )}
         </div>
-      )}
-
-      {/* CTA */}
-      <div className="mt-3 pt-2 border-t border-border/20 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-primary">
-          {hasMultipleMarkets ? "View Markets" : "Trade"}
-        </span>
-        <ChevronRight className="h-3.5 w-3.5 text-primary" />
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="text-[11px] font-medium text-primary">
+            {hasMultipleMarkets ? "View Markets" : "Trade"}
+          </span>
+          <ChevronRight className="h-3.5 w-3.5 text-primary" />
+        </div>
       </div>
     </div>
   );
