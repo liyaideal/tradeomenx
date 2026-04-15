@@ -1,21 +1,63 @@
 
 
-# 移动端卡片 A/B 样式切换
+# 卡片增加 Top Market 预览行
+
+## 问题分析
+当前卡片的 3 个数据字段维度混乱：
+- **24H CHG** → 来自 top market（按 volume 排名最高的子 market）
+- **24H Vol** → event 级别汇总
+- **Total Vol** → event 级别汇总
+
+用户看不出 CHG 对应的是哪个具体 market，也缺乏"可交易内容"的预览，降低了点击前的决策依据。
+
+## 方案
+
+在卡片的统计行和 CTA 之间，新增一行 **Top Market 预览**，展示 CHG 数据的来源，同时让用户直观理解这个 event 里具体在交易什么。
+
+```text
+┌─────────────────────────────────────┐
+│ ★ [Crypto]  NEW              30d   │
+│ Bitcoin Price End of Q3             │
+│                                     │
+│ 24H CHG      24H Vol    Total Vol   │
+│ ▲ +3.52%     $1.2M      $12.5M     │
+│                                     │
+│ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈  │
+│ 📊 Above $100K          ¢62.3  ▲3.5│  ← Top Market 行
+│                                     │
+│ View 4 Markets               →      │
+└─────────────────────────────────────┘
+```
+
+Top Market 行显示：
+- **Option label**（如 "Above $100K"）
+- **Mark price**（¢ 格式）
+- **CHG 值**（与卡片顶部 CHG 一致，这样用户就对上号了）
+
+对于只有单个 market 的 event（childCount < 2），不显示此行（因为没有歧义）。
 
 ## 改动
 
-**文件：`src/pages/EventsPage.tsx`**
+### 1. `EventRow` 增加 `topMarket` 字段
+**文件：`src/hooks/useMarketListData.ts`**
+- 在 `EventRow` 接口新增 `topMarket: { label: string; price: number } | null`
+- 在数据构建时从 `maxVolChild` 提取 label 和 markPrice
 
-1. 移除 `isMobile` 时强制 `grid-a` 的逻辑，改为允许 `grid-a` / `grid-b` 切换
-2. 在移动端标题右侧的工具栏（第 262 行附近，ChgTimeframePicker 旁边）加一个简易的 A/B 切换按钮
-3. 切换按钮用两个小文字按钮 `A` / `B`，外包一个 `rounded-lg border` 容器，选中态用 `bg-primary/20 text-primary`
-4. `effectiveView` 在移动端不再固定为 `grid-a`，跟随 `view` state
+### 2. `MarketCard`（Version A）更新
+**文件：`src/components/events/MarketCard.tsx`**
+- 在 2x2 stats grid 和 CTA 之间，若 `market.topMarket` 存在，插入一行：
+  - 左侧：option label（text-xs, truncate）
+  - 右侧：mark price（¢格式）+ CHG 值（带颜色）
+- 样式：`border-t border-border/10 pt-1.5 mt-1`，低调但可见
 
-**具体 UI**：在 ChgTimeframePicker 和 MobileActiveFilterDrawer 之间插入一个紧凑的分段按钮：
+### 3. `MarketCardB`（Version B）更新
+**文件：`src/components/events/MarketCardB.tsx`**
+- 同样在 stats row 和 CTA 之间加 top market 预览行
+- 适配 B 卡片的紧凑布局
 
-```text
-[ 1H ▾ ]  [A|B]  [≡]
-```
+### 4. CHG label 简化
+- 两个卡片的 CHG 字段 label 从 `24H CHG (TOP MKT)` 简化为 `24H CHG`
+- 因为底部已经明确展示了 top market 是哪个，不需要在 label 里重复说明
 
-约改 20 行代码，无新文件。
+约改动 4 个文件，每个文件改动量约 10-20 行。
 
