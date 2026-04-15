@@ -108,12 +108,6 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
               </div>
             );
           })}
-          {market.children.length > 3 && (
-            <div className="flex items-center gap-1 justify-end pl-2 border-l border-border/20">
-              <span className="text-[10px] font-medium text-primary">+{market.children.length - 3} more</span>
-              <ChevronRight className="h-3 w-3 text-primary" />
-            </div>
-          )}
         </div>
       ) : (
         <div className="flex items-center gap-1.5 mb-2">
@@ -123,11 +117,17 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
       )}
 
-      {/* Stats row – compact single line */}
-      <div className="pt-1.5 border-t border-border/20 flex items-center gap-1 text-[10px] text-muted-foreground">
-        <span className="font-mono">{chgTimeframe.toUpperCase()} Vol: {formatUSD(volValue)}</span>
-        <span>·</span>
-        <span className="font-mono">Total Vol: {formatUSD(market.totalVolume)}</span>
+      {/* Footer row – +N more left, Total Vol right */}
+      <div className="pt-1.5 border-t border-border/20 flex items-center justify-between text-[10px]">
+        {market.children.length > 3 ? (
+          <div className="flex items-center gap-1 text-primary">
+            <span className="font-medium">+{market.children.length - 3} more</span>
+            <ChevronRight className="h-3 w-3" />
+          </div>
+        ) : (
+          <span />
+        )}
+        <span className="font-mono text-muted-foreground">Vol: {formatUSD(market.totalVolume)}</span>
       </div>
       </div>
     </div>
