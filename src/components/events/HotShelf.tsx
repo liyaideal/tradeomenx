@@ -47,7 +47,7 @@ const RenderView = ({
   return effectiveView === "list" ? (
     <MarketListView markets={markets} isWatched={isWatched} onToggleWatch={onToggleWatch} />
   ) : (
-    <MarketGridView markets={markets} isWatched={isWatched} onToggleWatch={onToggleWatch} />
+    <MarketGridView markets={markets} isWatched={isWatched} onToggleWatch={onToggleWatch} viewMode={effectiveView} />
   );
 };
 
