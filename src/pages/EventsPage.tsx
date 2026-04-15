@@ -26,7 +26,7 @@ import { HotShelf } from "@/components/events/HotShelf";
 const getStoredView = (): ViewMode => {
   try {
     const stored = localStorage.getItem("events_view") as ViewMode;
-    if (stored === "list" || stored === "grid-a" || stored === "grid-b") return stored;
+    if (stored === "list" || stored === "grid-a" || stored === "grid-b" || stored === "grid-c") return stored;
     if (stored === "grid") return "grid-a";
     return "list";
   } catch {
