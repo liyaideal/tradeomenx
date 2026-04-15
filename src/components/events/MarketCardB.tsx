@@ -64,6 +64,8 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
       )}
 
+      {/* Content layer above background */}
+      <div className="relative z-10">
       {/* Top Row: Star + Badge + NEW ... Expiry */}
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
