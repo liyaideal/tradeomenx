@@ -1,42 +1,35 @@
 
 
-# MarketCardB 分类底图
+# 更新事件分类 Tabs 匹配实际数据
 
-## 图片规格
+## 问题
 
-| 用法 | 推荐比例 | 推荐尺寸 (@2x) | 说明 |
-|------|---------|----------------|------|
-| 全宽底图 | **3:1** | 900 × 300 px | 覆盖整个卡片背景 |
-| 右侧装饰 | **1:1** | 300 × 300 px | 定位到卡片右侧，左侧留给文字 |
+数据库中实际存在的活动分类为：`crypto`、`finance`、`politics`、`social`、`sports`、`tech`。
 
-取决于你的设计风格。**请确认你倾向哪种**，然后把图发给我。
+当前 Tabs（Crypto、Macro、Sports、Politics）缺少 Social 和 Tech，且 Macro 实际对应的是 `finance` 分类。
 
-## 技术实现（确认图片后）
+## 改动方案
 
 | 文件 | 改动 |
 |------|------|
-| `public/card-bg/` | 新建目录，存放各分类底图（crypto.png、politics.png 等） |
-| `MarketCardB.tsx` | 根据 `market.categoryLabel` 映射底图路径，用 `absolute inset-0` 的 img/div 渲染，叠加半透明渐变遮罩保证文字可读 |
-| `categoryUtils.ts` | 新增 `cardBg` 字段到 `CATEGORY_STYLES`，映射分类→底图文件名 |
+| `src/components/events/EventTabs.tsx` | 更新 Tab 列表：All、Hot、Watchlist、Crypto、Finance、Politics、Social、Tech、Sports |
+| `src/pages/EventsPage.tsx` | 更新过滤逻辑，新增 `social`、`tech`、`finance` 分支，移除 `macro` |
 
-### 底图渲染方式
+### 新 Tab 顺序
 
 ```text
-┌──────────────────────────┐
-│ [文字内容 z-10]           │
-│  ⭐ [Crypto] NEW    3d   │
-│  BTC to hit $100K?       │
-│  CHG    Vol    Total Vol  │
-│  View 3 Markets >        │
-│                          │
-│ ░░░░░ 底图 (opacity 15-20%, z-0) ░░░░░ │
-│ ░░░░░ + 渐变遮罩从左到右 ░░░░░░░░░░░░ │
-└──────────────────────────┘
+All | 🔥 Hot | ⭐ Watchlist | Crypto | Finance | Politics | Social | Tech | Sports
 ```
 
-- 底图 `opacity: 0.15–0.20`，不影响文字可读性
-- 叠加从左到右的渐变遮罩（左侧更暗保护文字，右侧稍透让底图可见）
-- `overflow-hidden rounded-xl` 确保图片不溢出圆角
+- **Macro → Finance**：标签改名，过滤条件改为 `m.category === "finance"`
+- **新增 Social**：过滤 `m.category === "social"`
+- **新增 Tech**：过滤 `m.category === "tech"`
 
-等你确认比例和风格后，发图即可实施。
+### EventTab 类型更新
+
+```typescript
+export type EventTab = "all" | "hot" | "watchlist" | "crypto" | "finance" | "politics" | "social" | "tech" | "sports";
+```
+
+只改两个文件，不影响其他组件。
 
