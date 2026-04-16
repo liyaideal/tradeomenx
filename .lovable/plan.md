@@ -1,27 +1,35 @@
 
 
-# 记住约束 + Style B 视觉和底部 stats 调整
+# Style B 卡片层次感优化
 
-## 新增约束记忆
+## 问题分析
 
-保存一条规则：**修改任何一种卡片样式（A/B/C）时，严禁修改其他两种卡片的文件。** MarketCard.tsx = A，MarketCardB.tsx = B，MarketCardC.tsx = C。
+当前 Style B 卡片"平面感"的根本原因：
+1. **间距均匀**：顶部 `mb-1.5`、标题 `mb-2`、outcome `mb-2` 几乎等距，缺乏节奏感
+2. **内边距偏小**：`p-3` 整体偏紧凑，内容贴边
+3. **标题不够突出**：`text-sm` (14px) 和 outcome 的 `text-[11px]` 差距不大
+4. **Outcome 区域没有背景分层**：数据行直接浮在卡片上，缺少"容器感"
+5. **底栏过于轻**：和内容区无明显视觉断层
 
-## Style B 调整内容
+## 具体调整（仅 MarketCardB.tsx）
 
-你选择了「视觉样式调整」和「底部 stats 行调整」，具体改动如下：
+### 间距节奏
+- 外边距 `p-3` → `p-3.5`，给内容更多呼吸
+- 顶部行到标题 `mb-1.5` → `mb-2`
+- 标题到 outcome `mb-2` → `mb-3`，拉开主标题和数据的距离
 
-### 视觉微调（MarketCardB.tsx）
-1. **Outcome 行间距**：`space-y-1` → `space-y-1.5`，让每行 outcome 呼吸感更好
-2. **Outcome label 字号**：`text-[10px]` → `text-[11px]`，提升可读性
-3. **CHG 值对齐**：右侧 CHG 使用 `tabular-nums` 确保数字等宽对齐
-4. **"+N more" 行**：加左边一条细线或缩进，与 outcome 行区分层级
+### 字体层次
+- 标题 `text-sm` → `text-[15px]`，微调 1px 让标题更突出
+- 标题 `leading-snug` → `leading-tight`，让标题更紧凑有力
 
-### 底部 Stats 行调整
-5. **改为单行横排**：当前是纵向 label+value 叠放，改为 `flex items-center` 单行：`24H Vol: $1.2M · Total Vol: $12.5M`，用中点分隔，更紧凑
-6. **边框**：`border-border/10` → `border-border/20`，稍微加强分隔感
+### Outcome 区域加底色
+- 给 outcome 列表包裹一层 `bg-white/[0.03] rounded-lg px-2.5 py-2`，形成半透明容器感
+- 单 outcome（无 children）同样加底色容器
 
-## 改动文件
+### 底栏加强
+- `pt-1.5` → `pt-2 mt-1`，增加与内容区的间距
 
-仅 `src/components/events/MarketCardB.tsx`（约 15 行改动）
-新增 `mem://constraint/card-style-isolation`
+## 改动范围
+
+仅 `src/components/events/MarketCardB.tsx`，约 10 行改动
 
