@@ -1,61 +1,33 @@
 
 
-# 新建 Style A 卡片
+# Style A 视觉调整
 
-## 参考图布局分析
+## 对比参考图的问题
 
-参考图的布局特点（从上到下）：
-1. **顶行**：Star + NEW badge + Category badge
-2. **标题行**：事件名称 + 10X leverage badge + 外链图标
-3. **三列数据行**：TOP MARKET | 24H CHG | PRICE — 带背景容器，列间竖线分隔
-4. **View N Markets** 链接（居中）
-5. **底栏**：Total Vol 左 + Expires 右，带独立背景条
+参考图中数据区的值字体明显更大（约 14-16px），而当前代码中所有值都是 `text-[11px]`，显得拥挤且不突出。标题也需要稍大，整体间距需要更宽松。
 
-## 新建文件
+## 调整项（仅 MarketCardA.tsx）
 
-`src/components/events/MarketCardA.tsx`
+| 位置 | 当前 | 改为 |
+|------|------|------|
+| 卡片内边距 | `p-3` | `p-4` |
+| 标题字号 | `text-[15px]` | `text-lg` (~18px) |
+| 标题行底部 margin | `mb-2` | `mb-3` |
+| 三列表头字号 | `text-[9px]` | `text-[10px]` |
+| 三列表头内边距 | `px-2 py-1` | `px-3 py-1.5` |
+| 三列数据值字号 | `text-[11px]` | `text-sm` (~14px) |
+| 三列数据值内边距 | `px-2 py-1.5` | `px-3 py-2.5` |
+| 三列数据区底部 margin | `mb-1.5` | `mb-2` |
+| "View N Markets" | `text-[11px] py-1` | `text-xs py-1.5` |
+| 底栏内边距 | `px-2.5 py-1.5` | `px-3 py-2` |
+| 底栏字号 | `text-[10px]` | `text-[11px]` |
+| 底栏 top margin | `mt-1` | `mt-1.5` |
+| 10X badge | `text-[10px] px-1 py-0.5` | `text-[11px] px-1.5 py-0.5` |
+| ExternalLink 图标 | `h-3 w-3` | `h-3.5 w-3.5` |
 
-### 布局结构
+核心思路：数据值区域放大到 14px，与表头的 10px 形成明显的层级对比，匹配参考图的视觉比例。
 
-```text
-┌─────────────────────────────────────────┐
-│ ☆  NEW   Crypto                    4mo  │  顶行
-│                                         │
-│ XRP price on August 31, 2026?    10X 🔗 │  标题行
-│                                         │
-│ ┌───────────┬──────────┬──────────┐     │
-│ │ TOP MARKET│ 24H CHG  │  PRICE   │     │  三列数据 (bg-white/[0.04])
-│ │ Above $3.0│  ↓ -5%   │  0.65    │     │
-│ └───────────┴──────────┴──────────┘     │
-│         View 7 Markets >                │  链接行
-│                                         │
-│ ┌ Total Vol. $100.5M    Expires 4mo > ┐ │  底栏 (独立背景条)
-│ └─────────────────────────────────────┘ │
-└─────────────────────────────────────────┘
-```
+## 改动范围
 
-### 细节
-
-- 三列数据区：`bg-white/[0.04] rounded-lg`，列间用 `border-r border-border/20` 分隔
-- TOP MARKET 显示 `topMarket.label`（无 children 时显示 CHG）
-- 24H CHG 列标题跟随 `chgTimeframe`，显示 `TF_LABELS[chgTimeframe]`
-- PRICE 显示 topMarket 对应 child 的 `markPrice`
-- "View N Markets >" 仅 children > 1 时显示，否则隐藏
-- 底栏用 `bg-white/[0.03] rounded-lg` 独立背景条
-- 10X badge: `bg-trading-yellow/20 text-trading-yellow text-[10px] font-bold px-1 rounded`（mock leverage）
-- 与 B/C 共享相同的 props 接口和 category 背景图
-
-## 修改文件
-
-1. **ViewToggle.tsx**: `ViewMode` 加回 `"grid-a"`，dropdown 加 Style A 选项
-2. **MarketGridView.tsx**: 导入 `MarketCardA`，`viewMode === "grid-a"` 时使用
-3. **EventsPage.tsx**: 
-   - `getStoredView` 支持 `"grid-a"`
-   - 移动端视图切换按钮加 A 选项
-   - `effectiveView` 支持 `grid-a`
-
-## 不改动
-
-- `MarketCardB.tsx` — 不动
-- `MarketCardC.tsx` — 不动
+仅 `src/components/events/MarketCardA.tsx`，不动 B/C。
 
