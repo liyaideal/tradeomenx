@@ -45,7 +45,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
 
   return (
     <div
-      className="group relative rounded-xl border border-border/40 p-3.5 cursor-pointer transition-all hover:border-primary/40 overflow-hidden"
+      className="group relative rounded-xl border border-border/40 p-3 cursor-pointer transition-all hover:border-primary/40 overflow-hidden"
       style={{
         background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
       }}
@@ -90,13 +90,13 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
       </div>
 
       {/* Title - single line */}
-      <h3 className="text-[15px] font-semibold text-foreground leading-tight mb-3 line-clamp-1 group-hover:text-primary transition-colors">
+      <h3 className="text-[15px] font-semibold text-foreground leading-tight mb-2 line-clamp-1 group-hover:text-primary transition-colors">
         {market.eventName}
       </h3>
 
       {/* Outcome mini-table */}
       {market.children.length > 0 ? (
-        <div className="bg-white/[0.03] rounded-lg px-2.5 py-2 space-y-1.5 mb-2">
+        <div className="bg-white/[0.03] rounded-lg px-2 py-1.5 space-y-1 mb-2">
           {market.children.slice(0, 3).map((child) => {
             const chg = getChange(child, chgTimeframe);
             return (
@@ -110,7 +110,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           })}
         </div>
       ) : (
-        <div className="bg-white/[0.03] rounded-lg px-2.5 py-2 flex items-center gap-1.5 mb-2">
+        <div className="bg-white/[0.03] rounded-lg px-2 py-1.5 flex items-center gap-1.5 mb-2">
           <span className={cn("text-[11px] font-mono font-semibold tabular-nums", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
             {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
           </span>
@@ -118,7 +118,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
       )}
 
       {/* Footer row – +N more left, Total Vol right */}
-      <div className="pt-2 mt-1 border-t border-border/20 flex items-center justify-between text-[10px]">
+      <div className="pt-1.5 mt-0.5 border-t border-border/20 flex items-center justify-between text-[10px]">
         <span className="font-mono text-muted-foreground">Vol: {formatUSD(market.totalVolume)}</span>
         {market.children.length > 3 ? (
           <div className="flex items-center gap-1 text-primary">
