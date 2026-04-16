@@ -89,7 +89,7 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
 
         {/* Row 2: Title + 10X badge + link icon */}
-        <div className="flex items-start gap-1.5 mb-2">
+        <div className="flex items-start gap-1.5 mb-3">
           <h3 className="text-base font-semibold text-foreground leading-tight line-clamp-1 group-hover:text-primary transition-colors flex-1">
             {market.eventName}
           </h3>
@@ -99,34 +99,24 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0 mt-1" />
         </div>
 
-        {/* Row 3: Three-column data area */}
-        <div className="bg-white/[0.04] rounded-md overflow-hidden mb-1">
-          {/* Column headers */}
-          <div className="grid grid-cols-3">
-            <div className="px-3 py-1 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide border-r border-border/20">
-              Top Market
-            </div>
-            <div className="px-3 py-1 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide border-r border-border/20">
-              {TF_LABELS[chgTimeframe]}
-            </div>
-            <div className="px-3 py-1 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide">
-              Price
-            </div>
-          </div>
-          {/* Column values */}
-          <div className="grid grid-cols-3 border-t border-border/10">
-            <div className="px-3 py-2 text-sm text-foreground/90 font-medium truncate border-r border-border/20">
+        {/* Row 3: Open three-column stats (C-style) */}
+        <div className="grid grid-cols-3 gap-2 mb-2">
+          <div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Top Market</div>
+            <div className="text-sm font-mono font-medium text-foreground/90 mt-0.5 truncate">
               {topChild ? topChild.optionLabel : market.eventName.slice(0, 15)}
             </div>
-            <div className="px-3 py-2 border-r border-border/20">
-              <span className={cn("text-sm font-mono font-semibold tabular-nums", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
-                {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
-              </span>
+          </div>
+          <div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{TF_LABELS[chgTimeframe]}</div>
+            <div className={cn("text-sm font-mono font-semibold mt-0.5", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
+              {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
             </div>
-            <div className="px-3 py-2">
-              <span className="text-sm font-mono text-foreground/90 tabular-nums">
-                {topChild ? topChild.markPrice.toFixed(2) : "—"}
-              </span>
+          </div>
+          <div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Price</div>
+            <div className="text-sm font-mono text-foreground/80 mt-0.5">
+              {topChild ? topChild.markPrice.toFixed(2) : "—"}
             </div>
           </div>
         </div>
@@ -140,7 +130,7 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         )}
 
         {/* Row 5: Footer bar */}
-        <div className="bg-white/[0.03] rounded-md px-3 py-1.5 flex items-center justify-between mt-1">
+        <div className="pt-2 border-t border-border/20 flex items-center justify-between">
           <span className="text-[11px] font-mono text-muted-foreground">
             Total Vol. {formatUSD(market.totalVolume)}
           </span>
