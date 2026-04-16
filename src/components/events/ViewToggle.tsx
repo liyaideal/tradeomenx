@@ -1,20 +1,12 @@
-import { LayoutList, LayoutGrid, Check, ChevronDown } from "lucide-react";
+import { LayoutList, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-export type ViewMode = "list" | "grid-a" | "grid-b" | "grid-c";
+export type ViewMode = "list" | "grid";
 
 interface ViewToggleProps {
   view: ViewMode;
   onChange: (v: ViewMode) => void;
 }
-
-const isGrid = (v: ViewMode) => v === "grid-a" || v === "grid-b" || v === "grid-c";
 
 export const ViewToggle = ({ view, onChange }: ViewToggleProps) => (
   <div className="flex items-center rounded-lg border border-border/50 overflow-hidden">
@@ -28,43 +20,15 @@ export const ViewToggle = ({ view, onChange }: ViewToggleProps) => (
     >
       <LayoutList className="h-4 w-4" />
     </button>
-
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          className={cn(
-            "p-1.5 transition-colors flex items-center gap-0.5",
-            isGrid(view) ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"
-          )}
-          aria-label="Grid view"
-        >
-          <LayoutGrid className="h-4 w-4" />
-          <ChevronDown className="h-3 w-3" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[140px]">
-        <DropdownMenuItem
-          onClick={() => onChange("grid-a")}
-          className="flex items-center justify-between text-xs"
-        >
-          Style A
-          {view === "grid-a" && <Check className="h-3.5 w-3.5 text-primary" />}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => onChange("grid-b")}
-          className="flex items-center justify-between text-xs"
-        >
-          Style B
-          {view === "grid-b" && <Check className="h-3.5 w-3.5 text-primary" />}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => onChange("grid-c")}
-          className="flex items-center justify-between text-xs"
-        >
-          Style C
-          {view === "grid-c" && <Check className="h-3.5 w-3.5 text-primary" />}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <button
+      onClick={() => onChange("grid")}
+      className={cn(
+        "p-1.5 transition-colors",
+        view === "grid" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"
+      )}
+      aria-label="Grid view"
+    >
+      <LayoutGrid className="h-4 w-4" />
+    </button>
   </div>
 );

@@ -26,11 +26,10 @@ import { HotShelf } from "@/components/events/HotShelf";
 const getStoredView = (): ViewMode => {
   try {
     const stored = localStorage.getItem("events_view") as ViewMode;
-    if (stored === "list" || stored === "grid-a" || stored === "grid-b" || stored === "grid-c") return stored;
-    if (stored === "grid") return "grid-b";
-    return "list";
+    if (stored === "list") return "list";
+    return "grid";
   } catch {
-    return "list";
+    return "grid";
   }
 };
 
@@ -52,9 +51,9 @@ const EventsPage = () => {
     () => searchParams.get("tab") || "all"
   );
 
-  // View mode: mobile forces grid-a
+  // View mode: mobile forces grid
   const [view, setView] = useState<ViewMode>(() =>
-    isMobile ? "grid-b" : getStoredView()
+    isMobile ? "grid" : getStoredView()
   );
 
   // Change timeframe
@@ -91,9 +90,9 @@ const EventsPage = () => {
     if (!isMobile) localStorage.setItem("events_view", view);
   }, [view, isMobile]);
 
-  // Default to grid-a on mobile (only on mount)
+  // Default to grid on mobile (only on mount)
   useEffect(() => {
-    if (isMobile && view !== "grid-b" && view !== "grid-c") setView("grid-b");
+    if (isMobile && view !== "grid") setView("grid");
   }, [isMobile]);
 
   // Filter & sort markets
@@ -158,7 +157,7 @@ const EventsPage = () => {
     setIsRefreshing(false);
   };
 
-  const effectiveView: ViewMode = isMobile ? (view === "grid-c" ? "grid-c" : view === "grid-a" ? "grid-a" : "grid-b") : view;
+  const effectiveView: ViewMode = isMobile ? "grid" : view;
 
   const renderContent = () => {
     if (activeTab === "hot") {
@@ -260,15 +259,6 @@ const EventsPage = () => {
             </div>
             {isMobile && (
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-0.5 p-0.5 rounded-lg border border-border/40 bg-muted/30">
-                  {(["grid-a", "grid-b", "grid-c"] as const).map((v) => (
-                    <button
-                      key={v}
-                      onClick={() => setView(v)}
-                      className={`px-2 py-0.5 text-[11px] font-medium rounded-md transition-colors ${effectiveView === v ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}
-                    >{v.split("-")[1].toUpperCase()}</button>
-                  ))}
-                </div>
                 <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
                 <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
               </div>
