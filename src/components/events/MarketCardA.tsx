@@ -45,7 +45,7 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
 
   return (
     <div
-      className="group relative rounded-xl border border-border/40 p-4 cursor-pointer transition-all hover:border-primary/40 overflow-hidden"
+      className="group relative rounded-xl border border-border/40 border-t-white/[0.06] px-4 py-3.5 cursor-pointer transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 overflow-hidden"
       style={{
         background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
       }}
@@ -66,7 +66,7 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
 
       <div className="relative z-10">
         {/* Row 1: Star + NEW + Category badge ... Expiry */}
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1.5">
             <button
               onClick={(e) => { e.stopPropagation(); onToggleWatch(e); }}
@@ -89,8 +89,8 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
 
         {/* Row 2: Title + 10X badge + link icon */}
-        <div className="flex items-start gap-1.5 mb-3">
-          <h3 className="text-lg font-semibold text-foreground leading-tight line-clamp-1 group-hover:text-primary transition-colors flex-1">
+        <div className="flex items-start gap-1.5 mb-2">
+          <h3 className="text-base font-semibold text-foreground leading-tight line-clamp-1 group-hover:text-primary transition-colors flex-1">
             {market.eventName}
           </h3>
           <span className="shrink-0 bg-trading-yellow/20 text-trading-yellow text-[11px] font-bold px-1.5 py-0.5 rounded leading-none mt-0.5">
@@ -100,16 +100,16 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
         </div>
 
         {/* Row 3: Three-column data area */}
-        <div className="bg-white/[0.04] rounded-lg overflow-hidden mb-2">
+        <div className="bg-white/[0.04] rounded-md overflow-hidden mb-1">
           {/* Column headers */}
           <div className="grid grid-cols-3">
-            <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide border-r border-border/20">
+            <div className="px-3 py-1 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide border-r border-border/20">
               Top Market
             </div>
-            <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide border-r border-border/20">
+            <div className="px-3 py-1 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide border-r border-border/20">
               {TF_LABELS[chgTimeframe]}
             </div>
-            <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide">
+            <div className="px-3 py-1 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide">
               Price
             </div>
           </div>
@@ -123,7 +123,7 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
                 {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
               </span>
             </div>
-            <div className="px-3 py-2.5">
+            <div className="px-3 py-2">
               <span className="text-sm font-mono text-foreground/90 tabular-nums">
                 {topChild ? topChild.markPrice.toFixed(2) : "—"}
               </span>
@@ -133,14 +133,14 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
 
         {/* Row 4: View N Markets link (only if >1) */}
         {childCount > 1 && (
-          <div className="flex items-center justify-center gap-1 py-1.5 text-xs text-primary font-medium">
+          <div className="flex items-center justify-center gap-1 py-1 text-xs text-primary font-medium">
             View {childCount} Markets
             <ChevronRight className="h-3 w-3" />
           </div>
         )}
 
         {/* Row 5: Footer bar */}
-        <div className="bg-white/[0.03] rounded-lg px-3 py-2 flex items-center justify-between mt-1.5">
+        <div className="bg-white/[0.03] rounded-md px-3 py-1.5 flex items-center justify-between mt-1">
           <span className="text-[11px] font-mono text-muted-foreground">
             Total Vol. {formatUSD(market.totalVolume)}
           </span>
