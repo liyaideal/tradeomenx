@@ -97,6 +97,9 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
       {/* Outcome mini-table */}
       {market.children.length > 0 ? (
         <div className="bg-white/[0.03] rounded-lg px-2 py-1.5 space-y-1 mb-2">
+          <div className="flex justify-end -mb-0.5">
+            <span className="text-[9px] font-mono text-muted-foreground/60 leading-none">{TF_LABELS[chgTimeframe]}</span>
+          </div>
           {market.children.slice(0, 3).map((child) => {
             const chg = getChange(child, chgTimeframe);
             return (
@@ -110,10 +113,15 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           })}
         </div>
       ) : (
-        <div className="bg-white/[0.03] rounded-lg px-2 py-1.5 flex items-center gap-1.5 mb-2">
-          <span className={cn("text-[11px] font-mono font-semibold tabular-nums", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
-            {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
-          </span>
+        <div className="bg-white/[0.03] rounded-lg px-2 py-1.5 mb-2">
+          <div className="flex justify-end -mb-0.5">
+            <span className="text-[9px] font-mono text-muted-foreground/60 leading-none">{TF_LABELS[chgTimeframe]}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className={cn("text-[11px] font-mono font-semibold tabular-nums", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
+              {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
+            </span>
+          </div>
         </div>
       )}
 
