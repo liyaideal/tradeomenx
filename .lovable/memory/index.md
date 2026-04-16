@@ -1,0 +1,109 @@
+# Project Memory
+
+## Core
+- **Typography:** `font-mono` (JetBrains Mono) for numbers/addresses. `font-sans` (Inter) for text.
+- **Casing:** `camelCase` for on-chain fields, `Title Case` for headers, `sentence case` for descriptions.
+- **Icons:** Use Lucide React SVG. NO EMOJIS in UI, event names, or market names.
+- **Addresses:** Truncate to First 6 + Last 6 (e.g. 0x1234...345678). Full addresses: digits text-primary, letters text-foreground.
+- **Data Persistence:** Guest users -> localStorage. Authenticated -> Supabase.
+- **Edge Functions:** Always use POST with parameters in request body.
+- **Balances:** Total Equity = Available Balance + Trial Bonus. Trial Bonus consumed first.
+- **Binary Events:** 'Yes-only' model. Convert 'No Long' -> 'Yes Short' & 'No Short' -> 'Yes Long'.
+- **Wallets:** No Web3 connection flow. Use manual 'Saved Addresses' (Address Book) system.
+- **Database:** `option_id` is the primary key for tracking prices.
+- **Grid Cards:** Only Style B (MarketCardB) exists. Style A and C were removed after community vote.
+
+## Memories
+- [Chart adaptive timeframes](mem://features/chart-adaptive-timeframes) — Rules for default candlestick timeframe based on time until settlement
+- [Header tweet count](mem://features/header-tweet-count) — Tweet count display in mobile header
+- [Real-time price updates](mem://features/real-time-price-updates) — Supabase Realtime integration; direction arrows explicitly removed
+- [Price simulation engine](mem://features/price-simulation-engine) — Edge function cron job for realistic market movements
+- [Binary event UI clarification](mem://features/binary-event-ui-clarification) — Educational tooltips for unified Yes-only positions
+- [Unified data persistence](mem://technical/unified-data-persistence) — Dual-source persistence (Supabase + localStorage)
+- [Binary event conversion](mem://features/binary-event-conversion-logic) — Core logic for converting No positions to Yes positions
+- [Trading stats header](mem://features/trading-stats-header) — Real-time data module in trading interface header
+- [Account risk UI](mem://features/account-risk-ui-implementation) — Persistent sidebar and mobile drawer for account risk
+- [Account risk model](mem://features/account-risk-model) — 4-tier risk classification and margin formulas
+- [Portfolio risk integration](mem://features/portfolio-risk-integration) — Syncing portfolio metrics with global risk model
+- [Position option linkage](mem://technical/position-option-linkage) — Using option_id as primary key for prices
+- [Event sparkline architecture](mem://style/event-sparkline-architecture) — Bezier curves and dynamic scaling for charts
+- [Typography system](mem://components/typography-library-system) — Semantic font-mono and font-sans rules
+- [Blockchain address security](mem://style/blockchain-address-security-design) — Color-coded alphanumeric differentiation
+- [Deposit address management](mem://technical/deposit-address-management) — Address generation and fallback logic
+- [Transaction history ledger](mem://technical/transaction-history-ledger) — Standardized status lifecycle for asset movements
+- [Badge variants](mem://design/badge-variant-architecture) — Semantic variant system for hover states
+- [Event category styling](mem://design/event-category-styling) — Mapping categories to specific badge variants
+- [Share poster design](mem://features/share-poster-design-system) — Layout and hierarchy rules for shareable posters
+- [Edge function params](mem://technical/edge-function-body-parameterization) — POST body parameterization requirement
+- [Mobile detection](mem://technical/mobile-detection-initialization-pattern) — undefined initialization to prevent race conditions
+- [Share modal portal](mem://features/share-modal-portal-architecture) — createPortal rendering with high z-index
+- [Settlement poster theming](mem://features/settlement-poster-theming-logic) — Dynamic visual styles based on PnL
+- [Card UI variants](mem://style/card-ui-variants) — CSS variants for cards (default, trading, stats, web3)
+- [Header presets](mem://style/header-presets) — Mobile header logo and back button visibility
+- [Referral system unification](mem://features/referral-system-unification) — 6-character alphanumeric codes
+- [Dual balance model](mem://technical/dual-balance-model) — Available balance vs Trial bonus consumption
+- [Wallet equity display](mem://style/wallet-equity-display) — Primary balance metric UI breakdowns
+- [Auth onboarding flow](mem://features/auth-onboarding-flow) — 3-step mandatory registration
+- [Security access control](mem://technical/security-access-control) — RLS and secure RPC functions
+- [Trading partial fill UX](mem://design/trading-partial-fill-ux) — Popover interface for partial executions
+- [Mystery box system](mem://features/mystery-box-system) — Treasure drop animation and probability logic
+- [Points security architecture](mem://technical/points-security-architecture) — Edge function processing for point transactions
+- [Expired event fallback](mem://features/expired-event-fallback) — Fallback UI for invalid market URLs
+- [X share authorization](mem://features/x-share-authorization-flow) — Twitter share modal and OAuth flow
+- [Auth gate overlay](mem://features/auth-gate-overlay) — Blur overlay for unauthenticated users
+- [Quick trade market order](mem://features/quick-trade-market-order-ui) — Simplified UI for market orders
+- [Saved addresses](mem://features/saved-addresses-address-book) — Manual address book replacing web3 connections
+- [SEO/GEO infrastructure](mem://marketing/seo-geo-infrastructure) — Content pages for search visibility
+- [SEO footer layout](mem://features/seo-footer-layout) — Responsive 5-column footer
+- [Insights data hub](mem://features/insights-page-data-hub) — Real-time KPI boards and trending markets
+- [Automated insights feed](mem://features/automated-insights-feed) — Dynamic content generation from price triggers
+- [Insights navigation access](mem://features/insights-navigation-access) — Entry points for Insights page
+- [Legal content prose](mem://style/legal-content-prose) — Custom CSS for long-form legal text
+- [Glossary monolingual design](mem://features/glossary-monolingual-design) — Structure for SEO optimization
+- [External hedge links](mem://features/external-hedge-links) — Integration links to Polymarket and Kalshi
+- [Auth modal coordination](mem://technical/auth-flow-modal-coordination) — Global state for auth dialog priority
+- [Unified event info](mem://technical/unified-event-info-architecture) — Shared EventInfoContent component
+- [Insights card visual specs](mem://style/insights-card-visual-specs) — Visual hierarchy for insight cards
+- [Discord community support](mem://features/discord-community-support) — Support channel integration rules
+- [H2E data sync](mem://features/h2e/data-sync-and-persistence) — Order simulation and demo data persistence
+- [H2E UI standards](mem://style/h2e-and-settings-ui-standards) — Minimalist design for settings and airdrops
+- [Rewards task logic](mem://features/rewards/task-system-logic) — Task prerequisites and completion flow
+- [H2E lifecycle](mem://features/h2e/lifecycle-and-settlement) — Airdrop position states and automatic settlement
+- [H2E wallet integration](mem://features/h2e/wallet-and-anti-abuse) — Three-tier balance display and limits
+- [H2E homepage alerts](mem://features/h2e/homepage-alerts) — Notifications for airdrop opportunities
+- [H2E eligibility criteria](mem://features/h2e/eligibility-criteria) — Qualification criteria for H2E airdrops
+- [H2E verification security](mem://features/h2e/verification-security) — EIP-712 signature verification
+- [H2E schema](mem://technical/database/h2e-schema) — Dedicated database tables for H2E
+- [Transaction schema](mem://technical/database/transaction-schema) — Specialized tables for deposit/withdrawal
+- [Mainnet interface](mem://features/transactions/mainnet-interface) — Unified UI for deposits and withdrawals
+- [Cross-chain simulation](mem://features/transactions/cross-chain-simulation-flow) — Swap interface for bridged assets
+- [Fiat ramp simulation](mem://features/transactions/fiat-ramp-simulation) — Banxa integration for fiat buy/sell
+- [Blockchain architecture](mem://technical/blockchain-asset-architecture) — Base-USDC as primary asset custody layer
+- [Transaction design specs](mem://style/transaction-design-specs) — Typography and visual rules for transfer modules
+- [Transaction history labels](mem://features/transactions/history-labels) — Color-coded transaction types
+- [H2E notification logic](mem://features/h2e/notification-trigger-logic) — Logic for triggering airdrop toast alerts
+- [Liquidation audit structure](mem://features/transparency/liquidation-audit-structure) — 3-module presentation for liquidation fairness
+- [Socket swap logic](mem://features/transactions/socket-swap-logic) — Slippage modes for cross-chain interface
+- [Transparency audit scenarios](mem://features/transparency/audit-scenarios) — Transparency auditing coverage
+- [On-chain data dictionary](mem://features/transparency/on-chain-data-dictionary) — Simulating native contract fields
+- [Withdraw address logic](mem://features/transactions/withdraw-address-logic) — Platform-to-external transfer logic
+- [Project design specification](mem://design/project-design-specification) — Authoritative DESIGN.md reference
+- [UI casing conventions](mem://design/ui-casing-conventions) — camelCase, Title Case, sentence case rules
+- [Address truncation standards](mem://design/address-truncation-standards) — First 6 + Last 6 truncation standard
+- [Transparency branding](mem://features/transparency/navigation-branding-updates) — On-Chain Transparency naming
+- [Event list architecture](mem://features/event-list-v2-architecture) — High-density market list layout
+- [Watchlist persistence strategy](mem://features/watchlist-persistence-strategy) — Mixed storage strategy for user favorites
+- [Event discovery indicators](mem://features/event-discovery-indicators) — Visual feedback for new and closing markets
+- [Event market data dimensions](mem://design/event-market-data-dimensions) — Separation of event vs market data
+- [Mobile list page pattern](mem://design/mobile-list-page-pattern) — Standardized header/navigation for lists
+- [Mobile card visual standard](mem://design/mobile-card-visual-standard) — Unified styling for mobile event cards
+- [Content icon rules](mem://design/content-icon-rules) — Strict rules against emoji usage in UI
+- [Mobile status dropdown](mem://design/mobile-status-navigation-dropdown) — Bidirectional navigation in mobile headers
+- [Transparency tables](mem://technical/database/transparency-tables) — Storage for trade verification snapshots
+- [Binary event expansion](mem://features/binary-event-expansion-logic) — Multi-market row treatment for Yes/No events
+- [Desktop page layout](mem://style/desktop-page-layout-specification) — Unified max-width and vertical rhythm
+- [Event list timeframe switching](mem://features/event-list-timeframe-switching) — 1H/4H/24H filters for event list
+- [Watchlist icon unification](mem://style/watchlist-icon-unification) — Star icon usage for favorites
+- [Market list view hierarchy](mem://style/market-list-view-hierarchy) — Sub-header rows for expanded market data
+- [Event list filters](mem://features/event-list-filter-sort-refinement) — Restrictions on available event filters
+- [Event page branding](mem://content/event-page-branding) — Standardized titles and subtitles
