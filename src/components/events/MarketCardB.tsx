@@ -67,7 +67,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
       {/* Content layer above background */}
       <div className="relative z-10">
       {/* Top Row: Star + Badge + NEW ... Expiry */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
           <button
             onClick={(e) => { e.stopPropagation(); onToggleWatch(e); }}
@@ -90,13 +90,13 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
       </div>
 
       {/* Title - single line */}
-      <h3 className="text-[15px] font-semibold text-foreground leading-tight mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+      <h3 className="text-[15px] font-semibold text-foreground leading-tight mb-1.5 line-clamp-1 group-hover:text-primary transition-colors">
         {market.eventName}
       </h3>
 
       {/* Outcome mini-table */}
       {market.children.length > 0 ? (
-        <div className="bg-white/[0.03] rounded-lg px-2 py-1.5 space-y-1 mb-2">
+        <div className="bg-white/[0.03] rounded-lg px-2 py-1 space-y-0.5 mb-1.5">
           <div className="flex justify-end -mb-0.5">
             <span className="text-[9px] font-mono text-muted-foreground/60 leading-none">{TF_LABELS[chgTimeframe]}</span>
           </div>
@@ -113,7 +113,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           })}
         </div>
       ) : (
-        <div className="bg-white/[0.03] rounded-lg px-2 py-1.5 mb-2">
+        <div className="bg-white/[0.03] rounded-lg px-2 py-1 mb-1.5">
           <div className="flex justify-end -mb-0.5">
             <span className="text-[9px] font-mono text-muted-foreground/60 leading-none">{TF_LABELS[chgTimeframe]}</span>
           </div>
@@ -126,7 +126,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
       )}
 
       {/* Footer row – +N more left, Total Vol right */}
-      <div className="pt-1.5 mt-0.5 border-t border-border/20 flex items-center justify-between text-[10px]">
+      <div className="pt-1 border-t border-border/20 flex items-center justify-between text-[10px]">
         <span className="font-mono text-muted-foreground">Vol: {formatUSD(market.totalVolume)}</span>
         {market.children.length > 3 ? (
           <div className="flex items-center gap-1 text-primary">
