@@ -209,7 +209,6 @@ const EventsPage = () => {
         isWatched={isWatched}
         onToggleWatch={toggleWatch}
         chgTimeframe={chgTimeframe}
-        viewMode={effectiveView}
       />
     );
   };
