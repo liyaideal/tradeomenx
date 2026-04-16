@@ -115,10 +115,10 @@ export const MarketCardA = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           </div>
           {/* Column values */}
           <div className="grid grid-cols-3 border-t border-border/10">
-            <div className="px-3 py-2.5 text-sm text-foreground/90 font-medium truncate border-r border-border/20">
+            <div className="px-3 py-2 text-sm text-foreground/90 font-medium truncate border-r border-border/20">
               {topChild ? topChild.optionLabel : market.eventName.slice(0, 15)}
             </div>
-            <div className="px-3 py-2.5 border-r border-border/20">
+            <div className="px-3 py-2 border-r border-border/20">
               <span className={cn("text-sm font-mono font-semibold tabular-nums", chgValue >= 0 ? "text-trading-green" : "text-trading-red")}>
                 {chgValue >= 0 ? "▲" : "▼"} {chgValue >= 0 ? "+" : ""}{chgValue.toFixed(2)}%
               </span>
