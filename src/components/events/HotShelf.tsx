@@ -43,7 +43,7 @@ const RenderView = ({
   onToggleWatch: (id: string, e?: React.MouseEvent) => void;
 }) => {
   const isMobile = useIsMobile();
-  const effectiveView = isMobile ? (view === "grid-b" ? "grid-b" : "grid-a") : view;
+  const effectiveView = isMobile ? (view === "grid-c" ? "grid-c" : "grid-b") : view;
   return effectiveView === "list" ? (
     <MarketListView markets={markets} isWatched={isWatched} onToggleWatch={onToggleWatch} />
   ) : (
