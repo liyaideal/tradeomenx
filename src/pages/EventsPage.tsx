@@ -26,8 +26,8 @@ import { HotShelf } from "@/components/events/HotShelf";
 const getStoredView = (): ViewMode => {
   try {
     const stored = localStorage.getItem("events_view") as ViewMode;
-    if (stored === "list" || stored === "grid-a" || stored === "grid-b" || stored === "grid-c") return stored;
-    if (stored === "grid") return "grid-a";
+    if (stored === "list" || stored === "grid-b" || stored === "grid-c") return stored;
+    if (stored === "grid" || stored === "grid-a") return "grid-b";
     return "list";
   } catch {
     return "list";
@@ -54,7 +54,7 @@ const EventsPage = () => {
 
   // View mode: mobile forces grid-a
   const [view, setView] = useState<ViewMode>(() =>
-    isMobile ? "grid-a" : getStoredView()
+    isMobile ? "grid-b" : getStoredView()
   );
 
   // Change timeframe
@@ -93,7 +93,7 @@ const EventsPage = () => {
 
   // Default to grid-a on mobile (only on mount)
   useEffect(() => {
-    if (isMobile && view !== "grid-a" && view !== "grid-b") setView("grid-a");
+    if (isMobile && view !== "grid-b" && view !== "grid-c") setView("grid-b");
   }, [isMobile]);
 
   // Filter & sort markets
@@ -158,7 +158,7 @@ const EventsPage = () => {
     setIsRefreshing(false);
   };
 
-  const effectiveView: ViewMode = isMobile ? (view === "grid-b" ? "grid-b" : view === "grid-c" ? "grid-c" : "grid-a") : view;
+  const effectiveView: ViewMode = isMobile ? (view === "grid-c" ? "grid-c" : "grid-b") : view;
 
   const renderContent = () => {
     if (activeTab === "hot") {
@@ -261,7 +261,7 @@ const EventsPage = () => {
             {isMobile && (
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-0.5 p-0.5 rounded-lg border border-border/40 bg-muted/30">
-                  {(["grid-a", "grid-b", "grid-c"] as const).map((v) => (
+                  {(["grid-b", "grid-c"] as const).map((v) => (
                     <button
                       key={v}
                       onClick={() => setView(v)}
