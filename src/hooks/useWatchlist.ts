@@ -62,6 +62,16 @@ export const useWatchlist = () => {
   const toggle = useCallback(
     async (eventId: string, e?: React.MouseEvent) => {
       e?.stopPropagation();
+
+      // Require auth for watchlist
+      if (!user) {
+        toast.info("Sign in to use Watchlist", {
+          description: "Save markets and access them across devices.",
+        });
+        openAuthPrompt();
+        return;
+      }
+
       setIds((prev) => {
         const next = new Set(prev);
         if (next.has(eventId)) {
@@ -69,28 +79,23 @@ export const useWatchlist = () => {
         } else {
           next.add(eventId);
         }
-        // Persist
-        if (user) {
-          if (prev.has(eventId)) {
-            supabase
-              .from("user_watchlist")
-              .delete()
-              .eq("user_id", user.id)
-              .eq("event_id", eventId)
-              .then();
-          } else {
-            supabase
-              .from("user_watchlist")
-              .insert({ user_id: user.id, event_id: eventId })
-              .then();
-          }
+        if (prev.has(eventId)) {
+          supabase
+            .from("user_watchlist")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("event_id", eventId)
+            .then();
         } else {
-          saveLocalWatchlist(next);
+          supabase
+            .from("user_watchlist")
+            .insert({ user_id: user.id, event_id: eventId })
+            .then();
         }
         return next;
       });
     },
-    [user]
+    [user, openAuthPrompt]
   );
 
   const isWatched = useCallback((eventId: string) => ids.has(eventId), [ids]);
