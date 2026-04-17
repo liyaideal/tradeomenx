@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 
 const LOCAL_KEY = "trading_favorites";
 
@@ -18,6 +20,7 @@ const saveLocalWatchlist = (set: Set<string>) => {
 
 export const useWatchlist = () => {
   const { user } = useAuth();
+  const openAuthPrompt = useAuthFlowStore((s) => s.openPrompt);
   const [ids, setIds] = useState<Set<string>>(getLocalWatchlist);
   const [loaded, setLoaded] = useState(false);
 
@@ -59,6 +62,16 @@ export const useWatchlist = () => {
   const toggle = useCallback(
     async (eventId: string, e?: React.MouseEvent) => {
       e?.stopPropagation();
+
+      // Require auth for watchlist
+      if (!user) {
+        toast.info("Sign in to use Watchlist", {
+          description: "Save markets and access them across devices.",
+        });
+        openAuthPrompt();
+        return;
+      }
+
       setIds((prev) => {
         const next = new Set(prev);
         if (next.has(eventId)) {
@@ -66,28 +79,23 @@ export const useWatchlist = () => {
         } else {
           next.add(eventId);
         }
-        // Persist
-        if (user) {
-          if (prev.has(eventId)) {
-            supabase
-              .from("user_watchlist")
-              .delete()
-              .eq("user_id", user.id)
-              .eq("event_id", eventId)
-              .then();
-          } else {
-            supabase
-              .from("user_watchlist")
-              .insert({ user_id: user.id, event_id: eventId })
-              .then();
-          }
+        if (prev.has(eventId)) {
+          supabase
+            .from("user_watchlist")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("event_id", eventId)
+            .then();
         } else {
-          saveLocalWatchlist(next);
+          supabase
+            .from("user_watchlist")
+            .insert({ user_id: user.id, event_id: eventId })
+            .then();
         }
         return next;
       });
     },
-    [user]
+    [user, openAuthPrompt]
   );
 
   const isWatched = useCallback((eventId: string) => ids.has(eventId), [ids]);

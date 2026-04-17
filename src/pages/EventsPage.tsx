@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, RefreshCw, Star, ChevronDown, LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { MobileStatusDropdown } from "@/components/EventFilters";
@@ -45,6 +46,16 @@ const EventsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
+  const promptOpen = useAuthFlowStore((s) => s.promptOpen);
+  const closePrompt = useAuthFlowStore((s) => s.closePrompt);
+
+  // Open auth modal whenever a child component requests it via the global store
+  useEffect(() => {
+    if (promptOpen && !user) {
+      setAuthOpen(true);
+      closePrompt();
+    }
+  }, [promptOpen, user, closePrompt]);
 
   // Data
   const { events: dbEvents, isLoading, refetch } = useActiveEvents();
