@@ -46,6 +46,16 @@ const EventsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
+  const promptOpen = useAuthFlowStore((s) => s.promptOpen);
+  const closePrompt = useAuthFlowStore((s) => s.closePrompt);
+
+  // Open auth modal whenever a child component requests it via the global store
+  useEffect(() => {
+    if (promptOpen && !user) {
+      setAuthOpen(true);
+      closePrompt();
+    }
+  }, [promptOpen, user, closePrompt]);
 
   // Data
   const { events: dbEvents, isLoading, refetch } = useActiveEvents();
