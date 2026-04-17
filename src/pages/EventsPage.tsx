@@ -176,14 +176,33 @@ const EventsPage = () => {
       );
     }
 
-    // Watchlist empty state
+    // Watchlist: not logged in → prompt sign in
+    if (activeTab === "watchlist" && !user) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
+            <Star className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-base font-medium text-foreground mb-1">Sign in to use Watchlist</h3>
+          <p className="text-sm text-muted-foreground max-w-xs mb-5">
+            Save markets you're interested in and access them across devices.
+          </p>
+          <Button size="sm" onClick={() => setAuthOpen(true)} className="gap-2">
+            <LogIn className="w-4 h-4" />
+            Sign In
+          </Button>
+        </div>
+      );
+    }
+
+    // Watchlist empty state (logged in)
     if (activeTab === "watchlist" && filteredMarkets.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Star className="h-10 w-10 text-muted-foreground mb-4" />
           <h3 className="text-base font-medium text-foreground mb-1">No watchlist items</h3>
           <p className="text-sm text-muted-foreground max-w-xs">
-            Click ⭐ to save markets you're interested in for quick access.
+            Click the star icon to save markets you're interested in for quick access.
           </p>
         </div>
       );
