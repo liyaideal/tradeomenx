@@ -1,6 +1,9 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, RefreshCw, Star, ChevronDown } from "lucide-react";
+import { Loader2, RefreshCw, Star, ChevronDown, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 import { MobileStatusDropdown } from "@/components/EventFilters";
 import { MobileActiveFilterDrawer } from "@/components/events/FilterChips";
 import { Button } from "@/components/ui/button";
