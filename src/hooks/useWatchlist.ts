@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 
 const LOCAL_KEY = "trading_favorites";
 
