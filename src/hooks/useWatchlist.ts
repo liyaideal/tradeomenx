@@ -20,6 +20,7 @@ const saveLocalWatchlist = (set: Set<string>) => {
 
 export const useWatchlist = () => {
   const { user } = useAuth();
+  const openAuthPrompt = useAuthFlowStore((s) => s.openPrompt);
   const [ids, setIds] = useState<Set<string>>(getLocalWatchlist);
   const [loaded, setLoaded] = useState(false);
 
