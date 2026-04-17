@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, RefreshCw, Star, ChevronDown, LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { MobileStatusDropdown } from "@/components/EventFilters";
