@@ -43,6 +43,8 @@ const EventsPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
 
   // Data
   const { events: dbEvents, isLoading, refetch } = useActiveEvents();
