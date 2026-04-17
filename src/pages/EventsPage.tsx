@@ -346,6 +346,13 @@ const EventsPage = () => {
       {!isMobile && <RewardsWelcomeModal />}
       {!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}
       {!isMobile && <AirdropHomepageModal />}
+
+      {/* Auth modal for watchlist sign-in prompt */}
+      {isMobile ? (
+        <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+      ) : (
+        <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      )}
     </div>
   );
 };
