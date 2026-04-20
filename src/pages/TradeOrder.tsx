@@ -37,6 +37,14 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
   
   const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
   const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);
+  const [side, setSide] = useState<"buy" | "sell">("buy");
+
+  // Transform price for the order book based on side (Sell = 1 - p, asks/bids swap)
+  const transformPrice = (price: string): string => {
+    if (side === "buy") return price;
+    const decimals = (price.split(".")[1] || "").length || 4;
+    return Math.max(0, 1 - parseFloat(price)).toFixed(decimals);
+  };
   const positionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const tabSectionRef = useRef<HTMLDivElement | null>(null);
   const hasScrolledToSection = useRef(false);
