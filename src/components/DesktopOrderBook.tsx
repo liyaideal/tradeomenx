@@ -137,11 +137,12 @@ export const DesktopOrderBook = ({
   currentPrice: initialPrice, 
   priceChange = "88,132.18",
   isPositive: initialIsPositive = false,
-  onPriceClick
+  onPriceClick,
+  side = "buy"
 }: DesktopOrderBookProps) => {
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
-  const [bookSide, setBookSide] = useState<"buy" | "sell">("buy");
+  const bookSide = side;
   const [priceStep, setPriceStep] = useState("0.0001");
   const [showStepDropdown, setShowStepDropdown] = useState(false);
   const [asks, setAsks] = useState<OrderBookEntry[]>(initialAsks);
