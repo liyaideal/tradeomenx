@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ChevronDown, Calculator, Plus } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { ChevronDown, Calculator, Plus, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
@@ -8,6 +8,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DesktopTradeFormProps {
   selectedPrice?: string;
@@ -21,29 +22,45 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
   const [marginType, setMarginType] = useState("Cross");
   const [leverage, setLeverage] = useState("10.00x");
   const [orderType, setOrderType] = useState<"Limit" | "Market" | "Conditional">("Limit");
+  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const longPrice = useMemo(() => parseFloat(selectedPrice) || 0, [selectedPrice]);
+  const shortPrice = useMemo(() => +(1 - longPrice).toFixed(4), [longPrice]);
   const [price, setPrice] = useState(selectedPrice);
+  const [userEditedPrice, setUserEditedPrice] = useState(false);
   const [quantity, setQuantity] = useState("");
   const [sliderValue, setSliderValue] = useState([0]);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDefaultTab, setAuthDefaultTab] = useState<"signin" | "signup">("signup");
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 
-  const handlePreview = (side: "buy" | "sell") => {
+  // Auto-fill price based on side, unless user manually edited it
+  useEffect(() => {
+    if (!userEditedPrice) {
+      setPrice((side === "buy" ? longPrice : shortPrice).toFixed(4));
+    }
+  }, [side, longPrice, shortPrice, userEditedPrice]);
+
+  const handlePreview = (clickedSide: "buy" | "sell") => {
     // Check if user is logged in first
     if (!user) {
       setAuthDefaultTab("signup");
       setAuthDialogOpen(true);
       return;
     }
-    
+
+    // Use side-specific price: Buy → longPrice, Sell → shortPrice (unless user manually edited)
+    const execPrice = userEditedPrice && clickedSide === side
+      ? price
+      : (clickedSide === "buy" ? longPrice : shortPrice).toFixed(4);
+
     navigate("/order-preview", {
       state: {
-        side,
+        side: clickedSide,
         marginType,
         leverage,
         orderType,
         amount: quantity,
-        price,
+        price: execPrice,
       },
     });
   };
@@ -78,6 +95,37 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+        {/* Long/Short price hint */}
+        <div className="flex items-center justify-between text-[11px]">
+          <div className="flex items-center gap-2 font-mono">
+            <button
+              onClick={() => { setSide("buy"); setUserEditedPrice(false); }}
+              className={side === "buy" ? "text-trading-green font-semibold" : "text-muted-foreground hover:text-foreground transition-colors"}
+            >
+              Buy at {longPrice.toFixed(4)}
+            </button>
+            <span className="text-muted-foreground/50">·</span>
+            <button
+              onClick={() => { setSide("sell"); setUserEditedPrice(false); }}
+              className={side === "sell" ? "text-trading-red font-semibold" : "text-muted-foreground hover:text-foreground transition-colors"}
+            >
+              Sell at {shortPrice.toFixed(4)}
+            </button>
+          </div>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-[240px] text-xs">
+                Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
         {/* Margin & Leverage */}
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs font-medium">
@@ -110,17 +158,22 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
         {/* Price Input */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Price</span>
+            <span className="text-xs text-muted-foreground">
+              Price <span className={side === "buy" ? "text-trading-green" : "text-trading-red"}>({side === "buy" ? "Long" : "Short"})</span>
+            </span>
           </div>
           <div className="flex items-center bg-muted rounded-lg">
             <input
               type="text"
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={(e) => { setPrice(e.target.value); setUserEditedPrice(true); }}
               className="flex-1 bg-transparent outline-none font-mono text-sm px-3 py-2.5"
               placeholder="0.00"
             />
-            <button className="px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground border-l border-border/30">
+            <button
+              onClick={() => setUserEditedPrice(false)}
+              className="px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground border-l border-border/30"
+            >
               Last
             </button>
             <button className="px-2 py-2.5 text-muted-foreground hover:text-foreground">
@@ -200,16 +253,16 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
           {user ? (
             <>
               <button
-                onClick={() => handlePreview("buy")}
+                onClick={() => { setSide("buy"); handlePreview("buy"); }}
                 className="w-full py-2.5 rounded-lg font-semibold text-sm bg-trading-green text-trading-green-foreground transition-all duration-200 hover:opacity-90"
               >
-                Buy Long
+                Buy Long · {longPrice.toFixed(4)}
               </button>
               <button
-                onClick={() => handlePreview("sell")}
+                onClick={() => { setSide("sell"); handlePreview("sell"); }}
                 className="w-full py-2.5 rounded-lg font-semibold text-sm bg-trading-red text-foreground transition-all duration-200 hover:opacity-90"
               >
-                Sell Short
+                Sell Short · {shortPrice.toFixed(4)}
               </button>
             </>
           ) : (

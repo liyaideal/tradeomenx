@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TradeFormProps {
   selectedPrice?: string;
@@ -49,7 +50,10 @@ export const TradeForm = ({
 
   const available = balance;
   const feeRate = 0.0005; // 0.05% trading fee
-  const currentPrice = parseFloat(selectedPrice);
+  const longPrice = parseFloat(selectedPrice);
+  const shortPrice = +(1 - longPrice).toFixed(4);
+  // Side-specific execution price (Buy = Long, Sell = Short)
+  const currentPrice = side === "buy" ? longPrice : shortPrice;
 
   // Calculate TP/SL prices based on percentage
   const tpslCalculations = useMemo(() => {
@@ -103,29 +107,34 @@ export const TradeForm = ({
   // Calculate order values based on amount and leverage
   const orderCalculations = useMemo(() => {
     const amountValue = parseFloat(amount) || 0;
-    const price = parseFloat(selectedPrice);
-    
+    const price = currentPrice;
+
     // Notional value = amount * leverage
     const notionalValue = amountValue * leverage;
-    
+
     // Margin required = amount (same as input)
     const marginRequired = amountValue;
-    
+
     // Estimated fee = notional value * fee rate
     const estimatedFee = notionalValue * feeRate;
-    
+
     // Total = margin required + fee
     const total = marginRequired + estimatedFee;
-    
+
     // Quantity = notional value / price
     const quantity = price > 0 ? notionalValue / price : 0;
-    
-    // Potential win = (1 - price) * quantity (if price goes to 1)
+
+    // Potential win = (1 - price) * quantity (if outcome resolves in user's favor)
     const potentialWin = (1 - price) * quantity;
-    
-    // Estimated liquidation price
-    const liqPrice = price > 0 ? (price * (1 - 1 / leverage * 0.9)).toFixed(4) : "0.0000";
-    
+
+    // Estimated liquidation price - sell side moves opposite direction
+    const liqPrice = price > 0
+      ? (side === "buy"
+          ? price * (1 - 1 / leverage * 0.9)
+          : price * (1 + 1 / leverage * 0.9)
+        ).toFixed(4)
+      : "0.0000";
+
     return {
       notionalValue: notionalValue.toFixed(2),
       marginRequired: marginRequired.toFixed(2),
@@ -135,7 +144,7 @@ export const TradeForm = ({
       potentialWin: potentialWin.toFixed(0),
       liqPrice,
     };
-  }, [amount, leverage, selectedPrice]);
+  }, [amount, leverage, currentPrice, side]);
 
   const handlePreview = () => {
     navigate("/order-preview", {
@@ -145,7 +154,7 @@ export const TradeForm = ({
         leverage: `${leverage}x`,
         orderType,
         amount,
-        price: selectedPrice,
+        price: currentPrice.toFixed(4),
         event: eventName,
         option: optionLabel,
         orderCalculations,
@@ -181,6 +190,31 @@ export const TradeForm = ({
         >
           Sell
         </button>
+      </div>
+
+      {/* Long/Short price hint */}
+      <div className="flex items-center justify-between text-[10px]">
+        <div className="flex items-center gap-2 font-mono">
+          <span className={side === "buy" ? "text-trading-green font-semibold" : "text-muted-foreground"}>
+            Buy at {longPrice.toFixed(4)}
+          </span>
+          <span className="text-muted-foreground/50">·</span>
+          <span className={side === "sell" ? "text-trading-red font-semibold" : "text-muted-foreground"}>
+            Sell at {shortPrice.toFixed(4)}
+          </span>
+        </div>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Info className="w-3 h-3" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="max-w-[220px] text-xs">
+              Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Margin & Leverage */}
