@@ -541,13 +541,13 @@ export const DesktopOrderBook = ({
               <div className="px-3 py-2 border-t border-border/30">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold font-mono text-trading-red">
-                    ↓ {currentPrice}
+                    ↓ {displayPrice}
                   </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {currentPrice}
+                          <Flag className="w-3 h-3" /> {displayPrice}
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
