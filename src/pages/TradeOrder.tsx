@@ -104,25 +104,21 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
       <div className="flex w-full">
         {/* Left: Trade Form + Price Info */}
         <div className="flex-1 min-w-0 border-r border-border/30">
-          {/* Market Meta Bar — compact single-row info strip (price now lives in Buy/Sell buttons) */}
-          <div className="px-3 py-1.5 border-b border-border/30">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground min-w-0 overflow-hidden whitespace-nowrap">
-                {selectedEvent?.volume && (
-                  <>
-                    <span>Vol <span className="font-mono text-foreground/80">{selectedEvent.volume}</span></span>
-                    <span className="text-border">·</span>
-                  </>
-                )}
-                <span>OI <span className="font-mono text-foreground/80">$480K</span></span>
-                <span className="text-border">·</span>
-                <span>Funding <span className="font-mono text-trading-red">-0.01%</span></span>
-                <span className="text-border">·</span>
-                <span>Next <span className="font-mono text-foreground/80">28m</span></span>
+          {/* Market Stats Strip — 4 cells (label/value stack) + Info button */}
+          <div className="px-3 py-2 border-b border-border/30 bg-muted/20">
+            <div className="flex items-stretch gap-2">
+              <div className="flex-1 flex divide-x divide-border/40 min-w-0">
+                <StatCell label="Vol" value={selectedEvent?.volume || "—"} />
+                <StatCell label="OI" value="$480K" />
+                <StatCell label="Funding" value="-0.01%" tone="negative" highlight />
+                <StatCell label="Next" value="28m" />
               </div>
               <Sheet>
                 <SheetTrigger asChild>
-                  <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
+                  <button
+                    aria-label="Event info"
+                    className="flex-shrink-0 flex items-center gap-1 px-2.5 rounded-md bg-muted/60 hover:bg-muted text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors border border-border/30"
+                  >
                     <ExternalLink className="w-3 h-3" />
                     Info
                   </button>
