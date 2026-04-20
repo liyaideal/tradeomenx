@@ -275,4 +275,15 @@ export const glossaryTerms: GlossaryTerm[] = [
     exampleEn: "All OmenX smart contracts are deployed on Base, meaning your trades, settlements, and withdrawals benefit from sub-second confirmation times and minimal gas fees.",
     exampleCn: "OmenX 的所有智能合约都部署在 Base 上，你的交易、结算和提款都受益于亚秒级确认时间和极低的 Gas 费用。",
   },
+  {
+    id: "long-vs-short-pricing",
+    termEn: "Long vs Short Pricing",
+    termCn: "做多与做空定价",
+    definitionEn: "On OmenX, the Buy (Long) price and Sell (Short) price for the same outcome are not equal: Sell price = 1 − Buy price.",
+    definitionCn: "在 OmenX 上，同一选项的买入（做多）价格与卖出（做空）价格不相等：卖出价 = 1 − 买入价。",
+    explanationEn: "Traditional order books quote a single mid-price for both sides. OmenX uses an asymmetric pricing model: the Long (Buy) price reflects the market's implied probability of the outcome occurring, while the Short (Sell) price is automatically set to 1 minus that value — i.e., the implied probability of the outcome NOT occurring. This is a risk-control adjustment for two-sided exposure on a bounded [0, 1] payoff: it keeps Long and Short positions on the same outcome symmetric, fully collateralized, and free of arbitrage between the two sides. You will see both prices side-by-side on the Buy/Sell toggle in the trade panel.",
+    explanationCn: "传统订单簿对买卖双方使用同一个中间价。OmenX 采用非对称定价模型：做多（Buy）价格反映市场对结果发生的隐含概率，而做空（Sell）价格自动设为 1 减去该值——即结果不发生的隐含概率。这是针对 [0, 1] 有界赔付下双向持仓的风控调整：确保同一选项的多空仓位保持对称、完全抵押，且两侧之间不会产生套利空间。你会在交易面板的 Buy/Sell 切换上同时看到这两个价格。",
+    exampleEn: "If the \"Yes\" outcome trades at $0.62 (Buy/Long), the Sell/Short price is automatically $0.38 (= 1 − 0.62). Going Short at $0.38 is economically equivalent to buying the opposing \"No\" side at $0.38.",
+    exampleCn: "如果\"Yes\"选项的买入价（做多）为 $0.62，则卖出价（做空）自动为 $0.38（= 1 − 0.62）。以 $0.38 做空在经济上等同于以 $0.38 买入相反的\"No\"方向。",
+  },
 ];
