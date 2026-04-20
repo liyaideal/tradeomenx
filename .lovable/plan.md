@@ -1,35 +1,33 @@
 
 
-## 回退 MarketListView 的 Buy/Sell 双价 → 单价 + ⓘ 说明
+## 问题
+移动端 `/trade` 和 `/trade/order` 的 MM 指示器盒子（带 border 的小框）与下方 Charts/Trade tab 行的 `border-b` 分隔线在垂直方向上发生视觉重叠：MM 盒子高度比 tab 文字高，导致盒子底部 border 压在那条 1px 分隔线上，看起来"贴边/挤线"。
 
-### 背景
-上次改动让子市场行显示 Buy/Sell 双价，但单一的 24H CHG% 和双价在逻辑上矛盾（Buy 涨 = Sell 跌，% 数值还不同）。回退到单价更符合行业惯例和扫读场景。
+## 根因
+在 `MobileTradingLayout.tsx` 里：
+- 容器：`flex items-center justify-between px-4 border-b border-border/30`
+- 左边 tab 按钮 `py-2`（高度小）
+- 右边 `<MobileRiskIndicator />` 是个 `px-2 py-1 rounded-lg bg-muted/50 border border-border/30` 的盒子（高度大）
 
-### 改动文件
-`src/components/events/MarketListView.tsx`
+两者底边对齐到容器底，而容器底就是那条 `border-b`，所以盒子边框正好压在分隔线上。
 
-### 具体改动
+## 优化方案（最小改动，不动 MM 内部样式）
 
-**1. 子市场展开行 sub-header**
-- 把 "Buy / Sell" 列改回单列 **"Price"**
-- 在 "Price" 文字旁加 ⓘ Tooltip：
-  > "Showing Long price. Short price = 1 − Long. Learn more in Glossary."
-  
-  （tooltip 内文案精简版即可，不强行做成可点击链接，保持轻量；想了解的用户自然会去 /glossary 查 "Long vs Short Pricing"）
+**改动文件**：`src/components/MobileTradingLayout.tsx`
 
-**2. ChildRowContent 价格单元格**
-- 删除 `<span class="text-trading-green">Buy</span> / <span class="text-trading-red">Sell</span>` 双价
-- 改回单一价格显示 `${child.markPrice.toFixed(2)}`，颜色用 `text-foreground`（中性，不带方向暗示）
-- 保持 `font-mono` 和右对齐
+**核心思路**：让 MM 盒子在垂直方向"浮"在 tab 行内，与底部分隔线之间留出呼吸空间。
 
-**3. 列宽调整**
-- 双价列原本宽度 `w-[120px]`，单价可以缩回 `w-[90px]` 或 `w-[100px]`，给其他列腾点空间
+具体两步：
+1. 容器改为 `py-1.5`（给上下留出 6px 空间），保持 `border-b border-border/30`
+2. 左边 tab 按钮的 `py-2` 改成 `py-1.5`，保持 tab 下划线（`border-b-2 border-trading-purple`）紧贴容器底边的视觉效果 —— 即把 active tab 的下划线"接"到容器的 border-b 上，这是导航栏标准做法
 
-### 不改动
-- 父事件行（本来就是单价/单 CHG，没问题）
-- 其他所有页面（OrderBook 联动、TradeForm 双价按钮、Glossary 词条等都保留）
-- CHG% 和 Vol 列（保持基于 Long 视角，语义自洽）
+这样：
+- MM 盒子上下各有 6px 间距，不再贴线
+- Tab 的紫色下划线仍然位于容器底部（视觉上压住灰色 border-b，符合"当前 tab 选中"的标准导航语义）
+- 整体 tab 行会增加约 4px 高度，可接受
 
-### 一句话总结
-**列表场景用单价 + ⓘ 提示；只有下单场景（OrderBook + TradeForm）才需要双价联动。** 这样信息密度、视觉一致性、语义正确性三者兼顾。
+## 不改动
+- `MobileRiskIndicator.tsx` 内部样式（盒子本身设计没问题）
+- Tab 文案、active 颜色、紫色下划线
+- 桌面端布局
 
