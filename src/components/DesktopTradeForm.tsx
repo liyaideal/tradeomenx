@@ -90,6 +90,37 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+        {/* Long/Short price hint */}
+        <div className="flex items-center justify-between text-[11px]">
+          <div className="flex items-center gap-2 font-mono">
+            <button
+              onClick={() => { setSide("buy"); setUserEditedPrice(false); }}
+              className={side === "buy" ? "text-trading-green font-semibold" : "text-muted-foreground hover:text-foreground transition-colors"}
+            >
+              Buy at {longPrice.toFixed(4)}
+            </button>
+            <span className="text-muted-foreground/50">·</span>
+            <button
+              onClick={() => { setSide("sell"); setUserEditedPrice(false); }}
+              className={side === "sell" ? "text-trading-red font-semibold" : "text-muted-foreground hover:text-foreground transition-colors"}
+            >
+              Sell at {shortPrice.toFixed(4)}
+            </button>
+          </div>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-[240px] text-xs">
+                Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
         {/* Margin & Leverage */}
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs font-medium">
@@ -122,7 +153,9 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
         {/* Price Input */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Price</span>
+            <span className="text-xs text-muted-foreground">
+              Price <span className={side === "buy" ? "text-trading-green" : "text-trading-red"}>({side === "buy" ? "Long" : "Short"})</span>
+            </span>
           </div>
           <div className="flex items-center bg-muted rounded-lg">
             <input
