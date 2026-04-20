@@ -1,25 +1,20 @@
 
-用户反馈：DesktopOrderBook 顶部的 Buy/Sell 切换 tab 多了一行很奇怪，希望去掉手动切换，改成跟随右侧交易面板的 side 联动。
 
-## 方案
+## 删除 "Why two prices?" 提示
 
-让 DesktopOrderBook 的 `bookSide` 由父组件 `DesktopTrading` 的 `side` state 驱动，移除 OrderBook 内部的 tab UI。
+### 改动文件
+1. `src/components/TradeForm.tsx`（移动端）
+2. `src/pages/DesktopTrading.tsx`（桌面端）
 
-## 改动清单
+### 具体改动
+- 移除两个文件中 Buy/Sell 切换下方的 "Why two prices?" 行（包含 Info 图标 + Tooltip）
+- 顺便清理不再使用的 import（`Info` icon、`Tooltip` 相关组件，如果别处没用到）
 
-### 1. `src/components/DesktopOrderBook.tsx`
-- 移除内部 `bookSide` useState 和顶部 Buy/Sell 切换 tab UI
-- 改为通过 props 接收 `side: "buy" | "sell"`，直接用它来决定 `transformPrice` 和 asks/bids 互换逻辑
-- 保留所有价格转换逻辑（Sell 时 price → 1 - price，asks/bids 对调）
+### 不改动
+- Buy/Sell 按钮内嵌的 Long/Short 价格保留（这是核心信息）
+- OrderBook 联动逻辑保留
+- Limit 价格自动填充逻辑保留
 
-### 2. `src/pages/DesktopTrading.tsx`
-- 把现有的 `side` state 作为 prop 传给 `<DesktopOrderBook side={side} />`
-- 用户在右侧交易面板切 Buy/Sell tab 时，左侧 OrderBook 自动跟着切换视角
+### 后续可选（不在本次范围）
+- 在 `/glossary` 加一条 "Long vs Short Pricing" 词条，作为有需要时的查询入口
 
-## 不改动
-- 移动端（OrderBook.tsx 本来就没加 tab）
-- 价格转换逻辑本身
-- TradeForm / 其他面板
-
-## 效果
-用户切 Buy → 看到 long 价格深度；切 Sell → 看到 short 价格深度（asks/bids 对调 + 价格 1−p）。无额外 UI，零学习成本。
