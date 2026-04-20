@@ -961,6 +961,7 @@ export default function DesktopTrading() {
                 currentPrice={selectedOptionData.price}
                 priceChange={selectedOptionData.price}
                 isPositive={priceChange.isPositive}
+                side={side}
                 onPriceClick={(price) => {
                   setLimitPrice(price);
                   setOrderType("Limit");
