@@ -1,84 +1,77 @@
 
 
-## 问题分析
+## 问题
+当前 meta bar 视觉问题：
+1. **像数据日志而非 UI**：纯文本 `Vol $3.45M · OI $480K · Funding -0.01% · Next 28m` 平铺直叙，没有视觉层级
+2. **标签和数值混在一起**：`Vol` 和 `$3.45M` 字号颜色差异太弱
+3. **分隔点 `·` 太密**：4 个字段 + 3 个点挤在一行，扫读累
+4. **Funding 红色突兀**：在一片灰色文本里跳出来，但没有任何容器收拢
+5. **Info 按钮像链接**：和左边数据完全脱节，右上角孤零零
 
-`/trade/order` 顶部的 Price 区域当前结构：
-```
-┌────────────────────────────────┬─────────────┐
-│ Price                          │ ⓘ Event Info│
-│ 0.6234            ← 单价        │             │
-│ Funding: -0.0001% / Next: 28min│             │
-└────────────────────────────────┴─────────────┘
-```
+## 设计思路
 
-确实和下面 TradeForm 里 Buy/Sell 按钮内的双价**信息重复**，且 Price 区只显示一个数（实际是 Long 价），切到 Sell 时这里也不变，语义模糊。
+参考 Binance/Hyperliquid/dYdX 等专业交易所的 market stats bar 设计：
+- **标签 + 数值垂直堆叠**（小标签灰色在上，数值粗体在下）
+- **字段间用细竖线分隔**（不是点）
+- **关键字段加微弱背景色块**（如 Funding 用淡红底）
+- **Info 按钮用 ghost 风格小按钮**，和数据条形成节奏
 
-但 `Funding` 和 `Event Info` 入口必须保留。
+## 推荐方案：紧凑型 Stats Strip
 
-## 几个方案对比
-
-**A. Price 区跟着 side 切换**
-- Buy 时显示 Long 价、Sell 时显示 Short 价
-- 优点：和按钮联动，无歧义
-- 缺点：还是和按钮重复，Price 区存在意义不大
-
-**B. 删除 Price 数字，保留一行 meta（Funding + Event Info）**
-- 优点：最干净，按钮里已经有双价了
-- 缺点：损失一个"价格速览"的视觉锚点
-
-**C. Price 区改成"市场速览条"——保留位置但换内容**
-- 把 Price 数字换成更有用的市场元信息：`24H Vol · Open Interest · Funding · Next funding`
-- 右侧保留 Event Info 入口
-- 优点：信息不重复、空间利用率高、和桌面端 Header 信息维度一致
-- 缺点：要决定展示哪几个字段
-
-**D. Price 区缩成单行紧凑 meta bar**
-- 一行搞定：`Funding -0.0001% · Next 28min · 📊 Event Info`
-- 完全去掉大字号 Price 数字
-- 优点：最省垂直空间，给下面 TradeForm 让位
-- 缺点：信息密度高，需要排版细致
-
-## 推荐：D + C 的组合
-
-**保留 Price 区位置，但改成单行紧凑 meta bar**：
+视觉布局（移动端 390px 宽度内）：
 
 ```
-┌──────────────────────────────────────────────────┐
-│ Vol $1.2M · OI $480K · Funding -0.01% / 28min  ⓘ │
-└──────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│ VOL      OI       FUNDING    NEXT     ┌────┐    │
+│ $3.45M │ $480K  │ -0.01%   │ 28m     │ ⓘ  │    │
+│                  (淡红底)              └────┘    │
+└─────────────────────────────────────────────────┘
 ```
 
-理由：
-1. **去重**：删掉大字号 Price 数字（按钮里已有双价）
-2. **保留必要信息**：Funding/Next 不丢
-3. **信息升级**：补上 24H Vol 和 Open Interest（这两个是用户决策时真正关心的"市场热度"）
-4. **节省垂直空间**：从原来 ~60px 高度压缩到 ~32px，给 TradeForm 更多空间
-5. **Event Info 入口保留**：右侧 ⓘ 图标，点击打开原 Sheet
+具体细节：
+- **每个字段两行结构**：
+  - 上：`text-[9px] text-muted-foreground/60 uppercase tracking-wider`（如 `VOL`、`OI`、`FUNDING`、`NEXT`）
+  - 下：`text-[11px] font-mono font-medium text-foreground`（数值）
+- **字段间分隔**：用 `divide-x divide-border/30` 替代 `·`，更干净
+- **Funding 字段特殊处理**：负数时数值加 `text-trading-red`，背景加 `bg-trading-red/5 rounded`，让它视觉成块
+- **Info 按钮**：改成 `rounded-md bg-muted/40 px-2 py-1` 的小 ghost 按钮，图标 + "Info" 文字，和左边数据形成"内容 + 操作"的节奏感
+- **整体容器**：`px-3 py-2`（从 `py-1.5` 微增），`bg-muted/20` 淡背景把整条 strip 收拢成一个视觉单元，下面 `border-b border-border/30` 保留
+- **响应式**：移动端 4 个字段平均分布 `flex-1`，每个 `min-w-0` 防止挤压；Info 按钮 `flex-shrink-0`
 
 ## 具体改动
 
-**改动文件**：`src/pages/TradeOrder.tsx`（第 102-129 行的 Price Header 区块）
+**改动文件**：`src/pages/TradeOrder.tsx`（第 102-132 行的 Market Meta Bar 区块）
 
-1. 删除 `<div className="text-xl font-bold font-mono">{price}</div>` 大字号价格
-2. 删除 "Price" label
-3. 把 Funding/Next 行升级为带分隔点（`·`）的紧凑 meta bar
-4. 在前面加上 24H Vol 和 Open Interest（数据从 selectedEvent 取，如果没有就降级只显示 Funding）
-5. 右侧 Event Info 入口保留，但视觉简化为只有图标 + "Info"（更紧凑）
-6. 容器从 `py-2` 改成 `py-1.5`，`text-[10px]` 保持
+替换当前单行 inline 文本为结构化的 4-cell stats strip + Info 按钮：
 
-视觉示意：
+```tsx
+<div className="px-3 py-2 border-b border-border/30 bg-muted/20">
+  <div className="flex items-stretch gap-0">
+    {/* 4 个数据 cell, divide-x 分隔 */}
+    <div className="flex-1 divide-x divide-border/30 flex">
+      <Stat label="VOL" value="$3.45M" />
+      <Stat label="OI" value="$480K" />
+      <Stat label="FUNDING" value="-0.01%" tone="negative" highlight />
+      <Stat label="NEXT" value="28m" />
+    </div>
+    {/* Info 按钮 */}
+    <SheetTrigger>
+      <button className="ml-2 flex items-center gap-1 px-2 rounded-md bg-muted/50 hover:bg-muted text-[10px]">
+        <ExternalLink className="w-3 h-3" /> Info
+      </button>
+    </SheetTrigger>
+  </div>
+</div>
 ```
-Vol $1.2M · OI $480K · Funding -0.01% (28min)         ⓘ Info
-```
 
-字号统一 `text-[10px] text-muted-foreground`，分隔点用 `·` 配 `text-border`，Funding 数值如果是负数用 `text-trading-red`，正数 `text-trading-green`。
+`Stat` 是个内联小组件（同文件内定义，不抽组件文件），渲染上下两行：标签 uppercase 灰色、数值粗体 mono；`highlight` 时加淡背景色。
 
 ## 不改动
-- Event Info Sheet 内容（仍是原 EventInfoContent）
-- TradeForm Buy/Sell 双价按钮
-- 桌面端 `/trade` 布局
-- 右侧 OrderBook
+- Trade form Buy/Sell 按钮
+- OrderBook
+- Event Info Sheet 内容
+- 桌面端布局
 
 ## 一句话总结
-**砍掉大字号 Price（按钮已显示双价），把那块位置改成"Vol · OI · Funding · Info"一行紧凑 meta bar**，去重 + 信息升级 + 省空间，三全。
+**把"数据日志式"的纯文本一行，改成"4 cell + 竖线分隔 + 标签数值上下堆叠 + Funding 淡红高亮 + Info ghost 按钮"的专业交易所 stats strip 风格**，立刻有设计感。
 
