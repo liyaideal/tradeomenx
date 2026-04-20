@@ -154,7 +154,7 @@ export const TradeForm = ({
         leverage: `${leverage}x`,
         orderType,
         amount,
-        price: selectedPrice,
+        price: currentPrice.toFixed(4),
         event: eventName,
         option: optionLabel,
         orderCalculations,
