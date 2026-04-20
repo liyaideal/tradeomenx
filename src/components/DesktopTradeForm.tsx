@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ChevronDown, Calculator, Plus } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { ChevronDown, Calculator, Plus, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
@@ -8,6 +8,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DesktopTradeFormProps {
   selectedPrice?: string;
@@ -21,12 +22,23 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
   const [marginType, setMarginType] = useState("Cross");
   const [leverage, setLeverage] = useState("10.00x");
   const [orderType, setOrderType] = useState<"Limit" | "Market" | "Conditional">("Limit");
+  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const longPrice = useMemo(() => parseFloat(selectedPrice) || 0, [selectedPrice]);
+  const shortPrice = useMemo(() => +(1 - longPrice).toFixed(4), [longPrice]);
   const [price, setPrice] = useState(selectedPrice);
+  const [userEditedPrice, setUserEditedPrice] = useState(false);
   const [quantity, setQuantity] = useState("");
   const [sliderValue, setSliderValue] = useState([0]);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDefaultTab, setAuthDefaultTab] = useState<"signin" | "signup">("signup");
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
+
+  // Auto-fill price based on side, unless user manually edited it
+  useEffect(() => {
+    if (!userEditedPrice) {
+      setPrice((side === "buy" ? longPrice : shortPrice).toFixed(4));
+    }
+  }, [side, longPrice, shortPrice, userEditedPrice]);
 
   const handlePreview = (side: "buy" | "sell") => {
     // Check if user is logged in first
