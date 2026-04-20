@@ -161,11 +161,14 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
             <input
               type="text"
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={(e) => { setPrice(e.target.value); setUserEditedPrice(true); }}
               className="flex-1 bg-transparent outline-none font-mono text-sm px-3 py-2.5"
               placeholder="0.00"
             />
-            <button className="px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground border-l border-border/30">
+            <button
+              onClick={() => setUserEditedPrice(false)}
+              className="px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground border-l border-border/30"
+            >
               Last
             </button>
             <button className="px-2 py-2.5 text-muted-foreground hover:text-foreground">
