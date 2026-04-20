@@ -140,6 +140,7 @@ export const DesktopOrderBook = ({
 }: DesktopOrderBookProps) => {
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
+  const [bookSide, setBookSide] = useState<"buy" | "sell">("buy");
   const [priceStep, setPriceStep] = useState("0.0001");
   const [showStepDropdown, setShowStepDropdown] = useState(false);
   const [asks, setAsks] = useState<OrderBookEntry[]>(initialAsks);
@@ -152,11 +153,34 @@ export const DesktopOrderBook = ({
   const [buyRatio, setBuyRatio] = useState(40);
   
   const priceStepOptions = ["0.0001", "0.001", "0.01", "0.1", "1"];
-  
-  // Aggregate asks and bids based on selected price step
-  const aggregatedAsks = aggregateByPriceStep(asks, parseFloat(priceStep), false);
-  const aggregatedBids = aggregateByPriceStep(bids, parseFloat(priceStep), true);
-  
+
+  // Transform price by side: sell side shows 1 - price (asymmetric pricing)
+  const transformPrice = useCallback((price: string): string => {
+    if (bookSide === "buy") return price;
+    const decimals = (price.split(".")[1] || "").length || 4;
+    return Math.max(0, 1 - parseFloat(price)).toFixed(decimals);
+  }, [bookSide]);
+
+  // For sell side, swap the role of asks/bids so the lower red prices stay on top:
+  // sell-side "asks" come from original bids (transformed), and vice versa.
+  const sourceAsks = bookSide === "buy" ? asks : bids;
+  const sourceBids = bookSide === "buy" ? bids : asks;
+
+  // Aggregate asks and bids based on selected price step (using transformed prices)
+  const aggregatedAsks = aggregateByPriceStep(
+    sourceAsks.map(a => ({ ...a, price: transformPrice(a.price) })),
+    parseFloat(priceStep),
+    false
+  );
+  const aggregatedBids = aggregateByPriceStep(
+    sourceBids.map(b => ({ ...b, price: transformPrice(b.price) })),
+    parseFloat(priceStep),
+    true
+  );
+
+  // Mid/last price displayed in the middle of the book, also transformed
+  const displayPrice = transformPrice(currentPrice);
+
   // Extended data for single-view modes (moved here to use aggregated data)
   const extendedBidsAggregated = [...aggregatedBids, ...aggregatedBids.slice(0, 8)];
   const extendedAsksAggregated = [...aggregatedAsks, ...aggregatedAsks.slice(0, 8)];
@@ -261,6 +285,32 @@ export const DesktopOrderBook = ({
 
       {activeTab === "orderbook" ? (
         <>
+          {/* Buy/Sell Side Toggle */}
+          <div className="px-3 pt-2">
+            <div className="flex bg-muted rounded-md p-0.5">
+              <button
+                onClick={() => setBookSide("buy")}
+                className={`flex-1 py-1 rounded text-xs font-medium transition-all ${
+                  bookSide === "buy"
+                    ? "bg-trading-green/20 text-trading-green"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Buy depth
+              </button>
+              <button
+                onClick={() => setBookSide("sell")}
+                className={`flex-1 py-1 rounded text-xs font-medium transition-all ${
+                  bookSide === "sell"
+                    ? "bg-trading-red/20 text-trading-red"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Sell depth
+              </button>
+            </div>
+          </div>
+
           {/* View Toggle & Depth */}
           <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center gap-2">
@@ -364,13 +414,13 @@ export const DesktopOrderBook = ({
               <div className="px-3 py-2 border-y border-border/30">
                 <div className="flex items-center gap-2">
                   <span className={`text-lg font-bold font-mono ${isPositive ? 'text-trading-green' : 'text-trading-red'}`}>
-                    {isPositive ? '↑' : '↓'} {currentPrice}
+                    {isPositive ? '↑' : '↓'} {displayPrice}
                   </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {currentPrice}
+                          <Flag className="w-3 h-3" /> {displayPrice}
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
@@ -440,13 +490,13 @@ export const DesktopOrderBook = ({
               <div className="px-3 py-2 border-t border-border/30">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold font-mono text-trading-green">
-                    ↑ {currentPrice}
+                    ↑ {displayPrice}
                   </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {currentPrice}
+                          <Flag className="w-3 h-3" /> {displayPrice}
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
@@ -491,13 +541,13 @@ export const DesktopOrderBook = ({
               <div className="px-3 py-2 border-t border-border/30">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold font-mono text-trading-red">
-                    ↓ {currentPrice}
+                    ↓ {displayPrice}
                   </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {currentPrice}
+                          <Flag className="w-3 h-3" /> {displayPrice}
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
