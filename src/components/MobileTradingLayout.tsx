@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, useNavigationType, useLocation } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Info } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
+import { EventInfoContent } from "@/components/EventInfoContent";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
