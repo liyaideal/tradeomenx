@@ -30,6 +30,7 @@ interface DesktopOrderBookProps {
   priceChange?: string;
   isPositive?: boolean;
   onPriceClick?: (price: string) => void;
+  side?: "buy" | "sell";
 }
 
 // Generate mock recent trades
