@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, useNavigationType, useLocation } from "react-router-dom";
-import { Loader2, Info } from "lucide-react";
+import { Loader2, Link } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
@@ -186,7 +186,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
                 className="flex flex-col items-center justify-center w-14 h-10 rounded-lg bg-muted/50 border border-border/30 hover:bg-muted transition-colors"
               >
                 <span className="text-[10px] text-muted-foreground leading-none mb-0.5">Event info</span>
-                <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                <Link className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-2xl">
