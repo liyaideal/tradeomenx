@@ -1458,7 +1458,7 @@ export default function DesktopTrading() {
                 <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
                   <input
                     type="text"
-                    value={limitPrice || selectedOptionData.price}
+                    value={limitPrice || sidePrice.toFixed(4)}
                     onChange={(e) => setLimitPrice(e.target.value)}
                     className="flex-1 bg-transparent outline-none font-mono text-sm"
                     placeholder="0.0000"
