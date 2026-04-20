@@ -152,11 +152,9 @@ const ChildRowContent = ({
       <span className="text-sm text-muted-foreground">● {child.optionLabel}</span>
     </td>
 
-    {/* Buy / Sell prices (Sell = 1 - Buy) */}
-    <td className="w-[120px] text-right font-mono text-sm whitespace-nowrap">
-      <span className="text-trading-green">${child.markPrice.toFixed(2)}</span>
-      <span className="text-muted-foreground mx-1">/</span>
-      <span className="text-trading-red">${(1 - child.markPrice).toFixed(2)}</span>
+    {/* Price (Long price; Short = 1 − Long) */}
+    <td className="w-[90px] text-right font-mono text-sm text-foreground">
+      ${child.markPrice.toFixed(2)}
     </td>
 
     {/* Change */}
@@ -252,7 +250,20 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                     <tr className="h-8 bg-muted/40 border-b border-border/20">
                       <td className="w-10" />
                       <td className="pr-3 pl-8 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Market</td>
-                      <td className="w-[120px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Buy / Sell</td>
+                      <td className="w-[90px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-1 cursor-help">
+                                Price <Info className="h-3 w-3 text-muted-foreground/60" />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="text-xs max-w-[220px]">
+                              Showing Long price. Short price = 1 − Long. Learn more in Glossary.
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </td>
                       <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{chgTimeframe.toUpperCase()} Chg</td>
                       <td className="w-[110px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{chgTimeframe.toUpperCase()} Vol</td>
                       <td className="w-[100px] text-right text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Total Vol</td>
