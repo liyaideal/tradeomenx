@@ -25,41 +25,6 @@ interface TradeOrderContentProps {
   selectedOptionData: TradingContextData['selectedOptionData'];
 }
 
-function StatCell({
-  label,
-  value,
-  tone,
-  highlight,
-}: {
-  label: string;
-  value: string;
-  tone?: "negative" | "positive";
-  highlight?: boolean;
-}) {
-  const valueColor =
-    tone === "negative"
-      ? "text-trading-red"
-      : tone === "positive"
-      ? "text-trading-green"
-      : "text-foreground";
-  const bg = highlight
-    ? tone === "negative"
-      ? "bg-trading-red/5"
-      : tone === "positive"
-      ? "bg-trading-green/5"
-      : ""
-    : "";
-  return (
-    <div className={`flex-1 min-w-0 px-2 first:pl-0 last:pr-0 flex flex-col justify-center ${bg}`}>
-      <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 leading-tight">
-        {label}
-      </span>
-      <span className={`text-[11px] font-mono font-semibold leading-tight mt-0.5 truncate ${valueColor}`}>
-        {value}
-      </span>
-    </div>
-  );
-}
 
 function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderContentProps) {
   const location = useLocation();
