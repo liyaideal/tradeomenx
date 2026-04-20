@@ -1,55 +1,84 @@
 
 
-## 问题
-桌面端 `/trade/order` 左面板（TradeForm）的 Buy/Sell 按钮因加了双价从 1 行变 2 行，整体变高，但右面板 OrderBook 高度没变，导致左侧延伸到 OrderBook 底部下方，视觉上左右不齐、底部留白不对称。
+## 问题分析
 
-## 思考几个方案
+`/trade/order` 顶部的 Price 区域当前结构：
+```
+┌────────────────────────────────┬─────────────┐
+│ Price                          │ ⓘ Event Info│
+│ 0.6234            ← 单价        │             │
+│ Funding: -0.0001% / Next: 28min│             │
+└────────────────────────────────┴─────────────┘
+```
 
-**A. 让 OrderBook 跟着拉长** - 增加显示档位（比如从 10 档变 12 档）
-- 优点：自然填满、内容也更丰富
-- 缺点：依赖具体档位数据，且 OrderBook 高度本身和 TradeForm 不是 1:1 同步关系，容易再次失衡
+确实和下面 TradeForm 里 Buy/Sell 按钮内的双价**信息重复**，且 Price 区只显示一个数（实际是 Long 价），切到 Sell 时这里也不变，语义模糊。
 
-**B. 让 OrderBook 撑满父容器** - 用 flex / h-full 让它自动拉伸到和左面板一样高，多出来的空间留给中间档位价格区或底部 Depth 选择器
-- 优点：彻底解耦，以后左面板再变化也不会再失衡
-- 缺点：需要 OrderBook 内部有可伸缩区域（中间 spread 区或档位列表用 flex-1）
+但 `Funding` 和 `Event Info` 入口必须保留。
 
-**C. 压缩 Buy/Sell 按钮高度** - 让双价更紧凑（比如价格用更小字号、和 Buy/Sell 文字同行而不是另起一行）
-- 优点：根治高度增量
-- 缺点：双价可读性下降，违背最初"价格要醒目"的目标
+## 几个方案对比
 
-**D. 接受不齐，仅在底部加视觉补偿** - 比如 OrderBook 底部加一个 "Recent Trades" mini 区或拉长 Depth 选择器区
-- 优点：不动结构
-- 缺点：治标不治本
+**A. Price 区跟着 side 切换**
+- Buy 时显示 Long 价、Sell 时显示 Short 价
+- 优点：和按钮联动，无歧义
+- 缺点：还是和按钮重复，Price 区存在意义不大
 
-## 推荐方案：B（OrderBook 撑满父容器）
+**B. 删除 Price 数字，保留一行 meta（Funding + Event Info）**
+- 优点：最干净，按钮里已经有双价了
+- 缺点：损失一个"价格速览"的视觉锚点
+
+**C. Price 区改成"市场速览条"——保留位置但换内容**
+- 把 Price 数字换成更有用的市场元信息：`24H Vol · Open Interest · Funding · Next funding`
+- 右侧保留 Event Info 入口
+- 优点：信息不重复、空间利用率高、和桌面端 Header 信息维度一致
+- 缺点：要决定展示哪几个字段
+
+**D. Price 区缩成单行紧凑 meta bar**
+- 一行搞定：`Funding -0.0001% · Next 28min · 📊 Event Info`
+- 完全去掉大字号 Price 数字
+- 优点：最省垂直空间，给下面 TradeForm 让位
+- 缺点：信息密度高，需要排版细致
+
+## 推荐：D + C 的组合
+
+**保留 Price 区位置，但改成单行紧凑 meta bar**：
+
+```
+┌──────────────────────────────────────────────────┐
+│ Vol $1.2M · OI $480K · Funding -0.01% / 28min  ⓘ │
+└──────────────────────────────────────────────────┘
+```
 
 理由：
-- 最干净的工程方案，"左右等高"应该由布局约束保证，而不是靠手动调档位数
-- OrderBook 本身就有天然的可伸缩区（买卖盘档位列表），多出的空间正好用来多显示几档，信息密度更高
-- 以后 TradeForm 再增减元素（如 TP/SL 展开），右侧自动跟随，不需要再调
+1. **去重**：删掉大字号 Price 数字（按钮里已有双价）
+2. **保留必要信息**：Funding/Next 不丢
+3. **信息升级**：补上 24H Vol 和 Open Interest（这两个是用户决策时真正关心的"市场热度"）
+4. **节省垂直空间**：从原来 ~60px 高度压缩到 ~32px，给 TradeForm 更多空间
+5. **Event Info 入口保留**：右侧 ⓘ 图标，点击打开原 Sheet
 
 ## 具体改动
 
-**改动文件**：`src/pages/DesktopTrading.tsx` + `src/components/DesktopOrderBook.tsx`
+**改动文件**：`src/pages/TradeOrder.tsx`（第 102-129 行的 Price Header 区块）
 
-1. **DesktopTrading.tsx 左右容器**
-   - 确认左右两栏的父容器是 `flex` 且 `items-stretch`（默认就是 stretch，确认即可）
-   - 给右侧 OrderBook 容器加 `h-full flex flex-col`，让它填满父容器高度
+1. 删除 `<div className="text-xl font-bold font-mono">{price}</div>` 大字号价格
+2. 删除 "Price" label
+3. 把 Funding/Next 行升级为带分隔点（`·`）的紧凑 meta bar
+4. 在前面加上 24H Vol 和 Open Interest（数据从 selectedEvent 取，如果没有就降级只显示 Funding）
+5. 右侧 Event Info 入口保留，但视觉简化为只有图标 + "Info"（更紧凑）
+6. 容器从 `py-2` 改成 `py-1.5`，`text-[10px]` 保持
 
-2. **DesktopOrderBook.tsx 内部布局**
-   - 根容器：`flex flex-col h-full`
-   - 顶部 header（Price / Amount 标题行）：固定高度
-   - 卖单区（Asks）：`flex-1 overflow-hidden`，按可用高度自适应渲染档位数
-   - 中间 spread / mark price 行：固定高度
-   - 买单区（Bids）：`flex-1 overflow-hidden`，同上
-   - 底部 Depth 选择器：固定高度
-   - 档位渲染：根据容器高度动态计算显示数量（或者简单粗暴 `overflow-y-hidden` 让多余档位自然被裁掉，因为档位本来就是分级深度，下面的不那么重要）
+视觉示意：
+```
+Vol $1.2M · OI $480K · Funding -0.01% (28min)         ⓘ Info
+```
+
+字号统一 `text-[10px] text-muted-foreground`，分隔点用 `·` 配 `text-border`，Funding 数值如果是负数用 `text-trading-red`，正数 `text-trading-green`。
 
 ## 不改动
-- 左面板 TradeForm（Buy/Sell 按钮的双价设计保留）
-- OrderBook 数据源、档位生成逻辑
-- 移动端布局（移动端是上下排列，不存在等高问题）
+- Event Info Sheet 内容（仍是原 EventInfoContent）
+- TradeForm Buy/Sell 双价按钮
+- 桌面端 `/trade` 布局
+- 右侧 OrderBook
 
 ## 一句话总结
-**把 OrderBook 改成 `h-full + flex-col`，让 Asks/Bids 区域用 `flex-1` 自动撑满**，左右两栏永远等高，多出来的空间正好多显示几档买卖盘。
+**砍掉大字号 Price（按钮已显示双价），把那块位置改成"Vol · OI · Funding · Info"一行紧凑 meta bar**，去重 + 信息升级 + 省空间，三全。
 
