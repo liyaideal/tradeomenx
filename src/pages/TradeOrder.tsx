@@ -37,6 +37,14 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
   
   const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
   const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);
+  const [side, setSide] = useState<"buy" | "sell">("buy");
+
+  // Transform price for the order book based on side (Sell = 1 - p, asks/bids swap)
+  const transformPrice = (price: string): string => {
+    if (side === "buy") return price;
+    const decimals = (price.split(".")[1] || "").length || 4;
+    return Math.max(0, 1 - parseFloat(price)).toFixed(decimals);
+  };
   const positionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const tabSectionRef = useRef<HTMLDivElement | null>(null);
   const hasScrolledToSection = useRef(false);
@@ -130,10 +138,12 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
             selectedPrice={selectedOptionData.price} 
             eventName={selectedEvent?.name || ""}
             optionLabel={selectedOptionData.label}
+            side={side}
+            onSideChange={setSide}
           />
         </div>
 
-        {/* Right: Order Book */}
+        {/* Right: Order Book — driven by trade form side */}
         <div className="w-[120px] flex-shrink-0">
           <div className="px-1.5 py-1.5">
             <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
@@ -142,14 +152,14 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
             </div>
           </div>
           
-          {/* Asks */}
+          {/* Asks (red, top): for sell-side view, source from bids and transform price */}
           <div className="overflow-y-auto scrollbar-hide">
-            {orderBookData.asks.slice(0, 10).map((ask, index) => (
+            {(side === "buy" ? orderBookData.asks : orderBookData.bids).slice(0, 10).map((ask, index) => (
               <div
                 key={`ask-${index}`}
                 className="flex justify-between px-1.5 py-0.5 text-[10px]"
               >
-                <span className="price-red">{ask.price}</span>
+                <span className="price-red">{transformPrice(ask.price)}</span>
                 <span className="text-muted-foreground font-mono">{ask.amount}</span>
               </div>
             ))}
@@ -157,17 +167,17 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
 
           {/* Current Price */}
           <div className="px-1.5 py-1.5 text-center">
-            <span className="text-sm font-bold font-mono">{selectedOptionData.price}</span>
+            <span className="text-sm font-bold font-mono">{transformPrice(selectedOptionData.price)}</span>
           </div>
 
-          {/* Bids */}
+          {/* Bids (green, bottom): for sell-side view, source from asks and transform price */}
           <div className="overflow-y-auto scrollbar-hide">
-            {orderBookData.bids.slice(0, 10).map((bid, index) => (
+            {(side === "buy" ? orderBookData.bids : orderBookData.asks).slice(0, 10).map((bid, index) => (
               <div
                 key={`bid-${index}`}
                 className="flex justify-between px-1.5 py-0.5 text-[10px]"
               >
-                <span className="price-green">{bid.price}</span>
+                <span className="price-green">{transformPrice(bid.price)}</span>
                 <span className="text-muted-foreground font-mono">{bid.amount}</span>
               </div>
             ))}

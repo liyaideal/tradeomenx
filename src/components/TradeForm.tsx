@@ -12,6 +12,9 @@ interface TradeFormProps {
   optionLabel?: string;
   /** 当前事件的所有选项，用于判断是否为二元事件 */
   eventOptions?: { label: string }[];
+  /** 受控 side：传入则由父组件管理，用于与 OrderBook 联动 */
+  side?: "buy" | "sell";
+  onSideChange?: (next: "buy" | "sell") => void;
 }
 
 
@@ -19,7 +22,9 @@ export const TradeForm = ({
   selectedPrice = "0.1234", 
   eventName = "Elon Musk # tweets December 12 - December 19, 2025?",
   optionLabel = "200-219",
-  eventOptions = []
+  eventOptions = [],
+  side: controlledSide,
+  onSideChange,
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance } = useUserProfile();
@@ -32,7 +37,12 @@ export const TradeForm = ({
     return isBinary && isNoOption(optionLabel);
   }, [eventOptions, optionLabel]);
   
-  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const [internalSide, setInternalSide] = useState<"buy" | "sell">("buy");
+  const side = controlledSide ?? internalSide;
+  const setSide = (next: "buy" | "sell") => {
+    if (controlledSide === undefined) setInternalSide(next);
+    onSideChange?.(next);
+  };
   const [marginType, setMarginType] = useState("Cross");
   const [leverage, setLeverage] = useState(10);
   const [orderType, setOrderType] = useState("Market");
