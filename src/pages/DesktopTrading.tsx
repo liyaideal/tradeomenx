@@ -1340,19 +1340,6 @@ export default function DesktopTrading() {
                   </span>
                 </button>
               </div>
-              <div className="flex items-center justify-end">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button type="button" className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
-                      <Info className="w-3 h-3" />
-                      <span>Why two prices?</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" className="max-w-[240px] text-xs">
-                    Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
-                  </TooltipContent>
-                </Tooltip>
-              </div>
             </div>
 
             {/* Margin Mode */}

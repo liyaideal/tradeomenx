@@ -1,10 +1,9 @@
 import { useState, useMemo } from "react";
-import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X, Info } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TradeFormProps {
   selectedPrice?: string;
@@ -207,21 +206,6 @@ export const TradeForm = ({
               {shortPrice.toFixed(4)}
             </span>
           </button>
-        </div>
-        <div className="flex items-center justify-end">
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button type="button" className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
-                  <Info className="w-3 h-3" />
-                  <span>Why two prices?</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-[220px] text-xs">
-                Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </div>
 
