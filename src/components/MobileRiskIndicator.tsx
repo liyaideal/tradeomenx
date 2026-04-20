@@ -45,10 +45,10 @@ export function MobileRiskIndicator() {
       {/* Compact MM Badge */}
       <button
         onClick={() => setDrawerOpen(true)}
-        className="flex flex-col items-center justify-center px-2 py-1 rounded-lg bg-muted/50 border border-border/30 hover:bg-muted transition-colors"
+        className="flex flex-col items-center justify-center w-14 h-10 rounded-lg bg-muted/50 border border-border/30 hover:bg-muted transition-colors"
       >
-        <span className="text-[10px] text-muted-foreground">MM</span>
-        <span className={`text-xs font-mono font-medium ${getRiskColor(riskMetrics.riskLevel)}`}>
+        <span className="text-[10px] text-muted-foreground leading-none mb-0.5">MM</span>
+        <span className={`text-xs font-mono font-medium leading-none ${getRiskColor(riskMetrics.riskLevel)}`}>
           {mmRatio.toFixed(2)}%
         </span>
       </button>
