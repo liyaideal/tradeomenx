@@ -185,7 +185,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
                 aria-label="Event info"
                 className="flex flex-col items-center justify-center w-14 h-10 rounded-lg bg-muted/50 border border-border/30 hover:bg-muted transition-colors"
               >
-                <span className="text-[10px] text-muted-foreground leading-none mb-0.5">Info</span>
+                <span className="text-[10px] text-muted-foreground leading-none mb-0.5">Event</span>
                 <Info className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </SheetTrigger>
