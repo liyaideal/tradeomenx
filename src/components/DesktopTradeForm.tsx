@@ -40,22 +40,27 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
     }
   }, [side, longPrice, shortPrice, userEditedPrice]);
 
-  const handlePreview = (side: "buy" | "sell") => {
+  const handlePreview = (clickedSide: "buy" | "sell") => {
     // Check if user is logged in first
     if (!user) {
       setAuthDefaultTab("signup");
       setAuthDialogOpen(true);
       return;
     }
-    
+
+    // Use side-specific price: Buy → longPrice, Sell → shortPrice (unless user manually edited)
+    const execPrice = userEditedPrice && clickedSide === side
+      ? price
+      : (clickedSide === "buy" ? longPrice : shortPrice).toFixed(4);
+
     navigate("/order-preview", {
       state: {
-        side,
+        side: clickedSide,
         marginType,
         leverage,
         orderType,
         amount: quantity,
-        price,
+        price: execPrice,
       },
     });
   };
