@@ -902,7 +902,8 @@ export default function DesktopTrading() {
         {/* Left Section: Chart + Order Book + Positions */}
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
           {/* Top: Chart + Order Book (separate containers, tops aligned) */}
-          <div className="flex min-h-[600px] gap-1 p-1">
+          {/* min-h matches the right Trade panel natural height so OrderBook stretches and bottoms align */}
+          <div className="flex items-stretch min-h-[680px] gap-1 p-1">
             {/* Chart Area or Event Info - separate container */}
             <div className="flex-1 flex flex-col min-w-0 bg-background rounded border border-border/30">
               {/* Chart / Event Info Tabs */}
@@ -953,8 +954,8 @@ export default function DesktopTrading() {
               )}
             </div>
 
-            {/* Order Book - separate container */}
-            <div className="w-[280px] flex-shrink-0 bg-background rounded border border-border/30">
+            {/* Order Book - separate container, flex-col so child h-full stretches */}
+            <div className="w-[280px] flex-shrink-0 flex flex-col bg-background rounded border border-border/30 overflow-hidden">
               <DesktopOrderBook 
                 asks={orderBookData.asks}
                 bids={orderBookData.bids}
