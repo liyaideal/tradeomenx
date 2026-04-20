@@ -1,77 +1,103 @@
 
 
-## 问题
-当前 meta bar 视觉问题：
-1. **像数据日志而非 UI**：纯文本 `Vol $3.45M · OI $480K · Funding -0.01% · Next 28m` 平铺直叙，没有视觉层级
-2. **标签和数值混在一起**：`Vol` 和 `$3.45M` 字号颜色差异太弱
-3. **分隔点 `·` 太密**：4 个字段 + 3 个点挤在一行，扫读累
-4. **Funding 红色突兀**：在一片灰色文本里跳出来，但没有任何容器收拢
-5. **Info 按钮像链接**：和左边数据完全脱节，右上角孤零零
+## 看图诊断
 
-## 设计思路
+截图清晰暴露的问题：
+1. **数值被截断成 `$3...` `$48...` `-0...`** —— 4-cell 平分 + 右边 Info 按钮挤掉空间，每个 cell 只剩 ~50px，根本放不下 `$3.45M` 这种数值
+2. **Funding 红色底块孤立刺眼** —— 单独一个 cell 高亮反而像 error 状态
+3. **大写 label `VOL/OI/FUNDING/NEXT` 太重** —— 配合粗体数值，整条 strip 视觉权重过高，喧宾夺主（这是 trade form，主角是 Buy/Sell 按钮）
+4. **Info 按钮带边框 + 背景** —— 在小空间里像一个独立的 CTA，但其实只是辅助入口
+5. **整体 `bg-muted/20` 灰底** —— 把这条 strip 视觉抬得太高
 
-参考 Binance/Hyperliquid/dYdX 等专业交易所的 market stats bar 设计：
-- **标签 + 数值垂直堆叠**（小标签灰色在上，数值粗体在下）
-- **字段间用细竖线分隔**（不是点）
-- **关键字段加微弱背景色块**（如 Funding 用淡红底）
-- **Info 按钮用 ghost 风格小按钮**，和数据条形成节奏
+**根因**：4-cell 横向平分在 390px 移动端不够空间，且把"市场元数据"做成了"主操作区"的视觉权重。
 
-## 推荐方案：紧凑型 Stats Strip
+## 重新设计：低调横向 inline + 自适应缩写
 
-视觉布局（移动端 390px 宽度内）：
+回归 Hyperliquid / GMX 这类 perp 交易界面的真正做法：**meta 信息是低调的辅助行，不是数据卡片**。
+
+新方案：
 
 ```
-┌─────────────────────────────────────────────────┐
-│ VOL      OI       FUNDING    NEXT     ┌────┐    │
-│ $3.45M │ $480K  │ -0.01%   │ 28m     │ ⓘ  │    │
-│                  (淡红底)              └────┘    │
-└─────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────┐
+│ Vol $3.45M   OI $480K   Funding -0.01%   28m   │ⓘ│
+└────────────────────────────────────────────────┘
 ```
 
-具体细节：
-- **每个字段两行结构**：
-  - 上：`text-[9px] text-muted-foreground/60 uppercase tracking-wider`（如 `VOL`、`OI`、`FUNDING`、`NEXT`）
-  - 下：`text-[11px] font-mono font-medium text-foreground`（数值）
-- **字段间分隔**：用 `divide-x divide-border/30` 替代 `·`，更干净
-- **Funding 字段特殊处理**：负数时数值加 `text-trading-red`，背景加 `bg-trading-red/5 rounded`，让它视觉成块
-- **Info 按钮**：改成 `rounded-md bg-muted/40 px-2 py-1` 的小 ghost 按钮，图标 + "Info" 文字，和左边数据形成"内容 + 操作"的节奏感
-- **整体容器**：`px-3 py-2`（从 `py-1.5` 微增），`bg-muted/20` 淡背景把整条 strip 收拢成一个视觉单元，下面 `border-b border-border/30` 保留
-- **响应式**：移动端 4 个字段平均分布 `flex-1`，每个 `min-w-0` 防止挤压；Info 按钮 `flex-shrink-0`
+设计要点：
+1. **回到单行 inline**，但用 **label/value 同行 + 不同颜色权重** 实现层级（不靠上下堆叠）：
+   - Label：`text-muted-foreground` 普通字重
+   - Value：`text-foreground font-mono font-medium`
+   - 同行紧贴，例：`Vol <space> $3.45M`
+2. **字段间距用 `gap-3` 自然分隔**，去掉竖线和点（更干净）
+3. **Funding 只给数值染色**（负红/正绿），不加背景块，不孤立
+4. **"Next" 直接显示数值 `28m`**，省掉 label（上下文里 funding 旁边的时间不言自明，或写成 `Funding -0.01% / 28m` 合并）
+5. **Info 改成纯 icon 按钮**（`w-7 h-7` 圆形 ghost，只有 ⓘ 图标，无文字），右上角小巧不抢戏
+6. **去掉背景色**，只留 `border-b border-border/30`，回归"信息行"本质
+7. **横向滚动兜底**：`overflow-x-auto scrollbar-hide` —— 极端窄屏可滑动看完整数据，永不截断
+8. **字号 `text-[11px]`**，比之前 `text-[10px]` 略大，可读性更好
+
+视觉示意（移动端 390px）：
+
+```
+Vol $3.45M    OI $480K    Funding -0.01% / 28m         [ⓘ]
+└─灰─┘└─白─┘  └─灰─┘└─白─┘  └────灰─┘└──红──┘└灰┘        圆按钮
+```
+
+## 关键对比
+
+| 维度 | 旧（被吐槽版） | 新方案 |
+|------|--------------|-------|
+| 布局 | 4-cell 平分 + 上下堆叠 | 单行 inline + 横滚兜底 |
+| Label | 大写粗体喧宾夺主 | 同行小灰字，权重低 |
+| 数值截断 | `$3...` `$48...` | 完整显示，必要时滚动 |
+| Funding 高亮 | 红底色块孤立 | 仅数值染色，融入整体 |
+| Info 按钮 | 带边框 + "Info" 文字 | 圆形 ghost icon-only |
+| 整体背景 | `bg-muted/20` 灰底 | 透明，只留底部分隔线 |
+| 视觉权重 | 抢戏 | 辅助 |
 
 ## 具体改动
 
-**改动文件**：`src/pages/TradeOrder.tsx`（第 102-132 行的 Market Meta Bar 区块）
+**改动文件**：`src/pages/TradeOrder.tsx`
 
-替换当前单行 inline 文本为结构化的 4-cell stats strip + Info 按钮：
+1. **删除 `StatCell` 内联组件**（23-61 行附近），不再需要
+2. **重写 Market Stats Strip**（107-136 行附近）：
 
 ```tsx
-<div className="px-3 py-2 border-b border-border/30 bg-muted/20">
-  <div className="flex items-stretch gap-0">
-    {/* 4 个数据 cell, divide-x 分隔 */}
-    <div className="flex-1 divide-x divide-border/30 flex">
-      <Stat label="VOL" value="$3.45M" />
-      <Stat label="OI" value="$480K" />
-      <Stat label="FUNDING" value="-0.01%" tone="negative" highlight />
-      <Stat label="NEXT" value="28m" />
+<div className="px-3 py-2 border-b border-border/30">
+  <div className="flex items-center gap-2">
+    <div className="flex-1 flex items-center gap-3 text-[11px] overflow-x-auto scrollbar-hide whitespace-nowrap">
+      <span className="text-muted-foreground">
+        Vol <span className="font-mono font-medium text-foreground ml-0.5">{vol}</span>
+      </span>
+      <span className="text-muted-foreground">
+        OI <span className="font-mono font-medium text-foreground ml-0.5">$480K</span>
+      </span>
+      <span className="text-muted-foreground">
+        Funding <span className="font-mono font-medium text-trading-red ml-0.5">-0.01%</span>
+        <span className="text-muted-foreground/50 mx-1">/</span>
+        <span className="font-mono font-medium text-foreground">28m</span>
+      </span>
     </div>
-    {/* Info 按钮 */}
-    <SheetTrigger>
-      <button className="ml-2 flex items-center gap-1 px-2 rounded-md bg-muted/50 hover:bg-muted text-[10px]">
-        <ExternalLink className="w-3 h-3" /> Info
+    <SheetTrigger asChild>
+      <button
+        aria-label="Event info"
+        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+      >
+        <Info className="w-3.5 h-3.5" />
       </button>
     </SheetTrigger>
   </div>
 </div>
 ```
 
-`Stat` 是个内联小组件（同文件内定义，不抽组件文件），渲染上下两行：标签 uppercase 灰色、数值粗体 mono；`highlight` 时加淡背景色。
+3. **图标换成 `Info`**（来自 lucide-react），比 `ExternalLink` 更语义匹配（不是跳外链，是查看信息）
 
 ## 不改动
-- Trade form Buy/Sell 按钮
+- TradeForm Buy/Sell 按钮
 - OrderBook
 - Event Info Sheet 内容
 - 桌面端布局
 
 ## 一句话总结
-**把"数据日志式"的纯文本一行，改成"4 cell + 竖线分隔 + 标签数值上下堆叠 + Funding 淡红高亮 + Info ghost 按钮"的专业交易所 stats strip 风格**，立刻有设计感。
+**回归"低调辅助信息行"本质**：单行 inline + label/value 同行配色分层 + Funding 只染色不加底 + Info 改圆形 icon-only + 横滚兜底防截断 = 不抢戏、不截断、有秩序。
 
