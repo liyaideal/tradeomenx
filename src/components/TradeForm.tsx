@@ -107,29 +107,34 @@ export const TradeForm = ({
   // Calculate order values based on amount and leverage
   const orderCalculations = useMemo(() => {
     const amountValue = parseFloat(amount) || 0;
-    const price = parseFloat(selectedPrice);
-    
+    const price = currentPrice;
+
     // Notional value = amount * leverage
     const notionalValue = amountValue * leverage;
-    
+
     // Margin required = amount (same as input)
     const marginRequired = amountValue;
-    
+
     // Estimated fee = notional value * fee rate
     const estimatedFee = notionalValue * feeRate;
-    
+
     // Total = margin required + fee
     const total = marginRequired + estimatedFee;
-    
+
     // Quantity = notional value / price
     const quantity = price > 0 ? notionalValue / price : 0;
-    
-    // Potential win = (1 - price) * quantity (if price goes to 1)
+
+    // Potential win = (1 - price) * quantity (if outcome resolves in user's favor)
     const potentialWin = (1 - price) * quantity;
-    
-    // Estimated liquidation price
-    const liqPrice = price > 0 ? (price * (1 - 1 / leverage * 0.9)).toFixed(4) : "0.0000";
-    
+
+    // Estimated liquidation price - sell side moves opposite direction
+    const liqPrice = price > 0
+      ? (side === "buy"
+          ? price * (1 - 1 / leverage * 0.9)
+          : price * (1 + 1 / leverage * 0.9)
+        ).toFixed(4)
+      : "0.0000";
+
     return {
       notionalValue: notionalValue.toFixed(2),
       marginRequired: marginRequired.toFixed(2),
@@ -139,7 +144,7 @@ export const TradeForm = ({
       potentialWin: potentialWin.toFixed(0),
       liqPrice,
     };
-  }, [amount, leverage, selectedPrice]);
+  }, [amount, leverage, currentPrice, side]);
 
   const handlePreview = () => {
     navigate("/order-preview", {
