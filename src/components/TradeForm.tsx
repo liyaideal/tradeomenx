@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TradeFormProps {
   selectedPrice?: string;
