@@ -2,102 +2,82 @@
 
 ## 看图诊断
 
-截图清晰暴露的问题：
-1. **数值被截断成 `$3...` `$48...` `-0...`** —— 4-cell 平分 + 右边 Info 按钮挤掉空间，每个 cell 只剩 ~50px，根本放不下 `$3.45M` 这种数值
-2. **Funding 红色底块孤立刺眼** —— 单独一个 cell 高亮反而像 error 状态
-3. **大写 label `VOL/OI/FUNDING/NEXT` 太重** —— 配合粗体数值，整条 strip 视觉权重过高，喧宾夺主（这是 trade form，主角是 Buy/Sell 按钮）
-4. **Info 按钮带边框 + 背景** —— 在小空间里像一个独立的 CTA，但其实只是辅助入口
-5. **整体 `bg-muted/20` 灰底** —— 把这条 strip 视觉抬得太高
+当前 `/trade/order` 顶部从上到下：
+1. **Tab 行**：`Charts | Trade` + 右边 `MM 0.08%` 盒子
+2. **Stats 行**：`Vol $3.45M  OI $480K  Funding -0.01  ⓘ` ← 4 个内容挤一行还要带 Info 按钮，注定截断
 
-**根因**：4-cell 横向平分在 390px 移动端不够空间，且把"市场元数据"做成了"主操作区"的视觉权重。
+用户提议：**把 Info 按钮移到 MM 旁边的 Tab 行**，让 Stats 行只放 3 个数据字段，空间立刻宽松。
 
-## 重新设计：低调横向 inline + 自适应缩写
+## 这个思路对不对？
 
-回归 Hyperliquid / GMX 这类 perp 交易界面的真正做法：**meta 信息是低调的辅助行，不是数据卡片**。
+**完全对**。因为：
+- Tab 行右侧只有一个 `MM 0.08%` 小盒子，**右侧还有空间**容纳一个图标按钮
+- Stats 行少了 Info 按钮的占位（约 28px + gap），3 个字段（Vol / OI / Funding+Next）每个能拿到 ~110px，足够完整显示
+- Info 按钮和 MM 都是"市场状态/元信息"，**语义上就该在一起**（顶部辅助信息区），下面的 Stats 是"实时市场数据"，Trade form 是"操作区"——三层职责清晰
+- 这是大多数专业交易所（Hyperliquid / dYdX）的标准做法：顶部一行放 symbol meta + info icon，下面一行放 stats，再下面才是下单区
 
-新方案：
+## 设计方案
 
+### Tab 行（MobileTradingLayout.tsx）右侧布局
 ```
-┌────────────────────────────────────────────────┐
-│ Vol $3.45M   OI $480K   Funding -0.01%   28m   │ⓘ│
-└────────────────────────────────────────────────┘
+                                 [ ⓘ ]  [MM 0.08%]
 ```
+- Info 按钮放在 MM 盒子**左边**（紧贴 MM）
+- 两者之间 `gap-2`
+- Info 按钮样式：`w-7 h-7 rounded-full` ghost 风格，hover 时浅灰底
+- Info 图标 `w-3.5 h-3.5`，颜色 `text-muted-foreground`
 
-设计要点：
-1. **回到单行 inline**，但用 **label/value 同行 + 不同颜色权重** 实现层级（不靠上下堆叠）：
-   - Label：`text-muted-foreground` 普通字重
-   - Value：`text-foreground font-mono font-medium`
-   - 同行紧贴，例：`Vol <space> $3.45M`
-2. **字段间距用 `gap-3` 自然分隔**，去掉竖线和点（更干净）
-3. **Funding 只给数值染色**（负红/正绿），不加背景块，不孤立
-4. **"Next" 直接显示数值 `28m`**，省掉 label（上下文里 funding 旁边的时间不言自明，或写成 `Funding -0.01% / 28m` 合并）
-5. **Info 改成纯 icon 按钮**（`w-7 h-7` 圆形 ghost，只有 ⓘ 图标，无文字），右上角小巧不抢戏
-6. **去掉背景色**，只留 `border-b border-border/30`，回归"信息行"本质
-7. **横向滚动兜底**：`overflow-x-auto scrollbar-hide` —— 极端窄屏可滑动看完整数据，永不截断
-8. **字号 `text-[11px]`**，比之前 `text-[10px]` 略大，可读性更好
-
-视觉示意（移动端 390px）：
-
+### Stats 行（TradeOrder.tsx）简化
 ```
-Vol $3.45M    OI $480K    Funding -0.01% / 28m         [ⓘ]
-└─灰─┘└─白─┘  └─灰─┘└─白─┘  └────灰─┘└──红──┘└灰┘        圆按钮
+Vol $3.45M    OI $480K    Funding -0.01% / 28m
 ```
+- 移除右侧 Info 按钮和 SheetTrigger
+- 3 个字段全宽展开，`gap-4` 间距更舒展
+- 字号可以从 `text-[11px]` 提到 `text-[12px]`，可读性更好
+- 不再需要 `overflow-x-auto` 兜底（空间够了）
+- 整体保持 `border-b` 分隔线
 
-## 关键对比
+### 关键技术点：Info Sheet 触发位置迁移
 
-| 维度 | 旧（被吐槽版） | 新方案 |
-|------|--------------|-------|
-| 布局 | 4-cell 平分 + 上下堆叠 | 单行 inline + 横滚兜底 |
-| Label | 大写粗体喧宾夺主 | 同行小灰字，权重低 |
-| 数值截断 | `$3...` `$48...` | 完整显示，必要时滚动 |
-| Funding 高亮 | 红底色块孤立 | 仅数值染色，融入整体 |
-| Info 按钮 | 带边框 + "Info" 文字 | 圆形 ghost icon-only |
-| 整体背景 | `bg-muted/20` 灰底 | 透明，只留底部分隔线 |
-| 视觉权重 | 抢戏 | 辅助 |
+Sheet 组件本身在 `TradeOrder.tsx` 里（包含 `EventInfoContent`），但触发器要放到 `MobileTradingLayout.tsx` 的 Tab 行——这意味着：
+
+**两个选项**：
+- **A**：把整个 Sheet（含 SheetTrigger）下沉到 `MobileTradingLayout.tsx`，让所有用 layout 的页面都能用（更通用，但 layout 需要知道 selectedEvent—它本来就有）
+- **B**：在 `MobileTradingLayout` 里只暴露一个回调 `onInfoClick`，由页面注册回调；layout 渲染按钮，页面控制 Sheet 开关状态
+
+**推荐 A**：因为 `MobileTradingLayout` 已经持有 `selectedEvent`，直接渲染 `EventInfoContent` 最干净，TradeOrder.tsx 那边可以彻底移除 Sheet 逻辑。其他用 layout 的页面（如 TradingCharts）也能复用这个 Info 入口，一致性更好。
 
 ## 具体改动
 
-**改动文件**：`src/pages/TradeOrder.tsx`
+### 1. `src/components/MobileTradingLayout.tsx`
+- Tab 行右侧：在 `MobileRiskIndicator` 左侧加一个 `Sheet` + `SheetTrigger`（圆形 Info 按钮）
+- Sheet 内容：渲染 `EventInfoContent` with `selectedEvent`
+- 顺序：`[Info Sheet 按钮] [MM 盒子]`
 
-1. **删除 `StatCell` 内联组件**（23-61 行附近），不再需要
-2. **重写 Market Stats Strip**（107-136 行附近）：
+### 2. `src/pages/TradeOrder.tsx`
+- 删除当前 Stats 行里的 `Sheet / SheetTrigger / SheetContent / EventInfoContent` 相关代码（约 102-138 行）
+- 删除未用到的 imports：`Info`、`Sheet*`、`EventInfoContent`
+- Stats 行简化为：3 个字段 inline + `gap-4` + `text-[12px]`，全宽 div，无右侧按钮
 
-```tsx
-<div className="px-3 py-2 border-b border-border/30">
-  <div className="flex items-center gap-2">
-    <div className="flex-1 flex items-center gap-3 text-[11px] overflow-x-auto scrollbar-hide whitespace-nowrap">
-      <span className="text-muted-foreground">
-        Vol <span className="font-mono font-medium text-foreground ml-0.5">{vol}</span>
-      </span>
-      <span className="text-muted-foreground">
-        OI <span className="font-mono font-medium text-foreground ml-0.5">$480K</span>
-      </span>
-      <span className="text-muted-foreground">
-        Funding <span className="font-mono font-medium text-trading-red ml-0.5">-0.01%</span>
-        <span className="text-muted-foreground/50 mx-1">/</span>
-        <span className="font-mono font-medium text-foreground">28m</span>
-      </span>
-    </div>
-    <SheetTrigger asChild>
-      <button
-        aria-label="Event info"
-        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-      >
-        <Info className="w-3.5 h-3.5" />
-      </button>
-    </SheetTrigger>
-  </div>
-</div>
+### 3. 视觉示意
+
 ```
-
-3. **图标换成 `Info`**（来自 lucide-react），比 `ExternalLink` 更语义匹配（不是跳外链，是查看信息）
+┌──────────────────────────────────────────────────┐
+│ Charts  Trade                       ⓘ   MM 0.08% │ ← Tab 行
+├──────────────────────────────────────────────────┤
+│ Vol $3.45M    OI $480K    Funding -0.01% / 28m   │ ← Stats 行（无截断）
+├──────────────────────────────────────────────────┤
+│  [   Buy 0.2500   ]  [   Sell 0.7500   ]         │ ← TradeForm
+│  ...                                             │
+```
 
 ## 不改动
 - TradeForm Buy/Sell 按钮
 - OrderBook
-- Event Info Sheet 内容
+- `EventInfoContent` 组件本身
 - 桌面端布局
+- MobileRiskIndicator 内部样式
 
 ## 一句话总结
-**回归"低调辅助信息行"本质**：单行 inline + label/value 同行配色分层 + Funding 只染色不加底 + Info 改圆形 icon-only + 横滚兜底防截断 = 不抢戏、不截断、有秩序。
+**把 Info 按钮上提到 MM 旁边**，Stats 行减负为 3 个字段全宽展示，彻底解决截断；语义上 Info + MM 同属"市场状态辅助区"，下面 Stats 是"实时数据区"，层次更清晰。
 
