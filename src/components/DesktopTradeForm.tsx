@@ -248,16 +248,16 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
           {user ? (
             <>
               <button
-                onClick={() => handlePreview("buy")}
+                onClick={() => { setSide("buy"); handlePreview("buy"); }}
                 className="w-full py-2.5 rounded-lg font-semibold text-sm bg-trading-green text-trading-green-foreground transition-all duration-200 hover:opacity-90"
               >
-                Buy Long
+                Buy Long · {longPrice.toFixed(4)}
               </button>
               <button
-                onClick={() => handlePreview("sell")}
+                onClick={() => { setSide("sell"); handlePreview("sell"); }}
                 className="w-full py-2.5 rounded-lg font-semibold text-sm bg-trading-red text-foreground transition-all duration-200 hover:opacity-90"
               >
-                Sell Short
+                Sell Short · {shortPrice.toFixed(4)}
               </button>
             </>
           ) : (
