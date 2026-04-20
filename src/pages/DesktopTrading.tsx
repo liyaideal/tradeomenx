@@ -529,7 +529,7 @@ export default function DesktopTrading() {
         optionId: selectedOptionData.id, // Direct reference for realtime price lookup
         side: side as "buy" | "sell",
         orderType: orderType as "Market" | "Limit",
-        price: parseFloat(selectedOptionData.price) || 0,
+        price: sidePrice || 0,
         amount: parseFloat(amount) || 0,
         quantity: parseInt(orderCalculations.quantity) || 0,
         leverage: leverage,
