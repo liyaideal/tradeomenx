@@ -158,13 +158,13 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
       />
 
       {/* Charts/Trade Tabs with MM Indicator */}
-      <div className="flex items-center justify-between px-4 border-b border-border/30">
+      <div className="flex items-center justify-between px-4 py-1.5 border-b border-border/30">
         <div className="flex">
           {(["Charts", "Trade"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabChange(tab)}
-              className={`py-2 mr-6 text-sm font-medium transition-all ${
+              className={`py-1.5 mr-6 text-sm font-medium transition-all ${
                 activeTab === tab
                   ? "text-trading-purple border-b-2 border-trading-purple"
                   : "text-muted-foreground"
