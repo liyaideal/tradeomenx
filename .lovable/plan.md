@@ -1,40 +1,25 @@
 
+用户反馈：DesktopOrderBook 顶部的 Buy/Sell 切换 tab 多了一行很奇怪，希望去掉手动切换，改成跟随右侧交易面板的 side 联动。
 
-# Long/Short 双价 TradeForm 改造（Desktop + Mobile）
+## 方案
 
-## 改动范围
-同时修改移动端和桌面端的交易面板，只改 TradeForm 区域。
+让 DesktopOrderBook 的 `bookSide` 由父组件 `DesktopTrading` 的 `side` state 驱动，移除 OrderBook 内部的 tab UI。
 
-## 文件清单
-1. `src/components/TradeForm.tsx` — 移动端交易面板
-2. `src/components/DesktopTradeForm.tsx` — 桌面端交易面板
+## 改动清单
 
-## 具体改动
+### 1. `src/components/DesktopOrderBook.tsx`
+- 移除内部 `bookSide` useState 和顶部 Buy/Sell 切换 tab UI
+- 改为通过 props 接收 `side: "buy" | "sell"`，直接用它来决定 `transformPrice` 和 asks/bids 互换逻辑
+- 保留所有价格转换逻辑（Sell 时 price → 1 - price，asks/bids 对调）
 
-### 1. Buy/Sell 切换按钮下方新增双价提示
-在现有的 buy/sell 切换按钮下方增加一行小字：
-```
-Buy at 0.62  ·  Sell at 0.38
-```
-- 当前选中的 side 高亮显示，对侧灰色
-- 让用户在切换前就能看到两边价格差异
-
-### 2. Price 输入框动态填价
-- Buy 选中时，price 输入框自动填入 longPrice
-- Sell 选中时，price 输入框自动填入 shortPrice (1 - longPrice)
-- 保留用户手动修改的能力
-
-### 3. 计算逻辑更新
-- `potentialWin` 公式根据 side 使用对应价格：
-  - Buy: `(1 - longPrice) * qty`
-  - Sell: `(1 - shortPrice) * qty` (即 `longPrice * qty`)
-- `liqPrice` 公式 sell 方向取反
-
-### 4. 教育提示（可选）
-side 切换区域旁边加一个 `Info` 图标，hover 显示：
-> Long 和 Short 价格不再相等。Short = 1 − Long。
+### 2. `src/pages/DesktopTrading.tsx`
+- 把现有的 `side` state 作为 prop 传给 `<DesktopOrderBook side={side} />`
+- 用户在右侧交易面板切 Buy/Sell tab 时，左侧 OrderBook 自动跟着切换视角
 
 ## 不改动
-- OrderPreview.tsx — 已有 Side 字段，足够表达
-- 任何其他页面或卡片
+- 移动端（OrderBook.tsx 本来就没加 tab）
+- 价格转换逻辑本身
+- TradeForm / 其他面板
 
+## 效果
+用户切 Buy → 看到 long 价格深度；切 Sell → 看到 short 价格深度（asks/bids 对调 + 价格 1−p）。无额外 UI，零学习成本。
