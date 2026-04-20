@@ -382,32 +382,42 @@ export default function DesktopTrading() {
     return { change, percentage, isPositive };
   }, [selectedOptionData.price]);
 
+  // Long/Short asymmetric pricing: shortPrice = 1 - longPrice
+  const longPrice = useMemo(() => parseFloat(selectedOptionData.price) || 0, [selectedOptionData.price]);
+  const shortPrice = useMemo(() => +(1 - longPrice).toFixed(4), [longPrice]);
+  const sidePrice = side === "buy" ? longPrice : shortPrice;
+
   // Calculate order values based on amount and leverage
   const orderCalculations = useMemo(() => {
     const amountValue = parseFloat(amount) || 0;
-    const price = parseFloat(selectedOptionData.price);
-    
+    const price = sidePrice;
+
     // Notional value = amount * leverage
     const notionalValue = amountValue * leverage;
-    
+
     // Margin required = notional value / leverage = amount (same as input)
     const marginRequired = amountValue;
-    
+
     // Estimated fee = notional value * fee rate
     const estimatedFee = notionalValue * feeRate;
-    
+
     // Total = margin required + fee
     const total = marginRequired + estimatedFee;
-    
+
     // Quantity = notional value / price
     const quantity = price > 0 ? notionalValue / price : 0;
-    
-    // Potential win = (1 - price) * quantity (if price goes to 1)
+
+    // Potential win = (1 - price) * quantity (if outcome resolves in user's favor)
     const potentialWin = (1 - price) * quantity;
-    
-    // Estimated liquidation price
-    const liqPrice = price > 0 ? (price * (1 - 1 / leverage * 0.9)).toFixed(4) : "0.0000";
-    
+
+    // Estimated liquidation price - sell side moves opposite direction
+    const liqPrice = price > 0
+      ? (side === "buy"
+          ? price * (1 - 1 / leverage * 0.9)
+          : price * (1 + 1 / leverage * 0.9)
+        ).toFixed(4)
+      : "0.0000";
+
     return {
       notionalValue: notionalValue.toFixed(2),
       marginRequired: marginRequired.toFixed(2),
@@ -417,10 +427,10 @@ export default function DesktopTrading() {
       potentialWin: potentialWin.toFixed(0),
       liqPrice,
     };
-  }, [amount, leverage, selectedOptionData.price]);
+  }, [amount, leverage, sidePrice, side]);
 
   // TP/SL calculations
-  const currentPrice = parseFloat(selectedOptionData.price);
+  const currentPrice = sidePrice;
 
   const tpslCalculations = useMemo(() => {
     const tpPct = parseFloat(tpValue) || 0;
