@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
-import { Info, ChevronDown, Gift } from "lucide-react";
-import { EventInfoContent } from "@/components/EventInfoContent";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ChevronDown, Gift } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
 import { OrderCard } from "@/components/OrderCard";
@@ -105,40 +103,20 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
       <div className="flex w-full">
         {/* Left: Trade Form + Price Info */}
         <div className="flex-1 min-w-0 border-r border-border/30">
-          {/* Market Stats Strip — inline label/value, low-key */}
+          {/* Market Stats Strip — inline label/value, full-width (Info moved to MM row) */}
           <div className="px-3 py-2 border-b border-border/30">
-            <div className="flex items-center gap-2">
-              <div className="flex-1 flex items-center gap-3 text-[11px] overflow-x-auto scrollbar-hide whitespace-nowrap">
-                <span className="text-muted-foreground">
-                  Vol <span className="font-mono font-medium text-foreground ml-0.5">{selectedEvent?.volume || "—"}</span>
-                </span>
-                <span className="text-muted-foreground">
-                  OI <span className="font-mono font-medium text-foreground ml-0.5">$480K</span>
-                </span>
-                <span className="text-muted-foreground">
-                  Funding <span className="font-mono font-medium text-trading-red ml-0.5">-0.01%</span>
-                  <span className="text-muted-foreground/40 mx-1">/</span>
-                  <span className="font-mono font-medium text-foreground">28m</span>
-                </span>
-              </div>
-              <Sheet>
-                <SheetTrigger asChild>
-                  <button
-                    aria-label="Event info"
-                    className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-2xl">
-                  <SheetHeader className="sr-only">
-                    <SheetTitle>Event Info</SheetTitle>
-                  </SheetHeader>
-                  <div className="px-1 pb-4">
-                    <EventInfoContent event={selectedEvent!} />
-                  </div>
-                </SheetContent>
-              </Sheet>
+            <div className="flex items-center gap-4 text-[12px] whitespace-nowrap">
+              <span className="text-muted-foreground">
+                Vol <span className="font-mono font-medium text-foreground ml-0.5">{selectedEvent?.volume || "—"}</span>
+              </span>
+              <span className="text-muted-foreground">
+                OI <span className="font-mono font-medium text-foreground ml-0.5">$480K</span>
+              </span>
+              <span className="text-muted-foreground">
+                Funding <span className="font-mono font-medium text-trading-red ml-0.5">-0.01%</span>
+                <span className="text-muted-foreground/40 mx-1">/</span>
+                <span className="font-mono font-medium text-foreground">28m</span>
+              </span>
             </div>
           </div>
 

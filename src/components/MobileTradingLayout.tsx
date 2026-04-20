@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, useNavigationType, useLocation } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Info } from "lucide-react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
+import { EventInfoContent } from "@/components/EventInfoContent";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -175,8 +177,28 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
           ))}
         </div>
         
-        {/* MM Indicator - only show for logged in users */}
-        {user && <MobileRiskIndicator />}
+        {/* Right cluster: Info + MM Indicator */}
+        <div className="flex items-center gap-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                aria-label="Event info"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-2xl">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Event Info</SheetTitle>
+              </SheetHeader>
+              <div className="px-1 pb-4">
+                <EventInfoContent event={selectedEvent} />
+              </div>
+            </SheetContent>
+          </Sheet>
+          {user && <MobileRiskIndicator />}
+        </div>
       </div>
 
       {/* Render children with context */}
