@@ -2,97 +2,76 @@
 
 ## 看图诊断
 
-截图里两个问题非常明确：
+截图清楚显示：
+- **Info 模块**：明显比 MM **更宽**（"Info" 4 字母 + 图标，撑得宽）
+- **Info 模块**：明显比 MM **更高**（视觉上）
+- **MM 模块**：紧凑（"MM" 2 字母 + `0.08%` 数值）
 
-### 问题 1：Funding 文字溢出到右侧 OrderBook 区
-图里 `Funding -0.01% / 28m` 的 `28m` 直接压在了右边 OrderBook 的 `Price` 列上面。
+强迫症痛点合理。根因：两个按钮虽然用了同一套 class，但**内容长度不同导致宽度不同**，且 Info 没有第二行数值，**两行高度也对不齐**。
 
-**根因**：当前 Stats 行 (`<div className="px-3 py-2 border-b">`) 在**左面板的 div 里**，但用了 `whitespace-nowrap`，当 4 个字段（Vol / OI / Funding / 28m）总宽度超过左面板宽度（屏宽 - 120px OrderBook = ~270px）时，文字会突破左面板边界（因为 `flex-1 min-w-0` 没生效或 overflow 没截住），视觉上"漂"到右栏 OrderBook 上方。
+## 设计方案：尺寸 1:1 完全对齐
 
-**实际原因更可能是**：左面板是 `flex-1 min-w-0`，但 Stats 行内部的 `gap-4 + text-[12px] + whitespace-nowrap` 内容超出后没有 `overflow-hidden`，导致内容溢出但容器没裁剪。
+让 Info 按钮和 MM 按钮**视觉重量完全一致**——同宽、同高、同结构。
 
-**修法**：
-- Stats 行容器加 `overflow-hidden`，硬截
-- 字号从 `text-[12px]` 降回 `text-[11px]`
-- gap 从 `gap-4` 降到 `gap-3`
-- Funding 和 28m 之间的 `/` 用更紧凑的写法（`gap-0.5` 而不是 `mx-1`）
-- 实在不行加 `overflow-x-auto scrollbar-hide` 兜底（之前删掉了，现在加回来）
+### 核心策略：Info 也用"上 label + 下值"两行结构
 
-### 问题 2：Info 图标 vs MM 模块风格不统一
+模仿 MM 的 `MM` / `0.08%` 结构，给 Info 也填两行：
+- 上：`Info`（label，灰）
+- 下：`View`（小动作词，主色弱化）—— 或者直接放图标当"值"
 
-当前：
-- Info：`w-7 h-7 rounded-full` 圆形 ghost，**透明背景，只有图标**
-- MM：圆角矩形带背景色块（`bg-muted/50`），里面 `MM` label + `0.08%` 数值
+但更好的做法：**两个按钮都改成单行 icon + 文字的紧凑徽章**，统一为同一种结构。
 
-视觉上一个像"裸图标"，一个像"数据徽章"，并排放在一起确实别扭。
+### 推荐方案：固定宽高 + 统一两行结构
 
-**修法**：把 Info 也做成和 MM 同款的"徽章式"按钮：
-- 容器：`rounded-md bg-muted/50 px-2.5 py-1` 同 MM 模块
-- 内容：`Info` 图标 (`w-3 h-3`) + `Info` 文字（`text-[10px] uppercase tracking-wider text-muted-foreground` 同 MM 的 `MM` label 风格）
-- 不需要数值，因为 Info 本身就是入口
-- hover 态：`hover:bg-muted` 加深
-
-这样两个模块视觉重量对齐，并排成一组"市场状态徽章"。
-
-## 设计方案
-
-### Tab 行右侧（MobileTradingLayout.tsx）
-
-调整前后对比：
 ```
-Before:    [ ⓘ ]   ┌MM     ┐
-                   │0.08%  │
-                   └───────┘
-
-After:     ┌──────┐ ┌MM     ┐
-           │ⓘ Info│ │0.08%  │
-           └──────┘ └───────┘
+┌─────────┐  ┌─────────┐
+│  Info   │  │   MM    │
+│   ⓘ     │  │ 0.08%   │
+└─────────┘  └─────────┘
+   w-14         w-14
+   h-10         h-10
 ```
 
-Info 按钮新样式：
+具体改法：
+1. **两个按钮都强制 `w-14 h-10`**（固定宽高，约 56×40px）
+2. **Info 按钮**：上行 `Info` 文字（`text-[10px]`），下行 `Info` 图标（`w-3.5 h-3.5`）—— 当前已是这个结构，只是没固定尺寸
+3. **MM 按钮**：上行 `MM` 文字（`text-[10px]`），下行 `0.08%` 数值（`text-xs font-mono`）—— 当前结构
+4. 两者都用 `flex flex-col items-center justify-center`，确保内容居中
+
+### 具体改动
+
+**文件 1：`src/components/MobileTradingLayout.tsx`** —— Info 按钮加固定宽高
 ```tsx
-<button className="flex items-center gap-1 rounded-md bg-muted/50 hover:bg-muted px-2.5 py-1 transition-colors">
-  <Info className="w-3 h-3 text-muted-foreground" />
-  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Info</span>
+<button className="flex flex-col items-center justify-center w-14 h-10 rounded-lg bg-muted/50 border border-border/30 hover:bg-muted transition-colors">
+  <span className="text-[10px] text-muted-foreground leading-none mb-0.5">Info</span>
+  <Info className="w-3.5 h-3.5 text-muted-foreground" />
 </button>
 ```
 
-- 高度和 MM 模块一致（`py-1` + 内容高度）
-- 圆角 `rounded-md` 一致
-- 背景 `bg-muted/50` 一致
-- label 字号/字重/颜色一致（参考 `MobileRiskIndicator` 里的 `MM` label）
-
-需要先读一下 `MobileRiskIndicator` 确认它的真实 class，然后照抄风格。
-
-### Stats 行（TradeOrder.tsx）防溢出
-
+**文件 2：`src/components/MobileRiskIndicator.tsx`** —— MM 按钮加同款固定宽高
 ```tsx
-<div className="px-3 py-2 border-b border-border/30 overflow-hidden">
-  <div className="flex items-center gap-3 text-[11px] whitespace-nowrap overflow-x-auto scrollbar-hide">
-    <span>Vol <span className="font-mono ml-0.5">$3.45M</span></span>
-    <span>OI <span className="font-mono ml-0.5">$480K</span></span>
-    <span>
-      Funding <span className="font-mono text-trading-red ml-0.5">-0.01%</span>
-      <span className="opacity-40 mx-0.5">/</span>
-      <span className="font-mono">28m</span>
-    </span>
-  </div>
-</div>
+<button className="flex flex-col items-center justify-center w-14 h-10 rounded-lg bg-muted/50 border border-border/30 hover:bg-muted transition-colors">
+  <span className="text-[10px] text-muted-foreground leading-none mb-0.5">MM</span>
+  <span className={`text-xs font-mono font-medium leading-none ${getRiskColor(riskMetrics.riskLevel)}`}>
+    {mmRatio.toFixed(2)}%
+  </span>
+</button>
 ```
 
-关键：**外层 `overflow-hidden`** + 内层 `overflow-x-auto scrollbar-hide` 双保险，绝不可能再溢出到 OrderBook。字号回退 `text-[11px]`、gap 回退 `gap-3`、`/` 间距压缩到 `mx-0.5`。
-
-## 改动文件
-1. `src/components/MobileTradingLayout.tsx` —— Info 按钮改成徽章式（参考 MM 模块样式）
-2. `src/pages/TradeOrder.tsx` —— Stats 行加 `overflow-hidden` + 收紧间距防溢出
+关键点：
+- `w-14`（56px）足够装 `0.08%` 5 个 mono 字符
+- `h-10`（40px）容纳两行
+- `leading-none + mb-0.5` 确保两行垂直紧凑且居中
+- 图标 `w-3.5 h-3.5` 视觉重量约等于 `0.08%` 文字高度
+- 两个按钮 className **完全一致**（除了内容）
 
 ## 不改动
+- Stats 行（Vol / OI / Funding）
+- Sheet 内容
 - TradeForm
 - OrderBook
-- EventInfoContent / Sheet 内容
-- MobileRiskIndicator 本身
 - 桌面端
 
 ## 一句话总结
-**Stats 行加 `overflow-hidden` + 收紧间距彻底堵住溢出**，**Info 按钮升级成和 MM 一样的徽章式（带背景色块 + 小写 label）**，两个模块并排终于风格统一。
+**两个按钮强制 `w-14 h-10` 固定宽高 + 完全一致的两行结构（上 label 下值）**，强迫症治愈。
 
