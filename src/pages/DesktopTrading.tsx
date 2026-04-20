@@ -1313,24 +1313,45 @@ export default function DesktopTrading() {
             </div>
 
             <div className="px-4 py-3 space-y-3">
-            {/* Buy/Sell Toggle */}
-            <div className="flex bg-muted rounded-lg p-0.5">
-              <button
-                onClick={() => setSide("buy")}
-                className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
-                  side === "buy" ? "bg-trading-green text-trading-green-foreground" : "text-muted-foreground"
-                }`}
-              >
-                Buy | Long
-              </button>
-              <button
-                onClick={() => setSide("sell")}
-                className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
-                  side === "sell" ? "bg-trading-red text-foreground" : "text-muted-foreground"
-                }`}
-              >
-                Sell | Short
-              </button>
+            {/* Buy/Sell Toggle with embedded Long/Short prices */}
+            <div className="space-y-1">
+              <div className="flex bg-muted rounded-lg p-0.5">
+                <button
+                  onClick={() => setSide("buy")}
+                  className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
+                    side === "buy" ? "bg-trading-green text-trading-green-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="text-xs font-semibold leading-tight">Buy | Long</span>
+                  <span className={`text-[11px] font-mono leading-tight ${side === "buy" ? "opacity-90" : "opacity-70"}`}>
+                    {longPrice.toFixed(4)}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setSide("sell")}
+                  className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
+                    side === "sell" ? "bg-trading-red text-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="text-xs font-semibold leading-tight">Sell | Short</span>
+                  <span className={`text-[11px] font-mono leading-tight ${side === "sell" ? "opacity-90" : "opacity-70"}`}>
+                    {shortPrice.toFixed(4)}
+                  </span>
+                </button>
+              </div>
+              <div className="flex items-center justify-end">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                      <Info className="w-3 h-3" />
+                      <span>Why two prices?</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="max-w-[240px] text-xs">
+                    Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
 
             {/* Margin Mode */}
