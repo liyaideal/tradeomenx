@@ -1,33 +1,55 @@
 
 
 ## 问题
-移动端 `/trade` 和 `/trade/order` 的 MM 指示器盒子（带 border 的小框）与下方 Charts/Trade tab 行的 `border-b` 分隔线在垂直方向上发生视觉重叠：MM 盒子高度比 tab 文字高，导致盒子底部 border 压在那条 1px 分隔线上，看起来"贴边/挤线"。
+桌面端 `/trade/order` 左面板（TradeForm）的 Buy/Sell 按钮因加了双价从 1 行变 2 行，整体变高，但右面板 OrderBook 高度没变，导致左侧延伸到 OrderBook 底部下方，视觉上左右不齐、底部留白不对称。
 
-## 根因
-在 `MobileTradingLayout.tsx` 里：
-- 容器：`flex items-center justify-between px-4 border-b border-border/30`
-- 左边 tab 按钮 `py-2`（高度小）
-- 右边 `<MobileRiskIndicator />` 是个 `px-2 py-1 rounded-lg bg-muted/50 border border-border/30` 的盒子（高度大）
+## 思考几个方案
 
-两者底边对齐到容器底，而容器底就是那条 `border-b`，所以盒子边框正好压在分隔线上。
+**A. 让 OrderBook 跟着拉长** - 增加显示档位（比如从 10 档变 12 档）
+- 优点：自然填满、内容也更丰富
+- 缺点：依赖具体档位数据，且 OrderBook 高度本身和 TradeForm 不是 1:1 同步关系，容易再次失衡
 
-## 优化方案（最小改动，不动 MM 内部样式）
+**B. 让 OrderBook 撑满父容器** - 用 flex / h-full 让它自动拉伸到和左面板一样高，多出来的空间留给中间档位价格区或底部 Depth 选择器
+- 优点：彻底解耦，以后左面板再变化也不会再失衡
+- 缺点：需要 OrderBook 内部有可伸缩区域（中间 spread 区或档位列表用 flex-1）
 
-**改动文件**：`src/components/MobileTradingLayout.tsx`
+**C. 压缩 Buy/Sell 按钮高度** - 让双价更紧凑（比如价格用更小字号、和 Buy/Sell 文字同行而不是另起一行）
+- 优点：根治高度增量
+- 缺点：双价可读性下降，违背最初"价格要醒目"的目标
 
-**核心思路**：让 MM 盒子在垂直方向"浮"在 tab 行内，与底部分隔线之间留出呼吸空间。
+**D. 接受不齐，仅在底部加视觉补偿** - 比如 OrderBook 底部加一个 "Recent Trades" mini 区或拉长 Depth 选择器区
+- 优点：不动结构
+- 缺点：治标不治本
 
-具体两步：
-1. 容器改为 `py-1.5`（给上下留出 6px 空间），保持 `border-b border-border/30`
-2. 左边 tab 按钮的 `py-2` 改成 `py-1.5`，保持 tab 下划线（`border-b-2 border-trading-purple`）紧贴容器底边的视觉效果 —— 即把 active tab 的下划线"接"到容器的 border-b 上，这是导航栏标准做法
+## 推荐方案：B（OrderBook 撑满父容器）
 
-这样：
-- MM 盒子上下各有 6px 间距，不再贴线
-- Tab 的紫色下划线仍然位于容器底部（视觉上压住灰色 border-b，符合"当前 tab 选中"的标准导航语义）
-- 整体 tab 行会增加约 4px 高度，可接受
+理由：
+- 最干净的工程方案，"左右等高"应该由布局约束保证，而不是靠手动调档位数
+- OrderBook 本身就有天然的可伸缩区（买卖盘档位列表），多出的空间正好用来多显示几档，信息密度更高
+- 以后 TradeForm 再增减元素（如 TP/SL 展开），右侧自动跟随，不需要再调
+
+## 具体改动
+
+**改动文件**：`src/pages/DesktopTrading.tsx` + `src/components/DesktopOrderBook.tsx`
+
+1. **DesktopTrading.tsx 左右容器**
+   - 确认左右两栏的父容器是 `flex` 且 `items-stretch`（默认就是 stretch，确认即可）
+   - 给右侧 OrderBook 容器加 `h-full flex flex-col`，让它填满父容器高度
+
+2. **DesktopOrderBook.tsx 内部布局**
+   - 根容器：`flex flex-col h-full`
+   - 顶部 header（Price / Amount 标题行）：固定高度
+   - 卖单区（Asks）：`flex-1 overflow-hidden`，按可用高度自适应渲染档位数
+   - 中间 spread / mark price 行：固定高度
+   - 买单区（Bids）：`flex-1 overflow-hidden`，同上
+   - 底部 Depth 选择器：固定高度
+   - 档位渲染：根据容器高度动态计算显示数量（或者简单粗暴 `overflow-y-hidden` 让多余档位自然被裁掉，因为档位本来就是分级深度，下面的不那么重要）
 
 ## 不改动
-- `MobileRiskIndicator.tsx` 内部样式（盒子本身设计没问题）
-- Tab 文案、active 颜色、紫色下划线
-- 桌面端布局
+- 左面板 TradeForm（Buy/Sell 按钮的双价设计保留）
+- OrderBook 数据源、档位生成逻辑
+- 移动端布局（移动端是上下排列，不存在等高问题）
+
+## 一句话总结
+**把 OrderBook 改成 `h-full + flex-col`，让 Asks/Bids 区域用 `flex-1` 自动撑满**，左右两栏永远等高，多出来的空间正好多显示几档买卖盘。
 
