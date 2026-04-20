@@ -382,32 +382,42 @@ export default function DesktopTrading() {
     return { change, percentage, isPositive };
   }, [selectedOptionData.price]);
 
+  // Long/Short asymmetric pricing: shortPrice = 1 - longPrice
+  const longPrice = useMemo(() => parseFloat(selectedOptionData.price) || 0, [selectedOptionData.price]);
+  const shortPrice = useMemo(() => +(1 - longPrice).toFixed(4), [longPrice]);
+  const sidePrice = side === "buy" ? longPrice : shortPrice;
+
   // Calculate order values based on amount and leverage
   const orderCalculations = useMemo(() => {
     const amountValue = parseFloat(amount) || 0;
-    const price = parseFloat(selectedOptionData.price);
-    
+    const price = sidePrice;
+
     // Notional value = amount * leverage
     const notionalValue = amountValue * leverage;
-    
+
     // Margin required = notional value / leverage = amount (same as input)
     const marginRequired = amountValue;
-    
+
     // Estimated fee = notional value * fee rate
     const estimatedFee = notionalValue * feeRate;
-    
+
     // Total = margin required + fee
     const total = marginRequired + estimatedFee;
-    
+
     // Quantity = notional value / price
     const quantity = price > 0 ? notionalValue / price : 0;
-    
-    // Potential win = (1 - price) * quantity (if price goes to 1)
+
+    // Potential win = (1 - price) * quantity (if outcome resolves in user's favor)
     const potentialWin = (1 - price) * quantity;
-    
-    // Estimated liquidation price
-    const liqPrice = price > 0 ? (price * (1 - 1 / leverage * 0.9)).toFixed(4) : "0.0000";
-    
+
+    // Estimated liquidation price - sell side moves opposite direction
+    const liqPrice = price > 0
+      ? (side === "buy"
+          ? price * (1 - 1 / leverage * 0.9)
+          : price * (1 + 1 / leverage * 0.9)
+        ).toFixed(4)
+      : "0.0000";
+
     return {
       notionalValue: notionalValue.toFixed(2),
       marginRequired: marginRequired.toFixed(2),
@@ -417,10 +427,10 @@ export default function DesktopTrading() {
       potentialWin: potentialWin.toFixed(0),
       liqPrice,
     };
-  }, [amount, leverage, selectedOptionData.price]);
+  }, [amount, leverage, sidePrice, side]);
 
   // TP/SL calculations
-  const currentPrice = parseFloat(selectedOptionData.price);
+  const currentPrice = sidePrice;
 
   const tpslCalculations = useMemo(() => {
     const tpPct = parseFloat(tpValue) || 0;
@@ -471,14 +481,14 @@ export default function DesktopTrading() {
     { label: "Side", value: side === "buy" ? "Buy | Long" : "Sell | Short", highlight: side === "buy" ? "green" : "red" as const },
     { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
-    { label: "Order Price", value: `${selectedOptionData.price} USDC` },
+    { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
     { label: "Order Cost", value: `${amount} USDC` },
     { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: `${leverage}X` },
     { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, side, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations]);
+  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations]);
 
   const handlePreview = () => {
     // Check if user is logged in first
@@ -519,7 +529,7 @@ export default function DesktopTrading() {
         optionId: selectedOptionData.id, // Direct reference for realtime price lookup
         side: side as "buy" | "sell",
         orderType: orderType as "Market" | "Limit",
-        price: parseFloat(selectedOptionData.price) || 0,
+        price: sidePrice || 0,
         amount: parseFloat(amount) || 0,
         quantity: parseInt(orderCalculations.quantity) || 0,
         leverage: leverage,
@@ -1303,24 +1313,45 @@ export default function DesktopTrading() {
             </div>
 
             <div className="px-4 py-3 space-y-3">
-            {/* Buy/Sell Toggle */}
-            <div className="flex bg-muted rounded-lg p-0.5">
-              <button
-                onClick={() => setSide("buy")}
-                className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
-                  side === "buy" ? "bg-trading-green text-trading-green-foreground" : "text-muted-foreground"
-                }`}
-              >
-                Buy | Long
-              </button>
-              <button
-                onClick={() => setSide("sell")}
-                className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all duration-200 ${
-                  side === "sell" ? "bg-trading-red text-foreground" : "text-muted-foreground"
-                }`}
-              >
-                Sell | Short
-              </button>
+            {/* Buy/Sell Toggle with embedded Long/Short prices */}
+            <div className="space-y-1">
+              <div className="flex bg-muted rounded-lg p-0.5">
+                <button
+                  onClick={() => setSide("buy")}
+                  className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
+                    side === "buy" ? "bg-trading-green text-trading-green-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="text-xs font-semibold leading-tight">Buy | Long</span>
+                  <span className={`text-[11px] font-mono leading-tight ${side === "buy" ? "opacity-90" : "opacity-70"}`}>
+                    {longPrice.toFixed(4)}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setSide("sell")}
+                  className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
+                    side === "sell" ? "bg-trading-red text-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="text-xs font-semibold leading-tight">Sell | Short</span>
+                  <span className={`text-[11px] font-mono leading-tight ${side === "sell" ? "opacity-90" : "opacity-70"}`}>
+                    {shortPrice.toFixed(4)}
+                  </span>
+                </button>
+              </div>
+              <div className="flex items-center justify-end">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                      <Info className="w-3 h-3" />
+                      <span>Why two prices?</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="max-w-[240px] text-xs">
+                    Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
 
             {/* Margin Mode */}

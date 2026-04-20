@@ -168,53 +168,51 @@ export const TradeForm = ({
 
   return (
     <div className="px-3 pb-2 space-y-2">
-      {/* Buy/Sell Toggle */}
-      <div className="flex bg-muted rounded-lg p-0.5">
-        <button
-          onClick={() => setSide("buy")}
-          className={`flex-1 py-1.5 rounded-md font-semibold text-xs transition-all duration-200 ${
-            side === "buy"
-              ? "bg-trading-green text-trading-green-foreground"
-              : "text-muted-foreground"
-          }`}
-        >
-          Buy
-        </button>
-        <button
-          onClick={() => setSide("sell")}
-          className={`flex-1 py-1.5 rounded-md font-semibold text-xs transition-all duration-200 ${
-            side === "sell"
-              ? "bg-trading-red text-foreground"
-              : "text-muted-foreground"
-          }`}
-        >
-          Sell
-        </button>
-      </div>
-
-      {/* Long/Short price hint */}
-      <div className="flex items-center justify-between text-[10px]">
-        <div className="flex items-center gap-2 font-mono">
-          <span className={side === "buy" ? "text-trading-green font-semibold" : "text-muted-foreground"}>
-            Buy at {longPrice.toFixed(4)}
-          </span>
-          <span className="text-muted-foreground/50">·</span>
-          <span className={side === "sell" ? "text-trading-red font-semibold" : "text-muted-foreground"}>
-            Sell at {shortPrice.toFixed(4)}
-          </span>
+      {/* Buy/Sell Toggle with embedded Long/Short prices */}
+      <div className="space-y-1">
+        <div className="flex bg-muted rounded-lg p-0.5">
+          <button
+            onClick={() => setSide("buy")}
+            className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
+              side === "buy"
+                ? "bg-trading-green text-trading-green-foreground"
+                : "text-muted-foreground"
+            }`}
+          >
+            <span className="text-xs font-semibold leading-tight">Buy</span>
+            <span className={`text-[11px] font-mono leading-tight ${side === "buy" ? "opacity-90" : "opacity-70"}`}>
+              {longPrice.toFixed(4)}
+            </span>
+          </button>
+          <button
+            onClick={() => setSide("sell")}
+            className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
+              side === "sell"
+                ? "bg-trading-red text-foreground"
+                : "text-muted-foreground"
+            }`}
+          >
+            <span className="text-xs font-semibold leading-tight">Sell</span>
+            <span className={`text-[11px] font-mono leading-tight ${side === "sell" ? "opacity-90" : "opacity-70"}`}>
+              {shortPrice.toFixed(4)}
+            </span>
+          </button>
         </div>
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
-                <Info className="w-3 h-3" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-[220px] text-xs">
-              Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-center justify-end">
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button" className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                  <Info className="w-3 h-3" />
+                  <span>Why two prices?</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-[220px] text-xs">
+                Buy and Sell prices are no longer equal. Sell price = 1 − Buy price, a risk-control adjustment for two-sided exposure.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       {/* Margin & Leverage */}
