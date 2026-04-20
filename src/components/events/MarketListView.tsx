@@ -152,9 +152,11 @@ const ChildRowContent = ({
       <span className="text-sm text-muted-foreground">● {child.optionLabel}</span>
     </td>
 
-    {/* Mark Price (replaces Category position) */}
-    <td className="w-[100px] text-right font-mono text-sm text-foreground">
-      ${child.markPrice.toFixed(2)}
+    {/* Buy / Sell prices (Sell = 1 - Buy) */}
+    <td className="w-[120px] text-right font-mono text-sm whitespace-nowrap">
+      <span className="text-trading-green">${child.markPrice.toFixed(2)}</span>
+      <span className="text-muted-foreground mx-1">/</span>
+      <span className="text-trading-red">${(1 - child.markPrice).toFixed(2)}</span>
     </td>
 
     {/* Change */}
