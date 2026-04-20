@@ -105,23 +105,29 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
       <div className="flex w-full">
         {/* Left: Trade Form + Price Info */}
         <div className="flex-1 min-w-0 border-r border-border/30">
-          {/* Market Stats Strip — 4 cells (label/value stack) + Info button */}
-          <div className="px-3 py-2 border-b border-border/30 bg-muted/20">
-            <div className="flex items-stretch gap-2">
-              <div className="flex-1 flex divide-x divide-border/40 min-w-0">
-                <StatCell label="Vol" value={selectedEvent?.volume || "—"} />
-                <StatCell label="OI" value="$480K" />
-                <StatCell label="Funding" value="-0.01%" tone="negative" highlight />
-                <StatCell label="Next" value="28m" />
+          {/* Market Stats Strip — inline label/value, low-key */}
+          <div className="px-3 py-2 border-b border-border/30">
+            <div className="flex items-center gap-2">
+              <div className="flex-1 flex items-center gap-3 text-[11px] overflow-x-auto scrollbar-hide whitespace-nowrap">
+                <span className="text-muted-foreground">
+                  Vol <span className="font-mono font-medium text-foreground ml-0.5">{selectedEvent?.volume || "—"}</span>
+                </span>
+                <span className="text-muted-foreground">
+                  OI <span className="font-mono font-medium text-foreground ml-0.5">$480K</span>
+                </span>
+                <span className="text-muted-foreground">
+                  Funding <span className="font-mono font-medium text-trading-red ml-0.5">-0.01%</span>
+                  <span className="text-muted-foreground/40 mx-1">/</span>
+                  <span className="font-mono font-medium text-foreground">28m</span>
+                </span>
               </div>
               <Sheet>
                 <SheetTrigger asChild>
                   <button
                     aria-label="Event info"
-                    className="flex-shrink-0 flex items-center gap-1 px-2.5 rounded-md bg-muted/60 hover:bg-muted text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors border border-border/30"
+                    className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
                   >
-                    <ExternalLink className="w-3 h-3" />
-                    Info
+                    <Info className="w-3.5 h-3.5" />
                   </button>
                 </SheetTrigger>
                 <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-2xl">
@@ -135,6 +141,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
               </Sheet>
             </div>
           </div>
+
 
           {/* Trade Form */}
           <TradeForm 
