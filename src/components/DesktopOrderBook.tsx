@@ -287,31 +287,7 @@ export const DesktopOrderBook = ({
 
       {activeTab === "orderbook" ? (
         <>
-          {/* Buy/Sell Side Toggle */}
-          <div className="px-3 pt-2">
-            <div className="flex bg-muted rounded-md p-0.5">
-              <button
-                onClick={() => setBookSide("buy")}
-                className={`flex-1 py-1 rounded text-xs font-medium transition-all ${
-                  bookSide === "buy"
-                    ? "bg-trading-green/20 text-trading-green"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Buy depth
-              </button>
-              <button
-                onClick={() => setBookSide("sell")}
-                className={`flex-1 py-1 rounded text-xs font-medium transition-all ${
-                  bookSide === "sell"
-                    ? "bg-trading-red/20 text-trading-red"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Sell depth
-              </button>
-            </div>
-          </div>
+          {/* Buy/Sell side is driven by parent trade form */}
 
           {/* View Toggle & Depth */}
           <div className="flex items-center justify-between px-3 py-2">
