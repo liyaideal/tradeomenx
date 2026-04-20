@@ -104,21 +104,27 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
       <div className="flex w-full">
         {/* Left: Trade Form + Price Info */}
         <div className="flex-1 min-w-0 border-r border-border/30">
-          {/* Price Header */}
-          <div className="px-3 py-2">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="text-[10px] text-muted-foreground">Price</div>
-                <div className="text-xl font-bold font-mono">{selectedOptionData.price}</div>
-                <div className="text-[10px] text-muted-foreground">
-                  Funding: -0.0001% / Next: in 28min
-                </div>
+          {/* Market Meta Bar — compact single-row info strip (price now lives in Buy/Sell buttons) */}
+          <div className="px-3 py-1.5 border-b border-border/30">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground min-w-0 overflow-hidden whitespace-nowrap">
+                {selectedEvent?.volume && (
+                  <>
+                    <span>Vol <span className="font-mono text-foreground/80">{selectedEvent.volume}</span></span>
+                    <span className="text-border">·</span>
+                  </>
+                )}
+                <span>OI <span className="font-mono text-foreground/80">$480K</span></span>
+                <span className="text-border">·</span>
+                <span>Funding <span className="font-mono text-trading-red">-0.01%</span></span>
+                <span className="text-border">·</span>
+                <span>Next <span className="font-mono text-foreground/80">28m</span></span>
               </div>
               <Sheet>
                 <SheetTrigger asChild>
-                  <button className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
                     <ExternalLink className="w-3 h-3" />
-                    Event Info
+                    Info
                   </button>
                 </SheetTrigger>
                 <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-2xl">
