@@ -1,36 +1,40 @@
 
 
-# 移除 Style A/C，仅保留 Style B
+# Long/Short 双价 TradeForm 改造（Desktop + Mobile）
 
-## 改动概要
+## 改动范围
+同时修改移动端和桌面端的交易面板，只改 TradeForm 区域。
 
-社区投票选择了 Style B，移除 A 和 C 卡片样式。视图切换简化为 List / Grid 两种模式（Grid 固定使用 Style B）。
+## 文件清单
+1. `src/components/TradeForm.tsx` — 移动端交易面板
+2. `src/components/DesktopTradeForm.tsx` — 桌面端交易面板
 
-## 文件改动
+## 具体改动
 
-### 1. `ViewToggle.tsx` — 简化 ViewMode
-- `ViewMode` 改为 `"list" | "grid"`
-- 移除 dropdown，改为简单的 List/Grid 两个按钮
+### 1. Buy/Sell 切换按钮下方新增双价提示
+在现有的 buy/sell 切换按钮下方增加一行小字：
+```
+Buy at 0.62  ·  Sell at 0.38
+```
+- 当前选中的 side 高亮显示，对侧灰色
+- 让用户在切换前就能看到两边价格差异
 
-### 2. `MarketGridView.tsx` — 只用 MarketCardB
-- 移除 MarketCardA 和 MarketCardC 的 import
-- 直接使用 `MarketCardB`，不再根据 viewMode 选择组件
+### 2. Price 输入框动态填价
+- Buy 选中时，price 输入框自动填入 longPrice
+- Sell 选中时，price 输入框自动填入 shortPrice (1 - longPrice)
+- 保留用户手动修改的能力
 
-### 3. `EventsPage.tsx`
-- `getStoredView`: 非 `"list"` 一律返回 `"grid"`
-- 移除 mobile 端的 A/B/C 切换按钮组，改为 List/Grid 切换（或直接固定 grid，因为移动端之前就是 grid）
-- `effectiveView` 简化：mobile 固定 `"grid"`，desktop 按 view state
-- 移除所有 `grid-a`/`grid-c` 引用
+### 3. 计算逻辑更新
+- `potentialWin` 公式根据 side 使用对应价格：
+  - Buy: `(1 - longPrice) * qty`
+  - Sell: `(1 - shortPrice) * qty` (即 `longPrice * qty`)
+- `liqPrice` 公式 sell 方向取反
 
-### 4. `FilterChips.tsx` — ViewMode 类型自动跟随
-
-### 5. `HotShelf.tsx` — ViewMode 类型自动跟随
-
-### 6. 删除文件
-- `src/components/events/MarketCardA.tsx`
-- `src/components/events/MarketCardC.tsx`
+### 4. 教育提示（可选）
+side 切换区域旁边加一个 `Info` 图标，hover 显示：
+> Long 和 Short 价格不再相等。Short = 1 − Long。
 
 ## 不改动
-- `MarketCardB.tsx` — 不动
-- `MarketListView.tsx` — 不动
+- OrderPreview.tsx — 已有 Side 字段，足够表达
+- 任何其他页面或卡片
 
