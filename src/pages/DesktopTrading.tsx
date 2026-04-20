@@ -481,7 +481,7 @@ export default function DesktopTrading() {
     { label: "Side", value: side === "buy" ? "Buy | Long" : "Sell | Short", highlight: side === "buy" ? "green" : "red" as const },
     { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
-    { label: "Order Price", value: `${selectedOptionData.price} USDC` },
+    { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
     { label: "Order Cost", value: `${amount} USDC` },
     { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: `${leverage}X` },
