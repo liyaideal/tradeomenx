@@ -46,9 +46,9 @@ export default function Withdraw() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">
         <div className="px-4 pt-3 bg-background">
           <TabsList className="w-full grid grid-cols-3 h-10">
-            <TabsTrigger value="wallet" className="text-xs">Wallet</TabsTrigger>
-            <TabsTrigger value="crosschain" className="text-xs">Cross-Chain</TabsTrigger>
-            <TabsTrigger value="fiat" className="text-xs">Sell Crypto</TabsTrigger>
+            <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
+            <TabsTrigger value="crosschain" className="text-xs">Wallet</TabsTrigger>
+            <TabsTrigger value="fiat" className="text-xs">Fiat</TabsTrigger>
           </TabsList>
         </div>
         
