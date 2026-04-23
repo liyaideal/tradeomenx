@@ -11,9 +11,9 @@ interface HedgeEntryBannerProps {
 
 /**
  * H2E operational entry banner.
- * High-impact layout featuring a dramatic hero image (Polymarket loss vs OmenX hedge)
- * as the visual centerpiece, framed by scarcity badges and a clear CTA.
- * Routes users to /hedge landing page on click.
+ * Hero image is fused into the card background using mask gradients
+ * and blend modes — not a discrete tile — for a high-impact, cohesive feel.
+ * Routes to /hedge on click.
  */
 export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) => {
   const navigate = useNavigate();
@@ -23,13 +23,13 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
   const handleClick = () => navigate("/hedge");
 
   const LimitedFundBadge = (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-warning/15 border border-warning/30 whitespace-nowrap">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-warning/15 border border-warning/30 backdrop-blur-sm whitespace-nowrap">
       <span className="text-[10px] font-bold tracking-wider text-warning leading-none">LIMITED FUND</span>
     </span>
   );
 
   const IndustryFirstBadge = (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-primary/20 border border-primary/40 whitespace-nowrap">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-primary/20 border border-primary/40 backdrop-blur-sm whitespace-nowrap">
       <span className="text-[10px] font-bold tracking-wider text-primary leading-none">INDUSTRY FIRST</span>
     </span>
   );
@@ -44,32 +44,38 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
           className,
         )}
       >
-        {/* Hero image — full bleed top */}
-        <div className="relative w-full aspect-[2/1] overflow-hidden bg-black">
-          <img
-            src={heroImage}
-            alt="OmenX hedges your Polymarket positions"
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-          {/* Top badges overlay */}
-          <div className="absolute top-2.5 left-2.5 flex gap-1.5">
+        {/* Background image — full bleed, low opacity, blended */}
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-luminosity pointer-events-none"
+          loading="lazy"
+        />
+        {/* Primary tint over image to align with brand color */}
+        <div className="pointer-events-none absolute inset-0 bg-primary/20 mix-blend-overlay" />
+        {/* Vertical readability gradient */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-card/85 via-card/60 to-card/95" />
+        {/* Glow accents */}
+        <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/30 blur-3xl" />
+
+        {/* Content */}
+        <div className="relative z-10 px-4 py-4">
+          <div className="flex gap-1.5 mb-3">
             {LimitedFundBadge}
             {IndustryFirstBadge}
           </div>
-        </div>
 
-        {/* Content below image */}
-        <div className="px-4 py-4">
-          <h3 className="text-base font-bold text-foreground leading-tight mb-1">
+          <h3 className="text-base font-bold text-foreground leading-tight mb-1 [text-shadow:_0_1px_8px_hsl(var(--card)/0.8)]">
             Your Polymarket positions are exposed.
           </h3>
           <p className="text-[13px] text-muted-foreground leading-snug mb-3">
-            We'll hedge them — for free. Earn up to <span className="font-mono font-semibold text-foreground">$100</span>.
+            We'll hedge them — for free. Earn up to{" "}
+            <span className="font-mono font-semibold text-foreground">$100</span>.
           </p>
 
           <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-md shadow-primary/30">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-md shadow-primary/40">
               Get My Free Hedge
               <ArrowRight className="!w-4 !h-4" />
             </span>
@@ -91,11 +97,34 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
         className,
       )}
     >
-      {/* Background glow */}
-      <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl z-0" />
+      {/* Hero image — fused into right half of card background */}
+      <img
+        src={heroImage}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-y-0 right-0 h-full w-[65%] object-cover object-left pointer-events-none select-none"
+        style={{
+          maskImage: "linear-gradient(to right, transparent 0%, black 35%, black 100%)",
+          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 35%, black 100%)",
+        }}
+        loading="lazy"
+      />
+      {/* Primary tint over image — pulls it into brand color */}
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 w-[65%] bg-primary/25 mix-blend-overlay"
+        style={{
+          maskImage: "linear-gradient(to right, transparent 0%, black 35%, black 100%)",
+          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 35%, black 100%)",
+        }}
+      />
+      {/* Left-side readability gradient — ensures text contrast */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-card via-card/85 to-transparent" />
+
+      {/* Background glow accents */}
+      <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl z-0" />
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-32 w-64 rounded-full bg-primary/10 blur-3xl z-0" />
 
-      <div className="relative z-10 grid grid-cols-[1fr_auto_1fr] items-center gap-6 px-6 py-5">
+      <div className="relative z-10 grid grid-cols-[3fr_2fr] items-center gap-6 px-6 py-6">
         {/* Left: badges + headline + CTA */}
         <div className="min-w-0">
           <div className="flex gap-2 mb-3">
@@ -110,33 +139,21 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
             We'll hedge them — for free. First come, first served.
           </p>
 
-          <span
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-md shadow-primary/30 transition-transform group-hover:translate-x-0.5"
-          >
+          <span className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-md shadow-primary/40 transition-transform group-hover:translate-x-0.5">
             Get My Free Hedge
             <ArrowRight className="!w-4 !h-4 transition-transform group-hover:translate-x-0.5" />
           </span>
         </div>
 
-        {/* Center: hero image */}
-        <div className="relative h-[180px] lg:h-[200px] aspect-[2/1] rounded-xl overflow-hidden bg-black shadow-2xl shadow-primary/20 ring-1 ring-primary/20">
-          <img
-            src={heroImage}
-            alt="OmenX hedges your Polymarket losses"
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        {/* Right: hero $100 */}
-        <div className="flex flex-col items-end justify-center pl-2">
-          <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase">
+        {/* Right: $100 floating over fused image */}
+        <div className="flex flex-col items-end justify-center">
+          <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase [text-shadow:_0_1px_8px_hsl(var(--card))]">
             Earn up to
           </span>
-          <span className="font-mono text-5xl lg:text-6xl font-bold text-foreground leading-none my-1">
+          <span className="font-mono text-5xl lg:text-6xl font-bold text-foreground leading-none my-1 [text-shadow:_0_2px_20px_hsl(var(--primary)/0.5),_0_0_40px_hsl(var(--card))] drop-shadow-2xl">
             $100
           </span>
-          <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase">
+          <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase [text-shadow:_0_1px_8px_hsl(var(--card))]">
             Per account · Zero cost
           </span>
         </div>
