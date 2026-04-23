@@ -1,91 +1,49 @@
 
 
-## 重做 H2E Banner — 高冲击力三段式布局
+## 在首页加 H2E 运营入口 Banner
 
-参照新参考图重做 `HedgeEntryBanner.tsx`，采用 **左 / 中 / 右** 三段式叙事结构，强化视觉冲击力和点击欲望。**不动文案核心信息**，只重构视觉层次和构图。
+参考截图里 "TRUMP LIVE: ..." 那条紫色横幅样式，在 Header 和 Explore Events 标题之间新增一条 H2E 运营入口横幅，桌面端 + 移动端都加，点击直达 `/hedge` Landing Page。
 
-### 桌面端布局（三段式横向叙事）
+### 视觉设计（对齐参考图）
 
-```text
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ [LIMITED FUND] [INDUSTRY FIRST]                                              │
-│                                                                              │
-│ MARKETS MOVE FAST.       │  [Hero Image — 全高度]   │  EARN UP TO            │
-│ DON'T GET REKT.          │                          │  $100                  │
-│                          │                          │  PER ACCOUNT·ZERO COST │
-│ We'll hedge your exposed │                          │                        │
-│ positions — for FREE.    │                          │  ┌──────────────────┐  │
-│ First come, first served.│                          │  │ ⏰ LIMITED SPOTS  │  │
-│                          │                          │  │ 231 / 1,000      │  │
-│ [Get My Free Hedge →]    │                          │  │ ▰▰▰▱▱▱▱▱▱▱       │  │
-│                          │                          │  └──────────────────┘  │
-│ 🛡 ZERO COST  ⚡ INSTANT  │                          │  Don't miss out.       │
-│   No catch.   Sleep better                          │                        │
-└──────────────────────────────────────────────────────────────────────────────┘
-```
+横向胶囊式 banner，整体复用截图里 TRUMP LIVE bar 的视觉语言：
 
-**关键升级**：
-- **左段：Headline 双行强对比** — 第一行 `MARKETS MOVE FAST.`（白色），第二行 `DON'T GET REKT.`（紫色 `text-primary`），两行都用 `text-3xl lg:text-4xl font-black tracking-tight`，营造广告位级别的冲击感
-- **左段：底部 3 个 micro-trust** — 用 Lucide `ShieldCheck` / `Zap` / `Lock` + 标题 + 单行说明（`ZERO COST / No catch.`、`INSTANT HEDGE / Sleep better.`、`YOU KEEP PROFITS / We cover the downside.`），呼应参考图底部小图标行
-- **中段：Hero 图全高占位** — 现有 `hedge-banner-hero.png` 拉满到 banner 全高（`h-full`），不再 aspect 限制，去掉外层 `ring` 和 `shadow`，用 `mask-image` 做边缘渐隐，让图与背景无缝融合
-- **右段：垂直三层信息** — 上层 `EARN UP TO $100` 大字、中层「Limited Spots Left 231/1000 + 进度条」卡片（紫框 + `Clock` 图标 + `Progress` 组件，营造稀缺感）、底层手写感 `Don't miss out.`（用 `italic font-semibold text-primary`）
-- **背景增强**：保留紫色 glow，再加一个左侧红色 glow（`bg-destructive/10`）和右侧绿色 glow（`bg-success/10`），呼应参考图「红仓→绿对冲」的色彩叙事
+- 容器：`rounded-xl` + 紫色渐变背景（`bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5`）+ `border border-primary/30` + 轻微 `shadow-primary/10`
+- 左侧标签：紫色徽标 `H2E LIVE`（`bg-primary text-primary-foreground` 小药丸 + `Gift` Lucide 图标 + 内置脉冲点 `animate-pulse`）
+- 中部主文案（白色加粗）：`Hedge your Polymarket positions — for free`
+- 副文案（muted）：`Up to $100 in free trading credit · Read-only access · $0 cost`
+- 右侧 CTA：紫色 `Try Hedge-to-Earn →`（`text-primary hover:text-primary-hover` + `ArrowUpRight` 图标），整行可点
 
-### 移动端布局（垂直紧凑版）
+### 布局规则
 
-```text
-┌─────────────────────────────┐
-│  [Hero Image — full bleed]  │
-│  [LIMITED FUND][IND. FIRST] │  ← 叠加在图左上
-│                             │
-├─────────────────────────────┤
-│ MARKETS MOVE FAST.          │
-│ DON'T GET REKT.             │
-│ We'll hedge — for FREE.     │
-│                             │
-│ ┌─────────────────────────┐ │
-│ │ ⏰ 231 / 1,000 spots    │ │
-│ │ ▰▰▰▱▱▱▱▱▱▱              │ │
-│ └─────────────────────────┘ │
-│                             │
-│ [Get My Free Hedge →]       │
-└─────────────────────────────┘
-```
-
-- 移动端把右侧 `Limited Spots` 进度条卡片下沉到 CTA 上方，强化稀缺感后立即转化
-- Headline 缩到 `text-xl`，但保持双色双行对比
+- **桌面端**（EventsPage）：单行排列 — `[H2E LIVE 徽标] [主文案] · [副文案] ...........[CTA →]`，宽度跟随 `max-w-7xl mx-auto px-8`，紧贴 Explore Events 上方
+- **移动端**（MobileHome）：两行紧凑排列 — 第一行 `[H2E LIVE] [主文案]`，第二行 `[副文案] [→]`；副文案截断处理；整卡可点
+- 暗色主题下文字对比度足够，无新色引入（全用 `--primary` HSL token）
 
 ### 实现细节
 
-1. **完全重写** `src/components/hedge/HedgeEntryBanner.tsx`
-   - props 不变（`variant?: "desktop" | "mobile"`）
-   - 用 `Progress` 组件（`@/components/ui/progress`）做稀缺感进度条，硬编码 `value={23}`（231/1000）
-   - 用 Lucide `ShieldCheck` / `Zap` / `Lock` / `Clock` / `ArrowRight`，无 emoji
-   - 数字用 `font-mono`（`$100`、`231 / 1,000`），Headline 用 `font-sans font-black`
-   - `Don't miss out.` 用 `italic` 模拟手写感（不引入新字体）
-   - 整卡可点 → `navigate("/hedge")`
+1. 新增 `src/components/hedge/HedgeEntryBanner.tsx`
+   - props: `variant?: "desktop" | "mobile"`（默认按 `useIsMobile` 自动判断）
+   - 内部用 `useNavigate` 跳 `/hedge`
+   - 用 Lucide `Gift` + `ArrowUpRight`，无 emoji（遵循 `mem://design/content-icon-rules`）
+   - 数字/金额用 `font-mono`（"$100" 等），文案用 `font-sans`（遵循排版规范）
 
-2. **不改文案核心信息** — 「Markets move fast. Don't get rekt.」「We'll hedge your exposed positions — for FREE.」「First come, first served.」「Earn up to $100」「Per account · Zero cost」「Limited Spots Left 231 / 1,000」「Don't miss out.」全部按参考图照搬
+2. 在 `src/pages/EventsPage.tsx` 第 279 行的 `<main>` 内、"Page Title" `<div className="relative">` 之前插入 `<HedgeEntryBanner />`
 
-3. **不动**：
-   - `EventsPage.tsx` 和 `MobileHome.tsx` 的 banner 嵌入位置不变
-   - `hedge-banner-hero.png` 资源不替换（继续复用）
-   - `/hedge` Landing Page 不变
+3. 在 `src/pages/MobileHome.tsx` 第 216 行的 `<main>` 内、"Conditional Stats Card" 之前插入 `<HedgeEntryBanner />`
 
-### 设计 Token 遵循
+4. 不动 `EventsDesktopHeader`、不动 `MobileHeader`，banner 是独立模块化组件，未来可整体下线
 
-- 主色：`--primary`（紫）
-- 警告色：`--warning`（LIMITED FUND 徽标）
-- 红色 glow：`--destructive/10`（左侧仓位暴露氛围）
-- 绿色 glow：`--success/10`（右侧对冲安全氛围）
-- 卡片底色：`bg-card` + `from-card via-card to-primary/5` 渐变
-- 边框：`border-primary/30`
-- 不引入任何新色
+### 不包括
+
+- 不在桌面 Hero 区（截图里 TRUMP 那块）做改动 — 那是另一块运营物料
+- 不加埋点、不加倒计时（如果你后面要加 "Limited Fund" 倒计时再说）
+- 不改 Settings 里的 H2E 入口 — 此 banner 与 Settings 入口并存
 
 ### 验证
 
-- 桌面端 banner 视觉权重明显增强，三段叙事清晰：「左：警告 + CTA」/「中：视觉爆点」/「右：稀缺感 + 奖励」
-- 移动端进度条 + 稀缺感数字直接出现在 CTA 上方，转化路径更短
-- 整卡点击区域不变，跳 `/hedge`
-- 不破坏首页其他模块节奏
+- `/` 桌面端：header 下方紧接 banner，再下方是 Explore Events
+- `/` 移动端：MobileHeader 下方紧接 banner，再下方是 GuestWelcomeCard / UserStatsCard
+- 点击 banner 任意位置 → 跳 `/hedge`
+- banner 在两端视觉一致、间距协调，不破坏现有节奏
 
