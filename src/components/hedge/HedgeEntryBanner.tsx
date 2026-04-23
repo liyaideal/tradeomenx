@@ -26,16 +26,14 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
   };
 
   const LimitedFundBadge = (
-    <span className="inline-flex flex-col items-start px-2.5 py-1 rounded-md bg-warning/15 border border-warning/30">
-      <span className="text-[10px] font-bold tracking-wider text-warning leading-tight">LIMITED</span>
-      <span className="text-[10px] font-bold tracking-wider text-warning leading-tight">FUND</span>
+    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-warning/15 border border-warning/30 whitespace-nowrap">
+      <span className="text-[10px] font-bold tracking-wider text-warning leading-none">LIMITED FUND</span>
     </span>
   );
 
   const IndustryFirstBadge = (
-    <span className="inline-flex flex-col items-start px-2.5 py-1 rounded-md bg-primary/20 border border-primary/40">
-      <span className="text-[10px] font-bold tracking-wider text-primary leading-tight">INDUSTRY</span>
-      <span className="text-[10px] font-bold tracking-wider text-primary leading-tight">FIRST</span>
+    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-primary/20 border border-primary/40 whitespace-nowrap">
+      <span className="text-[10px] font-bold tracking-wider text-primary leading-none">INDUSTRY FIRST</span>
     </span>
   );
 
