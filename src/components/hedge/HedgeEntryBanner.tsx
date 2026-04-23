@@ -95,7 +95,7 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
       {/* Subtle background glow */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black via-black/95 to-black z-0" />
 
-      <div className="relative z-10 grid grid-cols-[minmax(0,1.2fr)_minmax(0,1.6fr)_minmax(0,0.9fr)] items-center gap-6 px-6 py-5 min-h-[200px]">
+      <div className="relative z-10 grid grid-cols-[minmax(0,1.7fr)_minmax(0,1.4fr)_minmax(0,0.9fr)] items-center gap-6 px-6 py-5 min-h-[200px]">
         {/* Left column: badges + headline + sub + CTA */}
         <div className="min-w-0 flex flex-col justify-center">
           <div className="flex gap-2 mb-3">
@@ -125,7 +125,7 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
           <img
             src={heroImage}
             alt="OmenX hedges your Polymarket losses with $100 reward"
-            className="block max-h-[220px] w-auto h-full object-contain translate-x-6 xl:translate-x-10"
+            className="block max-h-[220px] w-auto h-full object-contain translate-x-12 xl:translate-x-16"
             loading="lazy"
           />
         </div>
