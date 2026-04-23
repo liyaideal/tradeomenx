@@ -1,49 +1,56 @@
 
 
-## 在首页加 H2E 运营入口 Banner
+## H2E Banner 图片融合方案
 
-参考截图里 "TRUMP LIVE: ..." 那条紫色横幅样式，在 Header 和 Explore Events 标题之间新增一条 H2E 运营入口横幅，桌面端 + 移动端都加，点击直达 `/hedge` Landing Page。
+当前问题：图片像"膏药"贴在 banner 中央 — 有硬边框、独立阴影、明显的容器感，与卡片割裂。
 
-### 视觉设计（对齐参考图）
+### 融合策略
 
-横向胶囊式 banner，整体复用截图里 TRUMP LIVE bar 的视觉语言：
+把图片从"独立卡片"变成"卡片背景的一部分"，让它和紫色渐变、文字内容融为一体。
 
-- 容器：`rounded-xl` + 紫色渐变背景（`bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5`）+ `border border-primary/30` + 轻微 `shadow-primary/10`
-- 左侧标签：紫色徽标 `H2E LIVE`（`bg-primary text-primary-foreground` 小药丸 + `Gift` Lucide 图标 + 内置脉冲点 `animate-pulse`）
-- 中部主文案（白色加粗）：`Hedge your Polymarket positions — for free`
-- 副文案（muted）：`Up to $100 in free trading credit · Read-only access · $0 cost`
-- 右侧 CTA：紫色 `Try Hedge-to-Earn →`（`text-primary hover:text-primary-hover` + `ArrowUpRight` 图标），整行可点
+#### 桌面端改造
 
-### 布局规则
+1. **去除图片容器边框/阴影** — 删除 `rounded-xl overflow-hidden bg-black shadow-2xl ring-1`，让图片直接呈现
+2. **图片定位为卡片右半侧背景层**：
+   - 用 `absolute inset-y-0 right-0 w-1/2` 定位
+   - `object-cover object-left` 让图片从中间向右铺开
+   - 加 `mask-image: linear-gradient(to right, transparent 0%, black 30%)` 让图片左边缘自然淡入卡片背景
+   - 叠加 `bg-gradient-to-r from-card via-card/80 to-transparent` 渐变蒙版，确保左侧文字区域可读
+3. **布局改为 2 列**（去掉中间图片列）：
+   - 左列（占 60%）：badges + 标题 + 副文案 + CTA，z-index 高于图片
+   - 右列（占 40%）：`$100` 数字浮在图片之上，加 `drop-shadow-2xl` 提升对比度
+4. **图片色调融合**：加一层 `bg-primary/20 mix-blend-overlay` 让图片色调向紫色品牌色靠拢
 
-- **桌面端**（EventsPage）：单行排列 — `[H2E LIVE 徽标] [主文案] · [副文案] ...........[CTA →]`，宽度跟随 `max-w-7xl mx-auto px-8`，紧贴 Explore Events 上方
-- **移动端**（MobileHome）：两行紧凑排列 — 第一行 `[H2E LIVE] [主文案]`，第二行 `[副文案] [→]`；副文案截断处理；整卡可点
-- 暗色主题下文字对比度足够，无新色引入（全用 `--primary` HSL token）
+#### 移动端改造
+
+1. **去掉图片块的硬边框** — 移除 `aspect-[2/1] bg-black` 的独立块
+2. **图片作为整卡背景**：
+   - `absolute inset-0 w-full h-full object-cover opacity-40`
+   - 上层叠加 `bg-gradient-to-b from-card/95 via-card/80 to-card/95` 让文字始终可读
+   - 顶部 badges 直接浮在背景图上方
+3. 整体高度由内容决定，不再强制 2:1 比例
 
 ### 实现细节
 
-1. 新增 `src/components/hedge/HedgeEntryBanner.tsx`
-   - props: `variant?: "desktop" | "mobile"`（默认按 `useIsMobile` 自动判断）
-   - 内部用 `useNavigate` 跳 `/hedge`
-   - 用 Lucide `Gift` + `ArrowUpRight`，无 emoji（遵循 `mem://design/content-icon-rules`）
-   - 数字/金额用 `font-mono`（"$100" 等），文案用 `font-sans`（遵循排版规范）
+**文件**：仅修改 `src/components/hedge/HedgeEntryBanner.tsx`，不涉及其他文件
 
-2. 在 `src/pages/EventsPage.tsx` 第 279 行的 `<main>` 内、"Page Title" `<div className="relative">` 之前插入 `<HedgeEntryBanner />`
+**关键 CSS 技巧**：
+- `mask-image` + `linear-gradient` 实现图片边缘羽化
+- `mix-blend-overlay` / `mix-blend-soft-light` 让图片融入紫色主题
+- 多层 `bg-gradient` 蒙版确保文字对比度
+- `drop-shadow` 替代 `text-shadow` 让 `$100` 数字在图片背景上有立体感
 
-3. 在 `src/pages/MobileHome.tsx` 第 216 行的 `<main>` 内、"Conditional Stats Card" 之前插入 `<HedgeEntryBanner />`
+### 预期效果
 
-4. 不动 `EventsDesktopHeader`、不动 `MobileHeader`，banner 是独立模块化组件，未来可整体下线
+- 图片不再是独立元素，而是卡片背景的一部分
+- 紫色 glow + 图片 + 文字三者融合成统一视觉
+- `$100` 数字像浮在场景里，而不是挤在图片旁边
+- 整体冲击力保留，但视觉更高级、不"膏药感"
 
-### 不包括
+### 不改动
 
-- 不在桌面 Hero 区（截图里 TRUMP 那块）做改动 — 那是另一块运营物料
-- 不加埋点、不加倒计时（如果你后面要加 "Limited Fund" 倒计时再说）
-- 不改 Settings 里的 H2E 入口 — 此 banner 与 Settings 入口并存
-
-### 验证
-
-- `/` 桌面端：header 下方紧接 banner，再下方是 Explore Events
-- `/` 移动端：MobileHeader 下方紧接 banner，再下方是 GuestWelcomeCard / UserStatsCard
-- 点击 banner 任意位置 → 跳 `/hedge`
-- banner 在两端视觉一致、间距协调，不破坏现有节奏
+- 不换图片资源
+- 不改文案
+- 不改 CTA 行为
+- 不改 badges 内容
 
