@@ -26,9 +26,9 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
   };
 
   const LimitedFundBadge = (
-    <span className="inline-flex flex-col items-start px-2.5 py-1 rounded-md bg-amber-500/15 border border-amber-500/30">
-      <span className="text-[10px] font-bold tracking-wider text-amber-400 leading-tight">LIMITED</span>
-      <span className="text-[10px] font-bold tracking-wider text-amber-400 leading-tight">FUND</span>
+    <span className="inline-flex flex-col items-start px-2.5 py-1 rounded-md bg-warning/15 border border-warning/30">
+      <span className="text-[10px] font-bold tracking-wider text-warning leading-tight">LIMITED</span>
+      <span className="text-[10px] font-bold tracking-wider text-warning leading-tight">FUND</span>
     </span>
   );
 
