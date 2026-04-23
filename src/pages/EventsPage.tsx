@@ -25,6 +25,7 @@ import { ChgTimeframePicker } from "@/components/events/ChgTimeframePicker";
 import { MarketListView } from "@/components/events/MarketListView";
 import { MarketGridView } from "@/components/events/MarketGridView";
 import { HotShelf } from "@/components/events/HotShelf";
+import { HedgeEntryBanner } from "@/components/hedge/HedgeEntryBanner";
 
 // Persist view preference
 const getStoredView = (): ViewMode => {
