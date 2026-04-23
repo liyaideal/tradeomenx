@@ -122,8 +122,11 @@ const App = () => (
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms-of-service" element={<TermsOfServicePage />} />
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </ResponsiveLayout>
+                  </Routes>
+                </ResponsiveLayout>
+              }
+            />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </RealtimePricesProvider>
