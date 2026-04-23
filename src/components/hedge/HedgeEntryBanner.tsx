@@ -60,9 +60,8 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
             {IndustryFirstBadge}
           </div>
 
-          <h3 className="text-lg font-extrabold text-foreground leading-[1.1] tracking-tight mb-1">
-            <span className="text-foreground">MARKETS MOVE FAST. </span>
-            <span className="text-primary">DON'T GET REKT.</span>
+          <h3 className="text-lg font-bold text-foreground leading-[1.15] tracking-tight mb-1">
+            Your Polymarket positions are exposed.
           </h3>
           <p className="text-[13px] text-muted-foreground leading-snug mb-3">
             We'll hedge your exposed positions —{" "}
@@ -96,7 +95,7 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
       {/* Subtle background glow */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black via-black/95 to-black z-0" />
 
-      <div className="relative z-10 grid grid-cols-[minmax(0,1.1fr)_minmax(0,1.6fr)_minmax(0,0.9fr)] items-center gap-4 px-6 py-5 min-h-[200px]">
+      <div className="relative z-10 grid grid-cols-[minmax(0,1.2fr)_minmax(0,1.6fr)_minmax(0,0.9fr)] items-center gap-6 px-6 py-5 min-h-[200px]">
         {/* Left column: badges + headline + sub + CTA */}
         <div className="min-w-0 flex flex-col justify-center">
           <div className="flex gap-2 mb-3">
@@ -104,9 +103,8 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
             {IndustryFirstBadge}
           </div>
 
-          <h3 className="text-2xl xl:text-[28px] font-extrabold leading-[1.05] tracking-tight mb-3">
-            <span className="block text-foreground">MARKETS MOVE FAST.</span>
-            <span className="block text-primary">DON'T GET REKT.</span>
+          <h3 className="text-2xl xl:text-[26px] font-bold leading-[1.15] tracking-tight mb-3 text-foreground">
+            Your Polymarket positions<br />are exposed.
           </h3>
 
           <p className="text-[13px] text-muted-foreground leading-snug mb-4">
@@ -122,12 +120,12 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
           </span>
         </div>
 
-        {/* Center: hero artwork — anchors the composition */}
-        <div className="relative h-full min-h-[180px] flex items-center justify-center">
+        {/* Center: hero artwork — anchors the composition, shifted right */}
+        <div className="relative h-full min-h-[180px] flex items-center justify-end pr-2">
           <img
             src={heroImage}
             alt="OmenX hedges your Polymarket losses with $100 reward"
-            className="block max-h-[220px] w-auto h-full object-contain"
+            className="block max-h-[220px] w-auto h-full object-contain translate-x-6 xl:translate-x-10"
             loading="lazy"
           />
         </div>
