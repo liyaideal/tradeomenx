@@ -60,9 +60,8 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
             {IndustryFirstBadge}
           </div>
 
-          <h3 className="text-lg font-extrabold text-foreground leading-[1.1] tracking-tight mb-1">
-            <span className="text-foreground">MARKETS MOVE FAST. </span>
-            <span className="text-primary">DON'T GET REKT.</span>
+          <h3 className="text-lg font-bold text-foreground leading-[1.15] tracking-tight mb-1">
+            Your Polymarket positions are exposed.
           </h3>
           <p className="text-[13px] text-muted-foreground leading-snug mb-3">
             We'll hedge your exposed positions —{" "}
