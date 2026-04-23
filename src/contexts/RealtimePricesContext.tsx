@@ -134,7 +134,7 @@ export const RealtimePricesProvider: React.FC<RealtimePricesProviderProps> = ({ 
     fetchPrices();
   }, [fetchPrices]);
 
-  // Set up realtime subscription
+  // Set up realtime subscription — mount once, never re-subscribe
   useEffect(() => {
     console.log("Setting up global realtime price subscription...");
 
@@ -153,34 +153,33 @@ export const RealtimePricesProvider: React.FC<RealtimePricesProviderProps> = ({ 
 
           if (newRecord && newRecord.id) {
             const newPrice = Number(newRecord.price);
-            const oldPrice = Number(oldRecord?.price ?? prices[newRecord.id] ?? 0);
 
-            console.log(
-              `[Realtime] Price update: ${newRecord.label} (${newRecord.id}) -> $${newPrice.toFixed(2)} (was $${oldPrice.toFixed(2)})`
-            );
+            // Functional updates so we don't depend on stale closure of `prices`
+            setPrices((prev) => {
+              const oldPrice = Number(oldRecord?.price ?? prev[newRecord.id] ?? 0);
 
-            // Store the previous price
-            setPreviousPrices((prev) => ({
-              ...prev,
-              [newRecord.id]: oldPrice,
-            }));
+              // Stash previous price
+              setPreviousPrices((prevPrev) => ({
+                ...prevPrev,
+                [newRecord.id]: oldPrice,
+              }));
 
-            // Update current price
-            setPrices((prev) => ({
-              ...prev,
-              [newRecord.id]: newPrice,
-            }));
+              // Stash recent update
+              setRecentUpdates((prevUpdates) => {
+                const update: PriceUpdate = {
+                  optionId: newRecord.id,
+                  eventId: newRecord.event_id,
+                  newPrice,
+                  oldPrice,
+                  timestamp: new Date(),
+                };
+                return [update, ...prevUpdates].slice(0, 50);
+              });
 
-            // Add to recent updates (keep last 50)
-            setRecentUpdates((prev) => {
-              const update: PriceUpdate = {
-                optionId: newRecord.id,
-                eventId: newRecord.event_id,
-                newPrice,
-                oldPrice,
-                timestamp: new Date(),
+              return {
+                ...prev,
+                [newRecord.id]: newPrice,
               };
-              return [update, ...prev].slice(0, 50);
             });
 
             setLastUpdate(new Date());
@@ -195,7 +194,8 @@ export const RealtimePricesProvider: React.FC<RealtimePricesProviderProps> = ({ 
       console.log("Cleaning up global realtime subscription...");
       supabase.removeChannel(channel);
     };
-  }, [prices]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const value: RealtimePricesContextType = {
     prices,
