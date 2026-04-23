@@ -120,12 +120,12 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
           </span>
         </div>
 
-        {/* Center: hero artwork — anchors the composition, shifted right */}
-        <div className="relative h-full min-h-[180px] flex items-center justify-end pr-2">
+        {/* Center: hero artwork — anchors the composition, shifted right, fills container */}
+        <div className="relative self-stretch -my-5 flex items-center justify-end overflow-visible">
           <img
             src={heroImage}
             alt="OmenX hedges your Polymarket losses with $100 reward"
-            className="block max-h-[220px] w-auto h-full object-contain translate-x-12 xl:translate-x-16"
+            className="block h-full w-auto max-h-none object-contain translate-x-12 xl:translate-x-16"
             loading="lazy"
           />
         </div>
