@@ -4,6 +4,7 @@ import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
+import { HedgeEntryBanner } from "@/components/hedge/HedgeEntryBanner";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
@@ -214,6 +215,9 @@ const MobileHome = () => {
       />
 
       <main className="px-4 py-4 space-y-6">
+        {/* H2E Operational Entry */}
+        <HedgeEntryBanner variant="mobile" />
+
         {/* Conditional Stats Card - Guest vs Logged-in */}
         {user ? (
           <UserStatsCard 

@@ -25,6 +25,7 @@ import { ChgTimeframePicker } from "@/components/events/ChgTimeframePicker";
 import { MarketListView } from "@/components/events/MarketListView";
 import { MarketGridView } from "@/components/events/MarketGridView";
 import { HotShelf } from "@/components/events/HotShelf";
+import { HedgeEntryBanner } from "@/components/hedge/HedgeEntryBanner";
 
 // Persist view preference
 const getStoredView = (): ViewMode => {
@@ -277,6 +278,9 @@ const EventsPage = () => {
       )}
 
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-6`}>
+        {/* H2E Operational Entry */}
+        <HedgeEntryBanner />
+
         {/* Page Title */}
         <div className="relative">
           {!isMobile && (
