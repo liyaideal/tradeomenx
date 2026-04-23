@@ -33,6 +33,7 @@ import DevelopersPage from "./pages/DevelopersPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import TransparencyPage from "./pages/TransparencyPage";
+import HedgeLanding from "./pages/HedgeLanding";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
@@ -83,9 +84,15 @@ const App = () => (
         <BrowserRouter>
           <OrderSimulationRunner />
           <AirdropNotificationToast />
-          <ResponsiveLayout>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
+          <Routes>
+            {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}
+            <Route path="/hedge" element={<HedgeLanding />} />
+            <Route
+              path="*"
+              element={
+                <ResponsiveLayout>
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
               <Route path="/trade" element={<TradingPage />} />
               <Route path="/trade/order" element={<TradeOrderPage />} />
               <Route path="/order-preview" element={<OrderPreview />} />
