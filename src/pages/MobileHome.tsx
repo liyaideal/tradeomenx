@@ -215,6 +215,9 @@ const MobileHome = () => {
       />
 
       <main className="px-4 py-4 space-y-6">
+        {/* H2E Operational Entry */}
+        <HedgeEntryBanner variant="mobile" />
+
         {/* Conditional Stats Card - Guest vs Logged-in */}
         {user ? (
           <UserStatsCard 
