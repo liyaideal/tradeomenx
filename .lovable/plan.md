@@ -1,72 +1,93 @@
 
 
-## 后台优化执行计划（4 步止血方案）
+## H2E Landing Page 实现方案
 
-### 步骤 1：一次性清理 `price_history` 历史数据
+### 路由 & 文件结构
 
-执行 SQL 删除 7 天前的所有价格历史点：
-```sql
-DELETE FROM price_history WHERE recorded_at < NOW() - INTERVAL '7 days';
+新增路由 `/hedge`（在 App.tsx 注册，桌面 + 移动统一渲染），新建文件：
+
+```text
+src/pages/HedgeLanding.tsx                              主页面入口
+src/components/hedge/
+  ├── HedgeNavbar.tsx                顶部 Logo + Events + Sign In
+  ├── HedgeHero.tsx                  Section 1: Hero + 3 trust badges + 右侧动效卡片
+  ├── HedgeHowItWorks.tsx            Section 2: 3-Step
+  ├── HedgeLiveExample.tsx           Section 3: BTC 硬编码对冲示例 + Scenario A/B
+  ├── HedgeTrustBar.tsx              Section 4: 4 个信任信号
+  ├── HedgeKeyRules.tsx              Section 5: Fine Print 6 条
+  ├── HedgeFAQ.tsx                   Section 6: 6 题 Accordion
+  ├── HedgeFinalCTA.tsx              Section 7: 底部转化兜底
+  ├── HedgeFooter.tsx                极简 Footer（复用 SeoFooter 风格但更轻）
+  ├── HedgeMobileFloatingCTA.tsx     移动端浮动 CTA bar
+  ├── HedgeCTAButton.tsx             复用的 CTA 按钮（带统一点击逻辑）
+  └── PolymarketConnectDialog.tsx    从 ConnectedAccountsCard 抽出的连接对话框
 ```
-预计释放约 2.1 GB 存储，删除约 850 万行。保留近 7 天数据足以支撑 Sparkline、K 线、详情页所有图表。
 
-### 步骤 2：降低 Cron 频率 + 重写 Edge Function 为批量操作
+### CTA 三态行为
 
-**调整 cron 频率**：将 `update-prices` 任务从每 1 分钟改为每 5 分钟（`*/5 * * * *`）。
+`HedgeCTAButton` 内部根据用户状态分发：
 
-**重写 `supabase/functions/update-prices/index.ts`**：
-- 一次性 SELECT 拉取所有 active events 的 options
-- 内存中计算所有新价格（保持现有 binary / multi-option 逻辑）
-- 用单条 `UPSERT` 批量更新 `event_options`（替代 N 次 UPDATE）
-- 用单条 `INSERT` 批量插入 `price_history`（替代 N 次 INSERT）
+| 状态 | 行为 |
+|---|---|
+| 未登录 | 打开 `AuthSheet` / `AuthDialog`（移动/桌面），登录完成后自动弹连接对话框 |
+| 已登录、未连接 Polymarket | 直接在 Landing Page 上弹 `PolymarketConnectDialog` |
+| 已连接 Polymarket | `navigate('/portfolio/airdrops')` |
 
-效果：每次执行的数据库往返从 ~738 次降至 ~3 次，总写入量降低约 96%。
+判断依据：`useUserProfile().user` + `useConnectedAccounts().activeAccounts.find(a => a.platform === 'polymarket')`。
 
-### 步骤 3：修复 Realtime 重订阅死循环
+### 内容实现细节（按 PRD 1:1）
 
-修复 `src/contexts/RealtimePricesContext.tsx`：
-- 第 165 行 `useEffect` 依赖数组从 `[prices]` 改为 `[]`，避免每次价格更新触发 channel 重建
-- `oldPrice` 改用 `setPrices(prev => ...)` 函数式更新内部读取，不再依赖闭包中的 `prices`
-- 同步用函数式更新设置 `previousPrices`
+**Hero**：
+- 左侧文案 "Got a Polymarket position?" / "We'll hedge it — for free." + body + CTA + 3 个 trust badges（$0 cost / Read-only access / Up to $100）
+- 右侧动效：纯 CSS / Framer Motion 风格（用 Tailwind transitions），一张 Polymarket 仓位卡（"BTC > $100K · YES · $500"）旁边一个 ↔ 箭头连到 OmenX 卡（"BTC > $100K · SHORT · $0 FREE"），整体轻微浮动循环
 
-效果：从"每秒重订阅一次"恢复为"挂载时订阅一次"，Realtime 消息量降低 50%+。
+**How It Works**：3 张卡片（桌面 grid-cols-3，移动垂直堆叠 + 中间向下箭头）。Icon 用 Lucide：`Wallet` / `ScanLine` / `DollarSign`。底部重复 CTA。
 
-### 步骤 4：建立日常自动清理 Cron
+**Live Example**：硬编码 BTC > $100K 例子。两张卡左右对比（移动端上下），中间 ↔ 箭头。Scenario A/B 默认全部展开（不做 Tab 切换，PRD 推荐方案）。底部 punchline "You have nothing to lose. Literally."
 
-新增每日凌晨 3 点的清理任务：
-```sql
-SELECT cron.schedule(
-  'daily-cleanup-price-history',
-  '0 3 * * *',
-  $$
-    DELETE FROM price_history WHERE recorded_at < NOW() - INTERVAL '7 days';
-    DELETE FROM cron.job_run_details WHERE start_time < NOW() - INTERVAL '3 days';
-  $$
-);
+**Trust Bar**：4 张小卡，桌面 grid-cols-4，移动 grid-cols-2。Lucide 图标：`Lock` / `Coins` / `Layers` / `FileSearch`。
+
+**Key Rules**：6 条 ✅ 列表（用 Lucide `Check` 替代 emoji，符合 mem://design/content-icon-rules），"No hidden terms. No tricks." 收尾 + CTA。
+
+**FAQ**：复用 `@/components/ui/accordion`，6 题，第一条 `defaultValue` 展开。
+
+**Final CTA**：紫色渐变卡片 + headline + CTA + "⚡ Limited H2E Fund — first come, first served"（⚡ 用 Lucide `Zap`）。
+
+**Footer**：极简版 — Logo + Twitter/Discord/Telegram + Terms/Privacy。
+
+### 移动端浮动 CTA
+
+`HedgeMobileFloatingCTA`：仅 `isMobile` 时渲染，使用 `IntersectionObserver` 监测 Hero CTA 是否离开视口；离开后底部 fixed bar 滑入（`bottom-0 z-40`），点击触发同样的 CTA 逻辑。
+
+### 设计 Token 遵循
+
+- 颜色：暗色主题，紫色主色用项目现有 `--primary`（HSL token），不引入新色
+- 字体：数字用 `font-mono`（金额、$100、$10K），文案用 `font-sans`
+- 卡片：复用 `Card` 组件 + `rounded-xl` + `border-border/40`
+- 不使用 emoji 作为 UI 图标，全部改 Lucide React
+
+### 不在本次范围内
+
+- 首页 Hero Banner / Ticker Bar 入口（按你的选择只做 Landing Page 本身）
+- 数据埋点（PRD Section 5 的 8 个事件）
+- A/B Test 框架
+- `?ref=xxx` Agent 归因参数处理（路由会保留 query string，但不解析持久化，留给后续）
+
+### 技术细节
+
+**路由注册**（src/App.tsx）：
+```tsx
+<Route path="/hedge" element={<HedgeLanding />} />
 ```
-防止历史数据再次堆积，并清理 cron 自身日志（当前 252 MB）。
+桌面端和移动端共用同一组件，内部用 `useIsMobile` 调整布局；不放进 `ResponsiveLayout` 的 `max-w-md` 容器内 — Landing Page 需要全宽。可在 `HedgeLanding` 组件内部用 `<div className="w-full">` 自管布局。
 
----
+**抽出 Polymarket 连接逻辑**：把 `ConnectedAccountsCard` 中的连接对话框（input 地址 → 签名 → verify）抽到 `PolymarketConnectDialog.tsx`，原 Settings 页继续复用同一组件，避免逻辑两份。
 
-## 技术细节
+**AuthSheet 触发**：使用 `useAuthFlowStore` 协调（参见 mem://technical/auth-flow-modal-coordination）。
 
-**文件改动清单：**
-- `supabase/functions/update-prices/index.ts` — 改为批量 upsert/insert
-- `src/contexts/RealtimePricesContext.tsx` — 修复 useEffect 依赖
-- 通过迁移工具执行：清理 SQL + 调整 cron 频率 + 新增日清理 cron
+**完成后状态**：路由 `/hedge` 可访问；CTA 按 3 态正确分发；移动端浮动 bar 工作；现有 Settings → Connected Accounts 不受影响。
 
-**验证方式：**
-- 执行后查询 `price_history` 行数应降至约 60 万行
-- 浏览器 Console 不再出现 `Subscribed → Closed` 循环日志
-- 24 小时后再次检查 `cron.job_run_details` 中 `update-prices` 的执行记录数应为之前的 1/5
+### 等你确认
 
-**对用户体验的影响：**
-- 所有 demo 数据（持仓、订单、交易历史、活动列表、当前价格）完全保留
-- 价格更新节奏从"每分钟"变为"每 5 分钟"——更接近真实预测市场节奏
-- 7 天前的历史价格点被清理（无任何 UI 在读取，用户从看不到）
-
-**预期收益：**
-- 数据库存储：2.27 GB → ~150 MB（-93%）
-- 月写入量：32M → 1.3M（-96%）
-- 月账单预估：降低 80%+
+收到「**开始工作**」后我开始 coding。
 
