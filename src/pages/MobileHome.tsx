@@ -4,6 +4,7 @@ import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
+import { HedgeEntryBanner } from "@/components/hedge/HedgeEntryBanner";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
