@@ -125,7 +125,7 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
           <img
             src={heroImage}
             alt="OmenX hedges your Polymarket losses with $100 reward"
-            className="block max-h-[220px] w-auto h-full object-contain translate-x-6 xl:translate-x-10"
+            className="block max-h-[220px] w-auto h-full object-contain translate-x-12 xl:translate-x-16"
             loading="lazy"
           />
         </div>
