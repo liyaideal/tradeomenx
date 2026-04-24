@@ -13,7 +13,7 @@ export const HedgeLiveExample = () => {
             See it in action
           </h2>
           <p className="mt-2 text-sm text-muted-foreground md:mt-3 md:text-base">
-            A real example:{" "}
+            An example:{" "}
             <span className="font-medium text-foreground">{MARKET_TITLE}</span>
           </p>
         </div>
