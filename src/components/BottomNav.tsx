@@ -241,7 +241,7 @@ export const BottomNav = () => {
             label="Help & Support"
             onClick={() => {
               setProfileSheetOpen(false);
-              window.open("https://discord.gg/AZwP5qtK", "_blank", "noopener,noreferrer");
+              window.open("https://discord.gg/qXssm2crf9", "_blank", "noopener,noreferrer");
             }}
           />
           <MobileDrawerListItem

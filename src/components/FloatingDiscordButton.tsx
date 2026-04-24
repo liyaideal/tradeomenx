@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const DISCORD_URL = "https://discord.gg/AZwP5qtK";
+const DISCORD_URL = "https://discord.gg/qXssm2crf9";
 const TOOLTIP_DISMISSED_KEY = "discord-tooltip-dismissed";
 
 export const FloatingDiscordButton = ({ className = "" }: { className?: string }) => {

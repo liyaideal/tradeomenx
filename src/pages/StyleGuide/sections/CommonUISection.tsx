@@ -2225,11 +2225,11 @@ const SiteFooterSection = () => {
             <tbody className="divide-y divide-border/30">
               <tr>
                 <td className="px-4 py-2 font-medium">X (Twitter)</td>
-                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://x.com/OmenX_official</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://x.com/OmenX_Official</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-medium">Discord</td>
-                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://discord.gg/AZwP5qtK</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://discord.gg/qXssm2crf9</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-medium">Email</td>

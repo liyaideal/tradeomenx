@@ -66,7 +66,7 @@ export default function Rewards() {
     } else if (action === 'referral_qualified') {
       setActiveTab('referral');
     } else if (action === 'join_discord') {
-      window.open("https://discord.gg/AZwP5qtK", "_blank", "noopener,noreferrer");
+      window.open("https://discord.gg/qXssm2crf9", "_blank", "noopener,noreferrer");
     } else if (action === 'connect_external') {
       navigate('/settings');
     } else if (action === 'activate_airdrop') {

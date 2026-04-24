@@ -63,7 +63,7 @@ export const HedgeFoundersNote = () => {
             </p>
 
             <a
-              href="https://discord.gg/j658YbRY"
+              href="https://discord.gg/qXssm2crf9"
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center justify-between rounded-lg border border-border/40 px-3 py-2 text-sm transition-colors hover:border-primary/40 hover:bg-primary/5"
@@ -76,7 +76,7 @@ export const HedgeFoundersNote = () => {
             </a>
 
             <a
-              href="https://x.com/omenx_app"
+              href="https://x.com/OmenX_Official"
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center justify-between rounded-lg border border-border/40 px-3 py-2 text-sm transition-colors hover:border-primary/40 hover:bg-primary/5"
@@ -100,7 +100,7 @@ export const HedgeFoundersNote = () => {
           {/* MOBILE: 3 equal-width compact icon buttons */}
           <div className="grid grid-cols-3 gap-2 md:hidden">
             <a
-              href="https://discord.gg/j658YbRY"
+              href="https://discord.gg/qXssm2crf9"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
@@ -109,7 +109,7 @@ export const HedgeFoundersNote = () => {
               <span className="text-[11px] font-medium">Discord</span>
             </a>
             <a
-              href="https://x.com/omenx_app"
+              href="https://x.com/OmenX_Official"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"

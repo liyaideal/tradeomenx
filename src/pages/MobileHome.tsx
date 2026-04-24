@@ -173,7 +173,7 @@ const MobileHome = () => {
           <div className="flex items-center gap-1">
             {/* Discord */}
             <a
-              href="https://discord.gg/AZwP5qtK"
+              href="https://discord.gg/qXssm2crf9"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-full hover:bg-[#5865F2]/15 transition-colors"
