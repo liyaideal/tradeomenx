@@ -43,7 +43,7 @@ export const HedgeRecentActivity = () => {
       aria-label="Recent activity"
       className="relative overflow-hidden border-b border-border/40 bg-card/60"
     >
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 md:px-6">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 md:px-6 md:py-2.5">
         <span className="hidden shrink-0 items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-muted-foreground sm:inline-flex">
           <span className="h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse" />
           Live
@@ -51,12 +51,11 @@ export const HedgeRecentActivity = () => {
 
         <div className="relative flex-1 overflow-hidden">
           {/* Edge fade masks */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-card/60 to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-card/60 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-card/60 to-transparent md:w-12" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-card/60 to-transparent md:w-12" />
 
           <div
-            className="flex w-max items-center gap-6 whitespace-nowrap"
-            style={{ animation: "hedge-marquee 50s linear infinite" }}
+            className="hedge-marquee-track flex w-max items-center gap-4 whitespace-nowrap md:gap-6"
           >
             {stream.map((item, i) => {
               const Icon = item.icon;
@@ -85,6 +84,14 @@ export const HedgeRecentActivity = () => {
         @keyframes hedge-marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
+        }
+        .hedge-marquee-track {
+          animation: hedge-marquee 30s linear infinite;
+        }
+        @media (min-width: 768px) {
+          .hedge-marquee-track {
+            animation-duration: 50s;
+          }
         }
       `}</style>
     </section>

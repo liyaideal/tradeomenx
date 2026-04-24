@@ -35,12 +35,12 @@ const FAQS = [
 export const HedgeFAQ = () => {
   return (
     <section className="border-b border-border/40 bg-card">
-      <div className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-24">
-        <div className="mb-10 text-center">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+      <div className="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-24">
+        <div className="mb-8 text-center md:mb-10">
+          <h2 className="text-2xl font-bold tracking-tight md:text-4xl">
             Frequently asked
           </h2>
-          <p className="mt-3 text-base text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground md:mt-3 md:text-base">
             The questions everyone asks first.
           </p>
         </div>
@@ -55,9 +55,9 @@ export const HedgeFAQ = () => {
             <AccordionItem
               key={i}
               value={`faq-${i}`}
-              className="overflow-hidden rounded-xl border border-border/40 bg-background/40 px-5 last:border-b"
+              className="overflow-hidden rounded-xl border border-border/40 bg-background/40 px-4 last:border-b md:px-5"
             >
-              <AccordionTrigger className="text-left text-base font-medium hover:no-underline">
+              <AccordionTrigger className="text-left text-sm font-medium leading-snug hover:no-underline md:text-base md:leading-normal">
                 {item.q}
               </AccordionTrigger>
               <AccordionContent className="text-sm leading-relaxed text-muted-foreground">

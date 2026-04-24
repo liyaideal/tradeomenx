@@ -42,7 +42,7 @@ const HedgeLanding = () => {
         <EventsDesktopHeader />
       )}
 
-      <main className="flex-1">
+      <main className="flex-1 pb-20 md:pb-0">
         <div ref={heroRef}>
           <HedgeHero />
         </div>

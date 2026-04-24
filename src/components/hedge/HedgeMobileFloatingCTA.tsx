@@ -31,9 +31,10 @@ export const HedgeMobileFloatingCTA = ({ triggerRef }: Props) => {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur-md transition-transform duration-300 ${
+      className={`fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-4 pt-2.5 backdrop-blur-md transition-transform duration-300 shadow-[0_-4px_12px_hsl(var(--background)/0.6)] ${
         visible ? "translate-y-0" : "translate-y-full"
       }`}
+      style={{ paddingBottom: "max(0.625rem, env(safe-area-inset-bottom))" }}
     >
       <HedgeCTAButton fullWidth />
     </div>
