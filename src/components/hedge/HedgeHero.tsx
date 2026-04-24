@@ -24,10 +24,10 @@ export const HedgeHero = () => {
             Hedge-to-Earn · Live Now
           </span>
 
-          <h1 className="text-3xl font-bold leading-[1.1] tracking-tight md:text-4xl lg:text-5xl lg:tracking-[-0.02em] xl:text-6xl">
-            <span className="lg:whitespace-nowrap">Holding a Polymarket bet?</span>
+          <h1 className="max-w-full text-3xl font-bold leading-[1.1] tracking-tight md:text-4xl lg:text-[2.5rem] lg:tracking-[-0.02em] xl:text-6xl">
+            <span className="xl:whitespace-nowrap">Holding a Polymarket bet?</span>
             <br />
-            <span className="whitespace-nowrap bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent lg:whitespace-nowrap">
               Lock in profit — on us.
             </span>
           </h1>
