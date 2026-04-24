@@ -62,18 +62,18 @@ export const HedgeSocialProof = () => {
           </a>
         </div>
 
-        {/* Mobile: horizontal snap-scroll. Desktop: 3-col grid. */}
-        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 md:pb-0">
+        {/* Mobile: vertical stack. Desktop: 3-col grid. */}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
           {QUOTES.map((q, i) => (
             <article
               key={i}
-              className="flex min-w-[280px] shrink-0 snap-start flex-col rounded-xl border border-border/40 bg-card p-4 md:min-w-0 md:shrink md:snap-none md:p-5"
+              className="flex flex-col rounded-xl border border-border/40 bg-card p-4 md:p-5"
             >
-              <div className="mb-3 flex items-center gap-2 text-muted-foreground">
+              <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground">
                 {q.source === "x" ? (
-                  <XIcon className="h-3.5 w-3.5" />
+                  <XIcon className="h-3.5 w-3.5 shrink-0" />
                 ) : (
-                  <span className="font-mono text-xs">#</span>
+                  <DiscordIcon className="h-3.5 w-3.5 shrink-0" />
                 )}
                 <span className="font-mono text-xs text-foreground">
                   {q.source === "x" ? q.handle : `@${q.handle}`}
