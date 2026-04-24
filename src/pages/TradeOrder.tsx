@@ -11,6 +11,7 @@ import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
+import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 
 
 interface LocationState {
@@ -36,7 +37,12 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
   
   const [bottomTab, setBottomTab] = useState(state?.tab || "Orders");
   const [highlightedPosition, setHighlightedPosition] = useState<number | null>(state?.highlightPosition ?? null);
-  const [side, setSide] = useState<"buy" | "sell">("buy");
+
+  // Shared side state — synced with /trade Charts page
+  const sideKey = tradeSideKey(selectedEvent.id, selectedOptionData.id);
+  const side = useTradeSideStore((s) => s.sideByKey[sideKey] ?? "buy");
+  const setSideInStore = useTradeSideStore((s) => s.setSide);
+  const setSide = (next: "buy" | "sell") => setSideInStore(sideKey, next);
 
   // Transform price for the order book based on side (Sell = 1 - p, asks/bids swap)
   const transformPrice = (price: string): string => {
