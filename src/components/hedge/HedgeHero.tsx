@@ -96,15 +96,6 @@ export const HedgeHero = () => {
           </div>
         </div>
 
-        {/* MOBILE version — same image, compact */}
-        <div className="relative flex md:hidden">
-          <img
-            src={hedgeHeroImage}
-            alt="OmenX hedges your Polymarket position — like insurance"
-            className="h-auto w-full rounded-xl"
-            loading="eager"
-          />
-        </div>
       </div>
 
       {/* Float animation keyframes (scoped via global style) */}
