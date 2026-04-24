@@ -32,10 +32,7 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
       <img
         src={bannerImage}
         alt="Your Polymarket positions are exposed — OmenX hedges them for free. Earn up to $100."
-        className={cn(
-          "block w-full h-auto object-cover transition-transform group-hover:scale-[1.01]",
-          effective === "mobile" ? "aspect-[16/7]" : "aspect-[1920/440]",
-        )}
+        className="block w-full h-auto transition-transform group-hover:scale-[1.01]"
         loading="lazy"
       />
     </button>
