@@ -53,7 +53,7 @@ export const HedgeFoundersNote = () => {
               className="group flex items-center justify-between rounded-lg border border-border/40 px-3 py-2 text-sm transition-colors hover:border-primary/40 hover:bg-primary/5"
             >
               <span className="flex items-center gap-2">
-                <span className="text-base">#</span>
+                <DiscordIcon className="h-3.5 w-3.5" />
                 <span className="font-medium">Discord</span>
               </span>
               <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
