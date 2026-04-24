@@ -8,11 +8,6 @@
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { XIcon } from "@/components/icons/XIcon";
 
-// MOCK on-chain treasury address — ops should swap for the real Base address.
-const TREASURY = "0x4A8b...c39D71";
-const TREASURY_FULL = "0x4A8b1c8E2Fa091B0B9D8C0e9b3d1F4c67c39D71";
-const BASESCAN_URL = `https://basescan.org/address/${TREASURY_FULL}`;
-
 export const HedgeFoundersNote = () => {
   return (
     <section className="border-b border-border/40 bg-muted/20">
@@ -40,18 +35,6 @@ export const HedgeFoundersNote = () => {
                 positions they already hold. No deposit. No tricks. If our
                 product is good, you'll come back. If not, you walk away with
                 free cash. That's the deal.
-              </p>
-              <p className="text-muted-foreground">
-                Treasury wallet (verifiable on Base):{" "}
-                <a
-                  href={BASESCAN_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-0.5 font-mono text-primary hover:underline break-all"
-                >
-                  {TREASURY}
-                  <ArrowUpRight className="h-3 w-3 shrink-0" />
-                </a>
               </p>
             </div>
           </div>
