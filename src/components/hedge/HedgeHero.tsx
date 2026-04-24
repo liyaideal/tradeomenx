@@ -16,7 +16,7 @@ export const HedgeHero = () => {
         <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" />
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-2 md:gap-16 md:px-6 md:py-24 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-2 md:gap-16 md:px-6 md:py-12 lg:py-14 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] xl:py-16">
         {/* Left: copy */}
         <div className="flex min-w-0 flex-col justify-center">
           <span className="mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary md:mb-4 md:text-xs">
