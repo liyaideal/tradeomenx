@@ -16,15 +16,15 @@ export const HedgeHero = () => {
         <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" />
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-2 md:gap-16 md:px-6 md:py-24">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-2 md:gap-16 md:px-6 md:py-24">
         {/* Left: copy */}
         <div className="flex flex-col justify-center">
-          <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+          <span className="mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary md:mb-4 md:text-xs">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             Hedge-to-Earn · Live Now
           </span>
 
-          <h1 className="text-4xl font-bold leading-[1.1] tracking-tight md:text-6xl">
+          <h1 className="text-3xl font-bold leading-[1.1] tracking-tight md:text-6xl">
             Holding a Polymarket bet?
             <br />
             <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
@@ -32,44 +32,47 @@ export const HedgeHero = () => {
             </span>
           </h1>
 
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-lg">
             We'll airdrop you a free counter-position worth up to{" "}
             <span className="font-mono text-foreground">$10</span>. Win or lose
             on Polymarket, you walk away with real USDC.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row md:mt-8">
             <HedgeCTAButton size="lg" />
           </div>
 
-          {/* Live stats bar (mock) */}
-          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border/40 bg-card/60 px-4 py-2.5 text-xs">
-            <div className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse" />
-              <span className="font-mono font-semibold text-foreground">
-                {LIVE_STATS.distributed}
-              </span>
-              <span className="text-muted-foreground">distributed</span>
+          {/* Live stats bar — mobile: 3-col grid; desktop: inline flex */}
+          <div className="mt-5 grid grid-cols-3 divide-x divide-border/40 rounded-lg border border-border/40 bg-card/60 text-center md:mt-6 md:flex md:flex-wrap md:items-center md:gap-x-5 md:gap-y-2 md:divide-x-0 md:px-4 md:py-2.5 md:text-left">
+            <div className="flex flex-col items-center gap-0.5 px-2 py-2 md:flex-row md:items-center md:gap-1.5 md:p-0">
+              <div className="flex items-center gap-1.5">
+                <span className="hidden h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse md:inline-block" />
+                <span className="font-mono text-sm font-semibold text-foreground md:text-xs">
+                  {LIVE_STATS.distributed}
+                </span>
+              </div>
+              <span className="text-[10px] text-muted-foreground md:text-xs">distributed</span>
             </div>
-            <span className="text-border">·</span>
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono font-semibold text-foreground">
+            <span className="hidden text-border md:inline">·</span>
+            <div className="flex flex-col items-center gap-0.5 px-2 py-2 md:flex-row md:items-center md:gap-1.5 md:p-0">
+              <span className="font-mono text-sm font-semibold text-foreground md:text-xs">
                 {LIVE_STATS.claimed}
               </span>
-              <span className="text-muted-foreground">users claimed</span>
+              <span className="text-[10px] text-muted-foreground md:text-xs">users claimed</span>
             </div>
-            <span className="text-border">·</span>
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono font-semibold text-primary">
+            <span className="hidden text-border md:inline">·</span>
+            <div className="flex flex-col items-center gap-0.5 px-2 py-2 md:flex-row md:items-center md:gap-1.5 md:p-0">
+              <span className="font-mono text-sm font-semibold text-primary md:text-xs">
                 {LIVE_STATS.remaining}
               </span>
-              <span className="text-muted-foreground">spots left today</span>
+              <span className="text-[10px] text-muted-foreground md:text-xs">spots left today</span>
             </div>
           </div>
 
-          {/* Inline trust line (replaces TrustBar section) */}
-          <p className="mt-4 text-xs text-muted-foreground">
-            EIP-712 read-only signature · Settled in USDC on Base ·{" "}
+          {/* Inline trust line — mobile: simplified */}
+          <p className="mt-3 text-[11px] text-muted-foreground md:mt-4 md:text-xs">
+            <span className="hidden md:inline">EIP-712 read-only signature · Settled in USDC on Base · </span>
+            <span className="md:hidden">EIP-712 read-only · </span>
             <a
               href="/transparency"
               className="inline-flex items-center gap-0.5 text-primary hover:underline"
@@ -80,8 +83,8 @@ export const HedgeHero = () => {
           </p>
         </div>
 
-        {/* Right: animated card mockup */}
-        <div className="relative flex items-center justify-center">
+        {/* Right: animated card mockup — DESKTOP version (stacked floating cards) */}
+        <div className="relative hidden items-center justify-center md:flex">
           <div className="relative w-full max-w-md">
             {/* Polymarket card */}
             <div
@@ -131,6 +134,50 @@ export const HedgeHero = () => {
               <div className="mt-4 flex items-baseline justify-between">
                 <span className="text-xs text-muted-foreground">Hedge</span>
                 <span className="font-mono text-xl font-bold text-primary">$10</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* MOBILE version — single compact horizontal card */}
+        <div className="relative flex md:hidden">
+          <div className="relative w-full rounded-2xl border border-border/60 bg-card p-3 shadow-xl shadow-primary/5">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+              {/* Polymarket mini */}
+              <div className="rounded-lg border border-border/40 bg-background/40 p-2.5">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Polymarket
+                  </span>
+                  <span className="rounded bg-trading-green/15 px-1 py-0.5 text-[8px] font-semibold text-trading-green">
+                    YES
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium leading-tight">BTC &gt; $100K</p>
+                <p className="mt-1.5 font-mono text-base font-bold">$500</p>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex flex-col items-center gap-0.5 text-primary">
+                <ArrowLeftRight className="h-4 w-4" />
+                <span className="text-[8px] font-mono uppercase tracking-wider">hedge</span>
+              </div>
+
+              {/* OmenX mini */}
+              <div className="relative rounded-lg border border-primary/40 bg-gradient-to-br from-primary/15 to-transparent p-2.5">
+                <div className="absolute -top-1.5 right-2 rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-bold text-primary-foreground">
+                  FREE
+                </div>
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                    OmenX
+                  </span>
+                  <span className="rounded bg-trading-red/15 px-1 py-0.5 text-[8px] font-semibold text-trading-red">
+                    SHORT
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium leading-tight">BTC &gt; $100K</p>
+                <p className="mt-1.5 font-mono text-base font-bold text-primary">$10</p>
               </div>
             </div>
           </div>

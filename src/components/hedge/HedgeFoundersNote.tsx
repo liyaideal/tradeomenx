@@ -5,7 +5,7 @@
  * concrete links. AI-generated marketing pages can't fake this convincingly.
  */
 
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { XIcon } from "@/components/icons/XIcon";
 
 // MOCK on-chain treasury address — ops should swap for the real Base address.
@@ -16,17 +16,17 @@ const BASESCAN_URL = `https://basescan.org/address/${TREASURY_FULL}`;
 export const HedgeFoundersNote = () => {
   return (
     <section className="border-b border-border/40 bg-muted/20">
-      <div className="mx-auto max-w-5xl px-4 py-16 md:px-6 md:py-20">
-        <div className="grid gap-10 md:grid-cols-[1fr_auto] md:items-start md:gap-16">
+      <div className="mx-auto max-w-5xl px-4 py-12 md:px-6 md:py-20">
+        <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-start md:gap-16">
           {/* Letter */}
           <div>
-            <p className="mb-3 text-xs font-mono uppercase tracking-wider text-primary">
+            <p className="mb-2 text-[11px] font-mono uppercase tracking-wider text-primary md:mb-3 md:text-xs">
               A note from the team
             </p>
-            <h2 className="mb-5 text-2xl font-bold tracking-tight md:text-3xl">
+            <h2 className="mb-4 text-xl font-bold tracking-tight md:mb-5 md:text-3xl">
               Why we're spending real money on this
             </h2>
-            <div className="space-y-4 text-sm leading-relaxed text-foreground/90 md:text-base">
+            <div className="space-y-3 text-sm leading-relaxed text-foreground/90 md:space-y-4 md:text-base">
               <p>
                 Hi — I'm one of the people behind OmenX. We're a small team that
                 thinks prediction markets are the most honest financial product
@@ -47,17 +47,17 @@ export const HedgeFoundersNote = () => {
                   href={BASESCAN_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-0.5 font-mono text-primary hover:underline"
+                  className="inline-flex items-center gap-0.5 font-mono text-primary hover:underline break-all"
                 >
                   {TREASURY}
-                  <ArrowUpRight className="h-3 w-3" />
+                  <ArrowUpRight className="h-3 w-3 shrink-0" />
                 </a>
               </p>
             </div>
           </div>
 
-          {/* Sidebar links */}
-          <aside className="flex flex-col gap-2 rounded-xl border border-border/40 bg-card p-5 md:min-w-[220px]">
+          {/* DESKTOP: vertical sidebar links */}
+          <aside className="hidden md:flex md:flex-col md:gap-2 md:rounded-xl md:border md:border-border/40 md:bg-card md:p-5 md:min-w-[220px]">
             <p className="mb-2 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
               Talk to us directly
             </p>
@@ -96,6 +96,35 @@ export const HedgeFoundersNote = () => {
               <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
             </a>
           </aside>
+
+          {/* MOBILE: 3 equal-width compact icon buttons */}
+          <div className="grid grid-cols-3 gap-2 md:hidden">
+            <a
+              href="https://discord.gg/j658YbRY"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+            >
+              <span className="text-base font-semibold">#</span>
+              <span className="text-[11px] font-medium">Discord</span>
+            </a>
+            <a
+              href="https://x.com/omenx_app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+            >
+              <XIcon className="h-3.5 w-3.5" />
+              <span className="text-[11px] font-medium">@omenx_app</span>
+            </a>
+            <a
+              href="/transparency"
+              className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span className="text-[11px] font-medium">Audit</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>

@@ -41,13 +41,13 @@ const sourceLabel = (s: Quote["source"]) =>
 export const HedgeSocialProof = () => {
   return (
     <section className="border-b border-border/40">
-      <div className="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
-        <div className="mb-8 flex items-end justify-between gap-4">
+      <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-20">
+        <div className="mb-6 flex items-end justify-between gap-4 md:mb-8">
           <div>
-            <p className="mb-2 text-xs font-mono uppercase tracking-wider text-primary">
+            <p className="mb-1.5 text-[11px] font-mono uppercase tracking-wider text-primary md:mb-2 md:text-xs">
               What people are saying
             </p>
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            <h2 className="text-xl font-bold tracking-tight md:text-3xl">
               Receipts, not promises
             </h2>
           </div>
@@ -61,11 +61,12 @@ export const HedgeSocialProof = () => {
           </a>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* Mobile: horizontal snap-scroll. Desktop: 3-col grid. */}
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 md:pb-0">
           {QUOTES.map((q, i) => (
             <article
               key={i}
-              className="flex flex-col rounded-xl border border-border/40 bg-card p-5"
+              className="flex min-w-[280px] shrink-0 snap-start flex-col rounded-xl border border-border/40 bg-card p-4 md:min-w-0 md:shrink md:snap-none md:p-5"
             >
               <div className="mb-3 flex items-center gap-2 text-muted-foreground">
                 {q.source === "x" ? (

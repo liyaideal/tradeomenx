@@ -131,18 +131,18 @@ const groupColor = (group: "eligibility" | "reward") =>
 export const HedgeKeyRules = () => {
   return (
     <section className="border-b border-border/40">
-      <div className="mx-auto max-w-4xl px-4 py-16 md:px-6 md:py-24">
-        <div className="mb-10 text-center">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+      <div className="mx-auto max-w-4xl px-4 py-12 md:px-6 md:py-24">
+        <div className="mb-8 text-center md:mb-10">
+          <h2 className="text-2xl font-bold tracking-tight md:text-4xl">
             The fine print isn't fine print
           </h2>
-          <p className="mt-3 text-base text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground md:mt-3 md:text-base">
             Six rules. Tap to expand for the full terms.
           </p>
         </div>
 
         {/* Group legend */}
-        <div className="mb-5 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
+        <div className="mb-4 flex flex-wrap items-center justify-center gap-3 text-[11px] text-muted-foreground md:mb-5 md:gap-4 md:text-xs">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-trading-green" />
             Eligibility
@@ -158,7 +158,7 @@ export const HedgeKeyRules = () => {
             <AccordionItem
               key={i}
               value={`rule-${i}`}
-              className="overflow-hidden rounded-xl border border-border/40 bg-card px-5 last:border-b"
+              className="overflow-hidden rounded-xl border border-border/40 bg-card px-4 last:border-b md:px-5"
             >
               <AccordionTrigger className="hover:no-underline">
                 <span className="flex items-start gap-3 text-left">
@@ -167,7 +167,7 @@ export const HedgeKeyRules = () => {
                   >
                     <Check className="h-3 w-3" strokeWidth={3} />
                   </span>
-                  <span className="text-sm font-medium leading-relaxed text-foreground">
+                  <span className="text-[13px] font-medium leading-snug text-foreground md:text-sm md:leading-relaxed">
                     {rule.short}
                   </span>
                 </span>
@@ -180,7 +180,7 @@ export const HedgeKeyRules = () => {
         </Accordion>
 
         {/* Risk & disclaimer collapsed at the bottom */}
-        <details className="mt-8 rounded-xl border border-border/40 bg-card/40 px-5 py-3 text-xs leading-relaxed text-muted-foreground/90">
+        <details className="mt-8 rounded-xl border border-border/40 bg-card/40 px-4 py-3 text-xs leading-relaxed text-muted-foreground/90 md:px-5">
           <summary className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-foreground">
             Risk control & disclaimer
           </summary>
