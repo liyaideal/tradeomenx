@@ -86,7 +86,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(260_60%_55%/0.3)]"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
                   }`}
                 >
                   {item.label}
