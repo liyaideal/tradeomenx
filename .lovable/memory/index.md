@@ -107,3 +107,4 @@
 - [Market list view hierarchy](mem://style/market-list-view-hierarchy) — Sub-header rows for expanded market data
 - [Event list filters](mem://features/event-list-filter-sort-refinement) — Restrictions on available event filters
 - [Event page branding](mem://content/event-page-branding) — Standardized titles and subtitles
+- [H2E landing architecture](mem://marketing/hedge-landing-architecture) — /hedge section order, anti-AI design tactics, mock data convention

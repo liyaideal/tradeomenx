@@ -1,5 +1,12 @@
-import { Lock, Eye, Coins, ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, ArrowRight } from "lucide-react";
 import { HedgeCTAButton } from "./HedgeCTAButton";
+
+// Mock live stats — operations can edit these constants directly.
+const LIVE_STATS = {
+  distributed: "$47,320",
+  claimed: "1,284",
+  remaining: "213",
+};
 
 export const HedgeHero = () => {
   return (
@@ -18,37 +25,59 @@ export const HedgeHero = () => {
           </span>
 
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight md:text-6xl">
-            Got a Polymarket position?
+            Holding a Polymarket bet?
             <br />
             <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
-              We'll hedge it — for free.
+              Lock in profit — on us.
             </span>
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Connect your Polymarket wallet and we'll airdrop you a free counter-position on
-            OmenX. Whatever happens, you walk away with cash. Zero deposit. Zero risk.
+            We'll airdrop you a free counter-position worth up to{" "}
+            <span className="font-mono text-foreground">$10</span>. Win or lose
+            on Polymarket, you walk away with real USDC.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <HedgeCTAButton size="lg" />
           </div>
 
-          {/* Trust badges */}
-          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Coins className="h-4 w-4 text-trading-green" />
-              <span><span className="font-mono text-foreground">$0</span> cost</span>
+          {/* Live stats bar (mock) */}
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border/40 bg-card/60 px-4 py-2.5 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse" />
+              <span className="font-mono font-semibold text-foreground">
+                {LIVE_STATS.distributed}
+              </span>
+              <span className="text-muted-foreground">distributed</span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Eye className="h-4 w-4 text-primary" />
-              <span>Read-only access</span>
+            <span className="text-border">·</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono font-semibold text-foreground">
+                {LIVE_STATS.claimed}
+              </span>
+              <span className="text-muted-foreground">users claimed</span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Lock className="h-4 w-4 text-primary" />
-              <span>Up to <span className="font-mono text-foreground">$100</span> free</span>
+            <span className="text-border">·</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono font-semibold text-primary">
+                {LIVE_STATS.remaining}
+              </span>
+              <span className="text-muted-foreground">spots left today</span>
             </div>
           </div>
+
+          {/* Inline trust line (replaces TrustBar section) */}
+          <p className="mt-4 text-xs text-muted-foreground">
+            EIP-712 read-only signature · Settled in USDC on Base ·{" "}
+            <a
+              href="/transparency"
+              className="inline-flex items-center gap-0.5 text-primary hover:underline"
+            >
+              View on-chain audit
+              <ArrowRight className="h-3 w-3" />
+            </a>
+          </p>
         </div>
 
         {/* Right: animated card mockup */}

@@ -4,12 +4,13 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HedgeHero } from "@/components/hedge/HedgeHero";
+import { HedgeRecentActivity } from "@/components/hedge/HedgeRecentActivity";
 import { HedgeHowItWorks } from "@/components/hedge/HedgeHowItWorks";
 import { HedgeLiveExample } from "@/components/hedge/HedgeLiveExample";
-import { HedgeTrustBar } from "@/components/hedge/HedgeTrustBar";
+import { HedgeFoundersNote } from "@/components/hedge/HedgeFoundersNote";
 import { HedgeKeyRules } from "@/components/hedge/HedgeKeyRules";
+import { HedgeSocialProof } from "@/components/hedge/HedgeSocialProof";
 import { HedgeFAQ } from "@/components/hedge/HedgeFAQ";
-import { HedgeCampaignRules } from "@/components/hedge/HedgeCampaignRules";
 import { HedgeFinalCTA } from "@/components/hedge/HedgeFinalCTA";
 import { HedgeMobileFloatingCTA } from "@/components/hedge/HedgeMobileFloatingCTA";
 
@@ -45,12 +46,13 @@ const HedgeLanding = () => {
         <div ref={heroRef}>
           <HedgeHero />
         </div>
+        <HedgeRecentActivity />
         <HedgeHowItWorks />
         <HedgeLiveExample />
-        <HedgeTrustBar />
+        <HedgeFoundersNote />
         <HedgeKeyRules />
+        <HedgeSocialProof />
         <HedgeFAQ />
-        <HedgeCampaignRules />
         <HedgeFinalCTA />
       </main>
 

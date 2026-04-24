@@ -1,21 +1,18 @@
-import { Wallet, ScanLine, DollarSign, ArrowDown } from "lucide-react";
-import { HedgeCTAButton } from "./HedgeCTAButton";
+import { Fragment } from "react";
+import { ArrowRight, ArrowDown } from "lucide-react";
 
 const STEPS = [
   {
-    icon: Wallet,
     title: "Connect Polymarket",
     body: "Link your wallet — read-only. We never touch your funds.",
     note: "Takes ~30 seconds",
   },
   {
-    icon: ScanLine,
     title: "We scan your positions",
     body: "Find qualifying positions ($200+, held 3+ days, matching market on OmenX).",
     note: "Fully automatic",
   },
   {
-    icon: DollarSign,
     title: "Claim your free hedge",
     body: "Up to $10 per position credited as a free counter-trade. Settle to real cash.",
     note: "Up to $100 lifetime",
@@ -33,35 +30,42 @@ export const HedgeHowItWorks = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3 md:gap-8">
+        {/* Horizontal connected steps (no card grid) */}
+        <div className="mx-auto grid max-w-5xl items-start gap-6 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:gap-4">
           {STEPS.map((step, i) => (
-            <div key={step.title} className="flex flex-col">
-              <div className="relative flex flex-1 flex-col rounded-2xl border border-border/40 bg-card p-6 transition-colors hover:border-primary/40">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <step.icon className="h-6 w-6" />
+            <Fragment key={step.title}>
+              <div className="relative">
+                {/* Big number */}
+                <div className="mb-3 font-mono text-5xl font-bold leading-none text-primary/30 md:text-6xl">
+                  0{i + 1}
                 </div>
-                <div className="mb-2 text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                  Step {i + 1}
-                </div>
-                <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
-                <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
+                <h3 className="mb-2 text-lg font-semibold md:text-xl">
+                  {step.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   {step.body}
                 </p>
-                <p className="mt-4 text-xs font-medium text-primary">{step.note}</p>
+                <p className="mt-3 text-xs font-mono uppercase tracking-wider text-primary">
+                  {step.note}
+                </p>
               </div>
 
-              {/* Mobile down-arrow connector */}
+              {/* Connector — only between items */}
               {i < STEPS.length - 1 && (
-                <div className="my-2 flex justify-center md:hidden">
-                  <ArrowDown className="h-5 w-5 text-muted-foreground/60" />
-                </div>
+                <>
+                  <div className="hidden items-center justify-center pt-8 md:flex">
+                    <div className="flex items-center">
+                      <span className="block h-px w-12 bg-border" />
+                      <ArrowRight className="h-4 w-4 -ml-1 text-muted-foreground" />
+                    </div>
+                  </div>
+                  <div className="flex justify-center md:hidden">
+                    <ArrowDown className="h-5 w-5 text-muted-foreground/60" />
+                  </div>
+                </>
               )}
-            </div>
+            </Fragment>
           ))}
-        </div>
-
-        <div className="mt-12 flex justify-center">
-          <HedgeCTAButton />
         </div>
       </div>
     </section>

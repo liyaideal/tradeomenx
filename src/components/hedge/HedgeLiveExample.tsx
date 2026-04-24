@@ -1,4 +1,8 @@
-import { ArrowLeftRight, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowLeftRight, TrendingUp, TrendingDown, Quote } from "lucide-react";
+
+// NOTE: market title and testimonial handles are MOCK and intended for ops to
+// replace with a currently-trending market + real user quotes once available.
+const MARKET_TITLE = "Trump wins 2028 election";
 
 export const HedgeLiveExample = () => {
   return (
@@ -9,7 +13,8 @@ export const HedgeLiveExample = () => {
             See it in action
           </h2>
           <p className="mt-3 text-base text-muted-foreground">
-            A real example: <span className="font-medium text-foreground">BTC &gt; $100K</span> by Dec 31
+            A real example:{" "}
+            <span className="font-medium text-foreground">{MARKET_TITLE}</span>
           </p>
         </div>
 
@@ -25,7 +30,7 @@ export const HedgeLiveExample = () => {
                 YES
               </span>
             </div>
-            <p className="text-lg font-semibold">BTC &gt; $100K</p>
+            <p className="text-lg font-semibold">{MARKET_TITLE}</p>
             <div className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Side</span>
@@ -59,7 +64,7 @@ export const HedgeLiveExample = () => {
                 SHORT
               </span>
             </div>
-            <p className="text-lg font-semibold">BTC &gt; $100K</p>
+            <p className="text-lg font-semibold">{MARKET_TITLE}</p>
             <div className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Side</span>
@@ -79,7 +84,7 @@ export const HedgeLiveExample = () => {
             <div className="mb-3 flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-trading-green" />
               <h3 className="text-base font-semibold">
-                Scenario A: BTC hits $100K
+                Scenario A: Trump wins
               </h3>
             </div>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -102,7 +107,7 @@ export const HedgeLiveExample = () => {
             <div className="mb-3 flex items-center gap-2">
               <TrendingDown className="h-5 w-5 text-primary" />
               <h3 className="text-base font-semibold">
-                Scenario B: BTC misses $100K
+                Scenario B: Trump loses
               </h3>
             </div>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -122,10 +127,27 @@ export const HedgeLiveExample = () => {
           </div>
         </div>
 
-        <p className="mx-auto mt-10 max-w-2xl text-center text-lg font-medium md:text-xl">
-          You have nothing to lose.{" "}
-          <span className="text-primary">Literally.</span>
-        </p>
+        {/* Testimonial + stats — replaces "You have nothing to lose. Literally." */}
+        <div className="mx-auto mt-10 max-w-3xl">
+          <figure className="rounded-2xl border border-border/40 bg-card/60 p-6">
+            <Quote className="mb-3 h-5 w-5 text-primary/60" />
+            <blockquote className="text-base leading-relaxed text-foreground md:text-lg">
+              "Held my Trump 2028 long, hedged with OmenX, made{" "}
+              <span className="font-mono font-semibold text-trading-green">$8</span>{" "}
+              when it dipped. Took 30 seconds to set up."
+            </blockquote>
+            <figcaption className="mt-3 flex items-center justify-between text-xs">
+              <span className="font-mono text-muted-foreground">
+                — @cryptotrader_xyz
+              </span>
+              <span className="text-muted-foreground">
+                Average claim settled{" "}
+                <span className="font-mono font-semibold text-trading-green">+$6.40</span>{" "}
+                within 7 days
+              </span>
+            </figcaption>
+          </figure>
+        </div>
       </div>
     </section>
   );
