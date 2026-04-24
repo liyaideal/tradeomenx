@@ -18,11 +18,11 @@ export const HedgeHero = () => {
 
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-2 md:gap-16 md:px-6 md:py-12 lg:py-14 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] xl:py-16">
         {/* MOBILE image — placed first so it renders ABOVE the copy on mobile */}
-        <div className="relative order-first flex md:hidden">
+        <div className="relative order-first flex justify-center md:hidden">
           <img
             src={hedgeHeroImage}
             alt="OmenX hedges your Polymarket position — like insurance"
-            className="h-auto w-full rounded-xl"
+            className="h-auto w-3/5 max-w-[240px] rounded-xl"
             loading="eager"
           />
         </div>
