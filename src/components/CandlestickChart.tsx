@@ -123,7 +123,7 @@ const calculateMA = (data: number[], period: number): number[] => {
   return result;
 };
 
-export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: CandlestickChartProps) => {
+export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy" }: CandlestickChartProps) => {
   const defaultTimeframe = getDefaultTimeframe(remainingDays);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [chartMode, setChartMode] = useState<"candle" | "line">("candle");
@@ -138,10 +138,15 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12 }: Candl
     }
   }, [selectedTimeframe]);
 
+  // Mirror price for sell side (Yes-only model: Sell = 1 - p), clamped to valid range
+  const effectiveBasePrice = side === "sell"
+    ? Math.max(0.0001, Math.min(0.9999, 1 - basePrice))
+    : basePrice;
+
   const candleCount = selectedTimeframe === "ALL" ? 60 : 60;
   const candles = useMemo(
-    () => generateMockCandles(selectedTimeframe, basePrice, candleCount), 
-    [selectedTimeframe, basePrice, candleCount]
+    () => generateMockCandles(selectedTimeframe, effectiveBasePrice, candleCount), 
+    [selectedTimeframe, effectiveBasePrice, candleCount]
   );
   
   // Calculate volume data
