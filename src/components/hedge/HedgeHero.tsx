@@ -17,6 +17,16 @@ export const HedgeHero = () => {
       </div>
 
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-2 md:gap-16 md:px-6 md:py-12 lg:py-14 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] xl:py-16">
+        {/* MOBILE image — placed first so it renders ABOVE the copy on mobile */}
+        <div className="relative order-first flex md:hidden">
+          <img
+            src={hedgeHeroImage}
+            alt="OmenX hedges your Polymarket position — like insurance"
+            className="h-auto w-full rounded-xl"
+            loading="eager"
+          />
+        </div>
+
         {/* Left: copy */}
         <div className="flex min-w-0 flex-col justify-center">
           <span className="mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary md:mb-4 md:text-xs">
@@ -86,15 +96,6 @@ export const HedgeHero = () => {
           </div>
         </div>
 
-        {/* MOBILE version — same image, compact */}
-        <div className="relative flex md:hidden">
-          <img
-            src={hedgeHeroImage}
-            alt="OmenX hedges your Polymarket position — like insurance"
-            className="h-auto w-full rounded-xl"
-            loading="eager"
-          />
-        </div>
       </div>
 
       {/* Float animation keyframes (scoped via global style) */}
