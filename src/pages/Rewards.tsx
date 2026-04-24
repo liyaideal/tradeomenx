@@ -108,7 +108,7 @@ export default function Rewards() {
             title="Points redemption is paused for mainnet launch. Stay tuned."
           >
             {!isMobile && <Gift className="w-4 h-4 mr-2" />}
-            Redemption Coming Soon
+            Coming Soon
           </Button>
         </div>
         
