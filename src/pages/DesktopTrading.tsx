@@ -925,7 +925,7 @@ export default function DesktopTrading() {
               {chartTab === "Chart" ? (
                 <>
                   <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
-                    <span className="text-2xl font-bold font-mono">{selectedOptionData.price}</span>
+                    <span className="text-2xl font-bold font-mono">{sidePrice.toFixed(4)}</span>
                     <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
                       {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
                     </span>
@@ -933,7 +933,7 @@ export default function DesktopTrading() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                            <Flag className="w-3 h-3" /> {selectedOptionData.price}
+                            <Flag className="w-3 h-3" /> {sidePrice.toFixed(4)}
                           </span>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[280px] p-3">
@@ -944,7 +944,7 @@ export default function DesktopTrading() {
                     </TooltipProvider>
                   </div>
                   <div className="flex-1 min-h-0">
-                    <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} />
+                    <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} side={side} />
                   </div>
                 </>
               ) : (
