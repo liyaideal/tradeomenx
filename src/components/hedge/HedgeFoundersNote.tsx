@@ -8,11 +8,6 @@
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { XIcon } from "@/components/icons/XIcon";
 
-// MOCK on-chain treasury address — ops should swap for the real Base address.
-const TREASURY = "0x4A8b...c39D71";
-const TREASURY_FULL = "0x4A8b1c8E2Fa091B0B9D8C0e9b3d1F4c67c39D71";
-const BASESCAN_URL = `https://basescan.org/address/${TREASURY_FULL}`;
-
 export const HedgeFoundersNote = () => {
   return (
     <section className="border-b border-border/40 bg-muted/20">
