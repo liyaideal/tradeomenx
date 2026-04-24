@@ -8,7 +8,6 @@ import { HedgeEntryBanner } from "@/components/hedge/HedgeEntryBanner";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
-import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { toast } from "sonner";
 import { usePositions } from "@/hooks/usePositions";
@@ -501,9 +500,6 @@ const MobileHome = () => {
           </section>
         )}
 
-      {/* Treasure Drop Button - appears when eligible */}
-      <TreasureDropButton />
-      
       {/* Auth Sheet */}
       <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
       
