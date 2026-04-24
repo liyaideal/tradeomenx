@@ -41,18 +41,6 @@ export const HedgeFoundersNote = () => {
                 product is good, you'll come back. If not, you walk away with
                 free cash. That's the deal.
               </p>
-              <p className="text-muted-foreground">
-                Treasury wallet (verifiable on Base):{" "}
-                <a
-                  href={BASESCAN_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-0.5 font-mono text-primary hover:underline break-all"
-                >
-                  {TREASURY}
-                  <ArrowUpRight className="h-3 w-3 shrink-0" />
-                </a>
-              </p>
             </div>
           </div>
 
