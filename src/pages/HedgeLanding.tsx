@@ -9,6 +9,7 @@ import { HedgeLiveExample } from "@/components/hedge/HedgeLiveExample";
 import { HedgeTrustBar } from "@/components/hedge/HedgeTrustBar";
 import { HedgeKeyRules } from "@/components/hedge/HedgeKeyRules";
 import { HedgeFAQ } from "@/components/hedge/HedgeFAQ";
+import { HedgeCampaignRules } from "@/components/hedge/HedgeCampaignRules";
 import { HedgeFinalCTA } from "@/components/hedge/HedgeFinalCTA";
 import { HedgeMobileFloatingCTA } from "@/components/hedge/HedgeMobileFloatingCTA";
 
@@ -49,6 +50,7 @@ const HedgeLanding = () => {
         <HedgeTrustBar />
         <HedgeKeyRules />
         <HedgeFAQ />
+        <HedgeCampaignRules />
         <HedgeFinalCTA />
       </main>
 
