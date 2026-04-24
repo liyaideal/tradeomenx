@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { ArrowRight, ArrowDown } from "lucide-react";
 
 const STEPS = [
@@ -32,8 +33,8 @@ export const HedgeHowItWorks = () => {
         {/* Horizontal connected steps (no card grid) */}
         <div className="mx-auto grid max-w-5xl items-start gap-6 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:gap-4">
           {STEPS.map((step, i) => (
-            <>
-              <div key={step.title} className="relative">
+            <Fragment key={step.title}>
+              <div className="relative">
                 {/* Big number */}
                 <div className="mb-3 font-mono text-5xl font-bold leading-none text-primary/30 md:text-6xl">
                   0{i + 1}
@@ -52,18 +53,18 @@ export const HedgeHowItWorks = () => {
               {/* Connector — only between items */}
               {i < STEPS.length - 1 && (
                 <>
-                  <div className="hidden items-center justify-center pt-8 md:flex" key={`arrow-${i}`}>
+                  <div className="hidden items-center justify-center pt-8 md:flex">
                     <div className="flex items-center">
                       <span className="block h-px w-12 bg-border" />
                       <ArrowRight className="h-4 w-4 -ml-1 text-muted-foreground" />
                     </div>
                   </div>
-                  <div className="flex justify-center md:hidden" key={`arrow-m-${i}`}>
+                  <div className="flex justify-center md:hidden">
                     <ArrowDown className="h-5 w-5 text-muted-foreground/60" />
                   </div>
                 </>
               )}
-            </>
+            </Fragment>
           ))}
         </div>
       </div>
