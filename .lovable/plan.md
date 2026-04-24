@@ -1,148 +1,162 @@
 
 
-## /hedge 页面"AI 感重 + 不吸引人"诊断与重构方案
+## /hedge 移动端排版优化方案
 
-### 一、根因诊断（为什么看起来像 AI 写的）
+### 一、当前移动端的 7 个核心问题
 
-**1. 模板化结构 — 8 个 section 全部"标题居中 + 副标题 + 卡片网格"**
-Hero → How it Works → Live Example → Trust Bar → Key Rules → FAQ → Campaign Rules → Final CTA。每个 section 都是「居中 h2 + 灰色 muted 副标题 + 一行 grid 卡片」，节奏完全一致，看 3 屏后大脑自动跳过。
+**1. Hero 字号过大 + 卡片占满整屏**
+- `text-4xl`（36px）标题在 375px 宽屏会断行 4-5 行，吃掉一屏 60% 高度
+- 右侧 demo 卡片在移动端从 Hero 下方再叠两张大卡，单屏 Hero 总高 ≈ 1100px，用户要滑 3 屏才能离开 Hero
+- "Live stats bar" 用 flex-wrap 在窄屏堆成 3 行，每行高 28px，没有视觉压缩
 
-**2. 视觉语言极度均质**
-- 几乎每个 section 都用 `rounded-2xl border border-border/40 bg-card`
-- 每个图标都用 `bg-primary/10 text-primary` 圆角方块容器（HowItWorks/TrustBar/KeyRules 全一样）
-- 整页只有 primary 一个强调色，绿色/红色只在 LiveExample 用了一次
-- 全是占位符（"BTC > $100K"反复出现 4 次），无真实截图、无人脸、无实盘数据
+**2. Hero CTA 被推到屏幕外**
+- 卡片在 CTA 下面，用户看到的第一屏是「标题 + 副标题」，CTA 完全不可见
+- 移动端转化漏斗在第一屏就断
 
-**3. 文案是"营销 GPT"标准腔**
-- "Three steps. No deposit. No catch." / "Six rules. Zero hidden terms." / "The fine print isn't fine print" — 全是工整的 3-5-7 字对仗短句
-- 缺数字钩子：通篇看不到"已发放 X USDC"、"Y 个用户已领取"、"今日剩余 Z 份"
-- 缺紧迫感：只有 Final CTA 末尾一行小字提"limited"，没有真实倒计时或剩余配额
+**3. RecentActivity ticker 在移动端文字被截**
+- "Live" 标签在 sm 以下隐藏（正常）
+- 但每条 item 还是横向 nowrap，font-size `text-xs`（12px），edge mask 12px 太窄遮不住断字
+- 滚动速度 50s 在窄屏看起来太慢（每条要 4-5 秒过去）
 
-**4. 缺少"人"和"证据"**
-- 没有用户截图 / Twitter 推文 / Discord 真实对话
-- 没有团队信息 / 联创头像 / 公开承诺
-- "Why you can trust us" 4 个理由全是抽象概念（Read-only / Real USDC / On-chain proof / Open audit），无可点击验证的链接
+**4. HowItWorks 移动端竖排但视觉很弱**
+- 三个数字 `0X` 用 `text-5xl primary/30`，在窄屏占满半行，但下面 title + body + note 又把节奏拖长
+- 每步之间只有一个 `ArrowDown h-5 w-5`（20px）灰色箭头，连接感弱
+- 三步加起来在 mobile 占 ≈ 700px 高度
 
-**5. 重复内容稀释吸引力**
-- Hero 右侧已有 Polymarket↔OmenX 双卡演示
-- LiveExample 又来一遍同样的双卡（更大、更详细）
-- KeyRules 6 条 + CampaignRules 又把 6 条详细化重写一遍
-- HedgeCTAButton 出现了 5 次，按钮疲劳
+**5. LiveExample 三栏横向布局在移动端崩**
+- `md:grid-cols-[1fr_auto_1fr]`，在移动端变成「卡 → 箭头 → 卡」垂直堆叠
+- 中间箭头 `py-2`（8px）太挤，两张大卡贴在一起
+- 下面 Scenario A/B 在 mobile 是单列，每张卡 `p-6` 太厚
+- testimonial figure `p-6` + `text-base/lg` 在 mobile 显得臃肿，figcaption 用 `justify-between` 在窄屏被压成两行错位
 
-**6. 价值主张表述偏弱**
-"Got a Polymarket position? We'll hedge it — for free." 是功能描述，不是用户痛点。Polymarket 用户的真实痛点是：**"赢了一半还是亏的（YES 涨到 $0.95 卖不出好价）"、"想锁利润但平台流动性差"** —— 我们没有戳到这些。
+**6. FoundersNote 侧栏在移动端变成超宽卡**
+- `md:grid-cols-[1fr_auto]` 移动端塌成单列，aside 的 3 个链接每个占满整宽，看起来像 nav 菜单不像信任 sidebar
+- 文章正文 `text-sm` + 4 段，在窄屏显得密集
 
----
-
-### 二、重构方案（按 ROI 排序，分阶段执行）
-
-#### Phase 1 — 高 ROI 改动（必做）
-
-**A. 重写 Hero 价值主张**
-- 主标题改成痛点 + 钩子：`Holding a Polymarket bet? Lock in profit — on us.`
-- 副标题：`We'll airdrop you a free counter-position worth up to $10. Win or lose, you walk away with real USDC.`
-- 加一行**实时数据条**（mock）：`$47,320 distributed · 1,284 users claimed · 213 spots left today`
-- 把 4 个 trust signal 合并成 Hero 下方一行 inline 小字 + 链接（"EIP-712 read-only · Settled on Base · View on-chain audit →"）
-
-**B. 删除 HedgeTrustBar section**
-- 内容并入 Hero 上述 inline 小字
-- 砍掉一个完整 section，节奏立刻改善
-
-**C. 合并 KeyRules + CampaignRules**
-- 现在「6 条精简 + 同样 6 条详细」严重重复
-- 改为：保留 KeyRules 的 6 条卡片视觉，每条点击展开 = CampaignRules 对应详情段落（accordion）
-- 删除独立的 HedgeCampaignRules section
-- III. Risk & Disclaimer 折叠为页面末尾一个 `<details>` 小字
-
-**D. 砍多余 CTA**
-- 现在 5 个 CTA（Hero / HowItWorks 末尾 / KeyRules 末尾 / FinalCTA / 移动浮动）
-- 删除 HowItWorks 和 KeyRules 末尾的 CTA，只留 Hero / FinalCTA / 浮动
-
-**E. LiveExample 注入"人味"**
-- 替换占位符为真实活跃 market 标题（如当时热门的政治/体育/加密事件，由运营提供）
-- Scenario 卡片底部加引用："*'Held my Trump 2028 long, hedged with OmenX, made $8 when it dipped.'* — @cryptotrader_xyz"（标注 mock，运营后续替换）
-- 删掉"You have nothing to lose. Literally."这种 AI 腔，换成数据：`Average claim settled +$6.40 within 7 days`
-
-#### Phase 2 — 视觉破均质（强烈推荐）
-
-**F. Hero 下方加 RecentActivity feed bar**（新文件 `HedgeRecentActivity.tsx`）
-- 横向自动滚动的窄条（深色背景），mock 数据：`@user_a claimed $10 · @user_b settled +$7.20 · @user_c just linked Polymarket · ...`
-- 立刻有"交易所最近成交"那种活感
-
-**G. HowItWorks 改横向连线**
-- 不再是 3 张同款卡片，改成大数字 1 → 2 → 3 横向连线（去掉每张卡的图标方块）
-- 打破"卡片网格"模板感
-
-**H. FAQ 背景换 `bg-card`（深色）**
-- 现在 8 个 section 一半 `bg-muted/20`、一半 `bg-background`，灰度均质
-- FAQ 改深色制造节奏对比
-
-**I. KeyRules 6 条 check 颜色分组**
-- 第 1-3 条（资格类）用 trading-green check
-- 第 4-6 条（奖励类）用 primary check
-- 视觉立刻分组
-
-#### Phase 3 — 信任与社交证明（可选，最强反 AI 信号）
-
-**J. 新增 FoundersNote section**（替代 TrustBar 位置）
-- 第一人称短文 80-120 字：为什么做这个活动 + 资金来源 + 公开承诺
-- 旁边放 Discord 链接、X 账号、链上金库地址（可点击跳 Basescan）
-- AI 写不出"具体地址 + 个人语气"，这是最强反 AI 信号
-
-**K. Social proof 条带**
-- FAQ 之前加 3 张推文/Discord 截图（静态 `<img>`，不需要嵌入 SDK）
-- 占位符待运营提供真实截图
+**7. KeyRules / FAQ / FinalCTA / FloatingCTA 的细节**
+- KeyRules accordion 触发器在 mobile 字号 `text-sm` + `pl-8` content 缩进还行，但 `px-5` 内边距偏大
+- FinalCTA 的 `text-3xl` 标题 + `text-base` 副标题 + `p-8` 内边距，在 mobile 整块卡 ≈ 380px 高
+- FloatingCTA `py-3` + 没有安全区适配（iOS 底部有 home indicator）会被遮挡
+- 通用：所有 section 在 mobile 都用 `py-16`（64px 上下），8 个 section 累加 1024px 纯空白
 
 ---
 
-### 三、最终 section 顺序
+### 二、修改方案（仅动移动端，桌面端不受影响）
 
-```
-Hero (痛点 + 实时数据条 + inline trust)
-  ↓
-RecentActivity (横向 feed bar)        [Phase 2 新增]
-  ↓
-HowItWorks (3 步横向连线，无尾部 CTA)
-  ↓
-LiveExample (真实 market + 真实引用)
-  ↓
-FoundersNote (第一人称信任)            [Phase 3 新增]
-  ↓
-KeyRules (可展开 accordion，吸收 Campaign 详情，无尾部 CTA)
-  ↓
-SocialProof (推文截图)                  [Phase 3 新增]
-  ↓
-FAQ (深色背景)
-  ↓
-FinalCTA + disclaimer <details>
-```
+#### A. HedgeHero — 重排第一屏，让 CTA 上屏
 
-### 四、文件改动清单
+- 移动端缩小标题：`text-3xl`（30px），保持 `md:text-6xl`
+- 副标题缩为 `text-sm`，移动端 `mt-3`（桌面端 mt-5 不变）
+- **关键调整：移动端把右侧 demo 卡换成单张水平合并卡 + "swipe arrow"**，高度从 ≈ 460px 压到 ≈ 180px
+  - 新的移动端版本：一张 card 内左右分两栏，左 Polymarket（缩小）右 OmenX（缩小）+ 中间 ArrowLeftRight 图标
+  - 桌面端继续保留原来的双卡上下浮动动画（用 `hidden md:block` / `md:hidden` 切换两套布局）
+- Live stats bar：移动端改成 1 行 3 列等分（`grid grid-cols-3 divide-x divide-border/40 text-center`），数字在上、label 在下，紧凑且对齐
+- Inline trust 行：缩到 `text-[11px]`，移动端只保留 "EIP-712 read-only · View on-chain audit →"，砍掉中间一项
+- Section 上下 padding：`py-10 md:py-24`（从 64px 压到 40px）
+- **CTA 顺序**：移动端用 `order` 类把 CTA 放在 demo 卡之前，确保第一屏可见 CTA
 
-| 优先级 | 文件 | 操作 |
-|---|---|---|
-| P0 | `HedgeHero.tsx` | 改主副标题 + 加实时数据条 + 加 inline trust 小字 |
-| P0 | `HedgeTrustBar.tsx` | **删除** |
-| P0 | `HedgeKeyRules.tsx` | 改为 accordion，吸收 CampaignRules；6 条按颜色分两组；删尾部 CTA |
-| P0 | `HedgeCampaignRules.tsx` | **删除**（合入 KeyRules + 末尾 `<details>` disclaimer） |
-| P0 | `HedgeHowItWorks.tsx` | 删尾部 CTA；3 卡改横向连线（去图标方块） |
-| P0 | `HedgeLiveExample.tsx` | 替换为真实 market + testimonial 引用 + 删 AI 腔结尾 |
-| P0 | `HedgeLanding.tsx` | 移除 TrustBar、CampaignRules 引用；调整顺序 |
-| P1 | `HedgeRecentActivity.tsx`（新） | 横向滚动 mock feed |
-| P1 | `HedgeFAQ.tsx` | 背景改 `bg-card` |
-| P2 | `HedgeFoundersNote.tsx`（新） | 第一人称信任段落 + 链上信息 |
-| P2 | `HedgeSocialProof.tsx`（新） | 静态推文截图条带 |
+#### B. HedgeRecentActivity — 移动端紧凑滚动
 
-### 五、不改动
+- 整条 padding `py-2 md:py-2.5` 不变
+- 滚动速度移动端加快到 30s（`md:animation-duration: 50s`）
+- Edge mask 宽度从 `w-12` 改为 `w-8 md:w-12`
+- 每条 item 之间 gap 从 `gap-6` 改为 `gap-4 md:gap-6`，文本不变
+- 移动端隐藏 emoji-like dot separator 已经做了（`text-border ·`），保留
 
-- HedgeCTAButton 三状态逻辑（auth → connect → navigate）
-- HedgeMobileFloatingCTA 悬浮行为
-- EventsDesktopHeader / SeoFooter
-- 不引入新依赖；mock 数据写常量，运营可改
+#### C. HedgeHowItWorks — 移动端改紧凑垂直时间线
 
-### 六、需要你确认的 3 件事
+- 移动端：左侧用一根 `w-px bg-border` 垂直线 + 圆形数字徽章（`h-9 w-9 rounded-full bg-primary/10 text-primary font-mono text-sm`），右侧文字
+- 把 `0X` 大数字（5xl）只在桌面端保留；移动端改成上述徽章样式
+- Title `text-base font-semibold`，body `text-sm text-muted-foreground`，note 一行内嵌
+- Section padding：`py-12 md:py-24`
+- 三步总高度从 ≈ 700px 压到 ≈ 380px
 
-1. **执行范围**：只做 Phase 1（最小止血），还是 Phase 1+2（推荐），还是 Phase 1+2+3（全套）？
-2. **实时数据**：Hero 数据条和 RecentActivity 用 ① 全 mock 写死、② mock 但按日期 seed 微随机、还是 ③ 接 Supabase 真数据（工时多）？
-3. **LiveExample 引用**：① 用明显 mock 的 @用户名（标注待替换）、② 完全删掉引用、还是 ③ 留位置 + TODO 注释等运营提供？
+#### D. HedgeLiveExample — 移动端关键瘦身
+
+- Position pair：移动端两张卡 padding 从 `p-6` 改为 `p-4`，font 从 `text-lg` → `text-base`
+- 中间 `ArrowLeftRight` 改成横向短分隔线 + arrow，垂直方向 `py-1`
+- Scenario A/B：mobile 强制单列已是默认，但 padding `p-6` → `p-4`，title `text-base` → `text-sm`
+- Testimonial figure：mobile `p-4` + `text-sm`，figcaption 改为垂直堆叠（mobile `flex-col items-start gap-1`，桌面 `md:flex-row md:justify-between md:items-center`）
+- Section padding `py-12 md:py-24`
+- 两个 grid 之间间距 `mt-6 md:mt-10`
+
+#### E. HedgeFoundersNote — 移动端侧栏改横排紧凑链接
+
+- 移动端：把 aside 改为一行 3 个等宽小图标按钮（Discord / X / Audit），高度 ≈ 56px
+  - `grid grid-cols-3 gap-2`，每个按钮垂直堆 icon + label 两行
+- 桌面端继续保留竖排 sidebar（`md:flex md:flex-col`）
+- 正文段落 `text-sm leading-relaxed`，移动端不动；treasury 地址行加 `break-all` 避免溢出
+- Section padding `py-12 md:py-20`
+
+#### F. HedgeKeyRules — 移动端 accordion 紧凑
+
+- AccordionItem `px-5` → `px-4 md:px-5`
+- AccordionTrigger 内的 `text-sm` 改 `text-[13px] md:text-sm leading-snug`
+- Group legend 在移动端改为 `text-[11px]`，gap-3
+- Section padding `py-12 md:py-24`
+- Risk disclaimer details：mobile `px-4`
+
+#### G. HedgeSocialProof — 移动端横向滑动
+
+- 移动端把 `grid md:grid-cols-3` 改为横向滚动条：`flex overflow-x-auto snap-x snap-mandatory gap-3 -mx-4 px-4 pb-2`，每张卡 `min-w-[280px] snap-start`
+- 减少视觉堆叠（避免 3 张卡上下排 ≈ 600px）
+- 桌面端继续 grid-cols-3
+- Section header：移动端 "See more on X →" 链接保持 `hidden sm:inline`（已有）
+
+#### H. HedgeFAQ — 紧凑
+
+- Section padding `py-12 md:py-24`
+- AccordionTrigger `text-base` → `text-sm md:text-base`，`py` 减小
+- Item `px-5` → `px-4 md:px-5`
+
+#### I. HedgeFinalCTA — 移动端瘦身 + 给 FloatingCTA 留出空间
+
+- 内部卡 padding `p-8` → `p-6 md:p-14`
+- 标题 `text-3xl` → `text-2xl md:text-5xl`，移动端用 `leading-tight`
+- 副标题 `text-base` → `text-sm md:text-lg`
+- Section padding `py-12 md:py-24`
+- **底部加 `pb-24 md:pb-24`** 避免被 FloatingCTA 遮挡
+
+#### J. HedgeMobileFloatingCTA — 安全区适配
+
+- 容器加 `pb-[max(0.75rem,env(safe-area-inset-bottom))]`，避免 iOS 底部 home indicator 遮按钮
+- 高度更紧凑：`py-3` → `py-2.5`
+- 加细微阴影 `shadow-[0_-4px_12px_rgba(0,0,0,0.3)]` 与背景区分
+
+#### K. HedgeLanding — 给主区域加 padding-bottom
+
+- `<main className="flex-1 pb-20 md:pb-0">` 让最后一个 section 不会被 FloatingCTA 完全压住
+
+---
+
+### 三、文件改动清单
+
+| 文件 | 改动 |
+|---|---|
+| `HedgeHero.tsx` | 标题字号、demo 卡移动端版本、stats bar 网格、CTA 顺序、padding |
+| `HedgeRecentActivity.tsx` | 移动端 marquee 加速、edge mask 缩窄、gap |
+| `HedgeHowItWorks.tsx` | 移动端改垂直时间线（徽章 + 左线），桌面端不变 |
+| `HedgeLiveExample.tsx` | 卡 padding/font 缩小、testimonial figcaption 移动端竖排 |
+| `HedgeFoundersNote.tsx` | 移动端 sidebar 改 3 等分横排、treasury `break-all` |
+| `HedgeKeyRules.tsx` | accordion px/font 缩小、disclaimer padding |
+| `HedgeSocialProof.tsx` | 移动端改横向 snap-scroll，桌面 grid 不变 |
+| `HedgeFAQ.tsx` | accordion padding/font 紧凑 |
+| `HedgeFinalCTA.tsx` | 内部卡瘦身 + pb-24 给 FloatingCTA |
+| `HedgeMobileFloatingCTA.tsx` | safe-area padding + 阴影 |
+| `HedgeLanding.tsx` | main 加 `pb-20 md:pb-0` |
+
+### 四、不改动
+
+- 桌面端布局（所有 `md:` 之后样式保留原值）
+- 文案（除 Hero 移动端 inline trust 简化为 2 项）
+- HedgeCTAButton 内部逻辑、HedgeMobileFloatingCTA 显示触发逻辑
+- 动画 keyframes（hedge-float / hedge-marquee）
+- section 顺序
+
+### 五、预期效果
+
+- Hero 第一屏（375×667）能看到：badge + 标题 + 副标题 + CTA + stats bar，CTA 立刻可点
+- 全页移动端总高度从 ≈ 5800px 压到 ≈ 4200px（-28%），滑动疲劳明显改善
+- iOS 底部 home indicator 不再遮挡 FloatingCTA
+- HowItWorks / LiveExample / FoundersNote 三个原本"桌面思路移植到移动"的 section 现在有专门的移动布局，告别"塌陷感"
 
