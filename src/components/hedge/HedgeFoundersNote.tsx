@@ -7,6 +7,7 @@
 
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { XIcon } from "@/components/icons/XIcon";
+import { DiscordIcon } from "@/components/icons/DiscordIcon";
 
 export const HedgeFoundersNote = () => {
   return (
@@ -52,7 +53,7 @@ export const HedgeFoundersNote = () => {
               className="group flex items-center justify-between rounded-lg border border-border/40 px-3 py-2 text-sm transition-colors hover:border-primary/40 hover:bg-primary/5"
             >
               <span className="flex items-center gap-2">
-                <span className="text-base">#</span>
+                <DiscordIcon className="h-3.5 w-3.5" />
                 <span className="font-medium">Discord</span>
               </span>
               <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
@@ -86,26 +87,26 @@ export const HedgeFoundersNote = () => {
               href="https://discord.gg/qXssm2crf9"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+              className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
             >
-              <span className="text-base font-semibold">#</span>
-              <span className="text-[11px] font-medium">Discord</span>
+              <DiscordIcon className="h-4 w-4" />
+              <span className="text-[11px] font-medium leading-none">Discord</span>
             </a>
             <a
               href="https://x.com/OmenX_Official"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+              className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
             >
-              <XIcon className="h-3.5 w-3.5" />
-              <span className="text-[11px] font-medium">@OmenX_Official</span>
+              <XIcon className="h-4 w-4" />
+              <span className="text-[11px] font-medium leading-none">@OmenX_Official</span>
             </a>
             <a
               href="/transparency"
-              className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+              className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
             >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span className="text-[11px] font-medium">Audit</span>
+              <ShieldCheck className="h-4 w-4" />
+              <span className="text-[11px] font-medium leading-none">Audit</span>
             </a>
           </div>
         </div>
