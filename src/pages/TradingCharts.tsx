@@ -16,6 +16,8 @@ import { tradingStats } from "@/lib/tradingUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { cn } from "@/lib/utils";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
+import { ArrowRight } from "lucide-react";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
@@ -31,31 +33,68 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
   const { orders, isLoading: ordersLoading } = useOrders();
   const { profile } = useUserProfile();
   const totalPositionCount = positions.length + pendingAirdrops.length;
-  
+
   const [bottomTab, setBottomTab] = useState("Order Book");
 
-  // Use animated order book with live updates
+  // Shared side state (synced with /trade/order TradeForm)
+  const sideKey = tradeSideKey(selectedEvent.id, selectedOptionData.id);
+  const side = useTradeSideStore((s) => s.sideByKey[sideKey] ?? "buy");
+  const setSide = useTradeSideStore((s) => s.setSide);
+
+  // Mirror price for sell perspective (Yes-only model: Sell = 1 - p)
+  const longPrice = parseFloat(selectedOptionData.price);
+  const shortPrice = +(1 - longPrice).toFixed(4);
+  const displayPrice = side === "buy" ? longPrice : shortPrice;
+  const decimals = (selectedOptionData.price.split(".")[1] || "").length || 4;
+  const transformPrice = (price: string): string => {
+    if (side === "buy") return price;
+    const d = (price.split(".")[1] || "").length || decimals;
+    return Math.max(0, 1 - parseFloat(price)).toFixed(d);
+  };
+
+  // Use animated order book with live updates (raw = buy-perspective)
   const orderBookData = useAnimatedOrderBook({
-    basePrice: parseFloat(selectedOptionData.price),
+    basePrice: longPrice,
     depth: 8,
     updateInterval: 600,
     volatility: 0.25,
   });
 
-  // Use animated trades history with live updates
+  // For sell perspective: swap asks/bids and transform every price
+  const displayAsks = useMemo(() => {
+    const source = side === "buy" ? orderBookData.asks : orderBookData.bids;
+    return source.map((row) => ({ ...row, price: transformPrice(row.price) }));
+  }, [side, orderBookData.asks, orderBookData.bids]);
+  const displayBids = useMemo(() => {
+    const source = side === "buy" ? orderBookData.bids : orderBookData.asks;
+    return source.map((row) => ({ ...row, price: transformPrice(row.price) }));
+  }, [side, orderBookData.asks, orderBookData.bids]);
+
+  // Use animated trades history with live updates (raw = buy-perspective)
   const { trades: tradesHistory, newTradeIndex } = useAnimatedTradesHistory({
-    basePrice: parseFloat(selectedOptionData.price),
+    basePrice: longPrice,
     initialCount: 20,
     newTradeInterval: 1200,
   });
 
-  // Calculate price change (mock data)
+  // Calculate price change (mock) — based on the displayed price perspective
   const priceChange = useMemo(() => {
     const change = (Math.random() * 0.02 - 0.01).toFixed(4);
-    const percentage = ((parseFloat(change) / parseFloat(selectedOptionData.price)) * 100).toFixed(2);
+    const percentage = ((parseFloat(change) / displayPrice) * 100).toFixed(2);
     const isPositive = parseFloat(change) >= 0;
     return { change, percentage, isPositive };
-  }, [selectedOptionData.price]);
+  }, [displayPrice]);
+
+  // Two-stage tap: 1st tap switches perspective, 2nd tap (on active side) jumps to order page
+  const handleSideButtonClick = (clickedSide: "buy" | "sell") => {
+    if (side !== clickedSide) {
+      setSide(sideKey, clickedSide);
+    } else {
+      navigate(`/trade/order?event=${selectedEvent.id}`);
+    }
+  };
+
+  const displayPriceStr = displayPrice.toFixed(decimals);
 
   return (
     <div className="pb-40">
@@ -64,13 +103,21 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
         {/* Left: Price Display */}
         <div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold font-mono tracking-tight">{selectedOptionData.price}</span>
+            <span className="text-3xl font-bold font-mono tracking-tight">{displayPriceStr}</span>
             <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
               ({priceChange.isPositive ? "+" : ""}{priceChange.percentage}%)
             </span>
           </div>
-          <div className="text-xs text-muted-foreground font-mono mt-0.5">
-            {TRADING_TERMS.MARK_PRICE} {selectedOptionData.price}
+          <div className="text-xs text-muted-foreground font-mono mt-0.5 flex items-center gap-1.5">
+            <span>{TRADING_TERMS.MARK_PRICE} {displayPriceStr}</span>
+            <span className={cn(
+              "px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide",
+              side === "buy"
+                ? "bg-trading-green/15 text-trading-green"
+                : "bg-trading-red/15 text-trading-red"
+            )}>
+              {side === "buy" ? "Long" : "Short"}
+            </span>
           </div>
         </div>
 
@@ -91,7 +138,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
 
       {/* Candlestick Chart */}
       <div className="h-[450px]">
-        <CandlestickChart basePrice={parseFloat(selectedOptionData.price)} />
+        <CandlestickChart basePrice={longPrice} side={side} />
       </div>
 
       {/* Bottom Tabs */}
@@ -121,10 +168,10 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
 
       {/* Tab Content */}
       {bottomTab === "Order Book" && (
-        <OrderBook 
-          asks={orderBookData.asks} 
-          bids={orderBookData.bids} 
-          currentPrice={selectedOptionData.price} 
+        <OrderBook
+          asks={displayAsks}
+          bids={displayBids}
+          currentPrice={displayPriceStr}
         />
       )}
 
@@ -138,38 +185,44 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
           </div>
           {/* Trades List */}
           <div className="space-y-0">
-            {tradesHistory.map((trade, index) => (
-              <div 
-                key={`${trade.time}-${index}`} 
-                className={cn(
-                  "grid grid-cols-3 text-xs py-1.5 transition-all duration-300",
-                  index === newTradeIndex && (trade.isBuy 
-                    ? "bg-trading-green/25 animate-fade-in" 
-                    : "bg-trading-red/25 animate-fade-in"
-                  )
-                )}
-              >
-                <span className={cn(
-                  "font-mono transition-all duration-200",
-                  trade.isBuy ? "text-trading-green" : "text-trading-red",
-                  index === newTradeIndex && "font-semibold"
-                )}>
-                  {trade.price}
-                </span>
-                <span className={cn(
-                  "text-center font-mono transition-all duration-200",
-                  index === newTradeIndex ? "text-foreground" : "text-muted-foreground"
-                )}>
-                  {trade.amount}
-                </span>
-                <span className={cn(
-                  "text-right font-mono transition-all duration-200",
-                  index === newTradeIndex ? "text-foreground" : "text-muted-foreground"
-                )}>
-                  {trade.time}
-                </span>
-              </div>
-            ))}
+            {tradesHistory.map((trade, index) => {
+              // Mirror price by side; flip the buy/sell colour so a "sell-side" view
+              // shows the action from the short trader's perspective (consistency with order book).
+              const shownPrice = transformPrice(trade.price);
+              const shownIsBuy = side === "buy" ? trade.isBuy : !trade.isBuy;
+              return (
+                <div
+                  key={`${trade.time}-${index}`}
+                  className={cn(
+                    "grid grid-cols-3 text-xs py-1.5 transition-all duration-300",
+                    index === newTradeIndex && (shownIsBuy
+                      ? "bg-trading-green/25 animate-fade-in"
+                      : "bg-trading-red/25 animate-fade-in"
+                    )
+                  )}
+                >
+                  <span className={cn(
+                    "font-mono transition-all duration-200",
+                    shownIsBuy ? "text-trading-green" : "text-trading-red",
+                    index === newTradeIndex && "font-semibold"
+                  )}>
+                    {shownPrice}
+                  </span>
+                  <span className={cn(
+                    "text-center font-mono transition-all duration-200",
+                    index === newTradeIndex ? "text-foreground" : "text-muted-foreground"
+                  )}>
+                    {trade.amount}
+                  </span>
+                  <span className={cn(
+                    "text-right font-mono transition-all duration-200",
+                    index === newTradeIndex ? "text-foreground" : "text-muted-foreground"
+                  )}>
+                    {trade.time}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -206,8 +259,8 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
           ) : (
             <>
               {positions.map((position, index) => (
-                <PositionCard 
-                  key={position.id} 
+                <PositionCard
+                  key={position.id}
                   {...position}
                   size={position.size}
                   sizeDisplay={position.sizeDisplay}
@@ -222,23 +275,42 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
         </div>
       )}
 
-      {/* Bottom Action Bar */}
+      {/* Bottom Action Bar — two-stage tap */}
       <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border/30 px-4 py-3 z-50">
-        <div className="text-center text-xs text-muted-foreground mb-2">
-          Available {profile?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'} USDC
+        <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
+          <span>
+            Available {profile?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'} USDC
+          </span>
+          <span className="opacity-70">
+            Tap to switch view · tap again to trade
+          </span>
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => navigate(`/trade/order?event=${selectedEvent.id}`)}
-            className="flex-1 bg-trading-green text-trading-green-foreground font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98]"
+            onClick={() => handleSideButtonClick("buy")}
+            aria-pressed={side === "buy"}
+            className={cn(
+              "flex-1 font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5",
+              side === "buy"
+                ? "bg-trading-green text-trading-green-foreground shadow-[0_0_0_2px_hsl(var(--background)),0_0_0_3px_hsl(var(--trading-green)/0.4)]"
+                : "bg-trading-green/15 text-trading-green border border-trading-green/30"
+            )}
           >
-            Buy | Long
+            <span>Buy | Long</span>
+            {side === "buy" && <ArrowRight className="w-3.5 h-3.5" />}
           </button>
           <button
-            onClick={() => navigate(`/trade/order?event=${selectedEvent.id}`)}
-            className="flex-1 bg-trading-red text-foreground font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98]"
+            onClick={() => handleSideButtonClick("sell")}
+            aria-pressed={side === "sell"}
+            className={cn(
+              "flex-1 font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5",
+              side === "sell"
+                ? "bg-trading-red text-foreground shadow-[0_0_0_2px_hsl(var(--background)),0_0_0_3px_hsl(var(--trading-red)/0.4)]"
+                : "bg-trading-red/15 text-trading-red border border-trading-red/30"
+            )}
           >
-            Sell | Short
+            <span>Sell | Short</span>
+            {side === "sell" && <ArrowRight className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
@@ -250,9 +322,9 @@ export default function TradingCharts() {
   return (
     <MobileTradingLayout activeTab="Charts">
       {(context) => (
-        <TradingChartsContent 
-          selectedEvent={context.selectedEvent} 
-          selectedOptionData={context.selectedOptionData} 
+        <TradingChartsContent
+          selectedEvent={context.selectedEvent}
+          selectedOptionData={context.selectedOptionData}
         />
       )}
     </MobileTradingLayout>
