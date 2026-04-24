@@ -225,11 +225,14 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 shadcn `variant="ghost"` defaults to `hover:bg-accent hover:text-accent-foreground`, which renders a **purple** hover background. Purple is reserved for primary/active actions — using it on dismissive or low-priority controls (e.g. "Maybe later", "Cancel", "Skip") creates a misleading affordance.
 
-Rules for `variant="ghost"` buttons:
+Rules for `variant="ghost"` buttons (and any custom button using a transparent base):
 
-- **Dismissive / weak actions** (e.g. "Maybe later", "Cancel", "Skip"): override the default with a neutral hover — `hover:bg-muted/40 hover:text-foreground`. Never let purple `--accent` show on these.
-- **Navigational icon buttons** (header back arrow, close X, menu trigger): the default purple `hover:bg-accent` is acceptable — these are interactive chrome, not opt-out actions.
-- **Inside a card / on a tinted surface**: prefer `hover:bg-muted/40` over `hover:bg-accent` so the hover state stays within the surface palette.
+- **Top nav items** (Events / Resolved / Portfolio / Insights in `EventsDesktopHeader`): use a **subtle purple tint** — `hover:bg-primary/10 hover:text-foreground`. The active state is solid `bg-primary` with primary-foreground text; the hover preview should hint at that brand color without competing with it. Do **not** use `hover:bg-muted/*` here — nav is brand chrome and must signal "this is the brand action".
+- **Navigational icon buttons** (header back arrow, close X, menu trigger): the default `hover:bg-accent` (purple) is acceptable — these are interactive chrome.
+- **Dismissive / weak actions** (e.g. "Maybe later", "Cancel", "Skip"): override the default with a neutral hover — `hover:bg-muted/40 hover:text-foreground`. Never let purple `--accent` show on these — it creates a misleading affordance that the dismissive option is the primary one.
+- **Inside a card / on a tinted surface** (in-card secondary actions): prefer `hover:bg-muted/40` over `hover:bg-accent` so the hover state stays within the surface palette.
+
+Quick decision rule: **brand/navigation → purple tint, opt-out/cancel → muted tint.**
 
 
 ### Status Badges
