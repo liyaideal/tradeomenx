@@ -125,8 +125,7 @@ export default function Rewards() {
         </div>
         
         <div className="mt-4 pt-4 border-t border-border/50">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Expires: Dec 31, 2026</span>
+          <div className="flex items-center justify-end text-xs text-muted-foreground">
             <span>Redemption reopening soon</span>
           </div>
         </div>
