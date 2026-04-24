@@ -4,7 +4,7 @@ import { HedgeCTAButton } from "./HedgeCTAButton";
 export const HedgeFinalCTA = () => {
   return (
     <section className="border-b border-border/40">
-      <div className="mx-auto max-w-5xl px-4 py-10 md:px-6 md:py-24">
+      <div className="mx-auto max-w-5xl px-4 py-12 pb-24 md:px-6 md:py-24">
         <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-6 text-center md:p-14">
           {/* Glow */}
           <div className="pointer-events-none absolute inset-0 -z-10">
