@@ -1,6 +1,5 @@
 import { HedgeCTAButton } from "./HedgeCTAButton";
 import hedgeHeroImage from "@/assets/hedge-hero.png";
-import hedgeHeroMobileImage from "@/assets/hedge-hero-mobile.png";
 
 // Mock live stats — operations can edit these constants directly.
 const LIVE_STATS = {
