@@ -1,82 +1,148 @@
 
 
-## /hedge 页面新增「Campaign Rules」详细规则模块
+## /hedge 页面"AI 感重 + 不吸引人"诊断与重构方案
 
-### 放置位置建议
+### 一、根因诊断（为什么看起来像 AI 写的）
 
-**插入位置：`HedgeFAQ` 之后、`HedgeFinalCTA` 之前**
+**1. 模板化结构 — 8 个 section 全部"标题居中 + 副标题 + 卡片网格"**
+Hero → How it Works → Live Example → Trust Bar → Key Rules → FAQ → Campaign Rules → Final CTA。每个 section 都是「居中 h2 + 灰色 muted 副标题 + 一行 grid 卡片」，节奏完全一致，看 3 屏后大脑自动跳过。
 
-理由：
-- FAQ 解决"快速疑问"，规则模块承载"完整法律条款"，两者性质相邻，自然递进
-- 放在 Final CTA 之前，让用户在最终行动前能找到完整条款（合规友好）
-- 不打断 Hero → How it Works → Live Example → Trust → Key Rules → FAQ 的转化漏斗
-- 与现有 `HedgeKeyRules`（6 条精简规则）形成"概要 → 详情"的层级关系，避免重复
+**2. 视觉语言极度均质**
+- 几乎每个 section 都用 `rounded-2xl border border-border/40 bg-card`
+- 每个图标都用 `bg-primary/10 text-primary` 圆角方块容器（HowItWorks/TrustBar/KeyRules 全一样）
+- 整页只有 primary 一个强调色，绿色/红色只在 LiveExample 用了一次
+- 全是占位符（"BTC > $100K"反复出现 4 次），无真实截图、无人脸、无实盘数据
 
-### 新增组件
+**3. 文案是"营销 GPT"标准腔**
+- "Three steps. No deposit. No catch." / "Six rules. Zero hidden terms." / "The fine print isn't fine print" — 全是工整的 3-5-7 字对仗短句
+- 缺数字钩子：通篇看不到"已发放 X USDC"、"Y 个用户已领取"、"今日剩余 Z 份"
+- 缺紧迫感：只有 Final CTA 末尾一行小字提"limited"，没有真实倒计时或剩余配额
 
-**文件**：`src/components/hedge/HedgeCampaignRules.tsx`（新建）
+**4. 缺少"人"和"证据"**
+- 没有用户截图 / Twitter 推文 / Discord 真实对话
+- 没有团队信息 / 联创头像 / 公开承诺
+- "Why you can trust us" 4 个理由全是抽象概念（Read-only / Real USDC / On-chain proof / Open audit），无可点击验证的链接
 
-**结构**：纯文字排版，不加图标/卡片堆叠，遵循 `legal-prose` 风格基调
-- Section 容器：`border-b border-border/40`，与其它 section 一致
-- 内容容器：`max-w-3xl mx-auto px-4 py-16 md:py-24`
-- 标题：`Campaign Rules`（h2，与其它 section 标题同级），副标题 `Full terms for the Hedge-to-Earn program`
-- 正文：3 大块（I/II/III），每块用 h3 标题，内部用 `<ol>`/`<ul>` 有序列表
-- 字号：标题用 `text-foreground`，正文 `text-sm md:text-base text-muted-foreground leading-relaxed`
-- 数字/金额/时间：用 `font-mono text-foreground`（如 `$200`、`72 hours`、`$100`、`May 31, 2026 23:59 UTC+8`、`150,000 USDC` 等），与现有 `HedgeKeyRules` 一致
-- Discord/外链：使用 `<a>` 标签 + `text-primary hover:underline`
-- 末尾加一行小字 disclaimer：`Last updated: Apr 2026 · OmenX reserves the right of final interpretation.`
+**5. 重复内容稀释吸引力**
+- Hero 右侧已有 Polymarket↔OmenX 双卡演示
+- LiveExample 又来一遍同样的双卡（更大、更详细）
+- KeyRules 6 条 + CampaignRules 又把 6 条详细化重写一遍
+- HedgeCTAButton 出现了 5 次，按钮疲劳
 
-### 文案（EN 翻译草稿）
+**6. 价值主张表述偏弱**
+"Got a Polymarket position? We'll hedge it — for free." 是功能描述，不是用户痛点。Polymarket 用户的真实痛点是：**"赢了一半还是亏的（YES 涨到 $0.95 卖不出好价）"、"想锁利润但平台流动性差"** —— 我们没有戳到这些。
 
-**Heading**: Campaign Rules
+---
 
-**I. Eligibility**
-- Open to invited users in supported regions only. Users in restricted jurisdictions cannot participate.
+### 二、重构方案（按 ROI 排序，分阶段执行）
 
-**II. Reward & Settlement Rules**
-1. Airdrop positions are **simulated positions** used solely to track PnL — they do not lock real funds. They cannot be traded, closed, increased, or reversed. The airdrop direction is always **opposite** to the user's original Polymarket position (e.g. if you are LONG BTC > $100K on Polymarket, the airdrop will be SHORT).
-2. Once your Polymarket account is linked, the system scans your positions **every 15 minutes**. Airdrops are issued only after a scan confirms eligibility — actual delivery time prevails. A maximum of **3 airdrops** can be issued per account during the campaign.
-3. After issuance, users must **manually claim** the airdrop within the campaign period. Unclaimed airdrops expire automatically and cannot be reissued.
-4. **Settlement triggers**:
-   - **Event settlement** — when the corresponding Polymarket event resolves.
-   - **Original position close** — when the system detects the user has reduced their original Polymarket position by **≥ 80%**, PnL is calculated at that moment's Market Price.
-5. Settled positive PnL is credited to the user's OmenX trading balance, capped at **$100 per account** (lifetime).
-6. **Unlock threshold**: settled PnL becomes tradable/withdrawable only after the user reaches **≥ $400,000** cumulative trading volume on OmenX.
-7. Unlocked balance **expires on May 31, 2026 23:59 (UTC+8)**. Any unused portion is forfeited.
-8. Daily issuance is capped at **500 airdrops platform-wide**. No new airdrops are issued once the daily cap is reached.
-9. Total reward pool: **150,000 USDC**. When the pool is exhausted the campaign ends early, and any locked PnL that has not been unlocked will become unusable.
-10. Airdrops can be viewed via in-app notifications and the **Positions** page.
+#### Phase 1 — 高 ROI 改动（必做）
 
-**III. Risk Control & Disclaimer**
-1. Users flagged by our risk-control system for abnormal behavior will be disqualified and forfeit all rewards.
-2. If the platform determines that a user has engaged in cheating or violations, OmenX reserves the right to disqualify them and claw back distributed rewards without prior notice.
-3. Disputes regarding rewards must be submitted via our [Discord](https://discord.gg/j658YbRY) within **7 days** of campaign end. Late submissions are treated as waiver.
-4. OmenX reserves the right to modify these rules at any time without prior notice.
-5. The final interpretation of this campaign belongs to OmenX.
+**A. 重写 Hero 价值主张**
+- 主标题改成痛点 + 钩子：`Holding a Polymarket bet? Lock in profit — on us.`
+- 副标题：`We'll airdrop you a free counter-position worth up to $10. Win or lose, you walk away with real USDC.`
+- 加一行**实时数据条**（mock）：`$47,320 distributed · 1,284 users claimed · 213 spots left today`
+- 把 4 个 trust signal 合并成 Hero 下方一行 inline 小字 + 链接（"EIP-712 read-only · Settled on Base · View on-chain audit →"）
 
-### HedgeLanding 改动
+**B. 删除 HedgeTrustBar section**
+- 内容并入 Hero 上述 inline 小字
+- 砍掉一个完整 section，节奏立刻改善
 
-**文件**：`src/pages/HedgeLanding.tsx`
+**C. 合并 KeyRules + CampaignRules**
+- 现在「6 条精简 + 同样 6 条详细」严重重复
+- 改为：保留 KeyRules 的 6 条卡片视觉，每条点击展开 = CampaignRules 对应详情段落（accordion）
+- 删除独立的 HedgeCampaignRules section
+- III. Risk & Disclaimer 折叠为页面末尾一个 `<details>` 小字
 
-```tsx
-import { HedgeCampaignRules } from "@/components/hedge/HedgeCampaignRules";
+**D. 砍多余 CTA**
+- 现在 5 个 CTA（Hero / HowItWorks 末尾 / KeyRules 末尾 / FinalCTA / 移动浮动）
+- 删除 HowItWorks 和 KeyRules 末尾的 CTA，只留 Hero / FinalCTA / 浮动
 
-// ...
-<HedgeFAQ />
-<HedgeCampaignRules />   {/* ← 新增 */}
-<HedgeFinalCTA />
+**E. LiveExample 注入"人味"**
+- 替换占位符为真实活跃 market 标题（如当时热门的政治/体育/加密事件，由运营提供）
+- Scenario 卡片底部加引用："*'Held my Trump 2028 long, hedged with OmenX, made $8 when it dipped.'* — @cryptotrader_xyz"（标注 mock，运营后续替换）
+- 删掉"You have nothing to lose. Literally."这种 AI 腔，换成数据：`Average claim settled +$6.40 within 7 days`
+
+#### Phase 2 — 视觉破均质（强烈推荐）
+
+**F. Hero 下方加 RecentActivity feed bar**（新文件 `HedgeRecentActivity.tsx`）
+- 横向自动滚动的窄条（深色背景），mock 数据：`@user_a claimed $10 · @user_b settled +$7.20 · @user_c just linked Polymarket · ...`
+- 立刻有"交易所最近成交"那种活感
+
+**G. HowItWorks 改横向连线**
+- 不再是 3 张同款卡片，改成大数字 1 → 2 → 3 横向连线（去掉每张卡的图标方块）
+- 打破"卡片网格"模板感
+
+**H. FAQ 背景换 `bg-card`（深色）**
+- 现在 8 个 section 一半 `bg-muted/20`、一半 `bg-background`，灰度均质
+- FAQ 改深色制造节奏对比
+
+**I. KeyRules 6 条 check 颜色分组**
+- 第 1-3 条（资格类）用 trading-green check
+- 第 4-6 条（奖励类）用 primary check
+- 视觉立刻分组
+
+#### Phase 3 — 信任与社交证明（可选，最强反 AI 信号）
+
+**J. 新增 FoundersNote section**（替代 TrustBar 位置）
+- 第一人称短文 80-120 字：为什么做这个活动 + 资金来源 + 公开承诺
+- 旁边放 Discord 链接、X 账号、链上金库地址（可点击跳 Basescan）
+- AI 写不出"具体地址 + 个人语气"，这是最强反 AI 信号
+
+**K. Social proof 条带**
+- FAQ 之前加 3 张推文/Discord 截图（静态 `<img>`，不需要嵌入 SDK）
+- 占位符待运营提供真实截图
+
+---
+
+### 三、最终 section 顺序
+
+```
+Hero (痛点 + 实时数据条 + inline trust)
+  ↓
+RecentActivity (横向 feed bar)        [Phase 2 新增]
+  ↓
+HowItWorks (3 步横向连线，无尾部 CTA)
+  ↓
+LiveExample (真实 market + 真实引用)
+  ↓
+FoundersNote (第一人称信任)            [Phase 3 新增]
+  ↓
+KeyRules (可展开 accordion，吸收 Campaign 详情，无尾部 CTA)
+  ↓
+SocialProof (推文截图)                  [Phase 3 新增]
+  ↓
+FAQ (深色背景)
+  ↓
+FinalCTA + disclaimer <details>
 ```
 
-### 不改动
+### 四、文件改动清单
 
-- 不动 `HedgeKeyRules`（精简版仍是营销利器）
-- 不动 FAQ / FinalCTA / Hero 等
-- 不引入图标、卡片、Accordion（用户明确要求"纯文字排版"）
-- 不接后端，运营修改时直接改 `HedgeCampaignRules.tsx` 文案常量
+| 优先级 | 文件 | 操作 |
+|---|---|---|
+| P0 | `HedgeHero.tsx` | 改主副标题 + 加实时数据条 + 加 inline trust 小字 |
+| P0 | `HedgeTrustBar.tsx` | **删除** |
+| P0 | `HedgeKeyRules.tsx` | 改为 accordion，吸收 CampaignRules；6 条按颜色分两组；删尾部 CTA |
+| P0 | `HedgeCampaignRules.tsx` | **删除**（合入 KeyRules + 末尾 `<details>` disclaimer） |
+| P0 | `HedgeHowItWorks.tsx` | 删尾部 CTA；3 卡改横向连线（去图标方块） |
+| P0 | `HedgeLiveExample.tsx` | 替换为真实 market + testimonial 引用 + 删 AI 腔结尾 |
+| P0 | `HedgeLanding.tsx` | 移除 TrustBar、CampaignRules 引用；调整顺序 |
+| P1 | `HedgeRecentActivity.tsx`（新） | 横向滚动 mock feed |
+| P1 | `HedgeFAQ.tsx` | 背景改 `bg-card` |
+| P2 | `HedgeFoundersNote.tsx`（新） | 第一人称信任段落 + 链上信息 |
+| P2 | `HedgeSocialProof.tsx`（新） | 静态推文截图条带 |
 
-### 预期效果
+### 五、不改动
 
-- 用户在转化漏斗末端能看到完整、可读性强的合规规则
-- 运营/法务后续维护时只改一个文件即可
-- 与 KeyRules（速览）+ FAQ（高频疑问）+ CampaignRules（详尽条款）形成完整三层信息架构
+- HedgeCTAButton 三状态逻辑（auth → connect → navigate）
+- HedgeMobileFloatingCTA 悬浮行为
+- EventsDesktopHeader / SeoFooter
+- 不引入新依赖；mock 数据写常量，运营可改
+
+### 六、需要你确认的 3 件事
+
+1. **执行范围**：只做 Phase 1（最小止血），还是 Phase 1+2（推荐），还是 Phase 1+2+3（全套）？
+2. **实时数据**：Hero 数据条和 RecentActivity 用 ① 全 mock 写死、② mock 但按日期 seed 微随机、还是 ③ 接 Supabase 真数据（工时多）？
+3. **LiveExample 引用**：① 用明显 mock 的 @用户名（标注待替换）、② 完全删掉引用、还是 ③ 留位置 + TODO 注释等运营提供？
 
