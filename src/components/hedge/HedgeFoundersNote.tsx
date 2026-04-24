@@ -7,6 +7,7 @@
 
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { XIcon } from "@/components/icons/XIcon";
+import { DiscordIcon } from "@/components/icons/DiscordIcon";
 
 export const HedgeFoundersNote = () => {
   return (
