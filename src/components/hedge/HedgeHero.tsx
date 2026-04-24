@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ArrowRight } from "lucide-react";
+import { ArrowLeftRight } from "lucide-react";
 import { HedgeCTAButton } from "./HedgeCTAButton";
 
 // Mock live stats — operations can edit these constants directly.
@@ -69,18 +69,6 @@ export const HedgeHero = () => {
             </div>
           </div>
 
-          {/* Inline trust line — mobile: simplified */}
-          <p className="mt-3 text-[11px] text-muted-foreground md:mt-4 md:text-xs">
-            <span className="hidden md:inline">EIP-712 read-only signature · Settled in USDC on Base · </span>
-            <span className="md:hidden">EIP-712 read-only · </span>
-            <a
-              href="/transparency"
-              className="inline-flex items-center gap-0.5 text-primary hover:underline"
-            >
-              View on-chain audit
-              <ArrowRight className="h-3 w-3" />
-            </a>
-          </p>
         </div>
 
         {/* Right: animated card mockup — DESKTOP version (stacked floating cards) */}
