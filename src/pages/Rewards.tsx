@@ -20,6 +20,7 @@ import { TaskCard } from "@/components/rewards/TaskCard";
 import { XShareConfirmDialog } from "@/components/rewards/XShareConfirmDialog";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
+import { toast } from "sonner";
 
 export default function Rewards() {
   const navigate = useNavigate();
@@ -103,9 +104,12 @@ export default function Rewards() {
             </div>
           </div>
           <Button
-            disabled
-            className="btn-primary"
-            title="Points redemption is paused for mainnet launch. Stay tuned."
+            className="btn-primary opacity-60 hover:opacity-70"
+            onClick={() =>
+              toast("Redemption reopening soon", {
+                description: "Points redemption is paused for mainnet launch. Stay tuned.",
+              })
+            }
           >
             {!isMobile && <Gift className="w-4 h-4 mr-2" />}
             Coming Soon
@@ -122,12 +126,6 @@ export default function Rewards() {
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Lifetime Earned</span>
           <span className="font-medium">{lifetimeEarned.toLocaleString()} pts</span>
-        </div>
-        
-        <div className="mt-4 pt-4 border-t border-border/50">
-          <div className="flex items-center justify-end text-xs text-muted-foreground">
-            <span>Redemption reopening soon</span>
-          </div>
         </div>
       </Card>
 
