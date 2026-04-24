@@ -1,56 +1,73 @@
 
 
-## H2E Banner 图片融合方案
+## /hedge 页面 Header & Footer 规范修复
 
-当前问题：图片像"膏药"贴在 banner 中央 — 有硬边框、独立阴影、明显的容器感，与卡片割裂。
+### 现状问题
 
-### 融合策略
+**1. Header（`HedgeNavbar.tsx`）严重违规**
+- 全站规范：所有桌面页面必须用 `<EventsDesktopHeader />`（Logo + 主导航 Events/Resolved/Portfolio/Insights/Leaderboard + 语言/Discord/Equity/Profile）
+- 现状：`/hedge` 用了一个自定义的极简 navbar，只有 Logo + "Events" + "Sign In"，与 `/events`、`/portfolio` 等页面完全不一致
+- 移动端也缺少 `MobileHeader`
 
-把图片从"独立卡片"变成"卡片背景的一部分"，让它和紫色渐变、文字内容融为一体。
+**2. Footer（`HedgeFooter.tsx`）严重违规**
+- 全站规范：所有内容/营销页面必须用 `<SeoFooter />`（5 列布局：Brand + Platform + Learn More + Legal + Connect + 底部版权 + 风险提示）
+- 现状：用了一个自定义极简 footer，只有 Logo + X/Telegram + Terms/Privacy
+- 社交链接还指向了错误的账号（`x.com/omenxfi` vs 规范的 `x.com/OmenX_official`）
 
-#### 桌面端改造
+**3. DESIGN.md 缺失 Footer 规范** — 当前只有零散的 SeoFooter 实现，没有正式列入设计文档
 
-1. **去除图片容器边框/阴影** — 删除 `rounded-xl overflow-hidden bg-black shadow-2xl ring-1`，让图片直接呈现
-2. **图片定位为卡片右半侧背景层**：
-   - 用 `absolute inset-y-0 right-0 w-1/2` 定位
-   - `object-cover object-left` 让图片从中间向右铺开
-   - 加 `mask-image: linear-gradient(to right, transparent 0%, black 30%)` 让图片左边缘自然淡入卡片背景
-   - 叠加 `bg-gradient-to-r from-card via-card/80 to-transparent` 渐变蒙版，确保左侧文字区域可读
-3. **布局改为 2 列**（去掉中间图片列）：
-   - 左列（占 60%）：badges + 标题 + 副文案 + CTA，z-index 高于图片
-   - 右列（占 40%）：`$100` 数字浮在图片之上，加 `drop-shadow-2xl` 提升对比度
-4. **图片色调融合**：加一层 `bg-primary/20 mix-blend-overlay` 让图片色调向紫色品牌色靠拢
+---
 
-#### 移动端改造
+### 改造方案
 
-1. **去掉图片块的硬边框** — 移除 `aspect-[2/1] bg-black` 的独立块
-2. **图片作为整卡背景**：
-   - `absolute inset-0 w-full h-full object-cover opacity-40`
-   - 上层叠加 `bg-gradient-to-b from-card/95 via-card/80 to-card/95` 让文字始终可读
-   - 顶部 badges 直接浮在背景图上方
-3. 整体高度由内容决定，不再强制 2:1 比例
+#### A. 替换 /hedge 的 Header 和 Footer
 
-### 实现细节
+**文件**：`src/pages/HedgeLanding.tsx`
+- 移除 `HedgeNavbar` 引用，改用 `EventsDesktopHeader`（桌面）+ `MobileHeader`（移动端，showLogo + 标题 "Hedge-to-Earn"）
+- 移除 `HedgeFooter` 引用，改用 `SeoFooter`
+- 用 `useIsMobile()` 区分两端，参考 `SeoPageLayout` 的写法
 
-**文件**：仅修改 `src/components/hedge/HedgeEntryBanner.tsx`，不涉及其他文件
+**清理**：删除 `src/components/hedge/HedgeNavbar.tsx` 和 `src/components/hedge/HedgeFooter.tsx`（无其他引用）
 
-**关键 CSS 技巧**：
-- `mask-image` + `linear-gradient` 实现图片边缘羽化
-- `mix-blend-overlay` / `mix-blend-soft-light` 让图片融入紫色主题
-- 多层 `bg-gradient` 蒙版确保文字对比度
-- `drop-shadow` 替代 `text-shadow` 让 `$100` 数字在图片背景上有立体感
+#### B. 在 DESIGN.md 补充 Footer 规范
 
-### 预期效果
+在 `## 16.5 全站统一 Footer 规范（Site-wide Footer）` 新增章节，内容：
 
-- 图片不再是独立元素，而是卡片背景的一部分
-- 紫色 glow + 图片 + 文字三者融合成统一视觉
-- `$100` 数字像浮在场景里，而不是挤在图片旁边
-- 整体冲击力保留，但视觉更高级、不"膏药感"
+- **唯一 Footer 组件**：`<SeoFooter />`（位于 `src/components/seo/SeoFooter.tsx`），所有内容页、营销页、详情页（如 /hedge、/about、/faq、/transparency、/glossary 等）必须使用
+- **桌面端 5 列网格布局**：Brand（Logo XL + 60 字描述）/ Platform / Learn More / Legal / Connect
+- **移动端**：Brand 区 + 链接折叠手风琴（Accordion）+ Connect 常驻
+- **官方社交链接**（不允许任何页面自定义）：
+  - X：`https://x.com/OmenX_official`
+  - Discord：`https://discord.gg/AZwP5qtK`
+  - Email：`support@omenx.com`
+- **底部栏**：版权 + 风险提示（"For informational purposes only. Not financial advice."）
+- **样式 token**：`border-t border-border/30 bg-card/50 mt-auto`，内容容器 `max-w-7xl mx-auto px-6 py-10`
+- **禁止**：
+  - 任何页面创建自定义 footer 组件
+  - 在 footer 中使用未列入官方账号的社交链接
+  - 跳过风险提示行
+
+#### C. StyleGuide 增加 Footer 规范展示
+
+**文件**：`src/pages/StyleGuide/sections/CommonUISection.tsx`
+- 在已有的 `DesktopNavigationSection` 之后新增 `SiteFooterSection` 子组件
+- 直接渲染 `<SeoFooter />` 实例预览
+- 列出 5 列结构表格、社交账号清单、移动端 Accordion 行为、引用方式（`import { SeoFooter } from "@/components/seo/SeoFooter"`）
+- 用 `<CodePreview>` 展示标准引用代码
+
+---
 
 ### 不改动
 
-- 不换图片资源
-- 不改文案
-- 不改 CTA 行为
-- 不改 badges 内容
+- 不改 `/hedge` 页面的中间内容（Hero、HowItWorks、Banner、FAQ、CTA 等）
+- 不改 `HedgeMobileFloatingCTA` 的悬浮 CTA 行为
+- 不改 `SeoFooter` 本身的实现（已经是规范）
+- 不改 `EventsDesktopHeader` 本身
+
+### 预期效果
+
+- `/hedge` 页面的导航/页脚与 `/events`、`/portfolio`、`/about` 等其它页面完全一致
+- 用户在登录后能直接看到 Equity 余额和 Profile 入口（之前 HedgeNavbar 没有）
+- DESIGN.md 拥有完整的 Footer 规范条款，未来不会再出现自定义 footer 散落各处
+- StyleGuide 有可视化的 Footer 章节供 review
 
