@@ -1682,6 +1682,9 @@ navigator.share({ files: [file] });`}
       {/* Desktop Navigation Specification */}
       <DesktopNavigationSection isMobile={isMobile} />
 
+      {/* Site-wide Footer Specification */}
+      <SiteFooterSection />
+
       {/* ── Auth Gate Overlay ── */}
       <SectionWrapper id="auth-gate-overlay" title="Auth Gate Overlay" description="Reusable overlay for content that requires authentication. When the user is not logged in, content is blurred with a sign-in CTA on top.">
         <Card className="border-border/50 bg-card/50 backdrop-blur">

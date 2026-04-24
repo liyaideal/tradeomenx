@@ -1,5 +1,8 @@
 import { useEffect, useRef } from "react";
-import { HedgeNavbar } from "@/components/hedge/HedgeNavbar";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { MobileHeader } from "@/components/MobileHeader";
+import { SeoFooter } from "@/components/seo/SeoFooter";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { HedgeHero } from "@/components/hedge/HedgeHero";
 import { HedgeHowItWorks } from "@/components/hedge/HedgeHowItWorks";
 import { HedgeLiveExample } from "@/components/hedge/HedgeLiveExample";
@@ -7,10 +10,10 @@ import { HedgeTrustBar } from "@/components/hedge/HedgeTrustBar";
 import { HedgeKeyRules } from "@/components/hedge/HedgeKeyRules";
 import { HedgeFAQ } from "@/components/hedge/HedgeFAQ";
 import { HedgeFinalCTA } from "@/components/hedge/HedgeFinalCTA";
-import { HedgeFooter } from "@/components/hedge/HedgeFooter";
 import { HedgeMobileFloatingCTA } from "@/components/hedge/HedgeMobileFloatingCTA";
 
 const HedgeLanding = () => {
+  const isMobile = useIsMobile();
   // We watch the entire Hero section so the floating CTA only appears
   // once the user has fully scrolled past the primary CTA above the fold.
   const heroRef = useRef<HTMLDivElement>(null);
@@ -30,9 +33,14 @@ const HedgeLanding = () => {
   }, []);
 
   return (
-    <div className="w-full bg-background text-foreground">
-      <HedgeNavbar />
-      <main>
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      {isMobile ? (
+        <MobileHeader title="Hedge-to-Earn" showLogo={true} showBack={false} />
+      ) : (
+        <EventsDesktopHeader />
+      )}
+
+      <main className="flex-1">
         <div ref={heroRef}>
           <HedgeHero />
         </div>
@@ -43,7 +51,8 @@ const HedgeLanding = () => {
         <HedgeFAQ />
         <HedgeFinalCTA />
       </main>
-      <HedgeFooter />
+
+      <SeoFooter />
       <HedgeMobileFloatingCTA triggerRef={heroRef} />
     </div>
   );
