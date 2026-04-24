@@ -52,7 +52,7 @@ export const RewardsWelcomeModal = () => {
       <h2 className="text-xl font-bold text-foreground mb-0.5">
         Welcome to Rewards Center
       </h2>
-      <p className="text-sm text-muted-foreground mb-2 max-w-[260px]">
+      <p className="text-sm text-muted-foreground mb-2 whitespace-nowrap">
         Complete tasks, earn points, unlock perks.
       </p>
 
