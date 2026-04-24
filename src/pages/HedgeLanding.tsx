@@ -37,7 +37,7 @@ const HedgeLanding = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       {isMobile ? (
-        <MobileHeader title="Hedge-to-Earn" showLogo={true} showBack={false} />
+        <MobileHeader title="Hedge-to-Earn" showLogo={false} showBack={true} />
       ) : (
         <EventsDesktopHeader />
       )}
