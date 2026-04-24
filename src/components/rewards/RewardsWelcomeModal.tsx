@@ -94,7 +94,7 @@ export const RewardsWelcomeModal = () => {
         variant="ghost"
         size="sm"
         onClick={handleDismiss}
-        className="mt-2 text-muted-foreground hover:text-foreground"
+        className="mt-2 text-muted-foreground hover:bg-muted/40 hover:text-foreground"
       >
         Maybe later
       </Button>

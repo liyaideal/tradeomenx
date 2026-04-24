@@ -221,6 +221,17 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - **`.btn-trading-red`**: Red gradient, white text — Sell/Short
 - All trading buttons: **always white text** (`text-primary-foreground`)
 
+#### Ghost Variant Hover Rules
+
+shadcn `variant="ghost"` defaults to `hover:bg-accent hover:text-accent-foreground`, which renders a **purple** hover background. Purple is reserved for primary/active actions — using it on dismissive or low-priority controls (e.g. "Maybe later", "Cancel", "Skip") creates a misleading affordance.
+
+Rules for `variant="ghost"` buttons:
+
+- **Dismissive / weak actions** (e.g. "Maybe later", "Cancel", "Skip"): override the default with a neutral hover — `hover:bg-muted/40 hover:text-foreground`. Never let purple `--accent` show on these.
+- **Navigational icon buttons** (header back arrow, close X, menu trigger): the default purple `hover:bg-accent` is acceptable — these are interactive chrome, not opt-out actions.
+- **Inside a card / on a tinted surface**: prefer `hover:bg-muted/40` over `hover:bg-accent` so the hover state stays within the surface palette.
+
+
 ### Status Badges
 
 - **`.status-active`**: Green bg/text/border at 15%/30% opacity
