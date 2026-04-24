@@ -34,7 +34,7 @@ const FAQS = [
 
 export const HedgeFAQ = () => {
   return (
-    <section className="border-b border-border/40 bg-muted/20">
+    <section className="border-b border-border/40 bg-card">
       <div className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-24">
         <div className="mb-10 text-center">
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -55,7 +55,7 @@ export const HedgeFAQ = () => {
             <AccordionItem
               key={i}
               value={`faq-${i}`}
-              className="overflow-hidden rounded-xl border border-border/40 bg-card px-5 last:border-b"
+              className="overflow-hidden rounded-xl border border-border/40 bg-background/40 px-5 last:border-b"
             >
               <AccordionTrigger className="text-left text-base font-medium hover:no-underline">
                 {item.q}
