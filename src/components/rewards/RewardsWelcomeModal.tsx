@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
-import { Star, Gift, ChevronRight } from "lucide-react";
+import { Gift, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTreasureDrop } from "@/hooks/useTreasureDrop";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -10,9 +11,12 @@ import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 import rewardsGiftBox from "@/assets/rewards-gift-box.gif";
 
 /**
- * Full-screen welcome modal shown on Home page for logged-in users
- * who haven't yet claimed their treasure drop.
- * Once claimed → this hides and the FloatingRewardsButton takes over.
+ * Welcome modal shown on Home page for logged-in users who haven't yet
+ * claimed their treasure drop. The modal is dismissible — users can close
+ * it via the X button, the overlay, the Esc key, or the "Maybe later"
+ * action. Dismissing only suppresses the modal for the current session;
+ * on the next visit (if the treasure is still unclaimed) it will appear
+ * again. Once the treasure is claimed, the FloatingRewardsButton takes over.
  */
 export const RewardsWelcomeModal = () => {
   const navigate = useNavigate();
@@ -20,12 +24,17 @@ export const RewardsWelcomeModal = () => {
   const { user } = useUserProfile();
   const { hasClaimed, isLoading } = useTreasureDrop();
   const isAuthFlowOpen = useAuthFlowStore((state) => state.isOpen);
+  const [dismissed, setDismissed] = useState(false);
 
-  // Only show for logged-in users who haven't claimed treasure
-  const shouldShow = !!user && !hasClaimed && !isLoading && !isAuthFlowOpen;
+  // Only show for logged-in users who haven't claimed treasure and haven't dismissed
+  const shouldShow = !!user && !hasClaimed && !isLoading && !isAuthFlowOpen && !dismissed;
 
   const handleGoToRewards = () => {
     navigate("/rewards");
+  };
+
+  const handleDismiss = () => {
+    setDismissed(true);
   };
 
   const content = (
@@ -81,6 +90,16 @@ export const RewardsWelcomeModal = () => {
         Go to Rewards Center
         <ChevronRight className="w-4 h-4" />
       </Button>
+
+      {/* Dismiss option */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleDismiss}
+        className="mt-2 text-muted-foreground hover:text-foreground"
+      >
+        Maybe later
+      </Button>
     </div>
   );
 
@@ -90,7 +109,7 @@ export const RewardsWelcomeModal = () => {
     return (
       <MobileDrawer
         open={true}
-        onOpenChange={() => {/* keep open, user must navigate */}}
+        onOpenChange={(open) => !open && handleDismiss()}
         showHandle={true}
         hideCloseButton={false}
         className="bg-gradient-to-b from-background to-background/95"
@@ -101,10 +120,9 @@ export const RewardsWelcomeModal = () => {
   }
 
   return (
-    <Dialog open={true} onOpenChange={() => {}}>
+    <Dialog open={true} onOpenChange={(open) => !open && handleDismiss()}>
       <DialogContent
         className="sm:max-w-md border-primary/30 bg-gradient-to-b from-background to-background/95"
-        hideCloseButton
       >
         <DialogTitle className="sr-only">Welcome to Rewards</DialogTitle>
         {content}
