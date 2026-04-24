@@ -1,25 +1,32 @@
 import { useNavigate } from "react-router-dom";
 import { usePoints } from "@/hooks/usePoints";
 import { useTasks } from "@/hooks/useTasks";
-import { useTreasureDrop } from "@/hooks/useTreasureDrop";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useRewardsWelcomeSeen } from "@/hooks/useRewardsWelcomeSeen";
 import bonusBadge from "@/assets/bonus-badge.gif";
 
 interface FloatingRewardsButtonProps {
   className?: string;
 }
 
+/**
+ * Permanent right-bottom entry point to the Rewards Center.
+ * Shown to logged-in users once they have dismissed (or acknowledged)
+ * the one-time RewardsWelcomeModal.
+ */
 export const FloatingRewardsButton = ({ className = "" }: FloatingRewardsButtonProps) => {
   const navigate = useNavigate();
+  const { user } = useUserProfile();
   const { pointsBalance } = usePoints();
   const { tasks } = useTasks();
-  const { hasClaimed, isLoading } = useTreasureDrop();
+  const { hasSeen } = useRewardsWelcomeSeen();
 
   // Check if there are claimable tasks
   const claimableTasks = tasks.filter(t => t.isCompleted && !t.isClaimed);
   const hasClaimable = claimableTasks.length > 0;
 
-  // Only show floating button after user has claimed their treasure drop
-  if (!hasClaimed || isLoading) return null;
+  // Only show for logged-in users who have already seen the welcome modal
+  if (!user || !hasSeen) return null;
 
   return (
     <button

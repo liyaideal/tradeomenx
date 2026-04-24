@@ -17,7 +17,6 @@ import { RedeemDialog } from "@/components/rewards/RedeemDialog";
 import { ReferralCard } from "@/components/rewards/ReferralCard";
 import { PointsHistoryList } from "@/components/rewards/PointsHistoryList";
 import { TaskCard } from "@/components/rewards/TaskCard";
-import { TreasureDropButton } from "@/components/rewards/TreasureDropButton";
 import { XShareConfirmDialog } from "@/components/rewards/XShareConfirmDialog";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
@@ -77,8 +76,8 @@ export default function Rewards() {
   const isGuest = !user;
 
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-  const minRedeemThreshold = config?.min_redeem_threshold?.points || 100;
-  const canRedeem = pointsBalance >= minRedeemThreshold;
+  // Redemption is paused for mainnet launch — config-derived threshold kept for future use.
+  void config;
 
   // Tweet content for X share task
   const tweetContent = `🎯 What if you could trade predictions with leverage? Now you can. OmenX Beta is LIVE - claim test funds & earn points. Join now 👇\n${referralLink}`;
@@ -104,12 +103,12 @@ export default function Rewards() {
             </div>
           </div>
           <Button
-            onClick={() => setRedeemDialogOpen(true)}
-            disabled={!canRedeem}
+            disabled
             className="btn-primary"
+            title="Points redemption is paused for mainnet launch. Stay tuned."
           >
             {!isMobile && <Gift className="w-4 h-4 mr-2" />}
-            Get Trial Funds
+            Redemption Coming Soon
           </Button>
         </div>
         
@@ -128,7 +127,7 @@ export default function Rewards() {
         <div className="mt-4 pt-4 border-t border-border/50">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Expires: Dec 31, 2026</span>
-            <span>Min. {minRedeemThreshold} pts to redeem</span>
+            <span>Redemption reopening soon</span>
           </div>
         </div>
       </Card>
@@ -203,7 +202,6 @@ export default function Rewards() {
         </AuthGateOverlay>
 
         <BottomNav />
-        <TreasureDropButton />
         <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
         <XShareConfirmDialog
           open={xShareDialogOpen}
@@ -229,7 +227,7 @@ export default function Rewards() {
           </div>
           <div>
             <h1 className="text-2xl font-bold">Rewards Center</h1>
-            <p className="text-muted-foreground text-sm">Complete tasks, earn points, redeem rewards</p>
+            <p className="text-muted-foreground text-sm">Complete tasks, earn points — redemption opening soon</p>
           </div>
         </div>
 
@@ -237,7 +235,6 @@ export default function Rewards() {
       </main>
       </AuthGateOverlay>
 
-      <TreasureDropButton />
       <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
       <XShareConfirmDialog
         open={xShareDialogOpen}

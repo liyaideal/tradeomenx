@@ -11,6 +11,18 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Mainnet launch: points redemption is paused. Server-side hard stop.
+  return new Response(
+    JSON.stringify({
+      error: "Points redemption is paused for mainnet launch. Please check back soon.",
+    }),
+    {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    }
+  );
+
+  // eslint-disable-next-line no-unreachable
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
