@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ArrowRight } from "lucide-react";
+import { ArrowLeftRight } from "lucide-react";
 import { HedgeCTAButton } from "./HedgeCTAButton";
 
 // Mock live stats — operations can edit these constants directly.
