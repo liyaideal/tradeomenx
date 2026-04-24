@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy, Star, CheckCircle2, AlertCircle, XCircle, Gift } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { SeoFooter } from "@/components/seo/SeoFooter";
 import { toast } from "sonner";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
@@ -2149,6 +2150,132 @@ const SettingsCardSection = () => {
 </div>`} />
         </CardContent>
       </Card>
+    </SectionWrapper>
+  );
+};
+
+// Site-wide Footer Section Component
+const SiteFooterSection = () => {
+  return (
+    <SectionWrapper
+      id="site-footer-specs"
+      title="Site-wide Footer Specification"
+      platform="shared"
+      description="The unified <SeoFooter /> component used across all content, marketing, and detail pages (e.g., /hedge, /about, /faq, /transparency, /glossary)."
+    >
+      {/* Live Preview */}
+      <Card className="trading-card mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Live Preview</CardTitle>
+          <CardDescription>The official footer rendered as it appears on every content page.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="border-t border-border/30 overflow-hidden">
+            <SeoFooter />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Structure */}
+      <SubSection title="Desktop Layout — 5-column Grid">
+        <div className="grid grid-cols-5 gap-3 text-xs">
+          {[
+            { col: "Brand", desc: "Logo XL + 60-char description" },
+            { col: "Platform", desc: "Events, Resolved, Leaderboard, Insights" },
+            { col: "Learn More", desc: "About, FAQ, Glossary, Methodology, Transparency" },
+            { col: "Legal", desc: "Privacy Policy, Terms of Service" },
+            { col: "Connect", desc: "X + Discord icons + support email" },
+          ].map((c) => (
+            <div key={c.col} className="rounded-lg border border-border/50 bg-muted/20 p-3">
+              <div className="text-sm font-semibold text-foreground mb-1">{c.col}</div>
+              <div className="text-xs text-muted-foreground leading-relaxed">{c.desc}</div>
+            </div>
+          ))}
+        </div>
+      </SubSection>
+
+      {/* Mobile behavior */}
+      <SubSection title="Mobile Behavior" className="mt-6">
+        <ul className="space-y-2 text-sm text-muted-foreground">
+          <li className="flex gap-2">
+            <CheckCircle2 className="h-4 w-4 text-trading-green shrink-0 mt-0.5" />
+            <span>Brand region (Logo + description) is always visible at the top.</span>
+          </li>
+          <li className="flex gap-2">
+            <CheckCircle2 className="h-4 w-4 text-trading-green shrink-0 mt-0.5" />
+            <span>Link columns collapse into <code className="text-primary">FooterAccordion</code> rows; tap to expand.</span>
+          </li>
+          <li className="flex gap-2">
+            <CheckCircle2 className="h-4 w-4 text-trading-green shrink-0 mt-0.5" />
+            <span>Connect region (social icons + email) is always visible, never collapsed.</span>
+          </li>
+        </ul>
+      </SubSection>
+
+      {/* Official social channels */}
+      <SubSection title="Official Social Channels (do not customize)" className="mt-6">
+        <div className="rounded-lg border border-border/50 bg-muted/20 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-xs text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-2 font-medium">Platform</th>
+                <th className="text-left px-4 py-2 font-medium">Official URL</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/30">
+              <tr>
+                <td className="px-4 py-2 font-medium">X (Twitter)</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://x.com/OmenX_official</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium">Discord</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://discord.gg/AZwP5qtK</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium">Email</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">support@omenx.com</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </SubSection>
+
+      {/* Rules */}
+      <SubSection title="Rules" className="mt-6">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <h5 className="text-sm font-semibold mb-2 text-trading-green">DO</h5>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-trading-green shrink-0 mt-0.5" /><span>Use <code className="text-primary">{`<SeoFooter />`}</code> on every content/marketing page.</span></li>
+              <li className="flex gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-trading-green shrink-0 mt-0.5" /><span>Keep the 5-column structure on desktop.</span></li>
+              <li className="flex gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-trading-green shrink-0 mt-0.5" /><span>Always include the bottom risk-disclaimer line.</span></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-sm font-semibold mb-2 text-trading-red">DON'T</h5>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2"><XCircle className="h-3.5 w-3.5 text-trading-red shrink-0 mt-0.5" /><span>Create custom footer components per page.</span></li>
+              <li className="flex gap-2"><XCircle className="h-3.5 w-3.5 text-trading-red shrink-0 mt-0.5" /><span>Use unofficial social handles (e.g. <code>x.com/omenxfi</code>).</span></li>
+              <li className="flex gap-2"><XCircle className="h-3.5 w-3.5 text-trading-red shrink-0 mt-0.5" /><span>Skip the copyright or risk-disclaimer rows.</span></li>
+            </ul>
+          </div>
+        </div>
+      </SubSection>
+
+      {/* Code reference */}
+      <SubSection title="Usage" className="mt-6">
+        <CodePreview
+          code={`import { SeoFooter } from "@/components/seo/SeoFooter";
+
+export const MyPage = () => (
+  <div className="min-h-screen flex flex-col">
+    {/* header + main content */}
+    <main className="flex-1">{/* ... */}</main>
+    <SeoFooter />
+  </div>
+);`}
+        />
+      </SubSection>
     </SectionWrapper>
   );
 };
