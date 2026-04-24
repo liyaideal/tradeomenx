@@ -33,6 +33,15 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Mainnet launch: random 100-point treasure drops are paused. Hard stop.
+  return new Response(
+    JSON.stringify({
+      error: 'Treasure drop is paused for mainnet launch.',
+    }),
+    { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  )
+
+  // eslint-disable-next-line no-unreachable
   try {
     // Get authorization header
     const authHeader = req.headers.get('Authorization')
