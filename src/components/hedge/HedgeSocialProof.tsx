@@ -6,6 +6,7 @@
  */
 
 import { XIcon } from "@/components/icons/XIcon";
+import { DiscordIcon } from "@/components/icons/DiscordIcon";
 
 type Quote = {
   handle: string;
