@@ -1,6 +1,5 @@
 import { HedgeCTAButton } from "./HedgeCTAButton";
 import hedgeHeroImage from "@/assets/hedge-hero.png";
-import hedgeHeroMobileImage from "@/assets/hedge-hero-mobile.png";
 
 // Mock live stats — operations can edit these constants directly.
 const LIVE_STATS = {
@@ -20,14 +19,6 @@ export const HedgeHero = () => {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-2 md:gap-16 md:px-6 md:py-12 lg:py-14 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] xl:py-16">
         {/* Left: copy */}
         <div className="flex min-w-0 flex-col justify-center">
-          {/* Mobile-only banner image */}
-          <img
-            src={hedgeHeroMobileImage}
-            alt="Polymarket exposed — free hedge by OmenX, up to $100"
-            className="mb-4 block h-auto w-full rounded-lg md:hidden"
-            loading="eager"
-          />
-
           <span className="mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary md:mb-4 md:text-xs">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             Hedge-to-Earn · Live Now
