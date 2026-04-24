@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import bannerImage from "@/assets/hedge-entry-banner.png";
+import bannerImageMobile from "@/assets/hedge-entry-banner-mobile.png";
 
 interface HedgeEntryBannerProps {
   variant?: "desktop" | "mobile";
@@ -19,6 +20,8 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
 
   const handleClick = () => navigate("/hedge");
 
+  const src = effective === "mobile" ? bannerImageMobile : bannerImage;
+
   return (
     <button
       type="button"
@@ -30,7 +33,7 @@ export const HedgeEntryBanner = ({ variant, className }: HedgeEntryBannerProps) 
       )}
     >
       <img
-        src={bannerImage}
+        src={src}
         alt="Your Polymarket positions are exposed — OmenX hedges them for free. Earn up to $100."
         className="block w-full h-auto transition-transform group-hover:scale-[1.01]"
         loading="lazy"
