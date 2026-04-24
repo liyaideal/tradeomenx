@@ -582,7 +582,7 @@ export const DesktopOrderBook = ({
                 <span className={`font-mono transition-all duration-200 ${
                   trade.side === "buy" ? "text-trading-green" : "text-trading-red"
                 } ${trade.isNew ? "font-semibold" : ""}`}>
-                  {trade.price}
+                  {transformPrice(trade.price)}
                 </span>
                 <span className={`text-right font-mono transition-all duration-200 ${
                   trade.isNew ? "text-foreground" : "text-muted-foreground"
