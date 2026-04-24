@@ -76,8 +76,8 @@ export default function Rewards() {
   const isGuest = !user;
 
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-  const minRedeemThreshold = config?.min_redeem_threshold?.points || 100;
-  const canRedeem = pointsBalance >= minRedeemThreshold;
+  // Redemption is paused for mainnet launch — config-derived threshold kept for future use.
+  void config;
 
   // Tweet content for X share task
   const tweetContent = `🎯 What if you could trade predictions with leverage? Now you can. OmenX Beta is LIVE - claim test funds & earn points. Join now 👇\n${referralLink}`;
