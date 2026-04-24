@@ -197,7 +197,7 @@ export const HedgeKeyRules = () => {
             <li>
               Disputes regarding rewards must be submitted via our{" "}
               <a
-                href="https://discord.gg/j658YbRY"
+                href="https://discord.gg/qXssm2crf9"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"

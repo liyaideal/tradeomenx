@@ -121,7 +121,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
           {rightContent}
           {/* Discord */}
           <a
-            href="https://discord.gg/AZwP5qtK"
+            href="https://discord.gg/qXssm2crf9"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Discord"
@@ -203,7 +203,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Shield className="w-4 h-4 mr-2 text-emerald-400" />
                     Transparency Audit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => window.open("https://discord.gg/AZwP5qtK", "_blank", "noopener,noreferrer")}>
+                  <DropdownMenuItem onClick={() => window.open("https://discord.gg/qXssm2crf9", "_blank", "noopener,noreferrer")}>
                     <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
                     Help & Support
                   </DropdownMenuItem>
