@@ -83,7 +83,7 @@ export const HedgeFoundersNote = () => {
             >
               <span className="flex items-center gap-2">
                 <XIcon className="h-3.5 w-3.5" />
-                <span className="font-medium">@omenx_app</span>
+                <span className="font-medium">@OmenX_Official</span>
               </span>
               <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
             </a>
@@ -115,7 +115,7 @@ export const HedgeFoundersNote = () => {
               className="flex flex-col items-center justify-center gap-1 rounded-lg border border-border/40 bg-card px-2 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
             >
               <XIcon className="h-3.5 w-3.5" />
-              <span className="text-[11px] font-medium">@omenx_app</span>
+              <span className="text-[11px] font-medium">@OmenX_Official</span>
             </a>
             <a
               href="/transparency"
