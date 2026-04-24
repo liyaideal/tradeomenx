@@ -11,6 +11,7 @@ import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
+import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 
 
 interface LocationState {
