@@ -215,9 +215,6 @@ const MobileHome = () => {
       />
 
       <main className="px-4 py-4 space-y-6">
-        {/* H2E Operational Entry */}
-        <HedgeEntryBanner variant="mobile" />
-
         {/* Conditional Stats Card - Guest vs Logged-in */}
         {user ? (
           <UserStatsCard 
@@ -229,6 +226,9 @@ const MobileHome = () => {
         ) : (
           <GuestWelcomeCard onLogin={() => setAuthOpen(true)} />
         )}
+
+        {/* H2E Operational Entry — placed just above My Positions */}
+        <HedgeEntryBanner variant="mobile" />
 
         {/* My Positions Section - only show for logged-in users with positions */}
         {user && positions.length > 0 && (
