@@ -426,6 +426,53 @@ Logo rules:
 | Functional | Never | Yes | `/`, `/events`, `/leaderboard`, `/portfolio` |
 | Operational (Logo) | Yes | Yes | `/trade/:id`, `/resolved/:id` |
 | Operational (No Logo) | Yes | No | `/deposit`, `/withdraw`, `/settings` |
+| SEO / Marketing sub-page | Yes | No | `/about`, `/faq`, `/insights`, `/methodology`, `/developers`, `/glossary`, `/hedge`, `/transparency`, `/privacy`, `/terms` |
+
+### Mobile Header Presets
+
+The mobile `<MobileHeader>` component has **three canonical presets**. Pick one based on the page type above — never invent a fourth.
+
+| Preset | `showLogo` | `showBack` | `title` | Visual | When to use |
+|--------|------------|-----------|---------|--------|-------------|
+| **A. Home / hub** | `true` | `false` | optional | Logo left-aligned, no back arrow | Top-level functional pages reachable from bottom nav: `/`, `/events`, `/portfolio`, `/leaderboard`, `/wallet` (when nav-rooted) |
+| **B. Functional inner page** | `false` | `true` | required, centered | Back arrow ← centered title | Operational flows the user enters from another screen: `/settings`, `/deposit`, `/withdraw`, `/rewards`, `/trade/:id`, `/resolved/:id`, `/portfolio/airdrops`, `/portfolio/settlements` |
+| **C. SEO / marketing sub-page** | `false` | `true` | required, centered | Back arrow ← centered title | Content & marketing pages: `/about`, `/faq`, `/glossary`, `/insights`, `/methodology`, `/developers`, `/hedge`, `/transparency`, `/privacy`, `/terms` |
+
+Preset C is identical in chrome to Preset B — the distinction matters because SEO pages are routed to from search engines & footer links, so the back button **must** still render even when there is no in-app history (the component handles fallback navigation to `/`).
+
+#### Examples
+
+```tsx
+// Preset A — home / hub (only the very few nav-rooted pages)
+<MobileHeader title="Events" showLogo={true} showBack={false} />
+
+// Preset B — functional inner page
+<MobileHeader title="Settings" showLogo={false} showBack={true} />
+<MobileHeader title="Wallet"   showLogo={false} showBack={true} />
+
+// Preset C — SEO / marketing sub-page
+// In practice, prefer <SeoPageLayout title="..."> which wires this preset for you:
+<SeoPageLayout title="OmenX Insights" description="...">
+  {children}
+</SeoPageLayout>
+
+// Equivalent raw usage (only when SeoPageLayout is unsuitable, e.g. /hedge):
+<MobileHeader title="Hedge-to-Earn" showLogo={false} showBack={true} />
+```
+
+#### Do / Don't
+
+✅ **Do**
+- Use `<SeoPageLayout>` for any new SEO / marketing sub-page — it locks in Preset C automatically.
+- Always set `showBack={true}` on SEO pages, even when the page is occasionally linked from in-app surfaces. Search-engine entry traffic has no history stack.
+- Center the title; keep it short (≤ 24 chars) so it renders on a single line at 375 px width.
+- Match the page's `<title>` / `h1` tag with the `MobileHeader` `title` prop for consistency.
+
+❌ **Don't**
+- Don't use `showLogo={true}` on SEO / marketing sub-pages (e.g. `/hedge`, `/about`). The Logo is reserved for top-level hub pages — putting it on every marketing page makes the app look like it has many disconnected entry points.
+- Don't omit `showBack` on an SEO page just because the desktop version doesn't need it. Mobile users arriving from Google must be able to navigate up.
+- Don't replace the standard back arrow with a custom button, or stack a Logo + back button + title in the SEO preset — that breaks visual rhythm with `/about`, `/faq`, `/glossary`, etc.
+- Don't introduce a new preset combination (e.g. `showLogo={true} showBack={true}`) for marketing pages. If a page genuinely needs custom chrome, build a dedicated marketing header (see `/leaderboard`) rather than overloading `MobileHeader`.
 
 ### Mobile Header `rightContent` 规范
 
