@@ -13,6 +13,7 @@ interface Candle {
 interface CandlestickChartProps {
   remainingDays?: number; // T_remain in days
   basePrice?: number; // Base price from selected option
+  side?: "buy" | "sell"; // Trade side: sell mirrors price (1 - p)
 }
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1H", "4H", "1D", "ALL"] as const;
