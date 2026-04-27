@@ -189,6 +189,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     if (oppositePosition) {
       const existingSize = Number(oppositePosition.size);
       if (validated.quantity > existingSize + 0.000001) {
+        await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
         throw new Error("Close existing position first before opening the opposite side.");
       }
 
