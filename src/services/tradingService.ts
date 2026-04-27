@@ -153,7 +153,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     // Only create/update position for Market orders (immediate execution)
     // Limit orders remain pending until filled
     if (!isMarketOrder) {
-      return { trade, position: null };
+      return { trade, position: null, intent: "open", balanceDelta: -(validated.margin + validated.fee) } satisfies TradeExecutionResult;
     }
 
     // Create, add, reduce, or close corresponding position with validated data (Market orders only)
@@ -161,7 +161,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     const isNoOption = validated.optionLabel.toLowerCase() === "no";
     let positionSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
     let positionOptionLabel = validated.optionLabel;
-    let canonicalClosePrice = validated.price;
+    let canonicalClosePrice = validated.side === "buy" ? validated.price : +(1 - validated.price).toFixed(4);
     
     if (isNoOption) {
       // Convert No trades to Yes positions with opposite side
@@ -311,8 +311,8 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
           option_label: positionOptionLabel,
           option_id: tradeData.optionId || null, // Store direct reference to event_options
           side: positionSide,
-          entry_price: validated.price,
-          mark_price: validated.price,
+          entry_price: canonicalClosePrice,
+          mark_price: canonicalClosePrice,
           size: validated.quantity,
           margin: validated.margin,
           leverage: validated.leverage,
