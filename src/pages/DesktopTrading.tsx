@@ -1631,7 +1631,7 @@ export default function DesktopTrading() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Margin req.</span>
                 <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${orderCalculations.marginRequired} USDC` : "--"}
+                  {parseFloat(amount) > 0 ? `${displayCalculations.marginRequired} USDC` : "--"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -1643,19 +1643,25 @@ export default function DesktopTrading() {
               <div className="flex justify-between pt-2 border-t border-border/30">
                 <span className="font-medium text-foreground">Total</span>
                 <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${orderCalculations.total} USDC` : "--"}
+                  {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
                 </span>
               </div>
             </div>
 
             {/* Submit Button */}
+            {orderIntent.kind === "blocked-cross-zero" && (
+              <div className="rounded-lg border border-trading-red/30 bg-trading-red/10 px-3 py-2 text-[11px] text-trading-red">
+                You hold {orderIntent.existingQty.toLocaleString()} {orderIntent.existingPosition?.type} shares. Close it before opening the opposite side.
+              </div>
+            )}
             <button
               onClick={handlePreview}
+              disabled={orderIntent.kind === "blocked-cross-zero"}
               className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
                 side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
-              }`}
+              } ${orderIntent.kind === "blocked-cross-zero" ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+              {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             </button>
             </div>
           </div>
@@ -1721,7 +1727,7 @@ export default function DesktopTrading() {
               </>
             ) : (
               <>
-                {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+                {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
               </>
             )}
           </button>
