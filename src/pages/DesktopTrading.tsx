@@ -1707,33 +1707,85 @@ export default function DesktopTrading() {
 
       {/* Order Preview Dialog */}
       <Dialog open={orderPreviewOpen} onOpenChange={setOrderPreviewOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl gap-4 p-5">
           <DialogHeader>
             <DialogTitle>Order Preview</DialogTitle>
+            <DialogDescription className="sr-only">
+              Review the trade, notional values, margin requirement, and position impact before confirming.
+            </DialogDescription>
           </DialogHeader>
-          
-          <div className="space-y-0">
-            {orderDetails.map((detail, index) => (
-              <div
-                key={detail.label}
-                className={`flex justify-between py-3 ${
-                  index !== orderDetails.length - 1 ? "border-b border-border/20" : ""
-                }`}
-              >
-                <span className="text-muted-foreground text-sm">{detail.label}</span>
-                <span
-                  className={`font-medium text-sm ${
-                    detail.highlight === "green"
-                      ? "text-trading-green"
-                      : detail.highlight === "red"
-                      ? "text-trading-red"
-                      : "text-foreground"
-                  }`}
-                >
-                  {detail.value}
-                </span>
+
+          <div className="space-y-4">
+            <div className="space-y-2 border-b border-border/30 pb-4">
+              <p className="text-sm font-medium text-foreground pr-6 line-clamp-2">{selectedEvent?.name}</p>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm text-muted-foreground truncate">{selectedOptionData.label}</span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`rounded px-2 py-1 text-xs font-semibold ${side === "buy" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
+                    {side === "buy" ? "Buy | Long" : "Sell | Short"}
+                  </span>
+                  <span className="rounded bg-muted px-2 py-1 text-xs font-semibold capitalize text-foreground">{formattedIntent}</span>
+                </div>
               </div>
-            ))}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Trade</p>
+                <div className="space-y-2">
+                  {previewTradeFields.map((field) => (
+                    <div key={field.label} className="flex items-center justify-between gap-3 text-xs">
+                      <span className="text-muted-foreground">{field.label}</span>
+                      <span className="font-mono text-foreground text-right">{field.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notional</p>
+                <div className="space-y-2">
+                  {previewNotionalFields.map((field) => (
+                    <div key={field.label} className="flex items-center justify-between gap-3 text-xs">
+                      <span className="text-muted-foreground">{field.label}</span>
+                      <span className={`font-mono text-right ${field.highlight ? "text-foreground font-semibold" : "text-foreground"}`}>{field.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border/50 bg-background p-3">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Position impact</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {isReducingOrder ? "This order reduces existing risk and releases margin." : "This order increases exposure and requires opening margin."}
+                  </p>
+                </div>
+                <div className="grid min-w-[280px] grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                  {isReducingOrder ? (
+                    <>
+                      <span className="text-muted-foreground">Released margin</span>
+                      <span className="text-right font-mono text-trading-green">+{orderIntent.releasedMargin.toFixed(2)} USDC</span>
+                      <span className="text-muted-foreground">Realized PnL est.</span>
+                      <span className={`text-right font-mono ${orderIntent.realizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                        {orderIntent.realizedPnl >= 0 ? "+" : "-"}{Math.abs(orderIntent.realizedPnl).toFixed(2)} USDC
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-muted-foreground">Margin required</span>
+                      <span className="text-right font-mono text-foreground">{displayCalculations.marginRequired} USDC</span>
+                      <span className="text-muted-foreground">Liq. price</span>
+                      <span className="text-right font-mono text-foreground">{orderCalculations.liqPrice} USDC</span>
+                    </>
+                  )}
+                  <span className="text-muted-foreground">TP/SL</span>
+                  <span className="text-right font-mono text-foreground">{tpsl ? `TP ${tpValue ? tpslCalculations.tpPrice : '--'} / SL ${slValue ? tpslCalculations.slPrice : '--'}` : "--"}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Binary Event Hint - 二元事件仓位合并提示 */}
