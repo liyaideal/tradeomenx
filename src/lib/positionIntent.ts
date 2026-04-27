@@ -16,6 +16,14 @@ export interface OrderIntent {
   existingPosition?: UnifiedPosition;
   existingQty: number;
   requestedQty: number;
+  qBefore: number;
+  dqReq: number;
+  qAfter: number;
+  reduceQty: number;
+  closeQty: number;
+  increaseQty: number;
+  tradedNotional: number;
+  openingNotional: number;
   incrementalMargin: number;
   releasedMargin: number;
   realizedPnl: number;
@@ -81,14 +89,30 @@ export const classifyOrderIntent = ({
   const existingPosition = oppositeSide ?? sameSide;
   const existingQty = existingPosition ? parseMoney(existingPosition.size) : 0;
   const requestedQty = Math.max(0, quantity || 0);
-  const openingMargin = (clickedPrice * requestedQty) / Math.max(leverage, 1);
+  const tradedNotional = clickedPrice * requestedQty;
+  const qBefore = existingPosition ? (existingPosition.type === "long" ? existingQty : -existingQty) : 0;
+  const dqReq = canonical.side === "long" ? requestedQty : -requestedQty;
+  const qAfter = qBefore + dqReq;
+
+  const base = {
+    canonical,
+    existingPosition,
+    existingQty,
+    requestedQty,
+    qBefore,
+    dqReq,
+    qAfter,
+    tradedNotional,
+  };
 
   if (!existingPosition || existingQty <= EPSILON) {
-    return { kind: "open", canonical, existingQty: 0, requestedQty, incrementalMargin: openingMargin, releasedMargin: 0, realizedPnl: 0 };
+    const openingNotional = canonical.price * requestedQty;
+    return { ...base, kind: "open", existingQty: 0, qBefore: 0, qAfter: dqReq, reduceQty: 0, closeQty: 0, increaseQty: requestedQty, openingNotional, incrementalMargin: openingNotional / Math.max(leverage, 1), releasedMargin: 0, realizedPnl: 0 };
   }
 
   if (existingPosition.type === canonical.side) {
-    return { kind: "add", canonical, existingPosition, existingQty, requestedQty, incrementalMargin: openingMargin, releasedMargin: 0, realizedPnl: 0 };
+    const openingNotional = canonical.price * requestedQty;
+    return { ...base, kind: "add", reduceQty: 0, closeQty: 0, increaseQty: requestedQty, openingNotional, incrementalMargin: openingNotional / Math.max(leverage, 1), releasedMargin: 0, realizedPnl: 0 };
   }
 
   const margin = parseMoney(existingPosition.margin);
@@ -100,15 +124,18 @@ export const classifyOrderIntent = ({
     : (entryPrice - canonical.price) * closeQty;
 
   if (requestedQty > existingQty + EPSILON) {
-    return { kind: "blocked-cross-zero", canonical, existingPosition, existingQty, requestedQty, incrementalMargin: 0, releasedMargin, realizedPnl };
+    const increaseQty = requestedQty - existingQty;
+    const openingNotional = canonical.price * increaseQty;
+    return { ...base, kind: "blocked-cross-zero", reduceQty: existingQty, closeQty: existingQty, increaseQty, openingNotional, incrementalMargin: openingNotional / Math.max(leverage, 1), releasedMargin, realizedPnl };
   }
 
   return {
+    ...base,
     kind: Math.abs(requestedQty - existingQty) <= EPSILON ? "close" : "reduce",
-    canonical,
-    existingPosition,
-    existingQty,
-    requestedQty,
+    reduceQty: closeQty,
+    closeQty,
+    increaseQty: 0,
+    openingNotional: 0,
     incrementalMargin: 0,
     releasedMargin,
     realizedPnl,

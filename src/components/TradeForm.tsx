@@ -168,10 +168,16 @@ export const TradeForm = ({
   }), [positions, eventName, optionLabel, side, orderCalculations.quantity, currentPrice, leverage]);
 
   const displayCalculations = useMemo(() => {
-    if (orderIntent.kind !== "reduce" && orderIntent.kind !== "close") return orderCalculations;
-    const fee = parseFloat(orderCalculations.estimatedFee) || 0;
-    return { ...orderCalculations, marginRequired: "0.00", total: fee.toFixed(2) };
-  }, [orderCalculations, orderIntent.kind]);
+    const estimatedFee = orderIntent.tradedNotional * feeRate;
+    const total = orderIntent.incrementalMargin + estimatedFee;
+    return {
+      ...orderCalculations,
+      notionalValue: orderIntent.tradedNotional.toFixed(2),
+      marginRequired: orderIntent.incrementalMargin.toFixed(2),
+      estimatedFee: estimatedFee.toFixed(2),
+      total: total.toFixed(2),
+    };
+  }, [orderCalculations, orderIntent.tradedNotional, orderIntent.incrementalMargin]);
 
   const handlePreview = () => {
     if (orderIntent.kind === "blocked-cross-zero") return;
@@ -186,7 +192,6 @@ export const TradeForm = ({
         event: eventName,
         option: optionLabel,
         orderCalculations: displayCalculations,
-        rawOrderCalculations: orderCalculations,
         tpsl: tpsl ? {
           tp: tpValue ? { value: tpValue, mode: tpMode, price: tpslCalculations.tpPrice } : null,
           sl: slValue ? { value: slValue, mode: slMode, price: tpslCalculations.slPrice } : null,
@@ -412,7 +417,7 @@ export const TradeForm = ({
         <div className="flex justify-between">
           <span className="text-muted-foreground">Notional val.</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-            {parseFloat(amount) > 0 ? `${orderCalculations.notionalValue} USDC` : "--"}
+            {parseFloat(amount) > 0 ? `${displayCalculations.notionalValue} USDC` : "--"}
           </span>
         </div>
         <div className="flex justify-between">
@@ -424,7 +429,7 @@ export const TradeForm = ({
         <div className="flex justify-between">
           <span className="text-muted-foreground">Fee (est.)</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-            {parseFloat(amount) > 0 ? `${orderCalculations.estimatedFee} USDC` : "--"}
+            {parseFloat(amount) > 0 ? `${displayCalculations.estimatedFee} USDC` : "--"}
           </span>
         </div>
         <div className="flex justify-between pt-2 border-t border-border/30">
