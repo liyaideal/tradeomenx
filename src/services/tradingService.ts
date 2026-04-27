@@ -182,15 +182,15 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     }
 
     if (oppositePosition) {
-      if (validated.margin !== 0) {
-        await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
-        throw new Error("Reduce and close orders must not require opening margin.");
-      }
-
       const existingSize = Number(oppositePosition.size);
       if (validated.quantity > existingSize + 0.000001) {
         await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
         throw new Error("Close existing position first before opening the opposite side.");
+      }
+
+      if (validated.margin !== 0) {
+        await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
+        throw new Error("Reduce and close orders must not require opening margin.");
       }
 
       const closeQty = Math.min(validated.quantity, existingSize);
@@ -254,7 +254,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       throw findError;
     }
 
-    if (!validateMarginCalculation(validated.price, validated.quantity, validated.leverage, validated.margin)) {
+    if (!validateMarginCalculation(canonicalClosePrice, validated.quantity, validated.leverage, validated.margin)) {
       await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
       throw new Error("Invalid margin calculation. Please try again.");
     }
