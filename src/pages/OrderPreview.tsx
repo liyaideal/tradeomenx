@@ -49,8 +49,6 @@ export default function OrderPreview() {
     potentialWin: "0",
     liqPrice: "0.0000",
   };
-  const rawOrderCalculations: OrderCalculations = orderData.rawOrderCalculations || orderCalculations;
-
   const isBuy = orderData.side === "buy";
   
   // Get event and option from order data or use defaults
@@ -67,7 +65,7 @@ export default function OrderPreview() {
     leverage: parseInt(orderData.leverage) || 10,
   }), [positions, eventName, optionLabel, orderData.side, orderData.price, orderData.leverage, orderCalculations.quantity]);
   const isReducing = orderIntent.kind === "reduce" || orderIntent.kind === "close";
-  const effectiveTotalCost = isReducing ? parseFloat(orderCalculations.estimatedFee) || 0 : totalCost;
+  const effectiveTotalCost = orderIntent.incrementalMargin + (parseFloat(orderCalculations.estimatedFee) || 0);
 
   // 检查是否为二元事件（Yes/No）- 如果选项是 Yes 或 No 则认为是二元事件
   const isBinaryOrder = useMemo(() => {
@@ -91,10 +89,15 @@ export default function OrderPreview() {
     { label: "Type", value: orderData.orderType || "Market" },
     { label: "Order Price", value: `${orderData.price || "0.0000"} USDC` },
     { label: "Order Cost", value: `${orderData.amount || "0.00"} USDC` },
-    { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
+    { label: "Traded notional", value: `${orderCalculations.notionalValue} USDC` },
+    { label: "Opening notional", value: `${orderIntent.openingNotional.toFixed(2)} USDC` },
     { label: "Leverage", value: orderData.leverage || "10x" },
     { label: "Intent", value: orderIntent.kind.replace(/-/g, " ") },
-    { label: "Margin required", value: `${isReducing ? "0.00" : orderCalculations.marginRequired} USDC` },
+    { label: "Margin required", value: `${orderIntent.incrementalMargin.toFixed(2)} USDC` },
+    ...(isReducing ? [
+      { label: "Released margin est.", value: `${orderIntent.releasedMargin.toFixed(2)} USDC`, highlight: "green" as const },
+      { label: "Realized PnL est.", value: `${orderIntent.realizedPnl >= 0 ? "+" : "-"}${Math.abs(orderIntent.realizedPnl).toFixed(2)} USDC`, highlight: orderIntent.realizedPnl >= 0 ? "green" as const : "red" as const },
+    ] : []),
     { label: "TP/SL", value: orderData.tpsl ? "Set" : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
     // Show balance breakdown
@@ -143,10 +146,10 @@ export default function OrderPreview() {
         orderType: (orderData.orderType as "Market" | "Limit") || "Market",
         price: parseFloat(orderData.price) || 0,
         amount: parseFloat(orderData.amount) || 0,
-        quantity: parseInt(rawOrderCalculations.quantity) || 0,
+        quantity: parseInt(orderCalculations.quantity) || 0,
         leverage: parseInt(orderData.leverage) || 10,
-        margin: parseFloat(rawOrderCalculations.marginRequired) || 0,
-        fee: parseFloat(rawOrderCalculations.estimatedFee) || 0,
+        margin: orderIntent.incrementalMargin,
+        fee: parseFloat(orderCalculations.estimatedFee) || 0,
         tpValue: orderData.tpsl?.tp ? parseFloat(orderData.tpsl.tp.value) : undefined,
         tpMode: orderData.tpsl?.tp?.mode === "pct" ? "%" as const : "$" as const,
         slValue: orderData.tpsl?.sl ? parseFloat(orderData.tpsl.sl.value) : undefined,
