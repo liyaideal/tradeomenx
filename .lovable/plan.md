@@ -1,63 +1,45 @@
-我建议 desktop 的 Order Preview 不再用移动端那种“单列长清单”，改成更适合弹窗的结构：信息分组 + 双列密度布局 + 底部重点结算卡。
+我建议按下面方式改 Deposit 组件的 Address tab，desktop 和 mobile 共用同一套逻辑。
 
-## 建议方案
+## 目标
+1. 去掉最小入金金额相关展示与 pending claim 交互。
+2. 首次进入 Address tab 时，先只展示 Base USDC 风险告警；用户点击确认按钮后，才展示 QR、地址和复制按钮。
+3. 确认状态在本机持久化，用户确认过一次后，后续进入 Address tab 直接看到地址，避免每次都阻断。
 
-1. **顶部保留核心摘要**
-   - Event 和 Option 放在最上方，但减少行高。
-   - Side 用绿色/红色 badge 展示，避免占一整行。
-   - Intent 也放成 badge，例如 `Close` / `Reduce` / `Open`，让用户一眼知道这是平仓还是开仓。
+## UI 调整
 
-2. **中间改为双列字段网格**
-   - 把现在逐行展示的字段改成 2-column compact grid。
-   - 左右两列分别显示：
-     - Trade: Type、Margin type、Leverage、Order Price
-     - Notional: Order Cost、Traded notional、Opening notional、Margin required
-   - 每个字段用小卡片/单元格，不再每行一条 border，这样弹窗高度会明显下降。
-
-3. **风险/资金变化单独做重点区块**
-   - 对 `reduce` / `close` 类型，突出展示：
-     - Margin required: `0.00 USDC`
-     - Released margin est.
-     - Realized PnL est.
-   - 对 `open` / `add` 类型，突出展示：
-     - Margin required
-     - Estimated Liq. Price
-   - 这样用户不会把 `traded notional` 和 `opening notional` 混在一起。
-
-4. **TP/SL 和 Liq Price 降级显示**
-   - TP/SL 没设置时不需要占很大空间，可以显示在底部 secondary row。
-   - `Estimated Liq. Price` 只有真正开仓/加仓时重点显示；纯平仓时可以弱化，因为平仓订单的 liq price 实际意义不大。
-
-5. **底部按钮固定在弹窗内底部**
-   - 按钮保持当前语义，例如 `Close Short - to win $10,000`。
-   - 但减少上方字段高度后，整体不需要依赖滚动。
-
-## 目标效果
+### 首次未确认状态
+Address tab 只显示一个更醒目的告警确认卡：
 
 ```text
-Order Preview                         X
+Only send USDC on Base network.
+Contract: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+Sending other tokens or using a different network may result in permanent loss of funds.
 
-XRP price on August 31, 2026?
-$1.00 - $2.00        [Buy | Long] [Close]
-
-Trade                         Notional
-Type        Market            Order cost        149.42
-Margin      Cross             Traded notional   1494.22
-Leverage    10X               Opening notional  0.00
-Price       0.1300            Margin required   0.00
-
-Position impact
-Released margin est.   +xxx.xx USDC
-Realized PnL est.      +/−xx.xx USDC
-Estimated Liq. Price   0.1183 USDC / or muted for close
-
-[ Close Short - to win $10,000 ]
+[ I understand, show deposit address ]
 ```
 
-## Technical notes
+说明：按钮文案不建议叫 `Claim`，因为这里不是领取资金，容易和之前 pending claim 混淆；建议用 `I understand, show deposit address` 或 `I understand`。如果你坚持用 `Claim`，实现时也可以改成 `Claim`。
 
-- 修改位置：`src/pages/DesktopTrading.tsx` 的 desktop Order Preview Dialog。
-- 不改 mobile `/order-preview` 页面，保持移动端长列表结构，因为 mobile 全页滚动是合理的。
-- 保留现有 `orderIntent`、`displayCalculations`、`orderDetails` 的计算逻辑，只调整 desktop 弹窗渲染层。
-- 为了避免再出现字段含义混淆，UI 文案会继续保留 `Traded notional` 和 `Opening notional` 的分离。
-- 如果当前 intent 是 `reduce` 或 `close`，弹窗会显示资金释放/PnL 区块；如果是 `open` 或 `add`，显示开仓保证金/强平价区块。
+### 已确认状态
+展示当前地址内容，但精简掉不再需要的字段：
+- 保留：告警卡、QR Code、USDC deposit address (Base)、复制地址、Generate new address、Network、Token、Fee、Confirmations、Processing time。
+- 移除：Minimum deposit。
+- 移除：Pending Deposits / Claim 区块。
+
+## 两端覆盖
+- `src/components/deposit/WalletDeposit.tsx`：这是当前 Deposit Address tab 实际使用的共享组件，desktop dialog 和 mobile page 都会受益。
+- `src/pages/Deposit.tsx`：mobile Address tab 已经引用 `WalletDeposit`，无需单独重写布局。
+- `src/components/deposit/DepositDialog.tsx`：desktop Deposit dialog 也引用 `WalletDeposit`，只需要确认容器滚动/高度仍然正常。
+
+## 数据和逻辑调整
+- `src/hooks/useDeposit.ts`：移除或停用 Address tab 里使用的 mock pending claims 逻辑，避免 UI 继续显示低于最低金额的 claim 示例。
+- `WalletDeposit.tsx`：删除 `pendingClaims / claimDeposit / isClaiming / formatTimeAgo` 相关依赖和渲染。
+- 用 `localStorage` 保存用户是否确认过 Base-USDC 入金风险，例如：
+  - key: `omenx:deposit:base-usdc-warning-ack`
+  - value: `true`
+
+## 验证
+- desktop `/wallet` 打开 Deposit -> Address：首次只看到告警和确认按钮；点击后地址出现。
+- mobile `/deposit` -> Address：同样首次确认后才显示地址。
+- 刷新页面后：已确认用户直接显示地址。
+- 检查 TypeScript 编译，确保删除 claim 逻辑后没有未使用 import 或类型错误。
