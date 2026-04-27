@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, MoreHorizontal, AlertTriangle, Loader2, RefreshCw, Eye, Share2, Info } from 'lucide-react';
+import { Copy, Check, MoreHorizontal, RefreshCw, Info } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,11 +22,12 @@ const BASE_USDC_CONFIG = {
   chainId: 8453,
   contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   decimals: 6,
-  minAmount: 10,
   confirmationBlocks: 12,
   estimatedTime: '< 2 minutes',
   fee: 0,
 };
+
+const WARNING_ACK_KEY = 'omenx:deposit:base-usdc-warning-ack';
 
 interface WalletDepositProps {
   onDone?: () => void;
@@ -35,13 +36,12 @@ interface WalletDepositProps {
 export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
   const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
-  const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [warningAcknowledged, setWarningAcknowledged] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(WARNING_ACK_KEY) === 'true';
+  });
 
   const {
-    pendingClaims,
-    isClaiming,
-    claimDeposit,
-    formatTimeAgo,
     getCurrentAddress,
     generateNewAddress,
     isGeneratingAddress,
@@ -56,19 +56,6 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleClaimDeposit = async (depositId: string) => {
-    setClaimingId(depositId);
-    try {
-      const mockSignature = '0x...mock_signature';
-      await claimDeposit({ depositId, signature: mockSignature });
-      toast.success('Deposit claimed successfully');
-    } catch {
-      toast.error('Failed to claim deposit');
-    } finally {
-      setClaimingId(null);
-    }
-  };
-
   const handleGenerateNewAddress = async () => {
     try {
       await generateNewAddress('USDC');
@@ -78,23 +65,46 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
     }
   };
 
-  const tokenPendingClaims = pendingClaims.filter(c => c.token === 'USDC');
+  const handleAcknowledgeWarning = () => {
+    window.localStorage.setItem(WARNING_ACK_KEY, 'true');
+    setWarningAcknowledged(true);
+  };
+
+  const warningCard = (
+    <div className={cn(
+      "bg-trading-yellow/10 border border-trading-yellow/30 rounded-xl",
+      warningAcknowledged ? "p-3" : "p-5"
+    )}>
+      <div className="flex items-start gap-3">
+        <Info className="w-5 h-5 text-trading-yellow shrink-0 mt-0.5" />
+        <div className={cn("text-trading-yellow leading-relaxed", warningAcknowledged ? "text-xs" : "text-sm space-y-3")}>
+          <div>
+            <span className="font-semibold">Only send USDC on Base network.</span>
+            <br />
+            Contract: <code className="text-[10px] bg-trading-yellow/10 px-1 py-0.5 rounded break-all">{BASE_USDC_CONFIG.contractAddress}</code>
+            <br />
+            Sending other tokens or using a different network may result in <span className="font-semibold">permanent loss of funds</span>.
+          </div>
+          {!warningAcknowledged && (
+            <Button
+              onClick={handleAcknowledgeWarning}
+              className={cn("w-full bg-trading-yellow text-background hover:bg-trading-yellow/90", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
+            >
+              I understand, show deposit address
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className={cn("space-y-5", isMobile ? "px-4 py-5" : "p-5")}>
       {/* Base-USDC Only Warning */}
-      <div className="p-3 bg-trading-yellow/10 border border-trading-yellow/30 rounded-xl">
-        <div className="flex items-start gap-2">
-          <Info className="w-4 h-4 text-trading-yellow shrink-0 mt-0.5" />
-          <div className="text-xs text-trading-yellow leading-relaxed">
-            <span className="font-semibold">Only send USDC on Base network.</span>
-            <br />
-            Contract: <code className="text-[10px] bg-trading-yellow/10 px-1 py-0.5 rounded">{BASE_USDC_CONFIG.contractAddress}</code>
-            <br />
-            Sending other tokens or using a different network may result in <span className="font-semibold">permanent loss of funds</span>.
-          </div>
-        </div>
-      </div>
+      {warningCard}
+
+      {!warningAcknowledged ? null : (
+        <>
 
       {/* QR Code */}
       <div className="flex justify-center">
@@ -165,58 +175,10 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
         <InfoRow label="Network" value="Base" />
         <InfoRow label="Token" value="USDC" />
         <InfoRow label="Fee" value="0 USDC" />
-        <InfoRow label="Minimum deposit" value={`${BASE_USDC_CONFIG.minAmount} USDC`} underline />
         <InfoRow label="Confirmations" value={BASE_USDC_CONFIG.confirmationBlocks.toString()} />
         <InfoRow label="Processing time" value={BASE_USDC_CONFIG.estimatedTime} underline />
       </div>
-
-      {/* Pending Claims */}
-      {tokenPendingClaims.length > 0 && (
-        <div className="space-y-2 pt-2 border-t border-border/50">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-trading-yellow" />
-            <LabelText size="sm" weight="semibold">
-              Pending Deposits ({tokenPendingClaims.length})
-            </LabelText>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            These deposits are below the minimum threshold and require manual claiming.
-          </p>
-          <div className="space-y-2">
-            {tokenPendingClaims.map((deposit) => (
-              <div 
-                key={deposit.id}
-                className="flex items-center justify-between p-3 bg-trading-yellow/5 border border-trading-yellow/20 rounded-xl"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-trading-yellow/20 flex items-center justify-center text-lg">
-                    💲
-                  </div>
-                  <div>
-                    <span className="font-mono font-semibold text-sm">
-                      {deposit.amount.toFixed(2)} {deposit.token}
-                    </span>
-                    <div className="text-xs text-muted-foreground">
-                      {formatTimeAgo(deposit.createdAt)}
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => handleClaimDeposit(deposit.id)}
-                  disabled={isClaiming}
-                  className="bg-trading-yellow hover:bg-trading-yellow/90 text-background h-8"
-                >
-                  {claimingId === deposit.id ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    'Claim'
-                  )}
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
+        </>
       )}
 
       {/* Done Button (desktop only) */}
