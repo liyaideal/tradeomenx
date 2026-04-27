@@ -5,7 +5,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { BottomNav } from '@/components/BottomNav';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletWithdraw } from '@/components/withdraw/WalletWithdraw';
-import { CrossChainWithdraw } from '@/components/withdraw/CrossChainWithdraw';
 import { SellToFiat } from '@/components/withdraw/SellToFiat';
 
 export default function Withdraw() {
@@ -45,9 +44,8 @@ export default function Withdraw() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">
         <div className="px-4 pt-3 bg-background">
-          <TabsList className="w-full grid grid-cols-3 h-10">
+          <TabsList className="w-full grid grid-cols-2 h-10">
             <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
-            <TabsTrigger value="crosschain" className="text-xs">Wallet</TabsTrigger>
             <TabsTrigger value="fiat" className="text-xs">Fiat</TabsTrigger>
           </TabsList>
         </div>
@@ -55,9 +53,6 @@ export default function Withdraw() {
         <main className="flex-1 overflow-auto pb-24">
           <TabsContent value="wallet" className="mt-0">
             <WalletWithdraw />
-          </TabsContent>
-          <TabsContent value="crosschain" className="mt-0">
-            <CrossChainWithdraw />
           </TabsContent>
           <TabsContent value="fiat" className="mt-0">
             <SellToFiat />
