@@ -263,7 +263,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       // Calculate weighted average entry price
       // (oldSize * oldEntry + newSize * newEntry) / totalSize
       const weightedEntryPrice = 
-        (existingPosition.size * existingPosition.entry_price + validated.quantity * validated.price) / newSize;
+        (existingPosition.size * existingPosition.entry_price + validated.quantity * canonicalClosePrice) / newSize;
       
       // Recalculate PnL based on new weighted entry price
       const currentMarkPrice = existingPosition.mark_price;
