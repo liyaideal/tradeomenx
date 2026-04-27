@@ -3,7 +3,9 @@ import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { usePositions } from "@/hooks/usePositions";
 import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
+import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 
 interface TradeFormProps {
   selectedPrice?: string;
@@ -27,6 +29,7 @@ export const TradeForm = ({
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance } = useUserProfile();
+  const { positions } = usePositions();
 
   // 检查是否为二元事件且当前选择了 No 选项
   const showBinaryHint = useMemo(() => {
@@ -47,7 +50,6 @@ export const TradeForm = ({
   const [orderType, setOrderType] = useState("Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
-  const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   
@@ -155,7 +157,24 @@ export const TradeForm = ({
     };
   }, [amount, leverage, currentPrice, side]);
 
+  const orderIntent = useMemo(() => classifyOrderIntent({
+    positions,
+    eventName,
+    optionLabel,
+    side,
+    quantity: parseFloat(orderCalculations.quantity) || 0,
+    clickedPrice: currentPrice,
+    leverage,
+  }), [positions, eventName, optionLabel, side, orderCalculations.quantity, currentPrice, leverage]);
+
+  const displayCalculations = useMemo(() => {
+    if (orderIntent.kind !== "reduce" && orderIntent.kind !== "close") return orderCalculations;
+    const fee = parseFloat(orderCalculations.estimatedFee) || 0;
+    return { ...orderCalculations, marginRequired: "0.00", total: fee.toFixed(2) };
+  }, [orderCalculations, orderIntent.kind]);
+
   const handlePreview = () => {
+    if (orderIntent.kind === "blocked-cross-zero") return;
     navigate("/order-preview", {
       state: {
         side,
@@ -166,7 +185,7 @@ export const TradeForm = ({
         price: currentPrice.toFixed(4),
         event: eventName,
         option: optionLabel,
-        orderCalculations,
+        orderCalculations: displayCalculations,
         tpsl: tpsl ? {
           tp: tpValue ? { value: tpValue, mode: tpMode, price: tpslCalculations.tpPrice } : null,
           sl: slValue ? { value: slValue, mode: slMode, price: tpslCalculations.slPrice } : null,
