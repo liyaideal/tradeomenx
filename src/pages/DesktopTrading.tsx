@@ -449,7 +449,7 @@ export default function DesktopTrading() {
       estimatedFee: estimatedFee.toFixed(2),
       total: total.toFixed(2),
     };
-  }, [orderCalculations, orderIntent.kind]);
+  }, [orderCalculations, orderIntent.tradedNotional, orderIntent.incrementalMargin]);
 
   // TP/SL calculations
   const currentPrice = sidePrice;
@@ -512,7 +512,7 @@ export default function DesktopTrading() {
     { label: "Margin required", value: `${displayCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind]);
+  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional]);
 
   const handlePreview = () => {
     // Check if user is logged in first
