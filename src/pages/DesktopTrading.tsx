@@ -210,7 +210,7 @@ export default function DesktopTrading() {
   const [authDefaultTab, setAuthDefaultTab] = useState<"signin" | "signup">("signup");
   
   // User profile for balance and auth
-  const { user, balance, deductBalance } = useUserProfile();
+  const { user, balance, deductBalance, addBalance } = useUserProfile();
   
   // Positions and Orders state - using unified hooks (Supabase for logged-in, local for guests)
   const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
@@ -501,16 +501,21 @@ export default function DesktopTrading() {
     { label: "Order Cost", value: `${amount} USDC` },
     { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: `${leverage}X` },
-    { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
+    { label: "Intent", value: orderIntent.kind.replace(/-/g, " ") },
+    { label: "Margin required", value: `${displayCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations]);
+  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind]);
 
   const handlePreview = () => {
     // Check if user is logged in first
     if (!user) {
       setAuthDefaultTab("signup");
       setAuthDialogOpen(true);
+      return;
+    }
+    if (orderIntent.kind === "blocked-cross-zero") {
+      toast.error("Close existing position first before opening the opposite side.");
       return;
     }
     setOrderPreviewOpen(true);
@@ -527,7 +532,7 @@ export default function DesktopTrading() {
       return;
     }
     
-    const totalCost = parseFloat(orderCalculations.total) || 0;
+    const totalCost = parseFloat(displayCalculations.total) || 0;
     
     // Check balance
     if (balance < totalCost) {
@@ -557,12 +562,13 @@ export default function DesktopTrading() {
         slMode: tpsl && slValue ? "$" as const : undefined,
       };
 
-      await executeTrade(user.id, tradeData);
-      
-      // Deduct balance
-      const deducted = await deductBalance(totalCost);
-      if (!deducted) {
-        throw new Error("Failed to deduct balance");
+      const result = await executeTrade(user.id, tradeData);
+
+      if (result.balanceDelta < 0) {
+        const deducted = await deductBalance(Math.abs(result.balanceDelta));
+        if (!deducted) throw new Error("Failed to deduct balance");
+      } else if (result.balanceDelta > 0) {
+        await addBalance(result.balanceDelta);
       }
       
       // Refetch based on order type
