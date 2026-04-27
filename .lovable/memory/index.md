@@ -21,6 +21,7 @@
 - [Binary event UI clarification](mem://features/binary-event-ui-clarification) — Educational tooltips for unified Yes-only positions
 - [Unified data persistence](mem://technical/unified-data-persistence) — Dual-source persistence (Supabase + localStorage)
 - [Binary event conversion](mem://features/binary-event-conversion-logic) — Core logic for converting No positions to Yes positions
+- [Cross-zero reverse order prohibition](mem://features/cross-zero-prohibition) — Reverse orders can reduce/close only; crossing zero into a new opposite position is blocked
 - [Trading stats header](mem://features/trading-stats-header) — Real-time data module in trading interface header
 - [Account risk UI](mem://features/account-risk-ui-implementation) — Persistent sidebar and mobile drawer for account risk
 - [Account risk model](mem://features/account-risk-model) — 4-tier risk classification and margin formulas
