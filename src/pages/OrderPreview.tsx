@@ -49,6 +49,7 @@ export default function OrderPreview() {
     potentialWin: "0",
     liqPrice: "0.0000",
   };
+  const rawOrderCalculations: OrderCalculations = orderData.rawOrderCalculations || orderCalculations;
 
   const isBuy = orderData.side === "buy";
   
@@ -142,10 +143,10 @@ export default function OrderPreview() {
         orderType: (orderData.orderType as "Market" | "Limit") || "Market",
         price: parseFloat(orderData.price) || 0,
         amount: parseFloat(orderData.amount) || 0,
-        quantity: parseInt(orderCalculations.quantity) || 0,
+        quantity: parseInt(rawOrderCalculations.quantity) || 0,
         leverage: parseInt(orderData.leverage) || 10,
-        margin: parseFloat(orderCalculations.marginRequired) || 0,
-        fee: parseFloat(orderCalculations.estimatedFee) || 0,
+        margin: parseFloat(rawOrderCalculations.marginRequired) || 0,
+        fee: parseFloat(rawOrderCalculations.estimatedFee) || 0,
         tpValue: orderData.tpsl?.tp ? parseFloat(orderData.tpsl.tp.value) : undefined,
         tpMode: orderData.tpsl?.tp?.mode === "pct" ? "%" as const : "$" as const,
         slValue: orderData.tpsl?.sl ? parseFloat(orderData.tpsl.sl.value) : undefined,
