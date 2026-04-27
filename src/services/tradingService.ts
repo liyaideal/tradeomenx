@@ -16,7 +16,7 @@ const TradeDataSchema = z.object({
   amount: z.number().positive("Amount must be positive").max(10000000, "Amount exceeds maximum"),
   quantity: z.number().positive("Quantity must be positive").max(100000000, "Quantity exceeds maximum"),
   leverage: z.number().int("Leverage must be an integer").min(MIN_LEVERAGE).max(MAX_LEVERAGE, `Leverage cannot exceed ${MAX_LEVERAGE}x`),
-  margin: z.number().positive("Margin must be positive"),
+  margin: z.number().nonnegative("Margin cannot be negative"),
   fee: z.number().nonnegative("Fee cannot be negative").max(10000, "Fee exceeds maximum"),
   tpValue: z.number().positive("Take profit must be positive").optional(),
   tpMode: z.enum(["%", "$"]).optional(),
@@ -94,17 +94,12 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     
     const validated = validationResult.data;
     
-    // Step 2: Validate business logic - margin calculation
-    if (!validateMarginCalculation(validated.price, validated.quantity, validated.leverage, validated.margin)) {
-      throw new Error("Invalid margin calculation. Please try again.");
-    }
-    
-    // Step 3: Validate business logic - fee calculation (based on notional value)
+    // Step 2: Validate business logic - fee calculation (based on notional value)
     if (!validateFeeCalculation(validated.amount, validated.leverage, validated.fee)) {
       throw new Error("Invalid fee calculation. Please try again.");
     }
     
-    // Step 4: Additional sanity checks
+    // Step 3: Additional sanity checks
     if (validated.leverage > MAX_LEVERAGE) {
       throw new Error(`Leverage cannot exceed ${MAX_LEVERAGE}x`);
     }
@@ -187,6 +182,11 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     }
 
     if (oppositePosition) {
+      if (validated.margin !== 0) {
+        await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
+        throw new Error("Reduce and close orders must not require opening margin.");
+      }
+
       const existingSize = Number(oppositePosition.size);
       if (validated.quantity > existingSize + 0.000001) {
         await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
@@ -206,11 +206,11 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
         .from("positions")
         .update(intent === "close" ? {
           status: "Closed",
-          size: 0,
-          margin: 0,
           mark_price: canonicalClosePrice,
           pnl: (Number(oppositePosition.pnl) || 0) + realizedPnl,
-          pnl_percent: 0,
+          pnl_percent: Number(oppositePosition.margin) > 0
+            ? (((Number(oppositePosition.pnl) || 0) + realizedPnl) / Number(oppositePosition.margin)) * 100
+            : 0,
           closed_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         } : {
@@ -252,6 +252,11 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     if (findError) {
       console.error("Find position error:", findError);
       throw findError;
+    }
+
+    if (!validateMarginCalculation(validated.price, validated.quantity, validated.leverage, validated.margin)) {
+      await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
+      throw new Error("Invalid margin calculation. Please try again.");
     }
 
     let position;
