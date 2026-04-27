@@ -6,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : "Internal server error";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -41,7 +43,7 @@ serve(async (req) => {
 
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
+      global: { headers: { Authorization: authHeader! } },
     });
 
     const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
@@ -87,7 +89,7 @@ serve(async (req) => {
     const { data: pointsAccount, error: accountError } = await supabaseAdmin
       .from("points_accounts")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", user!.id)
       .single();
 
     if (accountError || !pointsAccount) {
@@ -115,7 +117,7 @@ serve(async (req) => {
         balance: newBalance,
         lifetime_spent: pointsAccount.lifetime_spent + pointsToRedeem,
       })
-      .eq("user_id", user.id);
+      .eq("user_id", user!.id);
 
     if (updateError) throw updateError;
 
@@ -123,7 +125,7 @@ serve(async (req) => {
     const { error: ledgerError } = await supabaseAdmin
       .from("points_ledger")
       .insert({
-        user_id: user.id,
+        user_id: user!.id,
         amount: -pointsToRedeem,
         balance_after: newBalance,
         type: "spend",
@@ -137,7 +139,7 @@ serve(async (req) => {
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("trial_balance")
-      .eq("user_id", user.id)
+      .eq("user_id", user!.id)
       .single();
 
     const currentTrialBalance = (profile?.trial_balance as number) || 0;
@@ -145,7 +147,7 @@ serve(async (req) => {
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
       .update({ trial_balance: currentTrialBalance + trialBalanceReceived })
-      .eq("user_id", user.id);
+      .eq("user_id", user!.id);
 
     if (profileError) throw profileError;
 
@@ -153,7 +155,7 @@ serve(async (req) => {
     await supabaseAdmin
       .from("points_redemptions")
       .insert({
-        user_id: user.id,
+        user_id: user!.id,
         points_spent: pointsToRedeem,
         trial_balance_received: trialBalanceReceived,
         exchange_rate: { points_per_cent: pointsPerCent },
@@ -164,7 +166,7 @@ serve(async (req) => {
     await supabaseAdmin
       .from("transactions")
       .insert({
-        user_id: user.id,
+        user_id: user!.id,
         type: "platform_credit",
         amount: trialBalanceReceived,
         status: "completed",
@@ -184,7 +186,7 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error redeeming points:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: getErrorMessage(error) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
