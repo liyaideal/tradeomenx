@@ -310,23 +310,6 @@ export const TradeForm = ({
         </div>
       </div>
 
-      {/* Options */}
-      <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2">
-          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${reduceOnly ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
-            {reduceOnly && <span className="text-[10px] text-foreground">✓</span>}
-          </div>
-          <input
-            type="checkbox"
-            checked={reduceOnly}
-            onChange={(e) => setReduceOnly(e.target.checked)}
-            className="hidden"
-          />
-          <span className="text-xs text-muted-foreground">Reduce only</span>
-          <span className="w-3.5 h-3.5 rounded-full bg-muted text-[9px] flex items-center justify-center text-muted-foreground">?</span>
-        </label>
-      </div>
-      
       {/* TP/SL Section - Simple Dropdown Style */}
       <div className="space-y-2">
         <button 
@@ -434,7 +417,7 @@ export const TradeForm = ({
         <div className="flex justify-between">
           <span className="text-muted-foreground">Margin req.</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-            {parseFloat(amount) > 0 ? `${orderCalculations.marginRequired} USDC` : "--"}
+            {parseFloat(amount) > 0 ? `${displayCalculations.marginRequired} USDC` : "--"}
           </span>
         </div>
         <div className="flex justify-between">
@@ -446,7 +429,7 @@ export const TradeForm = ({
         <div className="flex justify-between pt-2 border-t border-border/30">
           <span className="font-medium text-foreground">Total</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
-            {parseFloat(amount) > 0 ? `${orderCalculations.total} USDC` : "--"}
+            {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
           </span>
         </div>
       </div>
