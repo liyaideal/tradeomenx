@@ -441,16 +441,23 @@ export const TradeForm = ({
         </div>
       )}
 
+      {orderIntent.kind === "blocked-cross-zero" && (
+        <div className="rounded-lg border border-trading-red/30 bg-trading-red/10 px-3 py-2 text-[11px] text-trading-red">
+          You hold {orderIntent.existingQty.toLocaleString()} {orderIntent.existingPosition?.type} shares. Close it before opening the opposite side.
+        </div>
+      )}
+
       {/* Submit Button */}
       <button
         onClick={handlePreview}
+        disabled={orderIntent.kind === "blocked-cross-zero"}
         className={`w-full py-2 rounded-lg font-semibold text-xs transition-all duration-200 active:scale-[0.98] ${
           side === "buy"
             ? "bg-trading-green text-trading-green-foreground"
             : "bg-trading-red text-foreground"
-        }`}
+        } ${orderIntent.kind === "blocked-cross-zero" ? "opacity-60 cursor-not-allowed" : ""}`}
       >
-        {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+        {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
       </button>
     </div>
   );
