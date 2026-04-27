@@ -1517,14 +1517,6 @@ export default function DesktopTrading() {
 
             {/* Options */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${reduceOnly ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
-                  {reduceOnly && <span className="text-[10px] text-foreground">✓</span>}
-                </div>
-                <input type="checkbox" checked={reduceOnly} onChange={(e) => setReduceOnly(e.target.checked)} className="hidden" />
-                <span className="text-xs text-muted-foreground">Reduce only</span>
-              </label>
-              
               {/* TP/SL Section - Simple Dropdown Style */}
               <div className="space-y-2">
                 <button 
