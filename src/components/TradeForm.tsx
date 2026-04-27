@@ -177,7 +177,7 @@ export const TradeForm = ({
       estimatedFee: estimatedFee.toFixed(2),
       total: total.toFixed(2),
     };
-  }, [orderCalculations, orderIntent.kind]);
+  }, [orderCalculations, orderIntent.tradedNotional, orderIntent.incrementalMargin]);
 
   const handlePreview = () => {
     if (orderIntent.kind === "blocked-cross-zero") return;
@@ -192,7 +192,6 @@ export const TradeForm = ({
         event: eventName,
         option: optionLabel,
         orderCalculations: displayCalculations,
-        rawOrderCalculations: orderCalculations,
         tpsl: tpsl ? {
           tp: tpValue ? { value: tpValue, mode: tpMode, price: tpslCalculations.tpPrice } : null,
           sl: slValue ? { value: slValue, mode: slMode, price: tpslCalculations.slPrice } : null,
