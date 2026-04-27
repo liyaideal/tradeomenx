@@ -11,6 +11,7 @@ import { executeTrade } from "@/services/tradingService";
 import { Loader2 } from "lucide-react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
+import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 
 interface OrderDetail {
   label: string;
@@ -33,8 +34,8 @@ export default function OrderPreview() {
   const location = useLocation();
   const { addOrder } = useOrdersStore();
   const { addPosition } = usePositionsStore();
-  const { balance, trialBalance, totalBalance, user, deductBalance } = useUserProfile();
-  const { refetch: refetchPositions } = usePositions();
+  const { balance, trialBalance, totalBalance, user, deductBalance, addBalance } = useUserProfile();
+  const { positions, refetch: refetchPositions } = usePositions();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
 
@@ -48,6 +49,7 @@ export default function OrderPreview() {
     potentialWin: "0",
     liqPrice: "0.0000",
   };
+  const rawOrderCalculations: OrderCalculations = orderData.rawOrderCalculations || orderCalculations;
 
   const isBuy = orderData.side === "buy";
   
@@ -55,6 +57,17 @@ export default function OrderPreview() {
   const eventName = orderData.event || "Elon Musk # tweets December 12 - December 19, 2025?";
   const optionLabel = orderData.option || "200-219";
   const totalCost = parseFloat(orderCalculations.total) || 0;
+  const orderIntent = useMemo(() => classifyOrderIntent({
+    positions,
+    eventName,
+    optionLabel,
+    side: (orderData.side as "buy" | "sell") || "buy",
+    quantity: parseInt(orderCalculations.quantity) || 0,
+    clickedPrice: parseFloat(orderData.price) || 0,
+    leverage: parseInt(orderData.leverage) || 10,
+  }), [positions, eventName, optionLabel, orderData.side, orderData.price, orderData.leverage, orderCalculations.quantity]);
+  const isReducing = orderIntent.kind === "reduce" || orderIntent.kind === "close";
+  const effectiveTotalCost = isReducing ? parseFloat(orderCalculations.estimatedFee) || 0 : totalCost;
 
   // 检查是否为二元事件（Yes/No）- 如果选项是 Yes 或 No 则认为是二元事件
   const isBinaryOrder = useMemo(() => {
@@ -66,9 +79,9 @@ export default function OrderPreview() {
   const showBinaryHint = isBinaryOrder && isNoOption(optionLabel);
 
   // Calculate how the payment will be split
-  const trialDeduction = Math.min(trialBalance, totalCost);
-  const realDeduction = Math.max(0, totalCost - trialBalance);
-  const hasSufficientFunds = totalBalance >= totalCost;
+  const trialDeduction = Math.min(trialBalance, effectiveTotalCost);
+  const realDeduction = Math.max(0, effectiveTotalCost - trialBalance);
+  const hasSufficientFunds = totalBalance >= effectiveTotalCost;
 
   const orderDetails: OrderDetail[] = [
     { label: "Event", value: eventName },
@@ -80,7 +93,8 @@ export default function OrderPreview() {
     { label: "Order Cost", value: `${orderData.amount || "0.00"} USDC` },
     { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: orderData.leverage || "10x" },
-    { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
+    { label: "Intent", value: orderIntent.kind.replace(/-/g, " ") },
+    { label: "Margin required", value: `${isReducing ? "0.00" : orderCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: orderData.tpsl ? "Set" : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
     // Show balance breakdown
@@ -108,8 +122,13 @@ export default function OrderPreview() {
     }
 
     // Check if user has enough total balance (trial + real)
+    if (orderIntent.kind === "blocked-cross-zero") {
+      toast.error("Close existing position first before opening the opposite side.");
+      return;
+    }
+
     if (!hasSufficientFunds) {
-      toast.error(`Insufficient balance. You need ${totalCost.toFixed(2)} USDC but only have ${totalBalance.toFixed(2)} USDC available.`);
+      toast.error(`Insufficient balance. You need ${effectiveTotalCost.toFixed(2)} USDC but only have ${totalBalance.toFixed(2)} USDC available.`);
       return;
     }
 
@@ -124,22 +143,23 @@ export default function OrderPreview() {
         orderType: (orderData.orderType as "Market" | "Limit") || "Market",
         price: parseFloat(orderData.price) || 0,
         amount: parseFloat(orderData.amount) || 0,
-        quantity: parseInt(orderCalculations.quantity) || 0,
+        quantity: parseInt(rawOrderCalculations.quantity) || 0,
         leverage: parseInt(orderData.leverage) || 10,
-        margin: parseFloat(orderCalculations.marginRequired) || 0,
-        fee: parseFloat(orderCalculations.estimatedFee) || 0,
+        margin: parseFloat(rawOrderCalculations.marginRequired) || 0,
+        fee: parseFloat(rawOrderCalculations.estimatedFee) || 0,
         tpValue: orderData.tpsl?.tp ? parseFloat(orderData.tpsl.tp.value) : undefined,
         tpMode: orderData.tpsl?.tp?.mode === "pct" ? "%" as const : "$" as const,
         slValue: orderData.tpsl?.sl ? parseFloat(orderData.tpsl.sl.value) : undefined,
         slMode: orderData.tpsl?.sl?.mode === "pct" ? "%" as const : "$" as const,
       };
 
-      await executeTrade(user.id, tradeData);
+      const result = await executeTrade(user.id, tradeData);
 
-      // Deduct balance
-      const deducted = await deductBalance(totalCost);
-      if (!deducted) {
-        throw new Error("Failed to deduct balance");
+      if (result.balanceDelta < 0) {
+        const deducted = await deductBalance(Math.abs(result.balanceDelta));
+        if (!deducted) throw new Error("Failed to deduct balance");
+      } else if (result.balanceDelta > 0) {
+        await addBalance(result.balanceDelta);
       }
 
       // Market orders execute immediately and become positions
@@ -215,7 +235,7 @@ export default function OrderPreview() {
             </>
           ) : (
             <>
-              {isBuy ? "Buy Long" : "Sell Short"} - to win $ {potentialWin.toLocaleString()}
+              {getIntentLabel(orderIntent, orderData.side || "buy")} - to win $ {potentialWin.toLocaleString()}
             </>
           )}
         </button>

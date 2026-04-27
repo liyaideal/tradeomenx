@@ -50,6 +50,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { BinaryEventHint, isBinaryEvent, isNoOption } from "@/components/BinaryEventHint";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
+import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
@@ -194,7 +195,6 @@ export default function DesktopTrading() {
   const [limitPrice, setLimitPrice] = useState("");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
-  const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
   // TP/SL states
   const [tpMode, setTpMode] = useState<"pct" | "price">("pct");
@@ -210,7 +210,7 @@ export default function DesktopTrading() {
   const [authDefaultTab, setAuthDefaultTab] = useState<"signin" | "signup">("signup");
   
   // User profile for balance and auth
-  const { user, balance, deductBalance } = useUserProfile();
+  const { user, balance, deductBalance, addBalance } = useUserProfile();
   
   // Positions and Orders state - using unified hooks (Supabase for logged-in, local for guests)
   const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
@@ -429,6 +429,22 @@ export default function DesktopTrading() {
     };
   }, [amount, leverage, sidePrice, side]);
 
+  const orderIntent = useMemo(() => classifyOrderIntent({
+    positions,
+    eventName: selectedEvent?.name || "",
+    optionLabel: selectedOptionData.label,
+    side,
+    quantity: parseFloat(orderCalculations.quantity) || 0,
+    clickedPrice: sidePrice,
+    leverage,
+  }), [positions, selectedEvent?.name, selectedOptionData.label, side, orderCalculations.quantity, sidePrice, leverage]);
+
+  const displayCalculations = useMemo(() => {
+    if (orderIntent.kind !== "reduce" && orderIntent.kind !== "close") return orderCalculations;
+    const fee = parseFloat(orderCalculations.estimatedFee) || 0;
+    return { ...orderCalculations, marginRequired: "0.00", total: fee.toFixed(2) };
+  }, [orderCalculations, orderIntent.kind]);
+
   // TP/SL calculations
   const currentPrice = sidePrice;
 
@@ -485,16 +501,21 @@ export default function DesktopTrading() {
     { label: "Order Cost", value: `${amount} USDC` },
     { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
     { label: "Leverage", value: `${leverage}X` },
-    { label: "Margin required", value: `${orderCalculations.marginRequired} USDC` },
+    { label: "Intent", value: orderIntent.kind.replace(/-/g, " ") },
+    { label: "Margin required", value: `${displayCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations]);
+  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind]);
 
   const handlePreview = () => {
     // Check if user is logged in first
     if (!user) {
       setAuthDefaultTab("signup");
       setAuthDialogOpen(true);
+      return;
+    }
+    if (orderIntent.kind === "blocked-cross-zero") {
+      toast.error("Close existing position first before opening the opposite side.");
       return;
     }
     setOrderPreviewOpen(true);
@@ -511,7 +532,7 @@ export default function DesktopTrading() {
       return;
     }
     
-    const totalCost = parseFloat(orderCalculations.total) || 0;
+    const totalCost = parseFloat(displayCalculations.total) || 0;
     
     // Check balance
     if (balance < totalCost) {
@@ -541,12 +562,13 @@ export default function DesktopTrading() {
         slMode: tpsl && slValue ? "$" as const : undefined,
       };
 
-      await executeTrade(user.id, tradeData);
-      
-      // Deduct balance
-      const deducted = await deductBalance(totalCost);
-      if (!deducted) {
-        throw new Error("Failed to deduct balance");
+      const result = await executeTrade(user.id, tradeData);
+
+      if (result.balanceDelta < 0) {
+        const deducted = await deductBalance(Math.abs(result.balanceDelta));
+        if (!deducted) throw new Error("Failed to deduct balance");
+      } else if (result.balanceDelta > 0) {
+        await addBalance(result.balanceDelta);
       }
       
       // Refetch based on order type
@@ -1501,14 +1523,6 @@ export default function DesktopTrading() {
 
             {/* Options */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${reduceOnly ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
-                  {reduceOnly && <span className="text-[10px] text-foreground">✓</span>}
-                </div>
-                <input type="checkbox" checked={reduceOnly} onChange={(e) => setReduceOnly(e.target.checked)} className="hidden" />
-                <span className="text-xs text-muted-foreground">Reduce only</span>
-              </label>
-              
               {/* TP/SL Section - Simple Dropdown Style */}
               <div className="space-y-2">
                 <button 
@@ -1617,7 +1631,7 @@ export default function DesktopTrading() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Margin req.</span>
                 <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${orderCalculations.marginRequired} USDC` : "--"}
+                  {parseFloat(amount) > 0 ? `${displayCalculations.marginRequired} USDC` : "--"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -1629,19 +1643,32 @@ export default function DesktopTrading() {
               <div className="flex justify-between pt-2 border-t border-border/30">
                 <span className="font-medium text-foreground">Total</span>
                 <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${orderCalculations.total} USDC` : "--"}
+                  {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
                 </span>
               </div>
             </div>
 
             {/* Submit Button */}
+            {orderIntent.kind === "blocked-cross-zero" && (
+              <div className="space-y-2 rounded-lg border border-trading-red/30 bg-trading-red/10 px-3 py-2 text-[11px] text-trading-red">
+                <p>You hold {orderIntent.existingQty.toLocaleString()} {orderIntent.existingPosition?.type} shares. Close it before opening the opposite side.</p>
+                <button
+                  type="button"
+                  onClick={() => setAmount(((orderIntent.existingQty * sidePrice) / leverage).toFixed(2))}
+                  className="text-foreground underline underline-offset-2"
+                >
+                  Close & Continue
+                </button>
+              </div>
+            )}
             <button
               onClick={handlePreview}
+              disabled={orderIntent.kind === "blocked-cross-zero"}
               className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
                 side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
-              }`}
+              } ${orderIntent.kind === "blocked-cross-zero" ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+              {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             </button>
             </div>
           </div>
@@ -1707,7 +1734,7 @@ export default function DesktopTrading() {
               </>
             ) : (
               <>
-                {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+                {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
               </>
             )}
           </button>

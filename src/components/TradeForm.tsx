@@ -3,7 +3,9 @@ import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { usePositions } from "@/hooks/usePositions";
 import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
+import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 
 interface TradeFormProps {
   selectedPrice?: string;
@@ -27,6 +29,7 @@ export const TradeForm = ({
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance } = useUserProfile();
+  const { positions } = usePositions();
 
   // 检查是否为二元事件且当前选择了 No 选项
   const showBinaryHint = useMemo(() => {
@@ -47,7 +50,6 @@ export const TradeForm = ({
   const [orderType, setOrderType] = useState("Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
-  const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
   const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   
@@ -155,7 +157,24 @@ export const TradeForm = ({
     };
   }, [amount, leverage, currentPrice, side]);
 
+  const orderIntent = useMemo(() => classifyOrderIntent({
+    positions,
+    eventName,
+    optionLabel,
+    side,
+    quantity: parseFloat(orderCalculations.quantity) || 0,
+    clickedPrice: currentPrice,
+    leverage,
+  }), [positions, eventName, optionLabel, side, orderCalculations.quantity, currentPrice, leverage]);
+
+  const displayCalculations = useMemo(() => {
+    if (orderIntent.kind !== "reduce" && orderIntent.kind !== "close") return orderCalculations;
+    const fee = parseFloat(orderCalculations.estimatedFee) || 0;
+    return { ...orderCalculations, marginRequired: "0.00", total: fee.toFixed(2) };
+  }, [orderCalculations, orderIntent.kind]);
+
   const handlePreview = () => {
+    if (orderIntent.kind === "blocked-cross-zero") return;
     navigate("/order-preview", {
       state: {
         side,
@@ -166,7 +185,8 @@ export const TradeForm = ({
         price: currentPrice.toFixed(4),
         event: eventName,
         option: optionLabel,
-        orderCalculations,
+        orderCalculations: displayCalculations,
+        rawOrderCalculations: orderCalculations,
         tpsl: tpsl ? {
           tp: tpValue ? { value: tpValue, mode: tpMode, price: tpslCalculations.tpPrice } : null,
           sl: slValue ? { value: slValue, mode: slMode, price: tpslCalculations.slPrice } : null,
@@ -291,23 +311,6 @@ export const TradeForm = ({
         </div>
       </div>
 
-      {/* Options */}
-      <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2">
-          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${reduceOnly ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
-            {reduceOnly && <span className="text-[10px] text-foreground">✓</span>}
-          </div>
-          <input
-            type="checkbox"
-            checked={reduceOnly}
-            onChange={(e) => setReduceOnly(e.target.checked)}
-            className="hidden"
-          />
-          <span className="text-xs text-muted-foreground">Reduce only</span>
-          <span className="w-3.5 h-3.5 rounded-full bg-muted text-[9px] flex items-center justify-center text-muted-foreground">?</span>
-        </label>
-      </div>
-      
       {/* TP/SL Section - Simple Dropdown Style */}
       <div className="space-y-2">
         <button 
@@ -415,7 +418,7 @@ export const TradeForm = ({
         <div className="flex justify-between">
           <span className="text-muted-foreground">Margin req.</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-            {parseFloat(amount) > 0 ? `${orderCalculations.marginRequired} USDC` : "--"}
+            {parseFloat(amount) > 0 ? `${displayCalculations.marginRequired} USDC` : "--"}
           </span>
         </div>
         <div className="flex justify-between">
@@ -427,7 +430,7 @@ export const TradeForm = ({
         <div className="flex justify-between pt-2 border-t border-border/30">
           <span className="font-medium text-foreground">Total</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
-            {parseFloat(amount) > 0 ? `${orderCalculations.total} USDC` : "--"}
+            {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
           </span>
         </div>
       </div>
@@ -439,16 +442,30 @@ export const TradeForm = ({
         </div>
       )}
 
+      {orderIntent.kind === "blocked-cross-zero" && (
+        <div className="space-y-2 rounded-lg border border-trading-red/30 bg-trading-red/10 px-3 py-2 text-[11px] text-trading-red">
+          <p>You hold {orderIntent.existingQty.toLocaleString()} {orderIntent.existingPosition?.type} shares. Close it before opening the opposite side.</p>
+          <button
+            type="button"
+            onClick={() => setAmount(((orderIntent.existingQty * currentPrice) / leverage).toFixed(2))}
+            className="text-foreground underline underline-offset-2"
+          >
+            Close & Continue
+          </button>
+        </div>
+      )}
+
       {/* Submit Button */}
       <button
         onClick={handlePreview}
+        disabled={orderIntent.kind === "blocked-cross-zero"}
         className={`w-full py-2 rounded-lg font-semibold text-xs transition-all duration-200 active:scale-[0.98] ${
           side === "buy"
             ? "bg-trading-green text-trading-green-foreground"
             : "bg-trading-red text-foreground"
-        }`}
+        } ${orderIntent.kind === "blocked-cross-zero" ? "opacity-60 cursor-not-allowed" : ""}`}
       >
-        {side === "buy" ? "Buy Long" : "Sell Short"} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+        {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
       </button>
     </div>
   );
