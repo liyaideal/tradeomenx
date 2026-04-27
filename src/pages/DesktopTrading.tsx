@@ -440,9 +440,15 @@ export default function DesktopTrading() {
   }), [positions, selectedEvent?.name, selectedOptionData.label, side, orderCalculations.quantity, sidePrice, leverage]);
 
   const displayCalculations = useMemo(() => {
-    if (orderIntent.kind !== "reduce" && orderIntent.kind !== "close") return orderCalculations;
-    const fee = parseFloat(orderCalculations.estimatedFee) || 0;
-    return { ...orderCalculations, marginRequired: "0.00", total: fee.toFixed(2) };
+    const estimatedFee = orderIntent.tradedNotional * feeRate;
+    const total = orderIntent.incrementalMargin + estimatedFee;
+    return {
+      ...orderCalculations,
+      notionalValue: orderIntent.tradedNotional.toFixed(2),
+      marginRequired: orderIntent.incrementalMargin.toFixed(2),
+      estimatedFee: estimatedFee.toFixed(2),
+      total: total.toFixed(2),
+    };
   }, [orderCalculations, orderIntent.kind]);
 
   // TP/SL calculations
@@ -499,7 +505,8 @@ export default function DesktopTrading() {
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
     { label: "Order Cost", value: `${amount} USDC` },
-    { label: "Notional value", value: `${orderCalculations.notionalValue} USDC` },
+    { label: "Traded notional", value: `${displayCalculations.notionalValue} USDC` },
+    { label: "Opening notional", value: `${orderIntent.openingNotional.toFixed(2)} USDC` },
     { label: "Leverage", value: `${leverage}X` },
     { label: "Intent", value: orderIntent.kind.replace(/-/g, " ") },
     { label: "Margin required", value: `${displayCalculations.marginRequired} USDC` },
@@ -554,8 +561,8 @@ export default function DesktopTrading() {
         amount: parseFloat(amount) || 0,
         quantity: parseInt(orderCalculations.quantity) || 0,
         leverage: leverage,
-        margin: parseFloat(orderCalculations.marginRequired) || 0,
-        fee: parseFloat(orderCalculations.estimatedFee) || 0,
+        margin: orderIntent.incrementalMargin,
+        fee: parseFloat(displayCalculations.estimatedFee) || 0,
         tpValue: tpsl && tpValue ? parseFloat(tpslCalculations.tpPrice) : undefined,
         tpMode: tpsl && tpValue ? "$" as const : undefined,
         slValue: tpsl && slValue ? parseFloat(tpslCalculations.slPrice) : undefined,
@@ -1625,7 +1632,7 @@ export default function DesktopTrading() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Notional val.</span>
                 <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${orderCalculations.notionalValue} USDC` : "--"}
+                  {parseFloat(amount) > 0 ? `${displayCalculations.notionalValue} USDC` : "--"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -1637,7 +1644,7 @@ export default function DesktopTrading() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Fee (est.)</span>
                 <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${orderCalculations.estimatedFee} USDC` : "--"}
+                  {parseFloat(amount) > 0 ? `${displayCalculations.estimatedFee} USDC` : "--"}
                 </span>
               </div>
               <div className="flex justify-between pt-2 border-t border-border/30">
