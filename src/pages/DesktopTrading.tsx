@@ -515,6 +515,21 @@ export default function DesktopTrading() {
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
   ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional]);
 
+  const isReducingOrder = orderIntent.kind === "reduce" || orderIntent.kind === "close";
+  const formattedIntent = orderIntent.kind.replace(/-/g, " ");
+  const previewTradeFields = useMemo(() => [
+    { label: "Type", value: orderType },
+    { label: "Margin", value: marginType },
+    { label: "Leverage", value: `${leverage}X` },
+    { label: "Price", value: `${sidePrice.toFixed(4)} USDC` },
+  ], [orderType, marginType, leverage, sidePrice]);
+  const previewNotionalFields = useMemo(() => [
+    { label: "Order cost", value: `${amount} USDC` },
+    { label: "Traded notional", value: `${displayCalculations.notionalValue} USDC` },
+    { label: "Opening notional", value: `${orderIntent.openingNotional.toFixed(2)} USDC` },
+    { label: "Margin required", value: `${displayCalculations.marginRequired} USDC`, highlight: true },
+  ], [amount, displayCalculations.notionalValue, displayCalculations.marginRequired, orderIntent.openingNotional]);
+
   const handlePreview = () => {
     // Check if user is logged in first
     if (!user) {
