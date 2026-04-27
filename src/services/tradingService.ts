@@ -206,11 +206,11 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
         .from("positions")
         .update(intent === "close" ? {
           status: "Closed",
-          size: 0,
-          margin: 0,
           mark_price: canonicalClosePrice,
           pnl: (Number(oppositePosition.pnl) || 0) + realizedPnl,
-          pnl_percent: 0,
+          pnl_percent: Number(oppositePosition.margin) > 0
+            ? (((Number(oppositePosition.pnl) || 0) + realizedPnl) / Number(oppositePosition.margin)) * 100
+            : 0,
           closed_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         } : {
