@@ -186,6 +186,7 @@ export const TradeForm = ({
         event: eventName,
         option: optionLabel,
         orderCalculations: displayCalculations,
+        rawOrderCalculations: orderCalculations,
         tpsl: tpsl ? {
           tp: tpValue ? { value: tpValue, mode: tpMode, price: tpslCalculations.tpPrice } : null,
           sl: slValue ? { value: slValue, mode: slMode, price: tpslCalculations.slPrice } : null,
