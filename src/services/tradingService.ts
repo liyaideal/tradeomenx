@@ -58,6 +58,13 @@ export interface PositionData {
   slMode?: "%" | "$";
 }
 
+export interface TradeExecutionResult {
+  trade: any;
+  position: any;
+  intent: "open" | "add" | "reduce" | "close";
+  balanceDelta: number;
+}
+
 // Validate margin calculation
 const validateMarginCalculation = (price: number, quantity: number, leverage: number, providedMargin: number): boolean => {
   const expectedMargin = (price * quantity) / leverage;
@@ -149,16 +156,85 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       return { trade, position: null };
     }
 
-    // Create or update corresponding position with validated data (Market orders only)
+    // Create, add, reduce, or close corresponding position with validated data (Market orders only)
     // For binary events: No Long → Yes Short, No Short → Yes Long
     const isNoOption = validated.optionLabel.toLowerCase() === "no";
     let positionSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
     let positionOptionLabel = validated.optionLabel;
+    let canonicalClosePrice = validated.price;
     
     if (isNoOption) {
       // Convert No trades to Yes positions with opposite side
       positionOptionLabel = "Yes";
       positionSide = validated.side === "buy" ? "short" : "long";
+      canonicalClosePrice = +(1 - validated.price).toFixed(4);
+    }
+
+    const oppositeSide = positionSide === "long" ? "short" : "long";
+    const { data: oppositePosition, error: oppositeFindError } = await supabase
+      .from("positions")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("event_name", validated.eventName)
+      .eq("option_label", positionOptionLabel)
+      .eq("side", oppositeSide)
+      .eq("status", "Open")
+      .maybeSingle();
+
+    if (oppositeFindError) {
+      console.error("Find opposite position error:", oppositeFindError);
+      throw oppositeFindError;
+    }
+
+    if (oppositePosition) {
+      const existingSize = Number(oppositePosition.size);
+      if (validated.quantity > existingSize + 0.000001) {
+        throw new Error("Close existing position first before opening the opposite side.");
+      }
+
+      const closeQty = Math.min(validated.quantity, existingSize);
+      const marginReleased = existingSize > 0 ? (Number(oppositePosition.margin) * closeQty) / existingSize : 0;
+      const realizedPnl = oppositeSide === "long"
+        ? (canonicalClosePrice - Number(oppositePosition.entry_price)) * closeQty
+        : (Number(oppositePosition.entry_price) - canonicalClosePrice) * closeQty;
+      const remainingSize = existingSize - closeQty;
+      const remainingMargin = Number(oppositePosition.margin) - marginReleased;
+      const intent = remainingSize <= 0.000001 ? "close" : "reduce";
+
+      const { data: updatedPosition, error: reduceError } = await supabase
+        .from("positions")
+        .update(intent === "close" ? {
+          status: "Closed",
+          size: 0,
+          margin: 0,
+          mark_price: canonicalClosePrice,
+          pnl: (Number(oppositePosition.pnl) || 0) + realizedPnl,
+          pnl_percent: 0,
+          closed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } : {
+          size: remainingSize,
+          margin: remainingMargin,
+          mark_price: canonicalClosePrice,
+          pnl: (Number(oppositePosition.pnl) || 0) + realizedPnl,
+          pnl_percent: remainingMargin > 0 ? (((Number(oppositePosition.pnl) || 0) + realizedPnl) / remainingMargin) * 100 : 0,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", oppositePosition.id)
+        .select()
+        .single();
+
+      if (reduceError) {
+        console.error("Reduce position error:", reduceError);
+        throw reduceError;
+      }
+
+      await supabase
+        .from("trades")
+        .update({ pnl: realizedPnl, status: "Filled", closed_at: intent === "close" ? new Date().toISOString() : null })
+        .eq("id", trade.id);
+
+      return { trade, position: updatedPosition, intent, balanceDelta: marginReleased + realizedPnl - validated.fee } satisfies TradeExecutionResult;
     }
     
     // Check if there's an existing open position with same event + option + side
@@ -259,7 +335,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       position = newPosition;
     }
 
-    return { trade, position };
+    return { trade, position, intent: existingPosition ? "add" : "open", balanceDelta: -(validated.margin + validated.fee) } satisfies TradeExecutionResult;
   } catch (error) {
     console.error("Execute trade error:", error);
     throw error;
