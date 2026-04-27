@@ -50,6 +50,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { BinaryEventHint, isBinaryEvent, isNoOption } from "@/components/BinaryEventHint";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
+import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
@@ -194,7 +195,6 @@ export default function DesktopTrading() {
   const [limitPrice, setLimitPrice] = useState("");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
-  const [reduceOnly, setReduceOnly] = useState(false);
   const [tpsl, setTpsl] = useState(false);
   // TP/SL states
   const [tpMode, setTpMode] = useState<"pct" | "price">("pct");
@@ -428,6 +428,22 @@ export default function DesktopTrading() {
       liqPrice,
     };
   }, [amount, leverage, sidePrice, side]);
+
+  const orderIntent = useMemo(() => classifyOrderIntent({
+    positions,
+    eventName: selectedEvent?.name || "",
+    optionLabel: selectedOptionData.label,
+    side,
+    quantity: parseFloat(orderCalculations.quantity) || 0,
+    clickedPrice: sidePrice,
+    leverage,
+  }), [positions, selectedEvent?.name, selectedOptionData.label, side, orderCalculations.quantity, sidePrice, leverage]);
+
+  const displayCalculations = useMemo(() => {
+    if (orderIntent.kind !== "reduce" && orderIntent.kind !== "close") return orderCalculations;
+    const fee = parseFloat(orderCalculations.estimatedFee) || 0;
+    return { ...orderCalculations, marginRequired: "0.00", total: fee.toFixed(2) };
+  }, [orderCalculations, orderIntent.kind]);
 
   // TP/SL calculations
   const currentPrice = sidePrice;
