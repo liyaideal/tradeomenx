@@ -166,6 +166,17 @@ export const PolymarketConnectDialog = ({
     }
   };
 
+  const addressDetected = isValidAddress(walletAddress);
+  const isProcessingConnection = step === "signing" || step === "verifying";
+  const primaryConnectLabel = !addressDetected
+    ? "Connect Wallet"
+    : step === "signing"
+      ? "Signing..."
+      : step === "verifying"
+        ? "Verifying..."
+        : "Sign & Connect";
+  const handlePrimaryConnectAction = addressDetected ? handleConnect : handleDetectWallet;
+
   const formContent = (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -173,13 +184,14 @@ export const PolymarketConnectDialog = ({
         <Input
           placeholder="0x..."
           value={walletAddress}
-          onChange={(e) => setWalletAddress(e.target.value)}
           className="font-mono h-12"
-          disabled={step !== "input"}
+          readOnly
+          disabled={isProcessingConnection || isDetectingWallet}
         />
         <p className="text-xs text-muted-foreground">
-          Enter the wallet address you use on Polymarket. You'll be asked to sign a message
-          to verify ownership — read-only access, no permissions granted.
+          {addressDetected
+            ? "Address detected from your wallet. This cannot be edited."
+            : "Connect the wallet you use on Polymarket. We'll detect the address automatically."}
         </p>
       </div>
 
@@ -211,19 +223,19 @@ export const PolymarketConnectDialog = ({
 
   const ctaButton = (
     <Button
-      onClick={handleConnect}
-      disabled={!isValidAddress(walletAddress) || isVerifying || step !== "input"}
+      onClick={handlePrimaryConnectAction}
+      disabled={isVerifying || isDetectingWallet || isProcessingConnection}
       className="btn-primary h-12 w-full"
     >
-      {step !== "input" ? (
+      {isDetectingWallet || isProcessingConnection ? (
         <>
           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          {step === "signing" ? "Signing..." : "Verifying..."}
+          {isDetectingWallet ? "Connecting..." : primaryConnectLabel}
         </>
       ) : (
         <>
           <Wallet className="w-4 h-4 mr-2" />
-          Sign & Connect
+          {primaryConnectLabel}
         </>
       )}
     </Button>
