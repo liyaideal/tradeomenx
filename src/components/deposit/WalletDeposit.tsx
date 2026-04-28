@@ -11,6 +11,7 @@ import {
 import { LabelText, MonoText } from '@/components/typography';
 import { toast } from 'sonner';
 import { useDeposit } from '@/hooks/useDeposit';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -35,6 +36,7 @@ interface WalletDepositProps {
 
 export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
   const isMobile = useIsMobile();
+  const { user } = useUserProfile();
   const [copied, setCopied] = useState(false);
 
   const {
