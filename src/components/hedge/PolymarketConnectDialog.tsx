@@ -41,16 +41,54 @@ export const PolymarketConnectDialog = ({
   const { verifyAndConnect, isVerifying, isDemoMode } = useConnectedAccounts();
 
   const [walletAddress, setWalletAddress] = useState("");
-  const [step, setStep] = useState<"input" | "signing" | "verifying">("input");
+  const [step, setStep] = useState<"detect" | "signing" | "verifying">("detect");
+  const [isDetectingWallet, setIsDetectingWallet] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setWalletAddress("");
-      setStep("input");
+      setStep("detect");
+      setIsDetectingWallet(false);
     }
   }, [open]);
 
   const isValidAddress = (a: string) => /^0x[a-fA-F0-9]{40}$/.test(a);
+
+  const handleDetectWallet = async () => {
+    try {
+      setIsDetectingWallet(true);
+
+      if (isDemoMode) {
+        await new Promise((r) => setTimeout(r, 900));
+        setWalletAddress("0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18");
+        toast.success("Wallet address detected");
+        return;
+      }
+
+      const ethereum = (window as any).ethereum;
+      if (!ethereum) {
+        toast.error("No wallet detected. Please open this page in a wallet-enabled browser or install MetaMask.");
+        return;
+      }
+
+      await ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const signerAddress = await signer.getAddress();
+
+      setWalletAddress(signerAddress);
+      toast.success("Wallet address detected");
+    } catch (error: any) {
+      console.error("Wallet detection error:", error);
+      if (error?.code === 4001) {
+        toast.error("Wallet connection request was rejected");
+      } else {
+        toast.error(error?.message || "Failed to detect wallet address");
+      }
+    } finally {
+      setIsDetectingWallet(false);
+    }
+  };
 
   const handleConnect = async () => {
     if (!isValidAddress(walletAddress)) {
@@ -82,8 +120,8 @@ export const PolymarketConnectDialog = ({
       } else {
         const ethereum = (window as any).ethereum;
         if (!ethereum) {
-          toast.error("No Web3 wallet detected. Please install MetaMask.");
-          setStep("input");
+          toast.error("No wallet detected. Please open this page in a wallet-enabled browser or install MetaMask.");
+          setStep("detect");
           return;
         }
         await ethereum.request({ method: "eth_requestAccounts" });
@@ -95,7 +133,7 @@ export const PolymarketConnectDialog = ({
           toast.error(
             `Connected wallet (${signerAddress.slice(0, 6)}...${signerAddress.slice(-6)}) does not match the entered address.`
           );
-          setStep("input");
+          setStep("detect");
           return;
         }
 
@@ -124,9 +162,20 @@ export const PolymarketConnectDialog = ({
       } else {
         toast.error(error?.message || "Failed to connect wallet");
       }
-      setStep("input");
+      setStep("detect");
     }
   };
+
+  const addressDetected = isValidAddress(walletAddress);
+  const isProcessingConnection = step === "signing" || step === "verifying";
+  const primaryConnectLabel = !addressDetected
+    ? "Connect Wallet"
+    : step === "signing"
+      ? "Signing..."
+      : step === "verifying"
+        ? "Verifying..."
+        : "Sign & Connect";
+  const handlePrimaryConnectAction = addressDetected ? handleConnect : handleDetectWallet;
 
   const formContent = (
     <div className="space-y-4">
@@ -135,13 +184,14 @@ export const PolymarketConnectDialog = ({
         <Input
           placeholder="0x..."
           value={walletAddress}
-          onChange={(e) => setWalletAddress(e.target.value)}
           className="font-mono h-12"
-          disabled={step !== "input"}
+          readOnly
+          disabled={isProcessingConnection || isDetectingWallet}
         />
         <p className="text-xs text-muted-foreground">
-          Enter the wallet address you use on Polymarket. You'll be asked to sign a message
-          to verify ownership — read-only access, no permissions granted.
+          {addressDetected
+            ? "Address detected from your wallet. This cannot be edited."
+            : "Connect the wallet you use on Polymarket. We'll detect the address automatically."}
         </p>
       </div>
 
@@ -173,19 +223,19 @@ export const PolymarketConnectDialog = ({
 
   const ctaButton = (
     <Button
-      onClick={handleConnect}
-      disabled={!isValidAddress(walletAddress) || isVerifying || step !== "input"}
+      onClick={handlePrimaryConnectAction}
+      disabled={isVerifying || isDetectingWallet || isProcessingConnection}
       className="btn-primary h-12 w-full"
     >
-      {step !== "input" ? (
+      {isDetectingWallet || isProcessingConnection ? (
         <>
           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          {step === "signing" ? "Signing..." : "Verifying..."}
+          {isDetectingWallet ? "Connecting..." : primaryConnectLabel}
         </>
       ) : (
         <>
           <Wallet className="w-4 h-4 mr-2" />
-          Sign & Connect
+          {primaryConnectLabel}
         </>
       )}
     </Button>
