@@ -231,16 +231,20 @@ export const ConnectedAccountsCard = () => {
   const connectFormContent = (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium">
-          {PLATFORMS.find((p) => p.id === selectedPlatform)?.name} Wallet Address
-        </label>
-        <Input
-          placeholder="0x..."
-          value={walletAddress}
-          className="font-mono h-12"
-          readOnly
-          disabled={isProcessingConnection || isDetectingWallet}
-        />
+        {addressDetected && (
+          <>
+            <label className="text-sm font-medium">
+              {PLATFORMS.find((p) => p.id === selectedPlatform)?.name} Wallet Address
+            </label>
+            <Input
+              placeholder="0x..."
+              value={walletAddress}
+              className="font-mono h-12"
+              readOnly
+              disabled={isProcessingConnection || isDetectingWallet}
+            />
+          </>
+        )}
         <p className="text-xs text-muted-foreground">
           {addressDetected
             ? "Address detected from your wallet. This cannot be edited."
