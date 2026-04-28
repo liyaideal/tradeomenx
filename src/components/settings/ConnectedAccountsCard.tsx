@@ -286,14 +286,14 @@ export const ConnectedAccountsCard = () => {
           {connectFormContent}
           <MobileDrawerActions>
             <Button
-              onClick={handleConnectWallet}
-              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep !== "input"}
+              onClick={handlePrimaryConnectAction}
+              disabled={isVerifying || isDetectingWallet || isProcessingConnection}
               className="w-full btn-primary h-12"
             >
-              {connectionStep !== "input" ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {connectionStep === "signing" ? "Signing..." : "Verifying..."}</>
+              {isDetectingWallet || isProcessingConnection ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {isDetectingWallet ? "Connecting..." : primaryConnectLabel}</>
               ) : (
-                <><Wallet className="w-4 h-4 mr-2" /> Sign & Connect</>
+                <><Wallet className="w-4 h-4 mr-2" /> {primaryConnectLabel}</>
               )}
             </Button>
           </MobileDrawerActions>
@@ -318,14 +318,14 @@ export const ConnectedAccountsCard = () => {
               Cancel
             </Button>
             <Button
-              onClick={handleConnectWallet}
-              disabled={!isValidAddress(walletAddress) || isVerifying || connectionStep !== "input"}
+              onClick={handlePrimaryConnectAction}
+              disabled={isVerifying || isDetectingWallet || isProcessingConnection}
               className="flex-1 btn-primary"
             >
-              {connectionStep !== "input" ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {connectionStep === "signing" ? "Signing..." : "Verifying..."}</>
+              {isDetectingWallet || isProcessingConnection ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {isDetectingWallet ? "Connecting..." : primaryConnectLabel}</>
               ) : (
-                <><Wallet className="w-4 h-4 mr-2" /> Sign & Connect</>
+                <><Wallet className="w-4 h-4 mr-2" /> {primaryConnectLabel}</>
               )}
             </Button>
           </div>
