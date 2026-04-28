@@ -213,11 +213,10 @@ export const CrossChainDeposit = () => {
                 </SelectContent>
               </Select>
               <Select value={fromToken} onValueChange={handleTokenChange} disabled={!wallet.connected || selectedChainTokens.length === 0}>
-                <SelectTrigger className={cn("h-10 rounded-full bg-card border-border/50 gap-2", isMobile ? "w-full" : "w-auto min-w-[112px]")}>
+                <SelectTrigger className={cn("h-10 rounded-full bg-card border-border/50 gap-2", isMobile ? "w-full" : "w-auto min-w-[96px]")}>
                   <div className="flex min-w-0 items-center gap-2">
                     {selectedChain && <img src={selectedChain.icon} alt="" className="w-5 h-5 shrink-0" />}
                     <span className="truncate text-sm font-medium">{fromToken}</span>
-                    <span className="truncate text-xs text-muted-foreground">{selectedChain?.name}</span>
                   </div>
                 </SelectTrigger>
                 <SelectContent className="max-h-[260px] overflow-y-auto">
