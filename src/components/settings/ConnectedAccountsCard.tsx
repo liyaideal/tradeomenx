@@ -217,6 +217,17 @@ export const ConnectedAccountsCard = () => {
   const getAccountForPlatform = (platformId: string) =>
     activeAccounts.find((a) => a.platform === platformId);
 
+  const addressDetected = isValidAddress(walletAddress);
+  const isProcessingConnection = connectionStep === "signing" || connectionStep === "verifying";
+  const primaryConnectLabel = !addressDetected
+    ? "Connect Wallet"
+    : connectionStep === "signing"
+      ? "Signing..."
+      : connectionStep === "verifying"
+        ? "Verifying..."
+        : "Sign & Connect";
+  const handlePrimaryConnectAction = addressDetected ? handleConnectWallet : handleDetectWallet;
+
   const connectFormContent = (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -226,13 +237,14 @@ export const ConnectedAccountsCard = () => {
         <Input
           placeholder="0x..."
           value={walletAddress}
-          onChange={(e) => setWalletAddress(e.target.value)}
           className="font-mono h-12"
-          disabled={connectionStep !== "input"}
+          readOnly
+          disabled={isProcessingConnection || isDetectingWallet}
         />
         <p className="text-xs text-muted-foreground">
-          Enter the wallet address you use on {PLATFORMS.find((p) => p.id === selectedPlatform)?.name}.
-          You'll be asked to sign a message to verify ownership.
+          {addressDetected
+            ? "Address detected from your wallet. This cannot be edited."
+            : `Connect the wallet you use on ${PLATFORMS.find((p) => p.id === selectedPlatform)?.name}. We'll detect the address automatically.`}
         </p>
       </div>
 
