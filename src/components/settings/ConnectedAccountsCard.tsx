@@ -56,12 +56,14 @@ export const ConnectedAccountsCard = () => {
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
-  const [connectionStep, setConnectionStep] = useState<"input" | "signing" | "verifying">("input");
+  const [connectionStep, setConnectionStep] = useState<"detect" | "signing" | "verifying">("detect");
+  const [isDetectingWallet, setIsDetectingWallet] = useState(false);
 
   const resetDialog = () => {
     setWalletAddress("");
     setSelectedPlatform(null);
-    setConnectionStep("input");
+    setConnectionStep("detect");
+    setIsDetectingWallet(false);
   };
 
   const handleOpenConnect = (platformId: string) => {
@@ -75,6 +77,42 @@ export const ConnectedAccountsCard = () => {
   };
 
   const isValidAddress = (addr: string) => /^0x[a-fA-F0-9]{40}$/.test(addr);
+
+  const handleDetectWallet = async () => {
+    try {
+      setIsDetectingWallet(true);
+
+      if (isDemoMode) {
+        await new Promise((r) => setTimeout(r, 900));
+        setWalletAddress("0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18");
+        toast.success("Wallet address detected");
+        return;
+      }
+
+      const ethereum = (window as any).ethereum;
+      if (!ethereum) {
+        toast.error("No wallet detected. Please open this page in a wallet-enabled browser or install MetaMask.");
+        return;
+      }
+
+      await ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const signerAddress = await signer.getAddress();
+
+      setWalletAddress(signerAddress);
+      toast.success("Wallet address detected");
+    } catch (error: any) {
+      console.error("Wallet detection error:", error);
+      if (error.code === 4001) {
+        toast.error("Wallet connection request was rejected");
+      } else {
+        toast.error(error.message || "Failed to detect wallet address");
+      }
+    } finally {
+      setIsDetectingWallet(false);
+    }
+  };
 
   const handleConnectWallet = async () => {
     if (!isValidAddress(walletAddress)) {
@@ -115,7 +153,7 @@ export const ConnectedAccountsCard = () => {
         const ethereum = (window as any).ethereum;
         if (!ethereum) {
           toast.error("No Web3 wallet detected. Please install MetaMask or use WalletConnect.");
-          setConnectionStep("input");
+          setConnectionStep("detect");
           return;
         }
 
@@ -129,7 +167,7 @@ export const ConnectedAccountsCard = () => {
           toast.error(
             `Connected wallet (${signerAddress.slice(0, 6)}...${signerAddress.slice(-6)}) does not match the entered address. Please switch to the correct wallet.`
           );
-          setConnectionStep("input");
+          setConnectionStep("detect");
           return;
         }
 
@@ -162,7 +200,7 @@ export const ConnectedAccountsCard = () => {
       } else {
         toast.error(error.message || "Failed to connect wallet");
       }
-      setConnectionStep("input");
+      setConnectionStep("detect");
     }
   };
 
