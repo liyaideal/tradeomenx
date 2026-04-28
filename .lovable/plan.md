@@ -1,39 +1,33 @@
-计划如下：
+## Plan: Deposit Wallet 改成先选 Chain，再选 Token
 
-1. 调整 Polymarket 连接弹窗的流程
-   - 用户点击 Settings 里的 Polymarket `Connect`，不再先让用户手动输入地址。
-   - 弹窗第一步改成“Connect wallet to detect address”，用户点击后拉起浏览器钱包授权。
-   - 授权成功后，把钱包返回的 `0x...` 地址自动填入 `Polymarket Wallet Address`。
-   - 地址输入框改为不可编辑，只作为确认展示，避免用户填错 Polygon/Polymarket 地址。
+### 目标
+把 Deposit 的 Wallet/Cross-Chain 选择器从“所有 chain-token 组合一次性展开”改成两步选择，避免未来接口一次拉 30 条 chain + 几百个 token 导致请求过多和 UI 下拉过长。
 
-2. 保持后续签名验证逻辑不变
-   - 用户看到自动识别的地址后，点击 `Sign & Connect`。
-   - 继续使用现有 EIP-712 签名流程。
-   - 签名时仍校验当前 signer 地址必须等于自动获取的地址。
-   - 验证成功后继续写入现有 connected account 数据，不改数据库结构。
+### 交互调整
+1. **From 区域拆成两个选择器**
+   - 第一层：Chain 选择，只展示支持的链列表。
+   - 第二层：Token 选择，只在当前选中的 chain 下展示该链可用 token。
+   - 用户切换 chain 后：自动重置 token 为该 chain 的默认/第一个可用 token，并清空 amount。
 
-3. Desktop 和 Mobile 同步优化
-   - `src/components/settings/ConnectedAccountsCard.tsx`：Settings 页面的桌面 Dialog 和移动 Drawer 都使用新流程。
-   - `src/components/hedge/PolymarketConnectDialog.tsx`：H2E landing page 里的独立 Polymarket 连接弹窗也同步使用同样的新流程，避免两个入口体验不一致。
+2. **Desktop 与 Mobile 同步优化**
+   - 当前 `DepositDialog` 和 `/deposit` 移动页都复用 `CrossChainDeposit`，所以改组件本身即可同时覆盖两端。
+   - Desktop 保持紧凑卡片布局，Mobile 避免大下拉溢出，选择面板限制高度并可滚动。
 
-4. 交互文案建议
-   - 初始状态：
-     - 标题保持 `Connect Polymarket`
-     - 描述改为说明“Connect the wallet you use on Polymarket. We’ll detect the address automatically.”
-     - 主按钮：`Connect Wallet`
-   - 地址获取成功后：
-     - 显示只读地址框
-     - 辅助说明：`Address detected from your wallet. This cannot be edited.`
-     - 主按钮切换为 `Sign & Connect`
-   - 如果没有浏览器钱包：提示 `No wallet detected. Please open this page in a wallet-enabled browser or install MetaMask.`
+3. **减少接口压力的结构预留**
+   - 组件内部数据结构改成 chain-first：先拿 chain 列表，再根据 selected chain 使用该 chain 的 tokens。
+   - 未来接真实接口时，可以只在用户选中某条 chain 后再请求该 chain 的 token 列表，而不是一次性请求全部 token。
 
-技术实现细节：
-- 使用现有 `ethers` 的 `BrowserProvider` 和 `window.ethereum.request({ method: "eth_requestAccounts" })` 获取授权地址，不新增后端或数据库变更。
-- 新增一个前端状态，例如：
-  - `walletAddress`
-  - `isDetectingWallet`
-  - `addressDetected`
-  - `connectionStep: "detect" | "input" | "signing" | "verifying"` 或等价命名
-- `Sign & Connect` 按钮只有在地址已被钱包授权检测出来后才可用。
-- Demo mode 下也模拟“授权获取地址”步骤，自动填入 demo 地址，后续流程保持当前 mock 验证逻辑。
-- 完成后运行 TypeScript 检查，确认两个入口都没有类型错误。
+### UI 细节
+- Chain 按钮显示：chain logo + chain name。
+- Token 按钮显示：token symbol + 当前 chain name；列表里只出现当前 chain 的 tokens。
+- 保留当前余额、MAX、汇率、review/sign/processing/result 后续流程，不改变 deposit 业务流程。
+- 去掉目前截图中那种“USDC Ethereum、USDT Ethereum、ETH Ethereum、USDC Arbitrum...”全部混排列表。
+
+### 技术实现
+- 修改 `src/components/deposit/CrossChainDeposit.tsx`：
+  - 将当前单个 `<Select value={`${fromChain}-${fromToken}`}>` 拆成两个 selector。
+  - 增加 `handleChainChange(chainId)`，负责设置 chain、选择默认 token、清空 amount。
+  - token 列表渲染改为 `SOURCE_TOKENS[fromChain]`，不再遍历所有 chains。
+  - 选择器弹层添加 `max-h`/滚动样式，避免长列表撑出视口。
+- 如需要，同步更新 `src/hooks/useMockWallet.ts` 的 mock 数据结构/默认 token，确保切链后余额显示稳定。
+- 运行 TypeScript 检查，确认两端编译通过。
