@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Copy, Check, MoreHorizontal, RefreshCw, Info } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
@@ -36,16 +36,24 @@ interface WalletDepositProps {
 export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
   const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
-  const [warningAcknowledged, setWarningAcknowledged] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(WARNING_ACK_KEY) === 'true';
-  });
 
   const {
     getCurrentAddress,
     generateNewAddress,
     isGeneratingAddress,
   } = useDeposit('USDC');
+
+  const warningAckKey = useMemo(() => {
+    if (!user?.id) return WARNING_ACK_KEY;
+    return `${WARNING_ACK_KEY}:${user.id}`;
+  }, [user?.id]);
+
+  const [warningAcknowledged, setWarningAcknowledged] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setWarningAcknowledged(window.localStorage.getItem(warningAckKey) === 'true');
+  }, [warningAckKey]);
 
   const custodyAddress = getCurrentAddress();
 
@@ -66,7 +74,7 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
   };
 
   const handleAcknowledgeWarning = () => {
-    window.localStorage.setItem(WARNING_ACK_KEY, 'true');
+    window.localStorage.setItem(warningAckKey, 'true');
     setWarningAcknowledged(true);
   };
 
