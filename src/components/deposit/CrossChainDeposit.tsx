@@ -8,7 +8,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -68,6 +67,19 @@ export const CrossChainDeposit = () => {
   const tokenBalance = getBalance(fromChain, fromToken);
   const receivingAddress = getCurrentAddress();
   const selectedChain = SOURCE_CHAINS.find(c => c.id === fromChain);
+  const selectedChainTokens = SOURCE_TOKENS[fromChain] || [];
+
+  const handleChainChange = (chainId: string) => {
+    const nextToken = SOURCE_TOKENS[chainId]?.[0]?.symbol || '';
+    setFromChain(chainId);
+    setFromToken(nextToken);
+    setAmount('');
+  };
+
+  const handleTokenChange = (token: string) => {
+    setFromToken(token);
+    setAmount('');
+  };
 
   const parsedAmount = parseFloat(amount) || 0;
   const isStable = ['USDC', 'USDT', 'DAI', 'BUSD'].includes(fromToken);
