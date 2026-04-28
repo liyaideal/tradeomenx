@@ -193,37 +193,46 @@ export const CrossChainDeposit = () => {
               disabled={!wallet.connected}
               className="flex-1 h-12 text-2xl font-mono bg-transparent border-none shadow-none focus-visible:ring-0 p-0"
             />
-            <Select
-              value={`${fromChain}-${fromToken}`}
-              onValueChange={(v) => {
-                const [chain, token] = v.split('-');
-                setFromChain(chain);
-                setFromToken(token);
-                setAmount('');
-              }}
-              disabled={!wallet.connected}
-            >
-              <SelectTrigger className="w-auto min-w-[140px] h-10 rounded-full bg-card border-border/50 gap-2">
-                <div className="flex items-center gap-2">
-                  {selectedChain && <img src={selectedChain.icon} alt="" className="w-5 h-5" />}
-                  <span className="font-medium">{fromToken}</span>
-                  <span className="text-xs text-muted-foreground">{selectedChain?.name}</span>
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {SOURCE_CHAINS.map(chain =>
-                  (SOURCE_TOKENS[chain.id] || []).map(token => (
-                    <SelectItem key={`${chain.id}-${token.symbol}`} value={`${chain.id}-${token.symbol}`}>
+            <div className={cn("flex gap-2", isMobile ? "flex-col items-stretch" : "items-center")}>
+              <Select value={fromChain} onValueChange={handleChainChange} disabled={!wallet.connected}>
+                <SelectTrigger className={cn("h-10 rounded-full bg-card border-border/50 gap-2", isMobile ? "w-full" : "w-auto min-w-[128px]")}>
+                  <div className="flex min-w-0 items-center gap-2">
+                    {selectedChain && <img src={selectedChain.icon} alt={selectedChain.name} className="w-5 h-5 shrink-0" />}
+                    <span className="truncate text-sm font-medium">{selectedChain?.name}</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="max-h-[260px] overflow-y-auto">
+                  {SOURCE_CHAINS.map(chain => (
+                    <SelectItem key={chain.id} value={chain.id}>
                       <div className="flex items-center gap-2">
-                        <img src={chain.icon} alt="" className="w-4 h-4" />
-                        <span className="font-medium">{token.symbol}</span>
-                        <span className="text-xs text-muted-foreground">{chain.name}</span>
+                        <img src={chain.icon} alt={chain.name} className="w-4 h-4" />
+                        <span className="font-medium">{chain.name}</span>
                       </div>
                     </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={fromToken} onValueChange={handleTokenChange} disabled={!wallet.connected || selectedChainTokens.length === 0}>
+                <SelectTrigger className={cn("h-10 rounded-full bg-card border-border/50 gap-2", isMobile ? "w-full" : "w-auto min-w-[112px]")}>
+                  <div className="flex min-w-0 items-center gap-2">
+                    {selectedChain && <img src={selectedChain.icon} alt="" className="w-5 h-5 shrink-0" />}
+                    <span className="truncate text-sm font-medium">{fromToken}</span>
+                    <span className="truncate text-xs text-muted-foreground">{selectedChain?.name}</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="max-h-[260px] overflow-y-auto">
+                  {selectedChainTokens.map(token => (
+                    <SelectItem key={`${fromChain}-${token.symbol}`} value={token.symbol}>
+                      <div className="flex items-center gap-2">
+                        {selectedChain && <img src={selectedChain.icon} alt="" className="w-4 h-4" />}
+                        <span className="font-medium">{token.symbol}</span>
+                        <span className="text-xs text-muted-foreground">{token.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           {wallet.connected && parsedAmount > tokenBalance && (
             <p className="text-xs text-trading-red flex items-center gap-1">
