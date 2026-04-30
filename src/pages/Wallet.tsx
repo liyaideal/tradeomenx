@@ -496,7 +496,37 @@ export default function Wallet() {
               ${h2e.volumeCompleted.toLocaleString()} / ${(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}
             </span>
           </div>
-          <Progress value={h2e.volumePercent} className="h-1.5" />
+          <Progress value={h2e.volumePercent} className="hidden h-1.5 sm:block" />
+          <div className="grid grid-cols-5 gap-1.5 sm:hidden">
+            {h2e.unlockTiers.map((tier) => {
+              const isReached = h2e.volumeCompleted >= tier.volume;
+              const isNext = h2e.nextTierVolume === tier.volume;
+
+              return (
+                <div
+                  key={tier.volume}
+                  className={`relative rounded-lg border px-1.5 py-2 text-center transition-all duration-300 ${
+                    isReached
+                      ? "border-primary bg-primary/15 text-primary shadow-sm"
+                      : isNext
+                        ? "border-primary/40 bg-primary/5 text-foreground"
+                        : "border-border/50 bg-muted/20 text-muted-foreground"
+                  }`}
+                >
+                  {isReached && showH2eUnlockToast && tier.percent === h2e.unlockedPercent && (
+                    <span className="absolute -inset-0.5 rounded-lg border border-primary/60 animate-scale-in" />
+                  )}
+                  <div className="font-mono text-[11px] font-semibold leading-none">{tier.percent}%</div>
+                  <div className="mt-1 font-mono text-[9px] leading-none">${(tier.volume / 1000).toFixed(0)}K</div>
+                </div>
+              );
+            })}
+          </div>
+          {showH2eUnlockToast && (
+            <div className="sm:hidden animate-fade-in rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-2 text-[11px] font-medium text-primary">
+              已解锁{h2e.unlockedPercent}%
+            </div>
+          )}
           {h2e.isFullyUnlocked ? (
             <p className="text-[10px] text-trading-green">Fully unlocked — rewards are withdrawable</p>
           ) : (
