@@ -54,6 +54,13 @@ const MainnetLaunch = () => {
     navigate(ref ? `/events?ref=${encodeURIComponent(ref)}` : "/events");
   };
 
+  useEffect(() => {
+    if (!user || !authOpen) return;
+    setAuthOpen(false);
+    const ref = searchParams.get("ref") ?? localStorage.getItem("mainnet_launch_ref");
+    navigate(ref ? `/events?ref=${encodeURIComponent(ref)}` : "/events");
+  }, [user, authOpen, navigate, searchParams]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {isMobile ? <MobileHeader title="Mainnet Launch" showLogo={false} showBack /> : <EventsDesktopHeader />}
