@@ -13,19 +13,19 @@ const faqs = [
 
 export const FAQ = () => (
   <SectionShell>
-    <SectionTitle title="Got Questions?" />
+    <SectionTitle eyebrow="FAQ" title="Operational details." />
     <Accordion
       type="single"
       collapsible
-      className="rounded-lg border border-border/60 bg-card/70 px-4 md:px-6"
+      className="border-y border-border/55"
       onValueChange={(value) => value && trackMainnetLaunch("mainnet_launch_faq_expand", { question_id: value })}
     >
       {faqs.map((faq) => (
-        <AccordionItem key={faq.id} value={faq.id} className="border-border/50">
-          <AccordionTrigger className="text-left text-sm font-semibold text-foreground hover:no-underline md:text-base">
-            {faq.q}
+        <AccordionItem key={faq.id} value={faq.id} className="border-border/45">
+          <AccordionTrigger className="py-5 text-left text-sm font-semibold text-foreground hover:no-underline md:text-base">
+            <span className="pr-6">{faq.q}</span>
           </AccordionTrigger>
-          <AccordionContent className="text-sm leading-6 text-muted-foreground md:text-base">
+          <AccordionContent className="pb-5 text-sm leading-6 text-muted-foreground md:text-base">
             {faq.a}
           </AccordionContent>
         </AccordionItem>
