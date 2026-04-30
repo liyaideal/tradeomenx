@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { 
   Clock, 
   Loader2, 
@@ -76,11 +77,171 @@ const EXPLORER_URLS: Record<string, string> = {
   'Solana': 'https://solscan.io/tx/',
 };
 
+const H2E_UNLOCK_TIERS = [
+  { volume: 10000, percent: 10 },
+  { volume: 50000, percent: 25 },
+  { volume: 100000, percent: 50 },
+  { volume: 200000, percent: 75 },
+  { volume: 400000, percent: 100 },
+];
+
+const H2E_MOCK_VOLUMES = [0, 2500, 12500, 20000];
+const H2E_FULL_VOLUME_UNLOCK = H2E_UNLOCK_TIERS[H2E_UNLOCK_TIERS.length - 1].volume;
+
 export const WalletSection = ({ isMobile }: WalletSectionProps) => {
   const [demoConfirmations, setDemoConfirmations] = useState(8);
+  const [mockVolume, setMockVolume] = useState(12500);
+  const currentTier = [...H2E_UNLOCK_TIERS].reverse().find((tier) => mockVolume >= tier.volume);
+  const nextTier = H2E_UNLOCK_TIERS.find((tier) => mockVolume < tier.volume) ?? null;
+  const unlockedPercent = currentTier?.percent ?? 0;
+  const volumeToNextTier = nextTier ? Math.max(0, nextTier.volume - mockVolume) : 0;
 
   return (
     <div className="space-y-12">
+      {/* H2E Unlock Playground */}
+      <SectionWrapper
+        id="h2e-unlock-playground"
+        title="H2E Unlock Playground"
+        platform="shared"
+        description="Switch mock volume to preview the mobile ladder and desktop progress rail states"
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Mock Volume Controls</CardTitle>
+            <CardDescription>Use the Style Guide viewport switcher to review mobile and desktop layouts</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex flex-wrap gap-2">
+              {H2E_MOCK_VOLUMES.map((volume) => (
+                <Button
+                  key={volume}
+                  type="button"
+                  variant={mockVolume === volume ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMockVolume(volume)}
+                  className="font-mono"
+                >
+                  ${volume.toLocaleString()}
+                </Button>
+              ))}
+            </div>
+
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold">Withdrawal unlock progress</p>
+                  <p className="text-xs text-muted-foreground">
+                    Current unlocked: {unlockedPercent}% · Mock volume ${mockVolume.toLocaleString()}
+                  </p>
+                </div>
+                {unlockedPercent > 0 && (
+                  <Badge key={mockVolume} className="animate-fade-in bg-primary/10 text-primary border-primary/20">
+                    已解锁{unlockedPercent}%
+                  </Badge>
+                )}
+              </div>
+
+              {!isMobile && (
+                <div className="pt-3">
+                  <div className="relative px-1">
+                    <div className="absolute left-1 right-1 top-3 h-px bg-border/70" />
+                    <div
+                      className="absolute left-1 top-3 h-px bg-primary transition-all duration-500"
+                      style={{ width: `${Math.min((mockVolume / H2E_FULL_VOLUME_UNLOCK) * 100, 100)}%` }}
+                    />
+                    <div className="relative grid grid-cols-5 gap-3">
+                      {H2E_UNLOCK_TIERS.map((tier) => {
+                        const isReached = mockVolume >= tier.volume;
+                        const isNext = nextTier?.volume === tier.volume;
+
+                        return (
+                          <div key={tier.volume} className="flex flex-col items-center text-center">
+                            <span
+                              className={cn(
+                                "relative z-10 h-6 w-6 rounded-full border-2 bg-background transition-all duration-300",
+                                isReached && "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]",
+                                isNext && !isReached && "border-primary/70 shadow-[0_0_0_4px_hsl(var(--primary)/0.08)]",
+                                !isReached && !isNext && "border-border"
+                              )}
+                            >
+                              {isReached && tier.percent === unlockedPercent && (
+                                <span key={mockVolume} className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
+                              )}
+                            </span>
+                            <span className={cn("mt-2 font-mono text-[11px] font-semibold", isReached || isNext ? "text-foreground" : "text-muted-foreground")}>
+                              {tier.percent}%
+                            </span>
+                            <span className="font-mono text-[10px] text-muted-foreground">${(tier.volume / 1000).toFixed(0)}K</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isMobile && (
+                <div className="space-y-2 rounded-lg border border-border/40 bg-muted/10 p-3">
+                  {nextTier && (
+                    <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-2">
+                      <div className="text-[10px] uppercase text-muted-foreground">Next unlock</div>
+                      <div className="mt-0.5 flex items-center justify-between text-xs">
+                        <span className="font-medium">{nextTier.percent}% at ${nextTier.volume.toLocaleString()}</span>
+                        <span className="font-mono text-primary">${volumeToNextTier.toLocaleString()} left</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-0.5">
+                    {H2E_UNLOCK_TIERS.map((tier, index) => {
+                      const isReached = mockVolume >= tier.volume;
+                      const isNext = nextTier?.volume === tier.volume;
+                      const isLast = index === H2E_UNLOCK_TIERS.length - 1;
+
+                      return (
+                        <div key={tier.volume} className="relative flex gap-3 pb-2 last:pb-0">
+                          {!isLast && <div className={cn("absolute left-[7px] top-5 h-[calc(100%-12px)] w-px", isReached ? "bg-primary/60" : "bg-border/70")} />}
+                          <span
+                            className={cn(
+                              "relative mt-1 h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 bg-background transition-all duration-300",
+                              isReached && "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]",
+                              isNext && !isReached && "border-primary/70",
+                              !isReached && !isNext && "border-border"
+                            )}
+                          >
+                            {isReached && tier.percent === unlockedPercent && (
+                              <span key={mockVolume} className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
+                            )}
+                          </span>
+                          <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                            <div>
+                              <div className={cn("text-xs font-medium", isReached || isNext ? "text-foreground" : "text-muted-foreground")}>
+                                {tier.percent}% unlock
+                              </div>
+                              <div className="font-mono text-[10px] text-muted-foreground">${(tier.volume / 1000).toFixed(0)}K volume</div>
+                            </div>
+                            <span className={cn("text-[10px]", isReached ? "text-primary" : isNext ? "text-foreground" : "text-muted-foreground")}>
+                              {isReached ? "unlocked" : isNext ? "current target" : "locked"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {nextTier ? (
+                <p className="text-[10px] text-muted-foreground">
+                  Trade ${volumeToNextTier.toLocaleString()} more to unlock {nextTier.percent}%
+                </p>
+              ) : (
+                <p className="text-[10px] text-trading-green">Fully unlocked — rewards are withdrawable</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
       {/* Transaction Status Badges */}
       <SectionWrapper
         id="transaction-status"
