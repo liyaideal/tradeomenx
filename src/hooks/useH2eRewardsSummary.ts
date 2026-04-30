@@ -2,7 +2,14 @@ import { useUserProfile } from "./useUserProfile";
 import { useAirdropPositions } from "./useAirdropPositions";
 
 const H2E_EARNINGS_CAP = 100;
-const H2E_VOLUME_UNLOCK = 400000;
+const H2E_UNLOCK_TIERS = [
+  { volume: 10000, percent: 10 },
+  { volume: 50000, percent: 25 },
+  { volume: 100000, percent: 50 },
+  { volume: 200000, percent: 75 },
+  { volume: 400000, percent: 100 },
+];
+const H2E_FULL_VOLUME_UNLOCK = H2E_UNLOCK_TIERS[H2E_UNLOCK_TIERS.length - 1].volume;
 
 export interface H2eRewardsSummary {
   /** Frozen balance from H2E settlements (available for trading, locked for withdrawal) */
@@ -11,6 +18,20 @@ export interface H2eRewardsSummary {
   volumeCompleted: number;
   /** Whether the frozen balance has been unlocked for withdrawal */
   isUnlocked: boolean;
+  /** Whether the frozen balance is fully unlocked for withdrawal */
+  isFullyUnlocked: boolean;
+  /** Current unlocked reward percentage */
+  unlockedPercent: number;
+  /** Amount of H2E rewards currently withdrawable */
+  unlockedAmount: number;
+  /** Amount of H2E rewards still locked for withdrawal */
+  lockedAmount: number;
+  /** Next tier volume target */
+  nextTierVolume: number | null;
+  /** Next tier unlock percentage */
+  nextTierPercent: number | null;
+  /** Volume needed to reach the next tier */
+  volumeToNextTier: number;
   /** Lifetime H2E earnings */
   totalEarned: number;
   /** Max earnings cap */
@@ -46,7 +67,13 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
 
   // Demo: mock volume progress
   const volumeCompleted = 2450;
-  const isUnlocked = volumeCompleted >= H2E_VOLUME_UNLOCK;
+  const currentTier = [...H2E_UNLOCK_TIERS].reverse().find((tier) => volumeCompleted >= tier.volume);
+  const nextTier = H2E_UNLOCK_TIERS.find((tier) => volumeCompleted < tier.volume) ?? null;
+  const unlockedPercent = currentTier?.percent ?? 0;
+  const unlockedAmount = frozenBalance * (unlockedPercent / 100);
+  const lockedAmount = Math.max(0, frozenBalance - unlockedAmount);
+  const isFullyUnlocked = unlockedPercent >= 100;
+  const isUnlocked = unlockedPercent > 0;
 
   const settlements = settledAirdrops
     .filter((a) => a.settledAt)
@@ -62,10 +89,17 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
     frozenBalance,
     volumeCompleted,
     isUnlocked,
+    isFullyUnlocked,
+    unlockedPercent,
+    unlockedAmount,
+    lockedAmount,
     totalEarned,
     earningsCap: H2E_EARNINGS_CAP,
-    volumeRequired: H2E_VOLUME_UNLOCK,
-    volumePercent: Math.min((volumeCompleted / H2E_VOLUME_UNLOCK) * 100, 100),
+    volumeRequired: H2E_FULL_VOLUME_UNLOCK,
+    nextTierVolume: nextTier?.volume ?? null,
+    nextTierPercent: nextTier?.percent ?? null,
+    volumeToNextTier: nextTier ? Math.max(0, nextTier.volume - volumeCompleted) : 0,
+    volumePercent: nextTier ? Math.min((volumeCompleted / nextTier.volume) * 100, 100) : 100,
     earningsPercent: Math.min((totalEarned / H2E_EARNINGS_CAP) * 100, 100),
     settlements,
   };
