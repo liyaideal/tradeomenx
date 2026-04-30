@@ -1,5 +1,5 @@
 import { BadgeDollarSign, Clock3, Network, ShieldCheck } from "lucide-react";
-import { SectionShell } from "./SectionShell";
+import { SectionShell, SectionTitle } from "./SectionShell";
 
 const items = [
   { icon: Network, title: "Mainnet Live", body: "No more testnet. This is real. Full production environment." },
@@ -10,6 +10,11 @@ const items = [
 
 export const TrustBar = () => (
   <SectionShell>
+    <SectionTitle
+      eyebrow="Production Proof"
+      title="Mainnet conditions, not campaign theater."
+      desc="The launch reward is tied to real settlement rails, verifiable execution, and daily distribution timing."
+    />
     <div className="grid border-l border-t border-border/50 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => (
         <div key={item.title} className="border-b border-r border-border/50 bg-background/30 p-5">
