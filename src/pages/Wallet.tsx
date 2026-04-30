@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -71,6 +71,8 @@ export default function Wallet() {
   const { balance, trialBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
+  const previousH2eTierRef = useRef(h2e.unlockedPercent);
+  const [showH2eUnlockToast, setShowH2eUnlockToast] = useState(false);
   const { 
     wallets, 
     isLoading: walletsLoading, 
@@ -80,6 +82,17 @@ export default function Wallet() {
   } = useWallets();
 
   const withdrawableBalance = Math.max(0, balance - h2e.lockedAmount);
+
+  useEffect(() => {
+    if (h2e.unlockedPercent > previousH2eTierRef.current) {
+      setShowH2eUnlockToast(true);
+      const timeout = window.setTimeout(() => setShowH2eUnlockToast(false), 2600);
+      previousH2eTierRef.current = h2e.unlockedPercent;
+      return () => window.clearTimeout(timeout);
+    }
+
+    previousH2eTierRef.current = h2e.unlockedPercent;
+  }, [h2e.unlockedPercent]);
 
   // Fetch closed trades for transaction history (only realized P&L)
   const { data: recentTrades = [] } = useQuery({
