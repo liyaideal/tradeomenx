@@ -24,7 +24,7 @@ const MainnetLaunch = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [authOpen, setAuthOpen] = useState(false);
-  const heroRef = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.title = "OmenX Mainnet Launch — First Trade Bonus";
@@ -59,7 +59,7 @@ const MainnetLaunch = () => {
       {isMobile ? <MobileHeader title="Mainnet Launch" showLogo={false} showBack /> : <EventsDesktopHeader />}
 
       <main className="overflow-hidden">
-        <div ref={heroRef as React.RefObject<HTMLDivElement>}>
+        <div ref={heroRef}>
           <Hero onCta={handleCta} />
         </div>
         <ProgressDashboard onCta={handleCta} />
