@@ -1,19 +1,74 @@
 import { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Network, ShieldCheck, Trophy } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
-import hedgeBanner from "@/assets/hedge-entry-banner.png";
-import hedgeBannerMobile from "@/assets/hedge-entry-banner-mobile.png";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
   className?: string;
 }
 
-const ticker = ["$5K activation", "$2-$50 guaranteed", "$200 max rebate"];
+type CampaignBannerConfig = {
+  id: string;
+  href: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  ctaLabel: string;
+  labels: Array<{ text: string; tone: "accent" | "success" | "neutral" }>;
+  metrics: Array<{ label: string; value: string }>;
+  visual: "launch" | "hedge";
+  countdown?: boolean;
+};
+
+const banners: CampaignBannerConfig[] = [
+  {
+    id: "mainnet-launch",
+    href: "/mainnet-launch",
+    eyebrow: "Mainnet Launch",
+    title: "First qualifying trade unlocks campaign rewards.",
+    description: "Trade on mainnet, qualify once, and track reward status through a transparent payout ledger.",
+    ctaLabel: "Join Now",
+    labels: [
+      { text: "Live", tone: "success" },
+      { text: "Reward ledger", tone: "accent" },
+    ],
+    metrics: [
+      { label: "Activation", value: "$5K" },
+      { label: "Guaranteed", value: "$2-$50" },
+      { label: "Max rebate", value: "$200" },
+    ],
+    visual: "launch",
+    countdown: true,
+  },
+  {
+    id: "hedge",
+    href: "/hedge",
+    eyebrow: "Hedge Campaign",
+    title: "Protect exposed prediction positions before volatility hits.",
+    description: "Bring your outside market exposure into OmenX and claim hedge credits after verification.",
+    ctaLabel: "Open Hedge",
+    labels: [
+      { text: "Free hedge", tone: "accent" },
+      { text: "Up to $100", tone: "neutral" },
+    ],
+    metrics: [
+      { label: "Credit cap", value: "$100" },
+      { label: "Setup", value: "2 min" },
+      { label: "Status", value: "Open" },
+    ],
+    visual: "hedge",
+  },
+];
+
+const labelClassName = {
+  accent: "border-mainnet-gold/30 bg-mainnet-gold/10 text-mainnet-gold",
+  success: "border-trading-green/25 bg-trading-green/10 text-trading-green",
+  neutral: "border-border/60 bg-background/35 text-muted-foreground",
+};
 
 export const CampaignBannerCarousel = ({ variant = "desktop", className }: CampaignBannerCarouselProps) => {
   const navigate = useNavigate();
