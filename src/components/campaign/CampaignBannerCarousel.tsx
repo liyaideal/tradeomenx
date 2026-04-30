@@ -46,16 +46,16 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
   const hedgeSrc = isMobile ? hedgeBannerMobile : hedgeBanner;
 
   return (
-    <div className={cn("relative", className)}>
-      <Carousel setApi={setApi} opts={{ loop: true }}>
+    <div className={cn("relative w-full max-w-full overflow-hidden", className)}>
+      <Carousel setApi={setApi} opts={{ loop: true }} className="w-full max-w-full overflow-hidden">
         <CarouselContent className="-ml-0">
-          <CarouselItem className="pl-0">
+          <CarouselItem className="min-w-0 pl-0">
             <button
               type="button"
               onClick={() => navigateWithRef("/mainnet-launch")}
               aria-label="Join OmenX Mainnet Launch campaign"
               className={cn(
-                "group relative block w-full overflow-hidden rounded-md border border-mainnet-gold/20 bg-mainnet-surface text-left shadow-lg shadow-background/30 transition-all hover:border-mainnet-gold/40",
+                "group relative block w-full max-w-full overflow-hidden rounded-md border border-mainnet-gold/20 bg-mainnet-surface text-left shadow-lg shadow-background/30 transition-all hover:border-mainnet-gold/40",
                 isMobile ? "min-h-[180px] p-4" : "min-h-[220px] p-6",
               )}
             >
@@ -88,7 +88,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
             </button>
           </CarouselItem>
 
-          <CarouselItem className="pl-0">
+          <CarouselItem className="min-w-0 pl-0">
             <button
               type="button"
               onClick={() => navigate("/hedge")}
