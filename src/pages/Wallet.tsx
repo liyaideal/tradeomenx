@@ -496,31 +496,90 @@ export default function Wallet() {
               ${h2e.volumeCompleted.toLocaleString()} / ${(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}
             </span>
           </div>
-          <Progress value={h2e.volumePercent} className="hidden h-1.5 sm:block" />
-          <div className="grid grid-cols-5 gap-1.5 sm:hidden">
-            {h2e.unlockTiers.map((tier) => {
-              const isReached = h2e.volumeCompleted >= tier.volume;
-              const isNext = h2e.nextTierVolume === tier.volume;
+          <div className="hidden pt-3 sm:block">
+            <div className="relative px-1">
+              <div className="absolute left-1 right-1 top-3 h-px bg-border/70" />
+              <div
+                className="absolute left-1 top-3 h-px bg-primary transition-all duration-500"
+                style={{ width: `${Math.min((h2e.volumeCompleted / h2e.volumeRequired) * 100, 100)}%` }}
+              />
+              <div className="relative grid grid-cols-5 gap-3">
+                {h2e.unlockTiers.map((tier) => {
+                  const isReached = h2e.volumeCompleted >= tier.volume;
+                  const isNext = h2e.nextTierVolume === tier.volume;
 
-              return (
-                <div
-                  key={tier.volume}
-                  className={`relative rounded-lg border px-1.5 py-2 text-center transition-all duration-300 ${
-                    isReached
-                      ? "border-primary bg-primary/15 text-primary shadow-sm"
-                      : isNext
-                        ? "border-primary/40 bg-primary/5 text-foreground"
-                        : "border-border/50 bg-muted/20 text-muted-foreground"
-                  }`}
-                >
-                  {isReached && showH2eUnlockToast && tier.percent === h2e.unlockedPercent && (
-                    <span className="absolute -inset-0.5 rounded-lg border border-primary/60 animate-scale-in" />
-                  )}
-                  <div className="font-mono text-[11px] font-semibold leading-none">{tier.percent}%</div>
-                  <div className="mt-1 font-mono text-[9px] leading-none">${(tier.volume / 1000).toFixed(0)}K</div>
+                  return (
+                    <div key={tier.volume} className="flex flex-col items-center text-center">
+                      <span
+                        className={`relative z-10 h-6 w-6 rounded-full border-2 bg-background transition-all duration-300 ${
+                          isReached
+                            ? "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]"
+                            : isNext
+                              ? "border-primary/70 shadow-[0_0_0_4px_hsl(var(--primary)/0.08)]"
+                              : "border-border"
+                        }`}
+                      >
+                        {isReached && showH2eUnlockToast && tier.percent === h2e.unlockedPercent && (
+                          <span className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
+                        )}
+                      </span>
+                      <span className={`mt-2 font-mono text-[11px] font-semibold ${isReached || isNext ? "text-foreground" : "text-muted-foreground"}`}>
+                        {tier.percent}%
+                      </span>
+                      <span className="font-mono text-[10px] text-muted-foreground">${(tier.volume / 1000).toFixed(0)}K</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2 rounded-lg border border-border/40 bg-muted/10 p-3 sm:hidden">
+            {!h2e.isFullyUnlocked && (
+              <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-2">
+                <div className="text-[10px] uppercase text-muted-foreground">Next unlock</div>
+                <div className="mt-0.5 flex items-center justify-between text-xs">
+                  <span className="font-medium">{h2e.nextTierPercent}% at ${(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}</span>
+                  <span className="font-mono text-primary">${h2e.volumeToNextTier.toLocaleString()} left</span>
                 </div>
-              );
-            })}
+              </div>
+            )}
+            <div className="space-y-0.5">
+              {h2e.unlockTiers.map((tier, index) => {
+                const isReached = h2e.volumeCompleted >= tier.volume;
+                const isNext = h2e.nextTierVolume === tier.volume;
+                const isLast = index === h2e.unlockTiers.length - 1;
+
+                return (
+                  <div key={tier.volume} className="relative flex gap-3 pb-2 last:pb-0">
+                    {!isLast && <div className={`absolute left-[7px] top-5 h-[calc(100%-12px)] w-px ${isReached ? "bg-primary/60" : "bg-border/70"}`} />}
+                    <span
+                      className={`relative mt-1 h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 bg-background transition-all duration-300 ${
+                        isReached
+                          ? "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]"
+                          : isNext
+                            ? "border-primary/70"
+                            : "border-border"
+                      }`}
+                    >
+                      {isReached && showH2eUnlockToast && tier.percent === h2e.unlockedPercent && (
+                        <span className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
+                      )}
+                    </span>
+                    <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                      <div>
+                        <div className={`text-xs font-medium ${isReached || isNext ? "text-foreground" : "text-muted-foreground"}`}>
+                          {tier.percent}% unlock
+                        </div>
+                        <div className="font-mono text-[10px] text-muted-foreground">${(tier.volume / 1000).toFixed(0)}K volume</div>
+                      </div>
+                      <span className={`text-[10px] ${isReached ? "text-primary" : isNext ? "text-foreground" : "text-muted-foreground"}`}>
+                        {isReached ? "unlocked" : isNext ? "current target" : "locked"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
           {showH2eUnlockToast && (
             <div className="sm:hidden animate-fade-in rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-2 text-[11px] font-medium text-primary">
