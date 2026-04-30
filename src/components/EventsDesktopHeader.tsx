@@ -64,9 +64,9 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
       {/* Subtle brand accent line at top */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       
-      <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-3 px-4 py-3 lg:px-6">
         {/* Left: Logo + Navigation */}
-        <div className="flex items-center gap-8">
+        <div className="flex min-w-0 items-center gap-3 xl:gap-8">
           {/* Logo */}
           <button 
             onClick={() => navigate("/style-guide")}
@@ -76,14 +76,14 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
           </button>
 
           {/* Navigation Tabs */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex min-w-0 items-center gap-1">
             {navItems.map((item) => {
               const isActive = currentPath === item.path;
               return (
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`relative px-3 py-2 xl:px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(260_60%_55%/0.3)]"
                       : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
@@ -100,7 +100,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
             {/* Leaderboard - Special featured button with icon */}
             <button
               onClick={() => navigate("/leaderboard")}
-              className={`relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ml-1 ${
+              className={`relative ml-1 flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300 xl:px-4 ${
                 isLeaderboardActive
                   ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-[0_0_20px_hsl(260_60%_55%/0.4)]"
                   : "text-primary hover:bg-primary/10 border border-primary/30 hover:border-primary/50"
@@ -116,7 +116,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
         </div>
 
         {/* Right: Custom Content + Language + Balance + Profile */}
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 items-center gap-2 xl:gap-4">
           {/* Custom right content */}
           {rightContent}
           {/* Discord */}
@@ -158,9 +158,9 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
               {/* Equity - only show when logged in */}
               <button 
                 onClick={() => navigate("/wallet")}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5 cursor-pointer"
+                className="flex min-w-0 items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5 xl:px-4"
               >
-                <span className="text-sm text-muted-foreground">Equity:</span>
+                <span className="hidden text-sm text-muted-foreground xl:inline">Equity:</span>
                 <span className="text-sm font-bold text-trading-green font-mono">
                   ${(balance + trialBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
@@ -169,14 +169,14 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
               {/* Profile Avatar with Username - logged in */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-muted/50 transition-colors">
+                  <button className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted/50 xl:gap-2.5 xl:px-3">
                     <Avatar className="h-9 w-9 border-2 border-primary/50">
                       <AvatarImage src={avatarUrl || undefined} alt="User" />
                       <AvatarFallback className="bg-primary/20 text-primary">
                         {username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
+                    <span className="max-w-[64px] truncate text-sm font-medium text-foreground xl:max-w-[100px]">
                       {username || "User"}
                     </span>
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
