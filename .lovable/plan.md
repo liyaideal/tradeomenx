@@ -1,34 +1,28 @@
-建议加，而且最好用表头 tooltip，而不是在表格里塞长文案。这样信息完整，但 UI 不会变重。
+同意，这个应该做成全局规范：tooltip 内容文字统一左对齐，不跟随表头/数值列的右对齐。表头本身可以右对齐，但弹出的解释文本必须左对齐。
 
 Implementation plan:
 
-1. Add compact info icons to desktop table headers
-   - 在 `/portfolio/airdrops` 的 desktop table 表头加小 `Info` 图标。
-   - Hover 后显示英文说明。
-   - 不影响 mobile 卡片布局。
+1. Update `DESIGN.md`
+   - 在 Component Patterns 里新增 `Tooltips` 规范。
+   - 明确规则：
+     - Tooltip content must always be left-aligned.
+     - Tooltip trigger/header can align with its table column, but the popup text must not inherit right alignment.
+     - Use `text-left`, `leading-relaxed`, and a readable max width.
+     - Multi-line tooltip content should use vertical spacing, not centered/right aligned blocks.
+   - 给出标准 class 示例：`text-left text-xs leading-relaxed max-w-72`。
 
-2. Rename `Price` header to `Entry Price`
-   - 当前这个字段实际是 OmenX 空投仓位的入场价格，所以表头改成 `Entry Price` 更清楚。
+2. Fix current `/portfolio/airdrops` tooltip alignment
+   - 在 `HeaderWithInfo` 的 `TooltipContent` 上补 `text-left`。
+   - 保留表头右对齐逻辑：`Value` / `Entry Price` 表头仍然靠右，因为列是数值列。
+   - Tooltip 内容统一左对齐，不再出现一会儿左、一会儿右的视觉问题。
 
-3. Tooltip copy in English
-   - `Value`: `Before activation, this is the fixed $10 face value. After activation, it reflects current price × quantity.`
-   - `Entry Price`: `Entry price of the OmenX airdrop position.`
-   - `Source`: `Polymarket source position price.`
-   - `Status`: explain all states:
-     - `Pending`: waiting for user activation.
-     - `Activated`: activated and waiting for event resolution or source position close.
-     - `Expired`: not activated within 72 hours.
-     - `Settled`: activated and already settled. Settlement happens when the event resolves or the Polymarket source position is closed.
-
-4. Keep settled reason badge short
-   - Continue using `Resolved` for event resolved.
-   - Continue using `Closed` for user closed/polymarket source closed.
-   - Tooltip will provide the detailed explanation, so the badge can stay short and not wrap.
+3. Keep future implementation clear
+   - `DESIGN.md` 会说明：以后所有解释型 tooltip 默认左对齐。
+   - 如果有特殊 tooltip 需要不同对齐，必须在组件内明确说明原因，不能默认继承父容器 alignment。
 
 Technical details:
 
-- Main file: `src/pages/PortfolioAirdrops.tsx`
-- Add `Info` from `lucide-react`.
-- Add `Tooltip`, `TooltipTrigger`, `TooltipContent` from `@/components/ui/tooltip`.
-- Create a small local helper component like `HeaderWithInfo` to avoid repeating markup in every table header.
+- Files to update:
+  - `DESIGN.md`
+  - `src/pages/PortfolioAirdrops.tsx`
 - No backend/database changes needed.

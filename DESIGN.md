@@ -246,6 +246,16 @@ Quick decision rule: **brand/navigation → purple tint, opt-out/cancel → mute
 - **`.filter-pill`**: Inactive state
 - **`.filter-pill-active`**: Primary bg + white text
 
+### Tooltips
+
+Tooltip content is explanatory text and must be visually stable across contexts.
+
+- **Content alignment**: Always use left-aligned text inside tooltip popups, even when the trigger sits in a right-aligned table column.
+- **Trigger alignment**: The trigger/header may align with its parent column (`justify-end` for numeric table columns), but popup copy must not inherit that alignment.
+- **Standard classes**: `text-left text-xs leading-relaxed max-w-72`.
+- **Multi-line content**: Use vertical spacing (`space-y-1`) for grouped explanations. Do not center-align or right-align multi-line explanatory copy.
+- **Exception rule**: Any non-left-aligned tooltip must include an explicit component-level reason; do not rely on inherited text alignment.
+
 ### Option Chips
 
 - **`.option-chip-active`**: Primary border + subtle primary bg
