@@ -78,6 +78,14 @@
     --indicator: 45 93% 58%;
     --indicator-muted: 45 70% 35%;
 
+    /* ===== MAINNET LAUNCH CAMPAIGN ===== */
+    --mainnet-gold: 42 96% 56%;
+    --mainnet-gold-muted: 42 70% 28%;
+    --mainnet-orange: 24 95% 53%;
+    --mainnet-ember: 14 88% 45%;
+    --mainnet-surface: 224 42% 8%;
+    --mainnet-surface-elevated: 224 34% 12%;
+
     /* ===== GRADIENTS ===== */
     --gradient-card: linear-gradient(145deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%);
     --gradient-card-hover: linear-gradient(145deg, hsl(222 35% 13%) 0%, hsl(225 40% 9%) 100%);
@@ -88,6 +96,8 @@
     --gradient-stats-card: linear-gradient(160deg, hsl(222 35% 12%) 0%, hsl(225 40% 8%) 100%);
     --gradient-green-glow: radial-gradient(ellipse at center, hsl(145 80% 42% / 0.15) 0%, transparent 60%);
     --gradient-red-glow: radial-gradient(ellipse at center, hsl(0 85% 55% / 0.15) 0%, transparent 60%);
+    --gradient-mainnet: linear-gradient(135deg, hsl(var(--mainnet-gold)) 0%, hsl(var(--mainnet-orange)) 52%, hsl(var(--mainnet-ember)) 100%);
+    --gradient-mainnet-glow: radial-gradient(ellipse at center, hsl(var(--mainnet-gold) / 0.24) 0%, transparent 66%);
   }
 
   .dark {
