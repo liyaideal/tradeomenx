@@ -306,13 +306,7 @@ export default function PortfolioAirdrops() {
                         ${airdrop.counterPrice.toFixed(4)}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-xs max-w-[160px] truncate">
-                        {airdrop.status === "settled" && airdrop.settledPnl != null ? (
-                          <span className={`font-mono ${airdrop.settledPnl >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
-                            {airdrop.settledPnl >= 0 ? '+' : ''}${airdrop.settledPnl.toFixed(2)}
-                          </span>
-                        ) : (
-                          <>{airdrop.externalSide} @ ${airdrop.externalPrice.toFixed(2)}</>
-                        )}
+                        {airdrop.externalSide} @ ${airdrop.externalPrice.toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5">
@@ -346,22 +340,19 @@ export default function PortfolioAirdrops() {
                             <ChevronRight className="w-4 h-4 ml-1" />
                           </Button>
                         ) : airdrop.status === "settled" ? (
-                          <div className="flex flex-col items-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-xs"
-                              onClick={() => navigate("/wallet")}
-                            >
-                              <span className={`font-mono ${(airdrop.settledPnl ?? 0) >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
-                                <CheckCircle2 className="w-3 h-3 inline mr-1" />
-                                {(airdrop.settledPnl ?? 0) >= 0 ? `+$${(airdrop.settledPnl ?? 0).toFixed(2)}` : `-$${Math.abs(airdrop.settledPnl ?? 0).toFixed(2)}`}
-                              </span>
-                              <span>View</span>
-                              <ChevronRight className="w-4 h-4 ml-1" />
-                            </Button>
-                            <span className="text-[10px] text-muted-foreground">Withdrawal requires trading volume</span>
-                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => navigate("/wallet")}
+                          >
+                            <span className={`font-mono ${(airdrop.settledPnl ?? 0) >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+                              <CheckCircle2 className="w-3 h-3 inline mr-1" />
+                              {(airdrop.settledPnl ?? 0) >= 0 ? `+$${(airdrop.settledPnl ?? 0).toFixed(2)}` : `-$${Math.abs(airdrop.settledPnl ?? 0).toFixed(2)}`}
+                            </span>
+                            <span>View</span>
+                            <ChevronRight className="w-4 h-4 ml-1" />
+                          </Button>
                         ) : null}
                       </TableCell>
                     </TableRow>
