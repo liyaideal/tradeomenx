@@ -10,7 +10,7 @@ export const SectionShell = ({
   className?: string;
   id?: string;
 }) => (
-  <section id={id} className={cn("border-t border-border/40 px-5 py-12 md:px-8 md:py-18", className)}>
+  <section id={id} className={cn("border-t border-border/40 px-5 py-12 md:px-8 md:py-20", className)}>
     <div className="mx-auto w-full max-w-7xl">{children}</div>
   </section>
 );
