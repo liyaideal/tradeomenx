@@ -62,7 +62,7 @@ const CampaignStyleGuide = () => {
           <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center">
             <div className="min-w-0">
               <p className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-campaign-accent">Campaign System</p>
-              <h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.045em] text-foreground md:text-7xl">
+              <h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.03em] text-foreground md:text-7xl">
                 Landing pages are not product screens.
               </h2>
               <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground md:text-xl md:leading-8">
@@ -78,7 +78,7 @@ const CampaignStyleGuide = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-campaign-accent">Banner Pattern</p>
-                    <h3 className="mt-3 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.03em] text-foreground md:text-5xl">
+                    <h3 className="mt-3 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.02em] text-foreground md:text-5xl">
                       One headline. One CTA. Same visual language.
                     </h3>
                   </div>
