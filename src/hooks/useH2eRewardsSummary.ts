@@ -68,7 +68,7 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
   const frozenBalance = Math.min(totalEarned, H2E_EARNINGS_CAP);
 
   // Demo: mock volume progress
-  const volumeCompleted = 2450;
+  const volumeCompleted = 12500;
   const currentTier = [...H2E_UNLOCK_TIERS].reverse().find((tier) => volumeCompleted >= tier.volume);
   const nextTier = H2E_UNLOCK_TIERS.find((tier) => volumeCompleted < tier.volume) ?? null;
   const unlockedPercent = currentTier?.percent ?? 0;
