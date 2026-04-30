@@ -286,10 +286,36 @@ export default function PortfolioAirdrops() {
                   <TableRow className="border-border/50 hover:bg-transparent">
                     <TableHead className="text-muted-foreground">Market</TableHead>
                     <TableHead className="text-muted-foreground">Side</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Value</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Price</TableHead>
-                    <TableHead className="text-muted-foreground">Source</TableHead>
-                    <TableHead className="text-muted-foreground">Status</TableHead>
+                    <TableHead className="text-muted-foreground text-right">
+                      <HeaderWithInfo
+                        label="Value"
+                        align="right"
+                        description="Before activation, this is the fixed $10 face value. After activation, it reflects current price × quantity."
+                      />
+                    </TableHead>
+                    <TableHead className="text-muted-foreground text-right">
+                      <HeaderWithInfo
+                        label="Entry Price"
+                        align="right"
+                        description="Entry price of the OmenX airdrop position."
+                      />
+                    </TableHead>
+                    <TableHead className="text-muted-foreground">
+                      <HeaderWithInfo label="Source" description="Polymarket source position price." />
+                    </TableHead>
+                    <TableHead className="text-muted-foreground">
+                      <HeaderWithInfo
+                        label="Status"
+                        description={
+                          <div className="space-y-1">
+                            <p><span className="font-medium text-foreground">Pending:</span> waiting for user activation.</p>
+                            <p><span className="font-medium text-foreground">Activated:</span> activated and waiting for event resolution or source position close.</p>
+                            <p><span className="font-medium text-foreground">Expired:</span> not activated within 72 hours.</p>
+                            <p><span className="font-medium text-foreground">Settled:</span> activated and already settled. Settlement happens when the event resolves or the Polymarket source position is closed.</p>
+                          </div>
+                        }
+                      />
+                    </TableHead>
                     <TableHead className="text-muted-foreground text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
