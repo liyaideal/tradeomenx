@@ -75,6 +75,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
   const [searchParams] = useSearchParams();
   const [api, setApi] = useState<CarouselApi>();
   const [selected, setSelected] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const isMobile = variant === "mobile";
 
   useEffect(() => {
