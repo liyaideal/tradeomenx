@@ -62,7 +62,7 @@ const MainnetLaunch = () => {
   }, [user, authOpen, navigate, searchParams]);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
       <div className="md:hidden">
         <MobileHeader title="Mainnet Launch" showLogo={false} showBack />
       </div>
@@ -70,7 +70,7 @@ const MainnetLaunch = () => {
         <EventsDesktopHeader />
       </div>
 
-      <main className="overflow-hidden">
+      <main className="w-full max-w-full overflow-hidden">
         <div ref={heroRef}>
           <Hero onCta={handleCta} />
         </div>
