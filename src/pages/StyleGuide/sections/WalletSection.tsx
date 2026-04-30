@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { 
   Clock, 
   Loader2, 
@@ -85,7 +85,6 @@ const H2E_UNLOCK_TIERS = [
   { volume: 400000, percent: 100 },
 ];
 
-const H2E_MOCK_VOLUMES = [0, 2500, 12500, 20000];
 const H2E_FULL_VOLUME_UNLOCK = H2E_UNLOCK_TIERS[H2E_UNLOCK_TIERS.length - 1].volume;
 
 export const WalletSection = ({ isMobile }: WalletSectionProps) => {
@@ -111,19 +110,23 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
             <CardDescription>Use the Style Guide viewport switcher to review mobile and desktop layouts</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex flex-wrap gap-2">
-              {H2E_MOCK_VOLUMES.map((volume) => (
-                <Button
-                  key={volume}
-                  type="button"
-                  variant={mockVolume === volume ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setMockVolume(volume)}
-                  className="font-mono"
-                >
-                  ${volume.toLocaleString()}
-                </Button>
-              ))}
+            <div className="space-y-3 rounded-lg border border-border/40 bg-muted/10 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground">Mock volume</span>
+                <span className="font-mono text-sm font-semibold text-foreground">${mockVolume.toLocaleString()}</span>
+              </div>
+              <Slider
+                value={[mockVolume]}
+                min={0}
+                max={H2E_FULL_VOLUME_UNLOCK}
+                step={2500}
+                onValueChange={([value]) => setMockVolume(value)}
+                aria-label="Mock volume"
+              />
+              <div className="flex items-center justify-between font-mono text-[10px] text-muted-foreground">
+                <span>$0</span>
+                <span>$400K</span>
+              </div>
             </div>
 
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-4">
