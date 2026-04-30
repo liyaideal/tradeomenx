@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Rocket, ShieldCheck, Timer } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
@@ -12,6 +12,8 @@ interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
   className?: string;
 }
+
+const ticker = ["$5K activation", "$2-$50 guaranteed", "$200 max rebate"];
 
 export const CampaignBannerCarousel = ({ variant = "desktop", className }: CampaignBannerCarouselProps) => {
   const navigate = useNavigate();
@@ -53,34 +55,33 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
               onClick={() => navigateWithRef("/mainnet-launch")}
               aria-label="Join OmenX Mainnet Launch campaign"
               className={cn(
-                "group relative block w-full overflow-hidden rounded-lg border border-mainnet-gold/30 bg-mainnet-surface text-left shadow-lg shadow-mainnet-gold/10 transition-all hover:border-mainnet-gold/50",
-                isMobile ? "min-h-[180px] p-4" : "min-h-[220px] p-7",
+                "group relative block w-full overflow-hidden rounded-md border border-mainnet-gold/20 bg-mainnet-surface text-left shadow-lg shadow-background/30 transition-all hover:border-mainnet-gold/40",
+                isMobile ? "min-h-[180px] p-4" : "min-h-[220px] p-6",
               )}
             >
-              <div className="absolute inset-0" style={{ background: "var(--gradient-mainnet-glow)" }} />
-              <div className="absolute -right-12 -top-14 h-44 w-44 rounded-full bg-mainnet-gold/10 blur-2xl" />
-              <div className="absolute bottom-0 right-8 h-28 w-16 bg-gradient-to-t from-mainnet-orange/50 to-transparent blur-xl" />
-              <div className="relative z-10 flex h-full flex-col justify-between gap-5 md:flex-row md:items-center">
-                <div className="max-w-xl">
-                  <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-mainnet-gold">
-                    <Rocket className="h-3.5 w-3.5" />
-                    MAINNET LAUNCH
-                    <span className="rounded-full border border-trading-green/30 bg-trading-green/10 px-2 py-0.5 text-[10px] text-trading-green">LIVE NOW</span>
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.22)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.18)_1px,transparent_1px)] bg-[size:34px_34px] opacity-45" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,hsl(var(--mainnet-gold)/0.14),transparent_34%)]" />
+              <div className="relative z-10 flex h-full flex-col justify-between gap-5 md:flex-row md:items-end">
+                <div className="max-w-2xl">
+                  <div className="mb-4 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em]">
+                    <span className="border border-mainnet-gold/30 bg-mainnet-gold/10 px-2 py-1 text-mainnet-gold">Mainnet Launch</span>
+                    <span className="border border-trading-green/25 bg-trading-green/10 px-2 py-1 text-trading-green">Live</span>
                   </div>
-                  <h3 className={cn("font-black leading-tight text-foreground", isMobile ? "text-xl" : "text-3xl")}>Your first trade wins. Every time.</h3>
-                  <p className="mt-2 text-sm text-muted-foreground md:text-base">Up to $50 USDC — 100% win rate.</p>
-                  <div className="mt-5 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-background transition-transform group-hover:translate-x-1" style={{ background: "var(--gradient-mainnet)" }}>
-                    Join Now <ArrowRight className="h-4 w-4" />
+                  <h3 className={cn("font-semibold leading-tight tracking-[-0.03em] text-foreground", isMobile ? "text-2xl" : "text-4xl")}>First qualifying trade unlocks campaign rewards.</h3>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {ticker.map((item) => (
+                      <span key={item} className="border border-border/50 bg-background/30 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                        {item}
+                      </span>
+                    ))}
                   </div>
                 </div>
                 <div className="flex items-end justify-between gap-4 md:flex-col md:items-end">
-                  <div className="rounded-lg border border-mainnet-gold/25 bg-background/55 px-3 py-2 text-xs text-muted-foreground backdrop-blur">
-                    <span className="text-foreground">Ends in </span><Countdown compact />
+                  <div className="border border-mainnet-gold/20 bg-background/40 px-3 py-2 font-mono text-xs text-muted-foreground backdrop-blur">
+                    <span className="text-foreground">Ends </span><Countdown compact className="text-mainnet-gold" />
                   </div>
-                  <div className="relative hidden h-24 w-28 md:block">
-                    <Rocket className="absolute right-6 top-1 h-16 w-16 -rotate-12 text-mainnet-gold animate-rocket-lift" />
-                    <ShieldCheck className="absolute bottom-0 left-1 h-9 w-9 text-mainnet-orange animate-float" />
-                    <Timer className="absolute bottom-3 right-0 h-8 w-8 text-mainnet-gold animate-float [animation-delay:700ms]" />
+                  <div className="inline-flex items-center gap-2 border border-mainnet-gold bg-mainnet-gold px-4 py-2 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-background transition-transform group-hover:translate-x-1">
+                    Join Now <ArrowRight className="h-4 w-4" />
                   </div>
                 </div>
               </div>
@@ -97,7 +98,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
               <img
                 src={hedgeSrc}
                 alt="Your Polymarket positions are exposed — OmenX hedges them for free. Earn up to $100."
-                className="block w-full h-auto transition-transform group-hover:scale-[1.01]"
+                className="block h-auto w-full transition-transform group-hover:scale-[1.01]"
                 loading="lazy"
               />
             </button>

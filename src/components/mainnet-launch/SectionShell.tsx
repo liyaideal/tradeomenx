@@ -10,15 +10,17 @@ export const SectionShell = ({
   className?: string;
   id?: string;
 }) => (
-  <section id={id} className={cn("px-5 py-12 md:px-8 md:py-20", className)}>
+  <section id={id} className={cn("border-t border-border/40 px-5 py-12 md:px-8 md:py-20", className)}>
     <div className="mx-auto w-full max-w-7xl">{children}</div>
   </section>
 );
 
 export const SectionTitle = ({ eyebrow, title, desc }: { eyebrow?: string; title: string; desc?: string }) => (
-  <div className="mb-8 md:mb-10">
-    {eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-mainnet-gold">{eyebrow}</p>}
-    <h2 className="text-2xl font-bold text-foreground md:text-4xl">{title}</h2>
-    {desc && <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">{desc}</p>}
+  <div className="mb-7 grid gap-4 md:mb-10 md:grid-cols-[0.75fr_1fr] md:items-end">
+    <div>
+      {eyebrow && <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-mainnet-gold">{eyebrow}</p>}
+      <h2 className="max-w-2xl text-2xl font-semibold leading-tight tracking-[-0.02em] text-foreground md:text-4xl">{title}</h2>
+    </div>
+    {desc && <p className="max-w-2xl text-sm leading-6 text-muted-foreground md:ml-auto md:text-base">{desc}</p>}
   </div>
 );

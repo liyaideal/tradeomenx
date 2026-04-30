@@ -62,7 +62,7 @@ const MainnetLaunch = () => {
   }, [user, authOpen, navigate, searchParams]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
       <div className="md:hidden">
         <MobileHeader title="Mainnet Launch" showLogo={false} showBack />
       </div>

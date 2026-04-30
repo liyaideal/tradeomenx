@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Clock, Gift, TrendingUp } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Countdown } from "./Countdown";
@@ -13,51 +13,50 @@ export const ProgressDashboard = ({ onCta }: Props) => {
 
   if (!user || !event1Qualified) return null;
 
-  return (
-    <SectionShell className="bg-mainnet-surface/50">
-      <SectionTitle title="Your Campaign Progress" desc="Your first-trade reward is processing. Keep trading to climb the rebate ladder." />
-      <div className="grid gap-4 overflow-x-auto pb-2 md:grid-cols-3 md:overflow-visible">
-        <div className="min-w-[220px] rounded-lg border border-trading-green/30 bg-trading-green/10 p-5">
-          <Gift className="mb-4 h-5 w-5 text-trading-green" />
-          <p className="text-sm text-muted-foreground">Event 1</p>
-          <h3 className="mt-1 text-xl font-bold text-trading-green">Qualified</h3>
-          <p className="mt-2 text-sm text-muted-foreground">$2–$50 USDC · Processing</p>
-        </div>
-        <div className="min-w-[220px] rounded-lg border border-mainnet-gold/30 bg-mainnet-gold/10 p-5">
-          <TrendingUp className="mb-4 h-5 w-5 text-mainnet-gold" />
-          <p className="text-sm text-muted-foreground">Event 2 Tier</p>
-          <h3 className="mt-1 text-xl font-bold text-mainnet-gold">{currentTier ? formatUsd(currentTier.volume, true) : "Pre-tier"}</h3>
-          <p className="mt-2 text-sm text-muted-foreground">Current rebate: ${currentTier?.rebate ?? 0}</p>
-        </div>
-        <div className="min-w-[220px] rounded-lg border border-border/60 bg-card/70 p-5">
-          <Clock className="mb-4 h-5 w-5 text-mainnet-orange" />
-          <p className="text-sm text-muted-foreground">Time Left</p>
-          <h3 className="mt-1 text-xl font-bold text-foreground"><Countdown compact /></h3>
-          <p className="mt-2 text-sm text-muted-foreground">Ends May 28, 2026</p>
-        </div>
-      </div>
+  const rows = [
+    ["Event 1 Status", "Qualified", "$2-$50 USDC · processing"],
+    ["Current Tier", currentTier ? formatUsd(currentTier.volume, true) : "Pre-tier", `rebate $${currentTier?.rebate ?? 0}`],
+    ["Next Unlock", nextTier ? formatUsd(nextTier.volume, true) : "Max tier", nextTier ? `${formatUsd(volumeToNextTier)} remaining` : "all tiers unlocked"],
+    ["Time Left", <Countdown key="countdown" compact />, "ends May 28, 2026"],
+  ] as const;
 
-      <div className="mt-5 rounded-lg border border-border/60 bg-card/70 p-5 md:p-7">
-        <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+  return (
+    <SectionShell className="bg-mainnet-surface/30">
+      <SectionTitle eyebrow="Account" title="Your campaign position" desc="Your live trading volume is already above the activation threshold. The dashboard now tracks the next rebate unlock." />
+
+      <div className="rounded-sm border border-border/50 bg-background/40 p-5 md:p-7">
+        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Total Volume</p>
-            <h3 className="font-mono text-2xl font-bold text-foreground">{formatUsd(volume)}</h3>
+            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Total Volume</p>
+            <h3 className="mt-2 font-mono text-4xl font-semibold tracking-[-0.04em] text-foreground md:text-6xl">{formatUsd(volume)}</h3>
           </div>
-          {nextTier ? (
-            <p className="text-sm text-muted-foreground">{Math.round(progressToNext)}% to {formatUsd(nextTier.volume)}</p>
-          ) : (
-            <p className="text-sm font-semibold text-mainnet-gold">Max tier reached</p>
-          )}
+          <div className="flex items-center gap-2 border border-trading-green/25 bg-trading-green/10 px-3 py-2 font-mono text-xs text-trading-green">
+            <CheckCircle2 className="h-4 w-4" />
+            activation complete
+          </div>
         </div>
-        <Progress value={progressToNext} className="h-3 bg-mainnet-gold/15 [&>div]:bg-mainnet-gold" />
-        <div className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
-          <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-trading-green" /> Current Tier: {currentTier ? `${formatUsd(currentTier.volume)} → $${currentTier.rebate} rebate` : "No rebate tier yet"}</p>
-          <p>Next Tier: {nextTier ? `${formatUsd(nextTier.volume)} → $${nextTier.rebate} rebate, need ${formatUsd(volumeToNextTier)} more` : "All tiers unlocked"}</p>
+
+        <div className="mt-7">
+          <div className="mb-3 flex items-center justify-between font-mono text-xs text-muted-foreground">
+            <span>{currentTier ? `Current ${formatUsd(currentTier.volume, true)}` : "Pre-tier"}</span>
+            <span>{nextTier ? `${Math.round(progressToNext)}% to ${formatUsd(nextTier.volume, true)}` : "100%"}</span>
+          </div>
+          <Progress value={progressToNext} className="h-2 rounded-none bg-mainnet-gold/10 [&>div]:rounded-none [&>div]:bg-mainnet-gold" />
+        </div>
+
+        <div className="mt-7 grid border-t border-l border-border/40 md:grid-cols-4">
+          {rows.map(([label, value, detail]) => (
+            <div key={label} className="border-b border-r border-border/40 p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+              <div className="mt-3 font-mono text-lg font-semibold text-foreground">{value}</div>
+              <p className="mt-2 text-xs text-muted-foreground">{detail}</p>
+            </div>
+          ))}
         </div>
       </div>
 
       <div className="mt-8">
-        <Button onClick={() => onCta("progress")} className="w-full gap-2 rounded-lg md:w-auto" style={{ background: "var(--gradient-mainnet)" }}>
+        <Button onClick={() => onCta("progress")} className="w-full gap-2 rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90 md:w-auto">
           Go to Events <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
