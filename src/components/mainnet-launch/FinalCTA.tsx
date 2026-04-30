@@ -8,7 +8,7 @@ interface Props { onCta: (section: string) => void; }
 
 export const FinalCTA = ({ onCta }: Props) => (
   <SectionShell>
-    <div className="grid gap-6 border border-mainnet-gold/20 bg-mainnet-surface/55 p-5 md:grid-cols-[1fr_auto] md:items-center md:p-8">
+    <div className="grid gap-6 border border-mainnet-gold/20 bg-mainnet-surface/50 p-5 md:grid-cols-[1fr_auto] md:items-center md:p-8">
       <div>
         <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-mainnet-gold">Final window</p>
         <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em] text-foreground md:text-5xl">Complete the first qualifying trade before the campaign closes.</h2>
@@ -21,7 +21,7 @@ export const FinalCTA = ({ onCta }: Props) => (
       </Button>
     </div>
 
-    <div className="mt-5 border border-border/55 bg-background/35 p-5 md:p-6">
+    <div className="mt-5 border border-border/50 bg-background/30 p-5 md:p-6">
       <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <h3 className="font-mono text-sm font-semibold uppercase tracking-[0.14em] text-foreground">Campaign Timeline</h3>
         <div className="font-mono text-xs text-mainnet-gold"><Countdown compact /></div>

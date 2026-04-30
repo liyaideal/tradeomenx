@@ -4,7 +4,7 @@ const signalRows = [62, 48, 72, 36, 58, 44, 66, 52, 80, 41, 60, 50];
 
 export const LaunchVisual = () => {
   return (
-    <div className="relative min-h-[360px] overflow-hidden rounded-md border border-mainnet-gold/15 bg-mainnet-surface shadow-[0_32px_80px_hsl(var(--background)/0.35)] md:min-h-[560px]">
+    <div className="relative min-h-[360px] overflow-hidden rounded-md border border-mainnet-gold/20 bg-mainnet-surface shadow-[0_32px_80px_hsl(var(--background)/0.35)] md:min-h-[560px]">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.28)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.22)_1px,transparent_1px)] bg-[size:40px_40px] opacity-40" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_26%,hsl(var(--mainnet-gold)/0.14),transparent_34%),linear-gradient(180deg,hsl(var(--mainnet-surface-elevated)/0.65),hsl(var(--mainnet-surface)/0.94))]" />
       <div className="absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-mainnet-gold/50 to-transparent" />
@@ -34,14 +34,14 @@ export const LaunchVisual = () => {
             ))}
           </div>
 
-          <div className="relative h-40 rounded-sm border border-border/50 bg-background/35 p-4 backdrop-blur md:h-56">
+          <div className="relative h-40 rounded-sm border border-border/50 bg-background/30 p-4 backdrop-blur md:h-56">
             <div className="absolute inset-x-4 top-1/2 h-px bg-border/70" />
             <div className="absolute bottom-4 top-4 left-[18%] w-px bg-mainnet-gold/40" />
             <div className="absolute bottom-4 top-4 left-[62%] w-px bg-mainnet-orange/30" />
             <div className="absolute left-[18%] top-5 rounded-sm border border-mainnet-gold/40 bg-mainnet-gold/10 px-2 py-1 font-mono text-[10px] text-mainnet-gold">
               5K
             </div>
-            <div className="absolute left-[62%] bottom-5 rounded-sm border border-mainnet-orange/35 bg-mainnet-orange/10 px-2 py-1 font-mono text-[10px] text-mainnet-orange">
+            <div className="absolute left-[62%] bottom-5 rounded-sm border border-mainnet-orange/30 bg-mainnet-orange/10 px-2 py-1 font-mono text-[10px] text-mainnet-orange">
               rebate
             </div>
             <svg viewBox="0 0 420 180" className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)]" aria-label="Trading volume signal">

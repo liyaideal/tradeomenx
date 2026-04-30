@@ -17,11 +17,11 @@ export const FAQ = () => (
     <Accordion
       type="single"
       collapsible
-      className="border-y border-border/55"
+      className="border-y border-border/50"
       onValueChange={(value) => value && trackMainnetLaunch("mainnet_launch_faq_expand", { question_id: value })}
     >
       {faqs.map((faq) => (
-        <AccordionItem key={faq.id} value={faq.id} className="border-border/45">
+        <AccordionItem key={faq.id} value={faq.id} className="border-border/40">
           <AccordionTrigger className="py-5 text-left text-sm font-semibold text-foreground hover:no-underline md:text-base">
             <span className="pr-6">{faq.q}</span>
           </AccordionTrigger>

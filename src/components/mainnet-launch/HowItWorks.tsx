@@ -13,9 +13,9 @@ const steps = [
 export const HowItWorks = ({ onCta }: Props) => (
   <SectionShell>
     <SectionTitle eyebrow="Path" title="One trade path. Two reward events." desc="The campaign is intentionally simple: activate with your first qualifying trade, then keep volume moving if the rebate ladder is worth pursuing." />
-    <div className="border-y border-border/55">
+    <div className="border-y border-border/50">
       {steps.map((step) => (
-        <div key={step.n} className="grid gap-4 border-b border-border/45 py-5 last:border-b-0 md:grid-cols-[120px_0.8fr_1.2fr] md:items-center">
+        <div key={step.n} className="grid gap-4 border-b border-border/40 py-5 last:border-b-0 md:grid-cols-[120px_0.8fr_1.2fr] md:items-center">
           <span className="font-mono text-xs text-mainnet-gold">{step.n}</span>
           <h3 className="text-lg font-semibold tracking-[-0.01em] text-foreground">{step.title}</h3>
           <p className="text-sm leading-6 text-muted-foreground md:text-base">{step.body}</p>

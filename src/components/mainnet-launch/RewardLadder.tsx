@@ -11,11 +11,11 @@ export const RewardLadder = ({ onCta }: Props) => {
   const { user, volume, event1Qualified, currentTier } = useMainnetLaunchProgress();
 
   return (
-    <SectionShell className="bg-mainnet-surface/35">
+    <SectionShell className="bg-mainnet-surface/30">
       <SectionTitle eyebrow="Rewards" title="Activation first. Rebate tier second." desc="Event 1 is a guaranteed first-trade reward. Event 2 is a highest-tier rebate, not a cumulative payout stack." />
 
       <div className="grid gap-5 lg:grid-cols-[0.74fr_1.26fr]">
-        <div className="rounded-sm border border-mainnet-gold/20 bg-background/35 p-5 md:p-6">
+        <div className="rounded-sm border border-mainnet-gold/20 bg-background/30 p-5 md:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-mainnet-gold">Event 1</p>
@@ -25,7 +25,7 @@ export const RewardLadder = ({ onCta }: Props) => {
           </div>
 
           <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-            <div className="border border-border/55 bg-mainnet-surface/70 p-4">
+            <div className="border border-border/50 bg-mainnet-surface/70 p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">threshold</p>
               <p className="mt-2 font-mono text-xl font-semibold text-foreground">{formatUsd(FIRST_TRADE_VOLUME, true)}</p>
             </div>
@@ -47,7 +47,7 @@ export const RewardLadder = ({ onCta }: Props) => {
           )}
         </div>
 
-        <div className="rounded-sm border border-border/55 bg-card/45 p-5 md:p-6">
+        <div className="rounded-sm border border-border/50 bg-card/40 p-5 md:p-6">
           <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-mainnet-orange">Event 2</p>
@@ -64,9 +64,9 @@ export const RewardLadder = ({ onCta }: Props) => {
                 <div
                   key={tier.volume}
                   className={cn(
-                    "min-h-[116px] border border-border/55 bg-background/35 p-3 transition-colors",
-                    reached && "border-mainnet-gold/35 bg-mainnet-gold/10",
-                    active && "border-mainnet-gold bg-mainnet-gold/15 shadow-[inset_0_1px_0_hsl(var(--mainnet-gold)/0.35)]",
+                    "min-h-[116px] border border-border/50 bg-background/30 p-3 transition-colors",
+                    reached && "border-mainnet-gold/30 bg-mainnet-gold/10",
+                    active && "border-mainnet-gold bg-mainnet-gold/20 shadow-[inset_0_1px_0_hsl(var(--mainnet-gold)/0.35)]",
                   )}
                 >
                   <p className="font-mono text-[10px] text-muted-foreground">{formatUsd(tier.volume, true)}</p>
@@ -84,7 +84,7 @@ export const RewardLadder = ({ onCta }: Props) => {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-4 border border-border/45 bg-background/30 p-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+      <div className="mt-6 flex flex-col gap-4 border border-border/40 bg-background/30 p-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
         <span>
           First {formatUsd(FIRST_TRADE_VOLUME, true)} activates Event 1 and starts Event 2 progress.
         </span>

@@ -14,7 +14,7 @@ const rules = [
 ];
 
 export const KeyRules = ({ onCta }: Props) => (
-  <SectionShell className="bg-mainnet-surface/35">
+  <SectionShell className="bg-mainnet-surface/30">
     <SectionTitle eyebrow="Rules" title="Compact terms for a trading campaign." desc="The important constraints are visible up front. Details remain in the FAQ for users who want the full calculation logic." />
     <div className="grid border-l border-t border-border/50 md:grid-cols-2">
       {rules.map(([label, rule]) => (

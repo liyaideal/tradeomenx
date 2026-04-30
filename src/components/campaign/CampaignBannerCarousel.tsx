@@ -55,7 +55,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
               onClick={() => navigateWithRef("/mainnet-launch")}
               aria-label="Join OmenX Mainnet Launch campaign"
               className={cn(
-                "group relative block w-full overflow-hidden rounded-md border border-mainnet-gold/20 bg-mainnet-surface text-left shadow-lg shadow-background/30 transition-all hover:border-mainnet-gold/45",
+                "group relative block w-full overflow-hidden rounded-md border border-mainnet-gold/20 bg-mainnet-surface text-left shadow-lg shadow-background/30 transition-all hover:border-mainnet-gold/40",
                 isMobile ? "min-h-[180px] p-4" : "min-h-[220px] p-6",
               )}
             >
@@ -70,14 +70,14 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                   <h3 className={cn("font-semibold leading-tight tracking-[-0.03em] text-foreground", isMobile ? "text-2xl" : "text-4xl")}>First qualifying trade unlocks campaign rewards.</h3>
                   <div className="mt-5 flex flex-wrap gap-2">
                     {ticker.map((item) => (
-                      <span key={item} className="border border-border/55 bg-background/35 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                      <span key={item} className="border border-border/50 bg-background/30 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                         {item}
                       </span>
                     ))}
                   </div>
                 </div>
                 <div className="flex items-end justify-between gap-4 md:flex-col md:items-end">
-                  <div className="border border-mainnet-gold/20 bg-background/45 px-3 py-2 font-mono text-xs text-muted-foreground backdrop-blur">
+                  <div className="border border-mainnet-gold/20 bg-background/40 px-3 py-2 font-mono text-xs text-muted-foreground backdrop-blur">
                     <span className="text-foreground">Ends </span><Countdown compact className="text-mainnet-gold" />
                   </div>
                   <div className="inline-flex items-center gap-2 border border-mainnet-gold bg-mainnet-gold px-4 py-2 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-background transition-transform group-hover:translate-x-1">

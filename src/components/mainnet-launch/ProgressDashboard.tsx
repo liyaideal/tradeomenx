@@ -21,10 +21,10 @@ export const ProgressDashboard = ({ onCta }: Props) => {
   ] as const;
 
   return (
-    <SectionShell className="bg-mainnet-surface/35">
+    <SectionShell className="bg-mainnet-surface/30">
       <SectionTitle eyebrow="Account" title="Your campaign position" desc="Your live trading volume is already above the activation threshold. The dashboard now tracks the next rebate unlock." />
 
-      <div className="rounded-sm border border-border/55 bg-background/40 p-5 md:p-7">
+      <div className="rounded-sm border border-border/50 bg-background/40 p-5 md:p-7">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Total Volume</p>
@@ -41,12 +41,12 @@ export const ProgressDashboard = ({ onCta }: Props) => {
             <span>{currentTier ? `Current ${formatUsd(currentTier.volume, true)}` : "Pre-tier"}</span>
             <span>{nextTier ? `${Math.round(progressToNext)}% to ${formatUsd(nextTier.volume, true)}` : "100%"}</span>
           </div>
-          <Progress value={progressToNext} className="h-2 rounded-none bg-mainnet-gold/12 [&>div]:rounded-none [&>div]:bg-mainnet-gold" />
+          <Progress value={progressToNext} className="h-2 rounded-none bg-mainnet-gold/10 [&>div]:rounded-none [&>div]:bg-mainnet-gold" />
         </div>
 
-        <div className="mt-7 grid border-t border-l border-border/45 md:grid-cols-4">
+        <div className="mt-7 grid border-t border-l border-border/40 md:grid-cols-4">
           {rows.map(([label, value, detail]) => (
-            <div key={label} className="border-b border-r border-border/45 p-4">
+            <div key={label} className="border-b border-r border-border/40 p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
               <div className="mt-3 font-mono text-lg font-semibold text-foreground">{value}</div>
               <p className="mt-2 text-xs text-muted-foreground">{detail}</p>
