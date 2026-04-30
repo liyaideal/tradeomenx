@@ -581,7 +581,7 @@ export default function Wallet() {
                           <div className="flex items-center gap-1 mb-1">
                             <Lock className="w-3 h-3 text-primary" />
                             <span className="text-xs text-muted-foreground">H2E Locked</span>
-                            <InfoTooltip text="Hedge airdrop earnings. Available for trading, locked for withdrawal until $10K volume reached." />
+                            <InfoTooltip text="Hedge airdrop earnings. Available for trading, locked for withdrawal until $400K volume reached." />
                           </div>
                           <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.frozenBalance)}</span>
                         </div>
