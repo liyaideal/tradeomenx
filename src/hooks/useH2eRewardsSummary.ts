@@ -2,7 +2,7 @@ import { useUserProfile } from "./useUserProfile";
 import { useAirdropPositions } from "./useAirdropPositions";
 
 const H2E_EARNINGS_CAP = 100;
-const H2E_VOLUME_UNLOCK = 10000;
+const H2E_VOLUME_UNLOCK = 400000;
 
 export interface H2eRewardsSummary {
   /** Frozen balance from H2E settlements (available for trading, locked for withdrawal) */
