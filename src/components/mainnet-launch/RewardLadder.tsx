@@ -65,8 +65,8 @@ export const RewardLadder = ({ onCta }: Props) => {
                   key={tier.volume}
                   className={cn(
                     "min-h-[116px] border border-border/55 bg-background/35 p-3 transition-colors",
-                    reached && "border-mainnet-gold/35 bg-mainnet-gold/8",
-                    active && "border-mainnet-gold bg-mainnet-gold/12 shadow-[inset_0_1px_0_hsl(var(--mainnet-gold)/0.35)]",
+                    reached && "border-mainnet-gold/35 bg-mainnet-gold/10",
+                    active && "border-mainnet-gold bg-mainnet-gold/15 shadow-[inset_0_1px_0_hsl(var(--mainnet-gold)/0.35)]",
                   )}
                 >
                   <p className="font-mono text-[10px] text-muted-foreground">{formatUsd(tier.volume, true)}</p>
