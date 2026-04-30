@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDeposit } from '@/hooks/useDeposit';
 import { useMockWallet } from '@/hooks/useMockWallet';
-import { AutoModeButton, SettingsButton, SettingsPanel } from './CrossChainSettings';
+import { SettingsButton, SettingsPanel } from './CrossChainSettings';
 
 const SOURCE_CHAINS = [
   { id: 'ethereum', name: 'Ethereum', icon: '/chain-logos/ethereum.svg', chainId: 1 },
@@ -60,7 +60,6 @@ export const CrossChainDeposit = () => {
   const [amount, setAmount] = useState('');
   const [processingStage, setProcessingStage] = useState(0);
   const [txResult, setTxResult] = useState<'success' | 'failed'>('success');
-  const [autoMode, setAutoMode] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [slippage, setSlippage] = useState(-1);
 
@@ -118,7 +117,6 @@ export const CrossChainDeposit = () => {
           <div className="flex items-center gap-2">
             {wallet.connected && (
               <>
-                <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
                 <SettingsButton onClick={() => setShowSettings(!showSettings)} />
               </>
             )}
@@ -129,8 +127,6 @@ export const CrossChainDeposit = () => {
         <SettingsPanel
           open={showSettings}
           onClose={() => setShowSettings(false)}
-          autoMode={autoMode}
-          onAutoModeChange={setAutoMode}
           slippage={slippage}
           onSlippageChange={setSlippage}
         />
