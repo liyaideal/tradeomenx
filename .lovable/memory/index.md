@@ -12,6 +12,7 @@
 - **Wallets:** No Web3 connection flow. Use manual 'Saved Addresses' (Address Book) system.
 - **Database:** `option_id` is the primary key for tracking prices.
 - **Grid Cards:** Only Style B (MarketCardB) exists. Style A and C were removed after community vote.
+- **Campaign Landing:** Use `CAMPAIGN_DESIGN.md` + `/campaign-style-guide`; keep separate from product DESIGN.md.
 
 ## Memories
 - [Chart adaptive timeframes](mem://features/chart-adaptive-timeframes) — Rules for default candlestick timeframe based on time until settlement
@@ -109,3 +110,4 @@
 - [Event list filters](mem://features/event-list-filter-sort-refinement) — Restrictions on available event filters
 - [Event page branding](mem://content/event-page-branding) — Standardized titles and subtitles
 - [H2E landing architecture](mem://marketing/hedge-landing-architecture) — /hedge section order, anti-AI design tactics, mock data convention
+- [Campaign landing design system](mem://design/campaign-landing-design-system) — Dedicated campaign microsite rules, separate from product design system

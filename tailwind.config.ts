@@ -85,6 +85,12 @@ export default {
           surface: "hsl(var(--mainnet-surface))",
           "surface-elevated": "hsl(var(--mainnet-surface-elevated))",
         },
+        campaign: {
+          accent: "hsl(var(--campaign-accent))",
+          "accent-secondary": "hsl(var(--campaign-accent-secondary))",
+          surface: "hsl(var(--campaign-surface))",
+          "surface-elevated": "hsl(var(--campaign-surface-elevated))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
