@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import type { RefObject } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Countdown } from "./Countdown";
 
 interface Props {
-  triggerRef: React.RefObject<HTMLElement>;
+  triggerRef: RefObject<HTMLElement>;
   onCta: (section: string) => void;
 }
 
