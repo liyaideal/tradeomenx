@@ -16,3 +16,4 @@ Rules:
 - The campaign style guide is a documentation system like `/style-guide`, not a universal landing-page template.
 - Future campaigns must not all share the same hero/page skeleton with only copy or artwork swapped.
 - Reuse guardrails and primitives, but vary archetype, hero composition, visual metaphor, rhythm, and reward presentation.
+- Homepage campaign carousel banners must be structured UI, not baked poster images: configurable DOM text/labels/CTA/metrics on the left, campaign visual slot on the right by default, one CTA, max three slides, 6–8s rotation, pause on hover/focus, and no reward/CTA text embedded inside artwork.
