@@ -1,33 +1,28 @@
-## Plan: Deposit Wallet 改成先选 Chain，再选 Token
+我会在 `/portfolio/airdrops` 的 settled airdrop 行上增加明确的 Wallet 入口，让用户看到 `+$6.50` 后知道去哪里查看余额/提现条件。
 
-### 目标
-把 Deposit 的 Wallet/Cross-Chain 选择器从“所有 chain-token 组合一次性展开”改成两步选择，避免未来接口一次拉 30 条 chain + 几百个 token 导致请求过多和 UI 下拉过长。
+Implementation plan:
 
-### 交互调整
-1. **From 区域拆成两个选择器**
-   - 第一层：Chain 选择，只展示支持的链列表。
-   - 第二层：Token 选择，只在当前选中的 chain 下展示该链可用 token。
-   - 用户切换 chain 后：自动重置 token 为该 chain 的默认/第一个可用 token，并清空 amount。
+1. Update desktop table action
+  - 在 `src/pages/PortfolioAirdrops.tsx` 中，把 settled 状态当前只显示 P&L 文本的 Action 区改成可点击按钮。
+  - 按钮文案建议用 `View`，右侧保留箭头图标。
+  - 点击跳转到 `/wallet`。
+  - 保留绿色 P&L 信息，避免用户丢失“已入账/收益金额”的反馈。
+2. Update mobile card behavior
+  - 目前 mobile 只有 activated 卡片点击进入 trade。
+  - 为 settled 卡片也增加点击行为：点击卡片跳转 `/wallet`。
+  - 调整 cursor 样式，让 activated 和 settled 都表现为可点击。
+3. Add withdrawal requirement guidance
+  - 在 settled 行的 Action 或附近增加简短提示，例如 `Withdrawal subject to volume requirements`，让用户知道不是看到收益就一定马上能提现。
+  - 桌面端放在按钮下方的小字提示；移动端如果不改共享卡片组件结构，则先通过卡片点击跳 Wallet，并在桌面表格中明确展示提示。
+4. Keep existing behaviors unchanged
+  - Pending: 仍然是 `Activate`。
+  - Activated: 仍然 `View` 到对应交易市场。
+  - Expired: 仍然无操作。
+  - 不改 airdrop 数据结构、不改后端、不动钱包余额计算逻辑。
 
-2. **Desktop 与 Mobile 同步优化**
-   - 当前 `DepositDialog` 和 `/deposit` 移动页都复用 `CrossChainDeposit`，所以改组件本身即可同时覆盖两端。
-   - Desktop 保持紧凑卡片布局，Mobile 避免大下拉溢出，选择面板限制高度并可滚动。
+Technical details:
 
-3. **减少接口压力的结构预留**
-   - 组件内部数据结构改成 chain-first：先拿 chain 列表，再根据 selected chain 使用该 chain 的 tokens。
-   - 未来接真实接口时，可以只在用户选中某条 chain 后再请求该 chain 的 token 列表，而不是一次性请求全部 token。
-
-### UI 细节
-- Chain 按钮显示：chain logo + chain name。
-- Token 按钮显示：token symbol + 当前 chain name；列表里只出现当前 chain 的 tokens。
-- 保留当前余额、MAX、汇率、review/sign/processing/result 后续流程，不改变 deposit 业务流程。
-- 去掉目前截图中那种“USDC Ethereum、USDT Ethereum、ETH Ethereum、USDC Arbitrum...”全部混排列表。
-
-### 技术实现
-- 修改 `src/components/deposit/CrossChainDeposit.tsx`：
-  - 将当前单个 `<Select value={`${fromChain}-${fromToken}`}>` 拆成两个 selector。
-  - 增加 `handleChainChange(chainId)`，负责设置 chain、选择默认 token、清空 amount。
-  - token 列表渲染改为 `SOURCE_TOKENS[fromChain]`，不再遍历所有 chains。
-  - 选择器弹层添加 `max-h`/滚动样式，避免长列表撑出视口。
-- 如需要，同步更新 `src/hooks/useMockWallet.ts` 的 mock 数据结构/默认 token，确保切链后余额显示稳定。
-- 运行 TypeScript 检查，确认两端编译通过。
+- Main file: `src/pages/PortfolioAirdrops.tsx`
+- Route target already exists: `/wallet`
+- Existing navigation uses `useNavigate()`，所以只需要复用 `navigate('/wallet')`。
+- No database or Cloud changes needed.
