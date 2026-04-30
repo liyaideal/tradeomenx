@@ -63,7 +63,12 @@ const MainnetLaunch = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {isMobile ? <MobileHeader title="Mainnet Launch" showLogo={false} showBack /> : <EventsDesktopHeader />}
+      <div className="md:hidden">
+        <MobileHeader title="Mainnet Launch" showLogo={false} showBack />
+      </div>
+      <div className="hidden md:block">
+        <EventsDesktopHeader />
+      </div>
 
       <main className="overflow-hidden">
         <div ref={heroRef}>
