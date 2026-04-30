@@ -4,7 +4,7 @@ import { ChevronRight, BarChart3, Clock, GraduationCap, Users, TrendingUp, Globe
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
-import { HedgeEntryBanner } from "@/components/hedge/HedgeEntryBanner";
+import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
@@ -226,8 +226,8 @@ const MobileHome = () => {
           <GuestWelcomeCard onLogin={() => setAuthOpen(true)} />
         )}
 
-        {/* H2E Operational Entry — placed just above My Positions */}
-        <HedgeEntryBanner variant="mobile" />
+        {/* Campaign Entry — placed just above My Positions */}
+        <CampaignBannerCarousel variant="mobile" />
 
         {/* My Positions Section - only show for logged-in users with positions */}
         {user && positions.length > 0 && (
