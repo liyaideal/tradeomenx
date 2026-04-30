@@ -1,185 +1,113 @@
-确认了解：在你同意前我不会开始写代码。下面是我基于需求和你的四个确认选项整理的实施计划。
+我理解你的反馈：现在 `/mainnet-launch` 的问题不是功能错，而是视觉语言太模板化：大渐变、火箭插画、过多 icon/card、强营销口号堆叠，让它看起来像 AI 默认生成的 crypto landing page。
 
-## 已确认决策
+我已经阅读了 `awesome-design-md` 的结构和几个相关 design-md 参考。它的核心不是照抄某个品牌，而是先定义清楚：视觉氛围、色彩角色、字体层级、组件风格、布局原则、深度、Do/Don't、响应式规则。接下来我会按这个方式重做这页。
 
-- 上线范围：接现有交易数据。
-- 视觉规范：文案不使用 emoji；只在插画/装饰里表现火箭、金币、发射感，符合项目“NO EMOJIS in UI”的规则。
-- 首页入口：H2E banner 位置改成轮播，Mainnet Launch 第一张，H2E 第二张。
-- CTA 与归因：复用现有登录流程；未登录打开现有 Sign Up / Sign In，登录后跳转 Events；`?ref=xxx` 保留在 URL/localStorage，首版不入库、不接 referral 绑定。
+## 设计方向
 
-## 页面与路由
+把 Mainnet Launch 从“AI 活动页”改成更像高端交易所/金融产品的 campaign microsite：
 
-新增路由：
+- 主视觉从卡通火箭改为“terminal / launch window / trading grid / orbital ledger”的抽象系统图。
+- 色彩从高饱和金橙渐变改为克制的黑、炭灰、暖金、少量 amber 作为交易激励信号。
+- 页面结构减少一屏一堆卡片，改为更有节奏的 editorial + dashboard 混合布局。
+- 保留你确认过的业务逻辑：现有交易数据计算 volume、Event 1、Event 2、倒计时、CTA 登录逻辑、首页 banner 轮播。
+- 继续遵守项目规范：不在 UI 使用 emoji，视觉插画用 CSS/SVG/Lucide 完成。
 
-```text
-/mainnet-launch
-```
+## 具体改造范围
 
-页面全英文，暗色背景 + 金色/橙色主视觉，和 H2E 紫色区分。桌面用全宽营销页布局，移动端用现有移动 header + responsive sections。
+### 1. 建立页面级 design spec
 
-页面结构按需求实现：
+我会在代码里固化一套活动landing page专用视觉规则（在以后的活动landing page可复用，产品有自己的style-guide和design.md，活动的视觉规则和产品的不要混在一起），而不是继续散落使用随机渐变和 card 样式：
 
-1. Hero
-   - Tag: `MAINNET LAUNCH`
-   - Headline: `OmenX Mainnet Is Live.`
-   - Sub-headline: `Your first trade wins. Every time.`
-   - Body: `Make your first trade and win $2–$50 USDC. 100% win rate. No lottery. No luck needed.`
-   - CTA: `Start Trading →`
-   - 三个 trust badges：`100% win rate` / `Up to $50 USDC` / `Rewards in 24h`
-   - 真实倒计时，每秒更新，截止：2026-05-28 10:00 UTC+8
-   - 右侧/下方为 CSS/SVG 风格火箭发射 + USDC 金币 + 金色光效插画，不在文案中使用 emoji。
+- Palette：near-black canvas、graphite panels、warm gold accent、muted amber glow、green/red 只用于 trading 状态。
+- Typography：更强的数字/交易终端感，标题减少超粗字体，使用更紧的 tracking 和更克制的 weight。
+- Surfaces：少圆角、少阴影、更多细线、grid、坐标、分隔符。
+- Motion：移除火箭浮动类动效，改为低频扫描线/脉冲/进度线。
 
-2. How It Works
-   - 3-step cards：Sign Up / Make Your First Trade / Get Paid
-   - 桌面三列，移动端纵向堆叠。
-   - Step 2 明确 `≥5K USDC volume` 是 trading volume。
+### 2. 重做 Hero 和视觉插画
 
-3. Reward Ladder
-   - Event 1: First Trade Bonus 卡片，显示 `Trade ≥ 5K USDC volume → Win $2–$50 USDC` 与 `100% Win Rate`。
-   - Event 2: Volume Rebates 表格：10K/50K/100K/300K/500K/750K/1M 对应 5/10/20/60/100/150/200 USDC。
-   - 明确 `Rewards based on highest tier reached. Not cumulative across tiers.`
-   - 已登录用户用现有交易 volume 高亮当前档位。
+替换当前：
 
-4. Trust & Security Bar
-   - Mainnet Live / Built on Base / Settle in USDC / Rewards in 24h。
-   - 使用 Lucide 图标，不使用 emoji。
+- 大标题 + 金色口号 + 三个统计卡 + 火箭 SVG
 
-5. Key Rules
-   - 按需求展示短规则。
-   - 文案保留 fee ratio、daily by 18:00 UTC+8、campaign dates、eligible invited users 等重点。
+改为：
 
-6. FAQ
-   - 用 accordion 展示 6 个问题。
-   - 包含 trading volume 定义、奖励到账时间、两个 Event 能否同时拿、Event 2 不累加、是否需要 deposit $5,000、What's the catch。
+- 左侧：活动状态、核心规则、主 CTA、倒计时，用更少但更精确的文字。
+- 右侧：抽象 launch console 视觉：
+  - campaign window 时间轴
+  - 5K threshold marker
+  - rebate ladder nodes
+  - volume signal lines
+  - OX monogram / mainnet status
+- 不再出现火箭、漂浮金币、sparkle 这类 AI 味强的元素。
 
-7. Final CTA + Timeline
-   - The clock is ticking.
-   - 显示截止日期和 campaign timeline。
-   - Timeline 根据当前时间计算 Day X of 14；活动前/活动后也会有合理 fallback 文案。
+### 3. 重做奖励结构展示
 
-8. My Progress
-   - 未登录或无首笔达标交易：不显示 Progress，完整活动页照常展示。
-   - 已登录且达到首笔交易门槛：显示 Your Campaign Progress。
-   - 数据首版来自现有 `trades` 表计算：统计 campaign 时间窗口内当前用户 `Filled` 交易的 `amount` 总和作为 volume。
-   - Event 1 状态：
-     - volume ≥ 5,000：显示完成，但因为首版不新增运营奖励状态表，奖励状态显示为 `Processing`，奖励金额显示区间 `$2–$50 USDC`，不伪造具体中奖金额。
-     - volume < 5,000：不展示 Progress section，避免给未转化用户增加复杂信息。
-   - Event 2 状态：根据 volume 自动计算当前最高档、下一档、还差多少。
-   - CTA 文案：`Go to Events →`。
-   - Share 首版先不做生成分享卡片，避免引入未确认的分享素材和 referral 绑定；可在下一阶段补。
+把 RewardLadder 从普通表格卡片改成更有交易产品感的 ladder / ledger 模块：
 
-## 首页入口：banner 轮播
+- Event 1 作为“activation threshold”模块。
+- Event 2 作为横向或纵向 volume ladder。
+- 明确标注 non-cumulative，但不让说明文字破坏视觉。
+- 用户进度仍然用现有 volume 数据高亮当前档位。
 
-把现在 Events/MobileHome 中 H2E banner 的位置替换为活动 banner 轮播组件：
+### 4. 重做 Progress Dashboard
 
-```text
-Slide 1: Mainnet Launch
-Slide 2: H2E
-```
+保留只在登录且达成 5K 后展示的逻辑，但视觉改为更像账户状态面板：
 
-Mainnet slide：
-- 金色/橙色主视觉。
-- 文案：
-  - `MAINNET LAUNCH`
-  - `Your first trade wins. Every time.`
-  - `Up to $50 USDC — 100% win rate.`
-  - CTA: `Join Now →`
-  - `Ends in 13d 14h` 这类动态倒计时。
-- 点击跳 `/mainnet-launch`，保留当前 `ref` 参数（如果有）。
+- Total Volume
+- Event 1 Status
+- Current Tier
+- Next Unlock
+- Time Left
 
-H2E slide：
-- 复用现有 `HedgeEntryBanner` 的图片和跳转 `/hedge`。
+减少大块彩色卡片，改为高密度、低装饰、数字优先的 trading dashboard。
 
-轮播行为：
-- Mainnet Launch 默认第一张。
-- 自动轮播，带 dots；桌面可有 hover pause，移动端可横滑/点 dots。
-- 在 EventsPage 和 MobileHome 两处替换，保持原先位置与间距。
+### 5. 重做 How It Works / Rules / FAQ
 
-## CTA / 登录逻辑
+减少“3 steps + icons”的 AI 模板感：
 
-所有活动页 CTA 使用统一逻辑：
+- How It Works 改成 timeline 或 instruction strip。
+- Key Rules 改成 compact rule matrix。
+- FAQ 保留内容，但视觉改成更轻的 disclosure list，减少大圆角 card 感。
 
-- 未登录：打开现有 AuthDialog/AuthSheet。
-- 已登录：跳转 `/events`。
-- 如果当前 URL 有 `?ref=xxx`：
-  - 页面加载时存入 localStorage，例如 `mainnet_launch_ref`。
-  - CTA 跳转时保留 query ref 或 source 信息，不做后端绑定。
+### 6. 重做首页 banner carousel 的 Mainnet slide
 
-## 数据与计算
+当前 banner 也有同样问题：火箭 icon、强渐变、普通营销卡片。会同步改为更像 campaign ticker：
 
-首版不新增数据库表，不做运营标记后台。
+- Mainnet Launch 第一张仍然优先。
+- 保留 H2E 第二张。
+- Mainnet slide 使用 compact launch console / reward ticker 风格。
+- 保留倒计时、Join Now、ref 参数透传。
 
-新增前端 hook：
+## 技术细节
 
-```text
-useMainnetLaunchProgress
-```
+会主要修改这些已存在文件：
 
-职责：
-- 读取当前登录用户在 campaign 时间窗口内的 `trades`。
-- 过滤 `status = Filled`。
-- 统计 `amount` 总和作为 campaign volume。
-- 计算：
-  - 是否达到 Event 1：volume ≥ 5,000。
-  - Event 2 当前档位。
-  - 下一档所需 volume。
-  - 下一档进度百分比。
-  - days/hours/minutes left。
+- `src/pages/MainnetLaunch.tsx`
+- `src/components/mainnet-launch/Hero.tsx`
+- `src/components/mainnet-launch/LaunchVisual.tsx`
+- `src/components/mainnet-launch/RewardLadder.tsx`
+- `src/components/mainnet-launch/ProgressDashboard.tsx`
+- `src/components/mainnet-launch/HowItWorks.tsx`
+- `src/components/mainnet-launch/KeyRules.tsx`
+- `src/components/mainnet-launch/FAQ.tsx`
+- `src/components/mainnet-launch/FinalCTA.tsx`
+- `src/components/campaign/CampaignBannerCarousel.tsx`
+- 必要时微调 `src/index.css` 和 `tailwind.config.ts` 中的 mainnet token/animation
 
-注意：现有 `trades.amount` 在 demo 数据中可能较小，所以 Progress 对真实用户会按现有交易数据展示；未达标就不显示 Progress。后续如果要对接合约引擎真实 volume，可替换 hook 内数据源。
+不会改动：
 
-## 埋点
-
-本轮不接第三方 analytics 或后端事件表，因为你选择了“复用现有登录”。我会保留一个轻量前端 helper：
-
-- 开发环境 console debug 或 no-op。
-- 事件命名按需求预留：`mainnet_launch_page_view`、`mainnet_launch_cta_click`、`mainnet_launch_faq_expand` 等。
-
-这样之后接 analytics 时不用改 UI 结构。
-
-## 技术改动范围
-
-预计新增/修改：
-
-- `src/App.tsx`
-  - 增加 `/mainnet-launch` route。
-
-- 新增 `src/pages/MainnetLaunch.tsx`
-  - 活动页容器、SEO title/description、header/footer、section 组合、移动浮动 CTA。
-
-- 新增 `src/components/mainnet-launch/*`
-  - Hero、HowItWorks、RewardLadder、TrustBar、KeyRules、FAQ、FinalCTA、Progress、Countdown、LaunchVisual、MobileFloatingCTA 等组件。
-
-- 新增或替换入口组件
-  - 例如 `src/components/campaign/CampaignBannerCarousel.tsx`
-  - 复用现有 `HedgeEntryBanner` 的图片资产作为第二张 slide。
-
-- 修改：
-  - `src/pages/EventsPage.tsx`：把 `<HedgeEntryBanner />` 替换为轮播。
-  - `src/pages/MobileHome.tsx`：把 `<HedgeEntryBanner variant="mobile" />` 替换为轮播。
-
-- 新增 hook/util：
-  - `src/hooks/useMainnetLaunchProgress.ts`
-  - `src/lib/mainnetLaunch.ts` 或组件内常量：活动时间、阶梯、倒计时格式化、tier 计算。
-
-## 不包含在首版的内容
-
-- 不新增运营后台“批量标记已发放”。
-- 不新增奖励 claimed/processing 数据表。
-- 不伪造用户具体 Event 1 中奖金额。
-- 不实现分享卡片生成。
-- 不接 referral 注册绑定。
-- 不接真实第三方 analytics。
-
-这些可以作为第二阶段，在 landing page 上线后继续补。
+- 现有交易 volume 计算 hook 的核心逻辑
+- 登录弹窗和登录后跳转逻辑
+- 数据库结构
+- H2E banner 图片本身
 
 ## 验收标准
 
-- `/mainnet-launch` 桌面和移动端均完整展示所有活动 sections。
-- 文案全英文，UI 文案无 emoji。
-- 倒计时每秒更新，基于 2026-05-28 10:00 UTC+8。
-- 未登录点击 CTA 打开现有登录弹窗/sheet。
-- 已登录点击 CTA 跳转 `/events`。
-- 已登录且现有交易 volume ≥ 5,000 时显示 Progress，并正确计算当前 tier/下一档差额。
-- Events 首页和 MobileHome 的原 H2E banner 位置变为轮播，Mainnet Launch 默认第一张，H2E 仍可访问。
-- 不修改 Supabase auto-generated client/types 文件。
+改完后 `/mainnet-launch` 应该满足：
+
+- 第一眼不再像通用 AI landing page。
+- 没有火箭/金币/sparkle 这类廉价活动页视觉。
+- 仍然清楚表达唯一转化目标：完成第一笔 ≥5,000 USDC volume 交易。
+- desktop 和 mobile 都有明确层级，不拥挤、不像模板。
+- 首页 banner 的 Mainnet slide 与 landing page 风格一致。
+- 所有 CTA、倒计时、进度、ref 保留原逻辑。
