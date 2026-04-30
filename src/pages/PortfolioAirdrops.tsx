@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2, Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
@@ -28,8 +28,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type TabType = "positions" | "settlements" | "airdrops";
+
+const HeaderWithInfo = ({ label, description, align = "left" }: { label: string; description: React.ReactNode; align?: "left" | "right" }) => (
+  <div className={`flex items-center gap-1.5 ${align === "right" ? "justify-end" : "justify-start"}`}>
+    <span>{label}</span>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="w-3 h-3 cursor-help text-muted-foreground/70 hover:text-foreground" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-72 text-xs leading-relaxed">
+        {description}
+      </TooltipContent>
+    </Tooltip>
+  </div>
+);
 
 // Portfolio Tab 下拉组件
 const PortfolioTabDropdown = ({
