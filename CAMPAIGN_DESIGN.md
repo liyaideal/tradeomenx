@@ -29,6 +29,28 @@ Campaign landing pages are conversion microsites, not product screens. Their job
 
 Campaign pages may reuse brand tokens, auth flows, and product data, but they must not blindly reuse product page composition.
 
+### Creative variation requirement
+
+This document defines standards, not a single landing-page template. Every new campaign must choose a campaign archetype and create a distinct visual direction. Do not ship multiple campaigns that only swap copy and hero art while preserving the same page structure.
+
+Acceptable reuse:
+
+- safe width and overflow rules,
+- vertical section headers,
+- CTA hierarchy,
+- reward clarity rules,
+- QA checklist,
+- reusable primitives.
+
+Required variation:
+
+- hero composition,
+- visual metaphor,
+- pacing and density,
+- section order when the campaign story requires it,
+- illustration/data-visual treatment,
+- reward presentation style.
+
 ### Forbidden cross-contamination
 
 - Do not use product desktop page title pattern with the purple left rail.

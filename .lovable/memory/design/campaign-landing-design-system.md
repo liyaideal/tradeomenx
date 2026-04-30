@@ -12,3 +12,7 @@ Rules:
 - Avoid generic AI/crypto tropes: rockets, emoji labels, glowing orbs, random purple gradients, floating glass-card collages, fake 3D coins/gifts.
 - Campaign pages need one coherent visual metaphor and one primary conversion action.
 - Check 1024px+ safe width and carousel overflow before shipping.
+
+- The campaign style guide is a documentation system like `/style-guide`, not a universal landing-page template.
+- Future campaigns must not all share the same hero/page skeleton with only copy or artwork swapped.
+- Reuse guardrails and primitives, but vary archetype, hero composition, visual metaphor, rhythm, and reward presentation.
