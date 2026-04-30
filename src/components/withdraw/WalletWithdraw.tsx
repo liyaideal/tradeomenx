@@ -35,7 +35,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
     getWithdrawMinimum,
   } = useWithdraw();
 
-  const availableBalance = h2e.isUnlocked ? rawAvailableBalance : Math.max(0, rawAvailableBalance - h2e.frozenBalance);
+  const availableBalance = Math.max(0, rawAvailableBalance - h2e.lockedAmount);
 
   const [amount, setAmount] = useState('');
   const [selectedAddress, setSelectedAddress] = useState('');
@@ -185,9 +185,9 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         )}
         <div className="text-xs text-muted-foreground">
           Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> USDC
-          {!h2e.isUnlocked && h2e.frozenBalance > 0 && (
+          {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
             <span className="block text-[10px] text-primary mt-0.5">
-              ${h2e.frozenBalance.toFixed(2)} locked (H2E — trade ${(h2e.volumeRequired - h2e.volumeCompleted).toLocaleString()} more to unlock)
+              ${h2e.lockedAmount.toFixed(2)} locked (H2E — {h2e.unlockedPercent}% already withdrawable; trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%)
             </span>
           )}
         </div>
