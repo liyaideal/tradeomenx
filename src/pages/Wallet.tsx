@@ -79,7 +79,7 @@ export default function Wallet() {
     setPrimaryWallet 
   } = useWallets();
 
-  const withdrawableBalance = h2e.isUnlocked ? balance : Math.max(0, balance - h2e.frozenBalance);
+  const withdrawableBalance = Math.max(0, balance - h2e.lockedAmount);
 
   // Fetch closed trades for transaction history (only realized P&L)
   const { data: recentTrades = [] } = useQuery({
@@ -321,7 +321,7 @@ export default function Wallet() {
             <div className="p-3 rounded-lg bg-muted/20">
               <div className="flex items-center gap-1 mb-1">
                 <span className="text-xs text-muted-foreground">Withdrawable</span>
-                <InfoTooltip text="Available balance minus hedge airdrop locked funds." />
+                <InfoTooltip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
               </div>
               <span className="font-mono text-sm font-semibold">${formatCurrency(withdrawableBalance)}</span>
             </div>
@@ -329,9 +329,9 @@ export default function Wallet() {
               <div className="flex items-center gap-1 mb-1">
                 <Lock className="w-3 h-3 text-primary" />
                 <span className="text-xs text-muted-foreground">H2E Locked</span>
-                <InfoTooltip text="Hedge airdrop earnings. Available for trading, locked for withdrawal until $400K volume reached." />
+                <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
               </div>
-              <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.frozenBalance)}</span>
+              <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.lockedAmount)}</span>
             </div>
           </div>
         )}
