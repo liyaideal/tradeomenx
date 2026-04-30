@@ -316,7 +316,7 @@ export default function Wallet() {
         </div>
 
         {/* Withdrawable / Frozen row */}
-        {h2e.frozenBalance > 0 && (
+        {h2e.lockedAmount > 0 && (
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div className="p-3 rounded-lg bg-muted/20">
               <div className="flex items-center gap-1 mb-1">
@@ -573,7 +573,7 @@ export default function Wallet() {
                    </div>
 
                     {/* Withdrawable / Frozen row */}
-                    {h2e.frozenBalance > 0 && (
+                    {h2e.lockedAmount > 0 && (
                       <div className="mb-4 grid grid-cols-2 gap-3">
                         <div className="p-3 rounded-lg bg-muted/20">
                           <div className="flex items-center gap-1 mb-1">
