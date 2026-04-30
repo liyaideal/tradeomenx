@@ -14,8 +14,8 @@ export const RewardLadder = ({ onCta }: Props) => {
     <SectionShell className="bg-mainnet-surface/30">
       <SectionTitle eyebrow="Rewards" title="Activation first. Rebate tier second." desc="Event 1 is a guaranteed first-trade reward. Event 2 is a highest-tier rebate, not a cumulative payout stack." />
 
-      <div className="grid gap-5 lg:grid-cols-[0.74fr_1.26fr]">
-        <div className="rounded-sm border border-mainnet-gold/20 bg-background/30 p-5 md:p-6">
+      <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.74fr)_minmax(0,1.26fr)]">
+        <div className="min-w-0 rounded-sm border border-mainnet-gold/20 bg-background/30 p-5 md:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-mainnet-gold">Event 1</p>
@@ -47,7 +47,7 @@ export const RewardLadder = ({ onCta }: Props) => {
           )}
         </div>
 
-        <div className="rounded-sm border border-border/50 bg-card/40 p-5 md:p-6">
+        <div className="min-w-0 rounded-sm border border-border/50 bg-card/40 p-5 md:p-6">
           <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-mainnet-orange">Event 2</p>
@@ -56,7 +56,7 @@ export const RewardLadder = ({ onCta }: Props) => {
             <p className="font-mono text-xs text-muted-foreground">highest tier only</p>
           </div>
 
-          <div className="grid gap-2 md:grid-cols-7">
+          <div className="grid min-w-0 gap-2 md:grid-cols-7">
             {MAINNET_REBATE_TIERS.map((tier) => {
               const active = !!user && currentTier?.volume === tier.volume;
               const reached = !!user && volume >= tier.volume;

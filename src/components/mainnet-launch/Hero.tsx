@@ -15,12 +15,12 @@ const metrics = [
 
 export const Hero = ({ onCta }: HeroProps) => {
   return (
-    <section className="relative overflow-hidden px-5 pb-12 pt-7 md:px-8 md:pb-20 md:pt-14">
+    <section className="relative w-full max-w-full overflow-hidden px-5 pb-12 pt-7 md:px-8 md:pb-20 md:pt-14">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.12)_1px,transparent_1px)] bg-[size:72px_72px] opacity-40" />
       <div className="absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_74%_12%,hsl(var(--mainnet-gold)/0.14),transparent_38%)]" />
 
-      <div className="relative mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
-        <div className="space-y-7">
+      <div className="relative mx-auto grid w-full max-w-7xl min-w-0 gap-8 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:items-center">
+        <div className="min-w-0 space-y-7">
           <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em]">
             <span className="border border-mainnet-gold/30 bg-mainnet-gold/10 px-2.5 py-1 text-mainnet-gold">Mainnet Launch</span>
             <span className="border border-trading-green/25 bg-trading-green/10 px-2.5 py-1 text-trading-green">May 14-28</span>
@@ -61,7 +61,9 @@ export const Hero = ({ onCta }: HeroProps) => {
           </div>
         </div>
 
-        <LaunchVisual />
+        <div className="min-w-0">
+          <LaunchVisual />
+        </div>
       </div>
     </section>
   );
