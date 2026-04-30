@@ -39,7 +39,7 @@ const HeaderWithInfo = ({ label, description, align = "left" }: { label: string;
       <TooltipTrigger asChild>
         <Info className="w-3 h-3 cursor-help text-muted-foreground/70 hover:text-foreground" />
       </TooltipTrigger>
-      <TooltipContent className="max-w-72 text-xs leading-relaxed">
+      <TooltipContent className="max-w-72 text-left text-xs leading-relaxed">
         {description}
       </TooltipContent>
     </Tooltip>
