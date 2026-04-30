@@ -478,17 +478,22 @@ export default function Wallet() {
         {/* Volume unlock */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Volume to unlock withdrawals</span>
+            <span className="text-muted-foreground">Withdrawal unlock progress</span>
             <span className="font-mono font-semibold">
-              ${h2e.volumeCompleted.toLocaleString()} / ${h2e.volumeRequired.toLocaleString()}
+              ${h2e.volumeCompleted.toLocaleString()} / ${(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}
             </span>
           </div>
           <Progress value={h2e.volumePercent} className="h-1.5" />
-          {h2e.isUnlocked ? (
-            <p className="text-[10px] text-trading-green">✓ Unlocked — rewards are withdrawable</p>
+          {h2e.isFullyUnlocked ? (
+            <p className="text-[10px] text-trading-green">Fully unlocked — rewards are withdrawable</p>
           ) : (
-            <p className="text-[10px] text-muted-foreground">Trade ${(h2e.volumeRequired - h2e.volumeCompleted).toLocaleString()} more to unlock</p>
+            <p className="text-[10px] text-muted-foreground">
+              Trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%
+            </p>
           )}
+          <p className="text-[10px] text-muted-foreground">
+            Current unlocked: {h2e.unlockedPercent}% · Full unlock at ${h2e.volumeRequired.toLocaleString()}
+          </p>
         </div>
 
         {/* Recent settlements */}
