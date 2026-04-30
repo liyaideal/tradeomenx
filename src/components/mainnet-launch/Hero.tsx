@@ -19,7 +19,7 @@ export const Hero = ({ onCta }: HeroProps) => {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.12)_1px,transparent_1px)] bg-[size:72px_72px] opacity-40" />
       <div className="absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_74%_12%,hsl(var(--mainnet-gold)/0.14),transparent_38%)]" />
 
-      <div className="relative mx-auto grid w-full max-w-7xl gap-8 md:grid-cols-[0.88fr_1.12fr] md:items-center">
+      <div className="relative mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
         <div className="space-y-7">
           <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em]">
             <span className="border border-mainnet-gold/30 bg-mainnet-gold/10 px-2.5 py-1 text-mainnet-gold">Mainnet Launch</span>
@@ -27,7 +27,7 @@ export const Hero = ({ onCta }: HeroProps) => {
           </div>
 
           <div className="space-y-5">
-            <h1 className="max-w-4xl text-[3.25rem] font-semibold leading-[0.92] tracking-[-0.045em] text-foreground md:text-[6.8rem]">
+            <h1 className="max-w-4xl text-[3.25rem] font-semibold leading-[0.92] tracking-[-0.045em] text-foreground md:text-[5.75rem] xl:text-[6.8rem]">
               OmenX Mainnet Launch
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">
@@ -52,7 +52,7 @@ export const Hero = ({ onCta }: HeroProps) => {
 
           <div className="grid max-w-2xl grid-cols-3 border-y border-border/50">
             {metrics.map((metric) => (
-              <div key={metric.label} className="border-r border-border/50 px-3 py-4 last:border-r-0 md:px-5">
+            <div key={metric.label} className="border-r border-border/50 px-3 py-4 last:border-r-0 md:px-4 xl:px-5">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{metric.label}</p>
                 <p className="mt-2 font-mono text-xl font-semibold text-foreground md:text-2xl">{metric.value}</p>
                 <p className="mt-1 hidden text-xs leading-5 text-muted-foreground sm:block">{metric.detail}</p>
