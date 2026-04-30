@@ -35,7 +35,7 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
   } = useWithdraw();
 
   // Deduct frozen H2E balance from withdrawable amount
-  const availableBalance = h2e.isUnlocked ? rawAvailableBalance : Math.max(0, rawAvailableBalance - h2e.frozenBalance);
+  const availableBalance = Math.max(0, rawAvailableBalance - h2e.lockedAmount);
 
   const [amount, setAmount] = useState('');
   const [selectedAddress, setSelectedAddress] = useState('');
@@ -183,9 +183,9 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
         
         <div className="text-sm text-muted-foreground">
           Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> {token.symbol}
-          {!h2e.isUnlocked && h2e.frozenBalance > 0 && (
+          {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
             <span className="block text-[10px] text-primary mt-0.5">
-              ${h2e.frozenBalance.toFixed(2)} locked (hedge airdrop — trade ${(h2e.volumeRequired - h2e.volumeCompleted).toLocaleString()} more to unlock)
+              ${h2e.lockedAmount.toFixed(2)} locked (hedge airdrop — {h2e.unlockedPercent}% already withdrawable; trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%)
             </span>
           )}
         </div>

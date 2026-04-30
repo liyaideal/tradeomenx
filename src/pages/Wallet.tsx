@@ -79,7 +79,7 @@ export default function Wallet() {
     setPrimaryWallet 
   } = useWallets();
 
-  const withdrawableBalance = h2e.isUnlocked ? balance : Math.max(0, balance - h2e.frozenBalance);
+  const withdrawableBalance = Math.max(0, balance - h2e.lockedAmount);
 
   // Fetch closed trades for transaction history (only realized P&L)
   const { data: recentTrades = [] } = useQuery({
@@ -316,12 +316,12 @@ export default function Wallet() {
         </div>
 
         {/* Withdrawable / Frozen row */}
-        {h2e.frozenBalance > 0 && (
+        {h2e.lockedAmount > 0 && (
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div className="p-3 rounded-lg bg-muted/20">
               <div className="flex items-center gap-1 mb-1">
                 <span className="text-xs text-muted-foreground">Withdrawable</span>
-                <InfoTooltip text="Available balance minus hedge airdrop locked funds." />
+                <InfoTooltip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
               </div>
               <span className="font-mono text-sm font-semibold">${formatCurrency(withdrawableBalance)}</span>
             </div>
@@ -329,9 +329,9 @@ export default function Wallet() {
               <div className="flex items-center gap-1 mb-1">
                 <Lock className="w-3 h-3 text-primary" />
                 <span className="text-xs text-muted-foreground">H2E Locked</span>
-                <InfoTooltip text="Hedge airdrop earnings. Available for trading, locked for withdrawal until $400K volume reached." />
+                <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
               </div>
-              <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.frozenBalance)}</span>
+              <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.lockedAmount)}</span>
             </div>
           </div>
         )}
@@ -478,17 +478,22 @@ export default function Wallet() {
         {/* Volume unlock */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Volume to unlock withdrawals</span>
+            <span className="text-muted-foreground">Withdrawal unlock progress</span>
             <span className="font-mono font-semibold">
-              ${h2e.volumeCompleted.toLocaleString()} / ${h2e.volumeRequired.toLocaleString()}
+              ${h2e.volumeCompleted.toLocaleString()} / ${(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}
             </span>
           </div>
           <Progress value={h2e.volumePercent} className="h-1.5" />
-          {h2e.isUnlocked ? (
-            <p className="text-[10px] text-trading-green">✓ Unlocked — rewards are withdrawable</p>
+          {h2e.isFullyUnlocked ? (
+            <p className="text-[10px] text-trading-green">Fully unlocked — rewards are withdrawable</p>
           ) : (
-            <p className="text-[10px] text-muted-foreground">Trade ${(h2e.volumeRequired - h2e.volumeCompleted).toLocaleString()} more to unlock</p>
+            <p className="text-[10px] text-muted-foreground">
+              Trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%
+            </p>
           )}
+          <p className="text-[10px] text-muted-foreground">
+            Current unlocked: {h2e.unlockedPercent}% · Full unlock at ${h2e.volumeRequired.toLocaleString()}
+          </p>
         </div>
 
         {/* Recent settlements */}
@@ -568,12 +573,12 @@ export default function Wallet() {
                    </div>
 
                     {/* Withdrawable / Frozen row */}
-                    {h2e.frozenBalance > 0 && (
+                    {h2e.lockedAmount > 0 && (
                       <div className="mb-4 grid grid-cols-2 gap-3">
                         <div className="p-3 rounded-lg bg-muted/20">
                           <div className="flex items-center gap-1 mb-1">
                             <span className="text-xs text-muted-foreground">Withdrawable</span>
-                            <InfoTooltip text="Available balance minus hedge airdrop locked funds." />
+                <InfoTooltip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
                           </div>
                           <span className="font-mono text-sm font-semibold">${formatCurrency(withdrawableBalance)}</span>
                         </div>
@@ -581,9 +586,9 @@ export default function Wallet() {
                           <div className="flex items-center gap-1 mb-1">
                             <Lock className="w-3 h-3 text-primary" />
                             <span className="text-xs text-muted-foreground">H2E Locked</span>
-                            <InfoTooltip text="Hedge airdrop earnings. Available for trading, locked for withdrawal until $400K volume reached." />
+                            <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
                           </div>
-                          <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.frozenBalance)}</span>
+                          <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.lockedAmount)}</span>
                         </div>
                       </div>
                     )}
