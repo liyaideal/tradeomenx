@@ -32,6 +32,8 @@ export interface H2eRewardsSummary {
   nextTierPercent: number | null;
   /** Volume needed to reach the next tier */
   volumeToNextTier: number;
+  /** All configured withdrawal unlock tiers */
+  unlockTiers: Array<{ volume: number; percent: number }>;
   /** Lifetime H2E earnings */
   totalEarned: number;
   /** Max earnings cap */
@@ -99,6 +101,7 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
     nextTierVolume: nextTier?.volume ?? null,
     nextTierPercent: nextTier?.percent ?? null,
     volumeToNextTier: nextTier ? Math.max(0, nextTier.volume - volumeCompleted) : 0,
+    unlockTiers: H2E_UNLOCK_TIERS,
     volumePercent: nextTier ? Math.min((volumeCompleted / nextTier.volume) * 100, 100) : 100,
     earningsPercent: Math.min((totalEarned / H2E_EARNINGS_CAP) * 100, 100),
     settlements,
