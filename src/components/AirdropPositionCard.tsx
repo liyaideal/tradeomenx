@@ -73,9 +73,9 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
   const config = statusConfig[airdrop.status as keyof typeof statusConfig] || statusConfig.expired;
 
   const settlementLabel = airdrop.settlementTrigger === "event_resolved" 
-    ? "Event Resolved" 
+    ? "Resolved" 
     : airdrop.settlementTrigger === "source_closed" 
-    ? "Source Closed" 
+    ? "Closed" 
     : null;
 
   return (
@@ -91,7 +91,7 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
             {config.label}
           </Badge>
           {isSettled && settlementLabel && (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted/50 text-muted-foreground border-border">
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted/50 text-muted-foreground border-border whitespace-nowrap">
               {settlementLabel}
             </Badge>
           )}

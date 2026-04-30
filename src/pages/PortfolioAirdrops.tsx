@@ -312,8 +312,8 @@ export default function PortfolioAirdrops() {
                         <div className="flex items-center gap-1.5">
                           <AirdropStatusBadge status={airdrop.status} />
                           {airdrop.status === "settled" && airdrop.settlementTrigger && (
-                            <Badge variant="outline" className="text-[10px] border-border text-muted-foreground bg-muted/50">
-                              {airdrop.settlementTrigger === "event_resolved" ? "Event Resolved" : "Source Closed"}
+                            <Badge variant="outline" className="text-[10px] border-border text-muted-foreground bg-muted/50 whitespace-nowrap px-2">
+                              {airdrop.settlementTrigger === "event_resolved" ? "Resolved" : "Closed"}
                             </Badge>
                           )}
                         </div>
