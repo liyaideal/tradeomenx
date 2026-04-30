@@ -15,7 +15,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useWallets } from '@/hooks/useWallets';
 import { MonoText } from '@/components/typography';
-import { AutoModeButton, SettingsButton, SettingsPanel } from '@/components/deposit/CrossChainSettings';
+import { SettingsButton, SettingsPanel } from '@/components/deposit/CrossChainSettings';
 import { WithdrawAddressSelect } from './WithdrawAddressSelect';
 import { WithdrawAddressSelectDialog } from './WithdrawAddressSelectDialog';
 
@@ -47,7 +47,6 @@ export const CrossChainWithdraw = () => {
   const [showAddressSelect, setShowAddressSelect] = useState(false);
   const [processingStage, setProcessingStage] = useState(0);
   const [txResult, setTxResult] = useState<'success' | 'failed'>('success');
-  const [autoMode, setAutoMode] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [slippage, setSlippage] = useState(-1);
 
@@ -93,7 +92,6 @@ export const CrossChainWithdraw = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">Swap</h3>
           <div className="flex items-center gap-2">
-            <AutoModeButton active={autoMode} onClick={() => setAutoMode(!autoMode)} />
             <SettingsButton onClick={() => setShowSettings(!showSettings)} />
           </div>
         </div>
@@ -102,8 +100,6 @@ export const CrossChainWithdraw = () => {
         <SettingsPanel
           open={showSettings}
           onClose={() => setShowSettings(false)}
-          autoMode={autoMode}
-          onAutoModeChange={setAutoMode}
           slippage={slippage}
           onSlippageChange={setSlippage}
         />
