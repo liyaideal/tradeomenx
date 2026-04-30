@@ -174,13 +174,60 @@ Do not rebuild campaign section structure with ad hoc Tailwind each time.
 
 Homepage campaign slides are compact campaign entries, not separate ad posters.
 
-Rules:
+### Banner structure
 
-- The slide must use the same visual language as the landing page.
-- It must fit within the same safe width as the event list.
+Homepage banners must be structured UI, not one baked image. Text, labels, metrics, countdowns, and CTAs must be rendered as DOM content so they remain editable, readable, accessible, and localizable.
+
+Required slots:
+
+1. **Message slot** — eyebrow/status labels, headline, and one short description.
+2. **Action slot** — one primary CTA and optional countdown/status timestamp.
+3. **Proof slot** — up to three compact metric chips; no paragraph-like lists.
+4. **Visual slot** — right-side illustration, product crop, data graphic, or campaign-specific composition. The image may support the story, but must not contain core reward text or CTA copy.
+
+Desktop composition:
+
+- Use a left-message / right-visual split for the default banner pattern.
+- Message slot should occupy roughly `55–65%`; visual slot should occupy roughly `35–45%`.
+- Keep the whole slide inside the homepage safe container (`max-w-7xl`, matching page padding).
+- Recommended desktop height: `220–260px`.
+- Never let decorative visuals define the banner width; all visuals must be clipped by the banner frame.
+
+Mobile composition:
+
+- Stack message first, then a compact visual/proof treatment if space allows.
+- Recommended mobile height: `170–220px`.
+- CTA must remain visible without depending on hover.
+
+### Banner configuration
+
+Banner copy must be configurable per slide:
+
+```ts
+type CampaignBannerConfig = {
+  id: string;
+  archetype: "split-feature" | "scoreboard" | "referral-network" | "reward-vault" | "editorial";
+  href: string;
+  eyebrow: string;
+  labels: Array<{ text: string; tone: "accent" | "success" | "neutral" }>;
+  title: string;
+  description: string;
+  ctaLabel: string;
+  metrics?: Array<{ label: string; value: string }>;
+  countdown?: boolean;
+  visual: { kind: "image" | "component"; asset?: string; alt?: string };
+};
+```
+
+### Carousel behavior
+
+- Maximum three active slides.
+- Auto-rotate every `6–8s`.
+- Pause auto-rotation on hover/focus.
+- Use manual pagination dots.
+- The slide must use the same visual language as its landing page, but future campaigns must vary archetype and composition so the carousel does not become a repeated template.
 - It must not create horizontal overflow at `1024px`, `1280px`, `1366px`, or mobile widths.
 - One primary CTA only.
-- No dense text blocks; use one headline and a small ticker strip.
 
 ---
 
