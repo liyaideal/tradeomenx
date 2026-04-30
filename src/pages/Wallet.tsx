@@ -71,7 +71,7 @@ export default function Wallet() {
   const { balance, trialBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
-  const previousH2eTierRef = useRef(h2e.unlockedPercent);
+  const previousH2eTierRef = useRef(0);
   const [showH2eUnlockToast, setShowH2eUnlockToast] = useState(false);
   const { 
     wallets, 
