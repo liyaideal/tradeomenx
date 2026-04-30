@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2, Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
@@ -28,8 +28,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type TabType = "positions" | "settlements" | "airdrops";
+
+const HeaderWithInfo = ({ label, description, align = "left" }: { label: string; description: React.ReactNode; align?: "left" | "right" }) => (
+  <div className={`flex items-center gap-1.5 ${align === "right" ? "justify-end" : "justify-start"}`}>
+    <span>{label}</span>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="w-3 h-3 cursor-help text-muted-foreground/70 hover:text-foreground" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-72 text-xs leading-relaxed">
+        {description}
+      </TooltipContent>
+    </Tooltip>
+  </div>
+);
 
 // Portfolio Tab 下拉组件
 const PortfolioTabDropdown = ({
@@ -271,10 +286,36 @@ export default function PortfolioAirdrops() {
                   <TableRow className="border-border/50 hover:bg-transparent">
                     <TableHead className="text-muted-foreground">Market</TableHead>
                     <TableHead className="text-muted-foreground">Side</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Value</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Price</TableHead>
-                    <TableHead className="text-muted-foreground">Source</TableHead>
-                    <TableHead className="text-muted-foreground">Status</TableHead>
+                    <TableHead className="text-muted-foreground text-right">
+                      <HeaderWithInfo
+                        label="Value"
+                        align="right"
+                        description="Before activation, this is the fixed $10 face value. After activation, it reflects current price × quantity."
+                      />
+                    </TableHead>
+                    <TableHead className="text-muted-foreground text-right">
+                      <HeaderWithInfo
+                        label="Entry Price"
+                        align="right"
+                        description="Entry price of the OmenX airdrop position."
+                      />
+                    </TableHead>
+                    <TableHead className="text-muted-foreground">
+                      <HeaderWithInfo label="Source" description="Polymarket source position price." />
+                    </TableHead>
+                    <TableHead className="text-muted-foreground">
+                      <HeaderWithInfo
+                        label="Status"
+                        description={
+                          <div className="space-y-1">
+                            <p><span className="font-medium text-foreground">Pending:</span> waiting for user activation.</p>
+                            <p><span className="font-medium text-foreground">Activated:</span> activated and waiting for event resolution or source position close.</p>
+                            <p><span className="font-medium text-foreground">Expired:</span> not activated within 72 hours.</p>
+                            <p><span className="font-medium text-foreground">Settled:</span> activated and already settled. Settlement happens when the event resolves or the Polymarket source position is closed.</p>
+                          </div>
+                        }
+                      />
+                    </TableHead>
                     <TableHead className="text-muted-foreground text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
