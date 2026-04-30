@@ -34,6 +34,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import TransparencyPage from "./pages/TransparencyPage";
 import HedgeLanding from "./pages/HedgeLanding";
+import MainnetLaunch from "./pages/MainnetLaunch";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
@@ -87,6 +88,7 @@ const App = () => (
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}
             <Route path="/hedge" element={<HedgeLanding />} />
+            <Route path="/mainnet-launch" element={<MainnetLaunch />} />
             <Route
               path="*"
               element={

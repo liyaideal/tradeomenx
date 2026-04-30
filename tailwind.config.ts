@@ -77,6 +77,14 @@ export default {
           DEFAULT: "hsl(var(--indicator))",
           muted: "hsl(var(--indicator-muted))",
         },
+        mainnet: {
+          gold: "hsl(var(--mainnet-gold))",
+          "gold-muted": "hsl(var(--mainnet-gold-muted))",
+          orange: "hsl(var(--mainnet-orange))",
+          ember: "hsl(var(--mainnet-ember))",
+          surface: "hsl(var(--mainnet-surface))",
+          "surface-elevated": "hsl(var(--mainnet-surface-elevated))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -130,6 +138,10 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
         },
+        "rocket-lift": {
+          "0%, 100%": { transform: "translateY(0) rotate(-10deg)" },
+          "50%": { transform: "translateY(-12px) rotate(-7deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -141,6 +153,7 @@ export default {
         "enter": "enter 0.3s ease-out",
         "confetti-fall": "confetti-fall 3s ease-out forwards",
         "sparkle": "sparkle 1.5s ease-in-out infinite",
+        "rocket-lift": "rocket-lift 3.4s ease-in-out infinite",
       },
     },
   },
