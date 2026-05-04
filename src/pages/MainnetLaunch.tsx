@@ -9,11 +9,12 @@ import { FAQ } from "@/components/mainnet-launch/FAQ";
 import { FinalCTA } from "@/components/mainnet-launch/FinalCTA";
 import { Hero } from "@/components/mainnet-launch/Hero";
 import { HowItWorks } from "@/components/mainnet-launch/HowItWorks";
-import { KeyRules } from "@/components/mainnet-launch/KeyRules";
+
 import { MobileFloatingCTA } from "@/components/mainnet-launch/MobileFloatingCTA";
 import { ProgressDashboard } from "@/components/mainnet-launch/ProgressDashboard";
 import { RewardLadder } from "@/components/mainnet-launch/RewardLadder";
-import { TrustBar } from "@/components/mainnet-launch/TrustBar";
+import { RewardSnapshot } from "@/components/mainnet-launch/RewardSnapshot";
+import { TrustAndRules } from "@/components/mainnet-launch/TrustAndRules";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { trackMainnetLaunch } from "@/lib/mainnetLaunch";
@@ -74,11 +75,11 @@ const MainnetLaunch = () => {
         <div ref={heroRef}>
           <Hero onCta={handleCta} />
         </div>
+        <RewardSnapshot />
         <ProgressDashboard onCta={handleCta} />
         <HowItWorks onCta={handleCta} />
         <RewardLadder onCta={handleCta} />
-        <TrustBar />
-        <KeyRules onCta={handleCta} />
+        <TrustAndRules />
         <FAQ />
         <FinalCTA onCta={handleCta} />
       </main>

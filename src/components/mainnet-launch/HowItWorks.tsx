@@ -1,30 +1,42 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, UserPlus, TrendingUp, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionShell, SectionTitle } from "./SectionShell";
 
 interface Props { onCta: (section: string) => void; }
 
 const steps = [
-  { n: "01", title: "Open account", body: "Create an OmenX account and enter the mainnet market list." },
-  { n: "02", title: "Trade volume", body: "Reach at least $5K volume from opening and closing contract positions." },
-  { n: "03", title: "Reward cycle", body: "Event 1 reward enters processing; Event 2 tracks your highest tier." },
+  { n: "01", icon: UserPlus, title: "Sign up & deposit", body: "30-second signup. Email is enough — no KYC for the bonus." },
+  { n: "02", icon: TrendingUp, title: "Trade $5K volume", body: "Open + close on any contract market. Leverage counts." },
+  { n: "03", icon: Wallet, title: "Get paid daily", body: "USDC lands in your trading account by 18:00 UTC+8." },
 ];
 
 export const HowItWorks = ({ onCta }: Props) => (
-  <SectionShell>
-    <SectionTitle eyebrow="Path" title="One trade path. Two reward events." desc="The campaign is intentionally simple: activate with your first qualifying trade, then keep volume moving if the rebate ladder is worth pursuing." />
-    <div className="border-y border-border/50">
-      {steps.map((step) => (
-        <div key={step.n} className="grid gap-4 border-b border-border/40 py-5 last:border-b-0 md:grid-cols-[120px_0.8fr_1.2fr] md:items-center">
-          <span className="font-mono text-xs text-mainnet-gold">{step.n}</span>
-          <h3 className="text-lg font-semibold tracking-[-0.01em] text-foreground">{step.title}</h3>
-          <p className="text-sm leading-6 text-muted-foreground md:text-base">{step.body}</p>
-        </div>
-      ))}
+  <SectionShell id="how-it-works">
+    <SectionTitle
+      eyebrow="How it works"
+      title="Three steps. No tricks."
+      desc="One trade path qualifies you for both rewards. Sign up, trade, get paid."
+    />
+
+    <div className="grid gap-4 md:grid-cols-3">
+      {steps.map((step) => {
+        const Icon = step.icon;
+        return (
+          <div key={step.n} className="rounded-md border border-border/50 bg-background/30 p-6">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-mainnet-gold">{step.n}</span>
+              <Icon className="h-5 w-5 text-mainnet-gold/80" />
+            </div>
+            <h3 className="mt-6 text-xl font-semibold tracking-[-0.01em] text-foreground">{step.title}</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">{step.body}</p>
+          </div>
+        );
+      })}
     </div>
+
     <div className="mt-8 flex justify-start">
       <Button onClick={() => onCta("how_it_works")} className="w-full gap-2 rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90 md:w-auto">
-        Start Trading <ArrowRight className="h-4 w-4" />
+        Claim My Bonus <ArrowRight className="h-4 w-4" />
       </Button>
     </div>
   </SectionShell>

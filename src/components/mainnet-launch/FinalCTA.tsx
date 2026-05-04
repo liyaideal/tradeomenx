@@ -17,7 +17,7 @@ export const FinalCTA = ({ onCta }: Props) => (
         </p>
       </div>
       <Button onClick={() => onCta("bottom")} size="lg" className="h-12 w-full gap-2 rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90 md:w-auto">
-        Start Trading <ArrowRight className="h-4 w-4" />
+        Claim My Bonus <ArrowRight className="h-4 w-4" />
       </Button>
     </div>
 

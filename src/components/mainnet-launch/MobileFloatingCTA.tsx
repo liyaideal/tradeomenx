@@ -25,7 +25,7 @@ export const MobileFloatingCTA = ({ triggerRef, onCta }: Props) => {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-mainnet-gold/20 bg-background/95 p-3 backdrop-blur md:hidden">
       <Button onClick={() => onCta("floating") } className="h-12 w-full justify-between rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90">
-        <span>Start Trading</span>
+        <span>Claim My Bonus</span>
         <span className="flex items-center gap-3 text-xs font-mono"><Countdown compact /><ArrowRight className="h-4 w-4" /></span>
       </Button>
     </div>
