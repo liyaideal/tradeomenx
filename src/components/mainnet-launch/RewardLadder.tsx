@@ -1,6 +1,6 @@
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MAINNET_REBATE_TIERS, FIRST_TRADE_VOLUME, formatUsd } from "@/lib/mainnetLaunch";
+import { MAINNET_REBATE_TIERS, formatUsd } from "@/lib/mainnetLaunch";
 import { SectionShell, SectionTitle } from "./SectionShell";
 import { useMainnetLaunchProgress } from "@/hooks/useMainnetLaunchProgress";
 import { cn } from "@/lib/utils";
@@ -8,88 +8,79 @@ import { cn } from "@/lib/utils";
 interface Props { onCta: (section: string) => void; }
 
 export const RewardLadder = ({ onCta }: Props) => {
-  const { user, volume, event1Qualified, currentTier } = useMainnetLaunchProgress();
+  const { user, volume, currentTier } = useMainnetLaunchProgress();
+  const maxTierVolume = MAINNET_REBATE_TIERS[MAINNET_REBATE_TIERS.length - 1].volume;
 
   return (
     <SectionShell className="bg-mainnet-surface/30">
-      <SectionTitle eyebrow="Rewards" title="Activation first. Rebate tier second." desc="Event 1 is a guaranteed first-trade reward. Event 2 is a highest-tier rebate, not a cumulative payout stack." />
+      <SectionTitle
+        eyebrow="Volume rebate ladder"
+        title="Trade more, earn more."
+        desc="Rebates pay the highest tier you reach — not cumulative. Hit the top tier for a $200 USDC payout."
+      />
 
-      <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.74fr)_minmax(0,1.26fr)]">
-        <div className="min-w-0 rounded-sm border border-mainnet-gold/20 bg-background/30 p-5 md:p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-mainnet-gold">Event 1</p>
-              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.02em] text-foreground">First Trade Bonus</h3>
-            </div>
-            <span className="font-mono text-xs text-muted-foreground">100% win rate</span>
-          </div>
-
-          <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-            <div className="border border-border/50 bg-mainnet-surface/70 p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">threshold</p>
-              <p className="mt-2 font-mono text-xl font-semibold text-foreground">{formatUsd(FIRST_TRADE_VOLUME, true)}</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-mainnet-gold" />
-            <div className="border border-mainnet-gold/25 bg-mainnet-gold/10 p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">reward</p>
-              <p className="mt-2 font-mono text-xl font-semibold text-mainnet-gold">$2-$50</p>
-            </div>
-          </div>
-
-          <p className="mt-5 text-sm leading-6 text-muted-foreground">
-            Volume includes open and close amounts. The qualifying reward is distributed in the daily reward cycle.
-          </p>
-          {user && event1Qualified && (
-            <div className="mt-5 flex items-center gap-2 border border-trading-green/25 bg-trading-green/10 px-3 py-2 font-mono text-xs text-trading-green">
-              <CheckCircle2 className="h-4 w-4" />
-              qualified · processing
-            </div>
-          )}
+      <div className="overflow-hidden rounded-md border border-border/50 bg-background/30">
+        {/* header */}
+        <div className="grid grid-cols-[1.4fr_0.8fr_1.6fr] gap-4 border-b border-border/40 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground md:px-6">
+          <span>Volume</span>
+          <span>Rebate</span>
+          <span>Status</span>
         </div>
 
-        <div className="min-w-0 rounded-sm border border-border/50 bg-card/40 p-5 md:p-6">
-          <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-mainnet-orange">Event 2</p>
-              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.02em] text-foreground">Volume Rebate Ledger</h3>
-            </div>
-            <p className="font-mono text-xs text-muted-foreground">highest tier only</p>
-          </div>
+        {MAINNET_REBATE_TIERS.map((tier) => {
+          const reached = !!user && volume >= tier.volume;
+          const active = !!user && currentTier?.volume === tier.volume;
+          const isMax = tier.volume === maxTierVolume;
+          const fillPct = Math.min(100, (tier.volume / maxTierVolume) * 100);
 
-          <div className="grid min-w-0 gap-2 md:grid-cols-7">
-            {MAINNET_REBATE_TIERS.map((tier) => {
-              const active = !!user && currentTier?.volume === tier.volume;
-              const reached = !!user && volume >= tier.volume;
-              return (
-                <div
-                  key={tier.volume}
-                  className={cn(
-                    "min-h-[116px] border border-border/50 bg-background/30 p-3 transition-colors",
-                    reached && "border-mainnet-gold/30 bg-mainnet-gold/10",
-                    active && "border-mainnet-gold bg-mainnet-gold/20 shadow-[inset_0_1px_0_hsl(var(--mainnet-gold)/0.35)]",
-                  )}
-                >
-                  <p className="font-mono text-[10px] text-muted-foreground">{formatUsd(tier.volume, true)}</p>
-                  <p className={cn("mt-7 font-mono text-lg font-semibold text-foreground", (active || reached) && "text-mainnet-gold")}>${tier.rebate}</p>
-                  <div className={cn("mt-3 h-px w-full bg-border", (active || reached) && "bg-mainnet-gold/50")} />
-                  <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">rebate</p>
+          return (
+            <div
+              key={tier.volume}
+              className={cn(
+                "relative grid grid-cols-[1.4fr_0.8fr_1.6fr] items-center gap-4 border-b border-border/30 px-4 py-4 transition-colors last:border-b-0 md:px-6",
+                active && "bg-mainnet-gold/10",
+                reached && !active && "bg-mainnet-gold/[0.04]",
+              )}
+            >
+              <span className={cn("font-mono text-base font-semibold text-foreground md:text-lg", isMax && "text-mainnet-gold")}>
+                {formatUsd(tier.volume, true)}
+              </span>
+
+              <span className={cn("font-mono text-base font-semibold md:text-lg", reached || isMax ? "text-mainnet-gold" : "text-foreground")}>
+                ${tier.rebate}
+              </span>
+
+              <div className="flex items-center gap-3">
+                <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-border/40">
+                  <div
+                    className={cn(
+                      "h-full rounded-full transition-[width] duration-500",
+                      reached || isMax ? "bg-mainnet-gold" : "bg-border",
+                    )}
+                    style={{ width: `${fillPct}%` }}
+                  />
                 </div>
-              );
-            })}
-          </div>
-
-          <p className="mt-5 text-sm leading-6 text-muted-foreground">
-            Rewards are based on the highest tier reached by the end of the campaign. They do not accumulate across tiers.
-          </p>
-        </div>
+                {active && (
+                  <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.18em] text-mainnet-gold">
+                    you are here
+                  </span>
+                )}
+                {!active && isMax && (
+                  <span className="inline-flex items-center gap-1 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.18em] text-mainnet-gold">
+                    <Sparkles className="h-3 w-3" />
+                    max payout
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-6 flex flex-col gap-4 border border-border/40 bg-background/30 p-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-        <span>
-          First {formatUsd(FIRST_TRADE_VOLUME, true)} activates Event 1 and starts Event 2 progress.
-        </span>
+        <span>Highest tier reached at campaign close = your rebate. Volume from your first $5K counts toward both rewards.</span>
         <Button onClick={() => onCta("ladder")} className="w-full gap-2 rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90 md:w-auto">
-          Start Trading <ArrowRight className="h-4 w-4" />
+          Claim My Bonus <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </SectionShell>

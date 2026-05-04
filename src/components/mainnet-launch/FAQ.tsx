@@ -13,7 +13,7 @@ const faqs = [
 
 export const FAQ = () => (
   <SectionShell>
-    <SectionTitle eyebrow="FAQ" title="Operational details." />
+    <SectionTitle eyebrow="FAQ" title="Common questions." desc="Everything traders ask before claiming the bonus." />
     <Accordion
       type="single"
       collapsible
