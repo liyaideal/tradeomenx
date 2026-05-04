@@ -9,7 +9,7 @@ import { FAQ } from "@/components/mainnet-launch/FAQ";
 import { FinalCTA } from "@/components/mainnet-launch/FinalCTA";
 import { Hero } from "@/components/mainnet-launch/Hero";
 import { HowItWorks } from "@/components/mainnet-launch/HowItWorks";
-import { KeyRules } from "@/components/mainnet-launch/KeyRules";
+
 import { MobileFloatingCTA } from "@/components/mainnet-launch/MobileFloatingCTA";
 import { ProgressDashboard } from "@/components/mainnet-launch/ProgressDashboard";
 import { RewardLadder } from "@/components/mainnet-launch/RewardLadder";
