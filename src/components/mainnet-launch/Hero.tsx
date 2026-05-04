@@ -23,7 +23,7 @@ export const Hero = ({ onCta }: HeroProps) => {
 
           <div className="space-y-5">
             <h1 className="max-w-3xl text-[2.75rem] font-semibold leading-[1] tracking-[-0.035em] text-foreground md:text-[4.25rem] xl:text-[5rem]">
-              Your first mainnet trade <span className="text-mainnet-gold">pays you back.</span>
+              Your first trade <span className="text-mainnet-gold">pays you back.</span>
             </h1>
             <p className="max-w-xl text-lg leading-8 text-muted-foreground">
               Hit $5K in trading volume and we'll send you USDC. Keep going and we'll send you more — up to $250 over the launch window.
