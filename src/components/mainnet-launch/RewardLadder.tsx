@@ -14,9 +14,9 @@ export const RewardLadder = ({ onCta }: Props) => {
   return (
     <SectionShell className="bg-mainnet-surface/30">
       <SectionTitle
-        eyebrow="Volume rebate ladder"
+        eyebrow="Volume rebates"
         title="Trade more, earn more."
-        desc="Rebates pay the highest tier you reach — not cumulative. Hit the top tier for a $200 USDC payout."
+        desc="You get paid for the highest tier you hit. Reach $1M and we send you $200."
       />
 
       <div className="overflow-hidden rounded-md border border-border/50 bg-background/30">
@@ -24,7 +24,7 @@ export const RewardLadder = ({ onCta }: Props) => {
         <div className="grid grid-cols-[1.4fr_0.8fr_1.6fr] gap-4 border-b border-border/40 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground md:px-6">
           <span>Volume</span>
           <span>Rebate</span>
-          <span>Status</span>
+          <span>Progress</span>
         </div>
 
         {MAINNET_REBATE_TIERS.map((tier) => {
@@ -62,13 +62,13 @@ export const RewardLadder = ({ onCta }: Props) => {
                 </div>
                 {active && (
                   <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.18em] text-mainnet-gold">
-                    you are here
+                    You're here
                   </span>
                 )}
                 {!active && isMax && (
                   <span className="inline-flex items-center gap-1 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.18em] text-mainnet-gold">
                     <Sparkles className="h-3 w-3" />
-                    max payout
+                    Top tier
                   </span>
                 )}
               </div>
@@ -78,9 +78,9 @@ export const RewardLadder = ({ onCta }: Props) => {
       </div>
 
       <div className="mt-6 flex flex-col gap-4 border border-border/40 bg-background/30 p-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-        <span>Highest tier reached at campaign close = your rebate. Volume from your first $5K counts toward both rewards.</span>
+        <span>Whatever tier you're at on May 28, that's what you get paid. Your first $5K counts twice — toward the bonus and toward the ladder.</span>
         <Button onClick={() => onCta("ladder")} className="w-full gap-2 rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90 md:w-auto">
-          Claim My Bonus <ArrowRight className="h-4 w-4" />
+          Start climbing <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </SectionShell>

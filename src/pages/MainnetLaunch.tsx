@@ -28,8 +28,8 @@ const MainnetLaunch = () => {
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = "OmenX Mainnet Launch — First Trade Bonus";
-    const desc = "Trade on OmenX mainnet and win $2–$50 USDC on your first qualifying trade, plus volume rebates up to $200.";
+    document.title = "OmenX Mainnet Launch — Up to $250 USDC for trading";
+    const desc = "Make your first trade on OmenX mainnet and we'll send you USDC. $2–$50 guaranteed plus up to $200 in volume rebates. Ends May 28.";
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");

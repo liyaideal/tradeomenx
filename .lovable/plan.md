@@ -1,157 +1,163 @@
+# /mainnet-launch 全页文案重写方案
 
-# /mainnet-launch 改版方案
+## 一、核心问题诊断
 
-## 核心思路
+通读全页后，发现大量"产品经理 / 后台系统"视角的措辞被当成 UI 文案使用，给用户的感觉是"我在看一份内部 spec"。典型病症：
 
-把页面从"项目里程碑公告 + 规则手册"改造成"**奖励驱动的转化漏斗**"。一句话定位：用户进来的第一屏就清楚 **能拿多少 / 怎么拿 / 现在就能开始**，后续每一屏都在为这个动作服务。
-
-漏斗节奏：**钩子 → 奖励快照 → 进度反馈 → 三步指引 → 阶梯激励 → 信任 → 细则/FAQ → 收口 CTA**。
-
----
-
-## 一、Hero 改版（最重要）
-
-**问题**：H1 是 "OmenX Mainnet Launch"，把项目名当卖点；金额 `$2–$50`、`$200` 被埋在 metric 小格子里。
-
-**改法**：
-
-- **Eyebrow**：`Mainnet Launch · May 14–28`（合并现两个 chip，减少视觉碎片）
-- **H1**：`Your first trade on mainnet pays you back.`
-  备选：`Trade $5K. Get up to $50 USDC. Plus $200 in rebates.`
-- **Sub**：一句话翻译两件事 —— "完成首笔合格交易拿保底奖励，继续交易解锁体量返佣阶梯。"
-- **主 CTA**：`Claim My Bonus →`（替换 `Start Trading`，benefit-led）
-- **副信息行**：倒计时 + "1,284 traders already qualified"（社会证明前置，从下方 TrustBar 抽上来一条）
-- **右侧 Visual**：替换现在的 `LaunchVisual`（dashboard 风格，与下方 ProgressDashboard 重复）。改为**单一视觉锚点 —— "Reward Meter"**：一根从 $0 → $5K 的填充进度条，两侧标 "First $2 unlocked at $5K" 和 "Up to $50"，配一个简洁的金币 / 奖牌图形（保持 mainnet-gold 主色，不要花哨 3D）。
-- **去掉**：Hero 内的 3 个 metric 小格子 —— 它们的内容由下面"奖励快照"模块承接，避免重复。
+| 类型 | 现状例子 | 问题 |
+|---|---|---|
+| 模块名当标题 | `FINAL WINDOW`、`REWARD METER`、`Account` | 这些是设计稿里的"模块代号"，不是用户语言 |
+| 系统术语外泄 | `Event 1 / Event 2`、`Pre-tier`、`Activation threshold`、`Campaign position` | 用户不关心后台事件编号 |
+| 公文体长句 | "Complete the first qualifying trade before the campaign closes." | 像合规通知 |
+| 自指元描述 | "the dashboard now tracks…"、"the rules fit on one screen" | 说"页面在做什么"而不是说"用户能得到什么" |
+| 重复 CTA 文案 | 4 处都是 `Claim My Bonus` | 节奏单调，没有递进 |
 
 ---
 
-## 二、新增模块：Reward Snapshot（紧跟 Hero）
+## 二、逐模块重写
 
-替代/前置于现在的 `ProgressDashboard`，承担"翻译规则"的职责。
+### 1. Hero (Hero.tsx)
+- Eyebrow 保留：`Mainnet Launch · May 14 – 28`
+- H1 微调：`Your first mainnet trade pays you back.` ✅ 已经不错，保留
+- Sub 改为更口语：
+  现：`Trade $5K in volume to unlock a guaranteed USDC bonus. Keep trading to climb the rebate ladder up to $200.`
+  改：`Hit $5K in trading volume and we'll send you USDC. Keep going and we'll send you more — up to $250 over the launch window.`
+- 副信息行：`Mainnet live · settle in USDC` 改为 `Live on mainnet · withdraw anytime`（"settle in USDC"是行业黑话）
+- `Rewards paid daily, 18:00 UTC+8` 改为 `Paid out every day at 18:00 UTC+8`
 
-布局：两张并列大卡片，每张就是一个 "Do X → Get Y" 公式。
+### 2. RewardMeter (Hero 右侧视觉)
+- Eyebrow `REWARD METER` → 删除（这是模块名，不该出现在 UI）。换成 `Your reward, at a glance`（小标题）或者直接不要 eyebrow，让 H2 顶上去。
+- `Up to $250 in USDC` 保留
+- 副文 `Guaranteed first-trade bonus + volume rebate, paid daily.` → `A guaranteed bonus on your first $5K. A bigger rebate the more you trade.`
+- 进度条下 `$5K · activate` → `$5K · bonus unlocks`（"activate"是系统语）
+- `$1M · max` → `$1M · top tier`
+- 卡片 `First Trade` → `First $5K bonus`，副文 `guaranteed at $5K volume` → `guaranteed payout`
+- 卡片 `Volume Rebate` 副文 `7 tiers · highest reached` → `the more you trade, the more you keep`
+- 个人进度行 `your volume:` → `You're at` （首字母大写、口语）
 
-```text
-┌─────────────────────────┬─────────────────────────┐
-│ EVENT 1 · Guaranteed    │ EVENT 2 · Volume Rebate │
-│                         │                         │
-│ Trade $5K volume        │ Keep trading            │
-│  →  $2–$50 USDC         │  →  up to $200 USDC     │
-│                         │                         │
-│ [paid daily 18:00 UTC+8]│ [7 tiers · $10K → $1M]  │
-└─────────────────────────┴─────────────────────────┘
-```
+### 3. RewardSnapshot
+- Eyebrow `What you can earn` ✅ 保留
+- 标题 `Two rewards. One trade path.` → `Two ways to get paid. Same trade.`（更口语）
+- 描述精简：`Cross $5K in volume and we'll send you a guaranteed bonus. Keep trading and we'll keep sending more.`
+- 卡片 1：
+  - `Guaranteed Reward` → `Guaranteed bonus`
+  - "You do" → `Step 1`，`Trade $5K volume` → `Trade your first $5K`
+  - 副文 `open + close, any market` → `any market, any leverage`
+  - "you get" → `we send you`，`paid daily · 18:00 UTC+8` → `in your account by tomorrow 18:00 UTC+8`
+- 卡片 2：
+  - `Volume Rebate` → `Volume rebate`
+  - `Keep trading` → `Keep trading after that`
+  - `across the 14-day window` → `until May 28`
+  - `7 tiers · $10K to $1M` → `the higher you go, the bigger the payout`
+- "See how it works ↓" → `See the 3 steps`（明确说"3"，更具体）
 
-每张卡底部一行 micro-CTA：`See how it works ↓` 锚点到 HowItWorks。
+### 4. ProgressDashboard
+- Eyebrow `Account` → 删除，或改成 `Your progress`
+- 标题 `Your campaign position` → `You're in. Here's where you stand.`
+- 描述 `Your live trading volume is already above the activation threshold. The dashboard now tracks the next rebate unlock.` →
+  `You've cleared the $5K bonus threshold. Now every trade pushes you up the rebate ladder.`
+- 数据卡：
+  - `Event 1 Status / Qualified / $2-$50 USDC · processing` → `First-trade bonus / Unlocked / $2 – $50 USDC on the way`
+  - `Current Tier / $100K / rebate $20` → `Current tier / $100K volume / $20 rebate locked in`
+  - `Pre-tier` → `Not yet on the ladder`
+  - `Next Unlock / $250K / $X remaining` → `Next tier / $250K volume / $X to go`
+  - `Time Left / 5d 12h / ends May 28, 2026` → `Time left / 5d 12h / closes May 28`
+- CTA `Go to Events` → `Place a trade →` （动作明确，不是"去某个页面"）
 
----
+### 5. HowItWorks
+- Eyebrow `How it works` ✅
+- 标题 `Three steps. No tricks.` → `Three steps. That's it.`（去掉"no tricks"——主动说"没有套路"反而像有套路）
+- 描述：`Sign up. Trade. Get paid in USDC.`（一行就够）
+- Step 文案保留（已经够口语）
+  - `30-second signup. Email is enough — no KYC for the bonus.` ✅
+  - `Open + close on any contract market. Leverage counts.` → `Any market, any leverage. Open and close adds to your volume.`
+  - `USDC lands in your trading account by 18:00 UTC+8.` → `USDC shows up in your account by 18:00 UTC+8 the next day.`
+- CTA `Claim My Bonus` → `Start my first trade →`（这一屏的语境是"开始"，不是"领取"）
 
-## 三、ProgressDashboard 重定位
+### 6. RewardLadder
+- Eyebrow `Volume rebate ladder` → `Volume rebates`
+- 标题 `Trade more, earn more.` ✅ 保留
+- 描述 `Rebates pay the highest tier you reach — not cumulative. Hit the top tier for a $200 USDC payout.` →
+  `You get paid for the highest tier you hit. Reach $1M and we send you $200.`
+- 列头 `Status` → `Progress`
+- `you are here` → `You're here` （首字母大写一致性）
+- `max payout` → `Top tier`
+- 底部说明：`Highest tier reached at campaign close = your rebate. Volume from your first $5K counts toward both rewards.` →
+  `Whatever tier you're at on May 28, that's what you get paid. Your first $5K counts twice — toward the bonus and toward the ladder.`
+- CTA `Claim My Bonus` → `Start climbing →`
 
-现在它承担太多角色（既解释规则又显示进度）。改为**仅对登录用户显示个人进度**：
-- 未登录 → 折叠/隐藏，或换成 `Sign in to track your progress` 占位条；
-- 登录 → 显示 "Your volume: $X / $5K"、距离下个阶梯还差多少、预计奖励。
+### 7. TrustAndRules
+- Eyebrow `Trust & rules` → `Why you can trust this`
+- 标题 `Real money. Clear terms.` ✅ 保留
+- 描述 `The reward window runs on real settlement rails — and the rules fit on one screen.` →
+  `Real USDC, paid from our marketing budget. Here's exactly how it works.`（去掉"settlement rails"这种内部词；去掉"the rules fit on one screen"这种自指）
+- 信任卡保留，措辞已经 OK
+- 规则表 label 保留，但 body 改口语：
+  - Volume body 已 OK
+  - Settlement → 改 label `Payout time`，body `Every day by 18:00 UTC+8 for yesterday's volume.`
+  - Highest tier ✅
+  - Wash trading body → `We screen out self-matching and bot-like patterns. Trade normally and you're fine.`
 
-把"规则解释"职责完全交给 Reward Snapshot 和 HowItWorks，避免三处重复。
+### 8. FAQ
+- Eyebrow `FAQ` ✅
+- 标题 `Common questions.` → `Questions traders actually ask.`（更人味，且暗示"我们听过这些问题"）
+- 描述 `Everything traders ask before claiming the bonus.` → 删除或改 `Quick answers before you start.`
+- FAQ 内问题改：
+  - `Can I win both Event 1 and Event 2 rewards?` → `Can I get both the bonus and the rebate?`
+  - `Are Event 2 tier rewards cumulative?` → `Do the tier rewards stack?`
+  - 答案里所有 "Event 1 / Event 2" 替换为 "the bonus / the rebate"
+  - `What's the catch?` ✅ 保留（这条已经很好）
 
----
+### 9. FinalCTA  ← **用户重点吐槽的一屏**
+- Eyebrow `Final window` → 删除（"final window"听起来像后台 enum 状态）
+- H2 现状 `Complete the first qualifying trade before the campaign closes.` → 像合规公告。改为：
+  `Don't let your bonus expire.`
+  备选：`The window closes May 28. Your move.`
+- 副文现状 `The launch reward window is fixed. After May 28, new first-trade rewards and ladder rebates stop qualifying.` →
+  `On May 29, the rewards turn off. Whatever volume you've traded by then is what you get paid for.`
+- CTA 保持 `Claim My Bonus →` 或改 `Take my bonus →`
 
-## 四、HowItWorks 三步精简
+- 下方 `Campaign Timeline` 模块标题 → `Timeline`（已经是上下文里的，无需"campaign"前缀）
+- 中间格子 `Day 7 of 14 / reward window active` → `Day 7 of 14 / rewards active`
+- 右侧 `Event Ends` → `Window closes`
 
-保留组件，但每步只一句话 + 一个图标，去掉冗长副本：
+### 10. MobileFloatingCTA
+- 保持 `Claim My Bonus` ✅（移动端简短 CTA 没问题）
 
-1. **Sign up & deposit** — 30 秒开户，邮箱即可
-2. **Trade $5K volume** — 开仓 + 平仓累计，任意市场
-3. **Get paid daily** — USDC 自动到交易账户
-
-去掉每步内的二级解释段落，把它们移到 FAQ。
-
----
-
-## 五、RewardLadder 视觉升级
-
-现在是 7 个等高柱状图，信息密度低且与 Hero 视觉重复。改为**横向阶梯表**：
-
-```text
-Volume      Rebate    Status
-$10K   →    $5        ─────
-$50K   →    $10       ─────
-$100K  →    $20       ─── you are here
-$250K  →    $50
-$500K  →    $100
-$1M    →    $200      ⭐ max
-```
-
-登录用户的"you are here"实时高亮当前阶梯，未登录显示 max tier 高亮。
-
----
-
-## 六、TrustBar / KeyRules 合并瘦身
-
-- 现在 TrustBar（4 格 Production Proof）+ KeyRules 信息重叠。合并为单个 "Trust & Rules" 模块：左列 3 条信任点（daily settlement / on-chain verifiable / no lockup），右列 3 条关键规则链接到 FAQ。
-- 节省一屏垂直高度。
-
----
-
-## 七、文案语气统一
-
-全局替换：
-
-| 旧（系统视角） | 新（用户视角） |
-|---|---|
-| Activation first | Unlock your bonus |
-| Event 1 / Event 2 | Guaranteed reward / Volume rebate |
-| Operational details | Common questions |
-| Start Trading | Claim my bonus / Start earning |
-| Launch Console | （删除，不再使用 dashboard 比喻） |
-
----
-
-## 八、视觉节奏与背景
-
-现在每个 section 都是同样的深色 + 网格 + 边框，用户视觉疲劳。引入**节奏切换**：
-
-- Hero / RewardSnapshot / FinalCTA → 深色 + mainnet-gold 强调（"高光屏"）
-- ProgressDashboard / RewardLadder → 中性背景 + 数据感（"工作屏"）
-- HowItWorks / Trust / FAQ → 更轻的背景，密度更低（"阅读屏"）
-
-通过 section 背景色微差和留白节奏区分，无需新增颜色 token。
-
----
-
-## 九、最终页面顺序
-
-```text
-1. Hero (with Reward Meter visual)
-2. Reward Snapshot  ← 新增
-3. ProgressDashboard (登录可见 / 未登录占位)
-4. HowItWorks (3 步精简)
-5. RewardLadder (横向阶梯表)
-6. Trust & Rules  ← TrustBar + KeyRules 合并
-7. FAQ
-8. FinalCTA
-```
-
----
-
-## 技术落地清单
-
-需要改动的文件：
-
-- `src/components/mainnet-launch/Hero.tsx` — 重写文案、CTA、metric 行；右侧 visual 替换为 RewardMeter
-- `src/components/mainnet-launch/LaunchVisual.tsx` — 替换为 `RewardMeter.tsx`（新组件，单一进度条 + 金额标注）
-- `src/components/mainnet-launch/RewardSnapshot.tsx` — **新建**，两张并列卡
-- `src/components/mainnet-launch/ProgressDashboard.tsx` — 改为登录态依赖；未登录态用占位
-- `src/components/mainnet-launch/HowItWorks.tsx` — 文案精简
-- `src/components/mainnet-launch/RewardLadder.tsx` — 改为横向阶梯表
-- `src/components/mainnet-launch/TrustBar.tsx` + `KeyRules.tsx` — 合并为 `TrustAndRules.tsx`
-- `src/components/mainnet-launch/FinalCTA.tsx` + `MobileFloatingCTA.tsx` — CTA 文案统一为 `Claim My Bonus`
-- `src/pages/MainnetLaunch.tsx` — 调整 section 顺序
-- 文档同步：`CAMPAIGN_DESIGN.md` 和 `mem://design/campaign-landing-design-system.md` 增加"campaign 落地页转化漏斗节奏"和"benefit-led 文案规则"。
-
-埋点保持现有 `trackMainnetLaunch` 事件不变，新增 `mainnet_launch_reward_snapshot_view` / `_cta_click` 区分位置来源。
+### 11. 页面 SEO meta（MainnetLaunch.tsx）
+- title `OmenX Mainnet Launch — First Trade Bonus` → `OmenX Mainnet Launch — Up to $250 USDC for trading`
+- description 已经 OK，可微调：`Make your first trade on OmenX mainnet and we'll send you USDC. $2–$50 guaranteed plus up to $200 in volume rebates. Ends May 28.`
 
 ---
 
-确认后我会按这个顺序逐模块落地，先做 Hero + RewardSnapshot（影响最大），再处理后续模块。
+## 三、贯穿全页的语气规则（写进 memory）
+
+1. **不要把模块代号当 UI 文案**：`Final window`、`Reward Meter`、`Campaign position`、`Account` 这类是 spec 用语，UI 上要么删掉要么换成用户语言。
+2. **避开行业黑话 / 系统术语**：`activate`、`activation threshold`、`settlement rails`、`pre-tier`、`Event 1/Event 2`、`processing` 全部翻译为人话。
+3. **CTA 要随上下文递进**，不要每屏都是 `Claim My Bonus`：
+   - Hero / Floating / FinalCTA → `Claim My Bonus`
+   - HowItWorks → `Start my first trade`
+   - ProgressDashboard → `Place a trade`
+   - RewardLadder → `Start climbing`
+4. **第二人称、主动语态、动词开头**："we send you" 而不是 "rewards are distributed"。
+5. **规则解释用"如果你 → 我们就"句式**，不用"qualifying trade"、"reward window is fixed"这种被动公文。
+
+---
+
+## 四、技术落地清单
+
+需要改动的文件（仅文案，不动结构与样式）：
+
+- `src/components/mainnet-launch/Hero.tsx` — sub / 副信息行
+- `src/components/mainnet-launch/RewardMeter.tsx` — eyebrow、卡片标题与说明
+- `src/components/mainnet-launch/RewardSnapshot.tsx` — 卡片 eyebrow、动作/奖励文案
+- `src/components/mainnet-launch/ProgressDashboard.tsx` — eyebrow、标题、4 项 row 标签 + CTA
+- `src/components/mainnet-launch/HowItWorks.tsx` — 标题、描述、step body、CTA
+- `src/components/mainnet-launch/RewardLadder.tsx` — 描述、列头、底部说明、CTA
+- `src/components/mainnet-launch/TrustAndRules.tsx` — eyebrow、描述、规则 label/body
+- `src/components/mainnet-launch/FAQ.tsx` — 标题、描述、Event 1/2 替换
+- `src/components/mainnet-launch/FinalCTA.tsx` — eyebrow、H2、副文、timeline 标签
+- `src/pages/MainnetLaunch.tsx` — `<title>` 与 meta description
+- `.lovable/memory/design/campaign-landing-design-system.md` — 新增"campaign 落地页文案语气规则"小节，沉淀上面四条规则供后续 campaign 复用
+
+确认后我会按上面的逐模块次序改文案，一次一文件，不动布局与样式。

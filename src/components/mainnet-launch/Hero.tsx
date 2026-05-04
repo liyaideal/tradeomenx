@@ -26,7 +26,7 @@ export const Hero = ({ onCta }: HeroProps) => {
               Your first mainnet trade <span className="text-mainnet-gold">pays you back.</span>
             </h1>
             <p className="max-w-xl text-lg leading-8 text-muted-foreground">
-              Trade $5K in volume to unlock a guaranteed USDC bonus. Keep trading to climb the rebate ladder up to $200.
+              Hit $5K in trading volume and we'll send you USDC. Keep going and we'll send you more — up to $250 over the launch window.
             </p>
           </div>
 
@@ -48,9 +48,9 @@ export const Hero = ({ onCta }: HeroProps) => {
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs text-muted-foreground">
             <span className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse" />
-              Mainnet live · settle in USDC
+              Live on mainnet · withdraw anytime
             </span>
-            <span>Rewards paid daily, 18:00 UTC+8</span>
+            <span>Paid out every day at 18:00 UTC+8</span>
           </div>
         </div>
 

@@ -17,12 +17,12 @@ export const RewardMeter = () => {
       <div className="relative z-10 flex h-full min-h-[300px] flex-col justify-between gap-8 md:min-h-[400px]">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-mainnet-gold/80">Reward Meter</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-mainnet-gold/80">Your reward, at a glance</p>
             <h2 className="mt-2 font-mono text-2xl font-semibold tracking-[-0.02em] text-foreground md:text-3xl">
               Up to <span className="text-mainnet-gold">$250</span> in USDC
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Guaranteed first-trade bonus + volume rebate, paid daily.
+              A guaranteed bonus on your first $5K. A bigger rebate the more you trade.
             </p>
           </div>
           <div className="hidden h-12 w-12 items-center justify-center rounded-full border border-mainnet-gold/40 bg-mainnet-gold/10 md:flex">
@@ -47,9 +47,9 @@ export const RewardMeter = () => {
             <div className="mt-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
               <span>$0</span>
               <span style={{ marginLeft: `${activationPct - 8}%` }} className="text-mainnet-gold">
-                $5K · activate
+                $5K · bonus unlocks
               </span>
-              <span>$1M · max</span>
+              <span>$1M · top tier</span>
             </div>
           </div>
 
@@ -58,24 +58,24 @@ export const RewardMeter = () => {
             <div className="rounded-md border border-mainnet-gold/30 bg-mainnet-gold/10 p-4">
               <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-mainnet-gold">
                 <Coins className="h-3.5 w-3.5" />
-                First Trade
+                First $5K bonus
               </div>
               <p className="mt-2 font-mono text-2xl font-semibold text-foreground">$2 – $50</p>
-              <p className="mt-1 text-xs text-muted-foreground">guaranteed at $5K volume</p>
+              <p className="mt-1 text-xs text-muted-foreground">guaranteed payout</p>
             </div>
             <div className="rounded-md border border-mainnet-orange/30 bg-mainnet-orange/10 p-4">
               <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-mainnet-orange">
                 <Trophy className="h-3.5 w-3.5" />
-                Volume Rebate
+                Volume rebate
               </div>
               <p className="mt-2 font-mono text-2xl font-semibold text-foreground">up to $200</p>
-              <p className="mt-1 text-xs text-muted-foreground">7 tiers · highest reached</p>
+              <p className="mt-1 text-xs text-muted-foreground">the more you trade, the more you keep</p>
             </div>
           </div>
 
           {user && volume > 0 && (
             <p className="font-mono text-xs text-muted-foreground">
-              your volume:{" "}
+              You're at{" "}
               <span className="text-foreground">{formatUsd(volume)}</span>
             </p>
           )}
