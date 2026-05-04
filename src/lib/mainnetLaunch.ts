@@ -33,9 +33,8 @@ export const getCountdownParts = (target = MAINNET_LAUNCH_END): CountdownParts =
 
 export const formatShortCountdown = (parts: CountdownParts) => {
   if (parts.ended) return "Ended";
-  if (parts.days > 0) return `${parts.days}d ${parts.hours}h`;
-  if (parts.hours > 0) return `${parts.hours}h ${parts.minutes}m`;
-  return `${parts.minutes}m ${parts.seconds}s`;
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${parts.days}d ${pad(parts.hours)}:${pad(parts.minutes)}:${pad(parts.seconds)}`;
 };
 
 export const formatLongCountdown = (parts: CountdownParts) => {
