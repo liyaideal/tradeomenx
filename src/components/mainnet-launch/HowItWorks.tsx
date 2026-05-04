@@ -6,16 +6,16 @@ interface Props { onCta: (section: string) => void; }
 
 const steps = [
   { n: "01", icon: UserPlus, title: "Sign up & deposit", body: "30-second signup. Email is enough — no KYC for the bonus." },
-  { n: "02", icon: TrendingUp, title: "Trade $5K volume", body: "Open + close on any contract market. Leverage counts." },
-  { n: "03", icon: Wallet, title: "Get paid daily", body: "USDC lands in your trading account by 18:00 UTC+8." },
+  { n: "02", icon: TrendingUp, title: "Trade $5K volume", body: "Any market, any leverage. Open and close adds to your volume." },
+  { n: "03", icon: Wallet, title: "Get paid daily", body: "USDC shows up in your account by 18:00 UTC+8 the next day." },
 ];
 
 export const HowItWorks = ({ onCta }: Props) => (
   <SectionShell id="how-it-works">
     <SectionTitle
       eyebrow="How it works"
-      title="Three steps. No tricks."
-      desc="One trade path qualifies you for both rewards. Sign up, trade, get paid."
+      title="Three steps. That's it."
+      desc="Sign up. Trade. Get paid in USDC."
     />
 
     <div className="grid gap-4 md:grid-cols-3">
@@ -36,7 +36,7 @@ export const HowItWorks = ({ onCta }: Props) => (
 
     <div className="mt-8 flex justify-start">
       <Button onClick={() => onCta("how_it_works")} className="w-full gap-2 rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90 md:w-auto">
-        Claim My Bonus <ArrowRight className="h-4 w-4" />
+        Start my first trade <ArrowRight className="h-4 w-4" />
       </Button>
     </div>
   </SectionShell>

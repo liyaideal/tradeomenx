@@ -14,15 +14,15 @@ export const ProgressDashboard = ({ onCta }: Props) => {
   if (!user || !event1Qualified) return null;
 
   const rows = [
-    ["Event 1 Status", "Qualified", "$2-$50 USDC · processing"],
-    ["Current Tier", currentTier ? formatUsd(currentTier.volume, true) : "Pre-tier", `rebate $${currentTier?.rebate ?? 0}`],
-    ["Next Unlock", nextTier ? formatUsd(nextTier.volume, true) : "Max tier", nextTier ? `${formatUsd(volumeToNextTier)} remaining` : "all tiers unlocked"],
-    ["Time Left", <Countdown key="countdown" compact />, "ends May 28, 2026"],
+    ["First-trade bonus", "Unlocked", "$2 – $50 USDC on the way"],
+    ["Current tier", currentTier ? `${formatUsd(currentTier.volume, true)} volume` : "Not yet on the ladder", currentTier ? `$${currentTier.rebate} rebate locked in` : "trade more to qualify"],
+    ["Next tier", nextTier ? `${formatUsd(nextTier.volume, true)} volume` : "Top tier reached", nextTier ? `${formatUsd(volumeToNextTier)} to go` : "all tiers unlocked"],
+    ["Time left", <Countdown key="countdown" compact />, "closes May 28"],
   ] as const;
 
   return (
     <SectionShell className="bg-mainnet-surface/30">
-      <SectionTitle eyebrow="Account" title="Your campaign position" desc="Your live trading volume is already above the activation threshold. The dashboard now tracks the next rebate unlock." />
+      <SectionTitle eyebrow="Your progress" title="You're in. Here's where you stand." desc="You've cleared the $5K bonus threshold. Now every trade pushes you up the rebate ladder." />
 
       <div className="rounded-sm border border-border/50 bg-background/40 p-5 md:p-7">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -32,14 +32,14 @@ export const ProgressDashboard = ({ onCta }: Props) => {
           </div>
           <div className="flex items-center gap-2 border border-trading-green/25 bg-trading-green/10 px-3 py-2 font-mono text-xs text-trading-green">
             <CheckCircle2 className="h-4 w-4" />
-            activation complete
+            bonus unlocked
           </div>
         </div>
 
         <div className="mt-7">
           <div className="mb-3 flex items-center justify-between font-mono text-xs text-muted-foreground">
-            <span>{currentTier ? `Current ${formatUsd(currentTier.volume, true)}` : "Pre-tier"}</span>
-            <span>{nextTier ? `${Math.round(progressToNext)}% to ${formatUsd(nextTier.volume, true)}` : "100%"}</span>
+            <span>{currentTier ? `Now at ${formatUsd(currentTier.volume, true)}` : "Not yet on the ladder"}</span>
+            <span>{nextTier ? `${Math.round(progressToNext)}% to ${formatUsd(nextTier.volume, true)}` : "Top tier"}</span>
           </div>
           <Progress value={progressToNext} className="h-2 rounded-none bg-mainnet-gold/10 [&>div]:rounded-none [&>div]:bg-mainnet-gold" />
         </div>
@@ -57,7 +57,7 @@ export const ProgressDashboard = ({ onCta }: Props) => {
 
       <div className="mt-8">
         <Button onClick={() => onCta("progress")} className="w-full gap-2 rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90 md:w-auto">
-          Go to Events <ArrowRight className="h-4 w-4" />
+          Place a trade <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </SectionShell>

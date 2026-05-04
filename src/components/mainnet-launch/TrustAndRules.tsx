@@ -10,17 +10,17 @@ const trust = [
 
 const rules = [
   ["Volume", "Open + close amounts on contract markets. Spot and fiat deposits don't count."],
-  ["Settlement", "Daily by 18:00 UTC+8 for the previous day's qualifying volume."],
+  ["Payout time", "Every day by 18:00 UTC+8 for yesterday's volume."],
   ["Highest tier", "Rebates pay the top tier reached, not the sum of every tier."],
-  ["Wash trading", "Self-matching and quality filters apply. Suspicious volume is excluded."],
+  ["Fair play", "We screen out self-matching and bot-like patterns. Trade normally and you're fine."],
 ];
 
 export const TrustAndRules = () => (
   <SectionShell>
     <SectionTitle
-      eyebrow="Trust & rules"
+      eyebrow="Why you can trust this"
       title="Real money. Clear terms."
-      desc="The reward window runs on real settlement rails — and the rules fit on one screen."
+      desc="Real USDC, paid from our marketing budget. Here's exactly how it works."
     />
 
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
