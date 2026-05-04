@@ -17,3 +17,10 @@ Rules:
 - Future campaigns must not all share the same hero/page skeleton with only copy or artwork swapped.
 - Reuse guardrails and primitives, but vary archetype, hero composition, visual metaphor, rhythm, and reward presentation.
 - Homepage campaign carousel banners must be structured UI, not baked poster images: configurable DOM text/labels/CTA/metrics on the left, campaign visual slot on the right by default, one CTA, max three slides, 6–8s rotation, pause on hover/focus, and no reward/CTA text embedded inside artwork.
+
+Campaign copy voice (mandatory for all campaign landing pages):
+- Never put module/spec codenames in UI: no `Final window`, `Reward Meter`, `Campaign position`, `Account`, `Activation`, `Event 1/Event 2`, `Pre-tier`, `processing`, `settlement rails`, `qualifying trade`. Translate to user language or delete.
+- Second person, active voice, verb-first. Prefer "we send you" / "you get" over "rewards are distributed".
+- Explain rules with "if you → we will" framing, never passive compliance prose ("the reward window is fixed").
+- CTAs must escalate by section context, not repeat the same label everywhere. Hero / floating / final = headline CTA (e.g. `Claim My Bonus`); intermediate sections use action-specific verbs (`Start my first trade`, `Place a trade`, `Start climbing`).
+- No self-referential meta copy ("the dashboard now tracks…", "the rules fit on one screen"). Talk about the user's outcome, not the page itself.
