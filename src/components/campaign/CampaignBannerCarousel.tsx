@@ -157,10 +157,9 @@ const banners: CampaignBannerConfig[] = [
   {
     id: "mainnet-launch",
     href: "/mainnet-launch",
-    eyebrow: "Mainnet Launch",
     title: "Trade once. Earn up to $200.",
     ctaLabel: "Join Now",
-    status: { text: "Live", tone: "success" },
+    qualifierChip: { text: "5 winners weekly", tone: "accent" },
     heroMetric: { value: "$5K", label: "Weekly pool" },
     countdown: true,
     theme: "gold",
@@ -169,10 +168,9 @@ const banners: CampaignBannerConfig[] = [
   {
     id: "hedge",
     href: "/hedge",
-    eyebrow: "Hedge Campaign",
     title: "Hedge your prediction trades. Free.",
     ctaLabel: "Open Hedge",
-    status: { text: "Live", tone: "success" },
+    qualifierChip: { text: "No deposit", tone: "success" },
     heroMetric: { value: "$100", label: "Free hedge credit" },
     theme: "primary",
     visual: <DiagramVisual theme="primary" />,
