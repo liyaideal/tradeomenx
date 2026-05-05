@@ -210,7 +210,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
         <CarouselContent className="-ml-0">
           {banners.map((banner) => {
             const t = themeMap[banner.theme];
-            const hasBgImage = !!banner.backgroundImage && !isMobile;
+            const hasBgImage = !!banner.backgroundImage;
             return (
               <CarouselItem key={banner.id} className="min-w-0 pl-0">
                 <button
