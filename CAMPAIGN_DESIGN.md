@@ -224,7 +224,7 @@ type CampaignBannerConfig = {
 - Maximum three active slides.
 - Auto-rotate every `6–8s`.
 - Pause auto-rotation on hover/focus.
-- Use manual pagination dots.
+- Use manual pagination dots — follow the product-level **Pagination Dots** spec in `DESIGN.md` §5 (active `bg-primary`, never re-themed per campaign). Pagination is product chrome, not campaign content.
 - The slide must use the same visual language as its landing page, but future campaigns must vary archetype and composition so the carousel does not become a repeated template.
 - It must not create horizontal overflow at `1024px`, `1280px`, `1366px`, or mobile widths.
 - One primary CTA only.

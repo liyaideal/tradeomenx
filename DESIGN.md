@@ -261,6 +261,22 @@ Tooltip content is explanatory text and must be visually stable across contexts.
 - **`.option-chip-active`**: Primary border + subtle primary bg
 - **`.option-chip-inactive`**: Muted bg, transparent border
 
+### Pagination Dots
+
+Used by any horizontal carousel (campaign banners, settlement carousels, onboarding, future product carousels). It is a **product-level component** — never re-themed per slide or per campaign.
+
+| State | Width | Height | Background | Notes |
+|---|---|---|---|---|
+| Active | `w-6` | `h-1.5` | `bg-primary` | Always primary, regardless of slide content |
+| Inactive | `w-1.5` | `h-1.5` | `bg-muted-foreground/40` | Hover: `bg-muted-foreground/60` |
+
+- Container: `flex justify-center gap-2 mt-3`
+- Shape: `rounded-full`
+- Transition: `transition-all duration-200`
+- Aria: each dot is a `<button>` with `aria-label="Go to slide N"`
+
+Do NOT swap the active color for theme/brand accents (gold, violet, green) — pagination is chrome, not content.
+
 ---
 
 ## 6. Address & Hash Truncation
