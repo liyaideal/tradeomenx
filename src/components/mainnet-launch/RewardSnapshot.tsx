@@ -45,17 +45,17 @@ export const RewardSnapshot = () => (
         return (
           <div
             key={card.eyebrow}
-            className={`group relative overflow-hidden rounded-md border ${accentBorder} bg-background/40 p-6 transition-colors hover:bg-background/60 md:p-8`}
+            className={`group relative overflow-hidden rounded-md border ${accentBorder} bg-background/40 p-5 transition-colors hover:bg-background/60 md:p-8`}
           >
-            <div className={`mb-6 inline-flex items-center gap-2 rounded-full border ${accentBorder} ${accentBg} px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] ${accentText}`}>
+            <div className={`mb-4 inline-flex items-center gap-2 rounded-full border ${accentBorder} ${accentBg} px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] ${accentText} md:mb-6`}>
               <Icon className="h-3.5 w-3.5" />
               {card.eyebrow}
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-3.5 md:space-y-5">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{card.actionLabel}</p>
-                <p className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-foreground md:text-3xl">{card.action}</p>
+                <p className="mt-2 text-xl font-semibold tracking-[-0.02em] text-foreground md:text-3xl">{card.action}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{card.actionDetail}</p>
               </div>
 
@@ -65,14 +65,14 @@ export const RewardSnapshot = () => (
               </div>
 
               <div>
-                <p className={`font-mono text-3xl font-semibold tracking-[-0.02em] md:text-4xl ${accentText}`}>{card.reward}</p>
+                <p className={`font-mono text-[26px] font-semibold tracking-[-0.02em] md:text-4xl ${accentText}`}>{card.reward}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{card.rewardDetail}</p>
               </div>
             </div>
 
             <a
               href="#how-it-works"
-              className="mt-7 inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+              className="mt-5 inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground md:mt-7"
             >
               See the 3 steps
               <ArrowDown className="h-3 w-3" />

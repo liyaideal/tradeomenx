@@ -36,7 +36,7 @@ export const TrustAndRules = () => (
 
       <div className="overflow-hidden rounded-md border border-border/50 bg-background/30">
         {rules.map(([label, body]) => (
-          <div key={label} className="grid grid-cols-[120px_1fr] gap-4 border-b border-border/40 px-5 py-4 last:border-b-0">
+          <div key={label} className="grid grid-cols-1 gap-1 border-b border-border/40 px-5 py-4 last:border-b-0 md:grid-cols-[120px_1fr] md:gap-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-mainnet-gold">{label}</p>
             <p className="text-sm leading-6 text-muted-foreground">{body}</p>
           </div>

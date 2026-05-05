@@ -22,10 +22,10 @@ export const FAQ = () => (
     >
       {faqs.map((faq) => (
         <AccordionItem key={faq.id} value={faq.id} className="border-border/40">
-          <AccordionTrigger className="py-5 text-left text-sm font-semibold text-foreground hover:no-underline md:text-base">
+          <AccordionTrigger className="py-4 text-left text-sm font-semibold text-foreground hover:no-underline md:py-5 md:text-base">
             <span className="pr-6">{faq.q}</span>
           </AccordionTrigger>
-          <AccordionContent className="pb-5 text-sm leading-6 text-muted-foreground md:text-base">
+          <AccordionContent className="pb-4 text-sm leading-6 text-muted-foreground md:pb-5 md:text-base">
             {faq.a}
           </AccordionContent>
         </AccordionItem>
