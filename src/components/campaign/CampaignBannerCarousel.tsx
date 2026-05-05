@@ -355,11 +355,11 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
           <button
             key={banner.id}
             type="button"
-            aria-label={`Go to campaign slide ${index + 1}`}
+            aria-label={`Go to slide ${index + 1}`}
             onClick={() => api?.scrollTo(index)}
             className={cn(
-              "h-1.5 rounded-full transition-all",
-              selected === index ? "w-6 bg-mainnet-gold" : "w-1.5 bg-muted-foreground/40",
+              "h-1.5 rounded-full transition-all duration-200",
+              selected === index ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/40 hover:bg-muted-foreground/60",
             )}
           />
         ))}
