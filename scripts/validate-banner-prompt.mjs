@@ -103,15 +103,39 @@ const FORBIDDEN = [
 
 // ---- Runner --------------------------------------------------------------
 
+function stripNegatedClauses(text) {
+  // Remove negated clauses so "do not recreate" / "no human figures" don't
+  // trip the forbidden detectors. We strip from a negation cue up to the
+  // next sentence/clause boundary.
+  return text.replace(
+    /\b(do not|don't|never|no|without|forbidden:?|avoid|excluding|except)\b[^.;\n]{0,200}/gi,
+    " "
+  );
+}
+
 function validate(prompt) {
   const failures = [];
   const passes = [];
+  const positiveOnly = stripNegatedClauses(prompt);
 
   for (const rule of REQUIRED) {
     const hit = rule.any.some((re) => re.test(prompt));
     if (hit) passes.push({ kind: "required", id: rule.id });
     else failures.push({ kind: "missing-required", id: rule.id, why: rule.why });
   }
+
+  for (const rule of FORBIDDEN) {
+    const matched = rule.patterns.find((re) => re.test(positiveOnly));
+    if (matched) {
+      const sample = positiveOnly.match(matched)?.[0]?.trim() ?? "";
+      failures.push({ kind: "forbidden", id: rule.id, why: rule.why, sample });
+    } else {
+      passes.push({ kind: "forbidden-clean", id: rule.id });
+    }
+  }
+
+  return { ok: failures.length === 0, failures, passes };
+}
 
   for (const rule of FORBIDDEN) {
     const matched = rule.patterns.find((re) => re.test(prompt));
