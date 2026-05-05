@@ -26,7 +26,7 @@ type CampaignBannerConfig = {
 };
 
 const labelClassName = {
-  accent: "border-mainnet-gold/30 bg-mainnet-gold/10 text-mainnet-gold",
+  accent: "border-mainnet-gold/30 bg-mainnet-gold/10 text-mainnet-gold font-thin",
   success: "border-trading-green/25 bg-trading-green/10 text-trading-green",
   neutral: "border-border/60 bg-background/35 text-muted-foreground",
 };
@@ -159,7 +159,7 @@ const banners: CampaignBannerConfig[] = [
     href: "/mainnet-launch",
     title: "Trade once. Earn up to $200.",
     ctaLabel: "Join Now",
-    qualifierChip: { text: "5 winners weekly", tone: "accent" },
+    qualifierChip: { text: "100% WIN RATE", tone: "accent" },
     heroMetric: { value: "$5K", label: "Weekly pool" },
     countdown: true,
     theme: "gold",
