@@ -263,18 +263,19 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     <div className="hidden min-w-0 sm:block">{renderVisual(banner.visual)}</div>
                   )}
                 </div>
-                {isLaunch && (
-                  <div className="absolute bottom-4 right-4 z-10 flex flex-wrap items-center justify-end gap-2 md:bottom-6 md:right-6">
-                    {banner.countdown && (
-                      <div className="border border-mainnet-gold/30 bg-background/70 px-3 py-2 font-mono text-xs text-muted-foreground backdrop-blur-md">
-                        <span className="text-foreground">Ends </span><Countdown compact className="text-mainnet-gold" />
-                      </div>
-                    )}
-                    <div className="inline-flex items-center gap-2 border border-mainnet-gold bg-mainnet-gold px-4 py-2 font-mono text-xs font-semibold uppercase text-background transition-transform group-hover:translate-x-1">
-                      {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
+                <div className="absolute bottom-4 right-4 z-10 flex flex-wrap items-center justify-end gap-2 md:bottom-6 md:right-6">
+                  {banner.countdown && (
+                    <div className="border border-mainnet-gold/30 bg-background/70 px-3 py-2 font-mono text-xs text-muted-foreground backdrop-blur-md">
+                      <span className="text-foreground">Ends </span><Countdown compact className="text-mainnet-gold" />
                     </div>
+                  )}
+                  <div className={cn(
+                    "inline-flex items-center gap-2 border px-4 py-2 font-mono text-xs font-semibold uppercase transition-transform group-hover:translate-x-1",
+                    isLaunch ? "border-mainnet-gold bg-mainnet-gold text-background" : "border-primary bg-primary text-primary-foreground",
+                  )}>
+                    {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
                   </div>
-                )}
+                </div>
               </button>
             </CarouselItem>
             );
