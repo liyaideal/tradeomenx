@@ -71,7 +71,7 @@ const MainnetLaunch = () => {
         <EventsDesktopHeader />
       </div>
 
-      <main className="w-full max-w-full overflow-hidden">
+      <main className="w-full max-w-full overflow-hidden pb-24 md:pb-0">
         <div ref={heroRef}>
           <Hero onCta={handleCta} />
         </div>
