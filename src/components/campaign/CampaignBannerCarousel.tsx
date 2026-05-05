@@ -16,10 +16,9 @@ type ThemeKey = "gold" | "primary" | "green" | "violet";
 type CampaignBannerConfig = {
   id: string;
   href: string;
-  eyebrow: string;            // ≤ 2 words
   title: string;              // ≤ 7 words
   ctaLabel: string;           // ≤ 2 words
-  status?: { text: string; tone: "accent" | "success" | "neutral" };
+  qualifierChip?: { text: string; tone: "accent" | "success" | "neutral" };
   heroMetric: { value: string; label: string };
   countdown?: boolean;
   theme: ThemeKey;
