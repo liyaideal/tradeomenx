@@ -5,10 +5,15 @@ import { SectionShell, SectionTitle } from "./SectionShell";
 import { useMainnetLaunchProgress } from "@/hooks/useMainnetLaunchProgress";
 import { cn } from "@/lib/utils";
 
-interface Props { onCta: (section: string) => void; }
+interface Props {
+  onCta: (section: string) => void;
+  /** Optional override — bypasses the live hook. Used by the campaign style guide playground. */
+  progressOverride?: { user: unknown; volume: number; currentTier: { volume: number; rebate: number } | null };
+}
 
-export const RewardLadder = ({ onCta }: Props) => {
-  const { user, volume, currentTier } = useMainnetLaunchProgress();
+export const RewardLadder = ({ onCta, progressOverride }: Props) => {
+  const live = useMainnetLaunchProgress();
+  const { user, volume, currentTier } = progressOverride ?? live;
   const maxTierVolume = MAINNET_REBATE_TIERS[MAINNET_REBATE_TIERS.length - 1].volume;
 
   return (

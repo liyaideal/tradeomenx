@@ -10,6 +10,7 @@ import {
   LayoutTemplate,
   Network,
   ShieldCheck,
+  Sparkles,
   Trophy,
   WalletCards,
 } from "lucide-react";
@@ -18,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { CampaignPlayground } from "./Playground";
 
 const principles = [
   {
@@ -217,6 +219,7 @@ const CampaignStyleGuide = () => {
             <TabsTrigger value="principles" className="gap-2 whitespace-nowrap"><ShieldCheck className="h-4 w-4" />Principles</TabsTrigger>
             <TabsTrigger value="archetypes" className="gap-2 whitespace-nowrap"><Award className="h-4 w-4" />Archetypes</TabsTrigger>
             <TabsTrigger value="components" className="gap-2 whitespace-nowrap"><LayoutTemplate className="h-4 w-4" />Components</TabsTrigger>
+            <TabsTrigger value="playground" className="gap-2 whitespace-nowrap"><Sparkles className="h-4 w-4" />Playground</TabsTrigger>
             <TabsTrigger value="qa" className="gap-2 whitespace-nowrap"><CheckCircle2 className="h-4 w-4" />QA</TabsTrigger>
           </TabsList>
 
@@ -318,6 +321,10 @@ const CampaignStyleGuide = () => {
                 </CardContent>
               </Card>
             </section>
+          </TabsContent>
+
+          <TabsContent value="playground" className="mt-0">
+            <CampaignPlayground />
           </TabsContent>
 
           <TabsContent value="qa" className="mt-0 space-y-6">

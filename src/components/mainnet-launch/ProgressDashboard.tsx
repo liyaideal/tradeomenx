@@ -6,10 +6,18 @@ import { SectionShell, SectionTitle } from "./SectionShell";
 import { formatUsd } from "@/lib/mainnetLaunch";
 import { useMainnetLaunchProgress } from "@/hooks/useMainnetLaunchProgress";
 
-interface Props { onCta: (section: string) => void; }
+type ProgressOverride = ReturnType<typeof useMainnetLaunchProgress>;
 
-export const ProgressDashboard = ({ onCta }: Props) => {
-  const { user, event1Qualified, volume, currentTier, nextTier, progressToNext, volumeToNextTier } = useMainnetLaunchProgress();
+interface Props {
+  onCta: (section: string) => void;
+  /** Optional override — bypasses the live hook. Used by the campaign style guide playground. */
+  progressOverride?: Partial<ProgressOverride> & { user: unknown; event1Qualified: boolean };
+}
+
+export const ProgressDashboard = ({ onCta, progressOverride }: Props) => {
+  const live = useMainnetLaunchProgress();
+  const source = progressOverride ?? live;
+  const { user, event1Qualified, volume = 0, currentTier = null, nextTier = null, progressToNext = 0, volumeToNextTier = 0 } = source as ProgressOverride;
 
   if (!user || !event1Qualified) return null;
 
