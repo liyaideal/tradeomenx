@@ -66,6 +66,23 @@ const REQUIRED = [
       /do not add[^.]*?(text|logos?|ui|frames?)/i,
     ],
   },
+  {
+    id: "scene-context-described",
+    why: "Per-campaign environment must be described concretely (e.g. 'pile of coins', 'volumetric fog'). Generic 'extend environment' produces empty black banners.",
+    any: [
+      /\b(pile|stack|scattered|fog|mist|smoke|bokeh|particles?|orbs?|reflections?|grid|floor|surface|coins?|rain|sparks?|dust|haze|underglow|atmosphere)\b/i,
+    ],
+  },
+  {
+    id: "light-direction-described",
+    why: "Light direction + character must be specified (e.g. 'rim light from upper-right', 'underglow').",
+    any: [/rim light|from\s+(upper|lower|above|below|the\s+(left|right|top|bottom))|falloff|underglow|backlight|key light/i],
+  },
+  {
+    id: "monochrome-color-stated",
+    why: "Must declare a monochromatic palette + dominant color (e.g. 'monochromatic warm gold + black').",
+    any: [/monochromatic[\s\S]{0,80}(gold|purple|violet|green|cyan|amber|red|blue|orange|silver|magenta|teal)/i],
+  },
 ];
 
 /** Phrases that MUST NOT appear — they re-describe the subject, which means

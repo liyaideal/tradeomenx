@@ -46,7 +46,11 @@ Every new banner image must pass all of these before being committed:
 
 ## Reusable AI prompt template (image-to-image, "extend the world")
 
-When asked for a new banner image prompt, hand this prompt + the campaign's main visual reference to the user. The reference is the subject — do **not** describe it in words.
+The prompt has TWO parts:
+- **Fixed scaffold** (camera framing, subject preservation, hard constraints) — never changes.
+- **Per-campaign environment block** (3 slots: SCENE, LIGHT, COLOR) — describes the world the camera is pulling back to reveal. Without this the AI defaults to empty black space and the banner looks dead.
+
+Critical rule: NEVER describe the subject (its shape, material, engravings, text). The subject is the uploaded reference and must stay pixel-faithful. The 3 slots describe ONLY the surrounding world.
 
 ```
 [Image-to-image extension]
@@ -57,24 +61,39 @@ Task: Treat the uploaded image as the CENTERPIECE of a wider 21:9 ultra-wide cin
 
 Camera / framing:
 - Pull the camera back to a wide 21:9 view (minimum 2520x1080).
-- Place the uploaded image (unchanged, uncropped, fully contained) anchored to the RIGHT side, occupying roughly the right 25-32% of the canvas, vertically centered. The subject must be fully visible (top, bottom, and both sides not clipped).
-- Do NOT crop, zoom into, rotate, mirror, or alter the uploaded image. All its original text and details must remain fully visible and legible.
+- Place the uploaded image (unchanged, uncropped, fully contained) anchored to the RIGHT side, occupying roughly the right 25-32% of the canvas, vertically centered, slight tilt allowed. The subject must be fully visible (top, bottom, both sides not clipped).
+- Do NOT crop, zoom into, rotate beyond a slight tilt, mirror, or alter the uploaded image. All its original text and details must remain fully visible and legible.
 
-Scene extension (this is the only thing AI generates):
-- Extend the surrounding environment outward from the uploaded image: same world, same atmosphere, same depth-of-field, same particle/bokeh behavior, same material language, same color temperature. Seamlessly continue what's already there — like the camera simply zoomed out horizontally.
-- LEFT 60% of the frame must be PURE SOLID BLACK (#0A0A0A) — empty negative space reserved for text overlay. No subject, no particles, no glow, no light spill, no texture. The extended atmosphere on the right must fade smoothly into solid black on the left.
+Scene extension (this is the only thing AI generates — fill in the per-campaign world below):
+- Behind and beneath the subject, build out this environment: {SCENE_CONTEXT}. Out of focus, shallow depth of field, environmental depth and weight. The world must feel like it naturally extends from the subject's surface and lighting.
+- LEFT 60% of the frame must fade to PURE SOLID BLACK (#0A0A0A) — empty negative space reserved for text overlay. No subject, no particles, no glow, no light spill, no texture, no gradient banding. The environment on the right fades smoothly into solid black on the left.
 
-Lighting & color: identical to the source. No color shift, no new hues, no relighting of the subject.
+Lighting & color:
+- {LIGHT_DIRECTION_AND_COLOR}, dramatic falloff, cinematic product still life mood (think Wong Kar-wai meets luxury advertising).
+- Monochromatic palette: {DOMINANT_COLOR} + black only. No other colors anywhere in the canvas.
+- Lighting on the subject itself stays identical to the source — no relighting, no color shift on the subject.
 
 Hard constraints:
-- Do NOT add any new text, typography, logos, UI, cards, charts, icons, badges, frames, borders, stickers, watermarks, human figures, or new foreground objects anywhere in the canvas.
+- Do NOT add any new text, typography, logos, UI cards, charts, icons, badges, frames, borders, stickers, watermarks, human figures, or new foreground objects anywhere in the canvas.
 - The ONLY text/logos/symbols allowed are those already inside the uploaded reference, kept exactly as-is.
 - Everything you generate is background environment only.
 
 Output: 21:9 ultra-wide, photorealistic, cinematic, render style matched exactly to the source.
 ```
 
-No fillable slots — the reference image carries all subject information. The prompt is universal across campaigns.
+### Slot examples (per campaign)
+
+**Mainnet Launch (gold OMENX coin):**
+- `SCENE_CONTEXT` → `"a pile of stacked gold coins (OMENX-style and USDC-style) scattered on a dark reflective surface, out of focus"`
+- `LIGHT_DIRECTION_AND_COLOR` → `"single warm gold rim light from upper-right"`
+- `DOMINANT_COLOR` → `"warm gold"`
+
+**Hedge (purple neon protective chamber):**
+- `SCENE_CONTEXT` → `"faint volumetric violet fog, soft purple bokeh orbs, subtle hexagonal grid reflections on a dark wet floor, out of focus"`
+- `LIGHT_DIRECTION_AND_COLOR` → `"cool neon purple rim light from upper-right with soft violet underglow"`
+- `DOMINANT_COLOR` → `"electric violet/purple"`
+
+When asked for a new banner prompt, the agent fills these 3 slots based on the campaign's main visual world, runs the prompt through `scripts/validate-banner-prompt.mjs`, then hands prompt + reference image to the user.
 
 ## Iteration workflow
 
