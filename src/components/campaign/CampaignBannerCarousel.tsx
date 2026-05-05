@@ -165,7 +165,8 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                       src={mainnetCoinBg}
                       alt=""
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 h-full w-full object-cover object-right"
+                      style={{ objectPosition: isMobile ? "120% center" : "140% center" }}
+                      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
                     />
                     <div
                       className={cn(
