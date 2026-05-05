@@ -137,19 +137,6 @@ function validate(prompt) {
   return { ok: failures.length === 0, failures, passes };
 }
 
-  for (const rule of FORBIDDEN) {
-    const matched = rule.patterns.find((re) => re.test(prompt));
-    if (matched) {
-      const sample = prompt.match(matched)?.[0] ?? "";
-      failures.push({ kind: "forbidden", id: rule.id, why: rule.why, sample });
-    } else {
-      passes.push({ kind: "forbidden-clean", id: rule.id });
-    }
-  }
-
-  return { ok: failures.length === 0, failures, passes };
-}
-
 function format(result) {
   const lines = [];
   lines.push(result.ok ? "PASS — prompt matches banner template" : "FAIL — prompt does not match banner template");
