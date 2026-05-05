@@ -256,6 +256,12 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                               {banner.status.text}
                             </span>
                           )}
+                          {/* Mobile: countdown sits in meta row, top-right, to keep CTA row clean */}
+                          {banner.countdown && isMobile && (
+                            <span className={cn("ml-auto border border-border/60 bg-background/35 px-2 py-1 backdrop-blur-sm", t.metric)}>
+                              <Countdown compact />
+                            </span>
+                          )}
                         </div>
                         <h3
                           className={cn(
@@ -275,7 +281,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                         </div>
                       </div>
 
-                      {/* CTA row: button + optional countdown, same line on desktop, stacked on mobile */}
+                      {/* CTA row. On mobile: just the button (countdown moved to meta row). On desktop: button + countdown inline. */}
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                         <span
                           className={cn(
@@ -285,7 +291,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                         >
                           {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
                         </span>
-                        {banner.countdown && (
+                        {banner.countdown && !isMobile && (
                           <span className="font-mono text-xs text-muted-foreground">
                             <span className="text-foreground">Ends </span>
                             <Countdown compact className={t.metric} />
