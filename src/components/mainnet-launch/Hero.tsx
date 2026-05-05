@@ -9,48 +9,11 @@ interface HeroProps {
 
 export const Hero = ({ onCta }: HeroProps) => {
   return (
-    <section className="relative w-full max-w-full overflow-hidden px-5 pb-8 pt-5 md:px-8 md:pb-20 md:pt-14">
+    <section className="relative w-full max-w-full overflow-hidden px-5 pb-8 pt-6 md:px-8 md:pb-20 md:pt-14">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.12)_1px,transparent_1px)] bg-[size:72px_72px] opacity-40" />
       <div className="absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_74%_12%,hsl(var(--mainnet-gold)/0.16),transparent_38%)]" />
 
       <div className="relative mx-auto grid w-full max-w-7xl min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
-        {/* Mobile-only compact coin above the eyebrow */}
-        <div className="relative flex justify-center lg:hidden">
-          <div
-            className="relative w-[160px]"
-            style={{ animation: "mainnet-coin-float 6s ease-in-out infinite" }}
-          >
-            <div
-              className="pointer-events-none absolute inset-0 -z-10 scale-110 rounded-full blur-2xl"
-              style={{
-                background:
-                  "radial-gradient(circle, hsl(var(--mainnet-gold) / 0.35), transparent 65%)",
-              }}
-            />
-            <img
-              src={coinImage}
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full scale-[1.03] select-none opacity-90"
-              style={{
-                filter:
-                  "blur(3px) saturate(1.1) drop-shadow(0 0 12px hsl(var(--mainnet-gold) / 0.45))",
-              }}
-              draggable={false}
-            />
-            <img
-              src={coinImage}
-              alt="OmenX Mainnet 2026 commemorative gold coin"
-              className="pointer-events-none relative h-auto w-full select-none"
-              style={{
-                filter:
-                  "drop-shadow(0 16px 28px hsl(var(--mainnet-gold) / 0.28)) blur(0.3px)",
-              }}
-              loading="eager"
-              draggable={false}
-            />
-          </div>
-        </div>
-
         <div className="min-w-0 space-y-5 lg:space-y-7">
           <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em]">
             <span className="border border-mainnet-gold/30 bg-mainnet-gold/10 px-2.5 py-1 text-mainnet-gold">
