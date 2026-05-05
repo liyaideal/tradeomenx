@@ -39,14 +39,14 @@ const REQUIRED = [
     ],
   },
   {
-    id: "right-anchor-35-45",
-    why: "Reference must be anchored to the right ~35–45% of frame.",
-    any: [/right\s*(side|35|40|45|3[0-9]\s*[-–to]+\s*4[0-9])/i, /anchored to the right/i],
+    id: "right-anchor-25-32",
+    why: "Reference must be anchored to the right ~25–32% of frame (subject fully contained, not bleeding off).",
+    any: [/right\s*(side|25|28|30|32|2[0-9]\s*[-–to]+\s*3[0-9])/i, /anchored to the right/i],
   },
   {
     id: "left-black-zone",
-    why: "Left ~55% must be pure solid black (#0A0A0A) reserved for text overlay.",
-    any: [/left\s*5[0-9]%[^.]*black/i, /pure\s*(solid\s*)?black/i, /#0A0A0A/i],
+    why: "Left ~60% must be pure solid black (#0A0A0A) reserved for text overlay.",
+    any: [/left\s*[56][0-9]%[^.]*black/i, /pure\s*(solid\s*)?black/i, /#0A0A0A/i],
   },
   {
     id: "extend-only",
@@ -54,9 +54,9 @@ const REQUIRED = [
     any: [/extend(ed|ing)?\s+(the\s+)?(surrounding\s+)?(environment|scene|world)/i, /camera\s+(pulled|zoom(ed)?)\s+(back|out)/i, /centerpiece/i],
   },
   {
-    id: "aspect-16-9",
-    why: "Aspect ratio must be 16:9.",
-    any: [/16\s*[:x]\s*9/i],
+    id: "aspect-21-9",
+    why: "Aspect ratio must be 21:9 ultra-wide (16:9 sources get over-cropped on the desktop banner card).",
+    any: [/21\s*[:x]\s*9/i, /ultra[- ]wide/i],
   },
   {
     id: "no-new-additions",
