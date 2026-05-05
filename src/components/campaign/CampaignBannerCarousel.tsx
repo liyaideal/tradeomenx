@@ -236,12 +236,9 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
               >
                 {isLaunch && (
                   <>
-                    <img
+                    <MainnetLaunchBackground
                       src={mainnetCoinBg}
-                      alt=""
-                      aria-hidden="true"
-                      style={{ objectPosition: isMobile ? "120% center" : "140% center" }}
-                      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                      textColumnRatio={isMobile ? 0.62 : 0.55}
                     />
                     <div
                       className={cn(
