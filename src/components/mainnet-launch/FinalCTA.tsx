@@ -37,7 +37,7 @@ export const FinalCTA = ({ onCta }: Props) => (
       <div className="space-y-4 md:hidden">
         {timeline.map((item) => (
           <div key={item.label} className="grid grid-cols-[auto_1fr] items-center gap-3">
-            <div className={`h-2.5 w-2.5 border bg-${item.color} border-${item.color}`} />
+            <div className={`h-2.5 w-2.5 border ${item.dotClass}`} />
             <div className="min-w-0">
               <p className={`text-sm font-semibold ${item.highlight ? "text-mainnet-gold" : "text-foreground"}`}>{item.label}</p>
               <p className="text-xs text-muted-foreground">{item.date}</p>
