@@ -246,32 +246,19 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     <div className="min-w-0">
                       <div className="mb-3 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase">
                         <span className="border border-border/60 bg-background/35 px-2 py-1 text-muted-foreground backdrop-blur-sm">{banner.eyebrow}</span>
-                        {banner.labels.map((label) => (
-                          <span key={label.text} className={cn("border px-2 py-1 backdrop-blur-sm", labelClassName[label.tone])}>
-                            {label.text}
+                        {banner.status && (
+                          <span className={cn("border px-2 py-1 backdrop-blur-sm", labelClassName[banner.status.tone])}>
+                            {banner.status.text}
                           </span>
-                        ))}
+                        )}
                       </div>
                       <h3 className={cn("max-w-2xl font-semibold leading-tight text-foreground", isMobile ? "text-2xl" : "text-3xl lg:text-4xl")}>{banner.title}</h3>
-                      <p className={cn("mt-3 max-w-2xl text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>{banner.description}</p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {banner.metrics.map((metric) => (
-                        <span key={metric.label} className="border border-border/50 bg-background/40 px-2.5 py-1 font-mono text-[10px] uppercase text-muted-foreground backdrop-blur-sm">
-                          <span className="text-foreground">{metric.value}</span> {metric.label}
-                        </span>
-                      ))}
+                    <div className="flex flex-wrap items-baseline gap-2 font-mono">
+                      <span className={cn("font-semibold text-mainnet-gold", isMobile ? "text-xl" : "text-2xl")}>{banner.heroMetric.value}</span>
+                      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{banner.heroMetric.label}</span>
                     </div>
                   </div>
-                  {!isLaunch && (
-                    <div className="flex min-w-0 flex-col justify-between gap-3 md:items-end">
-                      <div className={cn("w-full min-w-0", isMobile && "hidden sm:block")}>{renderVisual(banner.visual)}</div>
-                      <div className="flex w-full flex-wrap items-center justify-between gap-3 md:justify-end">
-                        <div className="inline-flex items-center gap-2 border border-mainnet-gold bg-mainnet-gold px-4 py-2 font-mono text-xs font-semibold uppercase text-background transition-transform group-hover:translate-x-1">
-                          {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
-                        </div>
-                      </div>
-                    </div>
                   )}
                 </div>
                 {isLaunch && (
