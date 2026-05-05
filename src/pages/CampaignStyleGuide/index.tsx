@@ -219,6 +219,7 @@ const CampaignStyleGuide = () => {
             <TabsTrigger value="principles" className="gap-2 whitespace-nowrap"><ShieldCheck className="h-4 w-4" />Principles</TabsTrigger>
             <TabsTrigger value="archetypes" className="gap-2 whitespace-nowrap"><Award className="h-4 w-4" />Archetypes</TabsTrigger>
             <TabsTrigger value="components" className="gap-2 whitespace-nowrap"><LayoutTemplate className="h-4 w-4" />Components</TabsTrigger>
+            <TabsTrigger value="playground" className="gap-2 whitespace-nowrap"><Sparkles className="h-4 w-4" />Playground</TabsTrigger>
             <TabsTrigger value="qa" className="gap-2 whitespace-nowrap"><CheckCircle2 className="h-4 w-4" />QA</TabsTrigger>
           </TabsList>
 
