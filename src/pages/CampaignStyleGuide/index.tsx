@@ -10,6 +10,7 @@ import {
   LayoutTemplate,
   Network,
   ShieldCheck,
+  Sparkles,
   Trophy,
   WalletCards,
 } from "lucide-react";
@@ -18,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { CampaignPlayground } from "./Playground";
 
 const principles = [
   {
