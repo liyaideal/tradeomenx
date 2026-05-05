@@ -67,13 +67,25 @@ export const Hero = ({ onCta }: HeroProps) => {
                   "radial-gradient(circle, hsl(var(--mainnet-gold) / 0.35), transparent 65%)",
               }}
             />
+            {/* Edge-feathering layer: blurred copy masks jagged alpha edges */}
+            <img
+              src={coinImage}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 h-full w-full scale-[1.025] select-none opacity-90"
+              style={{
+                filter:
+                  "blur(6px) saturate(1.1) drop-shadow(0 0 24px hsl(var(--mainnet-gold) / 0.45))",
+              }}
+              draggable={false}
+            />
+            {/* Crisp top layer + sub-pixel blur to soften residual aliasing */}
             <img
               src={coinImage}
               alt="OmenX Mainnet 2026 commemorative gold coin"
-              className="pointer-events-none h-auto w-full select-none"
+              className="pointer-events-none relative h-auto w-full select-none"
               style={{
                 filter:
-                  "drop-shadow(0 30px 60px hsl(var(--mainnet-gold) / 0.25))",
+                  "drop-shadow(0 30px 60px hsl(var(--mainnet-gold) / 0.28)) blur(0.4px)",
               }}
               loading="eager"
               draggable={false}
