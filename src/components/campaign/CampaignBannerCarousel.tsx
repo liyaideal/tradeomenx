@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowRight, Network, ShieldCheck, Trophy } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { CarouselApi } from "@/components/ui/carousel";
