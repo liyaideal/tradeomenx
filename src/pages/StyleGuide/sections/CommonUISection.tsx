@@ -1918,6 +1918,32 @@ navigator.share({ files: [file] });`}
   );
 };
 
+// Pagination Dots demo (product-level carousel chrome)
+const PaginationDotsDemo = () => {
+  const [selected, setSelected] = useState(0);
+  const total = 3;
+  return (
+    <div className="rounded-md border border-border/40 bg-card p-6">
+      <div className="mx-auto h-24 w-full max-w-md rounded-md border border-border/30 bg-muted/30 flex items-center justify-center text-xs text-muted-foreground font-mono">
+        Slide {selected + 1} / {total}
+      </div>
+      <div className="mt-3 flex justify-center gap-2">
+        {Array.from({ length: total }).map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Go to slide ${i + 1}`}
+            onClick={() => setSelected(i)}
+            className={`h-1.5 rounded-full transition-all duration-200 ${
+              selected === i ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/40 hover:bg-muted-foreground/60"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // Desktop Navigation Section Component
 const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
   const [desktopPreset, setDesktopPreset] = useState<"home" | "trade">("home");
