@@ -259,6 +259,8 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                       <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{banner.heroMetric.label}</span>
                     </div>
                   </div>
+                  {!isLaunch && (
+                    <div className="hidden min-w-0 sm:block">{renderVisual(banner.visual)}</div>
                   )}
                 </div>
                 {isLaunch && (
