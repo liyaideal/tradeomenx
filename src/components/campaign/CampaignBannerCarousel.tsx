@@ -5,7 +5,6 @@ import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
-import coinImage from "@/assets/mainnet-banner-coin.png";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
@@ -105,7 +104,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
   const renderVisual = (visual: CampaignBannerConfig["visual"]) => {
     if (visual === "hedge") {
       return (
-        <div className="relative h-full min-h-[96px] overflow-hidden border border-primary/25 bg-transparent p-4">
+        <div className="relative h-full min-h-[96px] overflow-hidden border border-primary/20 bg-primary/5 p-4">
           <div className="absolute inset-x-4 top-5 h-px bg-primary/30" />
           <div className="absolute inset-x-8 bottom-7 h-px bg-trading-green/30" />
           <div className="relative grid h-full min-h-[120px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
@@ -113,7 +112,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
               <div className="h-2 w-16 bg-primary/35" />
               <div className="h-2 w-10 bg-muted-foreground/25" />
             </div>
-            <div className="flex h-16 w-16 items-center justify-center border border-primary/40 bg-background/40 text-primary shadow-lg shadow-primary/10">
+            <div className="flex h-16 w-16 items-center justify-center border border-primary/40 bg-background/70 text-primary shadow-lg shadow-primary/10">
               <ShieldCheck className="h-7 w-7" />
             </div>
             <div className="ml-auto space-y-2">
@@ -126,15 +125,17 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
     }
 
     return (
-      <div className="relative h-full min-h-[132px] overflow-hidden">
-        <img
-          src={coinImage}
-          alt="OmenX Mainnet 2026 commemorative coin"
-          className="h-full w-full object-cover object-center"
-          style={{ filter: "drop-shadow(0 0 24px hsl(var(--mainnet-gold) / 0.35))" }}
-          loading="eager"
-          draggable={false}
-        />
+      <div className="relative h-full min-h-[112px] overflow-hidden border border-mainnet-gold/20 bg-background/35 p-4">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:24px_24px]" />
+        <div className="relative flex h-full min-h-[132px] items-center justify-center">
+          <div className="grid w-full max-w-[240px] grid-cols-3 gap-2">
+            {[Trophy, Network, ArrowRight].map((Icon, index) => (
+              <div key={index} className="flex aspect-square items-center justify-center border border-mainnet-gold/25 bg-mainnet-gold/10 text-mainnet-gold">
+                <Icon className="h-5 w-5" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   };
@@ -151,11 +152,11 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                 aria-label={`${banner.eyebrow}: ${banner.title}`}
                 className={cn(
                   "group relative block w-full max-w-full overflow-hidden rounded-md border text-left shadow-lg shadow-background/30 transition-all",
-                  banner.visual === "hedge" ? "border-primary/25 bg-black hover:border-primary/45" : "border-mainnet-gold/25 bg-black hover:border-mainnet-gold/45",
+                  banner.visual === "hedge" ? "border-primary/25 bg-background hover:border-primary/45" : "border-mainnet-gold/20 bg-mainnet-surface hover:border-mainnet-gold/40",
                   isMobile ? "min-h-[190px] p-4" : "min-h-[236px] p-6",
                 )}
               >
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.25)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.18)_1px,transparent_1px)] bg-[size:34px_34px] opacity-30" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:34px_34px] opacity-40" />
                 <div className="relative z-10 grid h-full min-w-0 gap-5 md:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.9fr)] md:items-stretch">
                   <div className="flex min-w-0 flex-col justify-between gap-5">
                     <div className="min-w-0">
