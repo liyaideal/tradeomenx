@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowRight, Network, ShieldCheck, Trophy } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { CarouselApi } from "@/components/ui/carousel";
@@ -69,6 +69,81 @@ const labelClassName = {
   accent: "border-mainnet-gold/30 bg-mainnet-gold/10 text-mainnet-gold",
   success: "border-trading-green/25 bg-trading-green/10 text-trading-green",
   neutral: "border-border/60 bg-background/35 text-muted-foreground",
+};
+
+// Image intrinsic ratio (1664×936 ≈ 1.778) and where the hero coin sits horizontally
+// inside the source image (≈ 0.62 from the left edge).
+const COIN_IMG_RATIO = 1664 / 936;
+const COIN_FOCAL_X = 0.62;
+
+/**
+ * Renders the launch banner background image and computes objectPosition so
+ * the OmenX hero coin always lands inside the right "safe zone" (clear of the
+ * left text column), regardless of banner width. Falls back gracefully on SSR.
+ */
+const MainnetLaunchBackground = ({
+  src,
+  textColumnRatio,
+}: {
+  src: string;
+  /** Fraction of banner width reserved for text on the left (e.g. 0.55). */
+  textColumnRatio: number;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [posX, setPosX] = useState<number>(85); // sensible default %
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const recompute = () => {
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      if (!w || !h) return;
+      const containerRatio = w / h;
+      // With object-cover, the image is scaled so its height matches container,
+      // then cropped horizontally (assuming image is wider than container, which
+      // holds for typical banner aspect ratios).
+      const scale = h / 936; // px per source pixel
+      const scaledImgW = 1664 * scale;
+      const overflow = scaledImgW - w; // hidden px split across left/right
+      if (overflow <= 0 || containerRatio >= COIN_IMG_RATIO) {
+        // Image not wider than container — objectPosition % has no effect on x.
+        setPosX(50);
+        return;
+      }
+      // Target: place the coin's focal point at `targetX` (in container coords).
+      // We want coin to sit comfortably to the right of the text column.
+      const targetX = w * (textColumnRatio + (1 - textColumnRatio) * 0.55);
+      // Coin's x in scaled image coords:
+      const coinXInImg = COIN_FOCAL_X * scaledImgW;
+      // objectPosition X% means: align (X% of image) with (X% of container).
+      // Solve: coinXInImg - leftCrop = targetX, where leftCrop = overflow * (p/100).
+      // Also: leftCrop = (image_x_at_pct - container_x_at_pct) constrained to [0, overflow].
+      // Using the standard formula: leftCrop = overflow * (p / 100) when p is 0-100.
+      const leftCrop = coinXInImg - targetX;
+      let pct = (leftCrop / overflow) * 100;
+      pct = Math.max(0, Math.min(100, pct));
+      setPosX(pct);
+    };
+
+    recompute();
+    const ro = new ResizeObserver(recompute);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [textColumnRatio]);
+
+  return (
+    <div ref={ref} className="pointer-events-none absolute inset-0">
+      <img
+        src={src}
+        alt=""
+        aria-hidden="true"
+        style={{ objectPosition: `${posX}% center` }}
+        className="h-full w-full object-cover"
+      />
+    </div>
+  );
 };
 
 export const CampaignBannerCarousel = ({ variant = "desktop", className }: CampaignBannerCarouselProps) => {
@@ -161,12 +236,9 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
               >
                 {isLaunch && (
                   <>
-                    <img
+                    <MainnetLaunchBackground
                       src={mainnetCoinBg}
-                      alt=""
-                      aria-hidden="true"
-                      style={{ objectPosition: isMobile ? "120% center" : "140% center" }}
-                      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                      textColumnRatio={isMobile ? 0.62 : 0.55}
                     />
                     <div
                       className={cn(
