@@ -151,11 +151,11 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                 aria-label={`${banner.eyebrow}: ${banner.title}`}
                 className={cn(
                   "group relative block w-full max-w-full overflow-hidden rounded-md border text-left shadow-lg shadow-background/30 transition-all",
-                  banner.visual === "hedge" ? "border-primary/25 bg-background hover:border-primary/45" : "border-mainnet-gold/20 bg-mainnet-surface hover:border-mainnet-gold/40",
+                  banner.visual === "hedge" ? "border-primary/25 bg-black hover:border-primary/45" : "border-mainnet-gold/25 bg-black hover:border-mainnet-gold/45",
                   isMobile ? "min-h-[190px] p-4" : "min-h-[236px] p-6",
                 )}
               >
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:34px_34px] opacity-40" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.25)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.18)_1px,transparent_1px)] bg-[size:34px_34px] opacity-30" />
                 <div className="relative z-10 grid h-full min-w-0 gap-5 md:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.9fr)] md:items-stretch">
                   <div className="flex min-w-0 flex-col justify-between gap-5">
                     <div className="min-w-0">
