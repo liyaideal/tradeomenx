@@ -79,9 +79,10 @@ No fillable slots — the reference image carries all subject information. The p
 ## Iteration workflow
 
 1. Pick campaign + main visual reference → ask agent for the filled prompt
-2. Run prompt + reference through nano banana / gemini-3-pro-image-preview
-3. Send the chosen image back to agent
-4. Agent saves to `src/assets/banner-{id}.jpg` and adds the banner config with `backgroundImage`
+2. **Validate the prompt** with `node scripts/validate-banner-prompt.mjs <file|--text "...">`. Must exit 0. The validator enforces: pixel-faithful preservation, original text/logo retention, right 35–45% anchor, left 55% pure black, environment-only extension, 16:9, no AI-added text/UI/humans, no subject re-description.
+3. Run prompt + reference through nano banana / gemini-3-pro-image-preview
+4. Send the chosen image back to agent
+5. Agent saves to `src/assets/banner-{id}.jpg` and adds the banner config with `backgroundImage`
 
 ## Copy limits (hard)
 
