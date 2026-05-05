@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Countdown } from "./Countdown";
-import { RewardMeter } from "./RewardMeter";
+import coinImage from "@/assets/mainnet-coin.png";
 
 interface HeroProps {
   onCta: (section: string) => void;
@@ -54,10 +54,40 @@ export const Hero = ({ onCta }: HeroProps) => {
           </div>
         </div>
 
-        <div className="min-w-0">
-          <RewardMeter />
+        <div className="relative flex min-w-0 items-center justify-center">
+          <div
+            className="relative mx-auto w-full max-w-[280px] lg:max-w-[520px]"
+            style={{ animation: "mainnet-coin-float 6s ease-in-out infinite" }}
+          >
+            {/* Gold halo behind the coin */}
+            <div
+              className="pointer-events-none absolute inset-0 -z-10 scale-110 rounded-full blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(circle, hsl(var(--mainnet-gold) / 0.35), transparent 65%)",
+              }}
+            />
+            <img
+              src={coinImage}
+              alt="OmenX Mainnet 2026 commemorative gold coin"
+              className="pointer-events-none h-auto w-full select-none"
+              style={{
+                filter:
+                  "drop-shadow(0 30px 60px hsl(var(--mainnet-gold) / 0.25))",
+              }}
+              loading="eager"
+              draggable={false}
+            />
+          </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes mainnet-coin-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+      `}</style>
     </section>
   );
 };
