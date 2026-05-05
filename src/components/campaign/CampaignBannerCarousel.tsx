@@ -175,6 +175,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
   const [selected, setSelected] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const isMobile = variant === "mobile";
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!api) return;
