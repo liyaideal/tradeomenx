@@ -18,7 +18,24 @@ export const HowItWorks = ({ onCta }: Props) => (
       desc="Sign up. Trade. Get paid in USDC."
     />
 
-    <div className="grid gap-4 md:grid-cols-3">
+    {/* Mobile: compact numbered list */}
+    <div className="overflow-hidden rounded-md border border-border/50 bg-background/30 md:hidden">
+      {steps.map((step, idx) => (
+        <div
+          key={step.n}
+          className={`grid grid-cols-[auto_1fr] gap-x-4 px-4 py-4 ${idx > 0 ? "border-t border-border/40" : ""}`}
+        >
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-mainnet-gold">{step.n}</span>
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold tracking-[-0.01em] text-foreground">{step.title}</h3>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.body}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Desktop: 3-column cards */}
+    <div className="hidden gap-4 md:grid md:grid-cols-3">
       {steps.map((step) => {
         const Icon = step.icon;
         return (
@@ -34,7 +51,7 @@ export const HowItWorks = ({ onCta }: Props) => (
       })}
     </div>
 
-    <div className="mt-8 flex justify-start">
+    <div className="mt-6 flex justify-start md:mt-8">
       <Button onClick={() => onCta("how_it_works")} className="w-full gap-2 rounded-sm bg-mainnet-gold font-mono text-background hover:bg-mainnet-gold/90 md:w-auto">
         Start my first trade <ArrowRight className="h-4 w-4" />
       </Button>
