@@ -6,6 +6,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
 import bannerMainnet from "@/assets/banner-mainnet-launch.jpg";
+import bannerHedge from "@/assets/banner-hedge.jpg";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
