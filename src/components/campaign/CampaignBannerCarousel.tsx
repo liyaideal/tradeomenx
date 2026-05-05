@@ -226,14 +226,29 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     isMobile ? "min-h-[200px] p-4" : "min-h-[220px] p-6",
                   )}
                 >
-                  {/* Layer 1: full-card background image (desktop only) */}
+                  {/* Layer 1: full-card background image with skeleton placeholder */}
                   {hasBgImage && (
-                    <img
-                      src={banner.backgroundImage}
-                      alt=""
-                      aria-hidden
-                      className="absolute inset-0 h-full w-full object-cover object-right pointer-events-none select-none"
-                    />
+                    <>
+                      {!loadedImages[banner.id] && (
+                        <div
+                          aria-hidden
+                          className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted/40 via-muted/20 to-transparent pointer-events-none"
+                        />
+                      )}
+                      <img
+                        src={banner.backgroundImage}
+                        alt=""
+                        aria-hidden
+                        loading={selected === banners.findIndex(b => b.id === banner.id) ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={selected === banners.findIndex(b => b.id === banner.id) ? "high" : "low"}
+                        onLoad={() => setLoadedImages(prev => ({ ...prev, [banner.id]: true }))}
+                        className={cn(
+                          "absolute inset-0 h-full w-full object-cover object-right pointer-events-none select-none transition-opacity duration-500",
+                          loadedImages[banner.id] ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+                    </>
                   )}
 
                   {/* Layer 2: left→right surface gradient mask, ensures text contrast */}
