@@ -33,8 +33,9 @@ const REQUIRED = [
     id: "preserve-text-logos",
     why: "Must explicitly preserve original text/logos/engravings inside the reference.",
     any: [
-      /(text|typography|logos?|engravings?|symbols?)[^.]*?(preserved|kept|remain|exactly|as[- ]is|unchanged)/i,
-      /(preserve|keep)[^.]*?(text|typography|logos?|engravings?|symbols?)/i,
+      /(text|typography|logos?|engravings?|symbols?)[\s\S]{0,200}?(preserved|kept|remain|exactly|as[- ]is|unchanged|pixel[- ]faithful)/i,
+      /(preserve|keep)[\s\S]{0,80}?(text|typography|logos?|engravings?|symbols?)/i,
+      /including all (text|typography|logos?|engravings?)/i,
     ],
   },
   {
