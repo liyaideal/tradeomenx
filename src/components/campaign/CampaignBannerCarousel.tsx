@@ -5,6 +5,7 @@ import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
+import mainnetCoinBg from "@/assets/mainnet-launch-coin.jpg";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
@@ -144,7 +145,9 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
     <div className={cn("relative w-full max-w-full overflow-hidden", className)} onMouseEnter={() => setIsPaused(true)} onMouseLeave={() => setIsPaused(false)} onFocus={() => setIsPaused(true)} onBlur={() => setIsPaused(false)}>
       <Carousel setApi={setApi} opts={{ loop: true }} className="w-full max-w-full overflow-hidden">
         <CarouselContent className="-ml-0">
-          {banners.map((banner) => (
+          {banners.map((banner) => {
+            const isLaunch = banner.visual === "launch";
+            return (
             <CarouselItem key={banner.id} className="min-w-0 pl-0">
               <button
                 type="button"
@@ -156,14 +159,39 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                   isMobile ? "min-h-[190px] p-4" : "min-h-[236px] p-6",
                 )}
               >
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:34px_34px] opacity-40" />
-                <div className="relative z-10 grid h-full min-w-0 gap-5 md:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.9fr)] md:items-stretch">
-                  <div className="flex min-w-0 flex-col justify-between gap-5">
+                {isLaunch && (
+                  <>
+                    <img
+                      src={mainnetCoinBg}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 h-full w-full object-cover object-right"
+                    />
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute inset-0 bg-gradient-to-r",
+                        isMobile
+                          ? "from-mainnet-surface from-0% via-mainnet-surface/95 via-50% to-mainnet-surface/30"
+                          : "from-mainnet-surface from-0% via-mainnet-surface/85 via-40% to-mainnet-surface/10",
+                      )}
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
+                  </>
+                )}
+                <div className={cn(
+                  "absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:34px_34px]",
+                  isLaunch ? "opacity-15" : "opacity-40",
+                )} />
+                <div className={cn(
+                  "relative z-10 grid h-full min-w-0 gap-5 md:items-stretch",
+                  isLaunch ? "md:grid-cols-[minmax(0,1fr)]" : "md:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.9fr)]",
+                )}>
+                  <div className={cn("flex min-w-0 flex-col justify-between gap-5", isLaunch && "md:max-w-[60%]")}>
                     <div className="min-w-0">
                       <div className="mb-3 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase">
-                        <span className="border border-border/60 bg-background/35 px-2 py-1 text-muted-foreground">{banner.eyebrow}</span>
+                        <span className="border border-border/60 bg-background/35 px-2 py-1 text-muted-foreground backdrop-blur-sm">{banner.eyebrow}</span>
                         {banner.labels.map((label) => (
-                          <span key={label.text} className={cn("border px-2 py-1", labelClassName[label.tone])}>
+                          <span key={label.text} className={cn("border px-2 py-1 backdrop-blur-sm", labelClassName[label.tone])}>
                             {label.text}
                           </span>
                         ))}
@@ -173,29 +201,39 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       {banner.metrics.map((metric) => (
-                        <span key={metric.label} className="border border-border/50 bg-background/30 px-2.5 py-1 font-mono text-[10px] uppercase text-muted-foreground">
+                        <span key={metric.label} className="border border-border/50 bg-background/40 px-2.5 py-1 font-mono text-[10px] uppercase text-muted-foreground backdrop-blur-sm">
                           <span className="text-foreground">{metric.value}</span> {metric.label}
                         </span>
                       ))}
                     </div>
                   </div>
-                  <div className="flex min-w-0 flex-col justify-between gap-3 md:items-end">
-                    <div className={cn("w-full min-w-0", isMobile && "hidden sm:block")}>{renderVisual(banner.visual)}</div>
-                    <div className="flex w-full flex-wrap items-center justify-between gap-3 md:justify-end">
-                      {banner.countdown && (
-                        <div className="border border-mainnet-gold/20 bg-background/40 px-3 py-2 font-mono text-xs text-muted-foreground backdrop-blur">
-                          <span className="text-foreground">Ends </span><Countdown compact className="text-mainnet-gold" />
+                  {!isLaunch && (
+                    <div className="flex min-w-0 flex-col justify-between gap-3 md:items-end">
+                      <div className={cn("w-full min-w-0", isMobile && "hidden sm:block")}>{renderVisual(banner.visual)}</div>
+                      <div className="flex w-full flex-wrap items-center justify-between gap-3 md:justify-end">
+                        <div className="inline-flex items-center gap-2 border border-mainnet-gold bg-mainnet-gold px-4 py-2 font-mono text-xs font-semibold uppercase text-background transition-transform group-hover:translate-x-1">
+                          {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
                         </div>
-                      )}
-                      <div className="inline-flex items-center gap-2 border border-mainnet-gold bg-mainnet-gold px-4 py-2 font-mono text-xs font-semibold uppercase text-background transition-transform group-hover:translate-x-1">
-                        {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
+                {isLaunch && (
+                  <div className="absolute bottom-4 right-4 z-10 flex flex-wrap items-center justify-end gap-2 md:bottom-6 md:right-6">
+                    {banner.countdown && (
+                      <div className="border border-mainnet-gold/30 bg-background/70 px-3 py-2 font-mono text-xs text-muted-foreground backdrop-blur-md">
+                        <span className="text-foreground">Ends </span><Countdown compact className="text-mainnet-gold" />
+                      </div>
+                    )}
+                    <div className="inline-flex items-center gap-2 border border-mainnet-gold bg-mainnet-gold px-4 py-2 font-mono text-xs font-semibold uppercase text-background transition-transform group-hover:translate-x-1">
+                      {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
+                    </div>
+                  </div>
+                )}
               </button>
             </CarouselItem>
-          ))}
+            );
+          })}
         </CarouselContent>
       </Carousel>
 
