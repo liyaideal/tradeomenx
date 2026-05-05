@@ -5,6 +5,7 @@ import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
+import mainnetCoinBg from "@/assets/mainnet-launch-coin.jpg";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
