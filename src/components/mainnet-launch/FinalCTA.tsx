@@ -7,9 +7,9 @@ import { SectionShell } from "./SectionShell";
 interface Props { onCta: (section: string) => void; }
 
 const timeline = [
-  { color: "mainnet-gold", label: "Launch day", date: "May 14 · 10:00 UTC+8", highlight: false },
-  { color: "mainnet-orange", label: getCampaignDayLabel(), date: "rewards active", highlight: true },
-  { color: "border", label: "Window closes", date: "May 28 · 10:00 UTC+8", highlight: false },
+  { dotClass: "border-mainnet-gold bg-mainnet-gold", label: "Launch day", date: "May 14 · 10:00 UTC+8", highlight: false },
+  { dotClass: "border-mainnet-orange bg-mainnet-orange", label: getCampaignDayLabel(), date: "rewards active", highlight: true },
+  { dotClass: "border-border bg-card", label: "Window closes", date: "May 28 · 10:00 UTC+8", highlight: false },
 ];
 
 export const FinalCTA = ({ onCta }: Props) => (
