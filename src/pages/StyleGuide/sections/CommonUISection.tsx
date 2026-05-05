@@ -1897,6 +1897,19 @@ navigator.share({ files: [file] });`}
             </CardContent>
           </Card>
         </SubSection>
+
+        <SubSection title="Pagination Dots (Carousel)" className="mt-6" description="Product-level dots used by ALL horizontal carousels (campaign banners, settlement carousels, onboarding). Active = bg-primary, never re-themed per slide.">
+          <PaginationDotsDemo />
+          <Card className="border-border/40 mt-4">
+            <CardContent className="pt-4 space-y-2 text-sm text-muted-foreground">
+              <p><strong className="text-foreground">Active:</strong> <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">w-6 h-1.5 rounded-full bg-primary</code></p>
+              <p><strong className="text-foreground">Inactive:</strong> <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">w-1.5 h-1.5 rounded-full bg-muted-foreground/40 hover:bg-muted-foreground/60</code></p>
+              <p><strong className="text-foreground">Container:</strong> <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">flex justify-center gap-2 mt-3</code></p>
+              <p><strong className="text-foreground">Transition:</strong> <code className="text-xs bg-muted px-1 py-0.5 rounded font-mono">transition-all duration-200</code></p>
+              <p className="text-xs pt-1">Do NOT swap the active color for theme/brand accents (gold, violet, green) — pagination is chrome, not content.</p>
+            </CardContent>
+          </Card>
+        </SubSection>
       </SectionWrapper>
 
       {/* Settings Card */}
