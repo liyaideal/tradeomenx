@@ -1,10 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowRight, Coins, Network, ShieldCheck, Trophy } from "lucide-react";
+import { ArrowRight, Coins, ShieldCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
+import bannerMainnet from "@/assets/banner-mainnet-launch.jpg";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
@@ -16,13 +17,16 @@ type ThemeKey = "gold" | "primary" | "green" | "violet";
 type CampaignBannerConfig = {
   id: string;
   href: string;
-  title: string;              // ≤ 7 words
-  ctaLabel: string;           // ≤ 2 words
+  title: string;
+  ctaLabel: string;
   qualifierChip?: { text: string; tone: "accent" | "success" | "neutral" };
   heroMetric: { value: string; label: string };
   countdown?: boolean;
   theme: ThemeKey;
-  visual: ReactNode;
+  /** Full-card cinematic background image (desktop only). Preferred. */
+  backgroundImage?: string;
+  /** Fallback bordered tile visual when no backgroundImage is supplied. */
+  visual?: ReactNode;
 };
 
 const labelClassName = {
@@ -34,6 +38,8 @@ const labelClassName = {
 const themeMap: Record<ThemeKey, {
   border: string;
   surface: string;
+  surfaceMaskFrom: string;
+  surfaceMaskVia: string;
   metric: string;
   cta: string;
   visualBorder: string;
@@ -44,6 +50,8 @@ const themeMap: Record<ThemeKey, {
   gold: {
     border: "border-mainnet-gold/25 hover:border-mainnet-gold/45",
     surface: "bg-mainnet-surface",
+    surfaceMaskFrom: "from-mainnet-surface",
+    surfaceMaskVia: "via-mainnet-surface/85",
     metric: "text-mainnet-gold",
     cta: "border-mainnet-gold bg-mainnet-gold text-background",
     visualBorder: "border-mainnet-gold/25",
@@ -54,6 +62,8 @@ const themeMap: Record<ThemeKey, {
   primary: {
     border: "border-primary/25 hover:border-primary/45",
     surface: "bg-background",
+    surfaceMaskFrom: "from-background",
+    surfaceMaskVia: "via-background/85",
     metric: "text-primary",
     cta: "border-primary bg-primary text-primary-foreground",
     visualBorder: "border-primary/25",
@@ -64,6 +74,8 @@ const themeMap: Record<ThemeKey, {
   green: {
     border: "border-trading-green/25 hover:border-trading-green/45",
     surface: "bg-background",
+    surfaceMaskFrom: "from-background",
+    surfaceMaskVia: "via-background/85",
     metric: "text-trading-green",
     cta: "border-trading-green bg-trading-green text-background",
     visualBorder: "border-trading-green/25",
@@ -74,6 +86,8 @@ const themeMap: Record<ThemeKey, {
   violet: {
     border: "border-purple-500/25 hover:border-purple-500/45",
     surface: "bg-background",
+    surfaceMaskFrom: "from-background",
+    surfaceMaskVia: "via-background/85",
     metric: "text-purple-400",
     cta: "border-purple-500 bg-purple-500 text-background",
     visualBorder: "border-purple-500/25",
@@ -84,32 +98,8 @@ const themeMap: Record<ThemeKey, {
 };
 
 /* ------------------------------------------------------------------ */
-/* Reusable visual slot primitives. New campaigns pick one of these.  */
+/* Fallback visual primitives (used when backgroundImage is missing)   */
 /* ------------------------------------------------------------------ */
-
-const IconTileGrid = ({
-  icons,
-  theme,
-}: {
-  icons: Array<typeof Trophy>;
-  theme: ThemeKey;
-}) => {
-  const t = themeMap[theme];
-  return (
-    <div className={cn("relative h-full min-h-[140px] overflow-hidden border p-4", t.visualBorder, t.visualSurface)}>
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:24px_24px] opacity-60" />
-      <div className="relative flex h-full items-center justify-center">
-        <div className="grid w-full max-w-[220px] grid-cols-3 gap-2">
-          {icons.map((Icon, i) => (
-            <div key={i} className={cn("flex aspect-square items-center justify-center border", t.visualBorder, t.visualSurface, t.visualAccent)}>
-              <Icon className="h-5 w-5" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const DiagramVisual = ({ theme }: { theme: ThemeKey }) => {
   const t = themeMap[theme];
@@ -163,7 +153,7 @@ const banners: CampaignBannerConfig[] = [
     heroMetric: { value: "$5K", label: "Weekly pool" },
     countdown: true,
     theme: "gold",
-    visual: <HeroObjectVisual theme="gold" />,
+    backgroundImage: bannerMainnet,
   },
   {
     id: "hedge",
@@ -220,6 +210,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
         <CarouselContent className="-ml-0">
           {banners.map((banner) => {
             const t = themeMap[banner.theme];
+            const hasBgImage = !!banner.backgroundImage && !isMobile;
             return (
               <CarouselItem key={banner.id} className="min-w-0 pl-0">
                 <button
@@ -233,16 +224,52 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     isMobile ? "min-h-[200px] p-4" : "min-h-[220px] p-6",
                   )}
                 >
-                  <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:34px_34px] opacity-30" />
+                  {/* Layer 1: full-card background image (desktop only) */}
+                  {hasBgImage && (
+                    <img
+                      src={banner.backgroundImage}
+                      alt=""
+                      aria-hidden
+                      className="absolute inset-0 h-full w-full object-cover object-right pointer-events-none select-none"
+                    />
+                  )}
+
+                  {/* Layer 2: left→right surface gradient mask, ensures text contrast */}
+                  {hasBgImage && (
+                    <div
+                      aria-hidden
+                      className={cn(
+                        "absolute inset-0 bg-gradient-to-r to-transparent pointer-events-none",
+                        t.surfaceMaskFrom,
+                        t.surfaceMaskVia,
+                      )}
+                      style={{ ["--tw-gradient-from-position" as string]: "30%", ["--tw-gradient-via-position" as string]: "55%" }}
+                    />
+                  )}
+
+                  {/* Layer 3: dotted grid (lighter when bg image present) */}
+                  <div
+                    className={cn(
+                      "absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:34px_34px] pointer-events-none",
+                      hasBgImage ? "opacity-15" : "opacity-30",
+                    )}
+                  />
 
                   <div
                     className={cn(
                       "relative z-10 grid h-full min-w-0 gap-5",
-                      "sm:grid-cols-[minmax(0,1fr)_minmax(220px,300px)] sm:items-stretch",
+                      // When bg image takes the right side, content is single-column constrained to ~60%.
+                      // When falling back to visual tile, keep the original 2-column layout.
+                      !hasBgImage && "sm:grid-cols-[minmax(0,1fr)_minmax(220px,300px)] sm:items-stretch",
                     )}
                   >
-                    {/* LEFT: information column (fixed structure) */}
-                    <div className="flex min-w-0 flex-col justify-between gap-4">
+                    {/* Information column */}
+                    <div
+                      className={cn(
+                        "flex min-w-0 flex-col justify-between gap-4",
+                        hasBgImage && "sm:max-w-[60%]",
+                      )}
+                    >
                       <div className="min-w-0 space-y-3">
                         {(banner.qualifierChip || (banner.countdown && isMobile)) && (
                           <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase">
@@ -251,7 +278,6 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                                 {banner.qualifierChip.text}
                               </span>
                             )}
-                            {/* Mobile: countdown sits in meta row, top-right, to keep CTA row clean */}
                             {banner.countdown && isMobile && (
                               <span className={cn("ml-auto border border-border/60 bg-background/35 px-2 py-1 backdrop-blur-sm", t.metric)}>
                                 <Countdown compact />
@@ -277,7 +303,6 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                         </div>
                       </div>
 
-                      {/* CTA row. On mobile: just the button (countdown moved to meta row). On desktop: button + countdown inline. */}
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                         <span
                           className={cn(
@@ -296,8 +321,10 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                       </div>
                     </div>
 
-                    {/* RIGHT: visual slot (hidden on mobile to avoid overlap) */}
-                    <div className="hidden min-w-0 sm:block">{banner.visual}</div>
+                    {/* Right visual slot — only when no bg image */}
+                    {!hasBgImage && banner.visual && (
+                      <div className="hidden min-w-0 sm:block">{banner.visual}</div>
+                    )}
                   </div>
                 </button>
               </CarouselItem>
