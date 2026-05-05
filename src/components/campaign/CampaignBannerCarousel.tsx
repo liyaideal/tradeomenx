@@ -16,10 +16,9 @@ type ThemeKey = "gold" | "primary" | "green" | "violet";
 type CampaignBannerConfig = {
   id: string;
   href: string;
-  eyebrow: string;            // ≤ 2 words
   title: string;              // ≤ 7 words
   ctaLabel: string;           // ≤ 2 words
-  status?: { text: string; tone: "accent" | "success" | "neutral" };
+  qualifierChip?: { text: string; tone: "accent" | "success" | "neutral" };
   heroMetric: { value: string; label: string };
   countdown?: boolean;
   theme: ThemeKey;
@@ -158,10 +157,9 @@ const banners: CampaignBannerConfig[] = [
   {
     id: "mainnet-launch",
     href: "/mainnet-launch",
-    eyebrow: "Mainnet Launch",
     title: "Trade once. Earn up to $200.",
     ctaLabel: "Join Now",
-    status: { text: "Live", tone: "success" },
+    qualifierChip: { text: "5 winners weekly", tone: "accent" },
     heroMetric: { value: "$5K", label: "Weekly pool" },
     countdown: true,
     theme: "gold",
@@ -170,10 +168,9 @@ const banners: CampaignBannerConfig[] = [
   {
     id: "hedge",
     href: "/hedge",
-    eyebrow: "Hedge Campaign",
     title: "Hedge your prediction trades. Free.",
     ctaLabel: "Open Hedge",
-    status: { text: "Live", tone: "success" },
+    qualifierChip: { text: "No deposit", tone: "success" },
     heroMetric: { value: "$100", label: "Free hedge credit" },
     theme: "primary",
     visual: <DiagramVisual theme="primary" />,
@@ -228,7 +225,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                 <button
                   type="button"
                   onClick={() => navigateWithRef(banner.href)}
-                  aria-label={`${banner.eyebrow}: ${banner.title}`}
+                  aria-label={banner.title}
                   className={cn(
                     "group relative block w-full max-w-full overflow-hidden rounded-md border text-left shadow-lg shadow-background/30 transition-all",
                     t.border,
@@ -247,22 +244,21 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     {/* LEFT: information column (fixed structure) */}
                     <div className="flex min-w-0 flex-col justify-between gap-4">
                       <div className="min-w-0 space-y-3">
-                        <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase">
-                          <span className="border border-border/60 bg-background/35 px-2 py-1 text-muted-foreground backdrop-blur-sm">
-                            {banner.eyebrow}
-                          </span>
-                          {banner.status && (
-                            <span className={cn("border px-2 py-1 backdrop-blur-sm", labelClassName[banner.status.tone])}>
-                              {banner.status.text}
-                            </span>
-                          )}
-                          {/* Mobile: countdown sits in meta row, top-right, to keep CTA row clean */}
-                          {banner.countdown && isMobile && (
-                            <span className={cn("ml-auto border border-border/60 bg-background/35 px-2 py-1 backdrop-blur-sm", t.metric)}>
-                              <Countdown compact />
-                            </span>
-                          )}
-                        </div>
+                        {(banner.qualifierChip || (banner.countdown && isMobile)) && (
+                          <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase">
+                            {banner.qualifierChip && (
+                              <span className={cn("border px-2 py-1 backdrop-blur-sm", labelClassName[banner.qualifierChip.tone])}>
+                                {banner.qualifierChip.text}
+                              </span>
+                            )}
+                            {/* Mobile: countdown sits in meta row, top-right, to keep CTA row clean */}
+                            {banner.countdown && isMobile && (
+                              <span className={cn("ml-auto border border-border/60 bg-background/35 px-2 py-1 backdrop-blur-sm", t.metric)}>
+                                <Countdown compact />
+                              </span>
+                            )}
+                          </div>
+                        )}
                         <h3
                           className={cn(
                             "font-semibold leading-tight text-foreground",
