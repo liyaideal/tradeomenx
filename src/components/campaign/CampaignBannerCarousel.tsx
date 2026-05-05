@@ -1,28 +1,158 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ArrowRight, Network, ShieldCheck, Trophy } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ArrowRight, Coins, Network, ShieldCheck, Trophy } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
-import mainnetCoinBg from "@/assets/mainnet-launch-coin.jpg";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
   className?: string;
 }
 
+type ThemeKey = "gold" | "primary" | "green" | "violet";
+
 type CampaignBannerConfig = {
   id: string;
   href: string;
-  eyebrow: string;
-  title: string;
-  ctaLabel: string;
+  eyebrow: string;            // ≤ 2 words
+  title: string;              // ≤ 7 words
+  ctaLabel: string;           // ≤ 2 words
   status?: { text: string; tone: "accent" | "success" | "neutral" };
   heroMetric: { value: string; label: string };
-  visual: "launch" | "hedge";
   countdown?: boolean;
+  theme: ThemeKey;
+  visual: ReactNode;
 };
+
+const labelClassName = {
+  accent: "border-mainnet-gold/30 bg-mainnet-gold/10 text-mainnet-gold",
+  success: "border-trading-green/25 bg-trading-green/10 text-trading-green",
+  neutral: "border-border/60 bg-background/35 text-muted-foreground",
+};
+
+const themeMap: Record<ThemeKey, {
+  border: string;
+  surface: string;
+  metric: string;
+  cta: string;
+  visualBorder: string;
+  visualSurface: string;
+  visualAccent: string;
+  dot: string;
+}> = {
+  gold: {
+    border: "border-mainnet-gold/25 hover:border-mainnet-gold/45",
+    surface: "bg-mainnet-surface",
+    metric: "text-mainnet-gold",
+    cta: "border-mainnet-gold bg-mainnet-gold text-background",
+    visualBorder: "border-mainnet-gold/25",
+    visualSurface: "bg-mainnet-gold/5",
+    visualAccent: "text-mainnet-gold",
+    dot: "bg-mainnet-gold",
+  },
+  primary: {
+    border: "border-primary/25 hover:border-primary/45",
+    surface: "bg-background",
+    metric: "text-primary",
+    cta: "border-primary bg-primary text-primary-foreground",
+    visualBorder: "border-primary/25",
+    visualSurface: "bg-primary/5",
+    visualAccent: "text-primary",
+    dot: "bg-primary",
+  },
+  green: {
+    border: "border-trading-green/25 hover:border-trading-green/45",
+    surface: "bg-background",
+    metric: "text-trading-green",
+    cta: "border-trading-green bg-trading-green text-background",
+    visualBorder: "border-trading-green/25",
+    visualSurface: "bg-trading-green/5",
+    visualAccent: "text-trading-green",
+    dot: "bg-trading-green",
+  },
+  violet: {
+    border: "border-purple-500/25 hover:border-purple-500/45",
+    surface: "bg-background",
+    metric: "text-purple-400",
+    cta: "border-purple-500 bg-purple-500 text-background",
+    visualBorder: "border-purple-500/25",
+    visualSurface: "bg-purple-500/5",
+    visualAccent: "text-purple-400",
+    dot: "bg-purple-500",
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Reusable visual slot primitives. New campaigns pick one of these.  */
+/* ------------------------------------------------------------------ */
+
+const IconTileGrid = ({
+  icons,
+  theme,
+}: {
+  icons: Array<typeof Trophy>;
+  theme: ThemeKey;
+}) => {
+  const t = themeMap[theme];
+  return (
+    <div className={cn("relative h-full min-h-[140px] overflow-hidden border p-4", t.visualBorder, t.visualSurface)}>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:24px_24px] opacity-60" />
+      <div className="relative flex h-full items-center justify-center">
+        <div className="grid w-full max-w-[220px] grid-cols-3 gap-2">
+          {icons.map((Icon, i) => (
+            <div key={i} className={cn("flex aspect-square items-center justify-center border", t.visualBorder, t.visualSurface, t.visualAccent)}>
+              <Icon className="h-5 w-5" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DiagramVisual = ({ theme }: { theme: ThemeKey }) => {
+  const t = themeMap[theme];
+  return (
+    <div className={cn("relative h-full min-h-[140px] overflow-hidden border p-4", t.visualBorder, t.visualSurface)}>
+      <div className={cn("absolute inset-x-4 top-5 h-px", t.dot, "opacity-30")} />
+      <div className={cn("absolute inset-x-8 bottom-7 h-px", t.dot, "opacity-20")} />
+      <div className="relative grid h-full min-h-[120px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+        <div className="space-y-2">
+          <div className={cn("h-2 w-16", t.dot, "opacity-40")} />
+          <div className="h-2 w-10 bg-muted-foreground/25" />
+        </div>
+        <div className={cn("flex h-16 w-16 items-center justify-center border bg-background/70 shadow-lg", t.visualBorder, t.visualAccent)}>
+          <ShieldCheck className="h-7 w-7" />
+        </div>
+        <div className="ml-auto space-y-2">
+          <div className={cn("h-2 w-14", t.dot, "opacity-40 ml-auto")} />
+          <div className="ml-auto h-2 w-9 bg-muted-foreground/25" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const HeroObjectVisual = ({ theme }: { theme: ThemeKey }) => {
+  const t = themeMap[theme];
+  return (
+    <div className={cn("relative h-full min-h-[140px] overflow-hidden border", t.visualBorder, t.visualSurface)}>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:24px_24px] opacity-50" />
+      <div className="relative flex h-full items-center justify-center">
+        <div className={cn("relative flex h-24 w-24 items-center justify-center rounded-full border-2", t.visualBorder, t.visualAccent)}>
+          <div className={cn("absolute inset-1 rounded-full border", t.visualBorder, "opacity-50")} />
+          <Coins className="h-10 w-10" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* Banner config                                                       */
+/* ------------------------------------------------------------------ */
 
 const banners: CampaignBannerConfig[] = [
   {
@@ -33,8 +163,9 @@ const banners: CampaignBannerConfig[] = [
     ctaLabel: "Join Now",
     status: { text: "Live", tone: "success" },
     heroMetric: { value: "$5K", label: "Weekly pool" },
-    visual: "launch",
     countdown: true,
+    theme: "gold",
+    visual: <HeroObjectVisual theme="gold" />,
   },
   {
     id: "hedge",
@@ -44,90 +175,10 @@ const banners: CampaignBannerConfig[] = [
     ctaLabel: "Open Hedge",
     status: { text: "Live", tone: "success" },
     heroMetric: { value: "$100", label: "Free hedge credit" },
-    visual: "hedge",
+    theme: "primary",
+    visual: <DiagramVisual theme="primary" />,
   },
 ];
-
-const labelClassName = {
-  accent: "border-mainnet-gold/30 bg-mainnet-gold/10 text-mainnet-gold",
-  success: "border-trading-green/25 bg-trading-green/10 text-trading-green",
-  neutral: "border-border/60 bg-background/35 text-muted-foreground",
-};
-
-// Image intrinsic ratio (1664×936 ≈ 1.778) and where the hero coin sits horizontally
-// inside the source image (≈ 0.62 from the left edge).
-const COIN_IMG_RATIO = 1664 / 936;
-const COIN_FOCAL_X = 0.62;
-
-/**
- * Renders the launch banner background image and computes objectPosition so
- * the OmenX hero coin always lands inside the right "safe zone" (clear of the
- * left text column), regardless of banner width. Falls back gracefully on SSR.
- */
-const MainnetLaunchBackground = ({
-  src,
-  textColumnRatio,
-}: {
-  src: string;
-  /** Fraction of banner width reserved for text on the left (e.g. 0.55). */
-  textColumnRatio: number;
-}) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [posX, setPosX] = useState<number>(85); // sensible default %
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const recompute = () => {
-      const w = el.clientWidth;
-      const h = el.clientHeight;
-      if (!w || !h) return;
-      const containerRatio = w / h;
-      // With object-cover, the image is scaled so its height matches container,
-      // then cropped horizontally (assuming image is wider than container, which
-      // holds for typical banner aspect ratios).
-      const scale = h / 936; // px per source pixel
-      const scaledImgW = 1664 * scale;
-      const overflow = scaledImgW - w; // hidden px split across left/right
-      if (overflow <= 0 || containerRatio >= COIN_IMG_RATIO) {
-        // Image not wider than container — objectPosition % has no effect on x.
-        setPosX(50);
-        return;
-      }
-      // Target: place the coin's focal point at `targetX` (in container coords).
-      // We want coin to sit comfortably to the right of the text column.
-      const targetX = w * (textColumnRatio + (1 - textColumnRatio) * 0.55);
-      // Coin's x in scaled image coords:
-      const coinXInImg = COIN_FOCAL_X * scaledImgW;
-      // objectPosition X% means: align (X% of image) with (X% of container).
-      // Solve: coinXInImg - leftCrop = targetX, where leftCrop = overflow * (p/100).
-      // Also: leftCrop = (image_x_at_pct - container_x_at_pct) constrained to [0, overflow].
-      // Using the standard formula: leftCrop = overflow * (p / 100) when p is 0-100.
-      const leftCrop = coinXInImg - targetX;
-      let pct = (leftCrop / overflow) * 100;
-      pct = Math.max(0, Math.min(100, pct));
-      setPosX(pct);
-    };
-
-    recompute();
-    const ro = new ResizeObserver(recompute);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [textColumnRatio]);
-
-  return (
-    <div ref={ref} className="pointer-events-none absolute inset-0">
-      <img
-        src={src}
-        alt=""
-        aria-hidden="true"
-        style={{ objectPosition: `${posX}% center` }}
-        className="h-full w-full object-cover"
-      />
-    </div>
-  );
-};
 
 export const CampaignBannerCarousel = ({ variant = "desktop", className }: CampaignBannerCarouselProps) => {
   const navigate = useNavigate();
@@ -160,124 +211,94 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
     navigate(ref ? `${path}?ref=${encodeURIComponent(ref)}` : path);
   };
 
-  const renderVisual = (visual: CampaignBannerConfig["visual"]) => {
-    if (visual === "hedge") {
-      return (
-        <div className="relative h-full min-h-[96px] overflow-hidden border border-primary/20 bg-primary/5 p-4">
-          <div className="absolute inset-x-4 top-5 h-px bg-primary/30" />
-          <div className="absolute inset-x-8 bottom-7 h-px bg-trading-green/30" />
-          <div className="relative grid h-full min-h-[120px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
-            <div className="space-y-2">
-              <div className="h-2 w-16 bg-primary/35" />
-              <div className="h-2 w-10 bg-muted-foreground/25" />
-            </div>
-            <div className="flex h-16 w-16 items-center justify-center border border-primary/40 bg-background/70 text-primary shadow-lg shadow-primary/10">
-              <ShieldCheck className="h-7 w-7" />
-            </div>
-            <div className="ml-auto space-y-2">
-              <div className="h-2 w-14 bg-trading-green/35" />
-              <div className="ml-auto h-2 w-9 bg-muted-foreground/25" />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="relative h-full min-h-[112px] overflow-hidden border border-mainnet-gold/20 bg-background/35 p-4">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:24px_24px]" />
-        <div className="relative flex h-full min-h-[132px] items-center justify-center">
-          <div className="grid w-full max-w-[240px] grid-cols-3 gap-2">
-            {[Trophy, Network, ArrowRight].map((Icon, index) => (
-              <div key={index} className="flex aspect-square items-center justify-center border border-mainnet-gold/25 bg-mainnet-gold/10 text-mainnet-gold">
-                <Icon className="h-5 w-5" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className={cn("relative w-full max-w-full overflow-hidden", className)} onMouseEnter={() => setIsPaused(true)} onMouseLeave={() => setIsPaused(false)} onFocus={() => setIsPaused(true)} onBlur={() => setIsPaused(false)}>
+    <div
+      className={cn("relative w-full max-w-full overflow-hidden", className)}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocus={() => setIsPaused(true)}
+      onBlur={() => setIsPaused(false)}
+    >
       <Carousel setApi={setApi} opts={{ loop: true }} className="w-full max-w-full overflow-hidden">
         <CarouselContent className="-ml-0">
           {banners.map((banner) => {
-            const isLaunch = banner.visual === "launch";
+            const t = themeMap[banner.theme];
             return (
-            <CarouselItem key={banner.id} className="min-w-0 pl-0">
-              <button
-                type="button"
-                onClick={() => navigateWithRef(banner.href)}
-                aria-label={`${banner.eyebrow}: ${banner.title}`}
-                className={cn(
-                  "group relative block w-full max-w-full overflow-hidden rounded-md border text-left shadow-lg shadow-background/30 transition-all",
-                  banner.visual === "hedge" ? "border-primary/25 bg-background hover:border-primary/45" : "border-mainnet-gold/20 bg-mainnet-surface hover:border-mainnet-gold/40",
-                  isMobile ? "min-h-[190px] p-4" : "min-h-[236px] p-6",
-                )}
-              >
-                {isLaunch && (
-                  <>
-                    <MainnetLaunchBackground
-                      src={mainnetCoinBg}
-                      textColumnRatio={isMobile ? 0.62 : 0.55}
-                    />
-                    <div
-                      className={cn(
-                        "pointer-events-none absolute inset-0 bg-gradient-to-r",
-                        isMobile
-                          ? "from-mainnet-surface from-0% via-mainnet-surface/95 via-50% to-mainnet-surface/30"
-                          : "from-mainnet-surface from-0% via-mainnet-surface/85 via-40% to-mainnet-surface/10",
-                      )}
-                    />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
-                  </>
-                )}
-                <div className={cn(
-                  "absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:34px_34px]",
-                  isLaunch ? "opacity-15" : "opacity-40",
-                )} />
-                <div className={cn(
-                  "relative z-10 grid h-full min-w-0 gap-5 md:items-stretch",
-                  isLaunch ? "md:grid-cols-[minmax(0,1fr)]" : "md:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.9fr)]",
-                )}>
-                  <div className={cn("flex min-w-0 flex-col justify-between gap-5", isLaunch && "md:max-w-[60%]")}>
-                    <div className="min-w-0">
-                      <div className="mb-3 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase">
-                        <span className="border border-border/60 bg-background/35 px-2 py-1 text-muted-foreground backdrop-blur-sm">{banner.eyebrow}</span>
-                        {banner.status && (
-                          <span className={cn("border px-2 py-1 backdrop-blur-sm", labelClassName[banner.status.tone])}>
-                            {banner.status.text}
+              <CarouselItem key={banner.id} className="min-w-0 pl-0">
+                <button
+                  type="button"
+                  onClick={() => navigateWithRef(banner.href)}
+                  aria-label={`${banner.eyebrow}: ${banner.title}`}
+                  className={cn(
+                    "group relative block w-full max-w-full overflow-hidden rounded-md border text-left shadow-lg shadow-background/30 transition-all",
+                    t.border,
+                    t.surface,
+                    isMobile ? "min-h-[200px] p-4" : "min-h-[220px] p-6",
+                  )}
+                >
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.14)_1px,transparent_1px)] bg-[size:34px_34px] opacity-30" />
+
+                  <div
+                    className={cn(
+                      "relative z-10 grid h-full min-w-0 gap-5",
+                      "sm:grid-cols-[minmax(0,1fr)_minmax(220px,300px)] sm:items-stretch",
+                    )}
+                  >
+                    {/* LEFT: information column (fixed structure) */}
+                    <div className="flex min-w-0 flex-col justify-between gap-4">
+                      <div className="min-w-0 space-y-3">
+                        <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase">
+                          <span className="border border-border/60 bg-background/35 px-2 py-1 text-muted-foreground backdrop-blur-sm">
+                            {banner.eyebrow}
+                          </span>
+                          {banner.status && (
+                            <span className={cn("border px-2 py-1 backdrop-blur-sm", labelClassName[banner.status.tone])}>
+                              {banner.status.text}
+                            </span>
+                          )}
+                        </div>
+                        <h3
+                          className={cn(
+                            "font-semibold leading-tight text-foreground",
+                            isMobile ? "text-xl" : "text-2xl lg:text-3xl",
+                          )}
+                        >
+                          {banner.title}
+                        </h3>
+                        <div className="flex flex-wrap items-baseline gap-2 font-mono">
+                          <span className={cn("font-semibold", isMobile ? "text-xl" : "text-2xl", t.metric)}>
+                            {banner.heroMetric.value}
+                          </span>
+                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                            {banner.heroMetric.label}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* CTA row: button + optional countdown, same line on desktop, stacked on mobile */}
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                        <span
+                          className={cn(
+                            "inline-flex items-center justify-center gap-2 border px-4 py-2 font-mono text-xs font-semibold uppercase transition-transform group-hover:translate-x-1",
+                            t.cta,
+                          )}
+                        >
+                          {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
+                        </span>
+                        {banner.countdown && (
+                          <span className="font-mono text-xs text-muted-foreground">
+                            <span className="text-foreground">Ends </span>
+                            <Countdown compact className={t.metric} />
                           </span>
                         )}
                       </div>
-                      <h3 className={cn("max-w-2xl font-semibold leading-tight text-foreground", isMobile ? "text-2xl" : "text-3xl lg:text-4xl")}>{banner.title}</h3>
                     </div>
-                    <div className="flex flex-wrap items-baseline gap-2 font-mono">
-                      <span className={cn("font-semibold", isMobile ? "text-xl" : "text-2xl", isLaunch ? "text-mainnet-gold" : "text-primary")}>{banner.heroMetric.value}</span>
-                      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{banner.heroMetric.label}</span>
-                    </div>
+
+                    {/* RIGHT: visual slot (hidden on mobile to avoid overlap) */}
+                    <div className="hidden min-w-0 sm:block">{banner.visual}</div>
                   </div>
-                  {!isLaunch && (
-                    <div className="hidden min-w-0 sm:block">{renderVisual(banner.visual)}</div>
-                  )}
-                </div>
-                <div className="absolute bottom-4 right-4 z-10 flex flex-wrap items-center justify-end gap-2 md:bottom-6 md:right-6">
-                  {banner.countdown && (
-                    <div className="border border-mainnet-gold/30 bg-background/70 px-3 py-2 font-mono text-xs text-muted-foreground backdrop-blur-md">
-                      <span className="text-foreground">Ends </span><Countdown compact className="text-mainnet-gold" />
-                    </div>
-                  )}
-                  <div className={cn(
-                    "inline-flex items-center gap-2 border px-4 py-2 font-mono text-xs font-semibold uppercase transition-transform group-hover:translate-x-1",
-                    isLaunch ? "border-mainnet-gold bg-mainnet-gold text-background" : "border-primary bg-primary text-primary-foreground",
-                  )}>
-                    {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
-                  </div>
-                </div>
-              </button>
-            </CarouselItem>
+                </button>
+              </CarouselItem>
             );
           })}
         </CarouselContent>
@@ -290,7 +311,10 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
             type="button"
             aria-label={`Go to campaign slide ${index + 1}`}
             onClick={() => api?.scrollTo(index)}
-            className={cn("h-1.5 rounded-full transition-all", selected === index ? "w-6 bg-mainnet-gold" : "w-1.5 bg-muted-foreground/40")}
+            className={cn(
+              "h-1.5 rounded-full transition-all",
+              selected === index ? "w-6 bg-mainnet-gold" : "w-1.5 bg-muted-foreground/40",
+            )}
           />
         ))}
       </div>
