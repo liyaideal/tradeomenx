@@ -6,6 +6,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
 import bannerMainnet from "@/assets/banner-mainnet-launch.jpg";
+import bannerHedge from "@/assets/banner-hedge.jpg";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
@@ -163,7 +164,7 @@ const banners: CampaignBannerConfig[] = [
     qualifierChip: { text: "No deposit", tone: "success" },
     heroMetric: { value: "$100", label: "Free hedge credit" },
     theme: "primary",
-    visual: <DiagramVisual theme="primary" />,
+    backgroundImage: bannerHedge,
   },
 ];
 
