@@ -109,7 +109,7 @@ If no compliant chip exists, omit it.
 
 ## Mobile layout
 
-- Background image NOT rendered on mobile
+- Background image IS rendered on mobile (full-card with left surface gradient mask)
 - Single column, CTA full-width
 - Countdown moves into meta row top-right (not below CTA)
 - No `absolute` positioned elements in CTA row
