@@ -25,53 +25,56 @@ Content column sits on top, constrained to `sm:max-w-[60%]`:
 2. `backgroundImage: string` — **preferred**. Full-card cinematic image meeting the spec below
 3. `visual: ReactNode` — fallback only. Pick from `DiagramVisual` / `HeroObjectVisual` when no `backgroundImage` exists yet
 
+## Core principle (read first)
+
+A banner is **NOT** a redraw, restyle, or crop of the campaign's main visual. It is the **same world, camera pulled back**. The original main visual is **pasted in pixel-faithful** (text, logos, engravings, materials, lighting, all kept as-is) and AI **only generates the surrounding environment** to extend it into a 16:9 cinematic scene with a black left zone for text overlay.
+
+If the agent ever finds itself describing the subject's shape/material/text in the prompt, it's wrong — the subject is the uploaded image, not a description.
+
 ## Background image hard requirements (verification checklist)
 
 Every new banner image must pass all of these before being committed:
 
 1. **Aspect ratio**: 16:9, minimum 1600×900
-2. **Subject placement**: anchored to RIGHT 35-40% of frame, may bleed off right edge
-3. **Left dark zone**: LEFT 50%+ must be pure black or extremely dark surface — no light spill, particles, text, or UI residue
-4. **Light**: single direction (typically upper-right), monochromatic — warm gold for `gold` theme, theme neon for others
-5. **Depth**: shallow DOF, subject sharp, background blurred
-6. **Forbidden**: text, letters, numbers, logos overlay, UI cards, charts, frames, borders, rounded corners, drop shadows, sticker outlines, emoji
+2. **Main visual placement**: the uploaded reference image is placed **uncropped, unedited, pixel-faithful** anchored to RIGHT 35-45% of frame, may bleed off right edge. All its original text/logos/engravings remain fully visible and legible.
+3. **Left dark zone**: LEFT 50%+ must be pure black (#0A0A0A) — no light spill, particles, objects, or text. Reserved for UI text overlay.
+4. **Environment**: extended outward from the reference — same atmosphere, same DOF, same particle/bokeh behavior, same color temperature. Seamlessly continued, like the camera zoomed out.
+5. **Light**: identical to the reference. No relighting, no new hues, no color shift on the subject.
+6. **Forbidden additions**: NO new text, letters, numbers, logos, watermarks, UI cards, charts, icons, badges, frames, borders, rounded corners, drop shadows, sticker outlines, emoji, human figures, or new foreground objects added by AI. The ONLY text/logos/symbols allowed are those already inside the uploaded reference.
 7. **File**: `.jpg`, <400KB, named `banner-{campaign-id}.jpg`, stored in `src/assets/`
-8. **Mobile**: bg image is **not** rendered on mobile — banner falls back to plain text card. Don't optimize the image for small screens.
+8. **Mobile**: bg image IS rendered on mobile (full-card with left surface gradient mask). The 16:9 image must read well when cropped to a shorter card height — keep the subject vertically centered.
 
-## Reusable AI prompt template (image-to-image)
+## Reusable AI prompt template (image-to-image, "extend the world")
 
-When asked for a new banner image prompt, fill these 4 slots and hand the prompt + the campaign's main visual reference image to the user:
+When asked for a new banner image prompt, hand this prompt + the campaign's main visual reference to the user. The reference is the subject — do **not** describe it in words.
 
 ```
-[Image-to-image edit]
+[Image-to-image extension]
 
-Reference image: [user uploads the campaign's main visual]
+Reference image: [user uploads the campaign's main visual — this IS the subject]
 
-Task: Transform this reference into a cinematic 16:9 banner background.
+Task: Treat the uploaded image as the CENTERPIECE of a wider 16:9 cinematic scene. Do NOT modify, recreate, restyle, recolor, or remove ANY part of the uploaded image — including all text, typography, logos, engravings, symbols, materials, colors, and lighting. The uploaded image must appear inside the output exactly as-is, pixel-faithful, as if pasted in.
 
-Subject: Keep the {SUBJECT_DESCRIPTION} from the reference exactly as it is — preserve all materials, engravings, branding, and lighting character.
+Camera / framing:
+- Pull the camera back to a wider 16:9 view (minimum 1600x900).
+- Place the uploaded image (unchanged, uncropped) anchored to the RIGHT side, occupying roughly the right 35-45% of the canvas, vertically centered.
+- Do NOT crop, zoom into, rotate, mirror, or alter the uploaded image. All its original text and details must remain fully visible and legible.
 
-Composition:
-- Aspect ratio 16:9, minimum 1600x900
-- Place the subject anchored to the RIGHT 35-40% of the frame, slightly tilted, can partially bleed off the right edge
-- Add environmental context behind/beneath the subject: {SCENE_CONTEXT}, shallow depth of field
-- LEFT 55-60% of the frame must fade to PURE SOLID BLACK (#0A0A0A) — no light spill, no particles, no objects, no text. This is the text reservation zone.
-- Single {LIGHT_DIRECTION_AND_COLOR}, cinematic, slightly desaturated, monochromatic {DOMINANT_COLOR} + black palette
+Scene extension (this is the only thing AI generates):
+- Extend the surrounding environment outward from the uploaded image: same world, same atmosphere, same depth-of-field, same particle/bokeh behavior, same material language, same color temperature. Seamlessly continue what's already there — like the camera simply zoomed out.
+- LEFT 55% of the frame must be PURE SOLID BLACK (#0A0A0A) — empty negative space reserved for text overlay. No subject, no particles, no glow, no light spill, no texture. The extended atmosphere on the right must fade smoothly into solid black on the left.
 
-Hard constraints (do not violate):
-- NO added text, letters, numbers, logos, watermarks
-- NO UI elements, cards, charts, icons, shields, badges
-- NO frames, borders, rounded corners, drop shadows, sticker outlines
-- NO additional foreground objects in the left 55%
-- Output must feel like one continuous environmentally-lit scene, not a subject pasted onto a background
-- Preserve the engravings/branding that exist on the original subject (those are product identity, not overlay text)
+Lighting & color: identical to the source. No color shift, no new hues, no relighting of the subject.
+
+Hard constraints:
+- Do NOT add any new text, typography, logos, UI, cards, charts, icons, badges, frames, borders, stickers, watermarks, human figures, or new foreground objects anywhere in the canvas.
+- The ONLY text/logos/symbols allowed are those already inside the uploaded reference, kept exactly as-is.
+- Everything you generate is background environment only.
+
+Output: 16:9, photorealistic, cinematic, render style matched exactly to the source.
 ```
 
-Slot examples:
-- `SUBJECT_DESCRIPTION` → `"gold OMENX coin with all engravings (OMENX, MAINNET, 2026)"` / `"purple neon protective chamber with violet particles"`
-- `SCENE_CONTEXT` → `"a pile of out-of-focus gold coins on a dark reflective surface"` / `"faint volumetric purple fog and ground reflections"`
-- `LIGHT_DIRECTION_AND_COLOR` → `"warm gold rim light from upper-right"` / `"neon purple rim light from upper-right"`
-- `DOMINANT_COLOR` → `"warm gold"` / `"violet/purple"`
+No fillable slots — the reference image carries all subject information. The prompt is universal across campaigns.
 
 ## Iteration workflow
 
@@ -106,7 +109,7 @@ If no compliant chip exists, omit it.
 
 ## Mobile layout
 
-- Background image NOT rendered on mobile
+- Background image IS rendered on mobile (full-card with left surface gradient mask)
 - Single column, CTA full-width
 - Countdown moves into meta row top-right (not below CTA)
 - No `absolute` positioned elements in CTA row
