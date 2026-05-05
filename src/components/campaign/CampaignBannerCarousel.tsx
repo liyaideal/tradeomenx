@@ -164,7 +164,7 @@ const banners: CampaignBannerConfig[] = [
     qualifierChip: { text: "No deposit", tone: "success" },
     heroMetric: { value: "$100", label: "Free hedge credit" },
     theme: "primary",
-    visual: <DiagramVisual theme="primary" />,
+    backgroundImage: bannerHedge,
   },
 ];
 
