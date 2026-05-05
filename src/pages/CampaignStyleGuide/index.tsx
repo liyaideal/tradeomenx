@@ -323,6 +323,10 @@ const CampaignStyleGuide = () => {
             </section>
           </TabsContent>
 
+          <TabsContent value="playground" className="mt-0">
+            <CampaignPlayground />
+          </TabsContent>
+
           <TabsContent value="qa" className="mt-0 space-y-6">
             <section>
               <div className="mb-4 border-b border-border pb-2">
