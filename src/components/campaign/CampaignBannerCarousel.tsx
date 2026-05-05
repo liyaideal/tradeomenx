@@ -17,10 +17,9 @@ type CampaignBannerConfig = {
   href: string;
   eyebrow: string;
   title: string;
-  description: string;
   ctaLabel: string;
-  labels: Array<{ text: string; tone: "accent" | "success" | "neutral" }>;
-  metrics: Array<{ label: string; value: string }>;
+  status?: { text: string; tone: "accent" | "success" | "neutral" };
+  heroMetric: { value: string; label: string };
   visual: "launch" | "hedge";
   countdown?: boolean;
 };
@@ -30,18 +29,10 @@ const banners: CampaignBannerConfig[] = [
     id: "mainnet-launch",
     href: "/mainnet-launch",
     eyebrow: "Mainnet Launch",
-    title: "First qualifying trade unlocks campaign rewards.",
-    description: "Trade on mainnet, qualify once, and track reward status through a transparent payout ledger.",
+    title: "Trade once. Earn up to $200.",
     ctaLabel: "Join Now",
-    labels: [
-      { text: "Live", tone: "success" },
-      { text: "Reward ledger", tone: "accent" },
-    ],
-    metrics: [
-      { label: "Activation", value: "$5K" },
-      { label: "Guaranteed", value: "$2-$50" },
-      { label: "Max rebate", value: "$200" },
-    ],
+    status: { text: "Live", tone: "success" },
+    heroMetric: { value: "$5K", label: "Weekly pool" },
     visual: "launch",
     countdown: true,
   },
@@ -49,18 +40,10 @@ const banners: CampaignBannerConfig[] = [
     id: "hedge",
     href: "/hedge",
     eyebrow: "Hedge Campaign",
-    title: "Protect exposed prediction positions before volatility hits.",
-    description: "Bring your outside market exposure into OmenX and claim hedge credits after verification.",
+    title: "Hedge your prediction trades. Free.",
     ctaLabel: "Open Hedge",
-    labels: [
-      { text: "Free hedge", tone: "accent" },
-      { text: "Up to $100", tone: "neutral" },
-    ],
-    metrics: [
-      { label: "Credit cap", value: "$100" },
-      { label: "Setup", value: "2 min" },
-      { label: "Status", value: "Open" },
-    ],
+    status: { text: "Live", tone: "success" },
+    heroMetric: { value: "$100", label: "Free hedge credit" },
     visual: "hedge",
   },
 ];
