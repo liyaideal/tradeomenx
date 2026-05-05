@@ -255,7 +255,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                       <h3 className={cn("max-w-2xl font-semibold leading-tight text-foreground", isMobile ? "text-2xl" : "text-3xl lg:text-4xl")}>{banner.title}</h3>
                     </div>
                     <div className="flex flex-wrap items-baseline gap-2 font-mono">
-                      <span className={cn("font-semibold text-mainnet-gold", isMobile ? "text-xl" : "text-2xl")}>{banner.heroMetric.value}</span>
+                      <span className={cn("font-semibold", isMobile ? "text-xl" : "text-2xl", isLaunch ? "text-mainnet-gold" : "text-primary")}>{banner.heroMetric.value}</span>
                       <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{banner.heroMetric.label}</span>
                     </div>
                   </div>
