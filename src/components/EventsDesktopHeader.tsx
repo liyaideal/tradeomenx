@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { showRewardsPausedToast } from "@/lib/rewardsPause";
 
 // Regular nav items (without Leaderboard)
 const navItems = [
@@ -187,11 +188,11 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Briefcase className="w-4 h-4 mr-2 text-muted-foreground" />
                     Portfolio
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/rewards")}>
+                  <DropdownMenuItem onClick={showRewardsPausedToast}>
                     <Gift className="w-4 h-4 mr-2 text-primary" />
                     Rewards
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/rewards?tab=referral")}>
+                  <DropdownMenuItem onClick={showRewardsPausedToast}>
                     <Users className="w-4 h-4 mr-2 text-primary" />
                     Referral
                   </DropdownMenuItem>

@@ -1,8 +1,6 @@
-import { useNavigate } from "react-router-dom";
 import { usePoints } from "@/hooks/usePoints";
-import { useTasks } from "@/hooks/useTasks";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useRewardsWelcomeSeen } from "@/hooks/useRewardsWelcomeSeen";
+import { showRewardsPausedToast } from "@/lib/rewardsPause";
 import bonusBadge from "@/assets/bonus-badge.gif";
 
 interface FloatingRewardsButtonProps {
@@ -10,70 +8,32 @@ interface FloatingRewardsButtonProps {
 }
 
 /**
- * Permanent right-bottom entry point to the Rewards Center.
- * Shown to logged-in users once they have dismissed (or acknowledged)
- * the one-time RewardsWelcomeModal.
+ * Permanent right-bottom entry point — paused for mainnet launch.
+ * Click triggers a toast announcement instead of navigating to /rewards.
+ * Claimable badge is hidden because Beta points no longer accrue.
  */
 export const FloatingRewardsButton = ({ className = "" }: FloatingRewardsButtonProps) => {
-  const navigate = useNavigate();
   const { user } = useUserProfile();
   const { pointsBalance } = usePoints();
-  const { tasks } = useTasks();
-  const { hasSeen } = useRewardsWelcomeSeen();
 
-  // Check if there are claimable tasks
-  const claimableTasks = tasks.filter(t => t.isCompleted && !t.isClaimed);
-  const hasClaimable = claimableTasks.length > 0;
-
-  // Only show for logged-in users who have already seen the welcome modal
-  if (!user || !hasSeen) return null;
+  if (!user) return null;
 
   return (
     <button
-      onClick={() => navigate("/rewards")}
-      className={`
-        fixed z-50 group
-        ${className}
-      `}
-      aria-label="Open Rewards Center"
+      onClick={showRewardsPausedToast}
+      className={`fixed z-50 group ${className}`}
+      aria-label="Beta points paused"
     >
-      {/* Main button - GIF badge */}
-      <div 
-        className={`
-          relative w-20 h-20
-          transition-all duration-300
-          group-hover:scale-110
-          group-active:scale-95
-        `}
-      >
-        <img 
-          src={bonusBadge} 
+      <div className="relative w-20 h-20 transition-all duration-300 group-hover:scale-110 group-active:scale-95">
+        <img
+          src={bonusBadge}
           alt="Bonus"
           className="w-full h-full object-contain drop-shadow-lg"
         />
-
-        {/* Notification badge */}
-        {hasClaimable && (
-          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-trading-red flex items-center justify-center shadow-lg">
-            <span className="text-[10px] font-bold text-white">
-              {claimableTasks.length}
-            </span>
-          </div>
-        )}
       </div>
 
-      {/* Points preview tooltip */}
-      <div 
-        className={`
-          absolute right-full mr-3 top-1/2 -translate-y-1/2
-          px-3 py-1.5 rounded-lg
-          bg-background/95 backdrop-blur-sm border border-border/50
-          shadow-lg
-          opacity-0 group-hover:opacity-100
-          transition-all duration-200
-          pointer-events-none
-          whitespace-nowrap
-        `}
+      <div
+        className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg bg-background/95 backdrop-blur-sm border border-border/50 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap"
       >
         <p className="text-xs text-muted-foreground">Points Balance</p>
         <p className="font-bold text-primary font-mono">{pointsBalance.toLocaleString()}</p>
