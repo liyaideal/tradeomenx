@@ -13,6 +13,14 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Mainnet launch — Beta points paused. Mirror claim-treasure / redeem-points.
+    return new Response(
+      JSON.stringify({
+        error: 'Beta points are paused for mainnet launch. Existing points will be converted to mainnet points at a set ratio.',
+      }),
+      { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(
