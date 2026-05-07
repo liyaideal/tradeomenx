@@ -1,8 +1,6 @@
-import { useNavigate } from "react-router-dom";
 import { usePoints } from "@/hooks/usePoints";
-import { useTasks } from "@/hooks/useTasks";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useRewardsWelcomeSeen } from "@/hooks/useRewardsWelcomeSeen";
+import { showRewardsPausedToast } from "@/lib/rewardsPause";
 import bonusBadge from "@/assets/bonus-badge.gif";
 
 interface FloatingRewardsButtonProps {

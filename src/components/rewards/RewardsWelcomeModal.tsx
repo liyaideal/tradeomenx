@@ -17,6 +17,9 @@ import rewardsGiftBox from "@/assets/rewards-gift-box.gif";
  * entry point to the Rewards Center.
  */
 export const RewardsWelcomeModal = () => {
+  // Disabled for mainnet launch — Beta points are paused.
+  return null;
+  // eslint-disable-next-line no-unreachable
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
