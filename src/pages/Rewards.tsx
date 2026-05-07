@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Gift, Star, Trophy, Lock, Sparkles } from "lucide-react";
+import { Gift, Star, Trophy, Lock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Logo } from "@/components/Logo";
 import { REWARDS_PAUSED_TITLE, REWARDS_PAUSED_DESCRIPTION } from "@/lib/rewardsPause";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -194,8 +195,8 @@ export default function Rewards() {
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <div className="mx-auto w-14 h-14 rounded-full bg-primary/15 flex items-center justify-center mb-2">
-            <Sparkles className="w-7 h-7 text-primary" />
+          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center mb-2">
+            <Logo size="lg" />
           </div>
           <DialogTitle className="text-center text-xl">{REWARDS_PAUSED_TITLE}</DialogTitle>
           <DialogDescription className="text-center text-sm leading-relaxed pt-1">
