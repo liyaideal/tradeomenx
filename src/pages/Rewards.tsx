@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Gift, Star, Trophy, Lock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Logo } from "@/components/Logo";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { REWARDS_PAUSED_TITLE, REWARDS_PAUSED_DESCRIPTION } from "@/lib/rewardsPause";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -186,7 +187,17 @@ export default function Rewards() {
     </div>
   );
 
-  const pausedDialog = (
+  const pausedContent = (
+    <div className="flex flex-col items-center text-center py-2">
+      <Logo size="xl" className="mb-4" />
+      <h2 className="text-xl font-bold text-foreground mb-2">{REWARDS_PAUSED_TITLE}</h2>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        {REWARDS_PAUSED_DESCRIPTION}
+      </p>
+    </div>
+  );
+
+  const pausedDialogDesktop = (
     <Dialog open={true}>
       <DialogContent
         className="sm:max-w-md border-primary/30 bg-gradient-to-b from-background to-background/95 [&>button]:hidden"
@@ -194,17 +205,23 @@ export default function Rewards() {
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center mb-2">
-            <Logo size="lg" />
-          </div>
-          <DialogTitle className="text-center text-xl">{REWARDS_PAUSED_TITLE}</DialogTitle>
-          <DialogDescription className="text-center text-sm leading-relaxed pt-1">
-            {REWARDS_PAUSED_DESCRIPTION}
-          </DialogDescription>
-        </DialogHeader>
+        <DialogTitle className="sr-only">{REWARDS_PAUSED_TITLE}</DialogTitle>
+        <DialogDescription className="sr-only">{REWARDS_PAUSED_DESCRIPTION}</DialogDescription>
+        {pausedContent}
       </DialogContent>
     </Dialog>
+  );
+
+  const pausedDrawerMobile = (
+    <MobileDrawer
+      open={true}
+      onOpenChange={() => {}}
+      showHandle={false}
+      hideCloseButton={true}
+      className="bg-gradient-to-b from-background to-background/95"
+    >
+      {pausedContent}
+    </MobileDrawer>
   );
 
   if (isMobile) {
