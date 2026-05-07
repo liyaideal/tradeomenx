@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Gift, Star, Trophy, Lock } from "lucide-react";
+import { Gift, Star, Trophy, Lock, Sparkles } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { REWARDS_PAUSED_TITLE, REWARDS_PAUSED_DESCRIPTION } from "@/lib/rewardsPause";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
