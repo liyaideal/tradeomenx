@@ -1,43 +1,55 @@
-## 背景
 
-上一轮我把 prompt 完全通用化是错的。正确口径是：
+## 简化版方案：最小改动停掉积分入口
 
-- **Subject 不描述**（subject = 上传的参考图，pixel-faithful 保留）
-- **Environment 必须 per-campaign 描述**（金币堆 vs 紫色雾舱是世界观基础，不写 AI 只会给一片黑）
+### 核心思路
+- **不改 `/rewards` 页面内容**，只在页面上盖一个**关不掉的公告弹窗**（无 X、Esc 不关、点遮罩不关）
+- **所有进入 `/rewards` 的入口**：保留按钮可见，去掉跳转，统一改成 toast 公告
+- **后端兜底**：`claim-task` 加 503 守卫，防止绕过 UI
 
-模板要保留 3 个 slot：`SCENE_CONTEXT` / `LIGHT_DIRECTION_AND_COLOR` / `DOMINANT_COLOR`，但严格限定这 3 个 slot **只描述环境，不准描述 subject 的形状/材质/文字**。
+### 统一公告文案（常量复用）
+> **主网即将上线**
+> Beta 积分将不再继续累积。现有 Beta 积分将按一定比例转换为主网积分，敬请期待。
 
-## 改动
+### 入口梳理（共 5 处需要拦截 → toast）
 
-### 1. `.lovable/memory/design/campaign-banner-template.md`
+| # | 位置 | 文件 | 当前行为 | 改为 |
+|---|---|---|---|---|
+| 1 | 移动首页右下金币动效 | `FloatingRewardsButton.tsx` | 跳 `/rewards` | toast 公告，隐藏 claimable 数字 badge |
+| 2 | 桌面 Header 头像下拉 → Rewards | `EventsDesktopHeader.tsx:190` | 跳 `/rewards` | toast 公告 |
+| 3 | 桌面 Header 头像下拉 → Referral | `EventsDesktopHeader.tsx:194` | 跳 `/rewards?tab=referral` | toast 公告 |
+| 4 | 移动端"我的"抽屉 → Rewards | `BottomNav.tsx:215-222` | 跳 `/rewards` | toast 公告 |
+| 5 | 移动端"我的"抽屉 → Referral | `BottomNav.tsx:223-230` | 跳 `/rewards?tab=referral` | toast 公告 |
 
-替换 "Reusable AI prompt template" 整段（L47-L77）：
-- 加一段说明：模板分"固定脚手架"+"per-campaign 环境块（3 slot）"两部分；3 个 slot 只描述环境，绝不描述 subject
-- prompt 正文里把 "Scene extension" 段改成包含 `{SCENE_CONTEXT}`，"Lighting & color" 段改成包含 `{LIGHT_DIRECTION_AND_COLOR}` + `{DOMINANT_COLOR}`
-- 主视觉锚定保持 right 25-32%，allow slight tilt
-- 左 60% 纯黑、21:9、所有 hard constraints 不变
-- 加 "Slot examples" 小节，给 Mainnet / Hedge 两个示例填法
+外加：
+- **`RewardsWelcomeModal`**（新登录用户首页一次性弹窗）：直接 `return null` 停用，不再主动引导新用户进积分中心
+- **`/rewards` 页面顶部**：渲染一个**不可关闭的 Dialog**，用户仍可看到自己历史积分（只读），但无法操作
 
-### 2. `scripts/validate-banner-prompt.mjs`
+### 不可关闭弹窗的实现
+- 用 shadcn `<Dialog open={true}>`，不传 `onOpenChange`，不渲染 close 按钮
+- `onEscapeKeyDown` / `onPointerDownOutside` 都 `e.preventDefault()`
+- 内容只有公告文案 + 「我知道了（仅关闭按钮 disabled，文案改为"页面已暂停"）」或者干脆没有按钮，纯静态
 
-- 新增必含规则 `scene-context-described`：检测 prompt 是否包含具体的环境描述（关键词如 `pile of`, `coins`, `fog`, `bokeh`, `surface`, `floor`, `particles`, `mist` 等任一），防止又退回成空泛的 "extend the surrounding environment"
-- 新增必含规则 `light-direction-described`：检测光线描述（`rim light`, `from upper-`, `falloff`, `underglow` 等任一）
-- 新增必含规则 `monochrome-color-stated`：检测 `monochromatic` + 颜色词（`gold`, `purple`, `violet`, `green`, `cyan` 等）
-- 现有 `aspect-21-9` / `right-anchor-25-32` / `left-black-zone` / `extend-only` / `pixel-faithful-preservation` / `preserve-text-logos` / `no-new-additions` / 4 条 forbidden 全部保留
+### 后端兜底（推荐保留）
+`supabase/functions/claim-task/index.ts` 顶部加：
+```ts
+return new Response(JSON.stringify({ error: "Beta points are paused for mainnet launch" }), { status: 503, headers: ... })
+```
+跟 `claim-treasure` / `redeem-points` 已有处理保持一致。**强烈建议保留**：否则任何老用户已完成的任务还能在前端绕过，或脚本直调接口领。
 
-### 3. 自测
+### 改动文件清单（共 7 个）
+1. **新增** `src/lib/rewardsPause.ts` — 公告文案常量 + `showRewardsPausedToast()` 工具函数
+2. `src/components/rewards/FloatingRewardsButton.tsx` — 改 onClick + 隐藏 badge
+3. `src/components/EventsDesktopHeader.tsx` — 2 个菜单项改 onClick
+4. `src/components/BottomNav.tsx` — 2 个菜单项改 onClick
+5. `src/components/rewards/RewardsWelcomeModal.tsx` — 顶部 `return null`
+6. `src/pages/Rewards.tsx` — 加一个不可关闭的公告 Dialog 覆盖（页面其余内容不动）
+7. `supabase/functions/claim-task/index.ts` — 顶部 503 守卫
+8. 更新 `mem://features/rewards/mainnet-launch-pause` 记忆
 
-把模板里 Mainnet 示例填好后跑校验脚本，确保 PASS。
+### 不动
+- `/rewards` 页面 UI / Tasks / Referral / History 列表代码
+- 数据表 / Edge function 逻辑（除 503 守卫）
+- `MainnetLaunch` 活动页里的 RewardSnapshot/RewardLadder（与 Beta 积分无关）
+- Referral 邀请关系绑定逻辑（只是不再发积分）
 
-### 4. 给用户两份成品 prompt
-
-执行完模板更新后，直接在回复里输出：
-- **Mainnet 21:9 prompt**：填好 mainnet slot（金币堆 + warm gold rim light + warm gold）
-- **Hedge 21:9 prompt**：填好 hedge slot（紫雾 + neon purple rim light + electric violet）
-
-两份 prompt 都先跑一遍校验脚本，PASS 后才给用户。
-
-## 不动的部分
-
-- `CampaignBannerCarousel.tsx` 不动（CSS 已经是 `object-cover object-right`，21:9 源图直接生效）
-- 现有 `banner-mainnet-launch.jpg` / `banner-hedge.jpg` 等用户拿到新 21:9 图后回传，我替换文件即可
+确认后开始实施。
