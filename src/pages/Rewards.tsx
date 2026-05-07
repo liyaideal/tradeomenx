@@ -230,6 +230,7 @@ export default function Rewards() {
           referralLink={referralLink}
           onConfirm={handleXShareConfirm}
         />
+        {pausedDialog}
       </div>
     );
   }
@@ -263,6 +264,7 @@ export default function Rewards() {
         referralLink={referralLink}
         onConfirm={handleXShareConfirm}
       />
+      {pausedDialog}
     </div>
   );
 }
