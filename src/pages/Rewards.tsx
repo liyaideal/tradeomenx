@@ -185,6 +185,27 @@ export default function Rewards() {
     </div>
   );
 
+  const pausedDialog = (
+    <Dialog open={true}>
+      <DialogContent
+        className="sm:max-w-md border-primary/30 bg-gradient-to-b from-background to-background/95 [&>button]:hidden"
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
+        <DialogHeader>
+          <div className="mx-auto w-14 h-14 rounded-full bg-primary/15 flex items-center justify-center mb-2">
+            <Sparkles className="w-7 h-7 text-primary" />
+          </div>
+          <DialogTitle className="text-center text-xl">{REWARDS_PAUSED_TITLE}</DialogTitle>
+          <DialogDescription className="text-center text-sm leading-relaxed pt-1">
+            {REWARDS_PAUSED_DESCRIPTION}
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
