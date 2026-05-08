@@ -37,6 +37,7 @@ const DEMO_AIRDROPS_STORAGE_KEY_PREFIX = "omenx-demo-airdrop-positions:";
 const MOCK_AIRDROPS: AirdropPosition[] = [
   {
     id: "mock-airdrop-1",
+    source: "matched",
     externalEventName: "Will Bitcoin reach $120k by March 2026?",
     externalSide: "Yes",
     externalPrice: 0.62,
@@ -53,6 +54,7 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
   },
   {
     id: "mock-airdrop-2",
+    source: "matched",
     externalEventName: "Fed rate cut in June 2026?",
     externalSide: "Yes",
     externalPrice: 0.45,
@@ -68,7 +70,25 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
   },
   {
+    id: "mock-airdrop-welcome",
+    source: "welcome_gift",
+    externalEventName: null,
+    externalSide: null,
+    externalPrice: null,
+    counterEventName: "ETH Price Prediction April 2026",
+    counterEventId: "eth-10k-2026",
+    counterOptionLabel: "Above $5,000",
+    counterSide: "long",
+    counterPrice: 0.42,
+    airdropValue: 10,
+    status: "pending",
+    expiresAt: new Date(Date.now() + 36 * 60 * 60 * 1000).toISOString(),
+    activatedAt: null,
+    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+  },
+  {
     id: "mock-airdrop-3",
+    source: "matched",
     externalEventName: "ETH above $5,000 by April 2026?",
     externalSide: "No",
     externalPrice: 0.72,
@@ -85,6 +105,7 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
   },
   {
     id: "mock-airdrop-4",
+    source: "matched",
     externalEventName: "SOL above $300 by May 2026?",
     externalSide: "Yes",
     externalPrice: 0.55,
