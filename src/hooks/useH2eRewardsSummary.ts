@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "./useUserProfile";
 import { useAirdropPositions } from "./useAirdropPositions";
 
@@ -67,8 +69,24 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
   // Demo: frozen = total earned (not yet unlocked)
   const frozenBalance = Math.min(totalEarned, H2E_EARNINGS_CAP);
 
-  // Demo: mock volume progress
-  const volumeCompleted = 12500;
+  // Real volume from filled trades (sums notional `amount`).
+  // In demo mode we still use the same source — handle_new_user seeds a few
+  // demo trades, so new users start near 0 and the bar fills as they trade.
+  const { data: volumeCompleted = 0 } = useQuery({
+    queryKey: ["h2e-volume", user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const { data, error } = await supabase
+        .from("trades")
+        .select("amount")
+        .eq("user_id", user.id)
+        .eq("status", "Filled");
+      if (error || !data) return 0;
+      return data.reduce((sum, t: any) => sum + Number(t.amount ?? 0), 0);
+    },
+    enabled: !!user,
+    staleTime: 30_000,
+  });
   const currentTier = [...H2E_UNLOCK_TIERS].reverse().find((tier) => volumeCompleted >= tier.volume);
   const nextTier = H2E_UNLOCK_TIERS.find((tier) => volumeCompleted < tier.volume) ?? null;
   const unlockedPercent = currentTier?.percent ?? 0;
