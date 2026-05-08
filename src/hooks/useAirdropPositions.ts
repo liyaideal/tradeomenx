@@ -5,11 +5,16 @@ import { useConnectedAccounts } from "./useConnectedAccounts";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 
+export type AirdropSource = "matched" | "welcome_gift";
+
 export interface AirdropPosition {
   id: string;
-  externalEventName: string;
-  externalSide: string;
-  externalPrice: number;
+  /** Source of the airdrop: matched to a real Polymarket position, or a fallback Welcome Gift */
+  source: AirdropSource;
+  /** External (Polymarket) reference — null for welcome_gift */
+  externalEventName: string | null;
+  externalSide: string | null;
+  externalPrice: number | null;
   counterEventName: string;
   counterEventId: string;
   counterOptionLabel: string;
