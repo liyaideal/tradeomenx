@@ -193,9 +193,10 @@ export const useAirdropPositions = () => {
       if (data && data.length > 0) {
         return (data as any[]).map((row): AirdropPosition => ({
           id: row.id,
-          externalEventName: row.external_event_name,
-          externalSide: row.external_side,
-          externalPrice: Number(row.external_price),
+          source: (row.source as AirdropSource) ?? "matched",
+          externalEventName: row.external_event_name ?? null,
+          externalSide: row.external_side ?? null,
+          externalPrice: row.external_price != null ? Number(row.external_price) : null,
           counterEventName: row.counter_event_name,
           counterEventId: row.counter_event_id || "",
           counterOptionLabel: row.counter_option_label,
