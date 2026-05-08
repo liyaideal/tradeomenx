@@ -27,12 +27,13 @@ export type Database = {
           created_at: string
           expired_at: string | null
           expires_at: string
-          external_event_name: string
+          external_event_name: string | null
           external_position_id: string | null
-          external_price: number
-          external_side: string
-          external_size: number
+          external_price: number | null
+          external_side: string | null
+          external_size: number | null
           id: string
+          source: string
           status: string
           updated_at: string
           user_id: string
@@ -49,12 +50,13 @@ export type Database = {
           created_at?: string
           expired_at?: string | null
           expires_at: string
-          external_event_name: string
+          external_event_name?: string | null
           external_position_id?: string | null
-          external_price: number
-          external_side: string
-          external_size: number
+          external_price?: number | null
+          external_side?: string | null
+          external_size?: number | null
           id?: string
+          source?: string
           status?: string
           updated_at?: string
           user_id: string
@@ -71,12 +73,13 @@ export type Database = {
           created_at?: string
           expired_at?: string | null
           expires_at?: string
-          external_event_name?: string
+          external_event_name?: string | null
           external_position_id?: string | null
-          external_price?: number
-          external_side?: string
-          external_size?: number
+          external_price?: number | null
+          external_side?: string | null
+          external_size?: number | null
           id?: string
+          source?: string
           status?: string
           updated_at?: string
           user_id?: string
