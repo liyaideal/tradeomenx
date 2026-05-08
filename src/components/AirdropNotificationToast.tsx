@@ -51,14 +51,20 @@ export const AirdropNotificationToast = () => {
 
     timerRef.current = setTimeout(() => {
       newAirdrops.forEach((airdrop) => {
-        toast("🎁 New Airdrop Received!", {
-          description: `You received a FREE $${airdrop.airdropValue} hedge on "${airdrop.counterEventName}". Activate before it expires!`,
-          duration: 8000,
-          action: {
-            label: "View",
-            onClick: () => navigate("/portfolio/airdrops"),
-          },
-        });
+        const isWelcomeGift = airdrop.source === "welcome_gift";
+        toast(
+          isWelcomeGift ? "Welcome gift unlocked" : "New Airdrop Received!",
+          {
+            description: isWelcomeGift
+              ? `Free $${airdrop.airdropValue} hedge position on us — activate before it expires.`
+              : `You received a FREE $${airdrop.airdropValue} hedge on "${airdrop.counterEventName}". Activate before it expires!`,
+            duration: 8000,
+            action: {
+              label: "View",
+              onClick: () => navigate("/portfolio/airdrops"),
+            },
+          }
+        );
       });
     }, 500);
 

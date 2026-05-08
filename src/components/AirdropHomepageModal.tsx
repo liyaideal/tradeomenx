@@ -88,6 +88,7 @@ const AirdropModalBody = ({
   isActivating: boolean;
 }) => {
   const countdown = useCountdown(airdrop.expiresAt);
+  const isWelcomeGift = airdrop.source === "welcome_gift";
 
   return (
     <div className="space-y-4 py-1">
@@ -96,37 +97,47 @@ const AirdropModalBody = ({
         <div className="w-14 h-14 rounded-2xl bg-trading-green/15 flex items-center justify-center mx-auto mb-3">
           <Gift className="w-7 h-7 text-trading-green" />
         </div>
-        <h3 className="text-xl font-bold text-foreground">New Airdrop Detected!</h3>
-        <p className="text-xs text-muted-foreground">We found a hedge opportunity from your Polymarket position</p>
+        <h3 className="text-xl font-bold text-foreground">
+          {isWelcomeGift ? "Welcome gift unlocked" : "New Airdrop Detected!"}
+        </h3>
+        <p className="text-xs text-muted-foreground">
+          {isWelcomeGift
+            ? "Thanks for connecting your Polymarket wallet — here's a free $10 position on us."
+            : "We found a hedge opportunity from your Polymarket position"}
+        </p>
       </div>
 
       {/* Combined card */}
       <div className="rounded-xl border border-border/60 overflow-hidden">
-        {/* Polymarket position */}
-        <div className="p-3.5 bg-muted/30">
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-wider mb-2">
-            <Zap className="w-3 h-3 text-trading-yellow" />
-            Your Polymarket Position
-          </div>
-          <p className="text-sm font-medium text-foreground leading-snug mb-2">{airdrop.externalEventName}</p>
-          <Badge variant="outline" className="text-[11px] font-mono border-primary/30 text-primary">
-            {airdrop.externalSide} @ ${airdrop.externalPrice.toFixed(2)}
-          </Badge>
-        </div>
+        {/* Polymarket position — only for matched airdrops */}
+        {!isWelcomeGift && airdrop.externalEventName && (
+          <>
+            <div className="p-3.5 bg-muted/30">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-wider mb-2">
+                <Zap className="w-3 h-3 text-trading-yellow" />
+                Your Polymarket Position
+              </div>
+              <p className="text-sm font-medium text-foreground leading-snug mb-2">{airdrop.externalEventName}</p>
+              <Badge variant="outline" className="text-[11px] font-mono border-primary/30 text-primary">
+                {airdrop.externalSide} @ ${airdrop.externalPrice?.toFixed(2)}
+              </Badge>
+            </div>
 
-        {/* Divider with arrow */}
-        <div className="relative h-0 flex items-center justify-center z-10">
-          <div className="w-7 h-7 rounded-full bg-trading-green border-2 border-background flex items-center justify-center">
-            <ArrowRight className="w-3.5 h-3.5 text-white rotate-90" />
-          </div>
-        </div>
+            {/* Divider with arrow */}
+            <div className="relative h-0 flex items-center justify-center z-10">
+              <div className="w-7 h-7 rounded-full bg-trading-green border-2 border-background flex items-center justify-center">
+                <ArrowRight className="w-3.5 h-3.5 text-white rotate-90" />
+              </div>
+            </div>
+          </>
+        )}
 
-        {/* Free hedge */}
+        {/* Free hedge / gift */}
         <div className="p-3.5 bg-trading-green/5">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 text-[11px] text-trading-green uppercase tracking-wider">
               <Shield className="w-3 h-3" />
-              Free OmenX Hedge
+              {isWelcomeGift ? "Your Free OmenX Position" : "Free OmenX Hedge"}
             </div>
             <span className="text-lg font-bold text-trading-green font-mono">${airdrop.airdropValue}</span>
           </div>
@@ -137,10 +148,19 @@ const AirdropModalBody = ({
         </div>
       </div>
 
+      {/* Optional hedge prompt for welcome gift */}
+      {isWelcomeGift && (
+        <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-2.5">
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            Want to hedge it? You can open the opposite side on Polymarket anytime — totally optional.
+          </p>
+        </div>
+      )}
+
       {/* Countdown */}
       <div className="flex items-center justify-center gap-2 text-sm py-2">
         <Clock className="w-3.5 h-3.5 text-trading-yellow" />
-        <span className="text-muted-foreground text-xs">⏰ Expires in</span>
+        <span className="text-muted-foreground text-xs">Expires in</span>
         <span className="font-mono font-bold text-sm text-foreground">{countdown}</span>
         <span className="text-muted-foreground text-xs">— tap Activate to claim</span>
       </div>
