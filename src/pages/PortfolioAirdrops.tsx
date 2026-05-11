@@ -4,6 +4,7 @@ import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2, I
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { useCountdown } from "@/hooks/useCountdown";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
