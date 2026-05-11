@@ -57,7 +57,7 @@ import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
-import { useCountdown } from "@/hooks/useCountdown";
+import { useCountdown as useExpiryCountdown } from "@/hooks/useCountdown";
 import { Badge } from "@/components/ui/badge";
 
 // Countdown hook
