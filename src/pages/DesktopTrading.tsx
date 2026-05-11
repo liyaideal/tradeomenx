@@ -1349,6 +1349,7 @@ export default function DesktopTrading() {
                             >
                               {isActivating ? "Activating…" : "Activate"}
                             </button>
+                            <PendingExpiresIn expiresAt={airdrop.expiresAt} />
                           </td>
                         </tr>
                       ))}
