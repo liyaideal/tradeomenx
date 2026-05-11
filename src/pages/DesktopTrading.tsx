@@ -1332,14 +1332,12 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-sm text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-center text-xs text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-center">
-                            <button 
+                            <ActivateAirdropButton
+                              expiresAt={airdrop.expiresAt}
                               onClick={() => activateAirdrop(airdrop.id)}
-                              disabled={isActivating}
-                              className="px-3 py-1 text-xs text-primary border border-primary/50 rounded hover:bg-primary/10 disabled:opacity-50"
-                            >
-                              {isActivating ? "Activating…" : "Activate"}
-                            </button>
-                            <PendingExpiresIn expiresAt={airdrop.expiresAt} />
+                              isActivating={isActivating}
+                              variant="trading"
+                            />
                           </td>
                         </tr>
                       ))}
