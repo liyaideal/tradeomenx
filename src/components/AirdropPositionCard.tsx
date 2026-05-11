@@ -1,7 +1,7 @@
-import { Gift, Clock, Zap, AlertTriangle, Loader2, CheckCircle2 } from "lucide-react";
+import { Gift, Clock, Zap, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
+import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import type { AirdropPosition } from "@/hooks/useAirdropPositions";
 
 interface AirdropPositionCardProps {
