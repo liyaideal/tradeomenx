@@ -226,7 +226,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
       {/* Submit */}
       <Button
         onClick={handleSubmit}
-        disabled={isSubmitting || !amount || !selectedAddress}
+        disabled={isSubmitting || !amount || !selectedAddress || parseFloat(amount) < minAmount}
         className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl text-sm" : "h-11 rounded-lg")}
       >
         {isSubmitting ? (
