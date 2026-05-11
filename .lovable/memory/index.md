@@ -112,3 +112,4 @@
 - [H2E landing architecture](mem://marketing/hedge-landing-architecture) — /hedge section order, anti-AI design tactics, mock data convention
 - [Campaign landing design system](mem://design/campaign-landing-design-system) — Dedicated campaign microsite rules, separate from product design system
 - [Campaign banner template](mem://design/campaign-banner-template) — Unified two-column banner skeleton; theme + visual slot only, no full-bleed photos
+- [Demo accounts](mem://features/demo-accounts-fixed-identities) — Two persistent fixed demo accounts (matched/welcome) for QA login
