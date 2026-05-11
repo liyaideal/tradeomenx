@@ -138,18 +138,23 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
 
       {/* Action */}
       {isPending && !isExpired && (
-        <Button
-          onClick={() => onActivate?.(airdrop.id)}
-          disabled={isActivating}
-          className="w-full h-8 text-xs btn-primary gap-1"
-        >
-          {isActivating ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Zap className="w-3 h-3" />
-          )}
-          {isActivating ? "Activating…" : "Activate"}
-        </Button>
+        <div className="space-y-1">
+          <Button
+            onClick={() => onActivate?.(airdrop.id)}
+            disabled={isActivating}
+            className="w-full h-8 text-xs btn-primary gap-1"
+          >
+            {isActivating ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Zap className="w-3 h-3" />
+            )}
+            {isActivating ? "Activating…" : "Activate"}
+          </Button>
+          <p className={`text-[10px] text-center font-mono ${urgent ? "text-trading-red font-medium" : "text-trading-yellow"}`}>
+            Expires in {timeLeft}
+          </p>
+        </div>
       )}
 
       {isExpiredStatus && (
