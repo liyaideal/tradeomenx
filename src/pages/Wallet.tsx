@@ -503,30 +503,35 @@ export default function Wallet() {
                 className="absolute left-1 top-3 h-px bg-primary transition-all duration-500"
                 style={{ width: `${Math.min((h2e.volumeCompleted / h2e.volumeRequired) * 100, 100)}%` }}
               />
-              <div className="relative grid grid-cols-5 gap-3">
+              <div className="relative grid grid-cols-6 gap-3">
                 {h2e.unlockTiers.map((tier) => {
                   const isReached = h2e.volumeCompleted >= tier.volume;
                   const isNext = h2e.nextTierVolume === tier.volume;
+                  const isStarter = tier.volume === 0;
 
                   return (
                     <div key={tier.volume} className="flex flex-col items-center text-center">
                       <span
                         className={`relative z-10 h-6 w-6 rounded-full border-2 bg-background transition-all duration-300 ${
-                          isReached
-                            ? "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]"
-                            : isNext
-                              ? "border-primary/70 shadow-[0_0_0_4px_hsl(var(--primary)/0.08)]"
-                              : "border-border"
+                          isStarter
+                            ? "border-trading-green/60"
+                            : isReached
+                              ? "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]"
+                              : isNext
+                                ? "border-primary/70 shadow-[0_0_0_4px_hsl(var(--primary)/0.08)]"
+                                : "border-border"
                         }`}
                       >
-                        {isReached && showH2eUnlockToast && tier.percent === h2e.unlockedPercent && (
+                        {!isStarter && isReached && showH2eUnlockToast && tier.percent === h2e.unlockedPercent && (
                           <span className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
                         )}
                       </span>
-                      <span className={`mt-2 font-mono text-[11px] font-semibold ${isReached || isNext ? "text-foreground" : "text-muted-foreground"}`}>
-                        {tier.percent}%
+                      <span className={`mt-2 font-mono text-[11px] font-semibold ${isStarter ? "text-trading-green" : isReached || isNext ? "text-foreground" : "text-muted-foreground"}`}>
+                        {isStarter ? `+$${h2e.starterUnlock}` : `${tier.percent}%`}
                       </span>
-                      <span className="font-mono text-[10px] text-muted-foreground">${(tier.volume / 1000).toFixed(0)}K</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">
+                        {isStarter ? "Starter" : `$${(tier.volume / 1000).toFixed(0)}K`}
+                      </span>
                     </div>
                   );
                 })}
