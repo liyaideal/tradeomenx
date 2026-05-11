@@ -240,7 +240,7 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
       {/* Submit Button */}
       <Button
         onClick={handleSubmit}
-        disabled={isSubmitting || !amount || !selectedAddress}
+        disabled={isSubmitting || !amount || !selectedAddress || parseFloat(amount) < minAmount}
         className="w-full h-14 rounded-xl bg-primary hover:bg-primary-hover text-lg font-semibold"
       >
         {isSubmitting ? (
