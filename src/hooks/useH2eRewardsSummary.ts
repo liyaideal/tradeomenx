@@ -124,6 +124,7 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
     nextTierPercent: nextTier?.percent ?? null,
     volumeToNextTier: nextTier ? Math.max(0, nextTier.volume - volumeCompleted) : 0,
     unlockTiers: H2E_UNLOCK_TIERS,
+    starterUnlock: H2E_STARTER_UNLOCK,
     volumePercent: nextTier ? Math.min((volumeCompleted / nextTier.volume) * 100, 100) : 100,
     earningsPercent: Math.min((totalEarned / H2E_EARNINGS_CAP) * 100, 100),
     settlements,
