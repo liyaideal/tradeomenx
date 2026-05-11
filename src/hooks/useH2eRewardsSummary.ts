@@ -4,7 +4,9 @@ import { useUserProfile } from "./useUserProfile";
 import { useAirdropPositions } from "./useAirdropPositions";
 
 const H2E_EARNINGS_CAP = 100;
+const H2E_STARTER_UNLOCK = 5;
 const H2E_UNLOCK_TIERS = [
+  { volume: 0, percent: 0 },
   { volume: 10000, percent: 10 },
   { volume: 50000, percent: 25 },
   { volume: 100000, percent: 50 },
@@ -36,6 +38,8 @@ export interface H2eRewardsSummary {
   volumeToNextTier: number;
   /** All configured withdrawal unlock tiers */
   unlockTiers: Array<{ volume: number; percent: number }>;
+  /** Free starter unlock amount (independent of H2E frozenBalance, granted on signup) */
+  starterUnlock: number;
   /** Lifetime H2E earnings */
   totalEarned: number;
   /** Max earnings cap */
@@ -120,6 +124,7 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
     nextTierPercent: nextTier?.percent ?? null,
     volumeToNextTier: nextTier ? Math.max(0, nextTier.volume - volumeCompleted) : 0,
     unlockTiers: H2E_UNLOCK_TIERS,
+    starterUnlock: H2E_STARTER_UNLOCK,
     volumePercent: nextTier ? Math.min((volumeCompleted / nextTier.volume) * 100, 100) : 100,
     earningsPercent: Math.min((totalEarned / H2E_EARNINGS_CAP) * 100, 100),
     settlements,
