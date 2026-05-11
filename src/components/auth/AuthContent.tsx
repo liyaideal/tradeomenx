@@ -444,6 +444,34 @@ export const AuthContent = ({
           </p>
         </div>
 
+        {/* Demo accounts — persistent fixed identities for QA / demos */}
+        <div className="border border-dashed border-border/60 rounded-xl p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-muted-foreground">Demo accounts</p>
+            <span className="text-[10px] text-muted-foreground/70">For demo only</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isLoading}
+              onClick={() => handleDemoAccountLogin("matched")}
+              className="h-9 text-xs"
+            >
+              Matched user (A)
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isLoading}
+              onClick={() => handleDemoAccountLogin("welcome")}
+              className="h-9 text-xs"
+            >
+              Welcome gift user (B)
+            </Button>
+          </div>
+        </div>
+
         {/* Terms */}
         <p className="text-xs text-muted-foreground text-center">
           By continuing, you agree to our{" "}
