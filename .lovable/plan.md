@@ -1,68 +1,36 @@
-## H2E 解锁阶梯：5 档 → 6 档调整
+## Withdraw 最低金额提示前置 + 实时校验
 
-将 H2E 奖励交易量解锁从 5 档扩展为 6 档（新增 $0 / 0% 起点档），并在 UI 中明确展示「$5 starter unlock」（来自现有 `trialBalance`，与 H2E frozen 独立）。
+最低金额（USDC/USDT 20）目前只藏在 Summary 行的 `Minimum: 20 USDC`，且只有点 Submit 才会触发 `validateWithdrawal` 报错。要把信息前置并加实时校验。
 
-### 1. 解锁档位调整（`src/hooks/useH2eRewardsSummary.ts`）
+### 改动文件
 
-`H2E_UNLOCK_TIERS` 由 5 项扩展为 6 项：
+1. `src/components/withdraw/WalletWithdraw.tsx`
+2. `src/components/withdraw/WithdrawForm.tsx`
 
-```ts
-const H2E_UNLOCK_TIERS = [
-  { volume: 0,      percent: 0   },
-  { volume: 10000,  percent: 10  },
-  { volume: 50000,  percent: 25  },
-  { volume: 100000, percent: 50  },
-  { volume: 200000, percent: 75  },
-  { volume: 400000, percent: 100 },
-];
+### 三处一致改动
+
+**A. 输入框 placeholder** 由 `0.00` 改为 `Min ${minAmount}`，让用户在输入前就看到下限。
+
+**B. 输入框下方 Available 行右侧并列展示 Min**
+```
+Available: 12.50 USDC          Min 20 USDC
+```
+（与 Available 同一行，`flex justify-between`，统一 `text-xs` / `text-sm` 灰）
+
+**C. 实时校验 inline 错误**
+在 `handleAmountChange` 内（或派生 `amountError`）：
+- amount 非空且 `parseFloat(amount) > 0` 且 `< minAmount` → 设 `error = "Minimum withdrawal is 20 USDC"`
+- 输入合法或为空 → 清空 error
+继续沿用现有红框样式 `error && border-trading-red`。
+
+**D. Submit 按钮 disabled 增加条件**
+```
+disabled={isSubmitting || !amount || !selectedAddress || parseFloat(amount) < minAmount}
 ```
 
-口径维持不变：
-- `unlockedAmount = frozenBalance × unlockedPercent / 100`
-- `lockedAmount   = frozenBalance − unlockedAmount`
-- 累计解锁，无插值
-- $100 单账号上限不变
+### 不动
 
-新增导出字段（供 UI 展示 starter 行）：
-- `starterUnlock = 5`（常量）
-- 不与 frozenBalance 相加，仅用于展示
-
-### 2. Wallet 卡片 UI（`src/pages/Wallet.tsx`）
-
-桌面端阶梯节点：
-- 由 `grid-cols-5` 改为 `grid-cols-6`
-- 第 0 档显示 `0%` / `$0`，未达到时也置灰
-- 进度条分母仍是 `volumeRequired = $400K`，第 0 档 dot 永远视为「已到达」（`volumeCompleted >= 0`），需要在样式上避免误导（可让 0 档 dot 用 `border-primary/60`，不显示外发光环）
-
-移动端时间线：
-- `unlockTiers.map` 自然变 6 行，无需结构改动
-- 0% 档行文案：`Starter` 而不是 `0% unlock`，副文案 `$0 volume`，右侧标签固定 `included`
-
-新增「Starter unlock」展示块（位于 Earnings cap 上方或 Withdrawal unlock progress 下方）：
-- 标签：`Starter Unlock`
-- 数值：`$5.00`（来自 `trialBalance`）
-- 说明：`Free starter balance, withdrawable anytime. Independent of H2E rewards.`
-- 视觉与现有 Trial Bonus 区块同源（绿色 chip），桌面/移动两套布局都加
-
-底部说明文案：
-- 保持 `Current unlocked: X% · Full unlock at $400,000`
-- 末档已解锁文案不变
-
-### 3. StyleGuide 同步（`src/pages/StyleGuide/sections/WalletSection.tsx`）
-
-- 同步 `H2E_UNLOCK_TIERS` 为 6 档
-- `grid-cols-5` → `grid-cols-6`
-- 加入 starter unlock 演示块
-
-### 4. 文案/Memory 更新
-
-更新 `mem://features/h2e/wallet-and-anti-abuse`：
-- 阶梯改为 6 档（含 0% 起点档）
-- 明确：starter unlock $5 来自 `trialBalance`，与 H2E frozenBalance 完全独立，登录即赠
-- 公式不变：可提现 H2E 金额 = frozenBalance × unlockedPercent
-
-### Out of scope
-
-- 不改后端/edge function（所有计算均在前端 hook）
-- 不改 trialBalance 来源逻辑（已存在）
-- 不动 $100 cap、不改 settlement 流程
+- `WITHDRAW_MINIMUMS` 数值（保持 USDT/USDC = 20）
+- Summary 内 `Minimum` 行（保留作为最终复核展示）
+- 后端 / `useWithdraw` 校验逻辑（仅前端 UX 优化）
+- 其他 token 的最低额展示

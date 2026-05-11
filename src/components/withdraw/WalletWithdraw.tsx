@@ -58,7 +58,12 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
   const handleAmountChange = (value: string) => {
     if (!/^\d*\.?\d*$/.test(value)) return;
     setAmount(value);
-    setError(null);
+    const parsed = parseFloat(value);
+    if (value && parsed > 0 && parsed < minAmount) {
+      setError(`Minimum withdrawal is ${minAmount} USDC`);
+    } else {
+      setError(null);
+    }
   };
 
   const handleSetMax = () => {
