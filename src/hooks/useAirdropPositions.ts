@@ -158,7 +158,7 @@ const saveDemoAirdrops = (userId: string, airdrops: AirdropPosition[]) => {
 };
 
 export const useAirdropPositions = () => {
-  const { user } = useUserProfile();
+  const { user, email } = useUserProfile();
   const { activeAccounts, isDemoMode } = useConnectedAccounts();
   const queryClient = useQueryClient();
   const [isActivating, setIsActivating] = useState(false);
