@@ -1,57 +1,53 @@
 ## 目标
 
-让 pending airdrop 的 Activate 按钮旁/下方显示"距离作废还有多久"的倒计时,避免用户错过 72 小时的激活窗口。
+把 pending airdrop 的倒计时从按钮"下方一行"挪到"按钮内部"，让按钮自带紧迫感，颜色与按钮风格统一，不再额外占垂直空间。
 
-## 当前现状
+## 新按钮布局
 
-- `expiresAt` 字段已经存在于 `AirdropPosition` 类型上(72h),只是没有在所有入口展示。
-- 移动端 `AirdropPositionCard.tsx` 顶部右侧已有 `Clock + timeLeft`(`useCountdown`),但**与 Activate 按钮距离较远**,且只在卡片内部生效。
-- 三个 desktop 入口都**没有任何倒计时**:
-  - `PortfolioAirdrops.tsx` 桌面表格 Action 列的 Activate 按钮
-  - `DesktopTrading.tsx` 交易页 Positions 表里的 PENDING 行 Activate 按钮
-  - `TradingCharts.tsx` / `TradeOrder.tsx` 顶部 banner 文案
+按钮内文案改为两段式（结构 `Activate · 47h 6m`）：
 
-## 改动方案(纯 UI)
+- 左：闪电图标 + `Activate`
+- 中间：一根低透明度竖分隔（`opacity-40`）
+- 右：font-mono 的剩余时间 `47h 6m`
 
-### 1. 抽出可复用倒计时
+样式细节：
 
-把 `AirdropPositionCard.tsx` 内的 `useCountdown` 抽到 `src/hooks/useCountdown.ts`,导出:
-- `useCountdown(expiresAt)` → `{ timeLeft, isExpired, urgent }`
-  - `urgent = diff < 1h`,< 1h 时显示分钟级精度 `Xm Ys`,否则 `Xh Ym`。
-  - 内部根据剩余时间动态调整刷新间隔(≥1h 每分钟,<1h 每 10 秒,<1m 每秒)。
+- 整颗按钮维持 `btn-primary` / 紫色主调，不改主色。
+- 倒计时部分用 `font-mono`，颜色 `text-primary-foreground/80`（默认状态稍弱化，避免抢主标）。
+- 当 `urgent`（< 1h）：整颗按钮变体切到 `bg-trading-red hover:bg-trading-red/90`，倒计时部分变 `text-white font-semibold`，整体给紧迫信号；图标也跟着继承色。
+- 按钮宽度撑开（去掉之前固定 h-7 紧凑约束之外，按需要给一点 `min-w-[120px]`），确保 `47h 6m` 不换行。
+- 加载中（`isActivating`）只显示 `Loader2 + Activating…`，隐藏倒计时段。
 
-### 2. 在 Activate 按钮旁补倒计时
+提取一个共享小组件 `src/components/ActivateAirdropButton.tsx`：
 
-统一样式:小号 `text-[10px]`,默认 `text-trading-yellow`,< 1h 时 `text-trading-red` 并轻微加粗;前缀 `Expires in `,后缀直接是 `2h 14m`。
+```
+ActivateAirdropButton({ expiresAt, onClick, isActivating, variant: "table" | "trading" })
+```
 
-- **`AirdropPositionCard.tsx`(移动卡片)**:在 Activate 按钮下面追加一行 `Expires in Xh Ym`,与按钮居中对齐;保留顶部 header 的 Clock 标签不变(双重提示,顶部偏宏观,按钮下偏行动)。
-- **`PortfolioAirdrops.tsx` 桌面表格**:Action 列的 `Activate` 按钮下面追加一个 `<div>` 显示倒计时;为不挤压列宽,只显示 `Xh Ym`,无前缀。同时把 Status 列的 "Pending" 徽章 hover tooltip 里也写"72h 自动作废"(`HeaderWithInfo` 已经有了,无需改)。
-- **`DesktopTrading.tsx`(交易页 PENDING 行)**:Activate 按钮所在 `<td>` 改为按钮 + 下方小字 `Expires Xh Ym`。
-
-### 3. Banner 文案微调(可选,顺手做)
-
-`DesktopTrading.tsx`、`TradingCharts.tsx`、`TradeOrder.tsx`、`DesktopPositionsPanel.tsx` 顶部那条 "🎁 You have N airdrop(s) pending activation — click Activate to claim":
-- 当至少有一条 pending 距离作废 < 6h 时,在末尾追加 `· Next expires in Xh Ym`(取最早过期的那条),提醒紧迫性。
-- 不改变图标 / 文案主体。
-
-## 不做的事
-
-- 不改后端、数据库、`useAirdropPositions` 数据形状。
-- 不改作废逻辑(72h)和过期后处理。
-- 不动 Welcome Gift 文案。
-- 不加新的通知/弹窗。
+- 内部用 `useCountdown`。
+- `variant="table"`：复用 shadcn `Button`，紫色 `btn-primary`，高度 `h-7`，文字 `text-xs`。
+- `variant="trading"`：复用 `DesktopTrading.tsx` 里原生 `<button>` 的外观（`border border-primary/50 text-primary hover:bg-primary/10`），urgent 时切到红色边框 + 红色文字（保持 outline 风格，与该表其他按钮一致，不强行变实心）。
+- 内部只渲染按钮，调用方负责包裹 `td` / cell。
+- isExpired 时返回 `null`（让外层按既有逻辑去隐藏整行，无需改）。
 
 ## 受影响文件
 
-- 新增:`src/hooks/useCountdown.ts`
-- 修改:
-  - `src/components/AirdropPositionCard.tsx`(替换本地 hook 引用 + 按钮下补一行)
-  - `src/pages/PortfolioAirdrops.tsx`(Action 列 Activate 下补倒计时)
-  - `src/pages/DesktopTrading.tsx`(PENDING 行 Action `<td>` 补倒计时;banner 文案紧迫性后缀)
-  - `src/pages/TradingCharts.tsx`、`src/pages/TradeOrder.tsx`、`src/components/DesktopPositionsPanel.tsx`(banner 紧迫性后缀)
+- 新增：`src/components/ActivateAirdropButton.tsx`
+- 修改：
+  - `src/pages/PortfolioAirdrops.tsx`：移除内部 `PendingExpiresIn` 组件 + 改用 `ActivateAirdropButton variant="table"`，去掉外层 `flex-col` 包裹，恢复成单按钮 cell。
+  - `src/pages/DesktopTrading.tsx`：移除本地 `PendingExpiresIn` + `useExpiryCountdown`（如果仅此一处用），改用 `ActivateAirdropButton variant="trading"`。
+  - `src/components/AirdropPositionCard.tsx`（移动端卡片）：同样把按钮下那行 `Expires in {timeLeft}` 拿掉，让 Activate 按钮也走 `ActivateAirdropButton variant="table"`（移动卡片宽度足够），但保留卡片顶部 header 的 Clock 标签作为宏观提示。
+
+## 不做的事
+
+- 不改 `useCountdown` 的逻辑、阈值、刷新频率。
+- 不改 banner 文案。
+- 不改 expiry 行为或 72h 规则。
+- 不改其他按钮颜色 / 整体按钮 token。
 
 ## 验收
 
-- pending airdrop 在所有入口的 Activate 按钮附近都能看到倒计时,自动每分钟刷新。
-- 剩余 < 1h 时颜色变红、显示分钟精度。
-- 过期后倒计时消失或显示 Expired,按钮按既有逻辑被移除。
+- 桌面 airdrops 表格、交易页 PENDING 行、移动卡片：Activate 按钮内部右侧直接显示 `47h 6m`，颜色与按钮和谐。
+- 剩余 < 1h：按钮整体（或边框）变红，倒计时加粗。
+- 按钮下方不再有额外一行黄字。
+- 激活中显示 `Activating…`，不再显示倒计时。

@@ -57,7 +57,7 @@ import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
-import { useCountdown as useExpiryCountdown } from "@/hooks/useCountdown";
+import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import { Badge } from "@/components/ui/badge";
 
 // Countdown hook
@@ -98,16 +98,6 @@ const useCountdown = (endTime: Date | undefined) => {
   return timeLeft;
 };
 
-// Countdown shown under the pending airdrop Activate button
-const PendingExpiresIn = ({ expiresAt }: { expiresAt: string }) => {
-  const { timeLeft, isExpired, urgent } = useExpiryCountdown(expiresAt);
-  if (isExpired) return null;
-  return (
-    <div className={`text-[10px] font-mono mt-1 text-center ${urgent ? "text-trading-red font-medium" : "text-trading-yellow"}`}>
-      {timeLeft}
-    </div>
-  );
-};
 
 const generateOrderBookData = (basePrice: number) => {
   const asks = [];
@@ -1342,14 +1332,12 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-sm text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-center text-xs text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-center">
-                            <button 
+                            <ActivateAirdropButton
+                              expiresAt={airdrop.expiresAt}
                               onClick={() => activateAirdrop(airdrop.id)}
-                              disabled={isActivating}
-                              className="px-3 py-1 text-xs text-primary border border-primary/50 rounded hover:bg-primary/10 disabled:opacity-50"
-                            >
-                              {isActivating ? "Activating…" : "Activate"}
-                            </button>
-                            <PendingExpiresIn expiresAt={airdrop.expiresAt} />
+                              isActivating={isActivating}
+                              variant="trading"
+                            />
                           </td>
                         </tr>
                       ))}
