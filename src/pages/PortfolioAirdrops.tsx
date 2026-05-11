@@ -111,6 +111,17 @@ const AirdropStatusBadge = ({ status }: { status: string }) => {
   );
 };
 
+// Inline countdown shown under the Activate button
+const PendingExpiresIn = ({ expiresAt }: { expiresAt: string }) => {
+  const { timeLeft, isExpired, urgent } = useCountdown(expiresAt);
+  if (isExpired) return null;
+  return (
+    <div className={`text-[10px] font-mono mt-1 ${urgent ? "text-trading-red font-medium" : "text-trading-yellow"}`}>
+      {timeLeft}
+    </div>
+  );
+};
+
 export default function PortfolioAirdrops() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
