@@ -60,7 +60,12 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
     // Only allow numbers and decimal
     if (!/^\d*\.?\d*$/.test(value)) return;
     setAmount(value);
-    setError(null);
+    const parsed = parseFloat(value);
+    if (value && parsed > 0 && parsed < minAmount) {
+      setError(`Minimum withdrawal is ${minAmount} ${token.symbol}`);
+    } else {
+      setError(null);
+    }
   };
 
   const handleSetMax = () => {
