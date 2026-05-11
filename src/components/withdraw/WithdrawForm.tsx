@@ -190,11 +190,6 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
           <span>Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> {token.symbol}</span>
           <span>Min <span className="font-mono">{minAmount}</span> {token.symbol}</span>
         </div>
-        {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
-          <div className="text-[10px] text-primary">
-            ${h2e.lockedAmount.toFixed(2)} locked (hedge airdrop — {h2e.unlockedPercent}% already withdrawable; trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%)
-          </div>
-        )}
       </div>
 
       {/* Summary */}
