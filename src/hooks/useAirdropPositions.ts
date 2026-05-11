@@ -33,8 +33,8 @@ export interface AirdropPosition {
 const QUERY_KEY = ["airdrop-positions"];
 const DEMO_AIRDROPS_STORAGE_KEY_PREFIX = "omenx-demo-airdrop-positions:";
 
-// Mock airdrop data for frontend development
-const MOCK_AIRDROPS: AirdropPosition[] = [
+// Mock data for the "Matched user" demo account — all matched, no welcome_gift
+const MOCK_AIRDROPS_MATCHED: AirdropPosition[] = [
   {
     id: "mock-airdrop-1",
     source: "matched",
@@ -68,23 +68,6 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
     expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
     activatedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "mock-airdrop-welcome",
-    source: "welcome_gift",
-    externalEventName: null,
-    externalSide: null,
-    externalPrice: null,
-    counterEventName: "ETH Price Prediction April 2026",
-    counterEventId: "eth-10k-2026",
-    counterOptionLabel: "Above $5,000",
-    counterSide: "long",
-    counterPrice: 0.42,
-    airdropValue: 10,
-    status: "pending",
-    expiresAt: new Date(Date.now() + 36 * 60 * 60 * 1000).toISOString(),
-    activatedAt: null,
-    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: "mock-airdrop-3",
@@ -125,19 +108,47 @@ const MOCK_AIRDROPS: AirdropPosition[] = [
   },
 ];
 
+// Mock data for the "Welcome gift user" demo account — no matched, one welcome_gift
+const MOCK_AIRDROPS_WELCOME: AirdropPosition[] = [
+  {
+    id: "mock-airdrop-welcome",
+    source: "welcome_gift",
+    externalEventName: null,
+    externalSide: null,
+    externalPrice: null,
+    counterEventName: "ETH Price Prediction April 2026",
+    counterEventId: "eth-10k-2026",
+    counterOptionLabel: "Above $5,000",
+    counterSide: "long",
+    counterPrice: 0.42,
+    airdropValue: 10,
+    status: "pending",
+    expiresAt: new Date(Date.now() + 36 * 60 * 60 * 1000).toISOString(),
+    activatedAt: null,
+    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+// Pick mock by demo account email — anything else gets the legacy "matched" set
+const pickMockByEmail = (email: string | null | undefined): AirdropPosition[] => {
+  if (email === "demo.welcome@omenx.dev") return MOCK_AIRDROPS_WELCOME;
+  return MOCK_AIRDROPS_MATCHED;
+};
+
 const getDemoStorageKey = (userId: string) => `${DEMO_AIRDROPS_STORAGE_KEY_PREFIX}${userId}`;
 
-const loadDemoAirdrops = (userId: string): AirdropPosition[] => {
-  if (typeof window === "undefined") return MOCK_AIRDROPS;
+const loadDemoAirdrops = (userId: string, email: string | null | undefined): AirdropPosition[] => {
+  const fallback = pickMockByEmail(email);
+  if (typeof window === "undefined") return fallback;
 
   try {
     const stored = window.localStorage.getItem(getDemoStorageKey(userId));
-    if (!stored) return MOCK_AIRDROPS;
+    if (!stored) return fallback;
 
     const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed : MOCK_AIRDROPS;
+    return Array.isArray(parsed) ? parsed : fallback;
   } catch {
-    return MOCK_AIRDROPS;
+    return fallback;
   }
 };
 
@@ -147,7 +158,7 @@ const saveDemoAirdrops = (userId: string, airdrops: AirdropPosition[]) => {
 };
 
 export const useAirdropPositions = () => {
-  const { user } = useUserProfile();
+  const { user, email } = useUserProfile();
   const { activeAccounts, isDemoMode } = useConnectedAccounts();
   const queryClient = useQueryClient();
   const [isActivating, setIsActivating] = useState(false);
@@ -172,7 +183,7 @@ export const useAirdropPositions = () => {
         const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
         if (cached && cached.length > 0) return cached;
 
-        const storedDemoAirdrops = loadDemoAirdrops(user.id);
+        const storedDemoAirdrops = loadDemoAirdrops(user.id, email);
         saveDemoAirdrops(user.id, storedDemoAirdrops);
         return storedDemoAirdrops;
       }
@@ -219,7 +230,7 @@ export const useAirdropPositions = () => {
     setIsActivating(true);
     try {
       if (isDemoMode) {
-        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '')).map((a) =>
+        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '', email)).map((a) =>
           a.id === id
             ? { ...a, status: "activated", activatedAt: new Date().toISOString() }
             : a

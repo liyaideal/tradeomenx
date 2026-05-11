@@ -347,7 +347,9 @@ export default function PortfolioAirdrops() {
                         ${airdrop.counterPrice.toFixed(4)}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-xs max-w-[160px] truncate">
-                        {airdrop.externalSide} @ ${airdrop.externalPrice.toFixed(2)}
+                        {airdrop.source === "welcome_gift" || airdrop.externalPrice == null
+                          ? "Welcome gift"
+                          : `${airdrop.externalSide} @ $${airdrop.externalPrice.toFixed(2)}`}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5">
