@@ -1,53 +1,54 @@
-## 目标
+## 问题
 
-把 pending airdrop 的倒计时从按钮"下方一行"挪到"按钮内部"，让按钮自带紧迫感，颜色与按钮风格统一，不再额外占垂直空间。
+交易页 PENDING 行的 Action 单元格很窄，`Activate | 46h 47m` 整体太宽，导致按钮内文字折行成两段（`46h` / `47m`），视觉上很丑。Portfolio 表格列宽充足，没有这个问题。
 
-## 新按钮布局
+## 方案
 
-按钮内文案改为两段式（结构 `Activate · 47h 6m`）：
+双管齐下：**压缩倒计时文案** + **按钮内部强制单行**，让 `trading` 变体在窄列里也能优雅显示。
 
-- 左：闪电图标 + `Activate`
-- 中间：一根低透明度竖分隔（`opacity-40`）
-- 右：font-mono 的剩余时间 `47h 6m`
+### 1. `useCountdown` 增加紧凑格式
 
-样式细节：
+在 `src/hooks/useCountdown.ts` 返回值里新增字段 `compact`：
 
-- 整颗按钮维持 `btn-primary` / 紫色主调，不改主色。
-- 倒计时部分用 `font-mono`，颜色 `text-primary-foreground/80`（默认状态稍弱化，避免抢主标）。
-- 当 `urgent`（< 1h）：整颗按钮变体切到 `bg-trading-red hover:bg-trading-red/90`，倒计时部分变 `text-white font-semibold`，整体给紧迫信号；图标也跟着继承色。
-- 按钮宽度撑开（去掉之前固定 h-7 紧凑约束之外，按需要给一点 `min-w-[120px]`），确保 `47h 6m` 不换行。
-- 加载中（`isActivating`）只显示 `Loader2 + Activating…`，隐藏倒计时段。
+- `≥ 24h`：`2d 1h`（天 + 小时，省掉分钟）
+- `1h ~ 24h`：`5h 30m`（保持现有格式，但 ≥ 10h 时可以只显示 `12h`，避免 `12h 47m` 太长 → 折中：≥ 10h 显示 `12h`，< 10h 显示 `5h 30m`）
+- `1m ~ 1h`：`12m`（省掉秒，紧凑模式不需要每秒刷新的秒数）
+- `< 1m`：`45s`
 
-提取一个共享小组件 `src/components/ActivateAirdropButton.tsx`：
+`timeLeft` 字段保持现状（Portfolio / 移动卡片继续用完整格式）。只新增 `compact`，不破坏现有调用。
+
+### 2. `ActivateAirdropButton` 的 `trading` 变体
+
+- 用 `compact` 替代 `timeLeft`。
+- 整颗按钮加 `whitespace-nowrap`，子元素都不允许换行。
+- 缩小内边距：`px-2`（原 `px-3`），分隔符竖线改用更紧凑的 `·` 中点符号，去掉前后空格，整体节省 ~10px。
+- 倒计时段加 `tabular-nums` 让数字宽度稳定。
+
+最终形态示意：
 
 ```
-ActivateAirdropButton({ expiresAt, onClick, isActivating, variant: "table" | "trading" })
+[⚡ Activate · 46h]
+[⚡ Activate · 12m]   (urgent，红色)
 ```
 
-- 内部用 `useCountdown`。
-- `variant="table"`：复用 shadcn `Button`，紫色 `btn-primary`，高度 `h-7`，文字 `text-xs`。
-- `variant="trading"`：复用 `DesktopTrading.tsx` 里原生 `<button>` 的外观（`border border-primary/50 text-primary hover:bg-primary/10`），urgent 时切到红色边框 + 红色文字（保持 outline 风格，与该表其他按钮一致，不强行变实心）。
-- 内部只渲染按钮，调用方负责包裹 `td` / cell。
-- isExpired 时返回 `null`（让外层按既有逻辑去隐藏整行，无需改）。
+### 3. `table` 变体保持不变
+
+Portfolio 表格 / 移动卡片继续用完整 `timeLeft`（`46h 47m`），因为列宽够，信息更精确，体验更好。
 
 ## 受影响文件
 
-- 新增：`src/components/ActivateAirdropButton.tsx`
-- 修改：
-  - `src/pages/PortfolioAirdrops.tsx`：移除内部 `PendingExpiresIn` 组件 + 改用 `ActivateAirdropButton variant="table"`，去掉外层 `flex-col` 包裹，恢复成单按钮 cell。
-  - `src/pages/DesktopTrading.tsx`：移除本地 `PendingExpiresIn` + `useExpiryCountdown`（如果仅此一处用），改用 `ActivateAirdropButton variant="trading"`。
-  - `src/components/AirdropPositionCard.tsx`（移动端卡片）：同样把按钮下那行 `Expires in {timeLeft}` 拿掉，让 Activate 按钮也走 `ActivateAirdropButton variant="table"`（移动卡片宽度足够），但保留卡片顶部 header 的 Clock 标签作为宏观提示。
+- `src/hooks/useCountdown.ts`：新增 `compact` 字段。
+- `src/components/ActivateAirdropButton.tsx`：`trading` 变体改用 `compact` + `whitespace-nowrap` + 紧凑分隔符 + 缩小 padding。
 
 ## 不做的事
 
-- 不改 `useCountdown` 的逻辑、阈值、刷新频率。
-- 不改 banner 文案。
-- 不改 expiry 行为或 72h 规则。
-- 不改其他按钮颜色 / 整体按钮 token。
+- 不改 Portfolio / 移动卡片的显示。
+- 不改 `useCountdown` 的刷新频率逻辑、urgent 阈值。
+- 不改按钮主色、urgent 红色样式。
+- 不改 expiry / 72h 业务逻辑。
 
 ## 验收
 
-- 桌面 airdrops 表格、交易页 PENDING 行、移动卡片：Activate 按钮内部右侧直接显示 `47h 6m`，颜色与按钮和谐。
-- 剩余 < 1h：按钮整体（或边框）变红，倒计时加粗。
-- 按钮下方不再有额外一行黄字。
-- 激活中显示 `Activating…`，不再显示倒计时。
+- 交易页 PENDING 行按钮一行显示 `⚡ Activate · 46h`，不再折行。
+- 剩余 < 1h 时显示 `⚡ Activate · 12m`，红色 outline。
+- Portfolio / 移动卡片仍然显示完整 `46h 47m`。
