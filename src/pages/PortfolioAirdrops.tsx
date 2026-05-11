@@ -375,15 +375,18 @@ export default function PortfolioAirdrops() {
                       </TableCell>
                       <TableCell className="text-right">
                         {airdrop.status === "pending" ? (
-                          <Button
-                            size="sm"
-                            onClick={() => activateAirdrop(airdrop.id)}
-                            disabled={isActivating}
-                            className="btn-primary h-7 text-xs gap-1"
-                          >
-                            <Zap className="w-3 h-3" />
-                            Activate
-                          </Button>
+                          <div className="inline-flex flex-col items-end">
+                            <Button
+                              size="sm"
+                              onClick={() => activateAirdrop(airdrop.id)}
+                              disabled={isActivating}
+                              className="btn-primary h-7 text-xs gap-1"
+                            >
+                              <Zap className="w-3 h-3" />
+                              Activate
+                            </Button>
+                            <PendingExpiresIn expiresAt={airdrop.expiresAt} />
+                          </div>
                         ) : airdrop.status === "activated" ? (
                           <Button
                             variant="ghost"
