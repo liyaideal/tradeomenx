@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 export interface CountdownResult {
   /** Human-readable remaining time (e.g. "2h 14m" or "12m 5s"). "Expired" when past. */
   timeLeft: string;
+  /** Compact form for narrow UI (e.g. "2d 1h", "12h", "5h 30m", "12m", "45s"). */
+  compact: string;
   /** True after expiry. */
   isExpired: boolean;
   /** True when less than 1 hour remains — surface as urgent in UI. */
