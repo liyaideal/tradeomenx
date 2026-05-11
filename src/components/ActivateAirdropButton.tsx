@@ -19,7 +19,7 @@ export const ActivateAirdropButton = ({
   variant = "table",
   className,
 }: ActivateAirdropButtonProps) => {
-  const { timeLeft, isExpired, urgent } = useCountdown(expiresAt);
+  const { timeLeft, compact, isExpired, urgent } = useCountdown(expiresAt);
   if (isExpired) return null;
 
   const showCountdown = !isActivating && timeLeft;
@@ -30,7 +30,7 @@ export const ActivateAirdropButton = ({
         onClick={onClick}
         disabled={isActivating}
         className={cn(
-          "inline-flex items-center gap-2 px-3 py-1 text-xs rounded border transition-colors disabled:opacity-50",
+          "inline-flex items-center gap-1.5 px-2 py-1 text-xs rounded border transition-colors disabled:opacity-50 whitespace-nowrap",
           urgent
             ? "border-trading-red/60 text-trading-red hover:bg-trading-red/10"
             : "border-primary/50 text-primary hover:bg-primary/10",
@@ -48,9 +48,9 @@ export const ActivateAirdropButton = ({
             <span>Activate</span>
             {showCountdown && (
               <>
-                <span className={cn("opacity-40", urgent ? "text-trading-red" : "text-primary")}>|</span>
-                <span className={cn("font-mono", urgent ? "font-semibold" : "opacity-80")}>
-                  {timeLeft}
+                <span className="opacity-40">·</span>
+                <span className={cn("font-mono tabular-nums", urgent ? "font-semibold" : "opacity-80")}>
+                  {compact}
                 </span>
               </>
             )}
