@@ -58,7 +58,12 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
   const handleAmountChange = (value: string) => {
     if (!/^\d*\.?\d*$/.test(value)) return;
     setAmount(value);
-    setError(null);
+    const parsed = parseFloat(value);
+    if (value && parsed > 0 && parsed < minAmount) {
+      setError(`Minimum withdrawal is ${minAmount} USDC`);
+    } else {
+      setError(null);
+    }
   };
 
   const handleSetMax = () => {
@@ -166,7 +171,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
           <Input
             type="text"
             inputMode="decimal"
-            placeholder="0.00"
+            placeholder={`Min ${minAmount}`}
             value={amount}
             onChange={(e) => handleAmountChange(e.target.value)}
             className={cn(
@@ -183,14 +188,15 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
             {error}
           </div>
         )}
-        <div className="text-xs text-muted-foreground">
-          Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> USDC
-          {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
-            <span className="block text-[10px] text-primary mt-0.5">
-              ${h2e.lockedAmount.toFixed(2)} locked (H2E — {h2e.unlockedPercent}% already withdrawable; trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%)
-            </span>
-          )}
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> USDC</span>
+          <span>Min <span className="font-mono">{minAmount}</span> USDC</span>
         </div>
+        {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
+          <div className="text-[10px] text-primary">
+            ${h2e.lockedAmount.toFixed(2)} locked (H2E — {h2e.unlockedPercent}% already withdrawable; trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%)
+          </div>
+        )}
       </div>
 
       {/* Summary */}
@@ -220,7 +226,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
       {/* Submit */}
       <Button
         onClick={handleSubmit}
-        disabled={isSubmitting || !amount || !selectedAddress}
+        disabled={isSubmitting || !amount || !selectedAddress || parseFloat(amount) < minAmount}
         className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl text-sm" : "h-11 rounded-lg")}
       >
         {isSubmitting ? (

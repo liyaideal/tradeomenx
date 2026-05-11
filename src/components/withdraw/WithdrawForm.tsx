@@ -60,7 +60,12 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
     // Only allow numbers and decimal
     if (!/^\d*\.?\d*$/.test(value)) return;
     setAmount(value);
-    setError(null);
+    const parsed = parseFloat(value);
+    if (value && parsed > 0 && parsed < minAmount) {
+      setError(`Minimum withdrawal is ${minAmount} ${token.symbol}`);
+    } else {
+      setError(null);
+    }
   };
 
   const handleSetMax = () => {
@@ -161,7 +166,7 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
           <Input
             type="text"
             inputMode="decimal"
-            placeholder="0.00"
+            placeholder={`Min ${minAmount}`}
             value={amount}
             onChange={(e) => handleAmountChange(e.target.value)}
             className={cn(
@@ -181,14 +186,15 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
           </div>
         )}
         
-        <div className="text-sm text-muted-foreground">
-          Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> {token.symbol}
-          {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
-            <span className="block text-[10px] text-primary mt-0.5">
-              ${h2e.lockedAmount.toFixed(2)} locked (hedge airdrop — {h2e.unlockedPercent}% already withdrawable; trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%)
-            </span>
-          )}
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> {token.symbol}</span>
+          <span>Min <span className="font-mono">{minAmount}</span> {token.symbol}</span>
         </div>
+        {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
+          <div className="text-[10px] text-primary">
+            ${h2e.lockedAmount.toFixed(2)} locked (hedge airdrop — {h2e.unlockedPercent}% already withdrawable; trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%)
+          </div>
+        )}
       </div>
 
       {/* Summary */}
@@ -234,7 +240,7 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
       {/* Submit Button */}
       <Button
         onClick={handleSubmit}
-        disabled={isSubmitting || !amount || !selectedAddress}
+        disabled={isSubmitting || !amount || !selectedAddress || parseFloat(amount) < minAmount}
         className="w-full h-14 rounded-xl bg-primary hover:bg-primary-hover text-lg font-semibold"
       >
         {isSubmitting ? (
