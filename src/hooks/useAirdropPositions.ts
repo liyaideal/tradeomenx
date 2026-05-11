@@ -183,7 +183,7 @@ export const useAirdropPositions = () => {
         const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
         if (cached && cached.length > 0) return cached;
 
-        const storedDemoAirdrops = loadDemoAirdrops(user.id);
+        const storedDemoAirdrops = loadDemoAirdrops(user.id, email);
         saveDemoAirdrops(user.id, storedDemoAirdrops);
         return storedDemoAirdrops;
       }
