@@ -192,11 +192,6 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
           <span>Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> USDC</span>
           <span>Min <span className="font-mono">{minAmount}</span> USDC</span>
         </div>
-        {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
-          <div className="text-[10px] text-primary">
-            ${h2e.lockedAmount.toFixed(2)} locked (H2E — {h2e.unlockedPercent}% already withdrawable; trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%)
-          </div>
-        )}
       </div>
 
       {/* Summary */}
