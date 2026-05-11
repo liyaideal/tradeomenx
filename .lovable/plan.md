@@ -1,36 +1,24 @@
-## Withdraw 最低金额提示前置 + 实时校验
+## 目标
+删除 withdraw 弹窗里 H2E 相关的文案模块，因为 Wallet 页面已经有清晰的 H2E 解锁展示，不需要在提现弹窗里重复。
 
-最低金额（USDC/USDT 20）目前只藏在 Summary 行的 `Minimum: 20 USDC`，且只有点 Submit 才会触发 `validateWithdrawal` 报错。要把信息前置并加实时校验。
+## 改动范围
+仅删除展示文案，**保留** `availableBalance = max(0, rawAvailable - h2e.lockedAmount)` 的余额扣减逻辑（H2E frozen 仍需锁定，不能让用户绕过限额提现）。
 
-### 改动文件
+### 1. `src/components/withdraw/WalletWithdraw.tsx`
+- 删除 line 195-197 的 H2E 锁定提示块：
+  ```
+  {!h2e.isFullyUnlocked && h2e.lockedAmount > 0 && (
+    <div>${h2e.lockedAmount} locked (H2E — ...% already withdrawable; trade $... more to unlock ...%)</div>
+  )}
+  ```
 
-1. `src/components/withdraw/WalletWithdraw.tsx`
-2. `src/components/withdraw/WithdrawForm.tsx`
+### 2. `src/components/withdraw/WithdrawForm.tsx`
+- 删除 line 193-195 的同类 H2E 锁定提示块（"hedge airdrop — ..."）。
 
-### 三处一致改动
+## 不动的部分
+- `useH2eRewardsSummary` 的导入与 `availableBalance` 扣减逻辑保留（确保 frozen 部分仍受限制）。
+- Wallet 页面的 H2E 模块、解锁阶梯 UI 不动。
+- 最低提现金额（20 USDC）相关 UI 不动。
 
-**A. 输入框 placeholder** 由 `0.00` 改为 `Min ${minAmount}`，让用户在输入前就看到下限。
-
-**B. 输入框下方 Available 行右侧并列展示 Min**
-```
-Available: 12.50 USDC          Min 20 USDC
-```
-（与 Available 同一行，`flex justify-between`，统一 `text-xs` / `text-sm` 灰）
-
-**C. 实时校验 inline 错误**
-在 `handleAmountChange` 内（或派生 `amountError`）：
-- amount 非空且 `parseFloat(amount) > 0` 且 `< minAmount` → 设 `error = "Minimum withdrawal is 20 USDC"`
-- 输入合法或为空 → 清空 error
-继续沿用现有红框样式 `error && border-trading-red`。
-
-**D. Submit 按钮 disabled 增加条件**
-```
-disabled={isSubmitting || !amount || !selectedAddress || parseFloat(amount) < minAmount}
-```
-
-### 不动
-
-- `WITHDRAW_MINIMUMS` 数值（保持 USDT/USDC = 20）
-- Summary 内 `Minimum` 行（保留作为最终复核展示）
-- 后端 / `useWithdraw` 校验逻辑（仅前端 UX 优化）
-- 其他 token 的最低额展示
+## 同步更新文档
+更新 `omenx-recent-shipped-requirements_v2.md`，在 "Withdraw minimum UX" 章节后追加一条说明：withdraw 弹窗内移除 H2E 文案模块，H2E 展示统一由 Wallet 页面承担，但提现额度仍按 `availableBalance - h2e.lockedAmount` 限制。
