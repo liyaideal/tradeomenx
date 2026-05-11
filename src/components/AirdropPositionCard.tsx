@@ -79,7 +79,7 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
           )}
         </div>
         {isPending && !isExpired && (
-          <div className="flex items-center gap-1 text-xs text-trading-yellow">
+          <div className={`flex items-center gap-1 text-xs ${urgent ? "text-trading-red font-medium" : "text-trading-yellow"}`}>
             <Clock className="w-3 h-3" />
             <span className="font-mono">{timeLeft}</span>
           </div>
