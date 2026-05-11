@@ -38,6 +38,8 @@ export interface H2eRewardsSummary {
   volumeToNextTier: number;
   /** All configured withdrawal unlock tiers */
   unlockTiers: Array<{ volume: number; percent: number }>;
+  /** Free starter unlock amount (independent of H2E frozenBalance, granted on signup) */
+  starterUnlock: number;
   /** Lifetime H2E earnings */
   totalEarned: number;
   /** Max earnings cap */
