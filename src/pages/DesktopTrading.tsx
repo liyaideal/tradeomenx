@@ -57,7 +57,7 @@ import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
-import { useCountdown as useExpiryCountdown } from "@/hooks/useCountdown";
+import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import { Badge } from "@/components/ui/badge";
 
 // Countdown hook
@@ -98,16 +98,6 @@ const useCountdown = (endTime: Date | undefined) => {
   return timeLeft;
 };
 
-// Countdown shown under the pending airdrop Activate button
-const PendingExpiresIn = ({ expiresAt }: { expiresAt: string }) => {
-  const { timeLeft, isExpired, urgent } = useExpiryCountdown(expiresAt);
-  if (isExpired) return null;
-  return (
-    <div className={`text-[10px] font-mono mt-1 text-center ${urgent ? "text-trading-red font-medium" : "text-trading-yellow"}`}>
-      {timeLeft}
-    </div>
-  );
-};
 
 const generateOrderBookData = (basePrice: number) => {
   const asks = [];
