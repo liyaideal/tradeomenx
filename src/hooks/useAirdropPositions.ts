@@ -230,7 +230,7 @@ export const useAirdropPositions = () => {
     setIsActivating(true);
     try {
       if (isDemoMode) {
-        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '')).map((a) =>
+        const nextDemoAirdrops = (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '', email)).map((a) =>
           a.id === id
             ? { ...a, status: "activated", activatedAt: new Date().toISOString() }
             : a
