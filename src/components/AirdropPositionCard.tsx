@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { Gift, Clock, Zap, AlertTriangle, Loader2, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useCountdown } from "@/hooks/useCountdown";
 import type { AirdropPosition } from "@/hooks/useAirdropPositions";
 
 interface AirdropPositionCardProps {
@@ -10,33 +10,8 @@ interface AirdropPositionCardProps {
   isActivating?: boolean;
 }
 
-const useCountdown = (expiresAt: string) => {
-  const [timeLeft, setTimeLeft] = useState("");
-  const [isExpired, setIsExpired] = useState(false);
-
-  useEffect(() => {
-    const update = () => {
-      const diff = new Date(expiresAt).getTime() - Date.now();
-      if (diff <= 0) {
-        setIsExpired(true);
-        setTimeLeft("Expired");
-        return;
-      }
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      setTimeLeft(`${hours}h ${minutes}m`);
-    };
-
-    update();
-    const interval = setInterval(update, 60000);
-    return () => clearInterval(interval);
-  }, [expiresAt]);
-
-  return { timeLeft, isExpired };
-};
-
 export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: AirdropPositionCardProps) => {
-  const { timeLeft, isExpired } = useCountdown(airdrop.expiresAt);
+  const { timeLeft, isExpired, urgent } = useCountdown(airdrop.expiresAt);
 
   const isPending = airdrop.status === "pending";
   const isActivated = airdrop.status === "activated";
@@ -104,7 +79,7 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
           )}
         </div>
         {isPending && !isExpired && (
-          <div className="flex items-center gap-1 text-xs text-trading-yellow">
+          <div className={`flex items-center gap-1 text-xs ${urgent ? "text-trading-red font-medium" : "text-trading-yellow"}`}>
             <Clock className="w-3 h-3" />
             <span className="font-mono">{timeLeft}</span>
           </div>
@@ -163,18 +138,23 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
 
       {/* Action */}
       {isPending && !isExpired && (
-        <Button
-          onClick={() => onActivate?.(airdrop.id)}
-          disabled={isActivating}
-          className="w-full h-8 text-xs btn-primary gap-1"
-        >
-          {isActivating ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Zap className="w-3 h-3" />
-          )}
-          {isActivating ? "Activating…" : "Activate"}
-        </Button>
+        <div className="space-y-1">
+          <Button
+            onClick={() => onActivate?.(airdrop.id)}
+            disabled={isActivating}
+            className="w-full h-8 text-xs btn-primary gap-1"
+          >
+            {isActivating ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Zap className="w-3 h-3" />
+            )}
+            {isActivating ? "Activating…" : "Activate"}
+          </Button>
+          <p className={`text-[10px] text-center font-mono ${urgent ? "text-trading-red font-medium" : "text-trading-yellow"}`}>
+            Expires in {timeLeft}
+          </p>
+        </div>
       )}
 
       {isExpiredStatus && (

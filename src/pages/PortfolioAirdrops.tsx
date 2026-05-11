@@ -4,6 +4,7 @@ import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2, I
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { useCountdown } from "@/hooks/useCountdown";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -107,6 +108,17 @@ const AirdropStatusBadge = ({ status }: { status: string }) => {
     <Badge variant="outline" className={`text-[10px] ${c.className}`}>
       {c.label}
     </Badge>
+  );
+};
+
+// Inline countdown shown under the Activate button
+const PendingExpiresIn = ({ expiresAt }: { expiresAt: string }) => {
+  const { timeLeft, isExpired, urgent } = useCountdown(expiresAt);
+  if (isExpired) return null;
+  return (
+    <div className={`text-[10px] font-mono mt-1 ${urgent ? "text-trading-red font-medium" : "text-trading-yellow"}`}>
+      {timeLeft}
+    </div>
   );
 };
 
@@ -363,15 +375,18 @@ export default function PortfolioAirdrops() {
                       </TableCell>
                       <TableCell className="text-right">
                         {airdrop.status === "pending" ? (
-                          <Button
-                            size="sm"
-                            onClick={() => activateAirdrop(airdrop.id)}
-                            disabled={isActivating}
-                            className="btn-primary h-7 text-xs gap-1"
-                          >
-                            <Zap className="w-3 h-3" />
-                            Activate
-                          </Button>
+                          <div className="inline-flex flex-col items-end">
+                            <Button
+                              size="sm"
+                              onClick={() => activateAirdrop(airdrop.id)}
+                              disabled={isActivating}
+                              className="btn-primary h-7 text-xs gap-1"
+                            >
+                              <Zap className="w-3 h-3" />
+                              Activate
+                            </Button>
+                            <PendingExpiresIn expiresAt={airdrop.expiresAt} />
+                          </div>
                         ) : airdrop.status === "activated" ? (
                           <Button
                             variant="ghost"
