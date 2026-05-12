@@ -22,6 +22,7 @@ export const ActivationChecklist = () => {
       icon: ShieldCheck,
       done: true,
       action: null,
+      cta: "",
     },
     {
       id: "deposit",
