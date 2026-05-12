@@ -26,6 +26,7 @@ import { MarketListView } from "@/components/events/MarketListView";
 import { MarketGridView } from "@/components/events/MarketGridView";
 import { HotShelf } from "@/components/events/HotShelf";
 import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
+import { MarketStatusTabs } from "@/components/events/MarketStatusTabs";
 
 // Persist view preference
 const getStoredView = (): ViewMode => {
