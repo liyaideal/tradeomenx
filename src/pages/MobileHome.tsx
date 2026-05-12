@@ -7,7 +7,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
-import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
+
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { toast } from "sonner";
 import { usePositions } from "@/hooks/usePositions";
@@ -470,9 +470,8 @@ const MobileHome = () => {
 
       <BottomNav />
       
-      {/* Rewards: Welcome modal for unclaimed users, floating button for claimed */}
+      {/* Rewards: Welcome modal for unclaimed users (floating FAB removed post-mainnet) */}
       <RewardsWelcomeModal />
-      <FloatingRewardsButton className="bottom-24 right-4" />
 
         {/* Pending Airdrop Banner */}
         {pendingAirdrops.length > 0 && (
