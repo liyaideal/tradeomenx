@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
 import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
+import { ActivationCard } from "@/components/activation/ActivationCard";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
@@ -228,6 +229,9 @@ const MobileHome = () => {
 
         {/* Campaign Entry — placed just above My Positions */}
         <CampaignBannerCarousel variant="mobile" />
+
+        {/* Activation funnel nudge — only renders for users that need a next step */}
+        {user && <ActivationCard variant="full" />}
 
         {/* My Positions Section - only show for logged-in users with positions */}
         {user && positions.length > 0 && (

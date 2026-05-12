@@ -6,6 +6,8 @@ export type LogoSize = "sm" | "md" | "lg" | "xl";
 interface LogoProps {
   size?: LogoSize;
   className?: string;
+  /** Show the small green pulse dot indicating mainnet is live. Default: true */
+  showMainnetDot?: boolean;
 }
 
 // Standard logo sizes - use these consistently across the app
@@ -16,13 +18,21 @@ const sizeClasses: Record<LogoSize, string> = {
   xl: "h-8 w-auto",   // Extra large: for landing pages, prominent branding
 };
 
-export function Logo({ size = "md", className }: LogoProps) {
+export function Logo({ size = "md", className, showMainnetDot = true }: LogoProps) {
   return (
-    <img 
-      src={omenxLogo} 
-      alt="OMENX" 
-      className={cn(sizeClasses[size], className)} 
-    />
+    <span className={cn("relative inline-flex items-center", className)}>
+      <img src={omenxLogo} alt="OMENX" className={sizeClasses[size]} />
+      {showMainnetDot && (
+        <span
+          aria-label="Mainnet live"
+          title="Mainnet live"
+          className="relative ml-1.5 inline-flex h-1.5 w-1.5"
+        >
+          <span className="absolute inset-0 inline-flex animate-ping rounded-full bg-success opacity-60" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
+        </span>
+      )}
+    </span>
   );
 }
 

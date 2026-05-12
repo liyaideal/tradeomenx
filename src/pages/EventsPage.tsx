@@ -26,6 +26,7 @@ import { MarketListView } from "@/components/events/MarketListView";
 import { MarketGridView } from "@/components/events/MarketGridView";
 import { HotShelf } from "@/components/events/HotShelf";
 import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
+import { ActivationCard } from "@/components/activation/ActivationCard";
 
 // Persist view preference
 const getStoredView = (): ViewMode => {
@@ -280,6 +281,7 @@ const EventsPage = () => {
       {/* Campaign Entry — flush against header */}
       <div className={isMobile ? "w-full max-w-full overflow-hidden px-4 pt-4" : "mx-auto w-full max-w-7xl overflow-hidden px-8 pt-6"}>
         <CampaignBannerCarousel variant={isMobile ? "mobile" : "desktop"} />
+        {user && <ActivationCard className="mt-4" variant={isMobile ? "full" : "compact"} />}
       </div>
 
       <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-8 py-10"} space-y-6`}>
