@@ -65,7 +65,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
       {/* Subtle brand accent line at top */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-3 px-4 py-3 lg:px-6">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-6 px-4 py-3 lg:px-6">
         {/* Left: Logo + Navigation */}
         <div className="flex min-w-0 items-center gap-4 xl:gap-8">
           {/* Logo */}
