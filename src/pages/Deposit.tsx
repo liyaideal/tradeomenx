@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from '@/components/deposit/WalletDeposit';
 import { CrossChainDeposit } from '@/components/deposit/CrossChainDeposit';
 import { BuyWithFiat } from '@/components/deposit/BuyWithFiat';
+import { DepositActivationHint } from '@/components/activation/DepositActivationHint';
 
 export default function Deposit() {
   const navigate = useNavigate();
@@ -64,6 +65,9 @@ export default function Deposit() {
           </div>
         </div>
       </header>
+
+      {/* Activation hint for first-time depositors */}
+      <DepositActivationHint />
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">

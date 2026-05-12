@@ -1,6 +1,5 @@
 import { Sparkles } from "lucide-react";
 import { useActivationState } from "@/hooks/useActivationState";
-import { Countdown } from "@/components/mainnet-launch/Countdown";
 
 /**
  * Thin success bar shown above the Deposit page tabs for S0 users only.
