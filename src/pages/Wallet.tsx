@@ -646,6 +646,7 @@ export default function Wallet() {
           <div className="grid grid-cols-12 gap-6">
             {/* Left Column */}
             <div className="col-span-4 space-y-6">
+              <ActivationHero />
               {/* Balance Card */}
               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 p-6">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
