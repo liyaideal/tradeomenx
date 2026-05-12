@@ -67,13 +67,13 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
       
       <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-3 px-4 py-3 lg:px-6">
         {/* Left: Logo + Navigation */}
-        <div className="flex min-w-0 items-center gap-3 xl:gap-8">
+        <div className="flex min-w-0 items-center gap-4 xl:gap-8">
           {/* Logo */}
           <button 
             onClick={() => navigate("/style-guide")}
-            className="flex items-center gap-2 hover:opacity-80 transition-all duration-300 hover:scale-[1.02]"
+            className="flex flex-shrink-0 items-center gap-2 hover:opacity-80 transition-all duration-300 hover:scale-[1.02]"
           >
-            <Logo size="xl" />
+            <Logo size="lg" />
           </button>
 
           {/* Navigation Tabs */}
