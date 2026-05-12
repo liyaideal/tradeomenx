@@ -1,27 +1,29 @@
-## 任务
+## 原因诊断
 
-移除首页（移动端 + 桌面 events 页）右下角的 Rewards 悬浮入口。主网上线后 Rewards 暂停，悬浮 FAB 价值降低，且占用首页视觉焦点。
+`MainnetBadge` 组件 prop `responsive` 默认 `true`，应用 `hidden sm:inline-flex`，在 <640px 视口直接 CSS 隐藏。`Logo` 组件渲染胶囊时未传 `responsive={false}`，所以走默认值 → 移动端永远看不到。
 
-## 改动清单
+注释说明历史原因是"避免 header overflow on narrow viewports"——上一轮 desktop header 还很挤时设的保险。但移动端首页 header 现状是：左 Logo（h-5）+ 大段空白 + 右 avatar/menu，完全有空间放胶囊（约 70px 宽）。
 
-1. **`src/pages/MobileHome.tsx`**
-   - 删除 line 475 的 `<FloatingRewardsButton className="bottom-24 right-4" />`
-   - 删除 line 10 的 import
+## 方案
 
-2. **`src/pages/EventsPage.tsx`**
-   - 删除 line 369 的 `{!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}`
-   - 删除 line 15 的 import
+让 `Logo` 在所有视口都显示 Mainnet 胶囊，去掉移动端隐藏逻辑。
 
-3. **保留** `src/components/rewards/FloatingRewardsButton.tsx` 组件文件本身和 `index.ts` 导出 — 不删源码，未来恢复时直接接回；同时避免影响 StyleGuide 引用（若有）。
+### 改动
+
+**`src/components/Logo.tsx`** (line 26)
+- 把 `<MainnetBadge size={badgeSize} />` 改成 `<MainnetBadge size={badgeSize} responsive={false} />`
+
+这样所有用 `<Logo>` 渲染的位置（desktop header / mobile header）胶囊都会显示，是品牌信号的一致呈现。
 
 ### 不动
 
-- Avatar dropdown 里的 Rewards 入口（仍指向 paused toast）
-- RewardsWelcomeModal 弹窗逻辑
-- 其它 Rewards 页面/路由
+- `MainnetBadge` 组件本身保留 `responsive` prop 和默认 `true` 的行为，便于后续在窄边角场景仍能复用 (例如 ActivationHero)
+- ActivationHero 用法不变（它显式传 `size="md"`，没传 responsive，但它在 hero 内有充裕空间，胶囊本来也能显示在 sm+；保持行为）
+- Mobile header layout 不动
 
 ### 验证
 
-- 移动端首页 `/` 右下角不再有礼物 FAB
-- 桌面 `/events` 右下角不再有 FAB
-- 控制台无 unused import 警告
+- 移动端 390px 首页 `/` 可见 OMENX logo 右侧的绿色 Mainnet 胶囊
+- 移动端 detail 页（带 back + Logo）也能见
+- 桌面端无变化
+- header 不出现换行/溢出
