@@ -23,7 +23,7 @@ export function Logo({ size = "md", className, showMainnetBadge = true }: LogoPr
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
       <img src={omenxLogo} alt="OMENX" className={sizeClasses[size]} />
-      {showMainnetBadge && <MainnetBadge size={badgeSize} />}
+      {showMainnetBadge && <MainnetBadge size={badgeSize} responsive={false} />}
     </span>
   );
 }
