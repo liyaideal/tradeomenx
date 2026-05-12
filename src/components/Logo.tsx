@@ -26,9 +26,9 @@ export function Logo({ size = "md", className, showMainnetDot = true }: LogoProp
         <span
           aria-label="Mainnet live"
           title="Mainnet live"
-          className="ml-1.5 inline-flex h-1.5 w-1.5"
+          className="relative ml-1.5 inline-flex h-1.5 w-1.5"
         >
-          <span className="absolute inline-flex h-1.5 w-1.5 animate-ping rounded-full bg-success opacity-60" />
+          <span className="absolute inset-0 inline-flex animate-ping rounded-full bg-success opacity-60" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
         </span>
       )}
