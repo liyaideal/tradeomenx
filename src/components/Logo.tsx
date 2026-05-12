@@ -1,11 +1,13 @@
 import omenxLogo from "@/assets/omenx-logo.svg";
 import { cn } from "@/lib/utils";
+import { MainnetBadge } from "@/components/MainnetBadge";
 
 export type LogoSize = "sm" | "md" | "lg" | "xl";
 
 interface LogoProps {
   size?: LogoSize;
   className?: string;
+  showMainnetBadge?: boolean;
 }
 
 // Standard logo sizes - use these consistently across the app
@@ -16,13 +18,13 @@ const sizeClasses: Record<LogoSize, string> = {
   xl: "h-8 w-auto",   // Extra large: for landing pages, prominent branding
 };
 
-export function Logo({ size = "md", className }: LogoProps) {
+export function Logo({ size = "md", className, showMainnetBadge = true }: LogoProps) {
+  const badgeSize = size === "xl" || size === "lg" ? "md" : "sm";
   return (
-    <img 
-      src={omenxLogo} 
-      alt="OMENX" 
-      className={cn(sizeClasses[size], className)} 
-    />
+    <span className={cn("inline-flex items-center gap-1.5", className)}>
+      <img src={omenxLogo} alt="OMENX" className={sizeClasses[size]} />
+      {showMainnetBadge && <MainnetBadge size={badgeSize} />}
+    </span>
   );
 }
 
