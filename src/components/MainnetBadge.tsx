@@ -17,7 +17,7 @@ export const MainnetBadge = ({ className, size = "sm", responsive = true }: Main
     <span
       className={cn(
         "items-center gap-1 rounded-sm border border-trading-green/40 bg-trading-green/10 px-1.5 py-0.5 font-mono uppercase tracking-wider text-trading-green",
-        responsive ? "hidden xl:inline-flex" : "inline-flex",
+        responsive ? "hidden sm:inline-flex" : "inline-flex",
         textSize,
         className,
       )}
