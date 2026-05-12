@@ -24,12 +24,13 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { showRewardsPausedToast } from "@/lib/rewardsPause";
 
-// Regular nav items (without Leaderboard)
+// Main nav items — Resolved is now an Events page tab, not a top-level entry.
+// Leaderboard is included as a regular item (no trophy/purple-border decoration).
 const navItems = [
   { label: "Events", path: "/events" },
-  { label: "Resolved", path: "/resolved" },
-  { label: "Portfolio", path: "/portfolio" },
   { label: "Insights", path: "/insights" },
+  { label: "Leaderboard", path: "/leaderboard" },
+  { label: "Portfolio", path: "/portfolio" },
 ];
 
 const languages = [
