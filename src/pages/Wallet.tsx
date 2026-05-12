@@ -61,6 +61,7 @@ import {
 } from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
+import { ActivationHero } from "@/components/activation/ActivationHero";
 
 
 
@@ -895,6 +896,7 @@ export default function Wallet() {
 
       <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
       <div className="px-4 py-6 space-y-6">
+        <ActivationHero />
         <BalanceCard />
         <H2eRewardsCard />
         <PendingConfirmations />
