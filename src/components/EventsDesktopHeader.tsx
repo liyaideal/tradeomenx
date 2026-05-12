@@ -1,6 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Globe, ChevronDown, User, Trophy, LogOut, LogIn, Gift, Users, Settings, HelpCircle, Briefcase, Shield } from "lucide-react";
+import { Globe, ChevronDown, User, LogOut, LogIn, Gift, Users, Settings, HelpCircle, Briefcase, Shield, MessageCircle, Check } from "lucide-react";
+import {
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
+} from "@/components/ui/dropdown-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
