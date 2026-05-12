@@ -15,6 +15,7 @@ import {
   SortByOption 
 } from "@/components/ResolvedFilters";
 import { useResolvedEvents } from "@/hooks/useResolvedEvents";
+import { MarketStatusTabs } from "@/components/events/MarketStatusTabs";
 
 const ResolvedPage = () => {
   const navigate = useNavigate();
