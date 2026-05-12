@@ -10,9 +10,9 @@ import {
   Users,
   Settings,
   HelpCircle,
-  Briefcase,
   Shield,
   MessageCircle,
+  ExternalLink,
   Check,
 } from "lucide-react";
 import {
@@ -159,10 +159,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
-                  <DropdownMenuItem onClick={() => navigate("/portfolio")}>
-                    <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Portfolio
-                  </DropdownMenuItem>
+                  {/* Account & activity */}
                   <DropdownMenuItem onClick={showRewardsPausedToast}>
                     <Gift className="mr-2 h-4 w-4 text-primary" />
                     Rewards
@@ -171,19 +168,14 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Users className="mr-2 h-4 w-4 text-primary" />
                     Referral
                   </DropdownMenuItem>
+
                   <DropdownMenuSeparator />
+
+                  {/* Preferences */}
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
                     Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigate("/settings/transparency")}
-                  >
-                    <Shield className="mr-2 h-4 w-4 text-emerald-400" />
-                    Transparency Audit
-                  </DropdownMenuItem>
-
-                  {/* Language sub-menu */}
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <Globe className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -213,6 +205,28 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     </DropdownMenuPortal>
                   </DropdownMenuSub>
 
+                  <DropdownMenuSeparator />
+
+                  {/* Product & support */}
+                  <DropdownMenuItem
+                    onClick={() => navigate("/settings/transparency")}
+                  >
+                    <Shield className="mr-2 h-4 w-4 text-emerald-400" />
+                    Transparency Audit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      window.open(
+                        "https://omenx-helpcenter.lovable.app",
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                  >
+                    <HelpCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <span className="flex-1">Help & Support</span>
+                    <ExternalLink className="ml-2 h-3 w-3 text-muted-foreground" />
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() =>
                       window.open(
@@ -223,21 +237,13 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     }
                   >
                     <MessageCircle className="mr-2 h-4 w-4 text-[#5865F2]" />
-                    Join Discord
+                    <span className="flex-1">Join Discord</span>
+                    <ExternalLink className="ml-2 h-3 w-3 text-muted-foreground" />
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      window.open(
-                        "https://discord.gg/qXssm2crf9",
-                        "_blank",
-                        "noopener,noreferrer"
-                      )
-                    }
-                  >
-                    <HelpCircle className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Help & Support
-                  </DropdownMenuItem>
+
                   <DropdownMenuSeparator />
+
+                  {/* Session */}
                   <DropdownMenuItem
                     onClick={handleSignOut}
                     className="text-trading-red"
