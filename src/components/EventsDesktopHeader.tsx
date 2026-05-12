@@ -90,7 +90,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
             onClick={() => navigate("/style-guide")}
             className="flex flex-shrink-0 items-center gap-2 transition-all duration-300 hover:scale-[1.02] hover:opacity-80"
           >
-            <Logo size="lg" />
+            <Logo size="xl" />
           </button>
 
           <nav className="flex min-w-0 items-center gap-1">

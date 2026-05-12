@@ -451,7 +451,7 @@ flex justify-between text-xs text-muted-foreground
 | MobileHome, EventsPage headers | `md` (h-5) | Left-aligned, no back button |
 | Trade pages | — | Logo hidden, back button only |
 | Detail pages with back button | `md` | Back + Logo together |
-| Desktop navigation | `lg` (h-6) | Left side of top nav |
+| Desktop navigation | `xl` (h-8) | Left side of top nav |
 | Marketing / landing pages | `xl` (h-8) | Hero sections, footers |
 
 Logo rules:
