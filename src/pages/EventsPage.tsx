@@ -12,7 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
-import { FloatingRewardsButton } from "@/components/rewards/FloatingRewardsButton";
+
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
@@ -366,7 +366,7 @@ const EventsPage = () => {
 
       {isMobile && <BottomNav />}
       {!isMobile && <RewardsWelcomeModal />}
-      {!isMobile && <FloatingRewardsButton className="bottom-8 right-8" />}
+      
       {!isMobile && <AirdropHomepageModal />}
 
       {/* Auth modal for watchlist sign-in prompt */}
