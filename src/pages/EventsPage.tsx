@@ -290,8 +290,8 @@ const EventsPage = () => {
           {!isMobile && (
             <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
           )}
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
               <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
                 Explore Events
               </h1>
@@ -299,12 +299,15 @@ const EventsPage = () => {
                 Real-time markets, real-time edge
               </p>
             </div>
-            {isMobile && (
-              <div className="flex items-center gap-2">
-                <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
-                <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
-              </div>
-            )}
+            <div className="flex flex-shrink-0 items-center gap-2">
+              {!isMobile && <MarketStatusTabs active="active" />}
+              {isMobile && (
+                <>
+                  <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
+                  <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
+                </>
+              )}
+            </div>
           </div>
         </div>
 
