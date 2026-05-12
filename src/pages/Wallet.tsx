@@ -61,7 +61,6 @@ import {
 } from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
-import { ActivationCard } from "@/components/activation/ActivationCard";
 
 
 
@@ -643,8 +642,6 @@ export default function Wallet() {
             <p className="text-muted-foreground">Manage your funds and saved addresses</p>
           </div>
 
-          <ActivationCard className="mb-6" variant="full" />
-
           <div className="grid grid-cols-12 gap-6">
             {/* Left Column */}
             <div className="col-span-4 space-y-6">
@@ -898,7 +895,6 @@ export default function Wallet() {
 
       <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
       <div className="px-4 py-6 space-y-6">
-        <ActivationCard variant="full" />
         <BalanceCard />
         <H2eRewardsCard />
         <PendingConfirmations />
