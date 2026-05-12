@@ -15,6 +15,7 @@
 - **Campaign Landing:** Use `CAMPAIGN_DESIGN.md` + `/campaign-style-guide`; keep separate from product DESIGN.md.
 
 ## Memories
+- [Mainnet activation system](mem://features/activation-system) — User activation funnel, state machine, checklist, Wallet hub, MAINNET badge
 - [Chart adaptive timeframes](mem://features/chart-adaptive-timeframes) — Rules for default candlestick timeframe based on time until settlement
 - [Header tweet count](mem://features/header-tweet-count) — Tweet count display in mobile header
 - [Real-time price updates](mem://features/real-time-price-updates) — Supabase Realtime integration; direction arrows explicitly removed

@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
+import { ActivationChecklist } from "@/components/activation/ActivationChecklist";
 import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import {
   DropdownMenu,
@@ -228,6 +229,9 @@ const MobileHome = () => {
 
         {/* Campaign Entry — placed just above My Positions */}
         <CampaignBannerCarousel variant="mobile" />
+
+        {/* Mainnet activation checklist (S0/S1 users only) */}
+        {user && <ActivationChecklist />}
 
         {/* My Positions Section - only show for logged-in users with positions */}
         {user && positions.length > 0 && (
