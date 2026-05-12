@@ -81,8 +81,8 @@ const ResolvedPage = () => {
           {!isMobile && (
             <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
           )}
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
               <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
                 Resolved Events
               </h1>
@@ -90,19 +90,21 @@ const ResolvedPage = () => {
                 Every prediction has an ending — see who called it right
               </p>
             </div>
-            {/* Mobile Filter Button */}
-            {isMobile && (
-              <MobileResolvedFilterDrawer
-                timeRange={timeRange}
-                onTimeRangeChange={setTimeRange}
-                category={category}
-                onCategoryChange={setCategory}
-                search={search}
-                onSearchChange={setSearch}
-                sortBy={sortBy}
-                onSortByChange={setSortBy}
-              />
-            )}
+            <div className="flex flex-shrink-0 items-center gap-2">
+              {!isMobile && <MarketStatusTabs active="resolved" />}
+              {isMobile && (
+                <MobileResolvedFilterDrawer
+                  timeRange={timeRange}
+                  onTimeRangeChange={setTimeRange}
+                  category={category}
+                  onCategoryChange={setCategory}
+                  search={search}
+                  onSearchChange={setSearch}
+                  sortBy={sortBy}
+                  onSortByChange={setSortBy}
+                />
+              )}
+            </div>
           </div>
         </div>
 
