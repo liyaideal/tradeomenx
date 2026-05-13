@@ -43,131 +43,108 @@ const GuestWelcomeCard = ({ onLogin }: { onLogin: () => void }) => {
   );
 };
 
+const STEP_DESCRIPTIONS: Record<string, string> = {
+  verify: "Quick KYC unlocks deposits and trading.",
+  deposit: "Send USDC on Base to start trading with real capital.",
+  trade: "Open any market to unlock launch campaign rebates.",
+};
+
 const ActivationCard = ({
-  variant,
   balance,
   hasDeposited,
   hasTraded,
 }: {
-  variant: "onboarding" | "funded";
   balance: number | null | undefined;
   hasDeposited: boolean;
   hasTraded: boolean;
 }) => {
   const navigate = useNavigate();
   const steps = [
-    { id: "verify", label: "Verify your account", icon: ShieldCheck, done: true, action: null, cta: "" },
-    { id: "deposit", label: "Deposit USDC on Base", icon: ArrowDownToLine, done: hasDeposited, action: () => navigate("/deposit"), cta: "Deposit" },
-    { id: "trade", label: "Place your first trade", icon: TrendingUp, done: hasTraded, action: () => navigate("/events"), cta: "Browse markets" },
+    { id: "verify", label: "Verify your account", done: true, action: () => navigate("/settings"), cta: "Verify" },
+    { id: "deposit", label: "Deposit USDC on Base", done: hasDeposited, action: () => navigate("/deposit"), cta: "Deposit USDC" },
+    { id: "trade", label: "Place your first trade", done: hasTraded, action: () => navigate("/events"), cta: "Browse markets" },
   ];
   const completed = steps.filter((s) => s.done).length;
-  const headline = variant === "onboarding" ? "Start trading in 3 steps" : "You're funded — make your first trade";
+  const total = steps.length;
+  const currentIdx = steps.findIndex((s) => !s.done);
+  const current = currentIdx >= 0 ? steps[currentIdx] : steps[steps.length - 1];
+  const showBalance = hasDeposited;
 
   return (
     <section
-      aria-label="Mainnet activation"
-      className="relative overflow-hidden rounded-2xl border border-trading-green/25 bg-card p-5 shadow-[0_1px_0_0_hsl(var(--border)/0.4)_inset,0_24px_48px_-24px_hsl(var(--trading-green)/0.25)]"
+      aria-label="Activation"
+      className="relative overflow-hidden rounded-2xl border border-trading-green/25 bg-card p-4 shadow-[0_1px_0_0_hsl(var(--border)/0.4)_inset,0_20px_40px_-24px_hsl(var(--trading-green)/0.22)]"
     >
-      {/* Subtle ambient gradient */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-trading-green/[0.10] via-transparent to-transparent"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-trading-green/[0.08] via-transparent to-transparent"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-20 -right-16 h-48 w-48 rounded-full bg-trading-green/15 blur-3xl"
+        className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-trading-green/15 blur-3xl"
       />
 
       <div className="relative">
-        {/* Eyebrow */}
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inset-0 animate-ping rounded-full bg-trading-green/60" />
-              <span className="relative h-1.5 w-1.5 rounded-full bg-trading-green" />
-            </span>
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-trading-green">
-              Mainnet · Activation
-            </p>
-          </div>
-          <span className="font-mono text-[11px] font-semibold text-muted-foreground rounded-md border border-border/50 bg-background/40 px-1.5 py-0.5">
-            {completed}/{steps.length}
-          </span>
-        </div>
-
-        {/* Headline */}
-        <h2 className="text-xl font-semibold tracking-tight text-foreground leading-snug">
-          {headline}
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {variant === "onboarding"
-            ? "Three quick steps to unlock real-money trading."
-            : "One step left — place a trade to start earning."}
-        </p>
-
-        {/* Balance row */}
-        {variant === "funded" && (
-          <div className="mt-4 flex items-center justify-between rounded-xl border border-border/40 bg-background/40 px-3.5 py-3 backdrop-blur-sm">
-            <span className="text-xs text-muted-foreground">Available balance</span>
-            <span className="font-mono text-lg font-semibold tracking-tight text-foreground">
+        {/* Eyebrow row: step counter + balance/get started */}
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Step {Math.min(currentIdx + 1, total)} of {total}
+          </p>
+          {showBalance ? (
+            <span className="font-mono text-xs font-semibold text-foreground">
               {formatBalance(balance)}
             </span>
-          </div>
-        )}
+          ) : (
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-trading-green">
+              Get started
+            </span>
+          )}
+        </div>
 
-        {/* Steps */}
-        <ol className="mt-4 space-y-2.5">
-          {steps.map((step, idx) => {
-            const isActive = !step.done && idx === completed;
+        {/* Progress dot bar */}
+        <div className="mt-2.5 flex items-center gap-1.5">
+          {steps.map((s, i) => {
+            const isDone = s.done;
+            const isActive = i === currentIdx;
             return (
-              <li
-                key={step.id}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl border p-3 transition-colors",
-                  step.done && "border-border/30 bg-transparent opacity-60",
-                  isActive && "border-trading-green/30 bg-trading-green/[0.06]",
-                  !step.done && !isActive && "border-border/40 bg-background/30",
-                )}
-              >
-                <div
+              <div key={s.id} className="flex flex-1 items-center gap-1.5">
+                <span
                   className={cn(
-                    "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full",
-                    step.done
-                      ? "bg-trading-green/15 text-trading-green"
-                      : isActive
-                      ? "bg-trading-green text-background"
-                      : "bg-muted/60 text-muted-foreground",
+                    "h-1.5 w-1.5 flex-shrink-0 rounded-full transition-colors",
+                    isDone && "bg-trading-green",
+                    isActive && "bg-trading-green ring-2 ring-trading-green/30",
+                    !isDone && !isActive && "bg-muted",
                   )}
-                >
-                  {step.done ? (
-                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
-                  ) : (
-                    <span className="font-mono text-[11px] font-semibold">{idx + 1}</span>
-                  )}
-                </div>
-                <p
-                  className={cn(
-                    "min-w-0 flex-1 truncate text-sm",
-                    step.done
-                      ? "text-muted-foreground line-through decoration-muted-foreground/50"
-                      : "font-medium text-foreground",
-                  )}
-                >
-                  {step.label}
-                </p>
-                {isActive && step.action && (
-                  <button
-                    onClick={step.action}
-                    className="flex flex-shrink-0 items-center gap-1 rounded-lg bg-trading-green px-3 py-1.5 text-xs font-semibold text-background hover:bg-trading-green/90 transition-colors shadow-[0_4px_14px_-4px_hsl(var(--trading-green)/0.6)]"
-                  >
-                    {step.cta}
-                    <ChevronRight className="h-3 w-3" strokeWidth={3} />
-                  </button>
+                />
+                {i < steps.length - 1 && (
+                  <span
+                    className={cn(
+                      "h-px flex-1 transition-colors",
+                      i < completed ? "bg-trading-green/60" : "bg-border/60",
+                    )}
+                  />
                 )}
-              </li>
+              </div>
             );
           })}
-        </ol>
+        </div>
+
+        {/* Hero: current step name */}
+        <h2 className="mt-3.5 text-xl font-semibold tracking-tight text-foreground leading-snug">
+          {current.label}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {STEP_DESCRIPTIONS[current.id]}
+        </p>
+
+        {/* Single full-width CTA */}
+        <button
+          onClick={current.action}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-trading-green px-4 py-3 text-sm font-semibold text-background hover:bg-trading-green/90 transition-colors shadow-[0_8px_20px_-8px_hsl(var(--trading-green)/0.55)]"
+        >
+          {current.cta}
+          <ChevronRight className="h-4 w-4" strokeWidth={3} />
+        </button>
       </div>
     </section>
   );
