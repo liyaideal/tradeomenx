@@ -96,8 +96,6 @@ export const HomeDiscover = () => {
 
   return (
     <div className="space-y-5">
-      <CampaignBannerCarousel variant="mobile" />
-
       {user && positions.length > 0 && (
         <section>
           <SectionHeader
