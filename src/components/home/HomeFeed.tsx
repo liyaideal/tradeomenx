@@ -35,7 +35,7 @@ export const HomeFeed = () => {
   // and no positions concept yet wired in step 1 — show welcome-back at top
   // only when activation state is the long-tail "S2_ACTIVATED" (everyone else
   // is either new or onboarding).
-  const showWelcomeBack = !!user && state === "S2_ACTIVATED";
+  const showWelcomeBack = !!user && (state === "S2_TRADED" || state === "S3_ACTIVE");
 
   const trendingIds = events.slice(0, 6).map((e) => e.id);
 
