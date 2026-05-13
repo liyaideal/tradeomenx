@@ -474,9 +474,10 @@ The mobile `<MobileHeader>` component has **three canonical presets**. Pick one 
 
 | Preset | `showLogo` | `showBack` | `title` | Visual | When to use |
 |--------|------------|-----------|---------|--------|-------------|
-| **A. Home / hub** | `true` | `false` | optional | Logo left-aligned, no back arrow | Top-level functional pages reachable from bottom nav: `/`, `/events`, `/portfolio`, `/leaderboard`, `/wallet` (when nav-rooted) |
+| **A. Home / hub** | `true` | `false` | optional | Logo left-aligned, no back arrow | Top-level functional pages reachable from bottom nav: `/events`, `/portfolio`, `/leaderboard`, `/wallet` (when nav-rooted) |
 | **B. Functional inner page** | `false` | `true` | required, centered | Back arrow ← centered title | Operational flows the user enters from another screen: `/settings`, `/deposit`, `/withdraw`, `/rewards`, `/trade/:id`, `/resolved/:id`, `/portfolio/airdrops`, `/portfolio/settlements` |
 | **C. SEO / marketing sub-page** | `false` | `true` | required, centered | Back arrow ← centered title | Content & marketing pages: `/about`, `/faq`, `/glossary`, `/insights`, `/methodology`, `/developers`, `/hedge`, `/transparency`, `/privacy`, `/terms` |
+| **D. Home Hub with KPI** | n/a (custom) | n/a | n/a | Two-row: brand + Mainnet pill on top, Total Equity KPI below | **Only `/` (MobileHome).** Uses dedicated `<HomeKPIHeader>` component, not `<MobileHeader>`. See "Preset D · Home KPI Header Spec" below. |
 
 Preset C is identical in chrome to Preset B — the distinction matters because SEO pages are routed to from search engines & footer links, so the back button **must** still render even when there is no in-app history (the component handles fallback navigation to `/`).
 
