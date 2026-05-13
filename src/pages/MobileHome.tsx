@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bell, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
+import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
@@ -11,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { HomeKPIHeader } from "@/components/home/HomeKPIHeader";
+import { HomeEquityHero } from "@/components/home/HomeEquityHero";
 import { HomeOnboardingStrip } from "@/components/home/HomeOnboardingStrip";
 import { HomeAirdropStrip } from "@/components/home/HomeAirdropStrip";
 import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
@@ -59,10 +60,11 @@ const MobileHome = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <HomeKPIHeader rightSlot={headerActions} onLogin={() => setAuthOpen(true)} />
+      <MobileHeader showLogo showBack={false} rightContent={headerActions} />
 
       <main className="px-4 pt-4 pb-2">
-        <div className="space-y-2.5">
+        <HomeEquityHero onLogin={() => setAuthOpen(true)} />
+        <div className="mt-4 space-y-2.5">
           <HomeOnboardingStrip />
           <HomeAirdropStrip />
           <CampaignBannerCarousel variant="mobile" />
