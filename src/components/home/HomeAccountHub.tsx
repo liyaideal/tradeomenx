@@ -39,9 +39,10 @@ interface HomeAccountHubProps {
 }
 
 /**
- * Post-Dashboard-Flow refactor: account balance lives in HomeKPIHeader,
- * activation/airdrop/campaign live in HomeStatusTray. This component now
- * only renders the guest welcome card. Returns null for authenticated users.
+ * Post-Preset-D refactor: account balance lives in HomeEquityHero,
+ * activation/airdrop/campaign live in their own three-layer stack
+ * (HomeOnboardingStrip + HomeAirdropStrip + CampaignBannerCarousel).
+ * This component now only renders the guest welcome card. Returns null for authenticated users.
  */
 export const HomeAccountHub = ({ onLogin }: HomeAccountHubProps) => {
   const { user } = useAuth();

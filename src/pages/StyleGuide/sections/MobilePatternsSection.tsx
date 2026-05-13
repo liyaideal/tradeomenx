@@ -75,60 +75,60 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
   return (
     <div className="space-y-12">
       {/* =========================== */}
-      {/* PRESET D · HOME KPI HEADER  */}
+      {/* PRESET D · HOME EQUITY HERO */}
       {/* =========================== */}
       <SectionWrapper
         id="header-preset-d"
-        title="Mobile Header · Preset D (Home KPI)"
+        title="Mobile Header · Preset D (Home Equity Hero)"
         platform="mobile"
-        description="`<HomeKPIHeader>` — locked spec for `/` (MobileHome) only. See DESIGN.md §10 'Preset D · Home KPI Header Spec'."
+        description="`/` (MobileHome) uses standard Preset A header + `<HomeEquityHero>` card. See DESIGN.md §10 'Preset D · Home Equity Hero Spec'."
       >
         <Card className="trading-card mb-6">
           <CardHeader>
             <CardTitle className="text-lg">Locked visual</CardTitle>
             <CardDescription>
-              Two-row sticky header: brand + Mainnet pill on top, Total Equity KPI below. Do not reuse on other pages.
+              Header is identical to Preset A. KPI lives in a separate, non-sticky Hero card as the first body section. Do not reuse the Hero on other pages.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="max-w-[390px] mx-auto rounded-2xl border border-border/50 overflow-hidden bg-background">
-              <header className="bg-background/85 backdrop-blur-xl border-b border-border/40 px-4 pt-3 pb-3">
+              {/* Preset A header replica */}
+              <header className="bg-background/95 backdrop-blur border-b border-border px-4 py-2">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Logo size="md" showMainnetBadge={false} />
-                    <span className="flex items-center gap-1 rounded-full border border-trading-green/30 bg-trading-green/10 px-2 py-0.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse" />
-                      <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-trading-green">
-                        Mainnet
-                      </span>
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground font-mono">[ rightSlot ]</span>
-                </div>
-                <div className="mt-3 flex items-end justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-0.5">
-                      Total equity
-                    </p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-[26px] font-semibold tracking-tight text-foreground leading-none">
-                        $13,530.00
-                      </span>
-                      <span className="font-mono text-xs font-medium text-trading-green">+$34.56</span>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground pb-1">
-                    7d +1.9%
-                  </span>
+                  <Logo size="md" />
+                  <span className="text-[10px] text-muted-foreground font-mono">[ rightContent ]</span>
                 </div>
               </header>
+              {/* HomeEquityHero replica */}
+              <div className="px-4 pt-4">
+                <section className="rounded-2xl border border-border/40 bg-gradient-to-br from-trading-green/[0.04] via-card/40 to-card/20 px-5 pt-5 pb-5">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    Total equity
+                  </p>
+                  <div className="mt-2 font-mono text-[40px] font-bold tracking-tight leading-none text-foreground">
+                    $13,530.00
+                  </div>
+                  <div className="mt-3 flex items-center gap-2.5 font-mono text-[12px]">
+                    <span className="font-semibold text-trading-green">+$34.56</span>
+                    <span className="text-muted-foreground/40">·</span>
+                    <span className="font-semibold text-muted-foreground">
+                      7D <span className="text-trading-green">+1.9%</span>
+                    </span>
+                  </div>
+                </section>
+              </div>
+              <div className="px-4 pt-4 pb-4 space-y-2.5 text-[10px] text-muted-foreground font-mono">
+                <div className="rounded-xl border border-border/40 px-3 py-2.5">[ Onboarding strip ]</div>
+                <div className="rounded-xl border border-border/40 px-3 py-2.5">[ Airdrop strip ]</div>
+                <div className="rounded-xl border border-border/40 px-3 py-3">[ Campaign banner ]</div>
+              </div>
             </div>
 
             <div className="mt-4 grid gap-2 text-xs text-muted-foreground">
-              <p><span className="text-foreground font-semibold">Container:</span> <code className="font-mono">px-4 pt-3 pb-3</code> · <code className="font-mono">bg-background/85 backdrop-blur-xl</code> · <code className="font-mono">border-b border-border/40</code></p>
-              <p><span className="text-foreground font-semibold">KPI number:</span> <code className="font-mono">font-mono text-[26px] font-semibold leading-none</code> — do NOT enlarge to text-4xl</p>
-              <p><span className="text-foreground font-semibold">Label:</span> <code className="font-mono">text-[9px] uppercase tracking-[0.2em] text-muted-foreground</code></p>
-              <p><span className="text-foreground font-semibold">PnL %:</span> right-aligned, <code className="font-mono">text-[10px] uppercase tracking-wider</code></p>
+              <p><span className="text-foreground font-semibold">Header:</span> standard <code className="font-mono">{'<MobileHeader showLogo showBack={false} rightContent={...} />'}</code></p>
+              <p><span className="text-foreground font-semibold">Hero container:</span> <code className="font-mono">rounded-2xl border-border/40 bg-gradient-to-br from-trading-green/[0.04] via-card/40 to-card/20 px-5 pt-5 pb-5</code></p>
+              <p><span className="text-foreground font-semibold">KPI number:</span> <code className="font-mono">font-mono text-[40px] font-bold leading-none</code> — max 40px</p>
+              <p><span className="text-foreground font-semibold">Meta row:</span> single line, <code className="font-mono">text-[12px]</code>, today PnL · 7D %</p>
               <p className="text-trading-red">Spec changes must update DESIGN.md §10 first, then this playground, then the component.</p>
             </div>
           </CardContent>

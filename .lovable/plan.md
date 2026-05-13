@@ -1,33 +1,84 @@
-## 你说得对——我违规了
+## 方案 D：拆为独立 Hero 卡 + Header 走 Preset A
 
-DESIGN.md 第 471 行起明确定义了 `<MobileHeader>` 的 **A/B/C** 三个 preset，但完全没有写 `HomeKPIHeader` 这个新 header 的规范（它是前几轮新建的、专门给 `/` 用的"Preset A 变体"），StyleGuide 里也没有它的展示。
+把 KPI 从 sticky header 中拆出来，让 `/` 的 header 与其他 hub 页面（`/events / /portfolio / ...`）完全一致；KPI 作为首屏第一张 Hero 卡，承载"大气"分量。
 
-我刚才直接把 padding、字号、KPI 卡都加大了，这在没有 source-of-truth 的情况下，本质是给 `/` 单点打补丁，会和未来其他页面出现的 hub header 不一致。我提议两步走，**先回退、再立规范**：
+### 结构变化
 
-### Step 1 — 回退 KPI Header 视觉改动
+**之前：**
+```
+[sticky header  Logo + Mainnet | Discord 🌐 🔔  ]
+[                Total equity                   ]
+[                $13,530.00 +$34.56     7d +1.9%]
+─────────────────────────────────────────────────
+[Onboarding strip]
+[Airdrop strip]
+[Campaign banner]
+[AccountHub / Discover / More]
+```
 
-把 `src/components/home/HomeKPIHeader.tsx` 还原到上一个版本（`px-4 pt-3 pb-3` / `text-[26px]` / 右上角 `7D +1.9%` 小字 / 不带 Available 分组卡）。让你能在干净的基线上决策。
+**之后：**
+```
+[sticky header  Logo + Mainnet | Discord 🌐 🔔  ]   ← 标准 Preset A
+─────────────────────────────────────────────────
+[ Hero 卡（不 sticky）                           ]
+[   TOTAL EQUITY                          ]
+[   $13,530.00                            ]
+[   +$34.56  ·  7d +1.9%                  ]
+─────────────────────────────────────────────────
+[Onboarding strip]
+[Airdrop strip]
+[Campaign banner]
+[AccountHub / Discover / More]
+```
 
-### Step 2 — 选一条规范路径（**我需要你定**）
+### 锁定的 token（写入 DESIGN.md §10 取代旧 Preset D）
 
-> 因为这一步会影响 DESIGN.md 和 StyleGuide，必须由你拍板，不再自己发挥。
+**Preset D 重新定义：** 不再是"sticky header with KPI"，而是"`/` 走标准 Preset A header + `<HomeEquityHero>` 独立 Hero 卡"。
 
-**路径 1 · 砍掉 HomeKPIHeader，回到 Preset A**
-- `MobileHome` 改用 `<MobileHeader showLogo showBack={false} rightContent={...} />`，和 `/events /portfolio /leaderboard /wallet` 完全一致。
-- KPI（Total Equity + 7D PnL）下沉为 `<HomeAccountHub>` 的一部分，不再占 header。
-- 优点：零新规范，零不一致；缺点：首屏第一眼看不到余额。
+`<HomeEquityHero>` 卡 token：
 
-**路径 2 · 正式新增 Preset D"Home Hub with KPI"**
-- 在 DESIGN.md "Mobile Header Presets" 表里新增一行 **Preset D**，仅限 `/` 使用，明确：两行结构（brand row + KPI row）、字号阶梯（label `text-[10px]`、数字 `text-[26px]` 或 `text-4xl`、PnL `text-xs/sm`）、padding（`px-4 pt-3 pb-3` 或 `px-5 pt-5 pb-5`）。
-- 在 `StyleGuide/sections/MobilePatternsSection.tsx` 加一个 Preset D Playground，把组件展示出来。
-- 然后再在这个规范基础上做"大气化"——选 26px 还是 36px、要不要 Available 分组卡，由规范一次性定死。
+| Slot | Token |
+|------|-------|
+| 容器 | `rounded-2xl border border-border/40 bg-gradient-to-br from-trading-green/[0.04] via-card/40 to-card/20 px-5 pt-5 pb-5` |
+| Label | `font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground` |
+| 主数字 | `font-mono text-[40px] font-bold tracking-tight text-foreground leading-none mt-2` |
+| Meta 行 | `mt-3 flex items-center gap-2.5 font-mono text-[12px]` |
+| · 今日 PnL | `font-semibold text-trading-green/red`，前缀无 |
+| · 分隔点 | `text-muted-foreground/40` |
+| · 7D % | `font-semibold text-muted-foreground`，前缀 `7D` |
+| · 7D 数值绿/红 | inline span 染色 |
+| Sticky 行为 | **无**（随页面滚动消失，让 Onboarding/Campaign 占据视口）|
 
-**路径 3 · 维持现状不立规范**
-- 接受 `/` 是"特例"，但 DESIGN.md 加一条注释指明这是默认中性版本，未来不要在其他地方复用，也不要再调整视觉。
-- 我立刻按这条加注释，不动视觉。
+未登录态：Hero 卡内容替换为 CTA "Sign in to start trading"，外壳样式不变。
 
-### 不动项
+### Header 同步改为 Preset A
 
-- 不重新调 `HomeOnboardingStrip / HomeAirdropStrip / CampaignBannerCarousel`。
-- 不动 `<MobileHeader>` 现有 A/B/C preset 的代码或规范。
-- Step 1 回退会立刻执行；Step 2 等你选。
+`MobileHome.tsx`：
+- 移除 `<HomeKPIHeader>`，改为 `<MobileHeader showLogo showBack={false} rightContent={headerActions} />`
+- `MainnetBadge` 通过 `Logo size="md"` 默认 `showMainnetBadge={true}` 自然带出（无需自定义胶囊）
+- Hero 卡作为 `<main>` 内第一个 section，紧跟其后是 Onboarding strip / Airdrop strip / Campaign banner
+
+### 新文件
+
+- `src/components/home/HomeEquityHero.tsx`（新）— 实现 Hero 卡，复用 `useUserProfile` 数据源
+- `src/components/home/HomeKPIHeader.tsx`（删除）
+
+### 文件改动（同步三处）
+
+1. **DESIGN.md** §10 "Preset D" — 完全重写，定义为"Preset A header + HomeEquityHero 卡"组合
+2. **`src/pages/StyleGuide/sections/MobilePatternsSection.tsx`** — Preset D playground 改为展示 Hero 卡静态预览（标注"`/` 专属，配合 Preset A header 使用"）
+3. **`mem://design/mobile-header-preset-d`** — 同步内容
+
+### 不变项
+
+- `<MobileHeader>` A/B/C preset 不动
+- `HomeOnboardingStrip / HomeAirdropStrip / CampaignBannerCarousel` 不动（仅顺序紧跟 Hero 卡之后）
+- `HomeAccountHub / HomeDiscover / HomeMore` 不动
+- 其他 hub 页面（`/events` 等）不动
+
+### 风险/取舍
+
+- ✅ Header 跨页面 100% 一致，规范负担最低
+- ✅ KPI 卡可以放心做大气（40px 数字 + gradient + 大 padding），不挤压 sticky 高度
+- ⚠️ 滚动后看不到余额（用户需回到顶部）— 这是接受的取舍
+- ⚠️ Mainnet 胶囊从自定义改回标准 `MainnetBadge`，视觉略有差异（带 pulse dot 一致，但样式由 `<Logo>` 控制）
