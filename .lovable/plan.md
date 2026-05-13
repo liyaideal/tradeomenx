@@ -1,102 +1,98 @@
-## 目标
+## 复盘：当前问题
 
-把移动端首页从「贴膏药拼装」升级到 Robinhood / Revolut 那种"消费金融的高质感"——大卡片有体量感、字号层级清晰、间距讲呼吸、不靠霓虹光晕。
+| 问题 | 原因 |
+|---|---|
+| 头部信息重复 | 头部已有 `MAINNET` 绿胶囊，激活卡又写 `MAINNET · ACTIVATION` |
+| 同一句话讲两遍 | "You're funded — make your first trade" + "One step left — place a trade to start earning" 是同义改写 |
+| 当前步骤被截断 | 已完成步骤各占一整行 + 当前步骤 + CTA 按钮挤在同一行，文字被 `truncate` 切断 |
+| 整页松散 | `space-y-8` 模块间距太大，section header 自带 `border-b + pb-2.5 + mb-3`，再叠 `space-y-3` 卡片，纵向被拉得很长 |
+| 余额单独一框 | 余额行又是一个独立 chip，跟当前步骤割裂 |
 
-**不动**：信息架构（4 层）、配色 token、字体、`MobileHeader`、`BottomNav`、`CampaignBannerCarousel`（已自成一体）、`HomeMore`（次级）、业务逻辑。
+## 设计原则（向 Robinhood/Revolut 看齐）
 
-**动**：激活卡、My positions 横滑卡、分区标题（Hot markets / Settlement soon / My positions / More）、整页节奏。
-
----
-
-## 1. 全局节奏（`MobileHome.tsx`）
-
-- `<main>` 间距从 `space-y-6` → `space-y-8`，让模块之间真正"分块"。
-- 顶部 `py-4` → `pt-5 pb-2`，让激活卡更接近顶部、不悬空。
-
-## 2. 分区标题统一规范（最大视觉收益点）
-
-新建 `src/components/home/SectionHeader.tsx`，所有分区标题走它，结构：
-
-```text
-[图标]  EYEBROW · MONO 10PX UPPERCASE TRACKING-WIDEST
-        Section Title (text-lg font-semibold tracking-tight)        [more →]
-————— 一根 border-b border-border/40 把内容隔出 ————
-```
-
-- eyebrow 用 `font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground`
-- 图标用 Lucide，外层 `p-1.5 rounded-md bg-{tone}/10`，按分区给颜色 token：
-  - Hot markets → `trading-red`（Flame）
-  - Settlement soon → `trading-yellow`（Flag）
-  - My positions → `trading-purple`（Wallet）
-  - More → `muted-foreground`（LayoutGrid）
-- 右侧 `more` 按钮：`text-[11px] font-semibold uppercase tracking-wider text-primary`，带 ChevronRight。
-- 接入：`HomeDiscover.tsx`、`HomeMore.tsx` 全部换成新组件，删掉各自现写的 h3/h4。
-
-## 3. 激活卡升级（`ActivationHero` / `HomeAccountHub`）
-
-按 Revolut 卡片质感重做，**不改动逻辑**，只调视觉：
-
-- 容器：`rounded-2xl` + 双层背景：底层 `bg-card`，叠一层从 `trading-green/8` 到 `transparent` 的 135° 渐变 + 1px `border-trading-green/25` + 1px `inset ring-white/5`（玻璃感的关键）。
-- 顶部 eyebrow 行：绿点 pulse + `MAINNET · ACTIVATION`（mono uppercase tracking-widest，trading-green），右上 `2/3` 用 `font-mono` 在 chip 里。
-- 标题：`text-xl font-semibold tracking-tight`，副行 `text-sm text-muted-foreground` 描述当前阶段。
-- 余额行：内嵌 `bg-background/40 border border-border/40 rounded-xl`，左侧 `Available balance` 灰色，右侧大数字 `font-mono text-lg`，小数 `.00` 降透明度（Robinhood 经典做法）。
-- 步骤项：
-  - 已完成：透明度 60%，绿色对勾（实心圆，背景 `trading-green/15`），文字删除线 `decoration-muted-foreground/60`。
-  - 当前进行中：单独高亮容器 `bg-trading-green/5 border-trading-green/25`，右侧 CTA 直接做成绿色实心按钮（`bg-trading-green text-background font-semibold`）。
-- 行间距 `space-y-2` → `space-y-2.5`。
-
-## 4. My positions 横滑卡升级
-
-当前是 `flex-shrink-0 w-[240px]` 的浅卡片，问题是没有信息密度。新版每张卡：
-
-```text
-┌──────────────────────────────────┐
-│ SOL Weekly Performance      ⋯    │   ← 标题 + 静音操作点
-│                                   │
-│  [LONG]  $1,240.00                │   ← chip + 仓位规模 mono
-│                                   │
-│  PnL                +$185.20      │   ← 灰 label 左 / mono 大数右
-│  ───── tiny sparkline ─────       │   ← 用现有 EventSparkline 复用
-└──────────────────────────────────┘
-```
-
-- 卡片：`w-[260px] bg-card rounded-2xl border border-border/40 p-4 space-y-3`
-- 第一行标题 `truncate text-sm font-semibold`
-- chip 用 `trading-green-bg/-red-bg` 配 `text-[10px] font-mono uppercase`
-- PnL 行 `flex justify-between items-baseline`，数字 `font-mono`，颜色按正负
-- sparkline 高度 24px，颜色继承 PnL
-- 横滑容器：`-mx-4 px-4 gap-3 snap-x snap-mandatory`，每卡 `snap-start`，移动端体验更顺
-- 标题 + "View all" 走第 2 步的 `SectionHeader`
-
-## 5. Hot markets / Settlement soon
-
-只换标题（走 `SectionHeader`）。卡片本身不动（已经在另一个文件，按 `card-style-isolation` 约束不碰）。Loading spinner 加上 mono 提示文字 `LOADING MARKETS…`，避免空白圈。
-
-## 6. HomeMore 升级
-
-两个方块 → 横向单行，更轻：
-
-- `grid-cols-2 gap-3`，每块 `rounded-xl border border-border/40 bg-card p-4 flex items-center gap-3`
-- 左侧小图标方块（`p-2 rounded-lg bg-{tone}/10`），右侧两行：标题 + 一行小描述（`Tutorials & guides` / `Earn USDC`）
-- 标题走 `SectionHeader`（图标 LayoutGrid，eyebrow `EXPLORE`）
+**Hero 卡只回答一个问题：现在该做什么。** 已完成的步骤折叠成一行进度条，标题就是 CTA 的语言，按钮就是行动本身。不重复说话、不浪费纵向空间。
 
 ---
 
-## 文件改动清单
+## 1. 激活卡彻底重做（HomeAccountHub）
+
+新结构（按从上到下）：
+
+```text
+┌─────────────────────────────────────────┐
+│ STEP 3 OF 3                    $13,530  │  ← mono eyebrow + 余额(右侧 mono)
+│ ●━━━━━●━━━━━○                           │  ← 进度小圆点条 (2 done, 1 active)
+│                                          │
+│ Place your first trade                   │  ← 大标题(就是当前步骤名)
+│ Earn launch rebates after your           │  ← 单行短描述(只在能补充信息时出现)
+│ first fill.                              │
+│                                          │
+│ ┌─────────────────────────────────────┐ │
+│ │  Browse markets               →     │ │  ← 全宽实心绿 CTA
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+```
+
+具体规则：
+- **删掉 `MAINNET · ACTIVATION` eyebrow**（跟头部胶囊重复）
+- **eyebrow 改成 `STEP 3 OF 3`**（mono、tracking-widest、muted-foreground），右侧 mono 直接显示余额（S1+ 才显示，S0 显示 `Get started`）
+- **进度条：3 个圆点 + 连线**，已完成绿色实心，进行中绿色实心+ring，未开始 muted；高度只有 8px
+- **大标题就是当前步骤名**，不是 "You're funded"。S0 显示 `Verify your account` / S1 显示 `Place your first trade` / 等等。`text-xl font-semibold tracking-tight`
+- **副描述只在能补充新信息时出现**（比如解释当前步骤的好处），不能是把标题换种说法。能省就省。
+- **单一全宽 CTA**，不再做行内小按钮 + 步骤列表混排，避免截断
+- **已完成步骤完全不展示**，进度条已经表达了完成度
+
+视觉容器：保留 `rounded-2xl border-trading-green/25 bg-card` + 微渐变，但 padding 从 `p-5` → `p-4`，整体高度直降一半。
+
+## 2. 头部语言改造
+
+把"Activation"语义从激活卡里抽走后，需要一个微弱标识。方案：
+- 头部 MAINNET 胶囊**保留不动**
+- 不在激活卡里再说一次"Mainnet"
+
+## 3. 整页节奏收紧
+
+| 位置 | 旧 | 新 |
+|---|---|---|
+| `<main>` 间距 | `space-y-8` | `space-y-5` |
+| `<HomeDiscover>` 内部 | `space-y-8` | `space-y-6` |
+| SectionHeader | `mb-3 border-b pb-2.5` + 图标 chip 7×7 | `mb-2.5 pb-2 border-b` + 图标 chip 6×6，eyebrow 跟标题同一行（不换行） |
+| Hot markets / Settlement 内部卡片间 | `space-y-3` | `space-y-2.5` |
+
+## 4. SectionHeader 紧凑化
+
+新版结构：
+
+```text
+[icon] EYEBROW  Title                      [More →]
+─────────────────────────────────────────────────
+```
+
+- eyebrow 跟 title 同一行（用 ` · ` 分隔或 inline），不再上下两行
+- 整个 header 高度从 ~52px 降到 ~32px
+- subtitle 取消（Settlement soon 的"Last chance to trade"挪到 eyebrow：`EXPIRING SOON`）
+
+## 5. My positions 微调
+
+- 卡片 `space-y-3` → `space-y-2.5`，padding `p-4` → `p-3.5`
+- 标题 `min-h-[2.5rem]` 取消（让短标题不再撑高度）
+
+---
+
+## 文件改动
 
 | 文件 | 动作 |
 |---|---|
-| `src/components/home/SectionHeader.tsx` | **新建**，统一分区头组件 |
-| `src/components/home/HomeDiscover.tsx` | 接入 SectionHeader；My positions 横滑卡视觉重做 |
-| `src/components/home/HomeAccountHub.tsx` | 渐变 + ring + eyebrow + 余额行 + 步骤项视觉升级 |
-| `src/components/activation/ActivationHero.tsx` | 配合 HomeAccountHub 同步质感（保留逻辑）|
-| `src/components/home/HomeMore.tsx` | 横向单行卡 + SectionHeader |
-| `src/pages/MobileHome.tsx` | `space-y-6` → `space-y-8`；`py-4` → `pt-5 pb-2` |
+| `src/components/home/HomeAccountHub.tsx` | **重写 ActivationCard 内部结构**：删 eyebrow 重复 / 删副标题 / 进度点条 / 大标题=步骤名 / 全宽 CTA / 不再展示已完成步骤行 |
+| `src/components/home/SectionHeader.tsx` | eyebrow 与 title 同行，整体高度收紧 |
+| `src/components/home/HomeDiscover.tsx` | 内部 `space-y-8` → `space-y-6`；positions 卡片紧凑 |
+| `src/pages/MobileHome.tsx` | `space-y-8` → `space-y-5` |
 
-不动：`MobileHeader`、`BottomNav`、`CampaignBannerCarousel`、`HomeActionAlerts`、`tailwind.config.ts`、`index.css`（不引入新 token，用现有 trading-* / card / border / muted）。
+不动：信息架构（4 层）、配色 token、HomeMore、CampaignBannerCarousel、所有业务逻辑。
 
----
+## 验收
 
-## 验收点
-
-落地后我会用 mobile viewport 截一张图自查：(1) 激活卡是否像高级金融卡而不是绿色框框；(2) 分区标题是否有节奏感、能一眼分块；(3) My positions 是否信息密度提上来；(4) 整页 scroll 一遍是否呼吸均匀。
+- 激活卡纵向高度比现在缩短约 40%
+- 当前步骤名完整显示，不再被 `truncate`
+- 头部 MAINNET 胶囊跟激活卡之间不再有重复词
+- 整页第一屏能看到激活卡 + campaign banner 上半，而不是只看到激活卡

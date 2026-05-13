@@ -32,7 +32,7 @@ export const HomeDiscover = () => {
     .slice(0, 1);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <CampaignBannerCarousel variant="mobile" />
 
       {user && positions.length > 0 && (
@@ -61,10 +61,10 @@ export const HomeDiscover = () => {
               return (
                 <div
                   key={index}
-                  className="flex-shrink-0 w-[260px] snap-start cursor-pointer rounded-2xl border border-border/40 bg-card p-4 space-y-3 transition-colors hover:bg-card-hover"
+                  className="flex-shrink-0 w-[260px] snap-start cursor-pointer rounded-2xl border border-border/40 bg-card p-3.5 space-y-2.5 transition-colors hover:bg-card-hover"
                   onClick={() => navigate("/trade/order", { state: { tab: "Positions", highlightPosition: index } })}
                 >
-                  <p className="text-sm font-semibold text-foreground line-clamp-2 min-h-[2.5rem]">
+                  <p className="text-sm font-semibold text-foreground line-clamp-2">
                     {position.event}
                   </p>
 
@@ -187,9 +187,8 @@ export const HomeDiscover = () => {
         <SectionHeader
           icon={Flag}
           tone="trading-yellow"
-          eyebrow="Expiring"
-          title="Settlement soon"
-          subtitle="Last chance to trade"
+          eyebrow="Expiring soon"
+          title="Settlement"
         />
 
         {isLoadingEvents ? (

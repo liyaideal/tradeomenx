@@ -16,7 +16,6 @@ interface SectionHeaderProps {
   icon: LucideIcon;
   eyebrow: string;
   title: string;
-  subtitle?: string;
   tone?: Tone;
   actionLabel?: string;
   onAction?: () => void;
@@ -25,14 +24,12 @@ interface SectionHeaderProps {
 }
 
 /**
- * Unified mobile-home section header. Editorial rhythm with mono eyebrow,
- * tinted icon chip, semantic title and a tracked action link.
+ * Compact mobile-home section header. Inline eyebrow · title on a single line.
  */
 export const SectionHeader = ({
   icon: Icon,
   eyebrow,
   title,
-  subtitle,
   tone = "primary",
   actionLabel,
   onAction,
@@ -40,41 +37,35 @@ export const SectionHeader = ({
   className,
 }: SectionHeaderProps) => {
   return (
-    <div className={cn("mb-3 border-b border-border/40 pb-2.5", className)}>
-      <div className="flex items-end justify-between gap-3">
-        <div className="flex items-start gap-2.5 min-w-0">
-          <span
-            className={cn(
-              "mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md",
-              TONE_BG[tone],
-            )}
-          >
-            <Icon className="h-3.5 w-3.5" strokeWidth={2.25} />
-          </span>
-          <div className="min-w-0">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {eyebrow}
-            </p>
-            <h3 className="mt-0.5 text-base font-semibold tracking-tight text-foreground truncate">
-              {title}
-            </h3>
-            {subtitle && (
-              <p className="mt-0.5 text-[11px] text-muted-foreground">{subtitle}</p>
-            )}
-          </div>
-        </div>
-        {rightSlot ? (
-          rightSlot
-        ) : actionLabel && onAction ? (
-          <button
-            onClick={onAction}
-            className="flex flex-shrink-0 items-center gap-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
-          >
-            {actionLabel}
-            <ChevronRight className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
+    <div className={cn("mb-2.5 flex items-center justify-between gap-3 border-b border-border/40 pb-2", className)}>
+      <div className="flex min-w-0 items-center gap-2">
+        <span
+          className={cn(
+            "flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md",
+            TONE_BG[tone],
+          )}
+        >
+          <Icon className="h-3 w-3" strokeWidth={2.5} />
+        </span>
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {eyebrow}
+        </p>
+        <span className="text-muted-foreground/40">·</span>
+        <h3 className="text-sm font-semibold tracking-tight text-foreground truncate">
+          {title}
+        </h3>
       </div>
+      {rightSlot ? (
+        rightSlot
+      ) : actionLabel && onAction ? (
+        <button
+          onClick={onAction}
+          className="flex flex-shrink-0 items-center gap-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
+        >
+          {actionLabel}
+          <ChevronRight className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
     </div>
   );
 };
