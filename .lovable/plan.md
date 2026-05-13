@@ -1,68 +1,37 @@
-## 目标
-把 Status Tray 拆成三层独立曝光，让 Onboarding、Airdrop、Campaign 各自获得专属视觉位置；Campaign 拿到全宽轮播，曝光最强。
+## 头部大气化方案：Sophisticated Hero
 
-## 新版首屏结构
+只改 `src/components/home/HomeKPIHeader.tsx`，保留 props 和数据源不变。
 
-```text
-┌──────────────────────────────────────┐
-│ HomeKPIHeader                        │ sticky
-│  Logo · Mainnet ·       Globe Bell   │
-│  Total equity  $12,345.67   +2.4% 7D │
-├──────────────────────────────────────┤
-│ HomeOnboardingStrip (单行进度条)     │ 仅未完成时显示
-│  ✓  Step 2 of 3 · Place first trade →│
-│     ▰▰▰ ▰▰▰ ▱▱▱                      │
-├──────────────────────────────────────┤
-│ HomeAirdropStrip (单行通知)          │ 仅有未领取空投时
-│  🎁 1 Airdrop ready · Claim now    → │
-├──────────────────────────────────────┤
-│ CampaignBannerCarousel (全宽轮播)    │ 始终显示
-│  ┌──────────────────────────────┐    │
-│  │  Banner 视觉 + CTA           │    │
-│  └──────────────────────────────┘    │
-│         · ● · ·                       │ 指示点
-├──────────────────────────────────────┤
-│ HomeAccountHub (Guest Welcome)       │
-│ HomeDiscover                         │
-│ HomeMore                             │
-└──────────────────────────────────────┘
-```
+### 视觉调整
 
-## 各层规范
+**整体容器**
+- padding 从 `px-4 pt-3 pb-3` → `px-5 pt-5 pb-5`（更大的呼吸感）
 
-### 1. HomeOnboardingStrip（新组件）
-- 单行紧凑条，非卡片：`rounded-xl border border-trading-green/25 bg-trading-green/5 px-3 py-2.5`
-- 左：`h-8 w-8` 圆角图标（Check / 数字）
-- 中：`ONBOARDING 2/3` eyebrow（font-mono 9px tracking-[0.2em] text-trading-green）+ 标题（font-sans 14px semibold）
-- 右：ChevronRight
-- 标题下方：3 段进度条（已完成填充 trading-green，当前段 50%，未完成 muted）
-- 完成后整条 `return null`
+**Brand 行（Row 1）**
+- 不变：Logo + Mainnet 胶囊 + rightSlot
+- 与下方 KPI 间距 `mt-3` → `mt-4`
 
-### 2. HomeAirdropStrip（新组件）
-- 同样的单行紧凑条样式：`rounded-xl border border-trading-yellow/25 bg-trading-yellow/5 px-3 py-2.5`
-- 左：Gift 图标
-- 中：`AIRDROP` eyebrow（trading-yellow）+ `1 Airdrop ready` + 副文案 `Claim before close`
-- 右：ChevronRight
-- 没有可领取空投时 `return null`
+**KPI 主区块（已登录态）**
+1. **主数字放大**：Total Equity 数字从 `text-[26px]` → `text-4xl`（约 36px），`font-semibold` → `font-bold`，紧贴 `+$34.56` 同基线
+2. **Label 强化**：`Total equity` 字号 `text-[9px]` → `text-[10px]`，tracking `0.2em`
+3. **副指标分组卡**：在主数字下方新增一个圆角分组卡：
+   - `mt-4 py-3 px-4 rounded-xl border border-border/50 bg-muted/20`
+   - 左：`7D Change` label + `+1.9%`（trading-green，font-mono，text-[15px] font-bold）
+   - 中间分隔：`h-6 w-px bg-border/60`
+   - 右：`Available` label + 余额数字（暂时复用 profile.balance 或显示 `--`）
+4. 移除右上角孤立的 `7D +1.9%` 小字（已合并入分组卡）
 
-### 3. CampaignBannerCarousel（复用现有）
-- 直接用现有 `<CampaignBannerCarousel variant="mobile" />` 全宽渲染
-- 容器只做左右 padding：`px-4`
-- 内部已有自动轮播 + 指示点，曝光最强
-- 与上方两条 strip 之间 `space-y-2.5`，与 Discover 之间 `space-y-5`
+**未登录态**
+- 保持 CTA 按钮，仅同步外层 padding 调整即可
 
-## 文件改动
+### 不变项
 
-- 新增 `src/components/home/HomeOnboardingStrip.tsx`
-- 新增 `src/components/home/HomeAirdropStrip.tsx`
-- 删除 `src/components/home/HomeStatusTray.tsx`（被三层取代）
-- 修改 `src/pages/MobileHome.tsx`：
-  - 移除 `<HomeStatusTray />`
-  - 顺序：`HomeKPIHeader → HomeOnboardingStrip → HomeAirdropStrip → CampaignBannerCarousel → HomeAccountHub → HomeDiscover → HomeMore`
-  - 三个曝光层之间用 `space-y-2.5`，与 Discover 之间用 `mt-5`
-- 不动业务逻辑、hooks、跳转目标、Logo 修复（已 done）
+- props 接口（`rightSlot / onLogin / weeklyPnL / weeklyPnLPercent`）
+- sticky 行为、backdrop-blur
+- 语义 token：`trading-green / muted-foreground / border / muted`
+- 不引入新颜色、不引入图标、不引入 emoji
+- 不动 `MobileHome.tsx` 或其他模块
 
-## 不会改动
-- `HomeKPIHeader.tsx`、`HomeAccountHub.tsx`、`HomeDiscover.tsx`、`HomeMore.tsx`
-- `CampaignBannerCarousel.tsx` 内部
-- 任何 hook 与数据源
+### 文件变更
+
+- 编辑 `src/components/home/HomeKPIHeader.tsx`（唯一改动）
