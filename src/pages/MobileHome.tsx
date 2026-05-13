@@ -12,7 +12,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HomeKPIHeader } from "@/components/home/HomeKPIHeader";
-import { HomeStatusTray } from "@/components/home/HomeStatusTray";
+import { HomeOnboardingStrip } from "@/components/home/HomeOnboardingStrip";
+import { HomeAirdropStrip } from "@/components/home/HomeAirdropStrip";
+import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
 import { HomeAccountHub } from "@/components/home/HomeAccountHub";
 import { HomeDiscover } from "@/components/home/HomeDiscover";
 import { HomeMore } from "@/components/home/HomeMore";
@@ -59,11 +61,17 @@ const MobileHome = () => {
     <div className="min-h-screen bg-background pb-24">
       <HomeKPIHeader rightSlot={headerActions} onLogin={() => setAuthOpen(true)} />
 
-      <main className="px-4 pt-4 pb-2 space-y-5">
-        <HomeStatusTray />
-        <HomeAccountHub onLogin={() => setAuthOpen(true)} />
-        <HomeDiscover />
-        <HomeMore />
+      <main className="px-4 pt-4 pb-2">
+        <div className="space-y-2.5">
+          <HomeOnboardingStrip />
+          <HomeAirdropStrip />
+          <CampaignBannerCarousel variant="mobile" />
+        </div>
+        <div className="mt-5 space-y-5">
+          <HomeAccountHub onLogin={() => setAuthOpen(true)} />
+          <HomeDiscover />
+          <HomeMore />
+        </div>
       </main>
 
       <BottomNav />
