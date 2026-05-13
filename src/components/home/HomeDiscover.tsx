@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Loader2, Flame, Flag, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
 import { SectionHeader } from "@/components/home/SectionHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
@@ -97,8 +96,6 @@ export const HomeDiscover = () => {
 
   return (
     <div className="space-y-5">
-      <CampaignBannerCarousel variant="mobile" />
-
       {user && positions.length > 0 && (
         <section>
           <SectionHeader
