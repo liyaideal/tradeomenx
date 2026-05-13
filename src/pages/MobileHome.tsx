@@ -12,13 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { HomeEquityHero } from "@/components/home/HomeEquityHero";
-import { HomeOnboardingStrip } from "@/components/home/HomeOnboardingStrip";
-import { HomeAirdropStrip } from "@/components/home/HomeAirdropStrip";
-import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
-import { HomeAccountHub } from "@/components/home/HomeAccountHub";
-import { HomeDiscover } from "@/components/home/HomeDiscover";
-import { HomeMore } from "@/components/home/HomeMore";
+import { HomeStatusStrip } from "@/components/home/HomeStatusStrip";
+import { HomeFeed } from "@/components/home/HomeFeed";
 
 const MobileHome = () => {
   const [authOpen, setAuthOpen] = useState(false);
@@ -63,16 +58,9 @@ const MobileHome = () => {
       <MobileHeader showLogo showBack={false} rightContent={headerActions} />
 
       <main className="px-4 pt-4 pb-2">
-        <HomeEquityHero onLogin={() => setAuthOpen(true)} />
-        <div className="mt-4 space-y-2.5">
-          <HomeOnboardingStrip />
-          <HomeAirdropStrip />
-          <CampaignBannerCarousel variant="mobile" />
-        </div>
-        <div className="mt-5 space-y-5">
-          <HomeAccountHub onLogin={() => setAuthOpen(true)} />
-          <HomeDiscover />
-          <HomeMore />
+        <HomeStatusStrip onLogin={() => setAuthOpen(true)} />
+        <div className="mt-4">
+          <HomeFeed />
         </div>
       </main>
 
