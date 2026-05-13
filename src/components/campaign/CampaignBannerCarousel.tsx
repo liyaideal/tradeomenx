@@ -274,7 +274,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
 
                   <div
                     className={cn(
-                      "relative z-10 grid h-full min-w-0 gap-5",
+                      "relative z-10 grid h-full min-w-0 gap-4",
                       // When bg image takes the right side, content is single-column constrained to ~60%.
                       // When falling back to visual tile, keep the original 2-column layout.
                       !hasBgImage && "sm:grid-cols-[minmax(0,1fr)_minmax(220px,300px)] sm:items-stretch",
@@ -283,7 +283,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     {/* Information column */}
                     <div
                       className={cn(
-                        "flex min-w-0 flex-col justify-between gap-4",
+                        "flex min-w-0 flex-col justify-between gap-3",
                         hasBgImage && "sm:max-w-[60%]",
                       )}
                     >
@@ -304,7 +304,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                         )}
                         <h3
                           className={cn(
-                            "font-semibold leading-tight text-foreground",
+                            "font-semibold leading-tight text-foreground line-clamp-2",
                             isMobile ? "text-xl" : "text-2xl lg:text-3xl",
                           )}
                         >
@@ -314,7 +314,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                           <span className={cn("font-semibold", isMobile ? "text-xl" : "text-2xl", t.metric)}>
                             {banner.heroMetric.value}
                           </span>
-                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground line-clamp-1">
                             {banner.heroMetric.label}
                           </span>
                         </div>
