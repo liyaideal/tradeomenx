@@ -223,7 +223,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     "group relative block w-full max-w-full overflow-hidden rounded-md border text-left shadow-lg shadow-background/30 transition-all",
                     t.border,
                     t.surface,
-                    isMobile ? "min-h-[200px] p-4" : "min-h-[220px] p-6",
+                    isMobile ? "h-[200px] p-4" : "h-[220px] p-6",
                   )}
                 >
                   {/* Layer 1: full-card background image with skeleton placeholder */}
