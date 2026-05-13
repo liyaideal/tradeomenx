@@ -477,7 +477,7 @@ The mobile `<MobileHeader>` component has **three canonical presets**. Pick one 
 | **A. Home / hub** | `true` | `false` | optional | Logo left-aligned, no back arrow | Top-level functional pages reachable from bottom nav: `/events`, `/portfolio`, `/leaderboard`, `/wallet` (when nav-rooted) |
 | **B. Functional inner page** | `false` | `true` | required, centered | Back arrow ← centered title | Operational flows the user enters from another screen: `/settings`, `/deposit`, `/withdraw`, `/rewards`, `/trade/:id`, `/resolved/:id`, `/portfolio/airdrops`, `/portfolio/settlements` |
 | **C. SEO / marketing sub-page** | `false` | `true` | required, centered | Back arrow ← centered title | Content & marketing pages: `/about`, `/faq`, `/glossary`, `/insights`, `/methodology`, `/developers`, `/hedge`, `/transparency`, `/privacy`, `/terms` |
-| **D. Home Hub with KPI** | n/a (custom) | n/a | n/a | Two-row: brand + Mainnet pill on top, Total Equity KPI below | **Only `/` (MobileHome).** Uses dedicated `<HomeKPIHeader>` component, not `<MobileHeader>`. See "Preset D · Home KPI Header Spec" below. |
+| **D. Home (Preset A + Equity Hero)** | `true` | `false` | n/a | Standard Preset A header + non-sticky `<HomeEquityHero>` card as first body section | **Only `/` (MobileHome).** Header is identical to Preset A — KPI lives in a separate Hero card, not the header. See "Preset D · Home Equity Hero Spec" below. |
 
 Preset C is identical in chrome to Preset B — the distinction matters because SEO pages are routed to from search engines & footer links, so the back button **must** still render even when there is no in-app history (the component handles fallback navigation to `/`).
 
@@ -528,65 +528,80 @@ Preset C is identical in chrome to Preset B — the distinction matters because 
 - 两个页面的行为必须**镜像对称**，保持一致体验
 - 修改这两个页面的 Header 时，必须先确认此规范
 
-### Preset D · Home KPI Header Spec (`<HomeKPIHeader>`)
+### Preset D · Home Equity Hero Spec (`<HomeEquityHero>`)
 
 **唯一使用页面：`/` (MobileHome)。其他页面严禁复用此组件。**
 
-Preset D 是 `/` 的专属 hub header，**不是** `<MobileHeader>` 的一个变体，而是独立组件 `src/components/home/HomeKPIHeader.tsx`。它的存在理由：首屏需要在 sticky header 内同时呈现品牌 + Total Equity KPI，无法套用 A/B/C 任一形态。
+Preset D **不是**一个 header 变体。`/` 的 header 直接用标准 Preset A (`<MobileHeader showLogo showBack={false} rightContent={...} />`)，与 `/events`、`/portfolio`、`/leaderboard`、`/wallet` 完全一致。Total Equity KPI 拆出来作为 `<main>` 内的第一张 Hero 卡 `<HomeEquityHero>`，**不 sticky**，随页面滚动消失。
 
-#### 结构（两行固定）
+设计意图：把 KPI 的"大气"承载放在卡片层，让它能用大字号 + gradient 而不挤压 sticky header 高度；同时 `/` 的 header 与其他 hub 页面 100% 对齐，规范负担最低。
+
+#### 结构
 
 ```text
 ┌──────────────────────────────────────────────────────┐
-│ [Logo md]  [● Mainnet]              Discord 🌐 🔔   │  ← Row 1: brand row
+│ [Logo md + Mainnet]              Discord 🌐 🔔      │  ← Preset A header (sticky)
 ├──────────────────────────────────────────────────────┤
-│ TOTAL EQUITY                                         │  ← label
-│ $13,530.00  +$34.56                    7D +1.9%     │  ← Row 2: KPI
+│ ┌──────────────────────────────────────────────────┐ │
+│ │ TOTAL EQUITY                                     │ │  ← <HomeEquityHero> (not sticky)
+│ │ $13,530.00                                       │ │
+│ │ +$34.56  ·  7D +1.9%                             │ │
+│ └──────────────────────────────────────────────────┘ │
+│ [Onboarding strip]                                   │
+│ [Airdrop strip]                                      │
+│ [Campaign banner carousel]                           │
+│ [HomeAccountHub / HomeDiscover / HomeMore]           │
 └──────────────────────────────────────────────────────┘
 ```
 
-未登录态：Row 2 替换为单个 CTA 按钮 "Sign in to start trading"，其余不变。
+未登录态：Hero 卡内容替换为 CTA "Sign in to start trading"，外壳样式不变。
 
 #### 锁定的 token（不要再改）
 
 | Slot | Token | 备注 |
 |------|-------|------|
-| 容器 padding | `px-4 pt-3 pb-3` | 与 `<MobileHeader>` 视觉密度对齐 |
-| 背景 | `bg-background/85 backdrop-blur-xl` | sticky 半透明 |
-| 边框 | `border-b border-border/40` | 与 A/B/C 一致 |
-| Mainnet pill | `border-trading-green/30 bg-trading-green/10`, 文字 `font-mono text-[9px] uppercase tracking-[0.18em] text-trading-green` | 不要换成图标 |
-| KPI label "Total equity" | `font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-foreground` | sentence case |
-| KPI 主数字 | `font-mono text-[26px] font-semibold tracking-tight text-foreground leading-none` | **不要放大到 text-4xl**——会和下方卡片密度脱节 |
-| 周 PnL（金额） | `font-mono text-xs font-medium text-trading-green/red` | 与主数字同基线 |
-| 周 PnL（百分比） | `font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground`，前缀 `7d` | 右下角对齐主数字底线 |
-| Row 间距 | `mt-3` | brand row 到 KPI |
-| 未登录 CTA | `rounded-xl border-trading-green/30 bg-trading-green/10 px-3.5 py-2.5` | 不要做成大色块按钮 |
+| 容器 | `rounded-2xl border border-border/40 bg-gradient-to-br from-trading-green/[0.04] via-card/40 to-card/20 px-5 pt-5 pb-5` | 极淡绿色径向感，不引入新色 |
+| Label "Total equity" | `font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground` | sentence case |
+| 主数字 | `font-mono text-[40px] font-bold tracking-tight leading-none text-foreground mt-2` | **最大 40px**——超过会顶到 header |
+| Meta 行容器 | `mt-3 flex items-center gap-2.5 font-mono text-[12px]` | 单行 |
+| Meta · 今日 PnL | `font-semibold text-trading-green/red` | 含正负号 |
+| Meta · 分隔点 | 字符 `·`，`text-muted-foreground/40` | |
+| Meta · 7D | `font-semibold text-muted-foreground` 前缀 + 内嵌 `text-trading-green/red` 的百分比 | |
+| 未登录 CTA | 同容器 + `border-trading-green/30 from-trading-green/[0.08]` | 卡内放 label + 大字 CTA + ChevronRight |
 
 #### Props 契约
 
 ```tsx
-interface HomeKPIHeaderProps {
-  rightSlot: React.ReactNode;     // Discord / Globe / Bell — 不能省
+interface HomeEquityHeroProps {
   onLogin: () => void;            // 未登录态 CTA
-  weeklyPnL?: string;             // "+$34.56"
+  todayPnL?: string;              // "+$34.56"
   weeklyPnLPercent?: string;      // "+1.9%"
 }
 ```
 
+数据源：`useAuth()` 判断登录态，`useUserProfile().profile.balance` 取余额。**不要** hardcode 余额值。
+
+#### Header 行为
+
+- `MobileHome.tsx` 必须使用 `<MobileHeader showLogo showBack={false} rightContent={headerActions} />`
+- `headerActions` 包含 Discord / Globe / Bell 三个图标按钮，沿用现有实现
+- Mainnet 标识由 `<Logo>` 默认 `showMainnetBadge={true}` 自然带出，**不要**在 header 里加自定义胶囊
+
 #### Do / Don't
 
 ✅ **Do**
-- 想"放大气" → 通过下方模块（`HomeAccountHub`、卡片组）增强分量，header 保持中性
-- KPI 数据源永远走 `useUserProfile().profile.balance`，不要在组件内 hardcode
-- 任何视觉调整（字号 / padding / 增加副指标行）必须先改本规范，再改组件，再同步 StyleGuide playground
+- 想"再大气一点" → 调 Hero 卡的 token（数字字号 / gradient 强度 / padding），不要碰 header
+- 任何视觉调整必须先改本规范 → 再改 StyleGuide playground → 再改组件
+- Hero 卡保持单一职责：只展示 Total Equity + 当日 PnL + 7D %
 
 ❌ **Don't**
-- 不要把 `<HomeKPIHeader>` 用到 `/events / /portfolio / /leaderboard` 等页面——那些走 Preset A
-- 不要在 header 里塞通知 / 公告 / Onboarding strip——这些是独立 section（见 `HomeOnboardingStrip / HomeAirdropStrip / CampaignBannerCarousel` 三层堆叠）
-- 不要给数字加 gradient / shadow / glow——保持 trading-app 信息密度优先
-- 不要私自加 "Available / Locked / Trial Bonus" 等副指标到 header——它们属于 `HomeAccountHub`
+- 不要把 `<HomeEquityHero>` 用到其他页面——它是 `/` 专属
+- 不要把 KPI 重新塞回 header（即使 sticky 看起来更好）——拆分是规范决策
+- 不要在 Hero 卡里加 Available / Locked / Trial Bonus / 持仓数等副指标——它们属于 `<HomeAccountHub>`
+- 不要把 Onboarding / Airdrop / Campaign banner 合并进 Hero 卡——保持三层堆叠独立
+- 不要给数字加 shadow / glow / 动效
 
-修改本组件前，先 review StyleGuide → Mobile Patterns → "Header Preset D" playground，确保规范与实现同步。
+修改 Hero 卡前，先 review StyleGuide → Mobile Patterns → "Header Preset D" playground，确保规范与实现同步。
 
 ### Mobile Bottom Nav
 
