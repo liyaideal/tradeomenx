@@ -37,20 +37,19 @@ export const SectionHeader = ({
   className,
 }: SectionHeaderProps) => {
   return (
-    <div className={cn("mb-2.5 flex items-center justify-between gap-3 border-b border-border/40 pb-2", className)}>
-      <div className="flex min-w-0 items-center gap-2">
+    <div className={cn("mb-2 flex items-center justify-between gap-2", className)}>
+      <div className="flex min-w-0 items-center gap-1.5">
         <span
           className={cn(
-            "flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md",
+            "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded",
             TONE_BG[tone],
           )}
         >
-          <Icon className="h-3 w-3" strokeWidth={2.5} />
+          <Icon className="h-2.5 w-2.5" strokeWidth={2.5} />
         </span>
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {eyebrow}
         </p>
-        <span className="text-muted-foreground/40">·</span>
         <h3 className="text-sm font-semibold tracking-tight text-foreground truncate">
           {title}
         </h3>
@@ -60,10 +59,10 @@ export const SectionHeader = ({
       ) : actionLabel && onAction ? (
         <button
           onClick={onAction}
-          className="flex flex-shrink-0 items-center gap-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
+          className="flex flex-shrink-0 items-center gap-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
         >
           {actionLabel}
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-3 w-3" />
         </button>
       ) : null}
     </div>
