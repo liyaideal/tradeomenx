@@ -1,4 +1,6 @@
-import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { cn } from "@/lib/utils";
@@ -10,24 +12,22 @@ const formatBalance = (balance: number | null | undefined) => {
 
 interface HomeEquityHeroProps {
   onLogin: () => void;
-  todayPnL?: string;
-  weeklyPnLPercent?: string;
+  todayPnLPercent?: string;
 }
 
 /**
- * Preset D · Home KPI Hero card.
+ * Preset D · Home KPI Hero card — minimalist variant.
+ * Layout: large equity number (with hide/show eye) + right-top "Today +X%" capsule
+ * + single "Deposit" CTA. No meta row.
  * Used ONLY by `/` (MobileHome). See DESIGN.md §10.
- * Do not reuse on other pages.
  */
-export const HomeEquityHero = ({
-  onLogin,
-  todayPnL = "+$34.56",
-  weeklyPnLPercent = "+1.9%",
-}: HomeEquityHeroProps) => {
+export const HomeEquityHero = ({ onLogin, todayPnLPercent = "+1.9%" }: HomeEquityHeroProps) => {
   const { user } = useAuth();
   const { profile } = useUserProfile();
-  const isTodayProfit = todayPnL.startsWith("+");
-  const isWeekProfit = weeklyPnLPercent.startsWith("+");
+  const navigate = useNavigate();
+  const [hidden, setHidden] = useState(false);
+
+  const isProfit = todayPnLPercent.startsWith("+");
 
   if (!user) {
     return (
@@ -48,24 +48,47 @@ export const HomeEquityHero = ({
 
   return (
     <section className="rounded-2xl border border-border/40 bg-gradient-to-br from-trading-green/[0.04] via-card/40 to-card/20 px-5 pt-5 pb-5">
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-        Total equity
-      </p>
-      <div className="mt-2 font-mono text-[40px] font-bold tracking-tight leading-none text-foreground">
-        {formatBalance(profile?.balance)}
-      </div>
-      <div className="mt-3 flex items-center gap-2.5 font-mono text-[12px]">
-        <span className={cn("font-semibold", isTodayProfit ? "text-trading-green" : "text-trading-red")}>
-          {todayPnL}
-        </span>
-        <span className="text-muted-foreground/40">·</span>
-        <span className="font-semibold text-muted-foreground">
-          7D{" "}
-          <span className={isWeekProfit ? "text-trading-green" : "text-trading-red"}>
-            {weeklyPnLPercent}
-          </span>
+      {/* Top row: label + Today % capsule */}
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+          Total equity
+        </p>
+        <span
+          className={cn(
+            "rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold",
+            isProfit
+              ? "bg-trading-green/10 text-trading-green"
+              : "bg-trading-red/10 text-trading-red",
+          )}
+        >
+          Today {todayPnLPercent}
         </span>
       </div>
+
+      {/* Number + eye toggle */}
+      <div className="mt-2 flex items-end justify-between gap-3">
+        <div className="font-mono text-[40px] font-bold tracking-tight leading-none text-foreground">
+          {hidden ? "••••••" : formatBalance(profile?.balance)}
+        </div>
+        <button
+          type="button"
+          onClick={() => setHidden((v) => !v)}
+          className="mb-1 rounded-md p-1.5 text-muted-foreground/70 transition-colors hover:bg-muted/40 hover:text-foreground"
+          aria-label={hidden ? "Show balance" : "Hide balance"}
+        >
+          {hidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {/* Single CTA */}
+      <button
+        type="button"
+        onClick={() => navigate("/deposit")}
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90 active:scale-[0.99]"
+      >
+        Deposit
+        <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+      </button>
     </section>
   );
 };

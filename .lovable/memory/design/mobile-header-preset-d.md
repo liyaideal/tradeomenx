@@ -11,13 +11,12 @@ type: design
 **Locked tokens for `<HomeEquityHero>` (do not change without updating DESIGN.md and StyleGuide playground first):**
 
 - Container: `rounded-2xl border border-border/40 bg-gradient-to-br from-trading-green/[0.04] via-card/40 to-card/20 px-5 pt-5 pb-5`
-- Label "Total equity": `font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground`
+- Top row: label "Total equity" left (`font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground`) + right "Today +X%" capsule (`font-mono text-[11px] font-semibold`, green/red bg-tint)
 - Main number: `font-mono text-[40px] font-bold tracking-tight leading-none text-foreground mt-2` — **max 40px**
-- Meta row: `mt-3 flex items-center gap-2.5 font-mono text-[12px]`, format `today PnL · 7D %`
-- Today PnL: `font-semibold text-trading-green/red`
-- Separator: `·` with `text-muted-foreground/40`
-- 7D label: `font-semibold text-muted-foreground` with inline colored percentage
-- Logged-out CTA: same shell + `border-trading-green/30 from-trading-green/[0.08]`
+- Eye toggle: right of number, `Eye`/`EyeOff` lucide icon, hides number as `••••••`, local `useState` only (not persisted)
+- Single CTA: full-width `rounded-xl bg-foreground py-3 text-sm font-semibold text-background` "Deposit →" navigates to `/deposit`
+- **No meta row** — do NOT add today PnL $ / 7D % / Available / Locked here. Other balances live in `<HomeAccountHub>`.
+- Logged-out CTA: same shell + `border-trading-green/30 from-trading-green/[0.08]`, single line "Sign in to start trading"
 - **Not sticky** — scrolls away with the page
 
 **Header (separate concern):**
