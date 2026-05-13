@@ -1,112 +1,126 @@
-# 首页整体紧凑化方案
+# 首页 Dashboard Flow 重构方案
 
-目标：让 My positions / Hot markets / Settlement 全部回到 Robinhood / Revolut 的"高密度 + 节奏感"，整体页面纵向高度下降约 30–35%。当前问题不是局部，是所有 section 的 padding / 字号 / 行数都偏大。
-
----
-
-## 1. SectionHeader（更轻、更收）
-
-当前：`mb-2.5 + pb-2 + border-b`，icon chip `h-6 w-6`，title `text-sm`，整体约 36px。
-改为：
-- 去掉底部 `border-b` 和 `pb-2`（边线让位置感更松，紧凑布局不需要）
-- 容器：`mb-2 flex items-center justify-between gap-2`
-- icon chip：`h-5 w-5 rounded`，icon `h-2.5 w-2.5`
-- eyebrow：`text-[9px] tracking-[0.16em]`
-- 中点分隔符去掉（直接 eyebrow + title 同行，gap-1.5）
-- title：保持 `text-sm font-semibold`
-- action：`text-[10px]`，ChevronRight `h-3 w-3`
-
-整体高度从 ~36px → ~22px。
+落地用户选定的 v2「顶部 KPI 余额条 + 横向状态托盘 + 统一节奏列表」。核心思想：把上半部分（激活卡 + Airdrop alert + Campaign banner）的"三块独立大卡"改成"一条 KPI Header + 一条横向状态托盘"，让上下密度趋于一致；下半部分保持现有列表节奏并对齐到同一套 padding / 圆角 / border。
 
 ---
 
-## 2. My positions 横向卡片（重点修复）
+## 1. 新增：HomeKPIHeader（顶部余额 KPI 条）
 
-当前每张卡：`w-[260px] p-3.5 space-y-2.5`，标题 `text-sm` 两行，badge + 文案一行，分隔线 + Unrealized/ROI 双列大字 `text-base`，整体高度 ~140px。
+新文件：`src/components/home/HomeKPIHeader.tsx`
 
-改为单层、无分隔线、信息收敛：
+替换原 MobileHeader 上半区视觉：把 logo + Mainnet 标签放第一行，下面一整块大字余额作为整页的"开屏锚点"。
 
-```text
-┌─────────────────────────────┐
-│ SOL Weekly Performance      │  ← text-[13px] font-medium，line-clamp-1
-│ ● Short · Up >5%            │  ← 小圆点彩色 + text-[11px] muted
-│                              │
-│ +$6.32        +79.0%        │  ← 同行，font-mono text-[15px] semibold
-│ Unrealized       ROI        │  ← text-[9px] uppercase muted
-└─────────────────────────────┘
+结构：
+- sticky 顶部，`backdrop-blur` + `border-b border-border/40`
+- 顶行：左 logo + Mainnet 胶囊（沿用现有 `MobileHeader` 的 logo/胶囊），右 Discord/Globe/Bell（沿用现有按钮）
+- 下行（仅登录后显示）：
+  - Eyebrow `text-[10px] uppercase tracking-widest text-muted-foreground` = "Total equity"
+  - 大数字 `font-mono text-[28px] font-semibold` = `formatBalance(profile.balance)`
+  - 旁边小字 `font-mono text-xs text-trading-green` = 7 日 PnL（沿用原 weeklyPnL mock）
+- 未登录用户：下行显示一行 CTA "Sign in to start trading" + ChevronRight，点击触发 `onLogin`
+
+直接替换 `MobileHome.tsx` 里现有的 `<MobileHeader>` 调用（保留按钮区，只把布局换成 KPI Header）。
+
+---
+
+## 2. 新增：HomeStatusTray（横向状态托盘）
+
+新文件：`src/components/home/HomeStatusTray.tsx`
+
+把"激活进度 + Airdrop pending + Campaign 营销卡"统一成一条横向滚动托盘：
+- 容器：`-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 snap-x scrollbar-hide`
+- 每张卡：`flex-shrink-0 rounded-2xl border border-border/40 bg-card p-3.5`，宽度 `w-[280px]`（激活）/ `w-[220px]`（其余）
+- 三张卡都用相同的"icon chip + 双行文案 + 可选 ChevronRight"骨架，差异化只在颜色 token：
+
+| 卡 | 条件 | 颜色 | 内容 |
+|---|---|---|---|
+| Activation | `state in (S0_NEW, S1_DEPOSITED)` | trading-green | 圆形 progress（3 段 dot）+ "Onboarding N/3" + 当前 step label，点击跳当前 step.action |
+| Airdrop | `pendingAirdrops.length > 0` | trading-yellow | Gift icon + "N Airdrop pending" + NEW badge，点击 `/portfolio/airdrops` |
+| Campaign | 永远显示一张主推 | primary / trading-yellow | 沿用 `CampaignBannerCarousel` 当前数据源中的 active campaign，但改成同尺寸卡片 |
+
+激活完成后 (state ≠ S0/S1)，托盘只剩 Airdrop + Campaign；都不存在时 tray 整段不渲染。
+
+注：`CampaignBannerCarousel` 现有的"全宽轮播大卡"只在托盘中以紧凑卡形式出现一张主推，多 campaign 走 horizontal scroll。
+
+---
+
+## 3. 修改：HomeAccountHub
+
+- 删除 `ActivationCard`（已迁到 StatusTray）
+- 删除 `UserStatsCard`（balance 已上移到 KPI Header）
+- 保留 `GuestWelcomeCard` 用于未登录场景，但简化为 KPI Header 下的"价值主张 + Start trading 按钮"小卡，padding `p-4`，与下方列表节奏一致
+- 已登录且已激活的用户，HomeAccountHub 直接 `return null`（KPI Header 已展示余额）
+
+---
+
+## 4. 修改：MobileHome 主结构
+
+```tsx
+<div className="min-h-screen bg-background pb-24">
+  <HomeKPIHeader onLogin={...} />
+  <main className="px-4 pt-4 pb-2 space-y-5">
+    <HomeStatusTray />            {/* 替换 HomeAccountHub + HomeActionAlerts + CampaignBannerCarousel */}
+    <HomeAccountHub onLogin={...} /> {/* 仅 guest 显示 GuestWelcomeCard */}
+    <HomeDiscover />
+    <HomeMore />
+  </main>
+  <BottomNav />
+</div>
 ```
 
-- 卡尺寸：`w-[220px] p-3 space-y-2`
-- 圆角：`rounded-xl`（从 2xl 收一档）
-- 去掉 Badge 组件，改成 `●` 彩色小圆点 + 文字（节省一整行）
-- 去掉 `border-t pt-3` 分隔线
-- 数字行 + 标签行交换顺序：数字大字在上，label 小字在下（更像 Robinhood 持仓）
-- 横向 gap：`gap-2.5`（从 3）
-
-整卡高度：~140px → ~96px。
+- 移除原 `<MobileHeader>` 调用与 HomeActionAlerts 渲染
+- `<HomeDiscover>` 内部移除 `<CampaignBannerCarousel>`（已迁到 tray）
+- `space-y-5` 保持当前节奏
 
 ---
 
-## 3. Hot markets 卡片（紧凑化）
+## 5. 修改：HomeDiscover
 
-当前：`trading-card p-4 space-y-3`，标题 + Badge + Trade 按钮一组，下面横向 option chip（`min-w-[100px] p-2.5`），再下面 Volume + 倒计时一行。整体 ~150px/卡 × 4 = 600px。
-
-改为两行布局，去掉冗余 option chip：
-
-```text
-┌───────────────────────────────────────────────┐
-│ Crypto · 12h 30m                              │  ← eyebrow
-│ Will BTC close above $100k this week?  [Trade]│  ← title text-[13px]
-│ ─────────────────────────────────────────────│
-│ Yes 0.62  ·  No 0.38      Vol $1.2M           │  ← 单行内联价格 + 量
-└───────────────────────────────────────────────┘
-```
-
-- 卡 padding：`p-3`，`space-y-2`
-- 顶行：eyebrow `text-[10px] uppercase muted`（category · countdown 合并成一条 meta，不再用 Badge 占独立行）
-- 标题：`text-[13px] font-medium line-clamp-1`，Trade 按钮 `h-7 px-2.5` 右侧对齐
-- 把 option 价格压缩成一行内联：`Yes 0.62 · No 0.38`，二元事件就两个；多 option 时 `truncate` + `+N more`
-- Volume 和价格共享同一行，去掉 BarChart3 / Clock 图标（meta 已含倒计时）
-
-每卡 ~150px → ~78px。4 张总高 ~600 → ~340px。
-
-外层 `space-y-3` → `space-y-2`。
+- 删除文件顶部的 `<CampaignBannerCarousel variant="mobile" />`
+- 其余结构（My positions / Hot markets / Settlement + 紧凑卡）全部保留——上轮已经紧凑化到位
 
 ---
 
-## 4. Settlement 卡片
+## 6. 统一卡片节奏 token
 
-复用 Hot markets 的紧凑布局，但保留 `border-trading-yellow/30` 高亮 + 黄色倒计时。
-- padding `p-3`，single 卡（settlementSoon.slice(0,1)）。
+所有列表卡（StatusTray 卡 / Position 卡 / Market 卡 / More 卡）统一用：
+- `rounded-2xl`（StatusTray 大卡）/ `rounded-xl`（小列表卡）
+- `border border-border/40`
+- `bg-card`
+- padding：列表卡 `p-3`，托盘卡 `p-3.5`
 
----
-
-## 5. HomeDiscover 节奏
-
-- 外层 `space-y-6` → `space-y-5`
-- 三个 section 之间不再需要分隔线（SectionHeader 自带视觉边界 + icon chip 已经分区）
-
----
-
-## 6. MobileHome 主轴
-
-- `<main>`：`px-4 pt-3 pb-2 space-y-4`（pt-4 → pt-3，space-y-5 → space-y-4）
+确保从 KPI header → tray → positions → markets → more 视觉密度连续，无突兀大卡。
 
 ---
 
 ## 不改动
 
-- HomeAccountHub 激活卡（上轮已重构）
-- HomeMore（上轮已重构）
-- HomeActionAlerts、CampaignBannerCarousel
-- 所有业务逻辑、数据源、路由、颜色 token
+- 业务逻辑：`useActivationState` / `useAirdropPositions` / `useUserProfile` / `usePositions` / `useActiveEvents`
+- BottomNav、AuthSheet、RewardsWelcomeModal、AirdropHomepageModal
+- HomeMore（已是紧凑双列卡）
+- SectionHeader（上轮已紧凑化）
+- 颜色 token、`trading-card` class 定义
 
 ---
 
 ## 文件变更清单
 
-- `src/components/home/SectionHeader.tsx`
-- `src/components/home/HomeDiscover.tsx`
-- `src/pages/MobileHome.tsx`
+新建：
+- `src/components/home/HomeKPIHeader.tsx`
+- `src/components/home/HomeStatusTray.tsx`
 
-预期效果：首屏可见 section 数量从 1.5 个 → 2.5 个，整页可滚距离下降 ~30%。
+修改：
+- `src/components/home/HomeAccountHub.tsx`（删 ActivationCard / UserStatsCard，guest 卡简化）
+- `src/components/home/HomeDiscover.tsx`（移除 CampaignBannerCarousel）
+- `src/pages/MobileHome.tsx`（替换 header + 重排 main）
+
+删除/替换调用：
+- 不再渲染 `HomeActionAlerts`（逻辑迁入 StatusTray；文件可留作 fallback 但不引用）
+
+---
+
+## 预期效果
+
+- 第一屏：KPI Header 60–70px + StatusTray 100px + GuestWelcome（仅访客）≈ 第一屏只占 200px，剩下显示 My positions 顶部
+- 上下密度差异从"大卡 vs 紧凑列表"降为"统一节奏的卡流"
+- 余额成为整页的主信息锚点，符合 Robinhood / Revolut 习惯
