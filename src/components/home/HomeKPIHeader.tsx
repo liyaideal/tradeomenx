@@ -31,7 +31,7 @@ export const HomeKPIHeader = ({
       {/* Row 1: brand + actions */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Logo size="md" />
+          <Logo size="md" showMainnetBadge={false} />
           <span className="flex items-center gap-1 rounded-full border border-trading-green/30 bg-trading-green/10 px-2 py-0.5">
             <span className="h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse" />
             <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-trading-green">
