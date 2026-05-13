@@ -350,7 +350,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
         </CarouselContent>
       </Carousel>
 
-      <div className="mt-3 flex justify-center gap-2">
+      <div className="flex justify-center gap-2 mt-0">
         {banners.map((banner, index) => (
           <button
             key={banner.id}
