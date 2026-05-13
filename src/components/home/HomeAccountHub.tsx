@@ -195,11 +195,8 @@ export const HomeAccountHub = ({ onLogin }: HomeAccountHubProps) => {
   if (!user) return <GuestWelcomeCard onLogin={onLogin} />;
   if (isLoading) return <div className="trading-card p-4 h-32 animate-pulse" />;
 
-  if (state === "S0_NEW") {
-    return <ActivationCard variant="onboarding" balance={profile?.balance} hasDeposited={hasDeposited} hasTraded={hasTraded} />;
-  }
-  if (state === "S1_DEPOSITED") {
-    return <ActivationCard variant="funded" balance={profile?.balance} hasDeposited={hasDeposited} hasTraded={hasTraded} />;
+  if (state === "S0_NEW" || state === "S1_DEPOSITED") {
+    return <ActivationCard balance={profile?.balance} hasDeposited={hasDeposited} hasTraded={hasTraded} />;
   }
   return (
     <UserStatsCard
