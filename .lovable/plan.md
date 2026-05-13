@@ -1,37 +1,33 @@
-## 头部大气化方案：Sophisticated Hero
+## 你说得对——我违规了
 
-只改 `src/components/home/HomeKPIHeader.tsx`，保留 props 和数据源不变。
+DESIGN.md 第 471 行起明确定义了 `<MobileHeader>` 的 **A/B/C** 三个 preset，但完全没有写 `HomeKPIHeader` 这个新 header 的规范（它是前几轮新建的、专门给 `/` 用的"Preset A 变体"），StyleGuide 里也没有它的展示。
 
-### 视觉调整
+我刚才直接把 padding、字号、KPI 卡都加大了，这在没有 source-of-truth 的情况下，本质是给 `/` 单点打补丁，会和未来其他页面出现的 hub header 不一致。我提议两步走，**先回退、再立规范**：
 
-**整体容器**
-- padding 从 `px-4 pt-3 pb-3` → `px-5 pt-5 pb-5`（更大的呼吸感）
+### Step 1 — 回退 KPI Header 视觉改动
 
-**Brand 行（Row 1）**
-- 不变：Logo + Mainnet 胶囊 + rightSlot
-- 与下方 KPI 间距 `mt-3` → `mt-4`
+把 `src/components/home/HomeKPIHeader.tsx` 还原到上一个版本（`px-4 pt-3 pb-3` / `text-[26px]` / 右上角 `7D +1.9%` 小字 / 不带 Available 分组卡）。让你能在干净的基线上决策。
 
-**KPI 主区块（已登录态）**
-1. **主数字放大**：Total Equity 数字从 `text-[26px]` → `text-4xl`（约 36px），`font-semibold` → `font-bold`，紧贴 `+$34.56` 同基线
-2. **Label 强化**：`Total equity` 字号 `text-[9px]` → `text-[10px]`，tracking `0.2em`
-3. **副指标分组卡**：在主数字下方新增一个圆角分组卡：
-   - `mt-4 py-3 px-4 rounded-xl border border-border/50 bg-muted/20`
-   - 左：`7D Change` label + `+1.9%`（trading-green，font-mono，text-[15px] font-bold）
-   - 中间分隔：`h-6 w-px bg-border/60`
-   - 右：`Available` label + 余额数字（暂时复用 profile.balance 或显示 `--`）
-4. 移除右上角孤立的 `7D +1.9%` 小字（已合并入分组卡）
+### Step 2 — 选一条规范路径（**我需要你定**）
 
-**未登录态**
-- 保持 CTA 按钮，仅同步外层 padding 调整即可
+> 因为这一步会影响 DESIGN.md 和 StyleGuide，必须由你拍板，不再自己发挥。
 
-### 不变项
+**路径 1 · 砍掉 HomeKPIHeader，回到 Preset A**
+- `MobileHome` 改用 `<MobileHeader showLogo showBack={false} rightContent={...} />`，和 `/events /portfolio /leaderboard /wallet` 完全一致。
+- KPI（Total Equity + 7D PnL）下沉为 `<HomeAccountHub>` 的一部分，不再占 header。
+- 优点：零新规范，零不一致；缺点：首屏第一眼看不到余额。
 
-- props 接口（`rightSlot / onLogin / weeklyPnL / weeklyPnLPercent`）
-- sticky 行为、backdrop-blur
-- 语义 token：`trading-green / muted-foreground / border / muted`
-- 不引入新颜色、不引入图标、不引入 emoji
-- 不动 `MobileHome.tsx` 或其他模块
+**路径 2 · 正式新增 Preset D"Home Hub with KPI"**
+- 在 DESIGN.md "Mobile Header Presets" 表里新增一行 **Preset D**，仅限 `/` 使用，明确：两行结构（brand row + KPI row）、字号阶梯（label `text-[10px]`、数字 `text-[26px]` 或 `text-4xl`、PnL `text-xs/sm`）、padding（`px-4 pt-3 pb-3` 或 `px-5 pt-5 pb-5`）。
+- 在 `StyleGuide/sections/MobilePatternsSection.tsx` 加一个 Preset D Playground，把组件展示出来。
+- 然后再在这个规范基础上做"大气化"——选 26px 还是 36px、要不要 Available 分组卡，由规范一次性定死。
 
-### 文件变更
+**路径 3 · 维持现状不立规范**
+- 接受 `/` 是"特例"，但 DESIGN.md 加一条注释指明这是默认中性版本，未来不要在其他地方复用，也不要再调整视觉。
+- 我立刻按这条加注释，不动视觉。
 
-- 编辑 `src/components/home/HomeKPIHeader.tsx`（唯一改动）
+### 不动项
+
+- 不重新调 `HomeOnboardingStrip / HomeAirdropStrip / CampaignBannerCarousel`。
+- 不动 `<MobileHeader>` 现有 A/B/C preset 的代码或规范。
+- Step 1 回退会立刻执行；Step 2 等你选。
