@@ -1,25 +1,35 @@
 ---
-name: Mobile header Preset D · Home KPI
-description: Locked spec for `<HomeKPIHeader>` on `/` (MobileHome). Two-row sticky header (brand + Mainnet pill / Total Equity KPI). Do not reuse on other pages and do not enlarge to text-4xl. Source of truth: DESIGN.md §10 + StyleGuide → Mobile Patterns → "Header Preset D".
+name: Mobile header Preset D · Home Equity Hero
+description: Locked spec for `/` (MobileHome). Header uses standard Preset A (`<MobileHeader>`); Total Equity KPI lives in non-sticky `<HomeEquityHero>` card as the first body section. Do NOT reuse Hero on other pages, do NOT put KPI back into header. Source of truth: DESIGN.md §10 + StyleGuide → Mobile Patterns → "Header Preset D".
 type: design
 ---
 
-**Component:** `src/components/home/HomeKPIHeader.tsx` — only used by `/` (MobileHome).
+**Components:**
+- `src/pages/MobileHome.tsx` — uses `<MobileHeader showLogo showBack={false} rightContent={headerActions} />`
+- `src/components/home/HomeEquityHero.tsx` — Hero card, only used by `/`
 
-**Locked tokens (do not change without updating DESIGN.md and StyleGuide playground first):**
+**Locked tokens for `<HomeEquityHero>` (do not change without updating DESIGN.md and StyleGuide playground first):**
 
-- Container: `px-4 pt-3 pb-3`, `bg-background/85 backdrop-blur-xl`, `border-b border-border/40`, sticky `z-40`
-- Mainnet pill: `border-trading-green/30 bg-trading-green/10`, text `font-mono text-[9px] uppercase tracking-[0.18em] text-trading-green`
-- KPI label "Total equity": `font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-foreground`
-- KPI number: `font-mono text-[26px] font-semibold tracking-tight leading-none` — **never enlarge to text-4xl**
-- Weekly PnL amount: `font-mono text-xs font-medium`, trading-green/red
-- Weekly PnL %: right-aligned `font-mono text-[10px] uppercase tracking-wider text-muted-foreground`, prefix `7d`
-- Row gap: `mt-3` between brand row and KPI row
+- Container: `rounded-2xl border border-border/40 bg-gradient-to-br from-trading-green/[0.04] via-card/40 to-card/20 px-5 pt-5 pb-5`
+- Label "Total equity": `font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground`
+- Main number: `font-mono text-[40px] font-bold tracking-tight leading-none text-foreground mt-2` — **max 40px**
+- Meta row: `mt-3 flex items-center gap-2.5 font-mono text-[12px]`, format `today PnL · 7D %`
+- Today PnL: `font-semibold text-trading-green/red`
+- Separator: `·` with `text-muted-foreground/40`
+- 7D label: `font-semibold text-muted-foreground` with inline colored percentage
+- Logged-out CTA: same shell + `border-trading-green/30 from-trading-green/[0.08]`
+- **Not sticky** — scrolls away with the page
+
+**Header (separate concern):**
+- `/` uses standard Preset A `<MobileHeader>` with `showLogo`, `showBack={false}`, `rightContent={headerActions}` (Discord / Globe / Bell)
+- Mainnet badge comes from `<Logo showMainnetBadge={true}>` default — do NOT add a custom Mainnet pill in MobileHome
 
 **Don't:**
-- Do not reuse `<HomeKPIHeader>` on `/events`, `/portfolio`, `/leaderboard`, `/wallet` — those use Preset A (`<MobileHeader>`).
-- Do not stuff Onboarding / Airdrop / Campaign banners inside the header — they live as separate sections (`HomeOnboardingStrip`, `HomeAirdropStrip`, `CampaignBannerCarousel`).
-- Do not add gradients / shadows / glows to the KPI number.
-- Do not add Available / Locked / Trial Bonus sub-rows here — those belong to `HomeAccountHub`.
+- Do not reuse `<HomeEquityHero>` on `/events`, `/portfolio`, `/leaderboard`, `/wallet` — `/` only.
+- Do not put the KPI back into the sticky header.
+- Do not add Available / Locked / Trial Bonus / position counts into Hero — those belong to `<HomeAccountHub>`.
+- Do not merge Onboarding / Airdrop / Campaign banners into Hero — keep three-layer stack independent.
+- Do not add shadow / glow / animation to the number.
+- Do not enlarge past `text-[40px]`.
 
 **Workflow for any future change:** edit DESIGN.md §10 spec → update StyleGuide playground → update component. All three must stay in sync.
