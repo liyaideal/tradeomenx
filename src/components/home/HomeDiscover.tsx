@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, BarChart3, Clock, TrendingUp, Loader2, Flame, Flag } from "lucide-react";
+import { BarChart3, Clock, TrendingUp, Loader2, Flame, Flag, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
+import { SectionHeader } from "@/components/home/SectionHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
@@ -31,54 +32,69 @@ export const HomeDiscover = () => {
     .slice(0, 1);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <CampaignBannerCarousel variant="mobile" />
 
       {user && positions.length > 0 && (
         <section>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-foreground">My positions ({positions.length})</h3>
-            <button
-              onClick={() => navigate("/trade/order", { state: { tab: "Positions" } })}
-              className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
-            >
-              View all <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <SectionHeader
+            icon={Wallet}
+            tone="trading-purple"
+            eyebrow="Portfolio"
+            title="My positions"
+            actionLabel="View all"
+            onAction={() => navigate("/trade/order", { state: { tab: "Positions" } })}
+            rightSlot={
+              <button
+                onClick={() => navigate("/trade/order", { state: { tab: "Positions" } })}
+                className="flex flex-shrink-0 items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-primary"
+              >
+                <span className="font-mono text-muted-foreground/80">{positions.length}</span>
+                <span className="opacity-50">·</span>
+                View all
+              </button>
+            }
+          />
+          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory">
             {positions.slice(0, 5).map((position, index) => {
               const isProfit = position.pnl.startsWith("+");
               return (
                 <div
                   key={index}
-                  className="flex-shrink-0 w-[200px] trading-card p-3 space-y-2 cursor-pointer hover:bg-card-hover transition-colors"
+                  className="flex-shrink-0 w-[260px] snap-start cursor-pointer rounded-2xl border border-border/40 bg-card p-4 space-y-3 transition-colors hover:bg-card-hover"
                   onClick={() => navigate("/trade/order", { state: { tab: "Positions", highlightPosition: index } })}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm text-foreground line-clamp-2 flex-1">{position.event}</p>
-                  </div>
+                  <p className="text-sm font-semibold text-foreground line-clamp-2 min-h-[2.5rem]">
+                    {position.event}
+                  </p>
+
                   <div className="flex items-center gap-2">
                     <Badge
-                      className={`text-xs px-2 py-0.5 ${
+                      className={`text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 ${
                         position.type === "long"
-                          ? "bg-trading-green/20 text-trading-green border-trading-green/30"
-                          : "bg-trading-red/20 text-trading-red border-trading-red/30"
+                          ? "bg-trading-green/15 text-trading-green border-trading-green/25"
+                          : "bg-trading-red/15 text-trading-red border-trading-red/25"
                       }`}
                     >
                       {position.type === "long" ? "Long" : "Short"}
                     </Badge>
-                    <span className="text-sm font-medium text-foreground">{position.option}</span>
+                    <span className="text-xs font-medium text-muted-foreground">{position.option}</span>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+
+                  <div className="flex items-end justify-between border-t border-border/30 pt-3">
                     <div>
-                      <span className="text-xs text-muted-foreground">Unrealized P&L</span>
-                      <div className={`text-sm font-medium ${isProfit ? "text-trading-green" : "text-trading-red"}`}>
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Unrealized
+                      </span>
+                      <div className={`font-mono text-base font-semibold ${isProfit ? "text-trading-green" : "text-trading-red"}`}>
                         {position.pnl}
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-muted-foreground">ROI</span>
-                      <div className={`text-sm font-medium ${isProfit ? "text-trading-green" : "text-trading-red"}`}>
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                        ROI
+                      </span>
+                      <div className={`font-mono text-base font-semibold ${isProfit ? "text-trading-green" : "text-trading-red"}`}>
                         {position.pnlPercent}
                       </div>
                     </div>
@@ -91,21 +107,21 @@ export const HomeDiscover = () => {
       )}
 
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-foreground flex items-center gap-2">
-            <Flame className="h-4 w-4 text-trading-red" /> Hot markets
-          </h3>
-          <button
-            onClick={() => navigate("/events")}
-            className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
-          >
-            More <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+        <SectionHeader
+          icon={Flame}
+          tone="trading-red"
+          eyebrow="Trending"
+          title="Hot markets"
+          actionLabel="More"
+          onAction={() => navigate("/events")}
+        />
 
         {isLoadingEvents ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <div className="flex flex-col items-center justify-center gap-2 py-10">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Loading markets…
+            </span>
           </div>
         ) : (
           <div className="space-y-3">
@@ -168,17 +184,20 @@ export const HomeDiscover = () => {
       </section>
 
       <section>
-        <div className="flex items-center gap-2 mb-3">
-          <Flag className="h-4 w-4 text-trading-yellow" />
-          <div>
-            <h3 className="font-semibold text-foreground">Settlement soon</h3>
-            <p className="text-xs text-muted-foreground">Last chance to trade</p>
-          </div>
-        </div>
+        <SectionHeader
+          icon={Flag}
+          tone="trading-yellow"
+          eyebrow="Expiring"
+          title="Settlement soon"
+          subtitle="Last chance to trade"
+        />
 
         {isLoadingEvents ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <div className="flex flex-col items-center justify-center gap-2 py-10">
+            <Loader2 className="h-5 w-5 animate-spin text-trading-yellow" />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Loading markets…
+            </span>
           </div>
         ) : (
           <div className="space-y-3">
