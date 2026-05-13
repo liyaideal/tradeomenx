@@ -60,7 +60,7 @@ const MobileHome = () => {
         }
       />
 
-      <main className="px-4 py-4 space-y-6">
+      <main className="px-4 pt-5 pb-2 space-y-8">
         <HomeAccountHub onLogin={() => setAuthOpen(true)} />
         <HomeActionAlerts />
         <HomeDiscover />
