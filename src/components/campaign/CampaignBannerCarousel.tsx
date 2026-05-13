@@ -223,7 +223,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     "group relative block w-full max-w-full overflow-hidden rounded-md border text-left shadow-lg shadow-background/30 transition-all",
                     t.border,
                     t.surface,
-                    isMobile ? "h-[200px] p-4" : "h-[220px] p-6",
+                    isMobile ? "min-h-[200px] p-4" : "min-h-[220px] p-6",
                   )}
                 >
                   {/* Layer 1: full-card background image with skeleton placeholder */}
@@ -274,7 +274,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
 
                   <div
                     className={cn(
-                      "relative z-10 grid h-full min-w-0 gap-4",
+                      "relative z-10 grid h-full min-w-0 gap-5",
                       // When bg image takes the right side, content is single-column constrained to ~60%.
                       // When falling back to visual tile, keep the original 2-column layout.
                       !hasBgImage && "sm:grid-cols-[minmax(0,1fr)_minmax(220px,300px)] sm:items-stretch",
@@ -283,7 +283,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                     {/* Information column */}
                     <div
                       className={cn(
-                        "flex min-w-0 flex-col justify-between gap-3",
+                        "flex min-w-0 flex-col justify-between gap-4",
                         hasBgImage && "sm:max-w-[60%]",
                       )}
                     >
@@ -304,7 +304,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                         )}
                         <h3
                           className={cn(
-                            "font-semibold leading-tight text-foreground line-clamp-2",
+                            "font-semibold leading-tight text-foreground",
                             isMobile ? "text-xl" : "text-2xl lg:text-3xl",
                           )}
                         >
@@ -314,7 +314,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                           <span className={cn("font-semibold", isMobile ? "text-xl" : "text-2xl", t.metric)}>
                             {banner.heroMetric.value}
                           </span>
-                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground line-clamp-1">
+                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                             {banner.heroMetric.label}
                           </span>
                         </div>
