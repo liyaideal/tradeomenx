@@ -113,4 +113,5 @@
 - [H2E landing architecture](mem://marketing/hedge-landing-architecture) — /hedge section order, anti-AI design tactics, mock data convention
 - [Campaign landing design system](mem://design/campaign-landing-design-system) — Dedicated campaign microsite rules, separate from product design system
 - [Campaign banner template](mem://design/campaign-banner-template) — Unified two-column banner skeleton; theme + visual slot only, no full-bleed photos
+- [Mobile header Preset D](mem://design/mobile-header-preset-d) — Locked spec for `<HomeKPIHeader>` on `/`; do not reuse, do not enlarge to text-4xl; SoT in DESIGN.md §10 + StyleGuide
 - [Demo accounts](mem://features/demo-accounts-fixed-identities) — Two persistent fixed demo accounts (matched/welcome) for QA login

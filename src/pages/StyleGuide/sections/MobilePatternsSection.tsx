@@ -75,6 +75,67 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
   return (
     <div className="space-y-12">
       {/* =========================== */}
+      {/* PRESET D · HOME KPI HEADER  */}
+      {/* =========================== */}
+      <SectionWrapper
+        id="header-preset-d"
+        title="Mobile Header · Preset D (Home KPI)"
+        platform="mobile"
+        description="`<HomeKPIHeader>` — locked spec for `/` (MobileHome) only. See DESIGN.md §10 'Preset D · Home KPI Header Spec'."
+      >
+        <Card className="trading-card mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Locked visual</CardTitle>
+            <CardDescription>
+              Two-row sticky header: brand + Mainnet pill on top, Total Equity KPI below. Do not reuse on other pages.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-[390px] mx-auto rounded-2xl border border-border/50 overflow-hidden bg-background">
+              <header className="bg-background/85 backdrop-blur-xl border-b border-border/40 px-4 pt-3 pb-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Logo size="md" showMainnetBadge={false} />
+                    <span className="flex items-center gap-1 rounded-full border border-trading-green/30 bg-trading-green/10 px-2 py-0.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse" />
+                      <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-trading-green">
+                        Mainnet
+                      </span>
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-mono">[ rightSlot ]</span>
+                </div>
+                <div className="mt-3 flex items-end justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-0.5">
+                      Total equity
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-mono text-[26px] font-semibold tracking-tight text-foreground leading-none">
+                        $13,530.00
+                      </span>
+                      <span className="font-mono text-xs font-medium text-trading-green">+$34.56</span>
+                    </div>
+                  </div>
+                  <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground pb-1">
+                    7d +1.9%
+                  </span>
+                </div>
+              </header>
+            </div>
+
+            <div className="mt-4 grid gap-2 text-xs text-muted-foreground">
+              <p><span className="text-foreground font-semibold">Container:</span> <code className="font-mono">px-4 pt-3 pb-3</code> · <code className="font-mono">bg-background/85 backdrop-blur-xl</code> · <code className="font-mono">border-b border-border/40</code></p>
+              <p><span className="text-foreground font-semibold">KPI number:</span> <code className="font-mono">font-mono text-[26px] font-semibold leading-none</code> — do NOT enlarge to text-4xl</p>
+              <p><span className="text-foreground font-semibold">Label:</span> <code className="font-mono">text-[9px] uppercase tracking-[0.2em] text-muted-foreground</code></p>
+              <p><span className="text-foreground font-semibold">PnL %:</span> right-aligned, <code className="font-mono">text-[10px] uppercase tracking-wider</code></p>
+              <p className="text-trading-red">Spec changes must update DESIGN.md §10 first, then this playground, then the component.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
+      {/* =========================== */}
       {/* LOGO USAGE GUIDELINES       */}
       {/* =========================== */}
       <SectionWrapper
