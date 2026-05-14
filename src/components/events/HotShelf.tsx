@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Flame, Sparkles, Clock } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
+import { useHotMarkets } from "@/hooks/useHotMarkets";
 import { MarketListView } from "./MarketListView";
 import { MarketGridView } from "./MarketGridView";
 import { ViewMode } from "./ViewToggle";
@@ -52,31 +53,13 @@ const RenderView = ({
 };
 
 export const HotShelf = ({ markets, view, isWatched, onToggleWatch }: HotShelfProps) => {
-  const { trending, justLaunched, closingSoon } = useMemo(() => {
-    const now = Date.now();
-    const h48 = 48 * 3600000;
-
-    const launched = markets.filter(
-      (m) => now - new Date(m.createdAt).getTime() <= h48
-    );
-    const closing = markets.filter(
-      (m) => m.expiry && m.expiry.getTime() - now <= h48 && m.expiry.getTime() > now
-    );
-
-    const launchedIds = new Set(launched.map((m) => m.id));
-    const closingIds = new Set(closing.map((m) => m.id));
-
-    const trend = markets
-      .filter((m) => !launchedIds.has(m.id) && !closingIds.has(m.id) && m.volume24h > 10000)
-      .sort((a, b) => b.volume24h - a.volume24h)
-      .slice(0, 5);
-
-    return {
-      trending: trend,
-      justLaunched: launched.sort((a, b) => b.volume24h - a.volume24h).slice(0, 3),
-      closingSoon: closing.sort((a, b) => b.openInterest - a.openInterest).slice(0, 3),
-    };
-  }, [markets]);
+  const buckets = useHotMarkets(markets);
+  const trending = useMemo(() => buckets.trending.slice(0, 5), [buckets.trending]);
+  const justLaunched = useMemo(
+    () => [...buckets.justLaunched].sort((a, b) => b.volume24h - a.volume24h).slice(0, 3),
+    [buckets.justLaunched],
+  );
+  const closingSoon = useMemo(() => buckets.closingSoon.slice(0, 3), [buckets.closingSoon]);
 
   const hasContent = trending.length > 0 || justLaunched.length > 0 || closingSoon.length > 0;
   if (!hasContent) {
