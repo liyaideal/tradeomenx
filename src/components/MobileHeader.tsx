@@ -168,6 +168,8 @@ export const MobileHeader = ({
   };
 
   // Determine what to show on the left
+  // Hide MAINNET badge whenever there's a centered title to avoid overlap.
+  const showBadge = !title;
   const renderLeft = () => {
     if (shouldShowBack && showLogo) {
       // Both back button and logo
@@ -179,7 +181,7 @@ export const MobileHeader = ({
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <Logo size="md" />
+          <Logo size="md" showMainnetBadge={showBadge} />
         </div>
       );
     } else if (shouldShowBack) {
@@ -194,7 +196,7 @@ export const MobileHeader = ({
       );
     } else if (showLogo) {
       // Only logo, no back button
-      return <Logo size="md" />;
+      return <Logo size="md" showMainnetBadge={showBadge} />;
     } else {
       // Neither - empty space for alignment
       return <div className="w-9" />;

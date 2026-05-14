@@ -1,79 +1,61 @@
-# /style-guide 增加 Mobile Home Playground，清理旧 Home 规则
+# Fix MAINNET badge overlap
 
-## 背景
+## Root cause
 
-`MobileHome` (`/`) 已经重新设计完成，当前实际渲染的模块顺序：
+`<Logo>` (`src/components/Logo.tsx`) now always renders the `MainnetBadge` next to the wordmark in an `inline-flex`. That makes the rendered logo ~70–90px wider than the bare image. Every place that was sized assuming "logo = image only" now overlaps with the adjacent element (centered title, neighbor table text, fixed-width preview cell, etc.).
 
-1. `MobileHeader`（Discord + 语言切换 + 通知）
-2. `HomeGreeting` — 游客 / 登录两套布局，且登录态分 `hasData` / 无 7D 活动
-3. `PersonalSlot` — 根据用户激活状态从 OnboardingCard / PositionAlertCard / null 三选一
-4. `HomeCampaignRail` — 横滑 banner
-5. `HomeTopEvents` — 标题随用户态变化，游客额外插入 `TrialCallout` interlude
+The Logo component already exposes `showMainnetBadge?: boolean` (default `true`). The fix is: keep the badge where the logo stands alone (home headers, auth dialogs, footers, landing branding), and turn it off in any layout where the logo sits next to text or in a constrained cell.
 
-而 `MobilePatternsSection.tsx` 顶部还保留着 "Preset D · Home Equity Hero" 这种已经下线的旧规则（`HomeEquityHero` 不再被 `MobileHome` 使用），需要清理。
+## Issues found (full sweep)
 
-## 改动概览
+Real production UI:
+1. `src/components/MobileHeader.tsx` — `renderLeft()` Back + Logo branch (line 182) and Logo-only branch (line 197). When the header also has a centered `title` (Detail/Custom modes), the badge eats into the centered title space and visually overlaps. Home page (no title) is fine.
 
-### 1. 新建 `src/pages/StyleGuide/sections/MobileHomeSection.tsx`
+Style guide / docs (visible in user's screenshots):
+2. `src/pages/StyleGuide/sections/MobilePatternsSection.tsx`
+   - Logo Sizes grid, line 105 — the `lg`/`xl` cells overflow because the badge pushes content past the cell's centered area.
+   - Spec table cell, line 465 — `<Logo size="sm" /> Logo` — badge collides with the trailing word "Logo".
+   - Detail Page Header preview, line 592 — same pattern as the real `MobileHeader` Detail mode; centered title overlaps the badge.
+   - Custom rightContent preview, line 610 — Logo + centered "Settings" title overlap.
+   - Other previews on lines 143, 154, 165, 177, 531 are standalone — keep badge.
+3. `src/pages/StyleGuide/sections/CommonUISection.tsx`
+   - Spec table cell, line 2051 — same pattern as #2's table cell.
+   - Share Poster mock header, line 1431 — Logo md + date pill on `ml-auto`; tight on narrow widths.
+   - EventsDesktopHeader preview (line 1998) — has enough horizontal space, leave as-is.
 
-一个独立的 Mobile Home playground，按"模块 → 状态"组织。每个模块用 `SubSection` 包，状态切换用 `Tabs` 或 `Badge` 选择器，Preview 直接渲染**真实组件**（不重写 mock），右侧贴对应 props/状态说明。
+Verified safe (logo standalone, no overlap):
+- `src/pages/Rewards.tsx` (xl, centered)
+- `src/components/auth/AuthSheet.tsx`, `src/components/auth/AuthDialog.tsx`
+- `src/components/seo/SeoFooter.tsx`
+- `src/components/EventsDesktopHeader.tsx` (desktop has gap-4/xl:gap-8 around it)
+- `src/pages/StyleGuide/sections/MobileHomeSection.tsx`
+- All raw `<img src={omenxLogo}>` usages (Leaderboard, SharePosterLayout, SettlementShareCard, EventShareCard, StyleGuide Logo asset previews) — no badge attached, untouched.
 
-模块清单：
+## Changes
 
-- **A. Page Skeleton** — 一张 390×* 的 mockup，标注从上到下的 5 个模块槽位、间距 (`mt-3 / mt-5`)、外层 padding (`px-4 pt-3 pb-2`) 和 `pb-24` 给 BottomNav 留位。
-- **B. MobileHeader (Home preset)** — 渲染真实 `<MobileHeader showLogo showBack={false} rightContent={...} />`，列出 Discord / Language / Notification 三个 action 的规范（hover 色、红点未读指示）。
-- **C. HomeGreeting** — 状态切换器：
-  - `guest` → "Live on OmenX" 卡片（24h volume + active markets + 顶部市场 sparkline + 底部 CTA "Sign in to start trading →"），数据来自 `useHomeStats`，未登录态点击触发 `onSignIn`
-  - `authed · hasData` → "Welcome back / displayName" + Deposit chip + Total equity 大字 + 7D PnL + sparkline
-  - `authed · noData` → 同上但显示 "No 7D activity — Tap deposit to start"
-  - 在 playground 用 mock props 强制渲染各状态（封装一个 `<HomeGreetingPreview state="guest|authedActive|authedEmpty" />` 包装器，避免依赖真实 auth context）
-- **D. PersonalSlot** — 三态卡片并排：
-  - guest / activated-empty → 空（说明 "renders nothing"）
-  - `S0_NEW / S1_DEPOSITED` → `OnboardingCard`
-  - activated + has positions → `PositionAlertCard`（用 mock positionId 或静态截图复刻）
-  - 文字说明优先级规则
-- **E. HomeCampaignRail** — 直接渲染真实组件，列出 4 种 theme (`gold / primary / green / violet`) 和 chip tone (`accent / success / ...`)
-- **F. HomeTopEvents** — 标题逻辑表：
-  - guest → "Top Events" + `<TrialCallout>` interlude
-  - authed + 无持仓 → "Pick your first prediction"，无 interlude
-  - authed + 有持仓 → "Top Events"，无 interlude
-  - 排序规则一行带过：`24h volume desc`（指向 `useHotMarkets`）
-- **G. Spacing & Empty State 规范** — 表格列出每个模块的 `mt-*` 值、`empty:hidden` 的使用（PersonalSlot 容器）、以及"游客点击大卡 → AuthSheet"的全局交互。
+1. `src/components/MobileHeader.tsx`
+   - In `renderLeft()`, pass `showMainnetBadge={false}` to both `<Logo>` instances when the header has a `title` (i.e. Detail / Trade / Custom modes). Keep the badge when no title (Home).
+   - Net effect: home header keeps the live-on-mainnet signal; any page that renders a centered title no longer collides with it.
 
-### 2. `src/pages/StyleGuide/sections/index.ts`
+2. `src/pages/StyleGuide/sections/MobilePatternsSection.tsx`
+   - Logo Sizes grid (lines 96–113): change to `grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4` and add `overflow-visible` to each cell so the badge has room next to `lg`/`xl`. Keep badge on (the grid is meant to show the canonical logo).
+   - Spec-table cell at line 465: `<Logo size="sm" showMainnetBadge={false} />`.
+   - Detail Page Header preview at line 592: `<Logo size="md" showMainnetBadge={false} />`. This mirrors the production `MobileHeader` fix.
+   - Custom rightContent preview at line 610: same — `showMainnetBadge={false}`.
+   - Add a one-line caption under the Logo Sizes grid: "Mainnet badge is hidden when the logo sits next to a title or in a tight cell — pass `showMainnetBadge={false}`."
 
-导出新增的 `MobileHomeSection`。
+3. `src/pages/StyleGuide/sections/CommonUISection.tsx`
+   - Spec-table cell at line 2051: `<Logo size="sm" showMainnetBadge={false} />`.
+   - Share Poster mock header at line 1431: `<Logo size="md" showMainnetBadge={false} />` (matches the real poster which also renders the bare wordmark).
 
-### 3. `src/pages/StyleGuide/index.tsx`
+4. No backend/data changes. No new files. Default Logo behavior (`showMainnetBadge=true`) is preserved.
 
-在 `tabs` 数组里新增一项 `{ id: "home", label: "Mobile Home", icon: "🏠" }`，建议放在 `mobile` 之前（"Mobile" 这个 tab 是 header / 通用 mobile patterns，"Mobile Home" 是 `/` 页专属）。新增对应的 `<TabsContent value="home">`。
+## Out of scope
 
-### 4. 清理 `MobilePatternsSection.tsx`
+- Not adding the badge to the existing raw `<img src={omenxLogo}>` usages (Leaderboard, share cards, poster). The user only asked us to repair existing overlap, not to spread the badge further.
+- Not changing the badge's visual design or breathing animation.
+- Not refactoring `MainnetBadge`'s `responsive` flag.
 
-- 删除整段 "PRESET D · HOME EQUITY HERO" `SectionWrapper`（约 line 77-136），它引用的 `HomeEquityHero` 已不在 `MobileHome` 中使用，留着只会误导。
-- 保留 "Mobile Header Design Specification"、"Header Playground"、"Logo Usage" 等通用规范，以及 Header preset 切换器里的 `home` preset（这个还是对的：home 页 header 就是 logo-only）。
-- 不动 `MobileHeader` 组件本身。
+## Verification
 
-### 5. （可选）保留无用的旧组件文件
-
-`HomeEquityHero / HomeMarketsSections / HomeFeed / HomeDiscover / HomeOnboardingStrip / HomeAirdropStrip / HomeAccountHub / HomeStatusStrip / HomeTournamentsRail / HomeActionAlerts / LiveStatsStrip` 这些文件**当前没有被任何页面引用**（只在自身文件 grep 命中）。本次先不删除，避免误伤；如果你确认弃用，下一轮可以一并清掉。在 plan 里列出来便于决策。
-
-## 文件改动清单
-
-| 文件 | 操作 |
-|---|---|
-| `src/pages/StyleGuide/sections/MobileHomeSection.tsx` | 新建 |
-| `src/pages/StyleGuide/sections/index.ts` | 新增导出 |
-| `src/pages/StyleGuide/index.tsx` | 新增 tab + TabsContent |
-| `src/pages/StyleGuide/sections/MobilePatternsSection.tsx` | 删除 Preset D 段落 |
-
-## 不动的范围
-
-- `MobileHome.tsx` 与所有 `src/components/home/*` 真实组件零修改。
-- 其它 StyleGuide section（Tokens / Typography / Trading / Wallet / ...）零修改。
-- 旧的未引用 home 组件文件本轮**不删**，等你确认。
-
-## 一个需要你确认的点
-
-> **是否需要在本轮把没人引用的旧 home 组件文件（`HomeEquityHero` 等 11 个）一起删掉？**
-> 默认我倾向**先保留**，因为 grep 没人引用 ≠ 完全无用（可能是动态 import 或后续要复用），稳妥起见单独一轮处理。
+After the edits, refresh `/style-guide` (Mobile Patterns + Common UI tabs) at 390px and at desktop, and visit any Detail-mode page (e.g. an event page on mobile) to confirm: home header still shows the badge; titled headers and doc previews no longer overlap; the Logo Sizes grid renders all four sizes with the badge fully visible.
