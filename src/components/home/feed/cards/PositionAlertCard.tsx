@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { usePositions } from "@/hooks/usePositions";
 import { FeedCard } from "@/components/home/feed/FeedCard";
+import { useUnreadFlag } from "@/lib/feedUnread";
 import { cn } from "@/lib/utils";
 
 interface PositionAlertCardProps {
@@ -17,6 +18,14 @@ export const PositionAlertCard = ({ positionId, compact }: PositionAlertCardProp
   const navigate = useNavigate();
   const { positions } = usePositions();
   const pos = positions.find((p) => p.id === positionId);
+
+  // Bucket PnL% by 5% steps so material moves re-arm the unread state.
+  const pnlNum = pos ? parseFloat(pos.pnlPercent.replace(/[^\d.\-]/g, "")) : 0;
+  const bucket = Math.round((isFinite(pnlNum) ? pnlNum : 0) / 5);
+  const { unread, markRead } = useUnreadFlag(
+    pos ? `positionAlert:${pos.id}:${bucket}` : null,
+  );
+
   if (!pos) return null;
 
   const isPositive = pos.pnl.startsWith("+");
@@ -29,7 +38,11 @@ export const PositionAlertCard = ({ positionId, compact }: PositionAlertCardProp
       tier={1}
       accent={accent}
       compact={compact}
-      onClick={() => navigate(`/portfolio?position=${pos.id}`)}
+      unread={unread}
+      onClick={() => {
+        markRead();
+        navigate(`/portfolio?position=${pos.id}`);
+      }}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
