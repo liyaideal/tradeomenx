@@ -15,7 +15,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
 import { HomeGreeting } from "@/components/home/HomeGreeting";
-import { HomeSearchBar } from "@/components/home/HomeSearchBar";
+
 import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
 import { HomeTopEvents } from "@/components/home/HomeTopEvents";
 import { TrialCallout } from "@/components/home/TrialCallout";
