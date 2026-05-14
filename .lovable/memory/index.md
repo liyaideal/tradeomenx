@@ -117,4 +117,4 @@
 - [Mobile header Preset D](mem://design/mobile-header-preset-d) — Locked spec for `<HomeKPIHeader>` on `/`; do not reuse, do not enlarge to text-4xl; SoT in DESIGN.md §10 + StyleGuide
 - [Demo accounts](mem://features/demo-accounts-fixed-identities) — Two persistent fixed demo accounts (matched/welcome) for QA login
 - [Home feed architecture](mem://features/home-feed-architecture) — DEPRECATED: priority-sorted mixed feed, no longer mounted on home (kept for reference)
-- [Home page purpose](mem://features/home-page-purpose) — Home is a new-user conversion funnel: sportsbook-style sections + trial CTA, not a dashboard or mixed feed
+- [Home page purpose](mem://features/home-page-purpose) — Home v3: sportsbook layout with greeting, Tournaments rail, LIVE-switch Top Events, D-class HomeMatchCard

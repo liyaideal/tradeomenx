@@ -1,6 +1,6 @@
 ---
 name: home-page-purpose
-description: Home is a new-user conversion funnel, not a dashboard. Sportsbook-style market sections + trial callout. NOT a mixed priority feed.
+description: Home v3 — sportsbook-inspired layout. Greeting + search + Tournaments rail + Top Events with LIVE switch + D-class HomeMatchCard.
 type: feature
 ---
 
@@ -13,40 +13,46 @@ type: feature
 
 Active traders manage PnL/positions in **Portfolio**, not on home.
 
-## Structure (mobile)
+## Home v3 structure (mobile, top → bottom)
 
-All states share the same body — three sportsbook-style market sections (`HomeMarketsSections`):
-- **Most traded today** — top 4 by `volume24h`
-- **Closing soon** — `isClosingSoon`, time-asc, 3 cards (deduped vs section 1)
-- **New this week** — `isNew`, recency, 3 cards (deduped vs above)
-- Footer CTA: "Browse all markets →" → `/events`
+1. **`HomeGreeting`** — `Hello,` + uppercase display name + primary `+` button (guest → AuthSheet, authed → `/deposit`).
+2. **`HomeSearchBar`** — pill that navigates to `/events`. UI-only, no inline input.
+3. **`HomeStatusStrip`** — authed only, slim equity row.
+4. **`PositionAlertCard`** — authed + has-positions only, top |pnl%|.
+5. **`HomeTournamentsRail`** — horizontal snap carousel. Slot 1 = "All markets" (primary gradient + arrow), then one tile per non-empty category, sorted by 24h volume. Solid color blocks (no imagery), uppercase display labels, `N markets · $X` subline. Tap → `/events?category=...`.
+6. **`OnboardingCard`** — authed only, between rail and Top Events.
+7. **`HomeTopEvents`** — Title row with **LIVE switch** (default ON; filters to `isClosingSoon || volume24h > 100k`) and a horizontal **category chip rail** (`All` + categories sorted by volume, single-select). Renders up to 8 `HomeMatchCard`s sorted by 24h volume. Empty-state has a "Reset filters" button. Footer "Browse all markets →" links to `/events`. Guest sees `TrialCallout` slotted between card 2 and 3.
 
-Cards reuse **`MarketCardB`** (do not fork — single source of truth with /events). Watchlist via `useWatchlist`.
+## D-class card: `HomeMatchCard`
 
-### State branches (in `MobileHome.tsx`)
+Sportsbook score-and-odds layout, **isolated from MarketCardA/B/C** per `mem://constraint/card-style-isolation`.
 
-| State | Top of page | Personal callouts | Sections title |
-|---|---|---|---|
-| Guest | `LiveStatsStrip` only | none | "Most traded today" + `TrialCallout` interlude after section 1 |
-| Authed no positions | `HomeStatusStrip` + `LiveStatsStrip` | `OnboardingCard` (if incomplete) | "Pick your first prediction" |
-| Authed with positions | `HomeStatusStrip` + `LiveStatsStrip` | `OnboardingCard` + top `PositionAlertCard` (largest \|pnl%\|) | "Most traded today" |
+- Header: ⭐ + category badge + `New` + countdown / time-left (right).
+- Title: 1-2 lines, `text-[15px] font-semibold`.
+- Binary events: `[ YES price chg ] [ 24h Vol ] [ NO price chg ]` 3-col grid. Yes/No are buttons styled with `trading-green/red` accents, currently navigate to `/trade?event=ID` (side preselect deferred).
+- Multi-outcome (>2 children): falls back to a stacked outcome list (top 3 + "+N more") inside the same shell.
+- Whole card click → `/trade?event=ID`.
 
-## What was removed
+## Removed / parked
 
-- Top **`CampaignBannerCarousel`** — gone from home (too aggressive). Future: re-introduce as a single `CampaignFeedCard` between sections, authed only.
-- Generic priority-sorted feed (`HomeFeed` + `useHomeFeed`) is no longer used by `MobileHome`. The hook + tier cards still exist for potential reuse but are not mounted.
-- Equity strip for guests — guests see no balance UI.
+- `LiveStatsStrip` — superseded by Tournaments rail data; component still exists but not mounted on Home.
+- `HomeMarketsSections` (v2 three-section layout: Most traded / Closing soon / New) — not mounted on Home v3. Component preserved for potential reuse.
+- Top `CampaignBannerCarousel` — still gone from Home top.
+- Generic priority-sorted feed (`HomeFeed` + `useHomeFeed`) — not mounted by `MobileHome`.
+
+## State branches
+
+| State | Greeting subline | Equity | Position alert | Onboarding | Top Events title | Interlude |
+|---|---|---|---|---|---|---|
+| Guest | "Hello, there" | hidden | hidden | hidden | "Top Events" | `TrialCallout` between card 2 and 3 |
+| Authed no positions | "Hello, USERNAME" | shown | hidden | shown | "Pick your first prediction" | none |
+| Authed with positions | "Hello, USERNAME" | shown | shown (top) | shown | "Top Events" | none |
 
 ## Components
 
-- `src/components/home/LiveStatsStrip.tsx` — `LIVE · N markets · $X traded today`. Pure social proof, no copy.
-- `src/components/home/HomeMarketsSections.tsx` — three sections + dedup + "browse all" footer.
-- `src/components/home/TrialCallout.tsx` — "$10 to try, no deposit" conversion strip. Guest-only, slotted between section 1 and 2.
-- `HomeStatusStrip` — kept but **only rendered for authed users** now.
-
-## Sportsbook conversion playbook applied
-
-1. **Real activity > marketing copy**: live counters, no headline hero.
-2. **Sectioned discovery**: hot / urgent / fresh — classic sportsbook IA.
-3. **Conversion after engagement**: trial CTA appears AFTER user scrolls past first markets, not before.
-4. **Free play hook**: "$10 to try, no deposit" not "Sign up".
+- `src/components/home/HomeGreeting.tsx`
+- `src/components/home/HomeSearchBar.tsx`
+- `src/components/home/HomeTournamentsRail.tsx`
+- `src/components/home/HomeTopEvents.tsx`
+- `src/components/home/HomeMatchCard.tsx` (D-class card)
+- `HomeStatusStrip` — kept; authed-only.

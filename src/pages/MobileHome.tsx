@@ -15,8 +15,10 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
 import { HomeStatusStrip } from "@/components/home/HomeStatusStrip";
-import { LiveStatsStrip } from "@/components/home/LiveStatsStrip";
-import { HomeMarketsSections } from "@/components/home/HomeMarketsSections";
+import { HomeGreeting } from "@/components/home/HomeGreeting";
+import { HomeSearchBar } from "@/components/home/HomeSearchBar";
+import { HomeTournamentsRail } from "@/components/home/HomeTournamentsRail";
+import { HomeTopEvents } from "@/components/home/HomeTopEvents";
 import { TrialCallout } from "@/components/home/TrialCallout";
 import { OnboardingCard } from "@/components/home/feed/cards/OnboardingCard";
 import { PositionAlertCard } from "@/components/home/feed/cards/PositionAlertCard";
@@ -28,7 +30,6 @@ const MobileHome = () => {
 
   const isAuthed = !!user;
   const hasPosition = positions.length > 0;
-  // Show top non-airdrop position with the largest |pnl%|
   const topPosition = [...positions]
     .filter((p) => !p.isAirdrop)
     .sort((a, b) => {
@@ -76,37 +77,45 @@ const MobileHome = () => {
     <div className="min-h-screen bg-background pb-24">
       <MobileHeader showLogo showBack={false} rightContent={headerActions} />
 
-      <main className="px-4 pt-4 pb-2">
-        {/* === Top status === */}
-        {isAuthed ? (
-          <>
-            <HomeStatusStrip onLogin={() => setAuthOpen(true)} />
-            <div className="mt-2.5">
-              <LiveStatsStrip />
-            </div>
-          </>
-        ) : (
-          <LiveStatsStrip />
-        )}
+      <main className="px-4 pt-3 pb-2">
+        {/* === Greeting + plus === */}
+        <HomeGreeting onSignIn={() => setAuthOpen(true)} />
 
-        {/* === Personal callouts (authed only) === */}
+        {/* === Search === */}
+        <div className="mt-3">
+          <HomeSearchBar />
+        </div>
+
+        {/* === Authed: slim equity strip === */}
         {isAuthed && (
-          <div className="mt-3 space-y-2.5">
-            <OnboardingCard />
-            {hasPosition && topPosition && (
-              <PositionAlertCard positionId={topPosition.id} />
-            )}
+          <div className="mt-3">
+            <HomeStatusStrip onLogin={() => setAuthOpen(true)} />
           </div>
         )}
 
-        {/* === Markets === */}
-        <div className="mt-4">
-          <HomeMarketsSections
-            topTitle={
-              isAuthed && !hasPosition
-                ? "Pick your first prediction"
-                : "Most traded today"
-            }
+        {/* === Authed w/ positions: top alert above tournaments === */}
+        {isAuthed && hasPosition && topPosition && (
+          <div className="mt-3">
+            <PositionAlertCard positionId={topPosition.id} />
+          </div>
+        )}
+
+        {/* === Tournaments carousel === */}
+        <div className="mt-5">
+          <HomeTournamentsRail />
+        </div>
+
+        {/* === Authed onboarding (between rails and top events) === */}
+        {isAuthed && (
+          <div className="mt-4">
+            <OnboardingCard />
+          </div>
+        )}
+
+        {/* === Top Events === */}
+        <div className="mt-5">
+          <HomeTopEvents
+            title={isAuthed && !hasPosition ? "Pick your first prediction" : "Top Events"}
             interlude={
               !isAuthed ? <TrialCallout onSignIn={() => setAuthOpen(true)} /> : undefined
             }
