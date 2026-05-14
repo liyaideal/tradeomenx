@@ -120,6 +120,12 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
               </div>
             );
           })}
+          {Array.from({ length: Math.max(0, 3 - Math.min(market.children.length, 3)) }).map((_, i) => (
+            <div key={`ph-${i}`} className="hidden md:flex items-center justify-between" aria-hidden>
+              <span className="text-[11px] invisible">&nbsp;</span>
+              <span className="text-[11px] font-mono font-semibold tabular-nums invisible">+0.00%</span>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="bg-white/[0.03] rounded-lg px-2 py-1 mb-1.5">
