@@ -19,8 +19,7 @@ import { HomeSearchBar } from "@/components/home/HomeSearchBar";
 import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
 import { HomeTopEvents } from "@/components/home/HomeTopEvents";
 import { TrialCallout } from "@/components/home/TrialCallout";
-import { OnboardingCard } from "@/components/home/feed/cards/OnboardingCard";
-import { PositionAlertCard } from "@/components/home/feed/cards/PositionAlertCard";
+import { PersonalSlot } from "@/components/home/PersonalSlot";
 
 const MobileHome = () => {
   const [authOpen, setAuthOpen] = useState(false);
@@ -29,13 +28,6 @@ const MobileHome = () => {
 
   const isAuthed = !!user;
   const hasPosition = positions.length > 0;
-  const topPosition = [...positions]
-    .filter((p) => !p.isAirdrop)
-    .sort((a, b) => {
-      const pa = Math.abs(parseFloat(a.pnlPercent.replace(/[^\d.\-]/g, ""))) || 0;
-      const pb = Math.abs(parseFloat(b.pnlPercent.replace(/[^\d.\-]/g, ""))) || 0;
-      return pb - pa;
-    })[0];
 
   const headerActions = (
     <div className="flex items-center gap-1">
