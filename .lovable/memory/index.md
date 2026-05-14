@@ -13,6 +13,7 @@
 - **Database:** `option_id` is the primary key for tracking prices.
 - **Grid Cards:** Only Style B (MarketCardB) exists. Style A and C were removed after community vote.
 - **Campaign Landing:** Use `CAMPAIGN_DESIGN.md` + `/campaign-style-guide`; keep separate from product DESIGN.md.
+- **Home Feed:** Priority-sorted stream. 3 tiers (personal/opportunity/browse), max 1 tier-1 visible, 2nd+ same-kind → compact. Logic in `useHomeFeed`.
 
 ## Memories
 - [Mainnet activation system](mem://features/activation-system) — User activation funnel, state machine, checklist, Wallet hub, MAINNET badge
