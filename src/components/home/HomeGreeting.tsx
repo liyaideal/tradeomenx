@@ -17,18 +17,19 @@ const formatBalance = (n: number | null | undefined) =>
   })}`;
 
 /**
- * Home identity + asset header (merged Greeting + Equity).
+ * Home identity + asset header — minimalist refresh.
  *
  * Layout:
  *   ┌────────────────────────────────────────┐
- *   │ Hello,                            [+]  │
- *   │ DISPLAY_NAME                           │
- *   │ <metadata line>          → Wallet      │
+ *   │ Hello,                  DEPOSIT  (+)   │
+ *   │ TRADER                                  │
+ *   │                                         │
+ *   │ $0.00     TODAY  +1.9%                  │
  *   └────────────────────────────────────────┘
  *
- * - Guest:  metadata = "Sign in to trade"; tap-area opens AuthSheet.
- * - Authed: metadata = "$balance · Today ±x%"; tap-area → /wallet.
- * - `+` button keeps its own action (deposit / sign-in) and stops propagation.
+ * - Whole block tap → /wallet (auth) or onSignIn() (guest).
+ * - Top-right ghost "Deposit" chip → /deposit (stops propagation).
+ * - Guest: chip hidden; balance row replaced by "Sign in to trade →".
  */
 export const HomeGreeting = ({ onSignIn, todayPnLPercent = "+1.9%" }: HomeGreetingProps) => {
   const navigate = useNavigate();
@@ -40,10 +41,9 @@ export const HomeGreeting = ({ onSignIn, todayPnLPercent = "+1.9%" }: HomeGreeti
     ? (username || user?.email?.split("@")[0] || "trader").replace(/_/g, " ")
     : "there";
 
-  const handlePlus = (e: React.MouseEvent) => {
+  const handleDeposit = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
-    if (isAuthed) navigate("/deposit");
-    else onSignIn();
+    navigate("/deposit");
   };
 
   const handleBlockClick = () => {
@@ -56,59 +56,69 @@ export const HomeGreeting = ({ onSignIn, todayPnLPercent = "+1.9%" }: HomeGreeti
   return (
     <button
       onClick={handleBlockClick}
-      className="group flex w-full items-start justify-between gap-3 text-left"
+      className="group flex w-full flex-col gap-3 text-left"
     >
-      <div className="min-w-0 flex-1">
-        <p className="text-[15px] leading-tight text-muted-foreground">Hello,</p>
-        <h1 className="mt-0.5 truncate text-[26px] font-extrabold uppercase leading-[1.05] tracking-[-0.01em] text-foreground">
-          {displayName}
-        </h1>
-
-        {/* Metadata row — merged equity / sign-in CTA */}
-        <div className="mt-1.5 flex items-center gap-2 text-[12px]">
-          {isAuthed ? (
-            <>
-              <span className="font-mono text-[15px] font-semibold tabular-nums text-foreground">
-                {formatBalance(profile?.balance)}
-              </span>
-              <span className="text-muted-foreground/50">·</span>
-              <span
-                className={cn(
-                  "font-mono font-semibold tabular-nums",
-                  isProfit ? "text-trading-green" : "text-trading-red",
-                )}
-              >
-                Today {todayPnLPercent}
-              </span>
-              <span className="ml-auto inline-flex items-center gap-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors group-hover:text-foreground">
-                Wallet
-                <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
-              </span>
-            </>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-[13px] font-medium text-foreground transition-colors group-hover:text-primary">
-              Sign in to trade
-              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
-            </span>
-          )}
+      {/* Row 1: Greeting + Deposit ghost chip */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-0.5">
+          <p className="text-[14px] font-medium leading-tight text-muted-foreground">
+            Hello,
+          </p>
+          <h1 className="truncate text-[24px] font-bold uppercase leading-tight tracking-tight text-foreground">
+            {displayName}
+          </h1>
         </div>
+
+        {isAuthed && (
+          <span
+            onClick={handleDeposit}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleDeposit(e);
+              }
+            }}
+            aria-label="Deposit"
+            className="mt-1 inline-flex shrink-0 items-center gap-1.5 text-muted-foreground transition-colors hover:text-trading-green"
+          >
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em]">
+              Deposit
+            </span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border/60 transition-all group-hover:border-trading-green/50 group-hover:bg-trading-green/10">
+              <Plus className="h-3 w-3" strokeWidth={2.75} />
+            </span>
+          </span>
+        )}
       </div>
 
-      <span
-        onClick={handlePlus}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handlePlus(e as unknown as React.MouseEvent);
-          }
-        }}
-        aria-label={isAuthed ? "Deposit" : "Sign in"}
-        className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-transform active:scale-95 hover:opacity-90"
-      >
-        <Plus className="h-5 w-5" strokeWidth={2.75} />
-      </span>
+      {/* Row 2: Balance + Today PnL  /  Guest CTA */}
+      {isAuthed ? (
+        <div className="flex items-baseline gap-3">
+          <span className="font-mono text-[34px] font-bold leading-none tracking-tight text-foreground">
+            {formatBalance(profile?.balance)}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Today
+            </span>
+            <span
+              className={cn(
+                "font-mono text-sm font-bold tabular-nums",
+                isProfit ? "text-trading-green" : "text-trading-red",
+              )}
+            >
+              {todayPnLPercent}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <span className="inline-flex items-center gap-1 text-[14px] font-medium text-foreground transition-colors group-hover:text-primary">
+          Sign in to trade
+          <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+        </span>
+      )}
     </button>
   );
 };
