@@ -3,7 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useEquity7D } from "@/hooks/useEquity7D";
+import { useHomeStats } from "@/hooks/useHomeStats";
 import { cn } from "@/lib/utils";
+
+const formatCompactUSD = (val: number): string => {
+  if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
+  if (val >= 1_000) return `$${(val / 1_000).toFixed(1)}K`;
+  return `$${val.toFixed(0)}`;
+};
 
 interface HomeGreetingProps {
   onSignIn: () => void;
