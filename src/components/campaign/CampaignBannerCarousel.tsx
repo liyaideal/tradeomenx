@@ -122,33 +122,7 @@ const HeroObjectVisual = ({ theme }: { theme: ThemeKey }) => {
   );
 };
 
-/* ------------------------------------------------------------------ */
-/* Banner config                                                       */
-/* ------------------------------------------------------------------ */
-
-const banners: CampaignBannerConfig[] = [
-  {
-    id: "mainnet-launch",
-    href: "/mainnet-launch",
-    title: "Trade once. Earn up to $200.",
-    ctaLabel: "Join Now",
-    qualifierChip: { text: "100% WIN RATE", tone: "accent" },
-    heroMetric: { value: "$5K", label: "Weekly pool" },
-    countdown: true,
-    theme: "gold",
-    backgroundImage: bannerMainnet,
-  },
-  {
-    id: "hedge",
-    href: "/hedge",
-    title: "Hedge your prediction trades. Free.",
-    ctaLabel: "Open Hedge",
-    qualifierChip: { text: "No deposit", tone: "success" },
-    heroMetric: { value: "$100", label: "Free hedge credit" },
-    theme: "primary",
-    backgroundImage: bannerHedge,
-  },
-];
+/* Banner config now lives in ./banners.ts (shared with HomeCampaignRail). */
 
 export const CampaignBannerCarousel = ({ variant = "desktop", className }: CampaignBannerCarouselProps) => {
   const navigate = useNavigate();
