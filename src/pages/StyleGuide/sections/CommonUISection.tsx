@@ -1428,7 +1428,7 @@ toast.promise(asyncFn(), {
               <div className="p-4 bg-gradient-to-b from-[#1a1a2e] to-[#16162a] rounded-xl space-y-4">
                 {/* Header - OMENX Logo */}
                 <div className="flex items-center gap-2 pb-3">
-                  <Logo size="md" />
+                  <Logo size="md" showMainnetBadge={false} />
                   <div className="ml-auto px-2 py-0.5 bg-white/10 rounded text-[10px] text-white/60">
                     JAN 25, 2026
                   </div>
@@ -2048,7 +2048,7 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
                 </thead>
                 <tbody className="divide-y divide-border/50">
                   <tr>
-                    <td className="py-2 font-medium flex items-center gap-2"><Logo size="sm" /> Logo</td>
+                    <td className="py-2 font-medium flex items-center gap-2"><Logo size="sm" showMainnetBadge={false} /> Logo</td>
                     <td className="py-2 font-mono text-primary">size="xl" (h-8)</td>
                     <td className="py-2 text-muted-foreground">Left-aligned, clickable</td>
                   </tr>

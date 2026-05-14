@@ -93,14 +93,14 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
             <CardDescription>Standard logo sizes for different contexts</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 { size: "sm" as const, label: "Small (h-4)", usage: "Compact headers, nav items" },
                 { size: "md" as const, label: "Medium (h-5)", usage: "Mobile headers (default)" },
                 { size: "lg" as const, label: "Large (h-6)", usage: "Desktop headers" },
                 { size: "xl" as const, label: "Extra Large (h-8)", usage: "Landing pages, branding" },
               ].map(({ size, label, usage }) => (
-                <div key={size} className="bg-muted/30 rounded-xl p-4 flex flex-col items-center gap-3">
+                <div key={size} className="bg-muted/30 rounded-xl p-4 flex flex-col items-center gap-3 overflow-visible">
                   <div className="h-12 flex items-center justify-center">
                     <Logo size={size} />
                   </div>
@@ -111,13 +111,17 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                 </div>
               ))}
             </div>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              Mainnet badge is hidden when the logo sits next to a title or in a tight cell — pass <code className="text-primary">showMainnetBadge={`{false}`}</code>.
+            </p>
             <CodePreview 
               code={`import { Logo } from "@/components/Logo";
 
 <Logo size="sm" />  // h-4 - Compact headers
 <Logo size="md" />  // h-5 - Mobile headers (default)
 <Logo size="lg" />  // h-6 - Desktop headers
-<Logo size="xl" />  // h-8 - Landing pages`}
+<Logo size="xl" />  // h-8 - Landing pages
+<Logo size="md" showMainnetBadge={false} />  // hide badge in tight layouts`}
             />
           </CardContent>
         </Card>
@@ -462,7 +466,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                   </tr>
                   <tr>
                     <td className="py-2 font-medium flex items-center gap-2">
-                      <Logo size="sm" /> Logo
+                      <Logo size="sm" showMainnetBadge={false} /> Logo
                     </td>
                     <td className="py-2 text-muted-foreground">
                       Show everywhere EXCEPT Trade pages. Left-aligned.
@@ -589,7 +593,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                     <button className="h-9 w-9 flex items-center justify-center">
                       <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <Logo size="md" />
+                    <Logo size="md" showMainnetBadge={false} />
                   </div>
                   <h1 className="text-sm font-semibold flex-1 text-center">Event Details</h1>
                   <div className="w-9" />
@@ -607,7 +611,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
             <CardContent>
               <div className="bg-background rounded-lg border border-border overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-                  <Logo size="md" />
+                  <Logo size="md" showMainnetBadge={false} />
                   <h1 className="text-sm font-semibold flex-1 text-center">Settings</h1>
                   <Button variant="ghost" size="sm" className="text-xs">
                     Save
