@@ -92,6 +92,10 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
   const pnlDisplay = `${isProfit ? "+" : "-"}${Math.abs(pnlPercent).toFixed(1)}%`;
   const { line, area } = buildSparkPaths(points);
 
+  // Guest-only platform stats
+  const { volume24h, activeMarkets, sparkPoints, isLoading: statsLoading } = useHomeStats();
+  const guestSpark = buildSparkPaths(sparkPoints);
+
   return (
     <button
       onClick={handleBlockClick}
