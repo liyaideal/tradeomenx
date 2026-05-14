@@ -1,70 +1,67 @@
-## Reuse /events Hot logic in Home Top Events
+## Fix expired events + surface closing-soon in "All"
 
-Extract the bucket classification used by `HotShelf` into a shared hook, then rebuild `HomeTopEvents` as a 3-chip filter (`All` / `Trending` / `Closing Soon`) backed by that same hook. No more duplicated filtering logic.
+Two distinct issues confirmed by inspecting `events` table and the hooks:
 
-### 1. New hook: `src/hooks/useHotMarkets.ts`
+### Issue 1 — expired events still listed
 
-Single source of truth, lifted verbatim from `HotShelf.tsx` (lines 55–79). Extends with an "all" view so Home can reuse it.
+`useActiveEvents` only filters `is_resolved = false`; it does not exclude rows where `end_date < now()`. The DB currently has **8 expired-but-unresolved** events (all dated 2026-04-15 → 2026-04-30, today is 2026-05-14):
 
-```ts
-export type HotBucket = "all" | "trending" | "closingSoon";
-
-export function useHotMarkets(markets: EventRow[]) {
-  return useMemo(() => {
-    const now = Date.now();
-    const h48 = 48 * 3600000;
-
-    const justLaunched = markets.filter(
-      (m) => now - new Date(m.createdAt).getTime() <= h48,
-    );
-    const closingSoon = markets
-      .filter((m) => m.expiry && m.expiry.getTime() - now <= h48 && m.expiry.getTime() > now)
-      .sort((a, b) => b.openInterest - a.openInterest);
-
-    const launchedIds = new Set(justLaunched.map((m) => m.id));
-    const closingIds = new Set(closingSoon.map((m) => m.id));
-
-    const trending = markets
-      .filter(
-        (m) => !launchedIds.has(m.id) && !closingIds.has(m.id) && m.volume24h > 10_000,
-      )
-      .sort((a, b) => b.volume24h - a.volume24h);
-
-    const all = [...markets].sort((a, b) => b.volume24h - a.volume24h);
-
-    return { all, trending, closingSoon, justLaunched };
-  }, [markets]);
-}
+```text
+eth-4k-apr15, gold-apr15-pm, ufc-315-main, ev-c09,
+sol-apr20-2026, trump-tariff-apr21, ev-s05, ev-c03
 ```
 
-### 2. Refactor `HotShelf.tsx`
+These are short-dated demo rows that aged out. Two-part fix:
 
-Replace the inline `useMemo` block with `const { trending, justLaunched, closingSoon } = useHotMarkets(markets)`. Apply existing slice limits at the call site (`.slice(0, 5)` for trending, `.slice(0, 3)` for the others). No visual change to `/events` Hot tab.
+**a. Data cleanup (migration)** — bump these 8 events' `end_date` (and `created_at` when needed) so they stay useful demo content instead of dead rows:
 
-### 3. Rewrite `HomeTopEvents.tsx`
+| id | new end_date |
+|---|---|
+| eth-4k-apr15 | now() + 12 hours |
+| gold-apr15-pm | now() + 36 hours |
+| ufc-315-main | now() + 60 hours |
+| ev-c09 (DOGE) | now() + 5 days |
+| sol-apr20-2026 | now() + 6 days |
+| trump-tariff-apr21 | now() + 7 days |
+| ev-s05 (Elon tweets) | now() + 10 days |
+| ev-c03 (SOL Apr 30) | now() + 14 days |
 
-Replace the current LIVE toggle + category chips + custom filter logic with:
+This gives Home/Hot a healthy mix of "closing-soon" (within 48–72h) and normal markets.
 
-- **3-chip filter row** (single-select, default `All`):
-  - `All` → `useHotMarkets(rows).all.slice(0, 8)`
-  - `Trending` → `.trending.slice(0, 8)`
-  - `Closing Soon` → `.closingSoon.slice(0, 8)`
-- Empty state: "No markets in this view" + "Reset to All" button.
-- Keep:
-  - Section header `Top Events` (no LIVE switch).
-  - `MarketCardB noBackground` card render (already aligned with /events).
-  - `interlude` slot between cards 2 and 3.
-  - "Browse all markets" CTA → `/events`.
-- Remove: `CATEGORY_STYLES` import, category chip generation, `liveOnly` state, `activeChip` per-category state.
+**b. Defensive client filter** — in `useMarketListData`, skip events whose `end_date` is non-null and in the past, so future stale rows never leak into the UI:
 
-Chip styling: same pill style currently used for category chips (rounded-full border + active = `bg-foreground text-background`).
+```ts
+.filter((event) => {
+  if (!event.end_date) return true;
+  return new Date(event.end_date).getTime() > Date.now();
+})
+```
 
-### 4. No other changes
+### Issue 2 — closing-soon events absent from "All"
 
-- `MarketCardB`, `MarketGridView`, `MarketListView`, `EventsPage` untouched.
-- `useMarketListData`, `useActiveEvents` untouched.
+`useHotMarkets.all` is `[...markets].sort(volume24h desc)`. Closing-soon events with mid-range mock volume rank below the top 8 → user never sees them in the All chip.
+
+Fix: change `all` ordering in `src/hooks/useHotMarkets.ts` so closing-soon events float to the top, then everything else by 24h volume:
+
+```ts
+const closingIds = new Set(closingSoon.map((m) => m.id));
+const all = [...markets].sort((a, b) => {
+  const aClose = closingIds.has(a.id) ? 1 : 0;
+  const bClose = closingIds.has(b.id) ? 1 : 0;
+  if (aClose !== bClose) return bClose - aClose;
+  return b.volume24h - a.volume24h;
+});
+```
+
+Effect: `/events` Hot tab unchanged (it doesn't use `all`). Home Top Events `All` chip now leads with closing-soon, then trending volume.
+
+### Files touched
+
+- `supabase/migrations/<timestamp>_refresh_demo_event_dates.sql` — UPDATE 8 expired event rows.
+- `src/hooks/useMarketListData.ts` — add expired-filter guard at top of `events.map`.
+- `src/hooks/useHotMarkets.ts` — re-rank `all` to put closing-soon first.
 
 ### Out of scope
 
-- Wiring Home chips to URL state.
-- Adding `Just Launched` to Home (user explicitly listed only 3 options).
+- Auto-resolving expired events (they should be resolved by settlement workflow, not by filter).
+- Changing `useActiveEvents` SQL — keeping it permissive avoids accidentally hiding events whose `end_date` is null or imminent due to clock skew. The client filter is enough.
