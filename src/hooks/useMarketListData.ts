@@ -93,7 +93,14 @@ export const getVolume = (
 
 export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
   return useMemo(() => {
-    return events.map((event) => {
+    const nowMs = Date.now();
+    return events
+      .filter((event) => {
+        // Defensive: hide events whose end_date is already in the past.
+        if (!event.end_date) return true;
+        return new Date(event.end_date).getTime() > nowMs;
+      })
+      .map((event) => {
       const endDate = event.end_date ? new Date(event.end_date) : null;
       const closingSoon = isClosingSoon(endDate);
       const newEvent = !closingSoon && isNewEvent(event.created_at);
