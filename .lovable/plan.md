@@ -1,61 +1,23 @@
-# Fix MAINNET badge overlap
+# Fix "No 7D activity" wrapping in authed empty state
 
-## Root cause
+## Problem
 
-`<Logo>` (`src/components/Logo.tsx`) now always renders the `MainnetBadge` next to the wordmark in an `inline-flex`. That makes the rendered logo ~70–90px wider than the bare image. Every place that was sized assuming "logo = image only" now overlaps with the adjacent element (centered title, neighbor table text, fixed-width preview cell, etc.).
+In the authed-but-no-data branch, the row uses `flex items-end justify-between gap-3` with a left text column and a right `h-12 w-24` sparkline. When there's no 7D data, the sparkline only renders a dashed placeholder line — visually meaningless — but it still takes a fixed 96px of width. The remaining space on a 390px mobile card forces the message "No 7D activity — Tap deposit to start" (rendered as two adjacent spans, no `whitespace-nowrap`) to wrap into 3 lines, which is what the screenshot shows.
 
-The Logo component already exposes `showMainnetBadge?: boolean` (default `true`). The fix is: keep the badge where the logo stands alone (home headers, auth dialogs, footers, landing branding), and turn it off in any layout where the logo sits next to text or in a constrained cell.
+## Fix
 
-## Issues found (full sweep)
+Treat the empty state differently from the data state — collapse the placeholder sparkline so the line fits.
 
-Real production UI:
-1. `src/components/MobileHeader.tsx` — `renderLeft()` Back + Logo branch (line 182) and Logo-only branch (line 197). When the header also has a centered `title` (Detail/Custom modes), the badge eats into the centered title space and visually overlaps. Home page (no title) is fine.
+1. `src/components/home/HomeGreeting.tsx` (authed branch, lines ~140–224)
+   - Render the sparkline `<div className="relative h-12 w-24 …">` only when `hasData && line` is true. Drop the dashed placeholder block entirely; it carries no information.
+   - In the no-data inline message (lines 163–170), make it a single `<p>` with `whitespace-nowrap` so the two parts can never wrap. Slightly tighten copy to "No 7D activity · Tap Deposit to start" (single line, mid-dot separator) and use the existing tokens (`text-muted-foreground` for the prefix, `text-primary` for the CTA fragment).
 
-Style guide / docs (visible in user's screenshots):
-2. `src/pages/StyleGuide/sections/MobilePatternsSection.tsx`
-   - Logo Sizes grid, line 105 — the `lg`/`xl` cells overflow because the badge pushes content past the cell's centered area.
-   - Spec table cell, line 465 — `<Logo size="sm" /> Logo` — badge collides with the trailing word "Logo".
-   - Detail Page Header preview, line 592 — same pattern as the real `MobileHeader` Detail mode; centered title overlaps the badge.
-   - Custom rightContent preview, line 610 — Logo + centered "Settings" title overlap.
-   - Other previews on lines 143, 154, 165, 177, 531 are standalone — keep badge.
-3. `src/pages/StyleGuide/sections/CommonUISection.tsx`
-   - Spec table cell, line 2051 — same pattern as #2's table cell.
-   - Share Poster mock header, line 1431 — Logo md + date pill on `ml-auto`; tight on narrow widths.
-   - EventsDesktopHeader preview (line 1998) — has enough horizontal space, leave as-is.
+2. `src/pages/StyleGuide/sections/MobileHomeSection.tsx` (authed replica, lines ~141–204)
+   - Mirror the same change in the static replica so the playground previews match production for the "Authed · no 7D data" toggle.
 
-Verified safe (logo standalone, no overlap):
-- `src/pages/Rewards.tsx` (xl, centered)
-- `src/components/auth/AuthSheet.tsx`, `src/components/auth/AuthDialog.tsx`
-- `src/components/seo/SeoFooter.tsx`
-- `src/components/EventsDesktopHeader.tsx` (desktop has gap-4/xl:gap-8 around it)
-- `src/pages/StyleGuide/sections/MobileHomeSection.tsx`
-- All raw `<img src={omenxLogo}>` usages (Leaderboard, SharePosterLayout, SettlementShareCard, EventShareCard, StyleGuide Logo asset previews) — no badge attached, untouched.
-
-## Changes
-
-1. `src/components/MobileHeader.tsx`
-   - In `renderLeft()`, pass `showMainnetBadge={false}` to both `<Logo>` instances when the header has a `title` (i.e. Detail / Trade / Custom modes). Keep the badge when no title (Home).
-   - Net effect: home header keeps the live-on-mainnet signal; any page that renders a centered title no longer collides with it.
-
-2. `src/pages/StyleGuide/sections/MobilePatternsSection.tsx`
-   - Logo Sizes grid (lines 96–113): change to `grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4` and add `overflow-visible` to each cell so the badge has room next to `lg`/`xl`. Keep badge on (the grid is meant to show the canonical logo).
-   - Spec-table cell at line 465: `<Logo size="sm" showMainnetBadge={false} />`.
-   - Detail Page Header preview at line 592: `<Logo size="md" showMainnetBadge={false} />`. This mirrors the production `MobileHeader` fix.
-   - Custom rightContent preview at line 610: same — `showMainnetBadge={false}`.
-   - Add a one-line caption under the Logo Sizes grid: "Mainnet badge is hidden when the logo sits next to a title or in a tight cell — pass `showMainnetBadge={false}`."
-
-3. `src/pages/StyleGuide/sections/CommonUISection.tsx`
-   - Spec-table cell at line 2051: `<Logo size="sm" showMainnetBadge={false} />`.
-   - Share Poster mock header at line 1431: `<Logo size="md" showMainnetBadge={false} />` (matches the real poster which also renders the bare wordmark).
-
-4. No backend/data changes. No new files. Default Logo behavior (`showMainnetBadge=true`) is preserved.
+Net effect: in the empty state the balance keeps full width, the CTA hint sits on a single line directly under the equity number, and the dashed placeholder graphic disappears. The data state is unchanged.
 
 ## Out of scope
 
-- Not adding the badge to the existing raw `<img src={omenxLogo}>` usages (Leaderboard, share cards, poster). The user only asked us to repair existing overlap, not to spread the badge further.
-- Not changing the badge's visual design or breathing animation.
-- Not refactoring `MainnetBadge`'s `responsive` flag.
-
-## Verification
-
-After the edits, refresh `/style-guide` (Mobile Patterns + Common UI tabs) at 390px and at desktop, and visit any Detail-mode page (e.g. an event page on mobile) to confirm: home header still shows the badge; titled headers and doc previews no longer overlap; the Logo Sizes grid renders all four sizes with the badge fully visible.
+- Guest branch and the data-present authed branch are untouched.
+- No copy or layout changes elsewhere in HomeGreeting.

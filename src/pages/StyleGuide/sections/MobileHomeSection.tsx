@@ -156,18 +156,18 @@ const HomeGreetingAuthed = ({ hasData }: { hasData: boolean }) => (
             </span>
           </div>
         ) : (
-          <div className="mt-2.5 flex items-center gap-1.5">
+          <p className="mt-2.5 whitespace-nowrap">
             <span className="font-sans text-[12px] font-medium text-muted-foreground">
-              No 7D activity —
+              No 7D activity ·{" "}
             </span>
             <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-              Tap deposit to start
+              Tap Deposit to start
             </span>
-          </div>
+          </p>
         )}
       </div>
-      <div className="relative h-12 w-24 shrink-0 opacity-70">
-        {hasData ? (
+      {hasData && (
+        <div className="relative h-12 w-24 shrink-0 opacity-70">
           <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="h-full w-full overflow-visible">
             <defs>
               <linearGradient id="sgAuthSparkFill" x1="0" y1="0" x2="0" y2="1">
@@ -185,21 +185,8 @@ const HomeGreetingAuthed = ({ hasData }: { hasData: boolean }) => (
               strokeLinejoin="round"
             />
           </svg>
-        ) : (
-          <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="h-full w-full">
-            <line
-              x1="0"
-              y1="20"
-              x2="100"
-              y2="20"
-              stroke="hsl(var(--muted-foreground))"
-              strokeWidth="1.5"
-              strokeDasharray="3 3"
-              opacity="0.5"
-            />
-          </svg>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   </div>
 );
