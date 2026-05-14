@@ -5,7 +5,7 @@ import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData, EventRow } from "@/hooks/useMarketListData";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
-import { HomeMatchCard } from "./HomeMatchCard";
+import { MarketCardB } from "@/components/events/MarketCardB";
 import { cn } from "@/lib/utils";
 
 interface HomeTopEventsProps {
@@ -146,10 +146,11 @@ export const HomeTopEvents = ({ interlude, title = "Top Events" }: HomeTopEvents
                 className="animate-fade-in motion-reduce:animate-none"
                 style={{ animationDelay: `${Math.min(i, 6) * 35}ms`, animationFillMode: "both" }}
               >
-                <HomeMatchCard
+                <MarketCardB
                   market={m}
                   isWatched={isWatched(m.eventId)}
                   onToggleWatch={(e) => toggle(m.eventId, e)}
+                  noBackground
                 />
               </div>
             </div>
