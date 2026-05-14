@@ -5,6 +5,7 @@ export { FormsSection } from "./FormsSection";
 export { TradingSection } from "./TradingSection";
 export { WalletSection } from "./WalletSection";
 export { MobilePatternsSection } from "./MobilePatternsSection";
+export { MobileHomeSection } from "./MobileHomeSection";
 export { UserIdentitySection } from "./UserIdentitySection";
 export { DepositWithdrawSection } from "./DepositWithdrawSection";
 export { TransparencySection } from "./TransparencySection";
