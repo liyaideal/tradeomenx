@@ -1,4 +1,4 @@
-import { ArrowRight, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -37,9 +37,20 @@ const buildSparkPaths = (points: number[]) => {
     return [x, y] as const;
   });
 
-  const line = coords
-    .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`)
-    .join(" ");
+  // Smooth path via Catmull-Rom → cubic Bézier (tension 0.5).
+  const t = 0.5;
+  let line = `M${coords[0][0].toFixed(2)} ${coords[0][1].toFixed(2)}`;
+  for (let i = 0; i < coords.length - 1; i++) {
+    const p0 = coords[i - 1] ?? coords[i];
+    const p1 = coords[i];
+    const p2 = coords[i + 1];
+    const p3 = coords[i + 2] ?? p2;
+    const cp1x = p1[0] + ((p2[0] - p0[0]) / 6) * t * 2;
+    const cp1y = p1[1] + ((p2[1] - p0[1]) / 6) * t * 2;
+    const cp2x = p2[0] - ((p3[0] - p1[0]) / 6) * t * 2;
+    const cp2y = p2[1] - ((p3[1] - p1[1]) / 6) * t * 2;
+    line += ` C${cp1x.toFixed(2)} ${cp1y.toFixed(2)}, ${cp2x.toFixed(2)} ${cp2y.toFixed(2)}, ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`;
+  }
   const area = `${line} L${W} ${H} L0 ${H} Z`;
   return { line, area };
 };
@@ -71,7 +82,6 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
   };
 
   const isProfit = pnlPercent >= 0;
-  const TrendIcon = isProfit ? TrendingUp : TrendingDown;
   const pnlDisplay = `${isProfit ? "+" : "-"}${Math.abs(pnlPercent).toFixed(1)}%`;
   const { line, area } = buildSparkPaths(points);
 
@@ -133,7 +143,6 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
                     isProfit ? "text-trading-green" : "text-trading-red",
                   )}
                 >
-                  <TrendIcon className="h-3 w-3" strokeWidth={2.75} />
                   {pnlDisplay}
                 </span>
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
