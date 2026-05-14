@@ -85,12 +85,6 @@ const MobileHome = () => {
           <HomeSearchBar />
         </div>
 
-        {/* === Authed: slim equity strip === */}
-        {isAuthed && (
-          <div className="mt-3">
-            <HomeStatusStrip onLogin={() => setAuthOpen(true)} />
-          </div>
-        )}
 
         {/* === Authed w/ positions: top alert above tournaments === */}
         {isAuthed && hasPosition && topPosition && (
