@@ -39,9 +39,9 @@ import { showRewardsPausedToast } from "@/lib/rewardsPause";
 // regular nav entry without trophy/purple-border decoration.
 const navItems = [
   { label: "Events", path: "/events" },
-  { label: "Insights", path: "/insights" },
-  { label: "Leaderboard", path: "/leaderboard" },
   { label: "Portfolio", path: "/portfolio" },
+  { label: "Leaderboard", path: "/leaderboard" },
+  { label: "Insights", path: "/insights" },
 ];
 
 const languages = [
