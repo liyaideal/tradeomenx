@@ -78,24 +78,15 @@ const MobileHome = () => {
         </div>
 
 
-        {/* === Authed w/ positions: top alert above tournaments === */}
-        {isAuthed && hasPosition && topPosition && (
-          <div className="mt-3">
-            <PositionAlertCard positionId={topPosition.id} />
-          </div>
-        )}
+        {/* === Personal slot: onboarding OR position alert (single card) === */}
+        <div className="mt-3 empty:hidden">
+          <PersonalSlot />
+        </div>
 
         {/* === Campaign banners (compact rail) === */}
         <div className="mt-5">
           <HomeCampaignRail />
         </div>
-
-        {/* === Authed onboarding (between rails and top events) === */}
-        {isAuthed && (
-          <div className="mt-4">
-            <OnboardingCard />
-          </div>
-        )}
 
         {/* === Top Events === */}
         <div className="mt-5">
