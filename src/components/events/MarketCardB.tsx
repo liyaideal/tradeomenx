@@ -12,6 +12,8 @@ interface MarketCardBProps {
   isWatched: boolean;
   onToggleWatch: (e?: React.MouseEvent) => void;
   chgTimeframe?: ChgTimeframe;
+  /** Render with transparent surface (no gradient bg, no category image, no border). */
+  noBackground?: boolean;
 }
 
 const formatUSD = (val: number): string => {
