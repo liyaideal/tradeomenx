@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
 import { HomeGreeting } from "@/components/home/HomeGreeting";
 import { HomeSearchBar } from "@/components/home/HomeSearchBar";
-import { HomeTournamentsRail } from "@/components/home/HomeTournamentsRail";
+import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
 import { HomeTopEvents } from "@/components/home/HomeTopEvents";
 import { TrialCallout } from "@/components/home/TrialCallout";
 import { OnboardingCard } from "@/components/home/feed/cards/OnboardingCard";
@@ -93,9 +93,9 @@ const MobileHome = () => {
           </div>
         )}
 
-        {/* === Tournaments carousel === */}
+        {/* === Campaign banners (compact rail) === */}
         <div className="mt-5">
-          <HomeTournamentsRail />
+          <HomeCampaignRail />
         </div>
 
         {/* === Authed onboarding (between rails and top events) === */}
