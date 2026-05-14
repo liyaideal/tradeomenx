@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Coins, ShieldCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
