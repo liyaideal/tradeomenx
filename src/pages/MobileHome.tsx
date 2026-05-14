@@ -72,11 +72,6 @@ const MobileHome = () => {
         {/* === Greeting + plus === */}
         <HomeGreeting onSignIn={() => setAuthOpen(true)} />
 
-        {/* === Search === */}
-        <div className="mt-3">
-          <HomeSearchBar />
-        </div>
-
 
         {/* === Personal slot: onboarding OR position alert (single card) === */}
         <div className="mt-3 empty:hidden">
