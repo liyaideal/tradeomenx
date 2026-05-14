@@ -20,6 +20,7 @@ import {
   TradingSection,
   WalletSection,
   MobilePatternsSection,
+  MobileHomeSection,
   UserIdentitySection,
   DepositWithdrawSection,
   TransparencySection,
