@@ -466,7 +466,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                   </tr>
                   <tr>
                     <td className="py-2 font-medium flex items-center gap-2">
-                      <Logo size="sm" /> Logo
+                      <Logo size="sm" showMainnetBadge={false} /> Logo
                     </td>
                     <td className="py-2 text-muted-foreground">
                       Show everywhere EXCEPT Trade pages. Left-aligned.
@@ -593,7 +593,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                     <button className="h-9 w-9 flex items-center justify-center">
                       <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <Logo size="md" />
+                    <Logo size="md" showMainnetBadge={false} />
                   </div>
                   <h1 className="text-sm font-semibold flex-1 text-center">Event Details</h1>
                   <div className="w-9" />
@@ -611,7 +611,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
             <CardContent>
               <div className="bg-background rounded-lg border border-border overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-                  <Logo size="md" />
+                  <Logo size="md" showMainnetBadge={false} />
                   <h1 className="text-sm font-semibold flex-1 text-center">Settings</h1>
                   <Button variant="ghost" size="sm" className="text-xs">
                     Save
