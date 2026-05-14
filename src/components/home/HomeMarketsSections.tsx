@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Flame, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Flame, Clock, Sparkles, type LucideIcon } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData, EventRow } from "@/hooks/useMarketListData";
 import { useWatchlist } from "@/hooks/useWatchlist";
@@ -8,7 +8,7 @@ import { MarketCardB } from "@/components/events/MarketCardB";
 
 interface SectionProps {
   title: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   rows: EventRow[];
   isWatched: (id: string) => boolean;
   onToggleWatch: (id: string, e?: React.MouseEvent) => void;
@@ -53,7 +53,7 @@ const SectionHeader = ({
   count,
 }: {
   title: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   count: number;
 }) => (
   <div className="flex items-end justify-between gap-2 px-1">
