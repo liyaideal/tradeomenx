@@ -63,7 +63,7 @@ export const HomeCampaignRail = () => {
         </h2>
       </div>
 
-      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="-mr-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {banners.map((banner) => {
           const t = themeMap[banner.theme];
           const chipClass = banner.qualifierChip ? toneMap[banner.qualifierChip.tone] : "";
