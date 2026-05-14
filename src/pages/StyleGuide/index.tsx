@@ -20,6 +20,7 @@ import {
   TradingSection,
   WalletSection,
   MobilePatternsSection,
+  MobileHomeSection,
   UserIdentitySection,
   DepositWithdrawSection,
   TransparencySection,
@@ -45,6 +46,7 @@ const StyleGuideIndex = () => {
     { id: "trading", label: "Trading", icon: "💹" },
     { id: "wallet", label: "Wallet", icon: "💰" },
     { id: "deposit", label: "Deposit/Withdraw", icon: "🔄" },
+    { id: "home", label: "Mobile Home", icon: "🏠" },
     { id: "mobile", label: "Mobile", icon: "📱" },
     { id: "identity", label: "Identity", icon: "👤" },
     { id: "transparency", label: "Transparency", icon: "🔗" },
@@ -149,6 +151,10 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="deposit" className="mt-0">
             <DepositWithdrawSection isMobile={isMobile} />
+          </TabsContent>
+
+          <TabsContent value="home" className="mt-0">
+            <MobileHomeSection isMobile={isMobile} />
           </TabsContent>
 
           <TabsContent value="mobile" className="mt-0">
