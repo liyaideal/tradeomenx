@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
-import { HomeStatusStrip } from "@/components/home/HomeStatusStrip";
 import { HomeGreeting } from "@/components/home/HomeGreeting";
 import { HomeSearchBar } from "@/components/home/HomeSearchBar";
 import { HomeTournamentsRail } from "@/components/home/HomeTournamentsRail";
