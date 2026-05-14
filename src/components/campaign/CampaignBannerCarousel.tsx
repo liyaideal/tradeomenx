@@ -1,34 +1,16 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Coins, ShieldCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
-import bannerMainnet from "@/assets/banner-mainnet-launch.jpg";
-import bannerHedge from "@/assets/banner-hedge.jpg";
+import { banners, type BannerThemeKey as ThemeKey } from "@/components/campaign/banners";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
   className?: string;
 }
-
-type ThemeKey = "gold" | "primary" | "green" | "violet";
-
-type CampaignBannerConfig = {
-  id: string;
-  href: string;
-  title: string;
-  ctaLabel: string;
-  qualifierChip?: { text: string; tone: "accent" | "success" | "neutral" };
-  heroMetric: { value: string; label: string };
-  countdown?: boolean;
-  theme: ThemeKey;
-  /** Full-card cinematic background image (desktop only). Preferred. */
-  backgroundImage?: string;
-  /** Fallback bordered tile visual when no backgroundImage is supplied. */
-  visual?: ReactNode;
-};
 
 const labelClassName = {
   accent: "border-mainnet-gold/30 bg-mainnet-gold/10 text-mainnet-gold font-thin",
@@ -140,33 +122,7 @@ const HeroObjectVisual = ({ theme }: { theme: ThemeKey }) => {
   );
 };
 
-/* ------------------------------------------------------------------ */
-/* Banner config                                                       */
-/* ------------------------------------------------------------------ */
-
-const banners: CampaignBannerConfig[] = [
-  {
-    id: "mainnet-launch",
-    href: "/mainnet-launch",
-    title: "Trade once. Earn up to $200.",
-    ctaLabel: "Join Now",
-    qualifierChip: { text: "100% WIN RATE", tone: "accent" },
-    heroMetric: { value: "$5K", label: "Weekly pool" },
-    countdown: true,
-    theme: "gold",
-    backgroundImage: bannerMainnet,
-  },
-  {
-    id: "hedge",
-    href: "/hedge",
-    title: "Hedge your prediction trades. Free.",
-    ctaLabel: "Open Hedge",
-    qualifierChip: { text: "No deposit", tone: "success" },
-    heroMetric: { value: "$100", label: "Free hedge credit" },
-    theme: "primary",
-    backgroundImage: bannerHedge,
-  },
-];
+/* Banner config now lives in ./banners.ts (shared with HomeCampaignRail). */
 
 export const CampaignBannerCarousel = ({ variant = "desktop", className }: CampaignBannerCarouselProps) => {
   const navigate = useNavigate();
@@ -338,10 +294,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                       </div>
                     </div>
 
-                    {/* Right visual slot — only when no bg image */}
-                    {!hasBgImage && banner.visual && (
-                      <div className="hidden min-w-0 sm:block">{banner.visual}</div>
-                    )}
+                    {/* Right visual slot removed — all banners use backgroundImage. */}
                   </div>
                 </button>
               </CarouselItem>
