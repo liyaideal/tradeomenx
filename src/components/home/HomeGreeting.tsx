@@ -2,11 +2,12 @@ import { ArrowRight, Plus, TrendingUp, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useEquity7D } from "@/hooks/useEquity7D";
 import { cn } from "@/lib/utils";
 
 interface HomeGreetingProps {
   onSignIn: () => void;
-  /** Mock-friendly daily PnL string, e.g. "+1.9%" / "-0.4%". */
+  /** Deprecated — kept for backward compatibility, no longer rendered. */
   todayPnLPercent?: string;
 }
 
@@ -17,20 +18,42 @@ const formatBalance = (n: number | null | undefined) =>
   })}`;
 
 /**
+ * Build a normalized SVG path (line + area) for a 7D equity series.
+ * Returns empty paths when there isn't enough variation to draw.
+ */
+const buildSparkPaths = (points: number[]) => {
+  if (points.length < 2) return { line: "", area: "" };
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const range = max - min || 1;
+  const W = 100;
+  const H = 40;
+  const stepX = W / (points.length - 1);
+
+  const coords = points.map((v, i) => {
+    const x = i * stepX;
+    // Invert: higher value → smaller y (top). Pad 4px top/bottom.
+    const y = 4 + (1 - (v - min) / range) * (H - 8);
+    return [x, y] as const;
+  });
+
+  const line = coords
+    .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`)
+    .join(" ");
+  const area = `${line} L${W} ${H} L0 ${H} Z`;
+  return { line, area };
+};
+
+/**
  * Home identity + asset hero — data card variant.
  *
- * - Card surface (border + rounded-2xl + bg-card) gives the hero a clear boundary.
- * - WELCOME BACK label + username (long names wrap, never ellipsis).
- * - TOTAL EQUITY label + large mono balance.
- * - PnL row with directional arrow.
- * - Sparkline hint (mock path, trading-green) on the right.
- * - Soft trading-green glow accent in bottom-right corner.
- * - Whole card taps to /wallet; Deposit chip stops propagation → /deposit.
+ * 7D PnL + 7D sparkline derived from closed trades (mark-to-market on realized PnL).
  */
-export const HomeGreeting = ({ onSignIn, todayPnLPercent = "+1.9%" }: HomeGreetingProps) => {
+export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { username, profile } = useUserProfile();
+  const { pnlPercent, points, hasData } = useEquity7D();
 
   const isAuthed = !!user;
   const displayName = isAuthed
@@ -47,9 +70,10 @@ export const HomeGreeting = ({ onSignIn, todayPnLPercent = "+1.9%" }: HomeGreeti
     else onSignIn();
   };
 
-  const isProfit = todayPnLPercent.startsWith("+");
+  const isProfit = pnlPercent >= 0;
   const TrendIcon = isProfit ? TrendingUp : TrendingDown;
-  const pnlValue = todayPnLPercent.replace(/^[+\-]/, "");
+  const pnlDisplay = `${isProfit ? "+" : "-"}${Math.abs(pnlPercent).toFixed(1)}%`;
+  const { line, area } = buildSparkPaths(points);
 
   return (
     <button
@@ -105,51 +129,71 @@ export const HomeGreeting = ({ onSignIn, todayPnLPercent = "+1.9%" }: HomeGreeti
               <span
                 className={cn(
                   "inline-flex items-center gap-1 font-mono text-sm font-bold tabular-nums",
-                  isProfit ? "text-trading-green" : "text-trading-red",
+                  hasData
+                    ? isProfit
+                      ? "text-trading-green"
+                      : "text-trading-red"
+                    : "text-muted-foreground",
                 )}
               >
-                <TrendIcon className="h-3 w-3" strokeWidth={2.75} />
-                {pnlValue}
+                {hasData && <TrendIcon className="h-3 w-3" strokeWidth={2.75} />}
+                {hasData ? pnlDisplay : "0.0%"}
               </span>
               <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Today
+                7D
               </span>
             </div>
           </div>
 
-          {/* Sparkline */}
+          {/* Sparkline (7D) */}
           <div className="relative h-12 w-24 shrink-0 opacity-70 transition-opacity group-hover:opacity-100">
             <svg
               viewBox="0 0 100 40"
               preserveAspectRatio="none"
               className="h-full w-full overflow-visible"
             >
-              <defs>
-                <linearGradient id="hgSparkFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="0%"
-                    stopColor={isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"}
-                    stopOpacity="0.25"
+              {hasData && line ? (
+                <>
+                  <defs>
+                    <linearGradient id="hgSparkFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0%"
+                        stopColor={
+                          isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"
+                        }
+                        stopOpacity="0.25"
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor={
+                          isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"
+                        }
+                        stopOpacity="0"
+                      />
+                    </linearGradient>
+                  </defs>
+                  <path d={area} fill="url(#hgSparkFill)" />
+                  <path
+                    d={line}
+                    fill="none"
+                    stroke={isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
-                  <stop
-                    offset="100%"
-                    stopColor={isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"}
-                    stopOpacity="0"
-                  />
-                </linearGradient>
-              </defs>
-              <path
-                d="M0 32 Q 15 30 25 22 T 45 24 T 65 10 T 100 14 V 40 H 0 Z"
-                fill="url(#hgSparkFill)"
-              />
-              <path
-                d="M0 32 Q 15 30 25 22 T 45 24 T 65 10 T 100 14"
-                fill="none"
-                stroke={isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+                </>
+              ) : (
+                <line
+                  x1="0"
+                  y1="20"
+                  x2="100"
+                  y2="20"
+                  stroke="hsl(var(--muted-foreground))"
+                  strokeWidth="1.5"
+                  strokeDasharray="3 3"
+                  opacity="0.5"
+                />
+              )}
             </svg>
           </div>
         </div>
@@ -161,7 +205,7 @@ export const HomeGreeting = ({ onSignIn, todayPnLPercent = "+1.9%" }: HomeGreeti
       )}
 
       {/* Soft accent glow */}
-      {isAuthed && (
+      {isAuthed && hasData && (
         <div
           aria-hidden
           className={cn(
