@@ -71,7 +71,6 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
   };
 
   const isProfit = pnlPercent >= 0;
-  const TrendIcon = isProfit ? TrendingUp : TrendingDown;
   const pnlDisplay = `${isProfit ? "+" : "-"}${Math.abs(pnlPercent).toFixed(1)}%`;
   const { line, area } = buildSparkPaths(points);
 
