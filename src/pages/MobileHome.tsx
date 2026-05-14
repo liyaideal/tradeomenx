@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
-import { HomeStatusStrip } from "@/components/home/HomeStatusStrip";
 import { HomeGreeting } from "@/components/home/HomeGreeting";
 import { HomeSearchBar } from "@/components/home/HomeSearchBar";
 import { HomeTournamentsRail } from "@/components/home/HomeTournamentsRail";
@@ -86,12 +85,6 @@ const MobileHome = () => {
           <HomeSearchBar />
         </div>
 
-        {/* === Authed: slim equity strip === */}
-        {isAuthed && (
-          <div className="mt-3">
-            <HomeStatusStrip onLogin={() => setAuthOpen(true)} />
-          </div>
-        )}
 
         {/* === Authed w/ positions: top alert above tournaments === */}
         {isAuthed && hasPosition && topPosition && (
