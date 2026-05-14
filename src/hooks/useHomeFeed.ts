@@ -49,7 +49,8 @@ export function useHomeFeed(): UseHomeFeedReturn {
   const { events, isLoading: eventsLoading } = useActiveEvents();
   const { positions } = usePositions();
   const { watchlist } = useWatchlist();
-  const { pendingAirdrops } = useAirdropPositionsSafe();
+  const { airdrops } = useAirdropPositions();
+  const pendingAirdrops = airdrops.filter((a) => a.status === "pending").length;
 
   const isLoading = eventsLoading || (isAuthed && activationLoading);
 
