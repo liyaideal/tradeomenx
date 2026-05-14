@@ -60,7 +60,10 @@ const MobileHome = () => {
 
       <main className="px-4 pt-4 pb-2">
         <HomeStatusStrip onLogin={() => setAuthOpen(true)} />
-        <div className="mt-4">
+        <div className="mt-3">
+          <CampaignBannerCarousel variant="mobile" />
+        </div>
+        <div className="mt-3">
           <HomeFeed />
         </div>
       </main>
