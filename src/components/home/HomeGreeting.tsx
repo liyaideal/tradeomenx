@@ -125,24 +125,31 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
             <div className="mt-1.5 font-mono text-[34px] font-bold leading-none tracking-tight text-foreground">
               {formatBalance(profile?.balance)}
             </div>
-            <div className="mt-2.5 flex items-center gap-2">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1 font-mono text-sm font-bold tabular-nums",
-                  hasData
-                    ? isProfit
-                      ? "text-trading-green"
-                      : "text-trading-red"
-                    : "text-muted-foreground",
-                )}
-              >
-                {hasData && <TrendIcon className="h-3 w-3" strokeWidth={2.75} />}
-                {hasData ? pnlDisplay : "0.0%"}
-              </span>
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                7D
-              </span>
-            </div>
+            {hasData ? (
+              <div className="mt-2.5 flex items-center gap-2">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 font-mono text-sm font-bold tabular-nums",
+                    isProfit ? "text-trading-green" : "text-trading-red",
+                  )}
+                >
+                  <TrendIcon className="h-3 w-3" strokeWidth={2.75} />
+                  {pnlDisplay}
+                </span>
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  7D
+                </span>
+              </div>
+            ) : (
+              <div className="mt-2.5 flex items-center gap-1.5">
+                <span className="font-sans text-[12px] font-medium text-muted-foreground">
+                  No 7D activity —
+                </span>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
+                  Tap deposit to start
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Sparkline (7D) */}
