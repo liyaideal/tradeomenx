@@ -12,6 +12,8 @@ interface MarketCardBProps {
   isWatched: boolean;
   onToggleWatch: (e?: React.MouseEvent) => void;
   chgTimeframe?: ChgTimeframe;
+  /** Render with transparent surface (no gradient bg, no category image, no border). */
+  noBackground?: boolean;
 }
 
 const formatUSD = (val: number): string => {
@@ -35,7 +37,7 @@ const TF_LABELS: Record<ChgTimeframe, string> = {
   "24h": "24H CHG",
 };
 
-export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "24h" }: MarketCardBProps) => {
+export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "24h", noBackground = false }: MarketCardBProps) => {
   const navigate = useNavigate();
   const catStyle = CATEGORY_STYLES[market.categoryLabel as CategoryType] || CATEGORY_STYLES.General;
   const hasMultipleMarkets = market.children.length > 0;
@@ -45,14 +47,21 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
 
   return (
     <div
-      className="group relative rounded-xl border border-border/40 p-3 cursor-pointer transition-all hover:border-primary/40 overflow-hidden"
-      style={{
-        background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
-      }}
+      className={cn(
+        "group relative rounded-xl p-3 cursor-pointer transition-all overflow-hidden",
+        noBackground
+          ? "border border-transparent hover:border-primary/40"
+          : "border border-border/40 hover:border-primary/40",
+      )}
+      style={
+        noBackground
+          ? undefined
+          : { background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)" }
+      }
       onClick={() => navigate(`/trade?event=${market.eventId}`)}
     >
       {/* Category background image */}
-      {cardBg && (
+      {!noBackground && cardBg && (
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
             src={cardBg}

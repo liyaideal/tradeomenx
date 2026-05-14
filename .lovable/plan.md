@@ -1,39 +1,43 @@
-## Consolidate Position + Onboarding into single PersonalSlot
+## Align Home Top Events with /events cards (single source of truth)
 
-Replace the two independent blocks in `MobileHome` with one slot that picks the right card based on user state.
+Replace the bespoke `HomeMatchCard` with `MarketCardB` (the same card `/events` grid view uses), and add a lightweight `noBackground` prop so Home can render it without the gradient surface + category background image.
 
-### New file: `src/components/home/PersonalSlot.tsx`
+### 1. `MarketCardB.tsx` — add `noBackground` prop
 
-Renders exactly one card (or nothing):
-
-```text
-guest                        → null (TrialCallout handles guest CTA)
-S0_NEW / S1_DEPOSITED        → <OnboardingCard />     (activation first)
-activated + hasPosition      → <PositionAlertCard />  (daily re-entry)
-activated + no position      → null
-loading                      → null
+```ts
+interface MarketCardBProps {
+  market: EventRow;
+  isWatched: boolean;
+  onToggleWatch: (e?: React.MouseEvent) => void;
+  chgTimeframe?: ChgTimeframe;
+  noBackground?: boolean;  // ← new
+}
 ```
 
-Priority: **Onboarding > PositionAlert**. Reasoning: an un-activated user with a stray demo/airdrop position should still see the deposit/first-trade nudge; once `S2_TRADED` / `S3_ACTIVE`, the position alert becomes the main personal signal.
+Behavior when `noBackground` is true:
+- Skip the inline `style={{ background: linear-gradient(...) }}` on the root.
+- Skip the absolute-positioned category `<img>` overlay block (lines 55–65).
+- Drop the outer `border` (border-border/40) → `border-transparent`, keeping rounded corners + padding.
+- Everything else (header, title, outcome mini-table, footer Vol row) stays identical, so `/events` and Home render the same content/layout.
 
-Props: none. Internally uses `useAuth`, `useActivationState`, `usePositions` (same top-position selection logic currently in `MobileHome`).
+Default `noBackground={false}` → `/events` rendering is unchanged. This keeps the constraint that A/B/C card files don't modify each other (we're only extending B itself).
 
-### `src/pages/MobileHome.tsx`
+### 2. `HomeTopEvents.tsx` — swap card
 
-- Remove the two conditional blocks (`PositionAlertCard` after search, `OnboardingCard` after Campaign rail).
-- Remove now-unused imports + the `topPosition` / `hasPosition` derivation (moves into `PersonalSlot`).
-- Insert `<PersonalSlot />` once, in a single `mt-3` slot between `HomeSearchBar` and `HomeCampaignRail`.
+- Replace `import { HomeMatchCard } from "./HomeMatchCard"` with `import { MarketCardB } from "@/components/events/MarketCardB"`.
+- In the list render, swap `<HomeMatchCard … />` for `<MarketCardB market={m} isWatched={…} onToggleWatch={…} noBackground />`.
+- Skeleton placeholder height stays the same.
 
-New section order:
-```text
-Greeting → Search → PersonalSlot → Campaign rail → TopEvents
-```
+### 3. Delete `src/components/home/HomeMatchCard.tsx`
 
-### Untouched
+No other importers (verify: `rg "HomeMatchCard"` shows only `HomeTopEvents.tsx`).
 
-- `OnboardingCard.tsx`, `PositionAlertCard.tsx` keep their own visibility guards (safe defense-in-depth, still reusable elsewhere).
-- No data/hook/business-logic changes.
+### 4. Memory
 
-### Memory
+Update `mem://constraint/card-style-isolation` (or create if missing) to clarify: Home v3 reuses `MarketCardB` via `noBackground` prop instead of maintaining a D-class card. The "no cross-modification" rule still applies between A/B/C files themselves.
 
-Update `mem://features/home-page-purpose` to note: personal slot is single-card, onboarding-priority.
+### Out of scope
+
+- No change to `/events` page, `MarketGridView`, `MarketListView`, `HotShelf`.
+- No change to data/hooks (`useMarketListData`, `useActiveEvents`).
+- LIVE toggle, category chips, "Browse all markets" CTA in `HomeTopEvents` stay as-is.
