@@ -1,23 +1,48 @@
-# Fix "No 7D activity" wrapping in authed empty state
+## 问题
 
-## Problem
+`MarketCardB`（events 卡片）的 outcome 表格根据 `children` 数量渲染 1–3 行，导致 desktop 多列网格中卡片高度参差不齐。Mobile 是单列竖排，高度不一致没有视觉影响，所以无需处理。
 
-In the authed-but-no-data branch, the row uses `flex items-end justify-between gap-3` with a left text column and a right `h-12 w-24` sparkline. When there's no 7D data, the sparkline only renders a dashed placeholder line — visually meaningless — but it still takes a fixed 96px of width. The remaining space on a 390px mobile card forces the message "No 7D activity — Tap deposit to start" (rendered as two adjacent spans, no `whitespace-nowrap`) to wrap into 3 lines, which is what the screenshot shows.
+## 方案：用占位行补齐到 3 行（仅 desktop）
 
-## Fix
+在 `src/components/events/MarketCardB.tsx` 的 outcome 表格里，渲染完真实的 `children.slice(0, 3)` 后，再补齐 `3 - shown` 个**占位行**，使表格在 desktop 上始终占 3 行高度。
 
-Treat the empty state differently from the data state — collapse the placeholder sparkline so the line fits.
+- 占位行使用 `hidden md:flex`，仅在 desktop 生效；mobile 仍按真实行数渲染，不浪费纵向空间。
+- 占位行内容用 `invisible` 的同尺寸字符（如 `&nbsp;`），保证行高与真实行完全一致（`text-[11px]` 行 + `font-mono` 数值），不引入新尺寸假设。
+- 保持现有 padding、间距、`space-y-0.5`、`24H Chg` 表头、底部 `Vol / +N more markets` 不变。
 
-1. `src/components/home/HomeGreeting.tsx` (authed branch, lines ~140–224)
-   - Render the sparkline `<div className="relative h-12 w-24 …">` only when `hasData && line` is true. Drop the dashed placeholder block entirely; it carries no information.
-   - In the no-data inline message (lines 163–170), make it a single `<p>` with `whitespace-nowrap` so the two parts can never wrap. Slightly tighten copy to "No 7D activity · Tap Deposit to start" (single line, mid-dot separator) and use the existing tokens (`text-muted-foreground` for the prefix, `text-primary` for the CTA fragment).
+```text
+desktop（3 列对齐）
+┌── card ─────────────┐ ┌── card ─────────────┐
+│ ★ Politics  Dec 31  │ │ ★ Sports     Jul 20 │
+│ Title…              │ │ Title…              │
+│ ┌ outcomes (3 rows)┐│ │ ┌ outcomes (3 rows)┐│
+│ │ Yes      +1.20%  ││ │ │ England   -0.52% ││
+│ │ No       -0.40%  ││ │ │ Spain     +0.00% ││
+│ │ ░░ placeholder ░░ ││ │ │ France    +0.00% ││ ← 真实第三行
+│ └──────────────────┘│ │ └──────────────────┘│
+│ Vol: $2.2M          │ │ Vol: $1.7M          │
+└─────────────────────┘ └─────────────────────┘
+```
 
-2. `src/pages/StyleGuide/sections/MobileHomeSection.tsx` (authed replica, lines ~141–204)
-   - Mirror the same change in the static replica so the playground previews match production for the "Authed · no 7D data" toggle.
+## 范围
 
-Net effect: in the empty state the balance keeps full width, the CTA hint sits on a single line directly under the equity number, and the dashed placeholder graphic disappears. The data state is unchanged.
+- **只改** `src/components/events/MarketCardB.tsx` 的 children > 0 分支
+- 不动 children === 0 的"单一百分比"分支（用户没提到，且形态不同；如需要后续单独讨论）
+- 不动 mobile 行为、不动数据/排序/路由/筛选逻辑
+- 不引入新文件、不改 design tokens
 
-## Out of scope
+## 技术细节
 
-- Guest branch and the data-present authed branch are untouched.
-- No copy or layout changes elsewhere in HomeGreeting.
+```tsx
+{market.children.slice(0, 3).map((child) => (
+  /* …existing real row… */
+))}
+{Array.from({ length: Math.max(0, 3 - Math.min(market.children.length, 3)) }).map((_, i) => (
+  <div key={`ph-${i}`} className="hidden md:flex items-center justify-between" aria-hidden>
+    <span className="text-[11px] invisible">&nbsp;</span>
+    <span className="text-[11px] font-mono font-semibold tabular-nums invisible">+0.00%</span>
+  </div>
+))}
+```
+
+这样 desktop 上 1/2/3 行的卡片底部对齐一致，mobile 不变。
