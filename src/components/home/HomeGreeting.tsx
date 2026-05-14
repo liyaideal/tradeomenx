@@ -160,68 +160,55 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
                   </span>
                 </div>
               ) : (
-                <div className="mt-2.5 flex items-center gap-1.5">
+                <p className="mt-2.5 whitespace-nowrap">
                   <span className="font-sans text-[12px] font-medium text-muted-foreground">
-                    No 7D activity —
+                    No 7D activity ·{" "}
                   </span>
                   <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-                    Tap deposit to start
+                    Tap Deposit to start
                   </span>
-                </div>
+                </p>
               )}
             </div>
 
-            {/* Sparkline (7D) */}
-            <div className="relative h-12 w-24 shrink-0 opacity-70 transition-opacity group-hover:opacity-100">
-              <svg
-                viewBox="0 0 100 40"
-                preserveAspectRatio="none"
-                className="h-full w-full overflow-visible"
-              >
-                {hasData && line ? (
-                  <>
-                    <defs>
-                      <linearGradient id="hgSparkFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop
-                          offset="0%"
-                          stopColor={
-                            isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"
-                          }
-                          stopOpacity="0.25"
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor={
-                            isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"
-                          }
-                          stopOpacity="0"
-                        />
-                      </linearGradient>
-                    </defs>
-                    <path d={area} fill="url(#hgSparkFill)" />
-                    <path
-                      d={line}
-                      fill="none"
-                      stroke={isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"}
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </>
-                ) : (
-                  <line
-                    x1="0"
-                    y1="20"
-                    x2="100"
-                    y2="20"
-                    stroke="hsl(var(--muted-foreground))"
-                    strokeWidth="1.5"
-                    strokeDasharray="3 3"
-                    opacity="0.5"
+            {/* Sparkline (7D) — only when we actually have data */}
+            {hasData && line && (
+              <div className="relative h-12 w-24 shrink-0 opacity-70 transition-opacity group-hover:opacity-100">
+                <svg
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  className="h-full w-full overflow-visible"
+                >
+                  <defs>
+                    <linearGradient id="hgSparkFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0%"
+                        stopColor={
+                          isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"
+                        }
+                        stopOpacity="0.25"
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor={
+                          isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"
+                        }
+                        stopOpacity="0"
+                      />
+                    </linearGradient>
+                  </defs>
+                  <path d={area} fill="url(#hgSparkFill)" />
+                  <path
+                    d={line}
+                    fill="none"
+                    stroke={isProfit ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))"}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
-                )}
-              </svg>
-            </div>
+                </svg>
+              </div>
+            )}
           </div>
         </>
       ) : (
