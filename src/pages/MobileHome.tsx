@@ -12,12 +12,30 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
+import { usePositions } from "@/hooks/usePositions";
 import { HomeStatusStrip } from "@/components/home/HomeStatusStrip";
-import { HomeFeed } from "@/components/home/HomeFeed";
-import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
+import { LiveStatsStrip } from "@/components/home/LiveStatsStrip";
+import { HomeMarketsSections } from "@/components/home/HomeMarketsSections";
+import { TrialCallout } from "@/components/home/TrialCallout";
+import { OnboardingCard } from "@/components/home/feed/cards/OnboardingCard";
+import { PositionAlertCard } from "@/components/home/feed/cards/PositionAlertCard";
 
 const MobileHome = () => {
   const [authOpen, setAuthOpen] = useState(false);
+  const { user } = useAuth();
+  const { positions } = usePositions();
+
+  const isAuthed = !!user;
+  const hasPosition = positions.length > 0;
+  // Show top non-airdrop position with the largest |pnl%|
+  const topPosition = [...positions]
+    .filter((p) => !p.isAirdrop)
+    .sort((a, b) => {
+      const pa = Math.abs(parseFloat(a.pnlPercent.replace(/[^\d.\-]/g, ""))) || 0;
+      const pb = Math.abs(parseFloat(b.pnlPercent.replace(/[^\d.\-]/g, ""))) || 0;
+      return pb - pa;
+    })[0];
 
   const headerActions = (
     <div className="flex items-center gap-1">
@@ -59,12 +77,40 @@ const MobileHome = () => {
       <MobileHeader showLogo showBack={false} rightContent={headerActions} />
 
       <main className="px-4 pt-4 pb-2">
-        <HomeStatusStrip onLogin={() => setAuthOpen(true)} />
-        <div className="mt-3">
-          <CampaignBannerCarousel variant="mobile" />
-        </div>
-        <div className="mt-3">
-          <HomeFeed />
+        {/* === Top status === */}
+        {isAuthed ? (
+          <>
+            <HomeStatusStrip onLogin={() => setAuthOpen(true)} />
+            <div className="mt-2.5">
+              <LiveStatsStrip />
+            </div>
+          </>
+        ) : (
+          <LiveStatsStrip />
+        )}
+
+        {/* === Personal callouts (authed only) === */}
+        {isAuthed && (
+          <div className="mt-3 space-y-2.5">
+            <OnboardingCard />
+            {hasPosition && topPosition && (
+              <PositionAlertCard positionId={topPosition.id} />
+            )}
+          </div>
+        )}
+
+        {/* === Markets === */}
+        <div className="mt-4">
+          <HomeMarketsSections
+            topTitle={
+              isAuthed && !hasPosition
+                ? "Pick your first prediction"
+                : "Most traded today"
+            }
+            interlude={
+              !isAuthed ? <TrialCallout onSignIn={() => setAuthOpen(true)} /> : undefined
+            }
+          />
         </div>
       </main>
 
