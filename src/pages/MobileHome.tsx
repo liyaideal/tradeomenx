@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { HomeStatusStrip } from "@/components/home/HomeStatusStrip";
 import { HomeFeed } from "@/components/home/HomeFeed";
+import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
 
 const MobileHome = () => {
   const [authOpen, setAuthOpen] = useState(false);
