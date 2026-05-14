@@ -103,7 +103,6 @@ export const HomeTopEvents = ({ interlude, title = "Top Events" }: HomeTopEvents
                   market={m}
                   isWatched={isWatched(m.eventId)}
                   onToggleWatch={(e) => toggle(m.eventId, e)}
-                  noBackground
                 />
               </div>
             </div>

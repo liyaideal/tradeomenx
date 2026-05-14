@@ -15,7 +15,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
 import { HomeGreeting } from "@/components/home/HomeGreeting";
-import { HomeSearchBar } from "@/components/home/HomeSearchBar";
+
 import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
 import { HomeTopEvents } from "@/components/home/HomeTopEvents";
 import { TrialCallout } from "@/components/home/TrialCallout";
@@ -71,11 +71,6 @@ const MobileHome = () => {
       <main className="px-4 pt-3 pb-2">
         {/* === Greeting + plus === */}
         <HomeGreeting onSignIn={() => setAuthOpen(true)} />
-
-        {/* === Search === */}
-        <div className="mt-3">
-          <HomeSearchBar />
-        </div>
 
 
         {/* === Personal slot: onboarding OR position alert (single card) === */}
