@@ -1,43 +1,70 @@
-## Align Home Top Events with /events cards (single source of truth)
+## Reuse /events Hot logic in Home Top Events
 
-Replace the bespoke `HomeMatchCard` with `MarketCardB` (the same card `/events` grid view uses), and add a lightweight `noBackground` prop so Home can render it without the gradient surface + category background image.
+Extract the bucket classification used by `HotShelf` into a shared hook, then rebuild `HomeTopEvents` as a 3-chip filter (`All` / `Trending` / `Closing Soon`) backed by that same hook. No more duplicated filtering logic.
 
-### 1. `MarketCardB.tsx` — add `noBackground` prop
+### 1. New hook: `src/hooks/useHotMarkets.ts`
+
+Single source of truth, lifted verbatim from `HotShelf.tsx` (lines 55–79). Extends with an "all" view so Home can reuse it.
 
 ```ts
-interface MarketCardBProps {
-  market: EventRow;
-  isWatched: boolean;
-  onToggleWatch: (e?: React.MouseEvent) => void;
-  chgTimeframe?: ChgTimeframe;
-  noBackground?: boolean;  // ← new
+export type HotBucket = "all" | "trending" | "closingSoon";
+
+export function useHotMarkets(markets: EventRow[]) {
+  return useMemo(() => {
+    const now = Date.now();
+    const h48 = 48 * 3600000;
+
+    const justLaunched = markets.filter(
+      (m) => now - new Date(m.createdAt).getTime() <= h48,
+    );
+    const closingSoon = markets
+      .filter((m) => m.expiry && m.expiry.getTime() - now <= h48 && m.expiry.getTime() > now)
+      .sort((a, b) => b.openInterest - a.openInterest);
+
+    const launchedIds = new Set(justLaunched.map((m) => m.id));
+    const closingIds = new Set(closingSoon.map((m) => m.id));
+
+    const trending = markets
+      .filter(
+        (m) => !launchedIds.has(m.id) && !closingIds.has(m.id) && m.volume24h > 10_000,
+      )
+      .sort((a, b) => b.volume24h - a.volume24h);
+
+    const all = [...markets].sort((a, b) => b.volume24h - a.volume24h);
+
+    return { all, trending, closingSoon, justLaunched };
+  }, [markets]);
 }
 ```
 
-Behavior when `noBackground` is true:
-- Skip the inline `style={{ background: linear-gradient(...) }}` on the root.
-- Skip the absolute-positioned category `<img>` overlay block (lines 55–65).
-- Drop the outer `border` (border-border/40) → `border-transparent`, keeping rounded corners + padding.
-- Everything else (header, title, outcome mini-table, footer Vol row) stays identical, so `/events` and Home render the same content/layout.
+### 2. Refactor `HotShelf.tsx`
 
-Default `noBackground={false}` → `/events` rendering is unchanged. This keeps the constraint that A/B/C card files don't modify each other (we're only extending B itself).
+Replace the inline `useMemo` block with `const { trending, justLaunched, closingSoon } = useHotMarkets(markets)`. Apply existing slice limits at the call site (`.slice(0, 5)` for trending, `.slice(0, 3)` for the others). No visual change to `/events` Hot tab.
 
-### 2. `HomeTopEvents.tsx` — swap card
+### 3. Rewrite `HomeTopEvents.tsx`
 
-- Replace `import { HomeMatchCard } from "./HomeMatchCard"` with `import { MarketCardB } from "@/components/events/MarketCardB"`.
-- In the list render, swap `<HomeMatchCard … />` for `<MarketCardB market={m} isWatched={…} onToggleWatch={…} noBackground />`.
-- Skeleton placeholder height stays the same.
+Replace the current LIVE toggle + category chips + custom filter logic with:
 
-### 3. Delete `src/components/home/HomeMatchCard.tsx`
+- **3-chip filter row** (single-select, default `All`):
+  - `All` → `useHotMarkets(rows).all.slice(0, 8)`
+  - `Trending` → `.trending.slice(0, 8)`
+  - `Closing Soon` → `.closingSoon.slice(0, 8)`
+- Empty state: "No markets in this view" + "Reset to All" button.
+- Keep:
+  - Section header `Top Events` (no LIVE switch).
+  - `MarketCardB noBackground` card render (already aligned with /events).
+  - `interlude` slot between cards 2 and 3.
+  - "Browse all markets" CTA → `/events`.
+- Remove: `CATEGORY_STYLES` import, category chip generation, `liveOnly` state, `activeChip` per-category state.
 
-No other importers (verify: `rg "HomeMatchCard"` shows only `HomeTopEvents.tsx`).
+Chip styling: same pill style currently used for category chips (rounded-full border + active = `bg-foreground text-background`).
 
-### 4. Memory
+### 4. No other changes
 
-Update `mem://constraint/card-style-isolation` (or create if missing) to clarify: Home v3 reuses `MarketCardB` via `noBackground` prop instead of maintaining a D-class card. The "no cross-modification" rule still applies between A/B/C files themselves.
+- `MarketCardB`, `MarketGridView`, `MarketListView`, `EventsPage` untouched.
+- `useMarketListData`, `useActiveEvents` untouched.
 
 ### Out of scope
 
-- No change to `/events` page, `MarketGridView`, `MarketListView`, `HotShelf`.
-- No change to data/hooks (`useMarketListData`, `useActiveEvents`).
-- LIVE toggle, category chips, "Browse all markets" CTA in `HomeTopEvents` stay as-is.
+- Wiring Home chips to URL state.
+- Adding `Just Launched` to Home (user explicitly listed only 3 options).
