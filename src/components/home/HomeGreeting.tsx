@@ -1,4 +1,4 @@
-import { ArrowRight, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
