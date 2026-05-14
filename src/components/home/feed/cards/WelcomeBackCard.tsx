@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { FeedCard } from "@/components/home/feed/FeedCard";
+import { useUnreadFlag } from "@/lib/feedUnread";
 
 interface WelcomeBackCardProps {
   /** Days since last visit, for the sub line. */
@@ -14,13 +15,20 @@ interface WelcomeBackCardProps {
  */
 export const WelcomeBackCard = ({ daysAway = 9, compact }: WelcomeBackCardProps) => {
   const navigate = useNavigate();
+  const today = new Date().toISOString().slice(0, 10);
+  const { unread, markRead } = useUnreadFlag(`welcomeBack:${today}`);
+
   return (
     <FeedCard
       tag="Welcome back"
       tier={1}
       accent="primary"
       compact={compact}
-      onClick={() => navigate("/events")}
+      unread={unread}
+      onClick={() => {
+        markRead();
+        navigate("/events");
+      }}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">

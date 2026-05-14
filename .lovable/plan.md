@@ -1,152 +1,106 @@
-# Step 2 — 视觉层级 + 剩余卡片 + 排序逻辑
+## Step 3 — Feed 视觉打磨
 
-把 Home Feed 从"骨架"升级为有节奏的信息流：3 层视觉权重、同类降级规则、补全卡片类型、用 `useHomeFeed` 统一排序。
+聚焦 4 个微交互层面的提升，全部为前端展示层改动，不动数据/排序逻辑。
 
-## 1. 视觉层级（3 层）
+---
 
-所有卡共享 `FeedCard` 壳（rounded-2xl + border-border/40 + bg-card），只在 4 个维度上做层级差异：**左侧 accent bar / padding / 字号 / 颜色强调**。
+### 1. Tier-1 左侧强调色「呼吸」效果
 
-### Tier 1 · 个人信号（最强）
-谁：`PositionAlertCard`、`WelcomeBackCard`、`OnboardingCard`
-- 左侧 2px accent bar：positive=trading-green / negative=trading-red / neutral=primary
-- `p-4`，主文 `text-sm font-semibold`，关键数字 `text-base font-mono font-semibold`
-- PnL 直接用 trading-green / trading-red 着色
-- 同时最多 1 张 Tier 1 卡可视；多张时按"未读 > 时间"留 1 张
+**位置**：`src/components/home/feed/FeedCard.tsx` 中 `showAccentBar` 渲染的 `<span>`。
 
-### Tier 2 · 机会信号（中）
-谁：`SettlingSoonCard`、`WatchlistMoveCard`、`AirdropOpportunityCard`
-- 无 accent bar；tag 右侧 meta 用 trading-yellow（倒计时 / 涨跌幅）
-- `p-4`，主文 `text-sm font-medium`，数字 `font-mono font-semibold`
-- 只在 meta 一处用强色，正文仍是 foreground
+- 在 `tailwind.config.ts` `keyframes` 新增 `accent-breathe`：
+  ```
+  "0%,100%": { opacity: "1", boxShadow: "0 0 0 0 hsl(var(--primary)/0)" }
+  "50%":     { opacity: ".7", boxShadow: "0 0 6px 0 hsl(var(--primary)/.45)" }
+  ```
+- `animation` 新增 `accent-breathe: accent-breathe 2.4s ease-in-out infinite`
+- accent bar 加 class：`animate-accent-breathe`
+- 颜色根据 `accent` 走 currentColor / 已有 bg-* 即可（box-shadow 用 CSS var 即可，对 green/red/yellow 可在 FeedCard 内通过内联 style 注入对应 hsl 变量，避免动态 class 拼接）
 
-### Tier 3 · 浏览信号（最弱）
-谁：`TrendingCard`、`NewListingCard`、`LearnCard`
-- 更紧凑：`p-3.5`，主文 `text-[13px]` 不加粗
-- 数字降级为 `text-foreground/80`，无强调色
-- tag 仍保留，便于扫读
+仅在 tier 1 + 非 compact 时启用；遵循 `prefers-reduced-motion`（Tailwind `motion-reduce:animate-none`）。
 
-### 同类降级规则
-同一 tier 同一 type 连续出现：第 2 张起切到 `FeedCard` 的 `compact` 变体——
-- 去掉 tag 行
-- `p-3`
-- 上边距收紧（feed 用 `space-y-1.5` 包一组连续同类，组间 `space-y-2.5`）
+---
 
-`FeedCard` 新增 props：
-```ts
-tier?: 1 | 2 | 3;          // 默认 3
-accent?: "primary" | "green" | "red" | "yellow" | "none";
-compact?: boolean;         // 同类第 2 张起为 true
-```
+### 2. Tier-1 未读红点
 
-## 2. 剩余卡片类型
+**新增逻辑**：标记某张 tier-1 卡片是否「未读」。
 
-**`PositionAlertCard`**（Tier 1）— 用 `usePositions` + `useRealtimePositionsPnL`
-- 触发：单仓 `|pnlPercent| ≥ 10%` 或接近清算（margin ratio）
-- 内容：`{event} · {option}` + 大号 PnL（绿/红） + "View position →"
-- 跳转：`/portfolio?position={id}`
+- `FeedCard` 新增 prop：`unread?: boolean`（默认 false）。
+- 渲染：tag 行右侧（meta 之前）插入 2px 圆形红点 `bg-trading-red`，带轻微 `animate-pulse`。
+- compact 模式不显示（无 tag 行）。
+- 由各 tier-1 卡片自行决定：
+  - `PositionAlertCard`：用 localStorage key `seen:positionAlert:{positionId}:{pnlBucket}` 判定（pnlBucket = `Math.round(pnl%/5)`，PnL 跨 5% 档变化即重新标红）。点击卡片后 `setItem` 标记已读。
+  - `WelcomeBackCard`：localStorage `seen:welcomeBack:{date}`，每天首次显示标红。
+  - `OnboardingCard`：始终未读（用户没完成 onboarding）。
 
-**`SettlingSoonCard`**（Tier 2）— 用 `useActiveEvents`
-- 触发：`end_date` 在 24h 内的 event
-- meta：倒计时 `Ends in 3h 12m`（trading-yellow）
-- 内容：event name + 顶部 option 当前价
+放一个轻量 helper：`src/lib/feedUnread.ts`，导出 `useUnreadFlag(key: string)` → `{ unread, markRead }`。
 
-**`WatchlistMoveCard`**（Tier 2）— 用 `useWatchlist` + `useRealtimePrices`
-- 触发：watchlist 中的 event 24h 涨跌幅 ≥ 5%
-- meta：`+8.4%`（trading-green/red）
-- 内容：event name + before → now 价格
+---
 
-**`AirdropOpportunityCard`**（Tier 2）— 用 `useAirdropPositions` + `useH2eRewardsSummary`
-- 触发：authed 用户存在未激活的 airdrop 机会
-- 内容：`Free $X position available` + "Claim →"
-- 跳转：`/portfolio/airdrops`
+### 3. Sparkline 价格缩略图
 
-**`NewListingCard`**（Tier 3）— 用 `useActiveEvents`
-- 触发：`created_at` 在 48h 内
-- 内容：event name + "New" badge（小）+ 顶部 option 价
+**位置**：`TrendingCard`、`WatchlistMoveCard`、`SettlingSoonCard`，渲染在右侧或第二行。
 
-**`LearnCard`**（Tier 3）— 静态轮换
-- 触发：S0_NEW / S1_DEPOSITED 或 guest，用作 feed 末尾"填充 + 教育"
-- 池：3-5 条预设（"What's a prediction market?" / "How leverage works" / "Read the glossary →"）
-- 跳转：`/glossary`、`/about` 等
+- 新建 `src/components/home/feed/Sparkline.tsx`：纯 SVG（48×16），接受 `prices: number[]`，最少 2 个点。自动拟合 min/max。
+  - 描边色由 prop `tone: "up" | "down" | "neutral"` 决定，分别对应 `text-trading-green / red / muted-foreground`。
+  - 末端加 1.5px 圆点（同色，highlight 当前价）。
+  - `strokeWidth=1.25`、无填充、`vector-effect="non-scaling-stroke"`。
+- 数据源：复用现有 `usePriceHistory(optionIds)`（`src/hooks/usePriceHistory.ts`）。
+  - 在卡片组件内调用 `usePriceHistory([topOption.id])`，取末段 30 个点降采样到 12 个。
+  - `tone` 由首末点比较得出。
+- 布局：
+  - `TrendingCard`：tier 3 时不显示（保持极简）；tier 2 提升时显示。
+  - `WatchlistMoveCard`：必显，放在事件名右侧（flex 容器）。
+  - `SettlingSoonCard`：放在倒计时下方第二行末尾。
+- 加载/无数据：渲染 16px 高占位 `<div className="h-4 w-12 rounded bg-muted/30" />`，避免高度跳动。
 
-> 不在 Step 2 范围：`OrderFilledCard` / `RewardsClaimedCard`（待通知系统接入后再做）。
+性能：每张卡只查 1 个 option，按需 hook（不在 useHomeFeed 里集中查），以减小首屏阻塞。
 
-## 3. `useHomeFeed` 排序逻辑
+---
 
-新建 `src/hooks/useHomeFeed.ts`，输出：
-```ts
-type FeedItem =
-  | { kind: "onboarding" }
-  | { kind: "welcomeBack" }
-  | { kind: "positionAlert"; positionId: string; severity: number }
-  | { kind: "settlingSoon"; eventId: string; secondsLeft: number }
-  | { kind: "watchlistMove"; eventId: string; absChange: number }
-  | { kind: "airdropOpportunity" }
-  | { kind: "trending"; eventId: string; volume: number }
-  | { kind: "newListing"; eventId: string; createdAt: string }
-  | { kind: "learn"; topicId: string };
+### 4. 卡片微动画 / 按压反馈
 
-function useHomeFeed(): { items: FeedItem[]; isLoading: boolean }
-```
+**位置**：`FeedCard.tsx` 根元素。
 
-### 优先级评分
-每个候选 item 算一个 score，降序排：
+- 入场：列表项加 `animate-fade-in`（已有 keyframe）+ stagger。在 `HomeFeed.tsx` 给每张卡片包裹 `style={{ animationDelay: `${Math.min(idx, 8) * 40}ms` }}`、class `animate-fade-in`。
+- 按压（仅 onClick 时）：
+  - 把现有 `active:scale-[0.998]` 升级为 `active:scale-[0.985] active:bg-card-hover`
+  - 加 `transition-[transform,background-color,border-color] duration-150 ease-out`
+  - hover 状态：`hover:border-border/70`（边框轻提亮，比纯背景变化更克制）
+- Tier 1 额外：`hover:shadow-[0_0_0_1px_hsl(var(--primary)/.25)]`，强调可点。
+- 全部遵守 `motion-reduce:transition-none motion-reduce:animate-none`。
 
-| Kind | 基础分 | 加权 |
-|---|---|---|
-| positionAlert | 1000 | + severity × 100（清算风险拉满） |
-| onboarding | 900 | 仅 S0/S1 |
-| welcomeBack | 850 | 仅 S2/S3 且 7 天未访问 |
-| airdropOpportunity | 800 | 有未激活机会 |
-| settlingSoon | 600 | + (24h - secondsLeft/3600) × 10 |
-| watchlistMove | 500 | + absChange × 5 |
-| trending | 200 | + log10(volume) × 10 |
-| newListing | 150 | 48h 内线性衰减 |
-| learn | 50 | 仅当上面凑不够 8 张时填充 |
+---
 
-### 后处理（顺序执行）
-1. **Tier 1 上限**：最多保留 1 张（取分数最高）
-2. **同类降级**：从前往后扫，第 2 张同 kind 起 `compact=true`
-3. **总数**：authed ≤ 12，guest ≤ 8
-4. **强制位**：第 1 张必须是 Tier 1 或 Tier 2（防止首屏全是 trending）；若没有，把分数最高的 settlingSoon/trending 提到顶并标记 `tier=2`
+### 技术细节 / 文件清单
 
-### `HomeFeed.tsx` 改动
-变成纯渲染层：
-```tsx
-const { items } = useHomeFeed();
-return (
-  <div className="space-y-2.5">
-    {items.map(renderItem)}
-  </div>
-);
-```
-按 `kind` 路由到对应 Card 组件。
-
-## 4. 文件改动清单
-
-**新建**
-- `src/components/home/feed/cards/PositionAlertCard.tsx`
-- `src/components/home/feed/cards/SettlingSoonCard.tsx`
-- `src/components/home/feed/cards/WatchlistMoveCard.tsx`
-- `src/components/home/feed/cards/AirdropOpportunityCard.tsx`
-- `src/components/home/feed/cards/NewListingCard.tsx`
-- `src/components/home/feed/cards/LearnCard.tsx`
-- `src/hooks/useHomeFeed.ts`
+**新增**
+- `src/components/home/feed/Sparkline.tsx`
+- `src/lib/feedUnread.ts`
 
 **修改**
-- `src/components/home/feed/FeedCard.tsx` — 新增 `tier` / `accent` / `compact` props
-- `src/components/home/feed/cards/OnboardingCard.tsx` — 改为 `tier={1}`、`accent="primary"`
-- `src/components/home/feed/cards/WelcomeBackCard.tsx` — 改为 `tier={1}`，根据 PnL 选 accent
-- `src/components/home/feed/cards/TrendingCard.tsx` — 改为 `tier={3}`，支持 `compact`
-- `src/components/home/HomeFeed.tsx` — 改为纯渲染 + `useHomeFeed`
+- `tailwind.config.ts` — 加 `accent-breathe` keyframe + animation
+- `src/components/home/feed/FeedCard.tsx` — 新增 `unread` prop、breathe class、按压/hover 微调
+- `src/components/home/HomeFeed.tsx` — 列表项 stagger fade-in
+- `src/components/home/feed/cards/PositionAlertCard.tsx` — 接 useUnreadFlag、点击 markRead
+- `src/components/home/feed/cards/WelcomeBackCard.tsx` — 同上
+- `src/components/home/feed/cards/OnboardingCard.tsx` — `unread` 恒为 true
+- `src/components/home/feed/cards/TrendingCard.tsx` — tier 2 时挂 Sparkline
+- `src/components/home/feed/cards/WatchlistMoveCard.tsx` — 挂 Sparkline
+- `src/components/home/feed/cards/SettlingSoonCard.tsx` — 挂 Sparkline
 
-**新增 memory**
-- `mem://features/home-feed-architecture` — 记录 3 层视觉规范、降级规则、排序公式（Core 加一行简述）
+**不动**
+- `useHomeFeed.ts` 排序/打分逻辑
+- 数据 hook（`usePositions`、`useActiveEvents` 等）
+- 桌面 Home（保持现状，等后续单独对齐）
 
-## 5. 验收
+---
 
-- Authed S1 + 持仓状态：第 1 张应为 PositionAlert（如有 ≥10% 波动），否则 Onboarding
-- Authed S3 沉睡：第 1 张为 WelcomeBack；后跟 SettlingSoon → Trending
-- Guest：无 Tier 1，第 1 张提升为 SettlingSoon 或 Trending（带 tier=2 视觉）
-- 连续 5 张 Trending：第 1 张正常，第 2-5 张为 compact 无 tag
-- 浏览器手动复检：385px / 768px / 1024px 三档 padding 与节奏一致
+### 验收
+
+- Tier-1 卡片左条带可见的呼吸光晕，不刺眼，2.4s 周期
+- Tier-1 首次出现 / 状态变化时右上有 2px 红点，点击后红点消失且刷新后不再出现
+- Trending（tier 2）/ Watching / Settling soon 显示 48×16 sparkline，颜色随趋势变化
+- 列表入场有 40ms 错位淡入
+- 按压时卡片轻微缩放 + 背景变化，hover 边框微亮
+- `prefers-reduced-motion: reduce` 下所有动画停用

@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { FeedCard } from "@/components/home/feed/FeedCard";
+import { Sparkline } from "@/components/home/feed/Sparkline";
+import { usePriceHistory } from "@/hooks/usePriceHistory";
 
 interface SettlingSoonCardProps {
   eventId: string;
@@ -19,7 +21,7 @@ const formatCountdown = (seconds: number) => {
 
 /**
  * Tier 2 opportunity signal — event will settle within 24h.
- * Countdown ticks every 30s.
+ * Countdown ticks every 30s; sparkline shows top option recent action.
  */
 export const SettlingSoonCard = ({ eventId, secondsLeft, compact }: SettlingSoonCardProps) => {
   const navigate = useNavigate();
@@ -33,8 +35,12 @@ export const SettlingSoonCard = ({ eventId, secondsLeft, compact }: SettlingSoon
     return () => window.clearInterval(t);
   }, [secondsLeft]);
 
+  const top = event?.options[0];
+  const optionIds = useMemo(() => (top?.id ? [top.id] : []), [top?.id]);
+  const { priceHistories } = usePriceHistory(optionIds);
+  const sparkPrices = top?.id ? priceHistories.get(top.id) : undefined;
+
   if (!event) return null;
-  const top = event.options[0];
 
   return (
     <FeedCard
@@ -48,12 +54,17 @@ export const SettlingSoonCard = ({ eventId, secondsLeft, compact }: SettlingSoon
         {event.name}
       </p>
       {top && (
-        <p className="mt-1.5 text-[12px] text-muted-foreground">
-          <span className="text-foreground/80">{top.label}</span>{" "}
-          <span className="font-mono font-semibold text-foreground">
-            ${top.price.toFixed(2)}
-          </span>
-        </p>
+        <div className="mt-1.5 flex items-center justify-between gap-3">
+          <p className="text-[12px] text-muted-foreground">
+            <span className="text-foreground/80">{top.label}</span>{" "}
+            <span className="font-mono font-semibold text-foreground">
+              ${top.price.toFixed(2)}
+            </span>
+          </p>
+          {sparkPrices && sparkPrices.length >= 2 && (
+            <Sparkline prices={sparkPrices.slice(-30)} className="flex-shrink-0" />
+          )}
+        </div>
       )}
     </FeedCard>
   );

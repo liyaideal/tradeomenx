@@ -35,6 +35,7 @@ export const OnboardingCard = ({ compact }: OnboardingCardProps) => {
       tier={1}
       accent="primary"
       compact={compact}
+      unread
       onClick={() => navigate(action)}
     >
       <div className="flex items-center justify-between gap-3">

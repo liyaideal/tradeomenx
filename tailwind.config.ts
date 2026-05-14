@@ -148,6 +148,10 @@ export default {
           "0%, 100%": { transform: "translateY(0) rotate(-10deg)" },
           "50%": { transform: "translateY(-12px) rotate(-7deg)" },
         },
+        "accent-breathe": {
+          "0%, 100%": { opacity: "1", boxShadow: "0 0 0 0 hsl(var(--accent-glow, var(--primary)) / 0)" },
+          "50%": { opacity: "0.7", boxShadow: "0 0 6px 0 hsl(var(--accent-glow, var(--primary)) / 0.45)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -160,6 +164,7 @@ export default {
         "confetti-fall": "confetti-fall 3s ease-out forwards",
         "sparkle": "sparkle 1.5s ease-in-out infinite",
         "rocket-lift": "rocket-lift 3.4s ease-in-out infinite",
+        "accent-breathe": "accent-breathe 2.4s ease-in-out infinite",
       },
     },
   },
