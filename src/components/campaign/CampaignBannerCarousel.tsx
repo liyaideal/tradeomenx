@@ -294,10 +294,7 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
                       </div>
                     </div>
 
-                    {/* Right visual slot — only when no bg image */}
-                    {!hasBgImage && banner.visual && (
-                      <div className="hidden min-w-0 sm:block">{banner.visual}</div>
-                    )}
+                    {/* Right visual slot removed — all banners use backgroundImage. */}
                   </div>
                 </button>
               </CarouselItem>
