@@ -132,8 +132,9 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
                     isProfit ? "text-trading-green" : "text-trading-red",
                   )}
                 >
-                  <TrendIcon className="h-3 w-3" strokeWidth={2.75} />
                   {pnlDisplay}
+                </span>
+                <span className="sr-only">change</span>
                 </span>
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   7D
