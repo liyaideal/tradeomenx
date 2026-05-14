@@ -153,6 +153,10 @@ const StyleGuideIndex = () => {
             <DepositWithdrawSection isMobile={isMobile} />
           </TabsContent>
 
+          <TabsContent value="home" className="mt-0">
+            <MobileHomeSection isMobile={isMobile} />
+          </TabsContent>
+
           <TabsContent value="mobile" className="mt-0">
             <MobilePatternsSection isMobile={isMobile} />
           </TabsContent>
