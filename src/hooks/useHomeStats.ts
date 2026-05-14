@@ -9,7 +9,7 @@ import { useMarketListData } from "@/hooks/useMarketListData";
  * so this is essentially free (no extra requests).
  */
 export const useHomeStats = () => {
-  const { events, loading } = useActiveEvents();
+  const { events, isLoading: loading } = useActiveEvents();
   const rows = useMarketListData(events);
 
   return useMemo(() => {
