@@ -38,14 +38,8 @@ export function useHotMarkets(markets: EventRow[]) {
       )
       .sort((a, b) => b.volume24h - a.volume24h);
 
-    // Float closing-soon to the top of "all" so they're always visible,
-    // then rank everything else by 24h volume desc.
-    const all = [...markets].sort((a, b) => {
-      const aClose = closingIds.has(a.id) ? 1 : 0;
-      const bClose = closingIds.has(b.id) ? 1 : 0;
-      if (aClose !== bClose) return bClose - aClose;
-      return b.volume24h - a.volume24h;
-    });
+    // Rank by 24h volume desc — closing-soon users use the dedicated chip.
+    const all = [...markets].sort((a, b) => b.volume24h - a.volume24h);
 
     return { all, trending, closingSoon, justLaunched };
   }, [markets]);
