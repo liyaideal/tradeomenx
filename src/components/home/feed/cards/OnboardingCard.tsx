@@ -5,11 +5,14 @@ import { useActivationState } from "@/hooks/useActivationState";
 import { FeedCard } from "@/components/home/feed/FeedCard";
 import { cn } from "@/lib/utils";
 
+interface OnboardingCardProps {
+  compact?: boolean;
+}
+
 /**
- * Onboarding feed card — only renders when user is authed and activation is incomplete.
- * Returns null otherwise (feed silently skips it).
+ * Tier 1 personal signal — only renders when user is authed and activation is incomplete.
  */
-export const OnboardingCard = () => {
+export const OnboardingCard = ({ compact }: OnboardingCardProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { state, hasDeposited, hasTraded, isLoading } = useActivationState();
@@ -27,7 +30,13 @@ export const OnboardingCard = () => {
   const action = !hasDeposited ? "/deposit" : "/events";
 
   return (
-    <FeedCard tag={`Onboarding · ${completed}/3`} onClick={() => navigate(action)}>
+    <FeedCard
+      tag={`Onboarding · ${completed}/3`}
+      tier={1}
+      accent="primary"
+      compact={compact}
+      onClick={() => navigate(action)}
+    >
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-foreground">{current.label}</p>
         <ArrowRight className="h-4 w-4 flex-shrink-0 text-primary" strokeWidth={2.5} />

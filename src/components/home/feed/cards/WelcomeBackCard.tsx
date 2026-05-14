@@ -5,16 +5,23 @@ import { FeedCard } from "@/components/home/feed/FeedCard";
 interface WelcomeBackCardProps {
   /** Days since last visit, for the sub line. */
   daysAway?: number;
+  compact?: boolean;
 }
 
 /**
- * Re-engagement card for sleeping users. Mock copy for now;
- * real "top mover while you were away" wiring comes later.
+ * Tier 1 personal signal — re-engagement card for sleeping users.
+ * Mock copy for now; real "top mover while you were away" wiring comes later.
  */
-export const WelcomeBackCard = ({ daysAway = 9 }: WelcomeBackCardProps) => {
+export const WelcomeBackCard = ({ daysAway = 9, compact }: WelcomeBackCardProps) => {
   const navigate = useNavigate();
   return (
-    <FeedCard tag="Welcome back" onClick={() => navigate("/events")}>
+    <FeedCard
+      tag="Welcome back"
+      tier={1}
+      accent="primary"
+      compact={compact}
+      onClick={() => navigate("/events")}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">

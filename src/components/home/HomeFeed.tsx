@@ -1,24 +1,71 @@
 import { Loader2 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useActivationState } from "@/hooks/useActivationState";
-import { useActiveEvents } from "@/hooks/useActiveEvents";
+import { useHomeFeed, FeedItem } from "@/hooks/useHomeFeed";
 import { OnboardingCard } from "@/components/home/feed/cards/OnboardingCard";
-import { TrendingCard } from "@/components/home/feed/cards/TrendingCard";
 import { WelcomeBackCard } from "@/components/home/feed/cards/WelcomeBackCard";
+import { PositionAlertCard } from "@/components/home/feed/cards/PositionAlertCard";
+import { SettlingSoonCard } from "@/components/home/feed/cards/SettlingSoonCard";
+import { WatchlistMoveCard } from "@/components/home/feed/cards/WatchlistMoveCard";
+import { AirdropOpportunityCard } from "@/components/home/feed/cards/AirdropOpportunityCard";
+import { TrendingCard } from "@/components/home/feed/cards/TrendingCard";
+import { NewListingCard } from "@/components/home/feed/cards/NewListingCard";
+import { LearnCard } from "@/components/home/feed/cards/LearnCard";
+
+const renderItem = (item: FeedItem, idx: number) => {
+  const key = `${item.kind}:${idx}`;
+  switch (item.kind) {
+    case "onboarding":
+      return <OnboardingCard key={key} compact={item.compact} />;
+    case "welcomeBack":
+      return <WelcomeBackCard key={key} compact={item.compact} />;
+    case "positionAlert":
+      return (
+        <PositionAlertCard
+          key={key}
+          positionId={item.positionId}
+          compact={item.compact}
+        />
+      );
+    case "settlingSoon":
+      return (
+        <SettlingSoonCard
+          key={key}
+          eventId={item.eventId}
+          secondsLeft={item.secondsLeft}
+          compact={item.compact}
+        />
+      );
+    case "watchlistMove":
+      return (
+        <WatchlistMoveCard key={key} eventId={item.eventId} compact={item.compact} />
+      );
+    case "airdropOpportunity":
+      return <AirdropOpportunityCard key={key} compact={item.compact} />;
+    case "trending":
+      return (
+        <TrendingCard
+          key={key}
+          eventId={item.eventId}
+          tier={item.tier}
+          compact={item.compact}
+        />
+      );
+    case "newListing":
+      return (
+        <NewListingCard key={key} eventId={item.eventId} compact={item.compact} />
+      );
+    case "learn":
+      return <LearnCard key={key} topicId={item.topicId} compact={item.compact} />;
+  }
+};
 
 /**
  * Home feed — priority-sorted single-column stream.
  *
- * Step 1 scope: Onboarding + Welcome back + Trending only.
- * Real ordering hook (`useHomeFeed`) and the rest of the card types
- * land in step 2.
+ * All ordering and tier logic lives in `useHomeFeed`. This component is a
+ * pure renderer: it maps each item kind to its card.
  */
 export const HomeFeed = () => {
-  const { user } = useAuth();
-  const { state, isLoading: activationLoading } = useActivationState();
-  const { events, isLoading: eventsLoading } = useActiveEvents();
-
-  const isLoading = eventsLoading || (!!user && activationLoading);
+  const { items, isLoading } = useHomeFeed();
 
   if (isLoading) {
     return (
@@ -31,24 +78,5 @@ export const HomeFeed = () => {
     );
   }
 
-  // Sleeping heuristic placeholder: authed user with no in-progress onboarding
-  // and no positions concept yet wired in step 1 — show welcome-back at top
-  // only when activation state is the long-tail "S2_ACTIVATED" (everyone else
-  // is either new or onboarding).
-  const showWelcomeBack = !!user && (state === "S2_TRADED" || state === "S3_ACTIVE");
-
-  const trendingIds = events.slice(0, 6).map((e) => e.id);
-
-  return (
-    <div className="space-y-2.5">
-      {/* Onboarding renders only when authed + incomplete */}
-      <OnboardingCard />
-
-      {showWelcomeBack && <WelcomeBackCard />}
-
-      {trendingIds.map((id) => (
-        <TrendingCard key={id} eventId={id} />
-      ))}
-    </div>
-  );
+  return <div className="space-y-2.5">{items.map(renderItem)}</div>;
 };
