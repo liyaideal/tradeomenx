@@ -227,13 +227,3 @@ export function useHomeFeed(): UseHomeFeedReturn {
   return { items, isLoading };
 }
 
-/* Small helper: hook returns pendingAirdrops count without throwing if data is empty. */
-function useAirdropPositionsSafe() {
-  try {
-    const { airdrops } = useAirdropPositions();
-    const pendingAirdrops = airdrops.filter((a) => a.status === "pending").length;
-    return { pendingAirdrops };
-  } catch {
-    return { pendingAirdrops: 0 };
-  }
-}
