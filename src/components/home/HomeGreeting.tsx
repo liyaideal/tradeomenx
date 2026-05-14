@@ -134,8 +134,6 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
                 >
                   {pnlDisplay}
                 </span>
-                <span className="sr-only">change</span>
-                </span>
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   7D
                 </span>
