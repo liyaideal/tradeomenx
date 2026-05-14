@@ -78,5 +78,17 @@ export const HomeFeed = () => {
     );
   }
 
-  return <div className="space-y-2.5">{items.map(renderItem)}</div>;
+  return (
+    <div className="space-y-2.5">
+      {items.map((item, idx) => (
+        <div
+          key={`${item.kind}:${idx}`}
+          className="animate-fade-in motion-reduce:animate-none"
+          style={{ animationDelay: `${Math.min(idx, 8) * 40}ms`, animationFillMode: "both" }}
+        >
+          {renderItem(item, idx)}
+        </div>
+      ))}
+    </div>
+  );
 };
