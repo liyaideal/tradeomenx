@@ -469,61 +469,6 @@ export const PositionCard = ({
         </DialogContent>
       </Dialog>
 
-      {/* Close Position Confirmation Dialog */}
-      <AlertDialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>
-        <AlertDialogContent className="max-w-sm bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-trading-red" />
-              Close Position
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-left">
-              Are you sure you want to close this position?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="bg-muted/50 rounded-lg p-3 space-y-2 my-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Position</span>
-              <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
-                {type === "long" ? "Long" : "Short"} {leverage}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
-              <span className="font-medium">{option}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{TRADING_TERMS.QTY}</span>
-              <span className="font-mono">{size}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
-              <span className="font-mono">{entryPrice}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
-              <span className="font-mono">{displayMarkPrice}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{TRADING_TERMS.UNREALIZED_PNL}</span>
-              <span className={`font-mono font-medium ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>
-                {displayPnl} ({displayPnlPercent})
-              </span>
-            </div>
-          </div>
-
-          <AlertDialogFooter className="flex gap-2 sm:gap-2">
-            <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleClosePosition}
-              className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
-            >
-              Close Position
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };
