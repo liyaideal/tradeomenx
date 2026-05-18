@@ -109,19 +109,19 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
       <div className="flex w-full">
         {/* Left: Trade Form + Price Info */}
         <div className="flex-1 min-w-0 border-r border-border/30">
-          {/* Market Stats Strip — inline label/value, overflow-safe */}
-          <div className="px-3 py-2 border-b border-border/30 overflow-hidden">
-            <div className="flex items-center gap-3 text-[11px] whitespace-nowrap overflow-x-auto scrollbar-hide">
-              <span className="text-muted-foreground">
-                Vol <span className="font-mono font-medium text-foreground ml-0.5">{selectedEvent?.volume || "—"}</span>
+          {/* Market Stats Strip — single-line, compact units, never wraps */}
+          <div className="px-3 py-1.5 border-b border-border/30 overflow-hidden">
+            <div className="flex items-center justify-between gap-2 text-[10px] whitespace-nowrap font-mono tabular-nums">
+              <span className="text-muted-foreground truncate">
+                Vol <span className="font-medium text-foreground">{selectedEvent?.volume || "—"}</span>
               </span>
-              <span className="text-muted-foreground">
-                OI <span className="font-mono font-medium text-foreground ml-0.5">$480K</span>
+              <span className="text-muted-foreground truncate">
+                OI <span className="font-medium text-foreground">$480K</span>
               </span>
-              <span className="text-muted-foreground">
-                Funding <span className="font-mono font-medium text-trading-red ml-0.5">-0.01%</span>
-                <span className="text-muted-foreground/40 mx-0.5">/</span>
-                <span className="font-mono font-medium text-foreground">28m</span>
+              <span className="text-muted-foreground truncate">
+                Funding <span className="font-medium text-trading-red">-0.01%</span>
+                <span className="text-muted-foreground/50">·</span>
+                <span className="font-medium text-foreground">28m</span>
               </span>
             </div>
           </div>
