@@ -56,9 +56,9 @@ export const ClosePositionDrawer = ({
         margin={margin}
         fullCloseOnly={fullCloseOnly}
         onConfirm={handleConfirm}
+        onCancel={() => onOpenChange(false)}
         isClosing={isClosing}
         showHeader={false}
-        variant="comfortable"
       />
     </MobileDrawer>
   );
