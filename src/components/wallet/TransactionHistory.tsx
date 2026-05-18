@@ -259,7 +259,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">Transaction History</h2>
+          <h2 className="text-sm sm:text-lg font-semibold">Transaction History</h2>
           {filteredTransactions.length > 0 && (
             <span className="text-xs text-muted-foreground">({filteredTransactions.length})</span>
           )}

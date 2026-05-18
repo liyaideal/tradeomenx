@@ -290,37 +290,34 @@ export default function Wallet() {
     );
   };
 
-  // Balance Card Component
+  // Balance Card Component (mobile)
   const BalanceCard = () => (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 p-6">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-trading-green/10 rounded-full blur-2xl" />
-      
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border border-primary/25 p-4">
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
+
       <div className="relative">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-            <WalletIcon className="w-4 h-4 text-primary" />
-          </div>
-          <span className="text-sm text-muted-foreground">Total Equity</span>
-        </div>
-        
-        <div className="flex items-baseline gap-2 mb-4 flex-nowrap">
-          <span className="text-4xl font-bold font-mono whitespace-nowrap">${formatCurrency(balance + trialBalance)}</span>
-          <span className="text-sm text-muted-foreground whitespace-nowrap">USDC</span>
+          <WalletIcon className="w-4 h-4 text-primary" />
+          <span className="text-xs text-muted-foreground">Total Equity</span>
         </div>
 
-        <div className="mb-6 grid grid-cols-2 gap-3">
-          <div className="p-3 rounded-lg bg-muted/20">
-            <div className="flex items-center gap-1 mb-1">
-              <span className="text-xs text-muted-foreground">Available Balance</span>
+        <div className="flex items-baseline gap-2 mb-4 flex-nowrap">
+          <span className="text-3xl font-bold font-mono whitespace-nowrap">${formatCurrency(balance + trialBalance)}</span>
+          <span className="text-xs text-muted-foreground whitespace-nowrap">USDC</span>
+        </div>
+
+        <div className="mb-3 grid grid-cols-2 gap-2">
+          <div className="p-2.5 rounded-lg bg-muted/20">
+            <div className="flex items-center gap-1 mb-0.5">
+              <span className="text-[11px] text-muted-foreground">Available</span>
               <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
             </div>
             <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
           </div>
-          
-          <div className={`p-3 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
-            <div className="flex items-center gap-1 mb-1">
-              <span className="text-xs text-muted-foreground">Trial Bonus</span>
+
+          <div className={`p-2.5 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
+            <div className="flex items-center gap-1 mb-0.5">
+              <span className="text-[11px] text-muted-foreground">Trial Bonus</span>
               <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn." />
             </div>
             <span className={`font-mono text-sm font-semibold ${trialBalance > 0 ? 'text-trading-green' : 'text-muted-foreground'}`}>
@@ -331,36 +328,36 @@ export default function Wallet() {
 
         {/* Withdrawable / Frozen row */}
         {h2e.lockedAmount > 0 && (
-          <div className="mb-4 grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-lg bg-muted/20">
-              <div className="flex items-center gap-1 mb-1">
-                <span className="text-xs text-muted-foreground">Withdrawable</span>
+          <div className="mb-3 grid grid-cols-2 gap-2">
+            <div className="p-2.5 rounded-lg bg-muted/20">
+              <div className="flex items-center gap-1 mb-0.5">
+                <span className="text-[11px] text-muted-foreground">Withdrawable</span>
                 <InfoTooltip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
               </div>
               <span className="font-mono text-sm font-semibold">${formatCurrency(withdrawableBalance)}</span>
             </div>
-            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-center gap-1 mb-1">
+            <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-1 mb-0.5">
                 <Lock className="w-3 h-3 text-primary" />
-                <span className="text-xs text-muted-foreground">H2E Locked</span>
+                <span className="text-[11px] text-muted-foreground">H2E Locked</span>
                 <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
               </div>
               <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.lockedAmount)}</span>
             </div>
           </div>
         )}
-        
-        <div className="flex gap-3">
-          <Button 
-            className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-12"
+
+        <div className="flex gap-2">
+          <Button
+            className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-11"
             onClick={() => navigate('/deposit')}
           >
             <ArrowDownLeft className="w-4 h-4 mr-2" />
             Deposit
           </Button>
-          <Button 
+          <Button
             variant="outline"
-            className="flex-1 border-border/50 hover:bg-muted/50 rounded-xl h-12"
+            className="flex-1 border-border/50 hover:bg-muted/50 rounded-xl h-11"
             onClick={() => navigate('/withdraw')}
           >
             <ArrowUpRight className="w-4 h-4 mr-2" />
@@ -373,96 +370,92 @@ export default function Wallet() {
 
   // Address Card for individual saved address
   const AddressCard = ({ wallet }: { wallet: typeof wallets[0] }) => (
-    <div className="bg-card border border-border/50 rounded-xl p-4 hover:border-border transition-colors">
+    <div className="relative bg-muted/20 border border-border/40 rounded-xl p-3 hover:border-border/70 transition-colors">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center p-2">
-          <img src={wallet.icon} alt={wallet.network} className="w-6 h-6" />
+        <div className="w-9 h-9 rounded-lg bg-muted/60 flex items-center justify-center p-1.5 flex-shrink-0">
+          <img src={wallet.icon} alt={wallet.network} className="w-5 h-5" />
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium">{wallet.label}</span>
+        <div className="flex-1 min-w-0 pr-16">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="font-medium text-sm truncate">{wallet.label}</span>
             {wallet.isPrimary && (
-              <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+              <Badge variant="outline" className="border-primary/50 text-primary text-[10px] px-1.5 py-0 h-4">
                 Default
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <code className="text-sm font-mono text-muted-foreground">{wallet.address}</code>
+          <div className="flex items-center gap-1.5">
+            <code className="text-xs font-mono text-muted-foreground truncate">{wallet.address}</code>
             <button
               onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+              aria-label="Copy address"
             >
               {copiedWalletId === wallet.id ? (
-                <Check className="w-3.5 h-3.5 text-trading-green" />
+                <Check className="w-3 h-3 text-trading-green" />
               ) : (
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-3 h-3" />
               )}
             </button>
           </div>
-          <span className="text-xs text-muted-foreground">{wallet.network}</span>
+          <span className="text-[10px] text-muted-foreground">{wallet.network}</span>
         </div>
-      </div>
-      
-      <div className="mt-3 pt-3 border-t border-border/30 flex justify-end gap-2">
-        {!wallet.isPrimary && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleSetPrimaryWallet(wallet.id)}
-            className="text-primary hover:text-primary hover:bg-primary/10"
+
+        {/* Icon-only actions, top-right */}
+        <div className="absolute top-2 right-2 flex items-center gap-1">
+          {!wallet.isPrimary && (
+            <button
+              onClick={() => handleSetPrimaryWallet(wallet.id)}
+              className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+              aria-label="Set as default"
+            >
+              <Star className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button
+            onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
+            className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-trading-red hover:bg-trading-red/10 transition-colors"
+            aria-label="Delete address"
           >
-            <Star className="w-3.5 h-3.5 mr-1" />
-            Set Default
-          </Button>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
-          className="text-muted-foreground hover:text-trading-red hover:bg-trading-red/10"
-        >
-          <Trash2 className="w-3.5 h-3.5 mr-1" />
-          Delete
-        </Button>
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   );
 
-  // Saved Addresses List Component
+  // Saved Addresses List Component (mobile)
   const SavedAddressesList = () => (
-    <div className="space-y-4">
+    <div className="rounded-2xl border border-border/50 bg-card p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Saved Addresses</h2>
-        <span className="text-sm text-muted-foreground">
+        <h2 className="text-sm font-semibold">Saved Addresses</h2>
+        <span className="text-xs text-muted-foreground">
           {wallets.length} address{wallets.length !== 1 ? 'es' : ''}
         </span>
       </div>
 
       {walletsLoading ? (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-6 text-sm text-muted-foreground">
           <p>Loading...</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {wallets.map((wallet) => (
             <AddressCard key={wallet.id} wallet={wallet} />
           ))}
 
-          <button 
+          <button
             onClick={() => setAddAddressOpen(true)}
-            className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all"
+            className="w-full border border-dashed border-border/60 hover:border-primary/50 rounded-xl h-10 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-all"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             <span className="font-medium">Add Address</span>
           </button>
 
           {wallets.length === 0 && !walletsLoading && (
-            <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">
-                Save addresses for quick deposits and withdrawals
-              </p>
-            </div>
+            <p className="text-center text-xs text-muted-foreground pt-1">
+              Save addresses for quick deposits and withdrawals
+            </p>
           )}
         </div>
       )}
@@ -896,13 +889,15 @@ export default function Wallet() {
       <MobileHeader title="Wallet" showLogo={false} />
 
       <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
-      <div className="px-4 py-6 space-y-6">
+      <div className="px-4 py-5 space-y-4">
         <ActivationHero />
         <BalanceCard />
         <H2eRewardsCard />
-        <PendingConfirmations />
+        <PendingConfirmations className="rounded-2xl border border-border/50 bg-card p-4" />
         <SavedAddressesList />
-        <TransactionHistory transactions={transactions} />
+        <div className="rounded-2xl border border-border/50 bg-card p-4">
+          <TransactionHistory transactions={transactions} />
+        </div>
       </div>
       </AuthGateOverlay>
 
