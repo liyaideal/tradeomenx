@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, Clock, Receipt, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UnifiedPosition } from "@/hooks/usePositions";
 import { useFundingHistory } from "@/hooks/useFundingHistory";
+import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import {
   Tooltip,
   TooltipContent,
