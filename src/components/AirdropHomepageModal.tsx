@@ -239,16 +239,14 @@ export const AirdropHomepageModal = () => {
 
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={(o) => { if (!o) handleDismiss(); }}>
-        <DrawerContent className="px-5 pb-8 pt-4">
-          <AirdropModalBody
-            airdrop={currentAirdrop}
-            onActivate={handleActivate}
-            onDismiss={handleDismiss}
-            isActivating={isActivating}
-          />
-        </DrawerContent>
-      </Drawer>
+      <MobileDrawer open={open} onOpenChange={(o) => { if (!o) handleDismiss(); }}>
+        <AirdropModalBody
+          airdrop={currentAirdrop}
+          onActivate={handleActivate}
+          onDismiss={handleDismiss}
+          isActivating={isActivating}
+        />
+      </MobileDrawer>
     );
   }
 
