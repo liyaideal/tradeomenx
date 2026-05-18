@@ -156,29 +156,24 @@ export const TradeVerification = ({ onBack }: Props) => {
               </div>
             </div>
 
-            {/* Maker / Taker UIDs */}
+            {/* Execution Role */}
             <div className="bg-muted/20 rounded-xl p-4 space-y-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Counterparty UIDs (Anonymized)</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Execution Role</p>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">makerUid</span>
-                  <div className="flex items-center gap-1">
-                    <code className="text-[10px] font-mono text-foreground">{comparison.onchain.makerUid.slice(0, 6)}...{comparison.onchain.makerUid.slice(-6)}</code>
-                    <button onClick={() => copyText(comparison.onchain.makerUid, "maker")} className="text-muted-foreground hover:text-foreground">
-                      {copiedField === "maker" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    </button>
-                  </div>
+                  <span className="text-xs text-muted-foreground">Your Role</span>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded ${comparison.onchain.userRole === "Maker" ? "bg-emerald-400/10 text-emerald-400" : "bg-blue-400/10 text-blue-400"}`}>
+                    {comparison.onchain.userRole}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">takerUid</span>
-                  <div className="flex items-center gap-1">
-                    <code className="text-[10px] font-mono text-foreground">{comparison.onchain.takerUid.slice(0, 6)}...{comparison.onchain.takerUid.slice(-6)}</code>
-                    <button onClick={() => copyText(comparison.onchain.takerUid, "taker")} className="text-muted-foreground hover:text-foreground">
-                      {copiedField === "taker" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    </button>
-                  </div>
+                  <span className="text-xs text-muted-foreground">Match Type</span>
+                  <code className="text-[10px] font-mono text-foreground/80">{comparison.onchain.matchType}</code>
                 </div>
               </div>
+              <p className="text-[10px] text-muted-foreground/70 leading-relaxed pt-1 border-t border-border/20">
+                Your counterparty is matched by the platform's execution engine. For privacy and to prevent front-running, counterparty identity is not disclosed.
+              </p>
             </div>
 
             {/* TX details */}

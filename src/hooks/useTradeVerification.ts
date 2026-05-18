@@ -105,14 +105,15 @@ export const useTradeVerification = () => {
     // Simulated event/outcome IDs
     const eventId = `EVT-${Math.floor(Math.random() * 90000) + 10000}`;
     const outcomeId = Math.floor(Math.random() * 4); // 0-3
-    const makerUid = mockHex(20); // AMM / liquidity provider
-    const takerUid = mockHex(20); // user (anonymized)
+    // Derive user role from order type: market → Taker; limit → Maker (simplified)
+    const userRole: "Taker" | "Maker" = trade.order_type === "limit" ? "Maker" : "Taker";
+    const matchType = "Order Matching";
 
     const onchain: OnChainTradeLog = {
       eventId,
       outcomeId,
-      makerUid,
-      takerUid,
+      userRole,
+      matchType,
       price: rawPrice,
       priceHuman: `$${trade.price.toFixed(4)}`,
       size: trade.quantity,
@@ -192,7 +193,7 @@ export const useTradeVerification = () => {
         db_record: Object.fromEntries(dbFields.map(f => [f.key, f.dbValue])),
         onchain_log: Object.fromEntries(dbFields.map(f => [f.key, f.chainRaw])),
         matched_fields: dbFields.filter(f => f.match).map(f => f.key),
-        counterparty: makerUid,
+        counterparty: null,
         verification_result: "matched",
         verified_at: new Date().toISOString(),
       } as any);
