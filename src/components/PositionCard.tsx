@@ -102,7 +102,6 @@ export const PositionCard = ({
     : !pnl.startsWith("-");
   
   const [tpSlOpen, setTpSlOpen] = useState(false);
-  const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   // Use saved state to persist values after dialog closes
   const [savedTp, setSavedTp] = useState(initialTp);
   const [savedSl, setSavedSl] = useState(initialSl);
@@ -114,12 +113,14 @@ export const PositionCard = ({
   const [slMode, setSlMode] = useState<"%" | "$">("$");
   const { toast } = useToast();
 
-  const handleClosePosition = () => {
-    toast({
-      title: "Position Closed",
-      description: `Your ${type} position on ${option} has been closed.`,
-    });
-    setCloseDialogOpen(false);
+  const { partialClosePosition, isClosing } = usePositions();
+
+  const handleClosePartial = async (qty: number) => {
+    if (!positionId || positionIndex === undefined) {
+      toast({ title: "Position Closed", description: `Your ${type} position on ${option} has been closed.` });
+      return;
+    }
+    await partialClosePosition(positionId, positionIndex, qty);
   };
 
   const handleSave = () => {
