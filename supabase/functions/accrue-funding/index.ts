@@ -86,6 +86,9 @@ Deno.serve(async (req) => {
       if (hoursElapsed <= 0) continue;
 
       const ratePerHour = p.option_id ? (optionRateMap.get(p.option_id) ?? 0) : 0;
+      // Skip zero-rate positions entirely — no ledger noise, no useless updates.
+      if (ratePerHour === 0) continue;
+
       // Notional = size * mark (size already represents contracts; leverage only governs margin).
       const mark = Number(p.mark_price) || 0.5;
       const notional = Number(p.size) * mark;
@@ -95,6 +98,10 @@ Deno.serve(async (req) => {
       const amount = sideSign * ratePerHour * notional * hoursElapsed;
       // Round to 6 decimals to keep things stable
       const amountR = Math.round(amount * 1e6) / 1e6;
+
+      // After rounding the accrual might collapse to 0 (tiny notional × tiny rate × short interval).
+      // Skip those too — we'll catch them next cycle once enough has accrued.
+      if (amountR === 0) continue;
 
       const newAccrued = Number(p.funding_accrued) + amountR;
       const newPnl = Number(p.pnl) - amountR; // Net PnL = price PnL - funding
