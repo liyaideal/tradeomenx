@@ -71,16 +71,21 @@ export const PositionDetailContent = ({
   const ratePctPerHour = (fundingRatePerHour * 100).toFixed(4);
   const fundingPerHour = sideSign * fundingRatePerHour * notional;
 
-  // Next accrual countdown (cron runs every 5 min)
+  // Next accrual countdown — prefer authoritative next_funding_at, fall back to
+  // lastFundingAt + 5 min (matches cron cadence).
   const nextAccrualLabel = useMemo(() => {
-    if (!position.lastFundingAt) return "Within 5 min";
-    const next = new Date(position.lastFundingAt).getTime() + 5 * 60_000;
-    const diff = next - Date.now();
+    const anchor = nextFundingAt
+      ? new Date(nextFundingAt).getTime()
+      : position.lastFundingAt
+      ? new Date(position.lastFundingAt).getTime() + 5 * 60_000
+      : null;
+    if (anchor == null) return "Within 5 min";
+    const diff = anchor - Date.now();
     if (diff <= 0) return "Any moment";
     const m = Math.floor(diff / 60_000);
     const s = Math.floor((diff % 60_000) / 1000);
     return `${m}m ${s.toString().padStart(2, "0")}s`;
-  }, [position.lastFundingAt]);
+  }, [nextFundingAt, position.lastFundingAt]);
 
   const { data: history = [] } = useFundingHistory(
     position._source === "supabase" ? position.id : null
@@ -228,7 +233,7 @@ export const PositionDetailContent = ({
           {history.length > 0 && (
             <details className="text-xs">
               <summary className="cursor-pointer text-muted-foreground hover:text-foreground select-none py-1">
-                View funding history ({history.length})
+                View funding charges ({history.length})
               </summary>
               <ScrollArea className="max-h-48 mt-1 rounded-md border border-border">
                 <table className="w-full text-xs">
