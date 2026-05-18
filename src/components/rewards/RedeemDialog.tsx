@@ -129,17 +129,14 @@ export const RedeemDialog = ({ open, onOpenChange }: RedeemDialogProps) => {
 
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Redeem Points</DrawerTitle>
-            <DrawerDescription>
-              Convert your points to trial bonus
-            </DrawerDescription>
-          </DrawerHeader>
-          {content}
-        </DrawerContent>
-      </Drawer>
+      <MobileDrawer
+        open={open}
+        onOpenChange={onOpenChange}
+        title="Redeem Points"
+        description="Convert your points to trial bonus"
+      >
+        {content}
+      </MobileDrawer>
     );
   }
 
