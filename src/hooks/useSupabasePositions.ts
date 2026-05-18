@@ -301,14 +301,46 @@ export const useSupabasePositions = () => {
     [user?.id, updateTpSlMutation]
   );
 
+  // Mutation for partial / full close via qty
+  const partialCloseMutation = useMutation({
+    mutationFn: partialClosePositionInDb,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["positions", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      const pnlStr = `${data.realizedPnl >= 0 ? "+" : "-"}$${Math.abs(data.realizedPnl).toFixed(2)}`;
+      if (data.fullyClosed) {
+        toast.success(`Position closed · realized ${pnlStr}`);
+      } else {
+        toast.success(`Closed ${data.closedQty} contracts · realized ${pnlStr} · ${data.remainingSize} remaining`);
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to close position: ${error.message}`);
+    },
+  });
+
+  const partialClosePosition = useCallback(
+    async (positionId: string, closeQty: number, closePrice: number) => {
+      if (!user?.id) return;
+      return partialCloseMutation.mutateAsync({
+        userId: user.id,
+        positionId,
+        closeQty,
+        closePrice,
+      });
+    },
+    [user?.id, partialCloseMutation]
+  );
+
   return {
     positions,
     isLoading,
     error,
     refetch,
     closePosition,
+    partialClosePosition,
     updatePositionTpSl,
-    isClosing: closePositionMutation.isPending,
+    isClosing: closePositionMutation.isPending || partialCloseMutation.isPending,
     isUpdatingTpSl: updateTpSlMutation.isPending,
   };
 };
