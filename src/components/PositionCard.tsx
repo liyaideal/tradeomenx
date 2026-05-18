@@ -60,19 +60,18 @@ export const PositionCard = ({
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
   
+  // Always attempt realtime calc — calculateRealtimePnL will fall back to
+  // event/option name matching when optionId is missing (matches desktop behavior).
   const realtimeData = useMemo(() => {
-    if (optionId) {
-      return calculateRealtimePnL({
-        event,
-        option,
-        optionId,
-        type,
-        entryPrice,
-        size,
-        margin,
-      });
-    }
-    return null;
+    return calculateRealtimePnL({
+      event,
+      option,
+      optionId,
+      type,
+      entryPrice,
+      size,
+      margin,
+    });
   }, [optionId, event, option, type, entryPrice, size, margin, calculateRealtimePnL]);
   
   // Use realtime values if available, otherwise fall back to props

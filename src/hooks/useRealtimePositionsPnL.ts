@@ -197,9 +197,19 @@ export const useRealtimePositionsPnL = () => {
     return `$${price.toFixed(4)}`;
   }, []);
 
+  // Lookup realtime mark price for a position using direct optionId + fallback matching.
+  const getRealtimeMarkPrice = useCallback(
+    (position: { event: string; option: string; optionId?: string | null }): number | undefined => {
+      const optionId = getOptionId(position.event, position.option, position.optionId);
+      return optionId && pricesContext ? pricesContext.getPrice(optionId) : undefined;
+    },
+    [getOptionId, pricesContext]
+  );
+
   return {
     isLoading,
     getOptionId,
+    getRealtimeMarkPrice,
     calculateRealtimePnL,
     formatPnL,
     formatMarkPrice,
