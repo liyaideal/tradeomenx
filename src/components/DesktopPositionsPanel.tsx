@@ -277,30 +277,18 @@ export const DesktopPositionsPanel = () => {
                             }`}>
                               {position.type === "long" ? "Long" : "Short"}
                             </span>
-                            <HoverCard>
-                              <HoverCardTrigger asChild>
-                                <span className="font-medium cursor-help border-b border-dashed border-muted-foreground hover:border-foreground transition-colors max-w-[150px] truncate inline-block">
-                                  {position.option}
-                                </span>
-                              </HoverCardTrigger>
-                              <HoverCardContent className="w-64 p-3" side="bottom" align="start">
-                                <p className="text-sm font-medium mb-1">{position.option}</p>
-                                <p className="text-xs text-muted-foreground mb-2">{position.event}</p>
-                                {isBinaryYesPosition && (
-                                  <p className="text-xs text-muted-foreground mb-2 border-t border-border/30 pt-2">
-                                    <span className="text-trading-yellow">💡</span> Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped (No Long → Yes Short, No Short → Yes Long).
-                                  </p>
-                                )}
-                                <a 
-                                  href="#" 
-                                  className="text-sm text-primary flex items-center gap-1.5 hover:underline"
-                                  onClick={(e) => e.preventDefault()}
-                                >
-                                  <ExternalLink className="w-3.5 h-3.5" />
-                                  Go to this event
-                                </a>
-                              </HoverCardContent>
-                            </HoverCard>
+                            <PositionDetailDialog
+                              position={position}
+                              liveMarkPrice={realtimePnL.hasRealtimePrice ? realtimePnL.markPrice : undefined}
+                            >
+                              <button
+                                type="button"
+                                className="font-medium cursor-pointer border-b border-dashed border-muted-foreground hover:border-foreground hover:text-primary transition-colors max-w-[150px] truncate inline-block text-left"
+                                title="View position details"
+                              >
+                                {position.option}
+                              </button>
+                            </PositionDetailDialog>
                             {isBinaryYesPosition && (
                               <TooltipProvider>
                                 <Tooltip>
