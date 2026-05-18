@@ -265,6 +265,9 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
                   size={position.size}
                   sizeDisplay={position.sizeDisplay}
                   optionId={position.optionId}
+                  positionId={position.id}
+                  positionIndex={index}
+                  position={position}
                 />
               ))}
               {pendingAirdrops.map((airdrop) => (
