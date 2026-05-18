@@ -370,58 +370,56 @@ export default function Wallet() {
 
   // Address Card for individual saved address
   const AddressCard = ({ wallet }: { wallet: typeof wallets[0] }) => (
-    <div className="bg-card border border-border/50 rounded-xl p-4 hover:border-border transition-colors">
+    <div className="relative bg-muted/20 border border-border/40 rounded-xl p-3 hover:border-border/70 transition-colors">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center p-2">
-          <img src={wallet.icon} alt={wallet.network} className="w-6 h-6" />
+        <div className="w-9 h-9 rounded-lg bg-muted/60 flex items-center justify-center p-1.5 flex-shrink-0">
+          <img src={wallet.icon} alt={wallet.network} className="w-5 h-5" />
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium">{wallet.label}</span>
+        <div className="flex-1 min-w-0 pr-16">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="font-medium text-sm truncate">{wallet.label}</span>
             {wallet.isPrimary && (
-              <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+              <Badge variant="outline" className="border-primary/50 text-primary text-[10px] px-1.5 py-0 h-4">
                 Default
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <code className="text-sm font-mono text-muted-foreground">{wallet.address}</code>
+          <div className="flex items-center gap-1.5">
+            <code className="text-xs font-mono text-muted-foreground truncate">{wallet.address}</code>
             <button
               onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+              aria-label="Copy address"
             >
               {copiedWalletId === wallet.id ? (
-                <Check className="w-3.5 h-3.5 text-trading-green" />
+                <Check className="w-3 h-3 text-trading-green" />
               ) : (
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-3 h-3" />
               )}
             </button>
           </div>
-          <span className="text-xs text-muted-foreground">{wallet.network}</span>
+          <span className="text-[10px] text-muted-foreground">{wallet.network}</span>
         </div>
-      </div>
-      
-      <div className="mt-3 pt-3 border-t border-border/30 flex justify-end gap-2">
-        {!wallet.isPrimary && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleSetPrimaryWallet(wallet.id)}
-            className="text-primary hover:text-primary hover:bg-primary/10"
+
+        {/* Icon-only actions, top-right */}
+        <div className="absolute top-2 right-2 flex items-center gap-1">
+          {!wallet.isPrimary && (
+            <button
+              onClick={() => handleSetPrimaryWallet(wallet.id)}
+              className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+              aria-label="Set as default"
+            >
+              <Star className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button
+            onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
+            className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-trading-red hover:bg-trading-red/10 transition-colors"
+            aria-label="Delete address"
           >
-            <Star className="w-3.5 h-3.5 mr-1" />
-            Set Default
-          </Button>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
-          className="text-muted-foreground hover:text-trading-red hover:bg-trading-red/10"
-        >
-          <Trash2 className="w-3.5 h-3.5 mr-1" />
-          Delete
-        </Button>
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   );
