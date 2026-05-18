@@ -11,13 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from "@/components/ui/drawer";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 
 interface XShareConfirmDialogProps {
   open: boolean;
