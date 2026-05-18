@@ -143,7 +143,7 @@ export const PendingConfirmations = ({ className }: PendingConfirmationsProps) =
             <Zap className="w-4 h-4 text-trading-yellow" />
             <span className="absolute -top-1 -right-1 w-2 h-2 bg-trading-yellow rounded-full animate-pulse" />
           </div>
-          <h2 className="text-lg font-semibold">Pending Confirmations</h2>
+          <h2 className="text-sm sm:text-lg font-semibold">Pending Confirmations</h2>
           <Badge variant="secondary" className="bg-trading-yellow/10 text-trading-yellow border-trading-yellow/20">
             {pendingTransactions.length}
           </Badge>
