@@ -343,12 +343,29 @@ export const DesktopPositionsPanel = () => {
                           </button>
                         </td>
                         <td className="px-3 py-2 text-sm">
-                          <button 
-                            onClick={() => closePosition(position.id, index)}
-                            className="px-2 py-1 text-xs bg-trading-red/20 text-trading-red rounded hover:bg-trading-red/30"
+                          <ClosePositionPopover
+                            event={position.event}
+                            option={position.option}
+                            side={position.type}
+                            size={Number(position.size) || 0}
+                            entryPrice={parseFloat(position.entryPrice.replace(/[$,]/g, "")) || 0}
+                            markPrice={
+                              realtimePnL.hasRealtimePrice
+                                ? realtimePnL.markPrice
+                                : parseFloat(position.markPrice.replace(/[$,]/g, "")) || 0
+                            }
+                            margin={parseFloat(position.margin.replace(/[$,]/g, "")) || 0}
+                            leverage={position.leverage}
+                            fullCloseOnly={position.isAirdrop}
+                            isClosing={isClosing}
+                            onConfirm={(qty) => partialClosePosition(position.id, index, qty)}
                           >
-                            Close
-                          </button>
+                            <button
+                              className="px-2 py-1 text-xs bg-trading-red/20 text-trading-red rounded hover:bg-trading-red/30"
+                            >
+                              Close
+                            </button>
+                          </ClosePositionPopover>
                         </td>
                       </tr>
                     );
