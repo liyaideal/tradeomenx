@@ -3,7 +3,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PositionDetailContent } from "./PositionDetailContent";
@@ -36,9 +36,6 @@ export const PositionDetailDialog = ({
       <DialogContent className="max-w-md bg-card border-border">
         <DialogHeader>
           <DialogTitle className="truncate">{position.event}</DialogTitle>
-          <DialogDescription className="text-xs">
-            Position details · PnL · Funding
-          </DialogDescription>
         </DialogHeader>
         <PositionDetailContent
           position={position}
