@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
-import { usePositions } from "@/hooks/usePositions";
+import { usePositions, type UnifiedPosition } from "@/hooks/usePositions";
 import { ClosePositionDrawer } from "@/components/positions/ClosePositionDrawer";
+import { PositionDetailDrawer } from "@/components/positions/PositionDetailDrawer";
 
 interface PositionCardProps {
   type: "long" | "short";
@@ -32,6 +33,8 @@ interface PositionCardProps {
   // Identity for close mutations (passed by parent list)
   positionId?: string;
   positionIndex?: number;
+  // Full unified position (enables detail drawer with funding data)
+  position?: UnifiedPosition;
 }
 
 export const PositionCard = ({
@@ -52,6 +55,7 @@ export const PositionCard = ({
   isAirdrop,
   positionId,
   positionIndex,
+  position: fullPosition,
 }: PositionCardProps) => {
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
@@ -88,6 +92,7 @@ export const PositionCard = ({
   
   const [tpSlOpen, setTpSlOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   // Use saved state to persist values after dialog closes
   const [savedTp, setSavedTp] = useState(initialTp);
   const [savedSl, setSavedSl] = useState(initialSl);
@@ -220,26 +225,36 @@ export const PositionCard = ({
           </div>
         </div>
 
-        {/* Event Info */}
+        {/* Event Info — tap to open detail drawer */}
         <div className="mb-2">
-          <h3 className="font-medium text-foreground text-sm">{event}</h3>
-          <div className="flex items-center gap-2">
-            <p className="text-xs text-muted-foreground">{option}</p>
-            {option.toLowerCase() === "yes" && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="p-0.5 rounded hover:bg-muted/50 transition-colors">
-                    <Info className="w-3 h-3 text-trading-yellow" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-3 text-xs" side="top" align="start">
-                  <p className="text-muted-foreground">
-                    <span className="text-trading-yellow">💡</span> Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped (No Long → Yes Short, No Short → Yes Long).
-                  </p>
-                </PopoverContent>
-              </Popover>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={() => fullPosition && setDetailOpen(true)}
+            disabled={!fullPosition}
+            className="w-full text-left hover:opacity-80 transition-opacity disabled:cursor-default"
+          >
+            <h3 className="font-medium text-foreground text-sm truncate">{event}</h3>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-muted-foreground">{option}</p>
+              {fullPosition && (
+                <span className="text-[10px] text-primary">Details ›</span>
+              )}
+            </div>
+          </button>
+          {option.toLowerCase() === "yes" && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-0.5 rounded hover:bg-muted/50 transition-colors mt-0.5">
+                  <Info className="w-3 h-3 text-trading-yellow" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-3 text-xs" side="top" align="start">
+                <p className="text-muted-foreground">
+                  <span className="text-trading-yellow">💡</span> Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped (No Long → Yes Short, No Short → Yes Long).
+                </p>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
 
         {/* Position Details */}
@@ -452,6 +467,15 @@ export const PositionCard = ({
         </div>
       </MobileDrawer>
 
+      {/* Position Detail Drawer */}
+      {fullPosition && (
+        <PositionDetailDrawer
+          position={fullPosition}
+          liveMarkPrice={realtimeData?.hasRealtimePrice ? realtimeData.markPrice : undefined}
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+        />
+      )}
     </>
   );
 };
