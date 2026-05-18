@@ -11,13 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from "@/components/ui/drawer";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 
 interface XShareConfirmDialogProps {
   open: boolean;
@@ -129,18 +123,14 @@ export function XShareConfirmDialog({
 
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="px-4 pb-8">
-          <DrawerHeader className="text-left px-0">
-            <DrawerTitle className="flex items-center gap-2">
-              <XIcon size={20} />
-              {title}
-            </DrawerTitle>
-            <DrawerDescription>{description}</DrawerDescription>
-          </DrawerHeader>
-          {body}
-        </DrawerContent>
-      </Drawer>
+      <MobileDrawer
+        open={open}
+        onOpenChange={onOpenChange}
+        title={title}
+        description={description}
+      >
+        {body}
+      </MobileDrawer>
     );
   }
 

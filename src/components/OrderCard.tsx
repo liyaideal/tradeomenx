@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 interface OrderCardProps {
@@ -127,109 +119,103 @@ export const OrderCard = ({
         </div>
       </div>
 
-      {/* Fill Order Confirmation Dialog */}
-      <AlertDialog open={fillDialogOpen} onOpenChange={setFillDialogOpen}>
-        <AlertDialogContent className="max-w-sm bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-trading-green" />
-              Fill Order
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-left">
-              Simulate this order being filled? It will create a new position.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="bg-muted/50 rounded-lg p-3 space-y-2 my-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Order Type</span>
-              <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                {type === "buy" ? "Buy" : "Sell"} {orderType}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Contract</span>
-              <span className="font-medium">{option}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Price</span>
-              <span className="font-mono">{price}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Amount</span>
-              <span className="font-mono">{amount}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Total</span>
-              <span className="font-mono">{total}</span>
-            </div>
+      {/* Fill Order Confirmation Drawer */}
+      <MobileDrawer
+        open={fillDialogOpen}
+        onOpenChange={setFillDialogOpen}
+        title="Fill Order"
+        description="Simulate this order being filled? It will create a new position."
+      >
+        <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Order Type</span>
+            <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
+              <CheckCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
+              {type === "buy" ? "Buy" : "Sell"} {orderType}
+            </span>
           </div>
-
-          <AlertDialogFooter className="flex gap-2 sm:gap-2">
-            <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Contract</span>
+            <span className="font-medium">{option}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Price</span>
+            <span className="font-mono">{price}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Amount</span>
+            <span className="font-mono">{amount}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Total</span>
+            <span className="font-mono">{total}</span>
+          </div>
+        </div>
+        <MobileDrawerActions>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1 h-11" onClick={() => setFillDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="flex-1 h-11 bg-trading-green hover:bg-trading-green/90 text-white"
               onClick={handleFillOrder}
-              className="flex-1 bg-trading-green hover:bg-trading-green/90 text-white"
             >
               Fill Order
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Cancel Order Confirmation Dialog */}
-      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <AlertDialogContent className="max-w-sm bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-trading-red" />
-              Cancel Order
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-left">
-              Are you sure you want to cancel this order?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="bg-muted/50 rounded-lg p-3 space-y-2 my-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Order Type</span>
-              <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                {type === "buy" ? "Buy" : "Sell"} {orderType}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Contract</span>
-              <span className="font-medium">{option}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Price</span>
-              <span className="font-mono">{price}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Amount</span>
-              <span className="font-mono">{amount}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Total</span>
-              <span className="font-mono">{total}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Status</span>
-              <span className={statusColors[status].split(' ')[1]}>{status}</span>
-            </div>
+            </Button>
           </div>
+        </MobileDrawerActions>
+      </MobileDrawer>
 
-          <AlertDialogFooter className="flex gap-2 sm:gap-2">
-            <AlertDialogCancel className="flex-1">Keep Order</AlertDialogCancel>
-            <AlertDialogAction 
+      {/* Cancel Order Confirmation Drawer */}
+      <MobileDrawer
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        title="Cancel Order"
+        description="Are you sure you want to cancel this order?"
+      >
+        <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Order Type</span>
+            <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
+              <AlertTriangle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
+              {type === "buy" ? "Buy" : "Sell"} {orderType}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Contract</span>
+            <span className="font-medium">{option}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Price</span>
+            <span className="font-mono">{price}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Amount</span>
+            <span className="font-mono">{amount}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Total</span>
+            <span className="font-mono">{total}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Status</span>
+            <span className={statusColors[status].split(' ')[1]}>{status}</span>
+          </div>
+        </div>
+        <MobileDrawerActions>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1 h-11" onClick={() => setCancelDialogOpen(false)}>
+              Keep Order
+            </Button>
+            <Button
+              className="flex-1 h-11 bg-trading-red hover:bg-trading-red/90 text-white"
               onClick={handleCancelOrder}
-              className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
             >
               Cancel Order
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </div>
+        </MobileDrawerActions>
+      </MobileDrawer>
     </>
   );
 };

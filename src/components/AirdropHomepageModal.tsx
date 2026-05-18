@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Gift, Clock, ArrowRight, X, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAirdropPositions, AirdropPosition } from "@/hooks/useAirdropPositions";
@@ -239,16 +239,14 @@ export const AirdropHomepageModal = () => {
 
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={(o) => { if (!o) handleDismiss(); }}>
-        <DrawerContent className="px-5 pb-8 pt-4">
-          <AirdropModalBody
-            airdrop={currentAirdrop}
-            onActivate={handleActivate}
-            onDismiss={handleDismiss}
-            isActivating={isActivating}
-          />
-        </DrawerContent>
-      </Drawer>
+      <MobileDrawer open={open} onOpenChange={(o) => { if (!o) handleDismiss(); }}>
+        <AirdropModalBody
+          airdrop={currentAirdrop}
+          onActivate={handleActivate}
+          onDismiss={handleDismiss}
+          isActivating={isActivating}
+        />
+      </MobileDrawer>
     );
   }
 
