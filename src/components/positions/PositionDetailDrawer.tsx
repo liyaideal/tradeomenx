@@ -26,7 +26,6 @@ export const PositionDetailDrawer = ({
       open={open}
       onOpenChange={onOpenChange}
       title={position.event}
-      description="Position details · PnL · Funding"
     >
       <PositionDetailContent
         position={position}
