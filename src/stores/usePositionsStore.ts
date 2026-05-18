@@ -22,6 +22,7 @@ interface PositionsStore {
   positions: Position[];
   addPosition: (position: Position) => void;
   closePosition: (index: number) => void;
+  partialClosePosition: (index: number, closeQty: number) => void;
   updatePositionTpSl: (index: number, tp: string, sl: string, tpMode: "%" | "$", slMode: "%" | "$") => void;
   setPositions: (positions: Position[]) => void;
   clearPositions: () => void;
