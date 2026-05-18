@@ -235,6 +235,7 @@ export const usePositions = () => {
     isLoading: isLoggedIn ? supabaseLoading : false,
     isLoggedIn,
     closePosition,
+    partialClosePosition,
     updatePositionTpSl,
     isClosing,
     isUpdatingTpSl,
