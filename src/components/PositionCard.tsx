@@ -42,6 +42,9 @@ interface PositionCardProps {
   takeProfit?: string;
   stopLoss?: string;
   isAirdrop?: boolean;
+  // Identity for close mutations (passed by parent list)
+  positionId?: string;
+  positionIndex?: number;
 }
 
 export const PositionCard = ({
