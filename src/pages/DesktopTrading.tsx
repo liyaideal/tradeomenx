@@ -7,6 +7,7 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
 import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
+import { PositionDetailDialog } from "@/components/positions/PositionDetailDialog";
 import { useOrders } from "@/hooks/useOrders";
 import {
   Tooltip,
@@ -1194,7 +1195,18 @@ export default function DesktopTrading() {
                                   AIRDROP
                                 </span>
                               )}
-                              <span className="text-sm font-medium truncate">{position.option}</span>
+                              <PositionDetailDialog
+                                position={position}
+                                liveMarkPrice={realtimePnL.hasRealtimePrice ? realtimePnL.markPrice : undefined}
+                              >
+                                <button
+                                  type="button"
+                                  className="text-sm font-medium truncate border-b border-dashed border-muted-foreground hover:border-foreground hover:text-primary transition-colors text-left cursor-pointer"
+                                  title="View position details"
+                                >
+                                  {position.option}
+                                </button>
+                              </PositionDetailDialog>
                               {position.option.toLowerCase() === "yes" && (
                                 <TooltipProvider>
                                   <Tooltip>
