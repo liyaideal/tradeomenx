@@ -1,48 +1,38 @@
-## 问题
+# Mobile 版 ActivationHero 适配
 
-`MarketCardB`（events 卡片）的 outcome 表格根据 `children` 数量渲染 1–3 行，导致 desktop 多列网格中卡片高度参差不齐。Mobile 是单列竖排，高度不一致没有视觉影响，所以无需处理。
+## 背景
+`/wallet` 页面顶部的 Mainnet Activation 模块（`src/components/activation/ActivationHero.tsx`）在桌面端表现良好，但在 mobile（390px）上：
+- 标题字号过大，"You're funded — make your first real trade" 换行后整块过高
+- Step 1/2/3 三个卡片横向 3 列挤压严重，文字溢出
+- 底部 "Browse markets" + "Why mainnet?" 两个按钮并排在窄屏下挤占空间
+- 整张卡片在首屏占比过大，超出预期展示比例
 
-## 方案：用占位行补齐到 3 行（仅 desktop）
+## 方案
+保持组件 API 不变，内部根据 `useIsMobile()` 渲染两套布局，桌面端逻辑完全不动。
 
-在 `src/components/events/MarketCardB.tsx` 的 outcome 表格里，渲染完真实的 `children.slice(0, 3)` 后，再补齐 `3 - shown` 个**占位行**，使表格在 desktop 上始终占 3 行高度。
+### Mobile 版本设计要点（紧凑信息卡）
+1. **顶部标识行**：MainnetBadge（size="sm"）+ "Activation" 标签，保持现状但缩小
+2. **标题**：降到 `text-base font-semibold`，行高收紧；副标题降到 `text-xs`，最多 2 行
+3. **Steps 区域**：改为单行水平 stepper（圆点 + 序号 + 简短 label），不再用 3 个卡片
+   - 形态：`[1 Deposit] —— [2 Trade] —— [3 Rebates]`
+   - 已完成步骤显示绿色圆点 + 删除线，未完成显示空心圆
+   - 高度从 ~64px 降到 ~28px
+4. **CTA**：仅保留主按钮 "Deposit now / Browse markets"（全宽，h-10）
+   - "Why mainnet?" 降级为按钮下方一行带箭头的文字链接（`text-xs text-muted-foreground underline`），点击跳 `/mainnet-launch`
+5. **整体内边距**：从 `p-5` 改为 `p-4`，背景光晕缩小避免溢出
 
-- 占位行使用 `hidden md:flex`，仅在 desktop 生效；mobile 仍按真实行数渲染，不浪费纵向空间。
-- 占位行内容用 `invisible` 的同尺寸字符（如 `&nbsp;`），保证行高与真实行完全一致（`text-[11px]` 行 + `font-mono` 数值），不引入新尺寸假设。
-- 保持现有 padding、间距、`space-y-0.5`、`24H Chg` 表头、底部 `Vol / +N more markets` 不变。
+### 实现细节
+- 文件：仅修改 `src/components/activation/ActivationHero.tsx`
+- 引入 `useIsMobile` hook，未确定 viewport 时（undefined）按桌面渲染避免闪烁
+- 抽出 `DesktopLayout` / `MobileLayout` 两个内部子组件，共享 headline/subline/primaryCta 数据
+- Style Guide 中如有该模块预览，同步在 Mobile Home section 里展示新版本（待确认）
 
-```text
-desktop（3 列对齐）
-┌── card ─────────────┐ ┌── card ─────────────┐
-│ ★ Politics  Dec 31  │ │ ★ Sports     Jul 20 │
-│ Title…              │ │ Title…              │
-│ ┌ outcomes (3 rows)┐│ │ ┌ outcomes (3 rows)┐│
-│ │ Yes      +1.20%  ││ │ │ England   -0.52% ││
-│ │ No       -0.40%  ││ │ │ Spain     +0.00% ││
-│ │ ░░ placeholder ░░ ││ │ │ France    +0.00% ││ ← 真实第三行
-│ └──────────────────┘│ │ └──────────────────┘│
-│ Vol: $2.2M          │ │ Vol: $1.7M          │
-└─────────────────────┘ └─────────────────────┘
-```
+### 不改动
+- 业务逻辑：`useActivationState`、显示/隐藏条件、跳转路由
+- 桌面端视觉
+- `ActivationChecklist`（首页 mobile 用的是它，不是 ActivationHero）
 
-## 范围
-
-- **只改** `src/components/events/MarketCardB.tsx` 的 children > 0 分支
-- 不动 children === 0 的"单一百分比"分支（用户没提到，且形态不同；如需要后续单独讨论）
-- 不动 mobile 行为、不动数据/排序/路由/筛选逻辑
-- 不引入新文件、不改 design tokens
-
-## 技术细节
-
-```tsx
-{market.children.slice(0, 3).map((child) => (
-  /* …existing real row… */
-))}
-{Array.from({ length: Math.max(0, 3 - Math.min(market.children.length, 3)) }).map((_, i) => (
-  <div key={`ph-${i}`} className="hidden md:flex items-center justify-between" aria-hidden>
-    <span className="text-[11px] invisible">&nbsp;</span>
-    <span className="text-[11px] font-mono font-semibold tabular-nums invisible">+0.00%</span>
-  </div>
-))}
-```
-
-这样 desktop 上 1/2/3 行的卡片底部对齐一致，mobile 不变。
+## 验收
+- 390px viewport：卡片高度 ≤ 240px，无文字溢出，三个 step 单行排布
+- 桌面端：完全无变化
+- S0 与 S1 两种文案都能正确显示

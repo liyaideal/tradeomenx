@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowDownToLine, TrendingUp, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowDownToLine, TrendingUp, ChevronRight, Sparkles, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useActivationState } from "@/hooks/useActivationState";
 import { MainnetBadge } from "@/components/MainnetBadge";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 /**
  * Wallet page activation hero — the conversion centerpiece for S0/S1 users.
@@ -11,6 +13,7 @@ import { MainnetBadge } from "@/components/MainnetBadge";
 export const ActivationHero = () => {
   const navigate = useNavigate();
   const { state, isLoading } = useActivationState();
+  const isMobile = useIsMobile();
 
   if (isLoading) return null;
   if (state === "GUEST" || state === "S2_TRADED" || state === "S3_ACTIVE") return null;
@@ -31,6 +34,87 @@ export const ActivationHero = () => {
 
   const PrimaryIcon = primaryCta.icon;
 
+  const steps = [
+    { n: 1, label: "Deposit", done: !isS0 },
+    { n: 2, label: "First trade", done: false },
+    { n: 3, label: "Rebates", done: false },
+  ];
+
+  // Mobile compact layout
+  if (isMobile) {
+    return (
+      <section
+        aria-label="Mainnet activation"
+        className="relative overflow-hidden rounded-2xl border border-trading-green/40 bg-gradient-to-br from-trading-green/[0.10] via-background to-background p-4"
+      >
+        <div className="absolute -top-8 -right-8 h-24 w-24 rounded-full bg-trading-green/15 blur-2xl" />
+
+        <div className="relative">
+          <div className="mb-2 flex items-center gap-2">
+            <MainnetBadge size="sm" />
+            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+              Activation
+            </span>
+          </div>
+
+          <h2 className="text-base font-semibold leading-snug text-foreground">{headline}</h2>
+          <p className="mt-1 text-xs leading-snug text-muted-foreground line-clamp-2">{subline}</p>
+
+          {/* Inline stepper */}
+          <ol className="mt-3 flex items-center gap-1.5">
+            {steps.map((s, idx) => (
+              <li key={s.n} className="flex flex-1 items-center gap-1.5">
+                <div
+                  className={cn(
+                    "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border",
+                    s.done
+                      ? "border-trading-green bg-trading-green/20 text-trading-green"
+                      : "border-border bg-muted/30 text-muted-foreground",
+                  )}
+                >
+                  {s.done ? (
+                    <Check className="h-3 w-3" strokeWidth={3} />
+                  ) : (
+                    <span className="font-mono text-[10px] font-semibold">{s.n}</span>
+                  )}
+                </div>
+                <span
+                  className={cn(
+                    "truncate text-[11px]",
+                    s.done ? "text-muted-foreground line-through" : "text-foreground",
+                  )}
+                >
+                  {s.label}
+                </span>
+                {idx < steps.length - 1 && (
+                  <div className="ml-0.5 h-px flex-1 bg-border/60" />
+                )}
+              </li>
+            ))}
+          </ol>
+
+          <Button
+            onClick={() => navigate(primaryCta.href)}
+            className="mt-3 w-full bg-trading-green text-background hover:bg-trading-green/90 font-semibold h-10"
+          >
+            <PrimaryIcon className="mr-2 h-4 w-4" />
+            {primaryCta.label}
+            <ChevronRight className="ml-1 h-4 w-4" />
+          </Button>
+
+          <button
+            onClick={() => navigate("/mainnet-launch")}
+            className="mt-2 flex w-full items-center justify-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Sparkles className="h-3 w-3 text-trading-green" />
+            Why mainnet?
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
     <section
       aria-label="Mainnet activation"
