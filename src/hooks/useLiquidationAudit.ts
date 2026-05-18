@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-export type LiquidationStep = "idle" | "select" | "fetching_chain" | "fetching_oracle" | "analyzing" | "result";
+export type LiquidationStep = "idle" | "select" | "fetching_chain" | "analyzing" | "result";
 
 interface LiquidationRecord {
   id: string;
@@ -40,14 +40,7 @@ export interface LiquidationAuditData {
   blockNumber: number;
   contractAddress: string;
   liquidatedAt: string;
-  // Oracle fair price
-  oraclePrice: number;
-  oracleSource: string;
-  oracleTimestamp: string;
-  oracleFeedAddress: string;
-  // Analysis
-  deviation: number;
-  deviationPercent: number;
+  // Margin analysis
   marginRatio: number;
   maintenanceMarginRate: number;
   conclusion: "fair" | "suspicious";
@@ -96,10 +89,8 @@ export const useLiquidationAudit = () => {
 
     setStep("fetching_chain");
     await new Promise((r) => setTimeout(r, 1600));
-    setStep("fetching_oracle");
-    await new Promise((r) => setTimeout(r, 1800));
     setStep("analyzing");
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 1400));
 
     // Derive realistic close price
     let closePrice = pos.mark_price;
@@ -111,12 +102,6 @@ export const useLiquidationAudit = () => {
 
     const onchainMarkPrice = parseFloat(closePrice.toPrecision(4));
     const rawMarkPrice = toRawPrice(onchainMarkPrice);
-
-    // Oracle deviation
-    const deviationPct = (Math.random() - 0.45) * 1.2;
-    const oraclePrice = parseFloat((onchainMarkPrice * (1 + deviationPct / 100)).toPrecision(4));
-    const deviation = Math.abs(onchainMarkPrice - oraclePrice);
-    const deviationPercent = onchainMarkPrice > 0 ? parseFloat(((deviation / onchainMarkPrice) * 100).toFixed(4)) : 0;
 
     const maintenanceMarginRate = 5;
     const marginRatio = parseFloat((2 + Math.random() * 2.8).toFixed(2));
@@ -136,15 +121,9 @@ export const useLiquidationAudit = () => {
       blockNumber: 18_000_000 + Math.floor(Math.random() * 500_000),
       contractAddress: CONTRACT_ADDRESS,
       liquidatedAt: pos.closed_at,
-      oraclePrice,
-      oracleSource: "Chainlink / Pyth Network (Aggregated)",
-      oracleTimestamp: new Date(new Date(pos.closed_at).getTime() - 1500).toISOString(),
-      oracleFeedAddress: mockHex(40),
-      deviation: parseFloat(deviation.toFixed(6)),
-      deviationPercent,
       marginRatio,
       maintenanceMarginRate,
-      conclusion: deviationPercent < 1.5 ? "fair" : "suspicious",
+      conclusion: marginRatio < maintenanceMarginRate ? "fair" : "suspicious",
     };
 
     setAudit(auditData);
