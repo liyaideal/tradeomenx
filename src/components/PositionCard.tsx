@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { usePositions } from "@/hooks/usePositions";
-import { ClosePositionPopover } from "@/components/positions/ClosePositionPopover";
+import { ClosePositionDrawer } from "@/components/positions/ClosePositionDrawer";
 
 interface PositionCardProps {
   type: "long" | "short";
