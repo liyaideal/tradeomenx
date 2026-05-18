@@ -33,6 +33,8 @@ interface PositionCardProps {
   // Identity for close mutations (passed by parent list)
   positionId?: string;
   positionIndex?: number;
+  // Full unified position (enables detail drawer with funding data)
+  position?: UnifiedPosition;
 }
 
 export const PositionCard = ({
