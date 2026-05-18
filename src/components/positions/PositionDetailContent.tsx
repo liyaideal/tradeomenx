@@ -33,19 +33,21 @@ export const PositionDetailContent = ({
   const mark = liveMarkPrice ?? position.markPriceNum;
   const sideSign = position.type === "long" ? 1 : -1;
 
-  // Price PnL = (mark − entry) × size × side × leverage
+  // Price PnL = (mark − entry) × size × side
+  // Leverage is NOT multiplied — size already represents contracts and leverage
+  // only governs margin / % return. Aligns with useRealtimePositionsPnL.
   const pricePnl = useMemo(() => {
     const diff = mark - position.entryPriceNum;
-    return diff * position.sizeNum * sideSign * position.leverageNum;
-  }, [mark, position.entryPriceNum, position.sizeNum, position.leverageNum, sideSign]);
+    return diff * position.sizeNum * sideSign;
+  }, [mark, position.entryPriceNum, position.sizeNum, sideSign]);
 
   const fundingPaid = position.fundingAccrued;
   const netPnl = pricePnl - fundingPaid;
   const pnlPercent = position.marginNum > 0 ? (netPnl / position.marginNum) * 100 : 0;
 
-  // Notional & fee estimates
-  const notional = position.sizeNum * mark * position.leverageNum;
-  const openFee = position.sizeNum * position.entryPriceNum * position.leverageNum * feeRate;
+  // Notional & fee estimates (size × price, no leverage multiplier)
+  const notional = position.sizeNum * mark;
+  const openFee = position.sizeNum * position.entryPriceNum * feeRate;
   const estCloseFee = notional * feeRate;
 
   // Funding rate direction
