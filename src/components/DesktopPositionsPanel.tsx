@@ -39,6 +39,7 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
+import { PositionDetailDialog } from "@/components/positions/PositionDetailDialog";
 
 export const DesktopPositionsPanel = () => {
   // Use unified hooks - Supabase for logged-in users, local for guests
