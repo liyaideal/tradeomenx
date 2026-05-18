@@ -34,7 +34,7 @@ const SCENARIOS = [
     iconBg: "bg-blue-400/10",
     title: "Is My Trade Real?",
     subtitle: "TradeLogged Event Audit",
-    description: "Compare your trade records against on-chain TradeLogged events (eventId, outcomeId, makerUid, takerUid, price, size, side) to verify execution integrity.",
+    description: "Compare your trade records against on-chain TradeLogged events (eventId, marketId, makerUid, takerUid, price, size, side) to verify execution integrity.",
     steps: ["Select a trade", "Fetch on-chain log", "Field-by-field comparison", "Counterparty verification"],
     badge: "Trade Audit",
   },
