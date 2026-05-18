@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowDownToLine, TrendingUp, ChevronRight, Sparkles, Check } from "lucide-react";
+import { ArrowDownToLine, TrendingUp, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useActivationState } from "@/hooks/useActivationState";
 import { MainnetBadge } from "@/components/MainnetBadge";
@@ -102,13 +102,6 @@ export const ActivationHero = () => {
             <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
 
-          <button
-            onClick={() => navigate("/mainnet-launch")}
-            className="mt-2 flex w-full items-center justify-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Sparkles className="h-3 w-3 text-trading-green" />
-            See launch rewards
-          </button>
         </div>
       </section>
     );
@@ -159,19 +152,11 @@ export const ActivationHero = () => {
         <div className="mt-4 flex gap-2">
           <Button
             onClick={() => navigate(primaryCta.href)}
-            className="flex-1 bg-trading-green text-background hover:bg-trading-green/90 font-semibold h-11"
+            className="w-full bg-trading-green text-background hover:bg-trading-green/90 font-semibold h-11"
           >
             <PrimaryIcon className="mr-2 h-4 w-4" />
             {primaryCta.label}
             <ChevronRight className="ml-1 h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/mainnet-launch")}
-            className="h-11 border-border/60"
-          >
-            <Sparkles className="mr-1.5 h-4 w-4 text-trading-green" />
-            See launch rewards
           </Button>
         </div>
       </div>
