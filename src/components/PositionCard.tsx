@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
-import { usePositions } from "@/hooks/usePositions";
+import { usePositions, type UnifiedPosition } from "@/hooks/usePositions";
 import { ClosePositionDrawer } from "@/components/positions/ClosePositionDrawer";
+import { PositionDetailDrawer } from "@/components/positions/PositionDetailDrawer";
 
 interface PositionCardProps {
   type: "long" | "short";
