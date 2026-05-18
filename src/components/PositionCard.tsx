@@ -92,6 +92,7 @@ export const PositionCard = ({
     : !pnl.startsWith("-");
   
   const [tpSlOpen, setTpSlOpen] = useState(false);
+  const [closeOpen, setCloseOpen] = useState(false);
   // Use saved state to persist values after dialog closes
   const [savedTp, setSavedTp] = useState(initialTp);
   const [savedSl, setSavedSl] = useState(initialSl);
