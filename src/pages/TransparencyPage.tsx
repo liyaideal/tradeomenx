@@ -45,8 +45,8 @@ const SCENARIOS = [
     iconBg: "bg-amber-400/10",
     title: "Why Was I Liquidated?",
     subtitle: "PositionLiquidated Event Audit",
-    description: "Audit forced liquidation events by comparing the on-chain markPrice against third-party oracle feeds (Chainlink / Pyth) to ensure no price manipulation.",
-    steps: ["Select position", "Fetch on-chain event", "Oracle price comparison", "Fairness conclusion"],
+    description: "Audit forced liquidations by replaying the on-chain markPrice and your margin ratio at trigger time — verify the closure was executed by the contract's maintenance margin rule, not by manual intervention.",
+    steps: ["Select position", "Fetch on-chain event", "Margin analysis", "Fairness conclusion"],
     badge: "Price Fairness",
   },
   {
