@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -42,9 +43,15 @@ export const ClosePositionDialog = ({
 }: ClosePositionDialogProps) => {
   const safeSize = Math.max(1, Math.floor(size));
   const description = `${option} · ${side === "long" ? "Long" : "Short"} ${leverage} · ${safeSize.toLocaleString()} contracts`;
+  const [open, setOpen] = useState(false);
+
+  const handleConfirm = async (qty: number) => {
+    await onConfirm(qty);
+    setOpen(false);
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-md bg-card border-border">
         <DialogHeader>
@@ -59,7 +66,7 @@ export const ClosePositionDialog = ({
           markPrice={markPrice}
           margin={margin}
           fullCloseOnly={fullCloseOnly}
-          onConfirm={onConfirm}
+          onConfirm={handleConfirm}
           isClosing={isClosing}
           showHeader={false}
           variant="comfortable"
