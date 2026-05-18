@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 interface OrderCardProps {
