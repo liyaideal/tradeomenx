@@ -310,9 +310,11 @@ export type Database = {
           created_at: string
           event_id: string
           final_price: number | null
+          funding_rate: number
           id: string
           is_winner: boolean | null
           label: string
+          next_funding_at: string | null
           price: number
           updated_at: string
         }
@@ -320,9 +322,11 @@ export type Database = {
           created_at?: string
           event_id: string
           final_price?: number | null
+          funding_rate?: number
           id: string
           is_winner?: boolean | null
           label: string
+          next_funding_at?: string | null
           price?: number
           updated_at?: string
         }
@@ -330,9 +334,11 @@ export type Database = {
           created_at?: string
           event_id?: string
           final_price?: number | null
+          funding_rate?: number
           id?: string
           is_winner?: boolean | null
           label?: string
+          next_funding_at?: string | null
           price?: number
           updated_at?: string
         }
@@ -601,13 +607,57 @@ export type Database = {
         }
         Relationships: []
       }
+      position_funding_ledger: {
+        Row: {
+          accrual_end: string
+          accrual_start: string
+          amount: number
+          applied_rate: number
+          created_at: string
+          event_name: string
+          id: string
+          notional: number
+          option_id: string | null
+          position_id: string
+          user_id: string
+        }
+        Insert: {
+          accrual_end: string
+          accrual_start: string
+          amount: number
+          applied_rate: number
+          created_at?: string
+          event_name: string
+          id?: string
+          notional: number
+          option_id?: string | null
+          position_id: string
+          user_id: string
+        }
+        Update: {
+          accrual_end?: string
+          accrual_start?: string
+          amount?: number
+          applied_rate?: number
+          created_at?: string
+          event_name?: string
+          id?: string
+          notional?: number
+          option_id?: string | null
+          position_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       positions: {
         Row: {
           closed_at: string | null
           created_at: string
           entry_price: number
           event_name: string
+          funding_accrued: number
           id: string
+          last_funding_at: string | null
           leverage: number
           margin: number
           mark_price: number
@@ -631,7 +681,9 @@ export type Database = {
           created_at?: string
           entry_price: number
           event_name: string
+          funding_accrued?: number
           id?: string
+          last_funding_at?: string | null
           leverage?: number
           margin: number
           mark_price: number
@@ -655,7 +707,9 @@ export type Database = {
           created_at?: string
           entry_price?: number
           event_name?: string
+          funding_accrued?: number
           id?: string
+          last_funding_at?: string | null
           leverage?: number
           margin?: number
           mark_price?: number
@@ -932,6 +986,7 @@ export type Database = {
           created_at: string
           event_name: string
           fee: number
+          funding_paid: number
           id: string
           leverage: number
           margin: number
@@ -955,6 +1010,7 @@ export type Database = {
           created_at?: string
           event_name: string
           fee?: number
+          funding_paid?: number
           id?: string
           leverage?: number
           margin: number
@@ -978,6 +1034,7 @@ export type Database = {
           created_at?: string
           event_name?: string
           fee?: number
+          funding_paid?: number
           id?: string
           leverage?: number
           margin?: number

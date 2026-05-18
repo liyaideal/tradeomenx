@@ -1,56 +1,162 @@
-## 移动端弹窗规范审计（修正版）
+## 目标
 
-规范：移动端所有「编辑 / 确认 / 选择」类弹层必须用 `MobileDrawer`。Popover/Dialog/AlertDialog/原生 Drawer 都不算。
-
-我把上一版误报的去掉了：
-- ❌ ~~AuthDialog~~ —— 移动端实际走 `AuthSheet`（已是 `MobileDrawer`），调用方都做了 `isMobile ? <AuthSheet/> : <AuthDialog/>` 分支 ✅
-- ❌ ~~EventCard Order Preview~~ —— 移动端走的是 `/order-preview` 整页（非弹窗）✅
+让 funding fee 成为真实记账项：实时累计、持续展示、平仓结算扣除、详情弹窗可查；并附上一个统一的 Position Detail Dialog（按 Overlay 规范桌面 Dialog + 移动 MobileDrawer）。
 
 ---
 
-### A. 严重违规（移动端居中 Dialog/AlertDialog）
+## 一、数据模型（migration）
 
-| # | 文件 | 弹窗 | 触发位置 |
-|---|------|------|---------|
-| 1 | `src/components/PositionCard.tsx:334` | **Edit TP/SL** Dialog | 移动端 Positions 列表里每张卡的 "Add/Edit TP/SL" 按钮（截图里就是这个） |
-| 2 | `src/components/OrderCard.tsx:131` | **Fill Order** AlertDialog | `/trade/order` 的 Orders tab，点订单卡 "Fill" 按钮 |
-| 3 | `src/components/OrderCard.tsx:181` | **Cancel Order** AlertDialog | 同上，点订单卡 "Cancel" 按钮 |
+### 1. `positions` 新增列
+- `funding_accrued NUMERIC NOT NULL DEFAULT 0` —— 累计已扣 funding（正=被扣，负=被支付）
+- `last_funding_at TIMESTAMPTZ` —— 上次累计 funding 的时间戳（用于按时长结算）
 
-→ 全部改成「移动端 `MobileDrawer` + 桌面端保留 Dialog」。OrderCard 两个 AlertDialog 内容差不多，可以共用一个内部 `OrderConfirmContent` 组件。
+### 2. `event_options` 新增列
+- `funding_rate NUMERIC NOT NULL DEFAULT 0` —— 当前小时费率（小数，如 `0.0001` = 0.01%/h）。Long pays Short 为正。
+- `next_funding_at TIMESTAMPTZ` —— 下次切换费率的时间
 
-### B. 中度违规（用了 mobile 分支但走原生 `Drawer`，没走 `MobileDrawer`）
+### 3. 新表 `position_funding_ledger`
+单调追加的 funding 流水，给详情弹窗与 transparency audit 用。
+- `id uuid pk`, `user_id uuid`, `position_id uuid`
+- `option_id text`, `event_name text`
+- `applied_rate numeric` —— 本次费率
+- `notional numeric` —— 本次计费名义本金（`size × mark_price × leverage`）
+- `amount numeric` —— 本次扣/付金额（正=扣，负=付）
+- `accrual_start timestamptz`, `accrual_end timestamptz`
+- `created_at timestamptz default now()`
 
-视觉/handle/安全区与项目其它抽屉不一致。
+RLS：
+- `positions` / `event_options` 的 RLS 保持不变（新列继承）
+- `position_funding_ledger`：用户 SELECT 自己；只有 service-role/cron 可 INSERT（policy `with check (false)` for authenticated → 仅 edge function 用 service role 写）
 
-| # | 文件 | 现状 |
-|---|------|------|
-| 4 | `src/components/AirdropHomepageModal.tsx` | mobile 用 `@/components/ui/drawer` |
-| 5 | `src/components/rewards/RedeemDialog.tsx` | mobile 用 `@/components/ui/drawer` |
-| 6 | `src/components/rewards/XShareConfirmDialog.tsx` | mobile 用 `@/components/ui/drawer` |
-
-→ 把 `<Drawer><DrawerContent>` 整段换成 `<MobileDrawer title=... description=...>`。
-
-### C. 其它（不算违规但需确认）
-
-| # | 文件 | 说明 |
-|---|------|------|
-| 7 | `src/components/MobileTradingLayout.tsx` | 直接用 `Sheet`，但这是侧边导航 `side="left"`，不是底部弹窗，**保留** |
-| 8 | `src/components/MobileHeader.tsx`、`Portfolio.tsx`、`Wallet.tsx` 的移动端 Popover | 只是字段说明 tooltip，不是编辑/确认，**保留** |
-| 9 | `src/components/events/ChgTimeframePicker.tsx` | 时间段切换 Popover，移动端用户感知有但操作轻，**可选改 Drawer**，非必须 |
-| 10 | `src/components/BinaryEventHint.tsx` | 已有 `useIsMobile` 分支，需顺手确认移动分支是 `MobileDrawer` |
-
-### D. 已合规（样板参考）
-
-`TopUpDialog` / `RewardsWelcomeModal` / `TreasureClaimDialog` / `PolymarketConnectDialog` / `ConnectedAccountsCard` / `AuthSheet` / `ClosePositionDrawer`（上轮新加）
+### 4. `trades` 新增列
+- `funding_paid NUMERIC NOT NULL DEFAULT 0` —— 平仓时快照该笔仓位累计的 funding，用于 settlement & 透明度
 
 ---
 
-## 推荐范围
+## 二、Funding 累计 Edge Function（cron）
 
-**A 组 3 个（必修） + B 组 3 个（建议修）**，一共 6 个文件。
+新建 `supabase/functions/accrue-funding/index.ts`：
 
-A 组要新建/抽出来的共用子组件：
-- `EditTpSlForm`（PositionCard 用）
-- `OrderConfirmContent`（OrderCard 用，type 区分 fill / cancel）
+每小时跑一次（pg_cron）。逻辑：
+1. 拉取所有 `status='Open'` 的 positions（带 `option_id`, `size`, `leverage`, `entry_price`, `mark_price`, `side`, `funding_accrued`, `last_funding_at`）
+2. 关联 `event_options.funding_rate`
+3. 按时长比例计算：`hoursElapsed = (now - last_funding_at) / 3600`
+4. `amount = side_sign × applied_rate × notional × hoursElapsed`
+   - Long 仓位被扣正费率，Short 反之
+   - `notional = size × mark_price × leverage`（用当前 mark）
+5. 批量 UPDATE positions：`funding_accrued += amount`, `last_funding_at = now()`
+6. 批量 INSERT `position_funding_ledger` 流水
+7. 同步把 `pnl` 减去 `amount`（展示 PnL = price PnL − funding，以保持卡片显示一致）
 
-要不要我现在按 A+B 一次全改？或者只先把 A 组 3 个改了？
+费率刷新（独立或合并到 `update-prices`）：每 N 小时为每个 option 随机重置 `funding_rate ∈ [-0.0002, +0.0002]/h`，并写入 `next_funding_at`。建议合并到现有 `update-prices` 即可。
+
+> 频率折中：真实交易所 8h 一次太慢，demo 看不见效果。**采用 1h 一次**，并允许 cron 用更短周期（例如每 5 分钟）做按比例累计，使界面有动效但金额仍小。
+
+---
+
+## 三、PnL & Settlement 调整
+
+### 1. PnL 公式统一
+所有读取 `position.pnl` 的地方含义改成 **"价格 PnL（不含 funding）"**，新增展示字段：
+- `unrealizedPnl = position.pnl - position.funding_accrued`
+- `netPnl` 是卡片展示主指标
+
+修改文件：
+- `src/lib/tradingUtils.ts`：新增 helper `getNetPnl(position)`
+- `src/hooks/useSupabasePositions.ts`：返回 `funding_accrued`、`netPnl`
+
+### 2. 平仓时
+`useSupabasePositions.ts` 的 close / partial close 流程：
+- 关仓前先调用一次 edge function `accrue-funding` 的"单仓追平"模式（POST `{ positionId }`），保证 funding 累到关仓瞬间
+- `realizedPnl = priceRealizedPnl - funding_accrued`（部分平仓按比例分摊 funding）
+- 写 `trades.funding_paid`，写一条 `position_funding_ledger` 收尾流水
+- `marginReturned = margin + realizedPnl`（已扣 funding）
+
+### 3. 实时 PnL UI
+所有 position 卡片改成显示 `netPnl`，并保留 tooltip 显示分解。
+
+---
+
+## 四、Position Detail Dialog
+
+新增 `src/components/positions/PositionDetailDialog.tsx`（桌面 Dialog）+ `PositionDetailDrawer.tsx`（移动 MobileDrawer），共享 `PositionDetailContent.tsx`。
+
+入口：position 卡片点击行（非按钮区域）打开。
+
+内容：
+- **Header**：event name · option label · Long/Short · leverage
+- **PnL block**
+  - Net PnL（大字，带颜色）
+  - Price PnL · Funding · Open Fee · Est. Close Fee（小字明细）
+- **Position**：Entry / Mark / Liq Price / Size / Margin
+- **Funding section**
+  - Current rate / hour（带方向：You pay · You receive）
+  - Accrued since open（绝对值 + 占 margin %）
+  - Next accrual countdown（基于 `last_funding_at + 1h`）
+  - "View funding history" → 折叠展开最近 10 条 `position_funding_ledger`
+- **Footer**：Close Position / Edit TP-SL 两个按钮（直接复用现有逻辑）
+
+---
+
+## 五、UI 现有静态值替换
+
+| 文件 | 现状 | 改为 |
+|---|---|---|
+| `src/lib/tradingUtils.ts` 第 61 行 | `Funding Rate: "+0.05%"` 写死 | 从所选 option 的 `funding_rate` 实时读 |
+| `src/pages/DesktopTrading.tsx` 884 行 Funding Rate 区 | 静态 | 绑定到当前 option |
+| `src/pages/TradeOrder.tsx` 122 行 `Funding -0.01%` | 静态 | 绑定到当前 option |
+| `src/hooks/useFundingRateAudit.ts` | mock | 改为从 `position_funding_ledger` 取真实流水（保留模拟 on-chain hash） |
+
+---
+
+## 六、Cron 调度
+
+通过 `supabase--insert` 注册 pg_cron（不是 migration）：
+```
+select cron.schedule(
+  'accrue-funding-every-5min',
+  '*/5 * * * *',
+  $$ select net.http_post(
+    url:='https://lbrwdmnctmivgrsgdpqj.supabase.co/functions/v1/accrue-funding',
+    headers:='{"Content-Type":"application/json","apikey":"<anon>"}'::jsonb,
+    body:='{}'::jsonb
+  ); $$
+);
+```
+
+---
+
+## 七、回滚/兼容性
+
+- 所有新列有 default 值，老仓位安全（`funding_accrued = 0` 起算，`last_funding_at = COALESCE(last_funding_at, created_at)` 在 edge function 里 fallback）
+- 静态 `+0.05%` 显示替换为动态值，不影响下单逻辑
+- Transparency 的 FundingRateAudit 从 mock 切真数据，UI 形态保持不变
+
+---
+
+## 文件清单
+
+**新建**
+- `supabase/functions/accrue-funding/index.ts`
+- `src/components/positions/PositionDetailDialog.tsx`
+- `src/components/positions/PositionDetailDrawer.tsx`
+- `src/components/positions/PositionDetailContent.tsx`
+- migration（schema 变更）
+- supabase--insert（cron 调度）
+
+**修改**
+- `src/hooks/useSupabasePositions.ts`（含 funding 的 PnL、平仓追平）
+- `src/lib/tradingUtils.ts`（getNetPnl + 动态 funding rate）
+- `src/pages/DesktopTrading.tsx`、`src/pages/TradeOrder.tsx`、`src/components/DesktopHeader.tsx`（静态值替换）
+- `src/components/DesktopPositionsPanel.tsx`、`src/components/PositionCard.tsx`（绑定卡片点击 → 详情 Dialog/Drawer，PnL 改 net）
+- `src/hooks/useFundingRateAudit.ts`（切真数据）
+- `supabase/functions/update-prices/index.ts`（顺手刷新 `funding_rate`）
+
+---
+
+## 待你确认的 2 个参数
+
+1. **累计粒度**：建议 cron 每 5 分钟跑一次按时长累计（用户看得到数字慢慢动）。如果你想要"每小时整点收一次"（更接近永续）也可以。
+2. **费率区间**：建议每小时 ±0.02%（年化约 ±175%，对 10x 杠杆 demo 友好可见）。要更激进/温和也可调。
+
+确认这两个数后我开工。
