@@ -889,13 +889,15 @@ export default function Wallet() {
       <MobileHeader title="Wallet" showLogo={false} />
 
       <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
-      <div className="px-4 py-6 space-y-6">
+      <div className="px-4 py-5 space-y-4">
         <ActivationHero />
         <BalanceCard />
         <H2eRewardsCard />
-        <PendingConfirmations />
+        <PendingConfirmations className="rounded-2xl border border-border/50 bg-card p-4" />
         <SavedAddressesList />
-        <TransactionHistory transactions={transactions} />
+        <div className="rounded-2xl border border-border/50 bg-card p-4">
+          <TransactionHistory transactions={transactions} />
+        </div>
       </div>
       </AuthGateOverlay>
 
