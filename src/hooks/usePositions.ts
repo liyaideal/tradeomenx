@@ -85,6 +85,10 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
   const sizeStr = pos.size.replace(/,/g, "");
   const sizeNum = parseFloat(sizeStr) || 0;
   
+  const entryNum = parseFloat(pos.entryPrice.replace(/[$,]/g, "")) || 0;
+  const markNum = parseFloat(pos.markPrice.replace(/[$,]/g, "")) || 0;
+  const marginNum = parseFloat(pos.margin.replace(/[$,]/g, "")) || 0;
+  const levNum = parseInt(pos.leverage.replace(/[^\d]/g, ""), 10) || 1;
   return {
     id: `local-${index}`,
     type: pos.type,
@@ -102,6 +106,14 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
     sl: pos.sl,
     tpMode: pos.tpMode,
     slMode: pos.slMode,
+    fundingAccrued: 0,
+    lastFundingAt: null,
+    entryPriceNum: entryNum,
+    markPriceNum: markNum,
+    sizeNum,
+    marginNum,
+    leverageNum: levNum,
+    createdAt: new Date().toISOString(),
     _source: "local",
   };
 };
@@ -129,6 +141,14 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     slMode: "%",
     isAirdrop: true,
     airdropId: airdrop.id,
+    fundingAccrued: 0,
+    lastFundingAt: null,
+    entryPriceNum: airdrop.counterPrice,
+    markPriceNum: airdrop.counterPrice,
+    sizeNum: qty,
+    marginNum: airdrop.airdropValue,
+    leverageNum: 1,
+    createdAt: new Date().toISOString(),
     _source: "airdrop",
   };
 };
