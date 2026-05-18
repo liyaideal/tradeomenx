@@ -147,7 +147,7 @@ export const PositionDetailContent = ({
               {fundingPaid >= 0 ? "−" : "+"}${Math.abs(fundingPaid).toFixed(4)}
             </span>
 
-            <span className="text-muted-foreground">Open fee</span>
+            <span className="text-muted-foreground">Cumulative Trading Fees</span>
             <span className="font-mono text-right text-foreground">
               −${openFee.toFixed(4)}
             </span>
