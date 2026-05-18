@@ -12,8 +12,8 @@ export type MerkleStep =
 
 export interface MerkleVerificationData {
   balance: number;
-  positionsValue: number;
-  totalEquity: number;
+  margin: number;
+  totalAssets: number;
   leafHash: string;
   oldRoot: string;
   stateRoot: string; // newRoot
