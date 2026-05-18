@@ -16,7 +16,7 @@ export interface UnifiedPosition {
   size: string;           // Raw numeric string for calculations (no commas)
   sizeDisplay: string;    // Formatted string for display (with commas)
   margin: string;
-  pnl: string;
+  pnl: string;            // Net PnL (price PnL − funding accrued)
   pnlPercent: string;
   leverage: string;
   tp: string;
@@ -25,6 +25,16 @@ export interface UnifiedPosition {
   slMode: "%" | "$";
   isAirdrop?: boolean;
   airdropId?: string;
+  // Funding fee fields (raw numbers for math; UI formats as needed)
+  fundingAccrued: number;     // Net cumulative funding paid (positive = user paid)
+  lastFundingAt: string | null;
+  // Raw numeric snapshots (handy for detail dialog math)
+  entryPriceNum: number;
+  markPriceNum: number;
+  sizeNum: number;
+  marginNum: number;
+  leverageNum: number;
+  createdAt: string;
   // Original source for mutations
   _source: "supabase" | "local" | "airdrop";
   _supabaseId?: string;
@@ -35,6 +45,9 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
   const pnlValue = Number(pos.pnl) || 0;
   const pnlPercentValue = Number(pos.pnl_percent) || 0;
   const sizeNum = Number(pos.size);
+  const entryNum = Number(pos.entry_price);
+  const markNum = Number(pos.mark_price);
+  const marginNum = Number(pos.margin);
   
   return {
     id: pos.id,
@@ -42,11 +55,11 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
     event: pos.event_name,
     option: pos.option_label,
     optionId: pos.option_id || null, // Direct reference for realtime prices
-    entryPrice: `$${Number(pos.entry_price).toFixed(4)}`,
-    markPrice: `$${Number(pos.mark_price).toFixed(4)}`,
+    entryPrice: `$${entryNum.toFixed(4)}`,
+    markPrice: `$${markNum.toFixed(4)}`,
     size: String(sizeNum), // Raw number for calculations
     sizeDisplay: sizeNum.toLocaleString(), // Formatted for display
-    margin: `$${Number(pos.margin).toFixed(2)}`,
+    margin: `$${marginNum.toFixed(2)}`,
     pnl: `${pnlValue >= 0 ? "+" : ""}$${Math.abs(pnlValue).toFixed(2)}`,
     pnlPercent: `${pnlPercentValue >= 0 ? "+" : ""}${pnlPercentValue.toFixed(1)}%`,
     leverage: `${pos.leverage}x`,
@@ -54,6 +67,14 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
     sl: pos.sl_value ? String(pos.sl_value) : "",
     tpMode: (pos.tp_mode as "%" | "$") || "%",
     slMode: (pos.sl_mode as "%" | "$") || "%",
+    fundingAccrued: Number((pos as SupabasePosition & { funding_accrued?: number }).funding_accrued) || 0,
+    lastFundingAt: (pos as SupabasePosition & { last_funding_at?: string | null }).last_funding_at ?? null,
+    entryPriceNum: entryNum,
+    markPriceNum: markNum,
+    sizeNum,
+    marginNum,
+    leverageNum: Number(pos.leverage) || 1,
+    createdAt: pos.created_at,
     _source: "supabase",
     _supabaseId: pos.id,
   };
@@ -64,6 +85,10 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
   const sizeStr = pos.size.replace(/,/g, "");
   const sizeNum = parseFloat(sizeStr) || 0;
   
+  const entryNum = parseFloat(pos.entryPrice.replace(/[$,]/g, "")) || 0;
+  const markNum = parseFloat(pos.markPrice.replace(/[$,]/g, "")) || 0;
+  const marginNum = parseFloat(pos.margin.replace(/[$,]/g, "")) || 0;
+  const levNum = parseInt(pos.leverage.replace(/[^\d]/g, ""), 10) || 1;
   return {
     id: `local-${index}`,
     type: pos.type,
@@ -81,6 +106,14 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
     sl: pos.sl,
     tpMode: pos.tpMode,
     slMode: pos.slMode,
+    fundingAccrued: 0,
+    lastFundingAt: null,
+    entryPriceNum: entryNum,
+    markPriceNum: markNum,
+    sizeNum,
+    marginNum,
+    leverageNum: levNum,
+    createdAt: new Date().toISOString(),
     _source: "local",
   };
 };
@@ -108,6 +141,14 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     slMode: "%",
     isAirdrop: true,
     airdropId: airdrop.id,
+    fundingAccrued: 0,
+    lastFundingAt: null,
+    entryPriceNum: airdrop.counterPrice,
+    markPriceNum: airdrop.counterPrice,
+    sizeNum: qty,
+    marginNum: airdrop.airdropValue,
+    leverageNum: 1,
+    createdAt: new Date().toISOString(),
     _source: "airdrop",
   };
 };

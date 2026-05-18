@@ -158,8 +158,26 @@ Deno.serve(async (req) => {
       throw historyError;
     }
 
+    // 5. Refresh funding rates for options whose next_funding_at has passed
+    const { data: dueOpts } = await supabase
+      .from("event_options")
+      .select("id")
+      .in("event_id", activeEventIds)
+      .or(`next_funding_at.is.null,next_funding_at.lte.${now}`);
+
+    if (dueOpts && dueOpts.length > 0) {
+      const nextAt = new Date(Date.now() + 3600_000).toISOString();
+      const fundingRows = dueOpts.map((o: { id: string }) => ({
+        id: o.id,
+        funding_rate: Math.round(((Math.random() - 0.5) * 0.0004) * 1e6) / 1e6,
+        next_funding_at: nextAt,
+      }));
+      // Use upsert preserving other columns via id conflict
+      await supabase.from("event_options").upsert(fundingRows, { onConflict: "id" });
+    }
+
     console.log(
-      `Batched update complete. Events: ${optionsByEvent.size}, Options updated: ${upsertRows.length}, History rows: ${historyRows.length}`
+      `Batched update complete. Events: ${optionsByEvent.size}, Options updated: ${upsertRows.length}, History rows: ${historyRows.length}, Funding refreshed: ${dueOpts?.length ?? 0}`
     );
 
     return new Response(

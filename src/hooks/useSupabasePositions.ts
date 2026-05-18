@@ -20,6 +20,18 @@ const fetchPositions = async (userId: string): Promise<SupabasePosition[]> => {
   return data || [];
 };
 
+// Top up funding on a single position by invoking the accrue-funding edge function.
+// Best-effort: failures are logged but don't block close.
+const topUpFunding = async (positionId: string) => {
+  try {
+    await supabase.functions.invoke("accrue-funding", {
+      body: { positionId },
+    });
+  } catch (err) {
+    console.warn("[funding] top-up failed before close", err);
+  }
+};
+
 // Close a position in Supabase
 const closePositionInDb = async ({
   userId,
@@ -31,11 +43,14 @@ const closePositionInDb = async ({
   positionId: string;
   closePrice: number;
   pnl: number;
-}): Promise<{ marginReturned: number }> => {
-  // Get position details first
+}): Promise<{ marginReturned: number; fundingPaid: number; netPnl: number }> => {
+  // 1. Top up funding to "now" before reading
+  await topUpFunding(positionId);
+
+  // 2. Get position details (now with up-to-date funding_accrued)
   const { data: position, error: fetchError } = await supabase
     .from("positions")
-    .select("margin, trade_id")
+    .select("margin, trade_id, funding_accrued")
     .eq("id", positionId)
     .eq("user_id", userId)
     .single();
@@ -43,13 +58,17 @@ const closePositionInDb = async ({
   if (fetchError) throw fetchError;
   if (!position) throw new Error("Position not found");
 
-  // Update position status
+  const fundingPaid = Number(position.funding_accrued) || 0;
+  // The incoming `pnl` arg is price-only PnL from the form. Subtract funding for net.
+  const netPnl = pnl - fundingPaid;
+
+  // 3. Update position status (store net realized pnl)
   const { error: updateError } = await supabase
     .from("positions")
     .update({
       status: "Closed",
       mark_price: closePrice,
-      pnl: pnl,
+      pnl: netPnl,
       closed_at: new Date().toISOString(),
     })
     .eq("id", positionId)
@@ -57,23 +76,28 @@ const closePositionInDb = async ({
 
   if (updateError) throw updateError;
 
-  // Update corresponding trade
+  // 4. Update corresponding trade with funding snapshot
   if (position.trade_id) {
     await supabase
       .from("trades")
       .update({
         status: "Closed",
-        pnl: pnl,
+        pnl: netPnl,
+        funding_paid: fundingPaid,
         closed_at: new Date().toISOString(),
       })
       .eq("id", position.trade_id);
   }
 
-  return { marginReturned: Number(position.margin) + pnl };
+  return {
+    marginReturned: Number(position.margin) + netPnl,
+    fundingPaid,
+    netPnl,
+  };
 };
 
 // Partial close: reduce size/margin proportionally and credit realized PnL line.
-// If closeQty >= current size, fully close.
+// If closeQty >= current size, fully close. Funding is prorated to the closed portion.
 const partialClosePositionInDb = async ({
   userId,
   positionId,
@@ -84,10 +108,13 @@ const partialClosePositionInDb = async ({
   positionId: string;
   closeQty: number;
   closePrice: number;
-}): Promise<{ closedQty: number; remainingSize: number; releasedMargin: number; realizedPnl: number; fullyClosed: boolean }> => {
+}): Promise<{ closedQty: number; remainingSize: number; releasedMargin: number; realizedPnl: number; fundingPaid: number; fullyClosed: boolean }> => {
+  // Top up funding before slicing
+  await topUpFunding(positionId);
+
   const { data: position, error: fetchError } = await supabase
     .from("positions")
-    .select("size, margin, entry_price, side, trade_id, pnl")
+    .select("size, margin, entry_price, side, trade_id, pnl, funding_accrued")
     .eq("id", positionId)
     .eq("user_id", userId)
     .single();
@@ -99,12 +126,16 @@ const partialClosePositionInDb = async ({
   const currentMargin = Number(position.margin);
   const entry = Number(position.entry_price);
   const side = position.side;
+  const currentFunding = Number(position.funding_accrued) || 0;
 
   const qty = Math.min(Math.max(1, Math.floor(closeQty)), Math.floor(currentSize));
   const priceDiff = closePrice - entry;
-  const realizedPnl = (side === "long" ? priceDiff : -priceDiff) * qty;
+  const priceRealized = (side === "long" ? priceDiff : -priceDiff) * qty;
   const ratio = qty / currentSize;
   const releasedMargin = currentMargin * ratio;
+  // Prorate accrued funding to the closed slice
+  const allocatedFunding = currentFunding * ratio;
+  const realizedPnl = priceRealized - allocatedFunding;
 
   // Full close path
   if (qty >= currentSize) {
@@ -126,6 +157,7 @@ const partialClosePositionInDb = async ({
         .update({
           status: "Closed",
           pnl: realizedPnl,
+          funding_paid: currentFunding,
           closed_at: new Date().toISOString(),
         })
         .eq("id", position.trade_id);
@@ -136,14 +168,17 @@ const partialClosePositionInDb = async ({
       remainingSize: 0,
       releasedMargin,
       realizedPnl,
+      fundingPaid: currentFunding,
       fullyClosed: true,
     };
   }
 
-  // Partial: reduce size/margin, accumulate realized pnl on the position row
+  // Partial: reduce size/margin, accumulate realized pnl on the position row,
+  // and reduce funding_accrued by the allocated portion.
   const newSize = currentSize - qty;
   const newMargin = currentMargin - releasedMargin;
   const accumulatedPnl = Number(position.pnl || 0) + realizedPnl;
+  const remainingFunding = currentFunding - allocatedFunding;
 
   const { error: updateError } = await supabase
     .from("positions")
@@ -152,6 +187,7 @@ const partialClosePositionInDb = async ({
       margin: newMargin,
       mark_price: closePrice,
       pnl: accumulatedPnl,
+      funding_accrued: remainingFunding,
     })
     .eq("id", positionId)
     .eq("user_id", userId);
@@ -162,6 +198,7 @@ const partialClosePositionInDb = async ({
     remainingSize: newSize,
     releasedMargin,
     realizedPnl,
+    fundingPaid: allocatedFunding,
     fullyClosed: false,
   };
 };
