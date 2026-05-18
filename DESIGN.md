@@ -246,6 +246,22 @@ Quick decision rule: **brand/navigation → purple tint, opt-out/cancel → mute
 - **`.filter-pill`**: Inactive state
 - **`.filter-pill-active`**: Primary bg + white text
 
+### Overlays (Dialog / Popover / HoverCard / Drawer)
+
+桌面端弹层选择必须与移动端 `MobileDrawer` 形成明确的对等关系。判定规则：**有"确认按钮"且涉及资金/状态改变 → Dialog**；**就地补充输入或快捷选择，无风险 → Popover**。
+
+| 场景 | 桌面端 | 移动端 |
+|------|--------|--------|
+| 资金/不可逆确认（平仓、撤单、提现确认、删除等） | `Dialog` 居中模态 + 遮罩 | `MobileDrawer` |
+| 表单编辑（编辑 TP/SL、改杠杆、筛选器、设置项等） | `Dialog` 居中模态 | `MobileDrawer` |
+| 就地数值快捷调整（订单簿点价、行内数量选择、时间筛选等瞬时操作） | `Popover` 锚定弹出 | `MobileDrawer` 或同 `Popover` |
+| 纯信息展示（字段说明、详情预览） | `HoverCard` / `Tooltip` | `Tooltip`（点击触发） |
+
+实施约束：
+- 任何"Confirm / Close / Submit / Withdraw / Cancel order"按钮组合都必须包在 `Dialog` 里，不允许用 `Popover` 承载，避免点击外部误关闭丢失上下文。
+- 桌面 `Dialog` 与移动 `MobileDrawer` 应复用同一份表单组件（如 `ClosePositionForm` 同时被 `ClosePositionDialog` + `ClosePositionDrawer` 调用），保证两端视觉/逻辑一致。
+- 禁止在移动端直接复用桌面 `Dialog`；必须走 `MobileDrawer` 分支。
+
 ### Tooltips
 
 Tooltip content is explanatory text and must be visually stable across contexts.
