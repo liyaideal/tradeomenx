@@ -107,10 +107,18 @@ export const LiquidationAudit = ({ onBack }: Props) => {
 
       {/* Progress stepper */}
       <div className="trading-card p-4 space-y-3">
-        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+        {/* Desktop: full label row */}
+        <div className="hidden md:flex items-center justify-between text-[10px] text-muted-foreground">
           {STEPS.map((s, i) => (
             <span key={s.key} className={i <= stepIndex(step) ? "text-amber-400 font-medium" : ""}>{i + 1}. {s.label}</span>
           ))}
+        </div>
+        {/* Mobile: current step indicator */}
+        <div className="flex md:hidden items-center justify-between text-xs">
+          <span className="text-amber-400 font-medium">
+            Step {stepIndex(step) + 1} of {STEPS.length} · {STEPS[stepIndex(step)].label}
+          </span>
+          <span className="text-muted-foreground tabular-nums">{Math.round(progress)}%</span>
         </div>
         <Progress value={progress} className="h-1.5 bg-muted/30 [&>div]:bg-amber-400" />
       </div>
@@ -120,11 +128,11 @@ export const LiquidationAudit = ({ onBack }: Props) => {
         <div className="trading-card p-4">
           <p className="text-xs text-muted-foreground mb-1">Auditing Position</p>
           <p className="font-medium text-sm">{selectedPosition.event_name} — {selectedPosition.option_label}</p>
-          <div className="grid grid-cols-4 gap-2 mt-2 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-xs">
             <div><span className="text-muted-foreground">Side</span><br /><span className="font-medium">{selectedPosition.side}</span></div>
-            <div><span className="text-muted-foreground">Entry</span><br /><span className="font-mono">{fmtPrice(selectedPosition.entry_price)}</span></div>
-            <div><span className="text-muted-foreground">Close</span><br /><span className="font-mono">{audit ? fmtPrice(audit.onchainMarkPrice) : fmtPrice(selectedPosition.mark_price)}</span></div>
-            <div><span className="text-muted-foreground">P&L</span><br /><span className="font-mono text-trading-red">{selectedPosition.pnl?.toFixed(2)}</span></div>
+            <div><span className="text-muted-foreground">Entry</span><br /><span className="font-mono tabular-nums">{fmtPrice(selectedPosition.entry_price)}</span></div>
+            <div><span className="text-muted-foreground">Close</span><br /><span className="font-mono tabular-nums">{audit ? fmtPrice(audit.onchainMarkPrice) : fmtPrice(selectedPosition.mark_price)}</span></div>
+            <div><span className="text-muted-foreground">P&L</span><br /><span className="font-mono tabular-nums text-trading-red">{selectedPosition.pnl?.toFixed(2)}</span></div>
           </div>
         </div>
       )}
@@ -159,14 +167,14 @@ export const LiquidationAudit = ({ onBack }: Props) => {
                   { label: "uid", value: `${audit.uid.slice(0, 6)}...${audit.uid.slice(-6)}`, mono: true },
                   { label: "positionSide", value: `${audit.positionSide} (${audit.positionSideLabel})`, mono: true },
                   { label: "size", value: audit.liquidationSize.toString(), mono: true },
-                  { label: "txHash", value: audit.txHash, mono: true, truncate: true },
+                  { label: "txHash", value: `${audit.txHash.slice(0, 6)}...${audit.txHash.slice(-6)}`, mono: true },
                   { label: "blockNumber", value: `#${audit.blockNumber.toLocaleString()}`, mono: true },
-                  { label: "contract", value: audit.contractAddress, mono: true, truncate: true },
+                  { label: "contract", value: `${audit.contractAddress.slice(0, 6)}...${audit.contractAddress.slice(-6)}`, mono: true },
                   { label: "timestamp", value: format(new Date(audit.liquidatedAt), "yyyy-MM-dd HH:mm:ss 'UTC'"), mono: true },
                 ].map((row) => (
-                  <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
+                  <div key={row.label} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded bg-muted/20">
                     <span className="text-muted-foreground shrink-0">{row.label}</span>
-                    <span className={`${row.mono ? "font-mono" : ""} ${row.truncate ? "truncate max-w-[200px]" : ""} text-foreground/80`}>{row.value}</span>
+                    <span className={`${row.mono ? "font-mono tabular-nums" : ""} text-foreground/80 min-w-0 truncate text-right`}>{row.value}</span>
                   </div>
                 ))}
               </div>

@@ -136,21 +136,48 @@ export const TradeVerification = ({ onBack }: Props) => {
               </div>
             </div>
 
-            {/* Field-by-field comparison table */}
+            {/* Field-by-field comparison */}
             <div>
-              <div className="grid grid-cols-[0.8fr,1fr,1fr,0.7fr] gap-0 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-2">
-                <span>Field</span>
-                <span>DB Record</span>
-                <span>On-Chain Log</span>
-                <span>Raw Value</span>
+              {/* Desktop / tablet: 4-column table */}
+              <div className="hidden sm:block">
+                <div className="grid grid-cols-[0.8fr,1fr,1fr,0.7fr] gap-0 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-2">
+                  <span>Field</span>
+                  <span>DB Record</span>
+                  <span>On-Chain Log</span>
+                  <span>Raw Value</span>
+                </div>
+                <div className="space-y-1">
+                  {comparison.dbFields.map((f) => (
+                    <div key={f.key} className={`grid grid-cols-[0.8fr,1fr,1fr,0.7fr] gap-0 rounded-lg px-2 py-1.5 text-xs ${f.match ? "bg-emerald-400/5" : "bg-muted/20"}`}>
+                      <span className="text-muted-foreground min-w-0 truncate">{f.label}</span>
+                      <span className={`font-mono min-w-0 truncate ${f.match ? "text-emerald-400" : ""}`}>{f.dbValue}</span>
+                      <span className={`font-mono min-w-0 truncate ${f.match ? "text-emerald-400" : ""}`}>{f.chainValue}</span>
+                      <span className="font-mono min-w-0 truncate text-muted-foreground/70">{f.chainRaw}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="space-y-1">
+
+              {/* Mobile: stacked cards per field */}
+              <div className="sm:hidden space-y-2">
                 {comparison.dbFields.map((f) => (
-                  <div key={f.key} className={`grid grid-cols-[0.8fr,1fr,1fr,0.7fr] gap-0 rounded-lg px-2 py-1.5 text-xs ${f.match ? "bg-emerald-400/5" : "bg-muted/20"}`}>
-                    <span className="text-muted-foreground">{f.label}</span>
-                    <span className={`font-mono truncate ${f.match ? "text-emerald-400" : ""}`}>{f.dbValue}</span>
-                    <span className={`font-mono truncate ${f.match ? "text-emerald-400" : ""}`}>{f.chainValue}</span>
-                    <span className="font-mono truncate text-muted-foreground/70">{f.chainRaw}</span>
+                  <div key={f.key} className={`rounded-lg px-3 py-2.5 space-y-1.5 ${f.match ? "bg-emerald-400/5 border border-emerald-400/10" : "bg-muted/20"}`}>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-semibold text-foreground/90 min-w-0 truncate">{f.label}</span>
+                      {f.match && (
+                        <span className="text-[10px] text-emerald-400 shrink-0 flex items-center gap-0.5">
+                          <CheckCircle2 className="w-3 h-3" /> match
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-[44px,1fr] gap-x-2 gap-y-1 text-[11px]">
+                      <span className="text-muted-foreground">DB</span>
+                      <span className={`font-mono break-all ${f.match ? "text-emerald-400" : "text-foreground/80"}`}>{f.dbValue}</span>
+                      <span className="text-muted-foreground">Chain</span>
+                      <span className={`font-mono break-all ${f.match ? "text-emerald-400" : "text-foreground/80"}`}>{f.chainValue}</span>
+                      <span className="text-muted-foreground">Raw</span>
+                      <span className="font-mono break-all text-muted-foreground/70">{f.chainRaw}</span>
+                    </div>
                   </div>
                 ))}
               </div>
