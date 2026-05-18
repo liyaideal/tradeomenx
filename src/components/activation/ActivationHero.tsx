@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowDownToLine, TrendingUp, ChevronRight, Sparkles, Check } from "lucide-react";
+import { ArrowDownToLine, TrendingUp, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useActivationState } from "@/hooks/useActivationState";
 import { MainnetBadge } from "@/components/MainnetBadge";
