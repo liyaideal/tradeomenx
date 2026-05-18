@@ -132,8 +132,8 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
             <div className="grid grid-cols-3 gap-3">
               {[
                 { label: "Available Balance", value: `$${data.balance.toLocaleString()}` },
-                { label: "Open Positions", value: `$${data.positionsValue.toLocaleString()}` },
-                { label: "Total Equity", value: `$${data.totalEquity.toLocaleString()}` },
+                { label: "Margin", value: `$${data.margin.toLocaleString()}` },
+                { label: "Total Assets", value: `$${data.totalAssets.toLocaleString()}` },
               ].map((item) => (
                 <div key={item.label} className="bg-muted/30 rounded-xl p-3 text-center">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{item.label}</p>
@@ -141,6 +141,9 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
                 </div>
               ))}
             </div>
+            <p className="text-[10px] text-muted-foreground/70 leading-relaxed -mt-1">
+              Only settled-state fields are committed on-chain. Floating PnL and live position mark value are real-time derivatives and are not part of the state root.
+            </p>
 
             {/* Expandable cryptographic details */}
             <button

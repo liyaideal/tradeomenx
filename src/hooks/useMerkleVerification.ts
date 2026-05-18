@@ -59,8 +59,8 @@ export const useMerkleVerification = () => {
 
     // Generate mock data aligned with real contract fields
     const balance = 13530;
-    const positionsValue = 2847.52;
-    const totalEquity = balance + positionsValue;
+    const margin = 2847.52;
+    const totalAssets = balance + margin;
     const leafHash = mockHex(64);
     const oldRoot = mockHex(64);
     const stateRoot = mockHex(64); // newRoot
@@ -72,8 +72,8 @@ export const useMerkleVerification = () => {
 
     const verificationData: MerkleVerificationData = {
       balance,
-      positionsValue,
-      totalEquity,
+      margin,
+      totalAssets,
       leafHash,
       oldRoot,
       stateRoot,
@@ -86,13 +86,13 @@ export const useMerkleVerification = () => {
 
     setData(verificationData);
 
-    // Save to database
+    // Save to database (column names unchanged for schema compat; semantics now margin / totalAssets)
     try {
       await supabase.from("asset_verifications").insert({
         user_id: user.id,
         balance,
-        positions_value: positionsValue,
-        total_equity: totalEquity,
+        positions_value: margin,
+        total_equity: totalAssets,
         leaf_hash: leafHash,
         state_root: stateRoot,
         batch_id: batchId.toString(),
