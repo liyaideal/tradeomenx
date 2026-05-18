@@ -114,7 +114,7 @@ export const PositionDetailContent = ({
         </div>
 
         {/* ============ Net PnL block ============ */}
-        <div className="rounded-lg border border-border bg-muted/30 p-4">
+        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
             Net unrealized PnL
             <Tooltip>
@@ -195,7 +195,7 @@ export const PositionDetailContent = ({
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
             <Receipt className="w-3 h-3" /> Funding
           </div>
-          <div className="rounded-lg border border-border p-3 space-y-2 text-xs">
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Current rate / hour</span>
               <span

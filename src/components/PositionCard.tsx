@@ -347,7 +347,7 @@ export const PositionCard = ({
       >
         <div className="space-y-4">
           {/* Position Info */}
-          <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Position</span>
               <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
@@ -367,7 +367,7 @@ export const PositionCard = ({
           {/* Take Profit */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs text-trading-green font-medium">Take Profit</label>
+              <label className="text-sm font-medium text-trading-green">Take Profit</label>
               {tpEstimatedPnl !== null && (
                 <span className={`text-xs font-mono ${tpEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
                   Est. P&L: {formatPnl(tpEstimatedPnl)}
@@ -381,7 +381,7 @@ export const PositionCard = ({
                   value={tpValue}
                   onChange={(e) => setTpValue(e.target.value)}
                   placeholder="0"
-                  className="w-full bg-muted border-0 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full h-11 bg-muted border-0 rounded-lg px-3 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
@@ -408,7 +408,7 @@ export const PositionCard = ({
           {/* Stop Loss */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs text-trading-red font-medium">Stop Loss</label>
+              <label className="text-sm font-medium text-trading-red">Stop Loss</label>
               {slEstimatedPnl !== null && (
                 <span className={`text-xs font-mono ${slEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
                   Est. P&L: {formatPnl(slEstimatedPnl)}
@@ -422,7 +422,7 @@ export const PositionCard = ({
                   value={slValue}
                   onChange={(e) => setSlValue(e.target.value)}
                   placeholder="0"
-                  className="w-full bg-muted border-0 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full h-11 bg-muted border-0 rounded-lg px-3 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
