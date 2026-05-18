@@ -129,15 +129,18 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
             </div>
 
             {/* Summary */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
               {[
                 { label: "Available Balance", value: `$${data.balance.toLocaleString()}` },
                 { label: "Margin", value: `$${data.margin.toLocaleString()}` },
                 { label: "Total Assets", value: `$${data.totalAssets.toLocaleString()}` },
               ].map((item) => (
-                <div key={item.label} className="bg-muted/30 rounded-xl p-3 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{item.label}</p>
-                  <p className="text-sm font-bold font-mono">{item.value}</p>
+                <div
+                  key={item.label}
+                  className="bg-muted/30 rounded-xl px-3 py-2.5 sm:p-3 flex items-center justify-between sm:flex-col sm:items-center sm:justify-center sm:text-center gap-2 sm:gap-1"
+                >
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider sm:mb-1">{item.label}</p>
+                  <p className="text-sm font-bold font-mono tabular-nums whitespace-nowrap">{item.value}</p>
                 </div>
               ))}
             </div>
