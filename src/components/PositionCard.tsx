@@ -1,21 +1,11 @@
 import { useState, useMemo } from "react";
-import { TrendingUp, TrendingDown, Pencil, AlertTriangle, Info, Gift, Lock } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil, Info, Gift, Lock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
   Popover,
   PopoverContent,
