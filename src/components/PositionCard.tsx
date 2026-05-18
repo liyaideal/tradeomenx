@@ -325,133 +325,132 @@ export const PositionCard = ({
         )}
       </div>
 
-      {/* TP/SL Edit Dialog */}
-      <Dialog open={tpSlOpen} onOpenChange={setTpSlOpen}>
-        <DialogContent className="max-w-sm bg-card border-border">
-          <DialogHeader>
-            <DialogTitle className="text-base">Edit {TRADING_TERMS.TPSL}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            {/* Position Info */}
-            <div className="bg-muted/50 rounded-lg p-3 space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Position</span>
-                <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
-                  {type === "long" ? "Long" : "Short"} {leverage}
+      {/* TP/SL Edit Drawer (mobile spec) */}
+      <MobileDrawer
+        open={tpSlOpen}
+        onOpenChange={setTpSlOpen}
+        title={`Edit ${TRADING_TERMS.TPSL}`}
+      >
+        <div className="space-y-4">
+          {/* Position Info */}
+          <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Position</span>
+              <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
+                {type === "long" ? "Long" : "Short"} {leverage}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
+              <span className="font-mono">{entryPrice}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
+              <span className="font-mono">{markPrice}</span>
+            </div>
+          </div>
+
+          {/* Take Profit */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs text-trading-green font-medium">Take Profit</label>
+              {tpEstimatedPnl !== null && (
+                <span className={`text-xs font-mono ${tpEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                  Est. P&L: {formatPnl(tpEstimatedPnl)}
                 </span>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <input
+                  type="number"
+                  value={tpValue}
+                  onChange={(e) => setTpValue(e.target.value)}
+                  placeholder="0"
+                  className="w-full bg-muted border-0 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+                />
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
-                <span className="font-mono">{entryPrice}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
-                <span className="font-mono">{markPrice}</span>
+              <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
+                <button
+                  onClick={() => setTpMode("%")}
+                  className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
+                    tpMode === "%" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  %
+                </button>
+                <button
+                  onClick={() => setTpMode("$")}
+                  className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
+                    tpMode === "$" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  $
+                </button>
               </div>
             </div>
+          </div>
 
-            {/* Take Profit */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs text-trading-green font-medium">Take Profit</label>
-                {tpEstimatedPnl !== null && (
-                  <span className={`text-xs font-mono ${tpEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
-                    Est. P&L: {formatPnl(tpEstimatedPnl)}
-                  </span>
-                )}
+          {/* Stop Loss */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs text-trading-red font-medium">Stop Loss</label>
+              {slEstimatedPnl !== null && (
+                <span className={`text-xs font-mono ${slEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                  Est. P&L: {formatPnl(slEstimatedPnl)}
+                </span>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <input
+                  type="number"
+                  value={slValue}
+                  onChange={(e) => setSlValue(e.target.value)}
+                  placeholder="0"
+                  className="w-full bg-muted border-0 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+                />
               </div>
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <input
-                    type="number"
-                    value={tpValue}
-                    onChange={(e) => setTpValue(e.target.value)}
-                    placeholder="0"
-                    className="w-full bg-muted border-0 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-                <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
-                  <button
-                    onClick={() => setTpMode("%")}
-                    className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
-                      tpMode === "%" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    %
-                  </button>
-                  <button
-                    onClick={() => setTpMode("$")}
-                    className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
-                      tpMode === "$" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    $
-                  </button>
-                </div>
+              <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
+                <button
+                  onClick={() => setSlMode("%")}
+                  className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
+                    slMode === "%" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  %
+                </button>
+                <button
+                  onClick={() => setSlMode("$")}
+                  className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
+                    slMode === "$" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  $
+                </button>
               </div>
             </div>
+          </div>
 
-            {/* Stop Loss */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs text-trading-red font-medium">Stop Loss</label>
-                {slEstimatedPnl !== null && (
-                  <span className={`text-xs font-mono ${slEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
-                    Est. P&L: {formatPnl(slEstimatedPnl)}
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <input
-                    type="number"
-                    value={slValue}
-                    onChange={(e) => setSlValue(e.target.value)}
-                    placeholder="0"
-                    className="w-full bg-muted border-0 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-                <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
-                  <button
-                    onClick={() => setSlMode("%")}
-                    className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
-                      slMode === "%" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    %
-                  </button>
-                  <button
-                    onClick={() => setSlMode("$")}
-                    className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
-                      slMode === "$" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    $
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2 pt-2">
+          <MobileDrawerActions>
+            <div className="flex gap-2">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="flex-1 h-11"
                 onClick={handleCancel}
               >
                 Cancel
               </Button>
               <Button
-                className="flex-1 bg-primary hover:bg-primary/90"
+                className="flex-1 h-11 bg-primary hover:bg-primary/90"
                 onClick={handleSave}
               >
                 Confirm
               </Button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </MobileDrawerActions>
+        </div>
+      </MobileDrawer>
 
     </>
   );
