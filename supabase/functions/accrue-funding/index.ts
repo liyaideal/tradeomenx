@@ -86,9 +86,9 @@ Deno.serve(async (req) => {
       if (hoursElapsed <= 0) continue;
 
       const ratePerHour = p.option_id ? (optionRateMap.get(p.option_id) ?? 0) : 0;
-      // Notional = size * mark_price * leverage. Mark falls back to 0.5 when missing.
+      // Notional = size * mark (size already represents contracts; leverage only governs margin).
       const mark = Number(p.mark_price) || 0.5;
-      const notional = Number(p.size) * mark * Number(p.leverage);
+      const notional = Number(p.size) * mark;
 
       // Long pays positive funding, Short receives it.
       const sideSign = String(p.side).toLowerCase() === "long" ? 1 : -1;
