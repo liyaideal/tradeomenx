@@ -263,6 +263,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
                       optionId={position.optionId}
                       positionId={position.id}
                       positionIndex={index}
+                      position={position}
                     />
                   </div>
                 ))}
