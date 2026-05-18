@@ -303,8 +303,15 @@ export const PositionCard = ({
           >
             {hasTpSl ? `Edit ${TRADING_TERMS.TPSL}` : `Add ${TRADING_TERMS.TPSL}`}
           </button>
-          <ClosePositionPopover
-            event={event}
+          <button
+            onClick={() => setCloseOpen(true)}
+            className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
+          >
+            Close
+          </button>
+          <ClosePositionDrawer
+            open={closeOpen}
+            onOpenChange={setCloseOpen}
             option={option}
             side={type}
             size={parseFloat(String(size).replace(/,/g, "")) || 0}
@@ -315,19 +322,10 @@ export const PositionCard = ({
                 : parseFloat(markPrice.replace(/[$,]/g, "")) || 0
             }
             margin={parseFloat(margin.replace(/[$,]/g, "")) || 0}
-            leverage={leverage}
             fullCloseOnly={isAirdrop}
             isClosing={isClosing}
             onConfirm={handleClosePartial}
-            side_="top"
-            align="end"
-          >
-            <button
-              className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
-            >
-              Close
-            </button>
-          </ClosePositionPopover>
+          />
         </div>
         )}
       </div>
