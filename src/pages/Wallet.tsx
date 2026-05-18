@@ -426,40 +426,38 @@ export default function Wallet() {
     </div>
   );
 
-  // Saved Addresses List Component
+  // Saved Addresses List Component (mobile)
   const SavedAddressesList = () => (
-    <div className="space-y-4">
+    <div className="rounded-2xl border border-border/50 bg-card p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Saved Addresses</h2>
-        <span className="text-sm text-muted-foreground">
+        <h2 className="text-sm font-semibold">Saved Addresses</h2>
+        <span className="text-xs text-muted-foreground">
           {wallets.length} address{wallets.length !== 1 ? 'es' : ''}
         </span>
       </div>
 
       {walletsLoading ? (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-6 text-sm text-muted-foreground">
           <p>Loading...</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {wallets.map((wallet) => (
             <AddressCard key={wallet.id} wallet={wallet} />
           ))}
 
-          <button 
+          <button
             onClick={() => setAddAddressOpen(true)}
-            className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all"
+            className="w-full border border-dashed border-border/60 hover:border-primary/50 rounded-xl h-10 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-all"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             <span className="font-medium">Add Address</span>
           </button>
 
           {wallets.length === 0 && !walletsLoading && (
-            <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">
-                Save addresses for quick deposits and withdrawals
-              </p>
-            </div>
+            <p className="text-center text-xs text-muted-foreground pt-1">
+              Save addresses for quick deposits and withdrawals
+            </p>
           )}
         </div>
       )}
