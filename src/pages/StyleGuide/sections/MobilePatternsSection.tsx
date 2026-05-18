@@ -913,6 +913,89 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
               </p>
             </CardContent>
           </Card>
+
+          {/* Drawer Content Spec — DESIGN.md §5.1 */}
+          <Card className="trading-card md:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-lg">Drawer Content Spec</CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Single source of truth for all <code className="text-primary">MobileDrawer</code> bodies on{" "}
+                <code className="text-primary">/trade</code> (Position Details, Edit TP/SL, Close Position). Desktop{" "}
+                <code className="text-primary">Dialog</code> reusing the same form follows the same spec.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                {/* Read-only sample */}
+                <div className="space-y-2">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+                    Read-only · no footer
+                  </div>
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Entry price</span><span className="font-mono">$0.5234</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Mark price</span><span className="font-mono">$0.5410</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Size</span><span className="font-mono">120</span></div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">e.g. Position Details</p>
+                </div>
+
+                {/* Edit sample */}
+                <div className="space-y-2">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+                    Edit · Cancel + Primary
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-trading-green">Take Profit</label>
+                    <input
+                      readOnly
+                      placeholder="0"
+                      className="w-full h-11 bg-muted border-0 rounded-lg px-3 text-sm font-mono"
+                    />
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-border flex gap-2">
+                    <Button variant="outline" className="flex-1 h-11" type="button">Cancel</Button>
+                    <Button className="flex-1 h-11" type="button">Confirm</Button>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">e.g. Edit TP/SL</p>
+                </div>
+
+                {/* Destructive sample */}
+                <div className="space-y-2">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+                    Destructive · Cancel + Red
+                  </div>
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Realized PnL</span><span className="font-mono text-trading-green">+$12.40</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Released margin</span><span className="font-mono">$24.00</span></div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-border flex gap-2">
+                    <Button variant="outline" className="flex-1 h-11" type="button">Cancel</Button>
+                    <Button
+                      className="flex-1 h-11 bg-trading-red text-white hover:bg-trading-red/90"
+                      type="button"
+                    >
+                      Close all
+                    </Button>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">e.g. Close Position</p>
+                </div>
+              </div>
+
+              <div className="rounded-md border border-border bg-muted/20 p-3 text-xs space-y-1.5">
+                <p className="font-medium text-foreground">Quick reference</p>
+                <ul className="space-y-1 text-muted-foreground list-disc pl-4">
+                  <li>Cards: <code className="text-primary">rounded-lg border border-border bg-muted/30 p-3 space-y-1.5</code></li>
+                  <li>Data rows: <code className="text-primary">text-xs</code>; value uses <code className="text-primary">font-mono</code></li>
+                  <li>Form labels: <code className="text-primary">text-sm font-medium</code>; inputs <code className="text-primary">h-11 rounded-lg bg-muted text-sm font-mono</code></li>
+                  <li>Footer: <code className="text-primary">MobileDrawerActions</code> + shadcn <code className="text-primary">{`<Button>`}</code> <code className="text-primary">h-11</code>. Submit-type drawers must include Cancel (Outline).</li>
+                  <li>Destructive primary: <code className="text-primary">bg-trading-red text-white hover:bg-trading-red/90</code></li>
+                </ul>
+                <p className="text-[11px] text-muted-foreground pt-1">
+                  Full spec: <code className="text-primary">DESIGN.md §5.1 MobileDrawer 内容规范</code>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Expandable Row Pattern */}
