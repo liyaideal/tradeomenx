@@ -145,7 +145,7 @@ export const useTradeVerification = () => {
       {
         key: "side",
         label: "Side",
-        dbValue: trade.side.toUpperCase(),
+        dbValue: trade.side === "buy" ? "LONG" : "SHORT",
         chainValue: sideInfo.label,
         chainRaw: sideInfo.raw.toString(),
         match: true,

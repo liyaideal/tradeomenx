@@ -1,39 +1,34 @@
-## /settings/transparency 中 outcomeId → marketId 重命名
+# /settings/transparency 显示文案：buy/sell → long/short
 
-### 现状盘点
+## 背景
 
-`outcomeId` 在 transparency 模块共有 6 处用户可见引用：
+排查 transparency 模块所有页面，只有 **Trade Verification** 子页会向用户展示交易方向，目前显示为 `BUY` / `SELL` 徽章。
 
-| 文件 | 位置 | 当前展示 |
-| --- | --- | --- |
-| `TransparencyPage.tsx` | 首页 Trade Audit 卡描述 | `...TradeLogged events (eventId, outcomeId, makerUid, takerUid, ...)` |
-| `TransparencyPage.tsx` | 首页 Funding Rate 卡描述 | `...FundingRate event log (eventId, outcomeId, fundingRate)` |
-| `TradeVerification.tsx` | 字段对照表 | 行标签 `Outcome ID`、字段 key `outcomeId` |
-| `FundingRateAudit.tsx` | 链上字段表 | 行标签 `outcomeId` |
-| `SettlementAudit.tsx` | 结算结果区 | 大标题 `winningOutcomeId`、文案 `Outcome index: N`、结论中的 `(index N)` |
+平台核心模型是永续合约 Long/Short（链上枚举本来就是 `Open Long / Close Short`），UI 里再用 `BUY/SELL` 既不一致也不准确。结论：**应该统一改为 LONG / SHORT**。
 
-### 重命名建议
+数据库 `trades.side` 字段值仍保留 `buy/sell`，只改前端显示，不动业务逻辑。
 
-**建议改成 `marketId`**，理由：
-1. 项目里"每个选项 = 一个可交易市场"已是用户既有心智（Polymarket/Kalshi 同款），`marketId` 比 `outcomeId` 更直觉。
-2. 数据库主键本身就叫 `option_id`，对外统一成 `marketId` 比 `outcomeId` 更贴近实际数据模型。
-3. `outcome` 一词在 Settlement Audit 上下文里语义混淆——"winning outcome" 同时指"获胜结果"和"获胜的那个市场"，容易让用户误解。
+## 涉及位置（共 3 处）
 
-### 改动范围
+| 文件 | 位置 | 现状 | 改为 |
+| --- | --- | --- | --- |
+| `TradeVerification.tsx` L68 | 交易列表里的方向徽章 | `BUY` / `SELL` | `LONG` / `SHORT` |
+| `TradeVerification.tsx` L133 | 验证结果摘要里的方向 | `BUY` / `SELL` | `LONG` / `SHORT` |
+| `useTradeVerification.ts` L148 | 字段对照表 "Side" 行的 DB 值 | `BUY` / `SELL` | `LONG` / `SHORT` |
 
-仅做 **用户可见字符串** 的替换，**底层 TypeScript 字段名 `outcomeId` 保持不变**（避免影响 hook / 类型 / mock 数据结构）：
+颜色保留：long = emerald（绿），short = red（红）。
 
-1. `TransparencyPage.tsx` 两段描述里 `outcomeId` → `marketId`
-2. `TradeVerification.tsx` 字段对照行 label `Outcome ID` → `Market ID`（key 内部仍叫 `outcomeId`）
-3. `FundingRateAudit.tsx` 表格行 label `outcomeId` → `marketId`
-4. `SettlementAudit.tsx`：
-   - `winningOutcomeId` 标题 → `winningMarketId`
-   - `Outcome index: N — settles at $1.00` → `Market index: N — settles at $1.00`
-   - 结论里 `(index N) was declared the winner` 保持，或改成 `(market index N)` 更明确
+链上一侧的 `sideLabel`（`Open Long / Close Short`）和 `chainRaw`（枚举数字）保持不变 —— 那是链上原始字段，本来就该是这个样子，正好和 DB 侧的 LONG/SHORT 形成"业务侧 vs 链上侧"的清晰对照。
 
-### 待确认
+## 不改的部分
 
-- **Settlement Audit** 里"获胜市场"的语境，建议把 `winningOutcomeId` 改成 **`winningMarketId`** 还是保留为 `winningOutcomeId`（因为它语义上确实是"获胜的那个 outcome/market"）？  
-  推荐 `winningMarketId`，全站统一，但如果你想保留链上事件原始命名（更"链感"），也可以例外保留。
+- 数据库 schema、`trades.side` 的实际值（`buy/sell`）
+- `SIDE_ENUM` 的 key（仍以 `buy/sell` 做查表）
+- transparency 其他子页（Asset / Funding / Settlement / Liquidation / Merkle）不涉及 buy/sell
 
-- 是否同步把首页描述里的 `TradeLogged` / `FundingRate` 字段列表里的其他 camelCase 字段（`eventId`、`makerUid`、`takerUid`）也审视一遍？本次默认 **只动 outcomeId**，其他不动。
+## 验收
+
+进入 /settings/transparency → Trade Verification：
+- 交易列表的方向徽章显示 `LONG` / `SHORT`
+- 选中一笔后，结果页头部方向徽章显示 `LONG` / `SHORT`
+- 字段对照表 Side 行：DB 值 = `LONG` / `SHORT`，Chain 值 = `Open Long` / `Close Short`，Raw = `0` / `3`
