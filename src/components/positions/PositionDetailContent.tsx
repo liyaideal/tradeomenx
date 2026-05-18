@@ -210,21 +210,6 @@ export const PositionDetailContent = ({
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Accrued since open</span>
-              <span
-                className={cn(
-                  "font-mono",
-                  fundingPaid > 0
-                    ? "text-trading-red"
-                    : fundingPaid < 0
-                    ? "text-trading-green"
-                    : "text-foreground"
-                )}
-              >
-                {fundingPaid >= 0 ? "−" : "+"}${Math.abs(fundingPaid).toFixed(4)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
               <span className="text-muted-foreground inline-flex items-center gap-1">
                 <Clock className="w-3 h-3" /> Next accrual
               </span>
