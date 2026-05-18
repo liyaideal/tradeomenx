@@ -135,8 +135,8 @@ export const useTradeVerification = () => {
         match: true,
       },
       {
-        key: "outcomeId",
-        label: "Outcome ID",
+        key: "marketId",
+        label: "Market ID",
         dbValue: trade.option_label,
         chainValue: trade.option_label,
         chainRaw: outcomeId.toString(),

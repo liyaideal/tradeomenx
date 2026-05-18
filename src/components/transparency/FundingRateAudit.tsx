@@ -160,7 +160,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">On-Chain Event Fields</p>
             {[
               { label: "eventId", value: audit.eventId },
-              { label: "outcomeId", value: audit.outcomeId.toString() },
+              { label: "marketId", value: audit.outcomeId.toString() },
               { label: "fundingRate", value: audit.fundingRate.toFixed(6) },
               { label: "txHash", value: `${audit.txHash.slice(0, 6)}...${audit.txHash.slice(-6)}`, mono: true },
               { label: "blockNumber", value: `#${audit.blockNumber.toLocaleString()}` },

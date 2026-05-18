@@ -128,12 +128,12 @@ export const SettlementAudit = ({ onBack }: Props) => {
 
           {/* Winning outcome */}
           <div className="trading-card p-4 text-center space-y-2">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">winningOutcomeId</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">winningMarketId</p>
             <div className="flex items-center justify-center gap-3">
               <Trophy className="w-6 h-6 text-amber-400" />
               <p className="text-2xl font-bold">{audit.winningOutcomeLabel}</p>
             </div>
-            <p className="text-xs font-mono text-muted-foreground">Outcome index: {audit.winningOutcomeId} — settles at $1.00</p>
+            <p className="text-xs font-mono text-muted-foreground">Market index: {audit.winningOutcomeId} — settles at $1.00</p>
           </div>
 
           {/* All outcomes */}
@@ -187,7 +187,7 @@ export const SettlementAudit = ({ onBack }: Props) => {
             <div className="p-5">
               <p className="text-sm leading-relaxed text-foreground/90">
                 The on-chain <code className="text-xs bg-muted/50 px-1 rounded">EventResolved</code> record confirms that outcome{" "}
-                <span className="font-bold">"{audit.winningOutcomeLabel}"</span> (index {audit.winningOutcomeId}) was declared the winner.
+                <span className="font-bold">"{audit.winningOutcomeLabel}"</span> (market index {audit.winningOutcomeId}) was declared the winner.
                 The oracle proof hash matches the external data source ({audit.oracleSourceName}),
                 confirming this result was not fabricated by the platform. All winning positions settle at $1.00 per contract.
               </p>
