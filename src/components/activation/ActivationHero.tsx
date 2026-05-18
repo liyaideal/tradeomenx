@@ -107,7 +107,7 @@ export const ActivationHero = () => {
             className="mt-2 flex w-full items-center justify-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
           >
             <Sparkles className="h-3 w-3 text-trading-green" />
-            Why mainnet?
+            See launch rewards
           </button>
         </div>
       </section>
@@ -171,7 +171,7 @@ export const ActivationHero = () => {
             className="h-11 border-border/60"
           >
             <Sparkles className="mr-1.5 h-4 w-4 text-trading-green" />
-            Why mainnet?
+            See launch rewards
           </Button>
         </div>
       </div>
