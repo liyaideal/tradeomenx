@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, Scale, Loader2, CheckCircle2, AlertTriangle, ExternalLink, Activity, Link2, ShieldCheck } from "lucide-react";
+import { ChevronLeft, Scale, Loader2, CheckCircle2, AlertTriangle, ExternalLink, Activity, Link2 } from "lucide-react";
 import { useLiquidationAudit, type LiquidationStep } from "@/hooks/useLiquidationAudit";
 import { format } from "date-fns";
 
@@ -15,8 +15,7 @@ const fmtPrice = (v: number) => {
 const STEPS: { key: LiquidationStep; label: string }[] = [
   { key: "select", label: "Select Position" },
   { key: "fetching_chain", label: "On-Chain Log" },
-  { key: "fetching_oracle", label: "Oracle Feed" },
-  { key: "analyzing", label: "Analysis" },
+  { key: "analyzing", label: "Margin Analysis" },
   { key: "result", label: "Conclusion" },
 ];
 
@@ -46,9 +45,9 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <Scale className="w-7 h-7 text-amber-400" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">Liquidation Price Audit</h2>
+            <h2 className="text-xl font-bold">Liquidation Audit</h2>
             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-              Retrieve the on-chain <code className="text-xs bg-muted/50 px-1 rounded">PositionLiquidated</code> event, cross-reference it with third-party oracle prices, and verify that the forced closure was executed fairly.
+              Retrieve the on-chain <code className="text-xs bg-muted/50 px-1 rounded">PositionLiquidated</code> event and verify the forced closure was triggered by the contract's maintenance margin rule — not by manual intervention.
             </p>
           </div>
           <Button onClick={openSelector} className="gap-2">
@@ -94,11 +93,10 @@ export const LiquidationAudit = ({ onBack }: Props) => {
   }
 
   /* ── Processing / Result ── */
-  const isProcessing = step === "fetching_chain" || step === "fetching_oracle" || step === "analyzing";
+  const isProcessing = step === "fetching_chain" || step === "analyzing";
   const processingLabel: Record<string, string> = {
     fetching_chain: "Fetching PositionLiquidated event from on-chain logs…",
-    fetching_oracle: "Querying Chainlink / Pyth oracle historical price…",
-    analyzing: "Comparing mark price against fair market price…",
+    analyzing: "Replaying margin ratio against maintenance margin rule…",
   };
 
   return (
@@ -180,56 +178,24 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             </div>
           </div>
 
-          {/* ── Module B: Oracle Fair Price ── */}
-          <div className="trading-card overflow-hidden">
-            <div className="px-4 py-3 border-b border-border/30 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-              <h4 className="text-sm font-semibold">Fair Market Price (Oracle)</h4>
-            </div>
-            <div className="p-4 space-y-4">
-              <div className="text-center py-3">
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Global Spot Fair Price</p>
-                <p className="text-4xl font-bold font-mono text-emerald-400">{fmtPrice(audit.oraclePrice)}</p>
-              </div>
-              <div className="grid grid-cols-1 gap-1.5 text-xs">
-                {[
-                  { label: "oracleSource", value: audit.oracleSource },
-                  { label: "feedContract", value: audit.oracleFeedAddress, mono: true, truncate: true },
-                  { label: "queriedAt", value: format(new Date(audit.oracleTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'") },
-                  { label: "priceDeviation", value: `${audit.deviation.toPrecision(3)} (${audit.deviationPercent.toFixed(4)}%)`, highlight: true },
-                ].map((row) => (
-                  <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20">
-                    <span className="text-muted-foreground shrink-0">{row.label}</span>
-                    <span className={`${row.mono ? "font-mono" : ""} ${row.truncate ? "truncate max-w-[200px]" : ""} ${"highlight" in row && row.highlight ? (audit.deviationPercent < 1.5 ? "text-emerald-400 font-medium" : "text-amber-400 font-medium") : "text-foreground/80"}`}>
-                      {row.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ── Module C: Conclusion ── */}
+          {/* ── Module B: Conclusion ── */}
           <div className={`trading-card overflow-hidden border ${audit.conclusion === "fair" ? "border-emerald-400/30" : "border-amber-400/30"}`}>
             <div className={`px-4 py-3 border-b border-border/30 flex items-center gap-2 ${audit.conclusion === "fair" ? "bg-emerald-400/5" : "bg-amber-400/5"}`}>
               {audit.conclusion === "fair" ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertTriangle className="w-4 h-4 text-amber-400" />}
-              <h4 className="text-sm font-semibold">{audit.conclusion === "fair" ? "Verified: Liquidation is Fair" : "Attention: Price Deviation Detected"}</h4>
+              <h4 className="text-sm font-semibold">{audit.conclusion === "fair" ? "Verified: Liquidation is Fair" : "Attention: Margin Rule Mismatch"}</h4>
             </div>
             <div className="p-5 space-y-3">
               <p className="text-sm leading-relaxed text-foreground/90">
                 At the time of liquidation, the on-chain system mark price was{" "}
-                <span className="font-mono font-bold text-trading-red">{fmtPrice(audit.onchainMarkPrice)}</span>,
-                while the global fair market price reported by {audit.oracleSource} was{" "}
-                <span className="font-mono font-bold text-emerald-400">{fmtPrice(audit.oraclePrice)}</span>.
-                {" "}The price deviation is{" "}
-                <span className={`font-mono font-bold ${audit.deviationPercent < 1.5 ? "text-emerald-400" : "text-amber-400"}`}>{audit.deviationPercent.toFixed(4)}%</span>.
-              </p>
-              <p className="text-sm leading-relaxed text-foreground/90">
-                Your margin ratio had dropped to{" "}
+                <span className="font-mono font-bold text-trading-red">{fmtPrice(audit.onchainMarkPrice)}</span>.
+                {" "}Your margin ratio had dropped to{" "}
                 <span className="font-mono font-bold text-trading-red">{audit.marginRatio.toFixed(2)}%</span>,
                 which is below the maintenance margin requirement of{" "}
                 <span className="font-mono font-bold">{audit.maintenanceMarginRate}%</span>.
-                {" "}This triggered an automatic forced liquidation.
+                {" "}This triggered an automatic forced liquidation by the smart contract.
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Note: market price here reflects the on-chain probability of the outcome — there is no external oracle for an unresolved prediction market. Settlement-time price (final 0 / 1) is audited separately under <span className="font-medium text-foreground/80">Settlement Audit</span>.
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 This operation was recorded and enforced by the smart contract at{" "}
