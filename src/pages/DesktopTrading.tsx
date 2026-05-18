@@ -899,6 +899,10 @@ export default function DesktopTrading() {
             <div className="font-mono font-medium">$2.45M</div>
           </div>
           <div>
+            <div className="text-muted-foreground">OI</div>
+            <div className="font-mono font-medium">$480K</div>
+          </div>
+          <div>
             <div className="text-muted-foreground">Funding Rate</div>
             <div className="font-mono font-medium text-trading-green">+0.05%</div>
           </div>
