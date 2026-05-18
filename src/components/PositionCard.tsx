@@ -63,6 +63,8 @@ export const PositionCard = ({
   takeProfit: initialTp = "",
   stopLoss: initialSl = "",
   isAirdrop,
+  positionId,
+  positionIndex,
 }: PositionCardProps) => {
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
