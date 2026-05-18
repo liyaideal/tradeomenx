@@ -31,7 +31,11 @@ export const PositionDetailContent = ({
   fundingRatePerHour = 0,
   feeRate = TRADE_FEE_RATE,
 }: PositionDetailContentProps) => {
-  const mark = liveMarkPrice ?? position.markPriceNum;
+  // Subscribe to live realtime prices so the dialog/drawer always reflects
+  // the current mark price, regardless of what the parent passes.
+  const pricesCtx = useRealtimePricesOptional();
+  const livePrice = position.optionId ? pricesCtx?.getPrice(position.optionId) : undefined;
+  const mark = livePrice ?? liveMarkPrice ?? position.markPriceNum;
   const sideSign = position.type === "long" ? 1 : -1;
 
   // Price PnL = (mark − entry) × size × side
