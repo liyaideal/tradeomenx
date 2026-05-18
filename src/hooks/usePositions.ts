@@ -121,6 +121,7 @@ export const usePositions = () => {
     positions: supabasePositions,
     isLoading: supabaseLoading,
     closePosition: closeSupabasePosition,
+    partialClosePosition: partialCloseSupabasePosition,
     updatePositionTpSl: updateSupabaseTpSl,
     isClosing,
     isUpdatingTpSl,
@@ -131,6 +132,7 @@ export const usePositions = () => {
   const {
     positions: localPositions,
     closePosition: closeLocalPosition,
+    partialClosePosition: partialCloseLocalPosition,
     updatePositionTpSl: updateLocalTpSl,
   } = usePositionsStore();
 
