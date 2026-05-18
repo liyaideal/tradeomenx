@@ -262,6 +262,85 @@ Quick decision rule: **brand/navigation → purple tint, opt-out/cancel → mute
 - 桌面 `Dialog` 与移动 `MobileDrawer` 应复用同一份表单组件（如 `ClosePositionForm` 同时被 `ClosePositionDialog` + `ClosePositionDrawer` 调用），保证两端视觉/逻辑一致。
 - 禁止在移动端直接复用桌面 `Dialog`；必须走 `MobileDrawer` 分支。
 
+### MobileDrawer 内容规范（mobile bottom-sheet content spec）
+
+唯一真相。`/trade` 的 Position Details / Edit TP-SL / Close Position 三个弹窗都按这套基准实现；桌面 `Dialog` 复用同一份表单组件时同样适用。
+
+**容器与间距**
+
+| 项目 | 取值 |
+|---|---|
+| Drawer 标题区 | 由 `MobileDrawer` 组件自带，正文里不重复 |
+| 内容根容器 | `space-y-4`（区块间距 16px） |
+| 区块内行间距 | `space-y-2` |
+| 同级卡片间隙（多卡并列） | `space-y-3` |
+
+**卡片基底（drawer 内所有信息块统一）**
+
+| 项目 | 取值 |
+|---|---|
+| 圆角 | `rounded-lg`（统一，禁用 `rounded-md` / `rounded-xl`） |
+| 边框 | `border border-border` |
+| 背景 | `bg-muted/30`（禁用 `bg-muted/50`、`bg-muted/20`、`bg-muted`） |
+| Padding | `p-3`（与 §4 mobile compact 一致） |
+| 卡内行间距 | `space-y-1.5` |
+
+**字号体系（混合分层）**
+
+| 角色 | 取值 |
+|---|---|
+| 区块小标题（"Position" / "Funding"） | `text-xs font-medium text-muted-foreground uppercase tracking-wide` |
+| 数据行 label | `text-xs text-muted-foreground` |
+| 数据行 value | `text-xs font-mono`（数字/地址永远 `font-mono`） |
+| 主表单 label（"Take Profit"、"Quantity"） | `text-sm font-medium` |
+| 表单输入正文 | `text-sm font-mono`（数字输入）或 `text-sm` |
+| 大数（Net PnL 头部） | `text-2xl font-semibold font-mono`，副数 `text-base ml-2 opacity-80` |
+
+语义色 label（Take Profit 绿、Stop Loss 红）允许保留，但 size/weight 必须按上表 `text-sm font-medium`。
+
+**表单控件**
+
+| 项目 | 取值 |
+|---|---|
+| 数字/文本输入框 | `h-11 rounded-lg bg-muted border-0 px-3 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary` |
+| Segmented 切换（%/$、模式 chip） | 外壳 `rounded-lg bg-muted p-0.5`，内项 `px-2 py-1.5 text-xs rounded-md` |
+| Quick-ratio 按钮（25/50/75/100） | `h-9 text-xs rounded-md`，激活 `bg-trading-red/20 text-trading-red border border-trading-red/40`，未激活 `bg-muted/50 text-muted-foreground border border-transparent` |
+| Slider | `Slider` 组件默认尺寸，搭配下方 `text-xs` 行显示当前值 |
+
+**按钮 / 底部 CTA**
+
+| 项目 | 取值 |
+|---|---|
+| 必须的包裹容器 | `MobileDrawerActions`（所有提交型 drawer 都用，禁止把按钮散在 content 末尾） |
+| 主按钮高度 | `h-11`（满足 44px 触控） |
+| 按钮组件 | shadcn `<Button>`（禁止裸 `<button>`，保证圆角/字号/disabled 一致） |
+| 双按钮布局 | `flex gap-2`；`Cancel` 用 `variant="outline" flex-1`；主操作 `flex-1` |
+| 主操作样式 | 编辑/确认 → 默认 primary；不可逆/销毁性（平仓、撤单、删除）→ `bg-trading-red text-white hover:bg-trading-red/90` |
+| 主操作文案 | sentence case：`Confirm` / `Save` / `Close all` / `Close N contracts` |
+| 单按钮例外 | 仅纯展示型 drawer（如 Position Details 只读）允许无 footer；任何含"提交"语义都必须 Cancel + 主按钮 |
+
+**信息密度规则**
+
+- key-value 列表统一用 `grid grid-cols-2 gap-y-1.5 text-xs`，value 列加 `text-right`
+- 解释性 tooltip 触发器统一用 `<Info className="w-3 h-3 cursor-help" />` 跟在 label 右侧
+- 图标统一 Lucide：数据行内 `w-3 h-3`；区块小标题内 `w-3 h-3` 前置 + `gap-1.5`
+
+**三种 drawer 类型对照（/trade 场景）**
+
+| 类型 | 代表 | Footer |
+|---|---|---|
+| Read-only 展示 | Position Details (`PositionDetailContent`) | 无 footer |
+| Edit / Confirm | TP/SL 编辑（`PositionCard` 内联 drawer） | `MobileDrawerActions` + Cancel(Outline) + `Confirm`(Primary) |
+| Destructive | Close Position (`ClosePositionForm` in drawer) | `MobileDrawerActions` + Cancel(Outline) + `Close …`(Destructive 红) |
+
+**禁止项**
+
+- ❌ `bg-muted/50`、`bg-muted/20` 作 drawer 卡片底
+- ❌ `rounded-md` 作信息卡圆角（仅 segmented 内项可用）
+- ❌ 主按钮使用裸 `<button>`
+- ❌ 提交型 drawer 不带 Cancel
+- ❌ 在 drawer 内直接放 `Dialog` 或嵌套 drawer
+
 ### Tooltips
 
 Tooltip content is explanatory text and must be visually stable across contexts.
