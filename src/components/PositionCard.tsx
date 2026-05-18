@@ -1,11 +1,6 @@
 import { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, Pencil, Info, Gift, Lock } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import {
   Popover,
   PopoverContent,
