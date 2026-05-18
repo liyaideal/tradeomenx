@@ -121,6 +121,7 @@ export const usePositions = () => {
     positions: supabasePositions,
     isLoading: supabaseLoading,
     closePosition: closeSupabasePosition,
+    partialClosePosition: partialCloseSupabasePosition,
     updatePositionTpSl: updateSupabaseTpSl,
     isClosing,
     isUpdatingTpSl,
@@ -131,6 +132,7 @@ export const usePositions = () => {
   const {
     positions: localPositions,
     closePosition: closeLocalPosition,
+    partialClosePosition: partialCloseLocalPosition,
     updatePositionTpSl: updateLocalTpSl,
   } = usePositionsStore();
 
@@ -180,6 +182,27 @@ export const usePositions = () => {
     },
     [isLoggedIn, supabasePositions, closeSupabasePosition, closeLocalPosition]
   );
+
+  // Unified partial close handler — closeQty is integer contracts
+  const partialClosePosition = useCallback(
+    async (positionId: string, index: number, closeQty: number) => {
+      if (positionId.startsWith("airdrop-")) {
+        const { toast } = await import("sonner");
+        toast.success("Airdrop position closed");
+        return;
+      }
+      if (isLoggedIn) {
+        const pos = supabasePositions.find((p) => p.id === positionId);
+        if (pos) {
+          const closePrice = Number(pos.mark_price);
+          await partialCloseSupabasePosition(positionId, closeQty, closePrice);
+        }
+      } else {
+        partialCloseLocalPosition(index, closeQty);
+      }
+    },
+    [isLoggedIn, supabasePositions, partialCloseSupabasePosition, partialCloseLocalPosition]
+  );
   
   // Unified update TP/SL handler
   const updatePositionTpSl = useCallback(
@@ -212,6 +235,7 @@ export const usePositions = () => {
     isLoading: isLoggedIn ? supabaseLoading : false,
     isLoggedIn,
     closePosition,
+    partialClosePosition,
     updatePositionTpSl,
     isClosing,
     isUpdatingTpSl,

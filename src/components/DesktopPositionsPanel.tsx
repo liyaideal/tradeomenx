@@ -38,11 +38,12 @@ import { orderToPosition } from "@/lib/orderUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { ClosePositionPopover } from "@/components/positions/ClosePositionPopover";
 
 export const DesktopPositionsPanel = () => {
   // Use unified hooks - Supabase for logged-in users, local for guests
   const { orders, cancelOrder, fillOrder, isCancelling, isFilling } = useOrders();
-  const { positions, closePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
+  const { positions, closePosition, partialClosePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
   const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   const { pendingAirdrops, activatedAirdrops } = useAirdropPositions();
@@ -342,12 +343,29 @@ export const DesktopPositionsPanel = () => {
                           </button>
                         </td>
                         <td className="px-3 py-2 text-sm">
-                          <button 
-                            onClick={() => closePosition(position.id, index)}
-                            className="px-2 py-1 text-xs bg-trading-red/20 text-trading-red rounded hover:bg-trading-red/30"
+                          <ClosePositionPopover
+                            event={position.event}
+                            option={position.option}
+                            side={position.type}
+                            size={Number(position.size) || 0}
+                            entryPrice={parseFloat(position.entryPrice.replace(/[$,]/g, "")) || 0}
+                            markPrice={
+                              realtimePnL.hasRealtimePrice
+                                ? realtimePnL.markPrice
+                                : parseFloat(position.markPrice.replace(/[$,]/g, "")) || 0
+                            }
+                            margin={parseFloat(position.margin.replace(/[$,]/g, "")) || 0}
+                            leverage={position.leverage}
+                            fullCloseOnly={position.isAirdrop}
+                            isClosing={isClosing}
+                            onConfirm={(qty) => partialClosePosition(position.id, index, qty)}
                           >
-                            Close
-                          </button>
+                            <button
+                              className="px-2 py-1 text-xs bg-trading-red/20 text-trading-red rounded hover:bg-trading-red/30"
+                            >
+                              Close
+                            </button>
+                          </ClosePositionPopover>
                         </td>
                       </tr>
                     );

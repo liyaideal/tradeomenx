@@ -22,6 +22,7 @@ interface PositionsStore {
   positions: Position[];
   addPosition: (position: Position) => void;
   closePosition: (index: number) => void;
+  partialClosePosition: (index: number, closeQty: number) => void;
   updatePositionTpSl: (index: number, tp: string, sl: string, tpMode: "%" | "$", slMode: "%" | "$") => void;
   setPositions: (positions: Position[]) => void;
   clearPositions: () => void;
@@ -102,6 +103,32 @@ export const usePositionsStore = create<PositionsStore>()(
       closePosition: (index) => set((state) => ({ 
         positions: state.positions.filter((_, i) => i !== index) 
       })),
+      partialClosePosition: (index, closeQty) => set((state) => {
+        const pos = state.positions[index];
+        if (!pos) return {};
+        const parseNum = (s: string) => parseFloat(String(s).replace(/[$,]/g, "")) || 0;
+        const currentSize = parseNum(pos.size);
+        const qty = Math.min(Math.max(1, Math.floor(closeQty)), Math.floor(currentSize));
+        // Full close
+        if (qty >= currentSize) {
+          return { positions: state.positions.filter((_, i) => i !== index) };
+        }
+        const ratio = qty / currentSize;
+        const currentMargin = parseNum(pos.margin);
+        const newSize = currentSize - qty;
+        const newMargin = currentMargin * (1 - ratio);
+        return {
+          positions: state.positions.map((p, i) =>
+            i === index
+              ? {
+                  ...p,
+                  size: newSize.toLocaleString(),
+                  margin: `$${newMargin.toFixed(2)}`,
+                }
+              : p
+          ),
+        };
+      }),
       updatePositionTpSl: (index, tp, sl, tpMode, slMode) => set((state) => ({
         positions: state.positions.map((pos, i) => 
           i === index ? { ...pos, tp, sl, tpMode, slMode } : pos

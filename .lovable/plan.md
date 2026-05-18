@@ -1,70 +1,79 @@
-# Mobile /wallet 视觉一致性梳理
+## 目标
 
-## 现状梳理（mobile 390px）
+让用户在 Position 列表里能直接做 **部分平仓**，不必再去右侧交易面板用反向单凑数量。Desktop 表格行的 Close 按钮和 mobile `PositionCard` 的 Close 按钮都改为先弹出一个 Close Popover，让用户选择平仓比例 / 数量，并预览释放保证金与已实现 PnL。
 
-| 模块 | 当前状态 | 主要问题 |
-|---|---|---|
-| ActivationHero | 刚做了 mobile 紧凑版 | OK |
-| BalanceCard | 桌面端样式直接复用 | 数字 `text-4xl` 偏大、装饰光晕过强；4 个 sub-card 多行排布；按钮 h-12 |
-| H2eRewardsCard | 已有 mobile 专属时间线（`sm:hidden`） | 标题用 `text-sm font-semibold`，与其它模块标题不对齐 |
-| PendingConfirmations | **无 mobile 适配**，桌面卡片直接搬 | 内边距、字号、按钮都是桌面尺寸 |
-| SavedAddressesList | 标题 `text-lg font-semibold` + AddressCard | 标题层级与其它模块不一致；卡片底部 Set Default + Delete 两个 ghost 按钮过于松散 |
-| TransactionHistory | 有 mobile 分支 | 风格基本 OK，但卡片外层圆角/内边距与其它模块不统一 |
+---
 
-整体不协调的根因：
-1. **视觉权重失衡**：BalanceCard 像 hero，下方模块都很"轻"，对比强烈
-2. **标题层级混乱**：三种 — 没标题 / `text-sm font-semibold` / `text-lg font-semibold`
-3. **容器规范不一**：圆角混用 `rounded-2xl`/`rounded-xl`，内边距 `p-6`/`p-4`/`p-3`
-4. **节奏**：`space-y-6` 全局间距 OK，但模块内部留白差异让节奏断
+## 交互设计（Popover 内容）
 
-## 改造方案（仅 mobile 分支，桌面端不动）
+```text
+┌──────────────────────────────────────────┐
+│ Close position                            │
+│ Above $100,000 · Long · 100 contracts     │
+├──────────────────────────────────────────┤
+│ [ 25% ] [ 50% ] [ 75% ] [ 100% ]          │
+│ ────●─────────────────  50%               │ ← 滑块
+│ Quantity   50 contracts                   │ ← 输入 / 显示
+├──────────────────────────────────────────┤
+│ Close price (mark)     $0.5800            │
+│ Realized PnL           +$3.00 (+6.0%)     │
+│ Released margin        $5.00              │
+│ Remaining size         50 contracts       │
+├──────────────────────────────────────────┤
+│            [ Close 50 contracts ]          │ ← 主按钮，文案随比例变
+└──────────────────────────────────────────┘
+```
 
-### 1. 建立 mobile 卡片标准
-所有顶层卡片统一：
-- 容器：`rounded-2xl border border-border/50 bg-card p-4`
-- 模块标题：`text-sm font-semibold text-foreground`（与图标 16px 同行），右侧次要信息用 `text-xs text-muted-foreground`
-- 模块间距：保持 `space-y-4`（从 6 收一档），更紧凑
+要点：
+- 默认选中 100%（保留"一键全平"的肌肉记忆，只多一步确认）
+- 主按钮文案：`Close N contracts` / 100% 时显示 `Close all`
+- 颜色沿用 `trading-red`
+- 数字均 `font-mono`；标签 sentence case，标题 Title Case（符合 Core 规范）
 
-### 2. BalanceCard（mobile）瘦身
-- 主数字 `text-4xl` → `text-3xl`，仍保留 `font-mono font-bold`
-- 顶部装饰从两个发光圆斑减为一个、模糊度降低；保留 primary 渐变身份
-- Total Equity 头部图标缩到 24px，去掉圆形背景，纯图标 + 文字一行
-- 4 个 sub-card 统一改为 2 列 `gap-2`，padding 从 `p-3` → `p-2.5`，字号 `text-xs`，数值 `text-sm`
-- Deposit / Withdraw 按钮 `h-12` → `h-11`，与 ActivationHero CTA 对齐
+---
 
-### 3. H2eRewardsCard（mobile）对齐标题样式
-- 外层容器统一：`rounded-2xl border-border/50 bg-card p-4`（去掉 `border-primary/20 bg-primary/5`，改为内部用 primary 强调进度条/锁定标）
-- 标题保留现有 `Gift + Hedge Airdrop Rewards`，已是 `text-sm font-semibold` ✓
-- 标题右侧补一个简洁的 `Earned $X.XX` 摘要，避免下方信息过密
+## 涉及文件
 
-### 4. PendingConfirmations 新增 mobile 适配
-- 容器套用标准卡片
-- 标题加上：`<Clock /> Pending confirmations · {count}`
-- 每条 tx 用紧凑两行排版（金额 + network · 状态 / 进度条 + 时间），按钮 ghost、icon-only
-- 不展开时只显示前 1 条 + "X more"，减少首屏占位
+| 文件 | 改动 |
+|---|---|
+| `src/components/positions/ClosePositionPopover.tsx` | 新增。可复用组件，接收 `position` + `onConfirm(closeQty)` |
+| `src/components/DesktopPositionsPanel.tsx` | Action 列 Close 按钮包到 `<Popover>` 里 |
+| `src/components/PositionCard.tsx` | 把现有 `AlertDialog`（已是全平确认弹窗）替换为这个 Popover（mobile 用 Sheet/Drawer 形式更合手指） |
+| `src/hooks/usePositions.ts` | 新增 `partialClosePosition(positionId, index, closeQty)`；若 `closeQty == size` 走原 `closePosition` 路径 |
+| `src/hooks/useSupabasePositions.ts` | 新增 `partialClosePositionInDb`：更新 `positions.size = size - closeQty`、`margin = margin * remainRatio`，写一条 `trades` 平仓记录（reduce），把按比例的 realized PnL + 释放保证金加回 user balance |
+| `src/stores/usePositionsStore.ts` | 新增 guest 版 `partialClosePosition(index, closeQty)` 等价逻辑 |
 
-### 5. SavedAddressesList（mobile）层级降级
-- 标题从 `text-lg font-semibold` → `text-sm font-semibold`，与其它模块对齐
-- 整体外层套标准卡片容器，让所有地址 + Add Address 按钮在一个卡片内
-- AddressCard 内部：地址行字号收紧；底部 Set Default / Delete 改成 icon-only 按钮放在卡片右上角，节省垂直空间
-- "Add Address" 按钮高度从默认 → `h-10`，与其它 CTA 节奏一致
+---
 
-### 6. TransactionHistory（mobile 分支）容器对齐
-- 把外层 wrapper 改为标准卡片样式
-- 标题 `Transaction History` 统一到 `text-sm font-semibold`
+## 业务逻辑
 
-### 7. 全局节奏
-- 外层 `<div className="px-4 py-6 space-y-6">` → `space-y-4`（更紧凑、节奏一致）
-- 页面底部 `pb-24` 保留（BottomNav 占位）
+设 `size` 为当前持仓数量，`closeQty` 为本次平仓数量，`ratio = closeQty / size`：
 
-## 不改动
-- 业务逻辑 / 数据流
-- 桌面端 `if (!isMobile)` 分支
-- ActivationHero（刚改完）
-- 弹窗/Drawer 行为
+- `realizedPnl = (markPrice - entryPrice) * closeQty * (side === "long" ? 1 : -1)`
+- `releasedMargin = margin * ratio`
+- `balanceDelta = releasedMargin + realizedPnl`（已含手续费可后续加）
+- 更新仓位：`size -= closeQty`，`margin -= releasedMargin`
+- `closeQty === size` → 直接走现有 close 流程（status=Closed）
+- 异步执行期间禁用按钮（沿用 `isClosing`）
+
+复用 `src/lib/positionIntent.ts` 里 `classifyOrderIntent` 已经存在的 reduce 计算逻辑做预览数字，保证与下单流程口径一致。
+
+---
+
+## 边界 & 约束
+
+- Airdrop 仓位（`positionId.startsWith("airdrop-")`）和锁定仓位（`leverage = 1x` 的 H2E）**禁用部分平仓**：Popover 只显示 `Close all`，比例选择器隐藏
+- 最小平仓单位 1 contract；滑块 step = 1
+- 二元事件（Yes/No）走同一逻辑，无需特殊分支
+- 不改 close 按钮在表格中的视觉位置和颜色，避免影响表格密度
+- 桌面端用 shadcn `<Popover>`，移动端用 `<Sheet side="bottom">`（更适合大拇指操作；与 TradeForm 的 partial fill 体验一致，符合 mem: trading-partial-fill-ux）
+
+---
 
 ## 验收
-- 390 viewport：所有顶层模块视觉权重接近，标题字号一致，圆角/内边距统一
-- BalanceCard 仍是视觉焦点但不再"撑破"
-- PendingConfirmations 不再像桌面卡片硬搬
-- SavedAddresses 一屏内能看到至少 2 个地址 + 添加入口
+
+1. Desktop /trade 点 Close → 弹出 popover，选 50% → 仓位 size 减半、margin 减半、余额按预览数字增加
+2. Mobile /trade Positions tab 同上，从底部弹出 Sheet
+3. 选 100% → 仓位从列表消失（status=Closed），与旧行为一致
+4. Airdrop / locked 仓位的 Close 只显示全平选项
+5. 数字与右侧 TradeForm 走反向单的口径一致（同 entry/mark/PnL）

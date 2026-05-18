@@ -72,6 +72,100 @@ const closePositionInDb = async ({
   return { marginReturned: Number(position.margin) + pnl };
 };
 
+// Partial close: reduce size/margin proportionally and credit realized PnL line.
+// If closeQty >= current size, fully close.
+const partialClosePositionInDb = async ({
+  userId,
+  positionId,
+  closeQty,
+  closePrice,
+}: {
+  userId: string;
+  positionId: string;
+  closeQty: number;
+  closePrice: number;
+}): Promise<{ closedQty: number; remainingSize: number; releasedMargin: number; realizedPnl: number; fullyClosed: boolean }> => {
+  const { data: position, error: fetchError } = await supabase
+    .from("positions")
+    .select("size, margin, entry_price, side, trade_id, pnl")
+    .eq("id", positionId)
+    .eq("user_id", userId)
+    .single();
+
+  if (fetchError) throw fetchError;
+  if (!position) throw new Error("Position not found");
+
+  const currentSize = Number(position.size);
+  const currentMargin = Number(position.margin);
+  const entry = Number(position.entry_price);
+  const side = position.side;
+
+  const qty = Math.min(Math.max(1, Math.floor(closeQty)), Math.floor(currentSize));
+  const priceDiff = closePrice - entry;
+  const realizedPnl = (side === "long" ? priceDiff : -priceDiff) * qty;
+  const ratio = qty / currentSize;
+  const releasedMargin = currentMargin * ratio;
+
+  // Full close path
+  if (qty >= currentSize) {
+    const { error: updateError } = await supabase
+      .from("positions")
+      .update({
+        status: "Closed",
+        mark_price: closePrice,
+        pnl: realizedPnl,
+        closed_at: new Date().toISOString(),
+      })
+      .eq("id", positionId)
+      .eq("user_id", userId);
+    if (updateError) throw updateError;
+
+    if (position.trade_id) {
+      await supabase
+        .from("trades")
+        .update({
+          status: "Closed",
+          pnl: realizedPnl,
+          closed_at: new Date().toISOString(),
+        })
+        .eq("id", position.trade_id);
+    }
+
+    return {
+      closedQty: qty,
+      remainingSize: 0,
+      releasedMargin,
+      realizedPnl,
+      fullyClosed: true,
+    };
+  }
+
+  // Partial: reduce size/margin, accumulate realized pnl on the position row
+  const newSize = currentSize - qty;
+  const newMargin = currentMargin - releasedMargin;
+  const accumulatedPnl = Number(position.pnl || 0) + realizedPnl;
+
+  const { error: updateError } = await supabase
+    .from("positions")
+    .update({
+      size: newSize,
+      margin: newMargin,
+      mark_price: closePrice,
+      pnl: accumulatedPnl,
+    })
+    .eq("id", positionId)
+    .eq("user_id", userId);
+  if (updateError) throw updateError;
+
+  return {
+    closedQty: qty,
+    remainingSize: newSize,
+    releasedMargin,
+    realizedPnl,
+    fullyClosed: false,
+  };
+};
+
 // Update TP/SL in Supabase
 const updateTpSlInDb = async ({
   userId,
@@ -207,14 +301,46 @@ export const useSupabasePositions = () => {
     [user?.id, updateTpSlMutation]
   );
 
+  // Mutation for partial / full close via qty
+  const partialCloseMutation = useMutation({
+    mutationFn: partialClosePositionInDb,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["positions", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      const pnlStr = `${data.realizedPnl >= 0 ? "+" : "-"}$${Math.abs(data.realizedPnl).toFixed(2)}`;
+      if (data.fullyClosed) {
+        toast.success(`Position closed · realized ${pnlStr}`);
+      } else {
+        toast.success(`Closed ${data.closedQty} contracts · realized ${pnlStr} · ${data.remainingSize} remaining`);
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to close position: ${error.message}`);
+    },
+  });
+
+  const partialClosePosition = useCallback(
+    async (positionId: string, closeQty: number, closePrice: number) => {
+      if (!user?.id) return;
+      return partialCloseMutation.mutateAsync({
+        userId: user.id,
+        positionId,
+        closeQty,
+        closePrice,
+      });
+    },
+    [user?.id, partialCloseMutation]
+  );
+
   return {
     positions,
     isLoading,
     error,
     refetch,
     closePosition,
+    partialClosePosition,
     updatePositionTpSl,
-    isClosing: closePositionMutation.isPending,
+    isClosing: closePositionMutation.isPending || partialCloseMutation.isPending,
     isUpdatingTpSl: updateTpSlMutation.isPending,
   };
 };
