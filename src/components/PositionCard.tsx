@@ -25,6 +25,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
+import { usePositions } from "@/hooks/usePositions";
+import { ClosePositionPopover } from "@/components/positions/ClosePositionPopover";
 
 interface PositionCardProps {
   type: "long" | "short";
