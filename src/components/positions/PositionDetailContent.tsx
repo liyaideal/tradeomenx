@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, Clock, Receipt, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UnifiedPosition } from "@/hooks/usePositions";
 import { useFundingHistory } from "@/hooks/useFundingHistory";
+import { useOptionFundingRate } from "@/hooks/useOptionFundingRate";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import {
   Tooltip,
@@ -28,7 +29,7 @@ const TRADE_FEE_RATE = 0.001; // 0.1% taker fee assumption for display only
 export const PositionDetailContent = ({
   position,
   liveMarkPrice,
-  fundingRatePerHour = 0,
+  fundingRatePerHour: fundingRatePerHourProp,
   feeRate = TRADE_FEE_RATE,
 }: PositionDetailContentProps) => {
   // Use unified realtime lookup (direct optionId + event/option fallback matching)
@@ -41,6 +42,12 @@ export const PositionDetailContent = ({
   });
   const mark = livePrice ?? liveMarkPrice ?? position.markPriceNum;
   const sideSign = position.type === "long" ? 1 : -1;
+
+  // Pull live funding rate + next accrual from event_options when the parent
+  // didn't pass an explicit prop (covers all 3 call sites).
+  const { data: liveFunding } = useOptionFundingRate(position.optionId);
+  const fundingRatePerHour = fundingRatePerHourProp ?? liveFunding?.fundingRatePerHour ?? 0;
+  const nextFundingAt = liveFunding?.nextFundingAt ?? null;
 
   // Price PnL = (mark − entry) × size × side
   // Leverage is NOT multiplied — size already represents contracts and leverage
