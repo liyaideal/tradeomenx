@@ -467,6 +467,15 @@ export const PositionCard = ({
         </div>
       </MobileDrawer>
 
+      {/* Position Detail Drawer */}
+      {fullPosition && (
+        <PositionDetailDrawer
+          position={fullPosition}
+          liveMarkPrice={realtimeData?.hasRealtimePrice ? realtimeData.markPrice : undefined}
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+        />
+      )}
     </>
   );
 };
