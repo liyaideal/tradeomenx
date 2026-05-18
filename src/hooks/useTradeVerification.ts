@@ -30,8 +30,8 @@ const toRawPrice = (price: number) => Math.round(price * 1_000_000);
 export interface OnChainTradeLog {
   eventId: string;
   outcomeId: number;
-  makerUid: string;
-  takerUid: string;
+  userRole: "Taker" | "Maker";
+  matchType: string;
   price: number;       // raw 6-decimal integer
   priceHuman: string;  // human-readable
   size: number;
