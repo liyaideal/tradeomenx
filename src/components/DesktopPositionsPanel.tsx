@@ -18,12 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, ExternalLink, CheckCircle, X, Info, Gift, Zap } from "lucide-react";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { Pencil, CheckCircle, X, Info, Gift, Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
