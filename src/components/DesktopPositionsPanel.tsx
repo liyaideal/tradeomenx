@@ -42,7 +42,7 @@ import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 export const DesktopPositionsPanel = () => {
   // Use unified hooks - Supabase for logged-in users, local for guests
   const { orders, cancelOrder, fillOrder, isCancelling, isFilling } = useOrders();
-  const { positions, closePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
+  const { positions, closePosition, partialClosePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
   const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   const { pendingAirdrops, activatedAirdrops } = useAirdropPositions();
