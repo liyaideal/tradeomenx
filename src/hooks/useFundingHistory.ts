@@ -26,8 +26,9 @@ export const useFundingHistory = (positionId: string | null, enabled = true) => 
         .from("position_funding_ledger")
         .select("id, applied_rate, notional, amount, accrual_start, accrual_end, created_at")
         .eq("position_id", positionId)
+        .neq("amount", 0)
         .order("created_at", { ascending: false })
-        .limit(20);
+        .limit(200);
       if (error) throw error;
       return (data ?? []) as FundingLedgerEntry[];
     },
