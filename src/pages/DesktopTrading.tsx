@@ -6,6 +6,7 @@ import { EventInfoContent } from "@/components/EventInfoContent";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
+import { ClosePositionPopover } from "@/components/positions/ClosePositionPopover";
 import { useOrders } from "@/hooks/useOrders";
 import {
   Tooltip,
@@ -216,7 +217,7 @@ export default function DesktopTrading() {
   const { user, balance, deductBalance, addBalance } = useUserProfile();
   
   // Positions and Orders state - using unified hooks (Supabase for logged-in, local for guests)
-  const { positions, closePosition: closePositionFn, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
+  const { positions, partialClosePosition, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
   const { refetch: refetchOrders } = useOrders();
   
   // Realtime PnL calculation hook
@@ -235,29 +236,6 @@ export default function DesktopTrading() {
   const [positionTpMode, setPositionTpMode] = useState<"%" | "$">("$");
   const [positionSlMode, setPositionSlMode] = useState<"%" | "$">("$");
   
-  // Close position dialog state
-  const [closePositionOpen, setClosePositionOpen] = useState(false);
-  const [closingPositionIndex, setClosingPositionIndex] = useState<number | null>(null);
-  const [closingPositionId, setClosingPositionId] = useState<string | null>(null);
-  
-  const handleClosePositionClick = (index: number, positionId: string) => {
-    setClosingPositionIndex(index);
-    setClosingPositionId(positionId);
-    setClosePositionOpen(true);
-  };
-  
-  const handleConfirmClosePosition = async () => {
-    if (closingPositionIndex !== null && closingPositionId !== null) {
-      const position = positions[closingPositionIndex];
-      await closePositionFn(closingPositionId, closingPositionIndex);
-      toast.success("Position Closed", {
-        description: `Your ${position.type} position on ${position.option} has been closed.`,
-      });
-    }
-    setClosePositionOpen(false);
-    setClosingPositionIndex(null);
-    setClosingPositionId(null);
-  };
   
   // Cancel order dialog state - using unified orders hook
   const { orders: unifiedOrders, cancelOrder: cancelUnifiedOrder, isCancelling } = useOrders();
@@ -1296,12 +1274,27 @@ export default function DesktopTrading() {
                             {position.isAirdrop ? (
                               <span className="text-xs text-muted-foreground">—</span>
                             ) : (
-                            <button 
-                              onClick={() => handleClosePositionClick(index, position.id)}
-                              className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted"
+                            <ClosePositionPopover
+                              event={position.event}
+                              option={position.option}
+                              side={position.type}
+                              size={Number(position.size) || 0}
+                              entryPrice={parseFloat(position.entryPrice.replace(/[$,]/g, "")) || 0}
+                              markPrice={
+                                realtimePnL.hasRealtimePrice
+                                  ? realtimePnL.markPrice
+                                  : parseFloat(position.markPrice.replace(/[$,]/g, "")) || 0
+                              }
+                              margin={parseFloat(position.margin.replace(/[$,]/g, "")) || 0}
+                              leverage={position.leverage}
+                              fullCloseOnly={position.isAirdrop}
+                              isClosing={isClosing}
+                              onConfirm={(qty) => partialClosePosition(position.id, index, qty)}
                             >
-                              Close
-                            </button>
+                              <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">
+                                Close
+                              </button>
+                            </ClosePositionPopover>
                             )}
                           </td>
                         </tr>
@@ -1989,72 +1982,6 @@ export default function DesktopTrading() {
           })()}
         </DialogContent>
       </Dialog>
-
-      {/* Close Position Confirmation Dialog */}
-      <AlertDialog open={closePositionOpen} onOpenChange={setClosePositionOpen}>
-        <AlertDialogContent className="max-w-md bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-trading-red" />
-              Close Position
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-left">
-              Are you sure you want to close this position?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          {closingPositionIndex !== null && positions[closingPositionIndex] && (() => {
-            const position = positions[closingPositionIndex];
-            const isProfitable = position.pnl.startsWith("+");
-            return (
-              <div className="bg-muted/50 rounded-lg p-4 space-y-2 my-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Position</span>
-                  <span className={position.type === "long" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                    {position.type === "long" ? "Long" : "Short"} {position.leverage}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
-                  <span className="font-medium">{position.option}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Event</span>
-                  <span className="text-xs text-muted-foreground truncate max-w-[200px]">{position.event}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{TRADING_TERMS.QTY}</span>
-                  <span className="font-mono">{position.sizeDisplay}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
-                  <span className="font-mono">{position.entryPrice}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
-                  <span className="font-mono">{position.markPrice}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm border-t border-border/30 pt-2 mt-2">
-                  <span className="text-muted-foreground">{TRADING_TERMS.UNREALIZED_PNL}</span>
-                  <span className={`font-mono font-medium ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>
-                    {position.pnl} ({position.pnlPercent})
-                  </span>
-                </div>
-              </div>
-            );
-          })()}
-
-          <AlertDialogFooter className="flex gap-2 sm:gap-2">
-            <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleConfirmClosePosition}
-              className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
-            >
-              Close Position
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Cancel Order Confirmation Dialog */}
       <AlertDialog open={cancelOrderOpen} onOpenChange={setCancelOrderOpen}>
