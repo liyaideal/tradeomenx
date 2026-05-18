@@ -56,7 +56,7 @@ const SCENARIOS = [
     iconBg: "bg-purple-400/10",
     title: "Am I Being Overcharged?",
     subtitle: "FundingRate Event Audit",
-    description: "Compare the funding rate applied to your position against the on-chain FundingRate event log (eventId, outcomeId, fundingRate) to verify no unfair fees.",
+    description: "Compare the funding rate applied to your position against the on-chain FundingRate event log (eventId, marketId, fundingRate) to verify no unfair fees.",
     steps: ["Select a position", "Fetch on-chain log", "Rate comparison", "Fee verification"],
     badge: "Fee Transparency",
   },
