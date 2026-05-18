@@ -1,51 +1,56 @@
-## 问题
+## 移动端弹窗规范审计（修正版）
 
-上次实现 Partial Close 时移动端也用了 `Popover`，违反了 `DESIGN.md` 和 `/style-guide` 里的规范：**移动端所有底部弹层必须使用 `MobileDrawer`**（带拖拽 handle、安全区 padding、统一圆角）。
+规范：移动端所有「编辑 / 确认 / 选择」类弹层必须用 `MobileDrawer`。Popover/Dialog/AlertDialog/原生 Drawer 都不算。
 
-## 改动方案
+我把上一版误报的去掉了：
+- ❌ ~~AuthDialog~~ —— 移动端实际走 `AuthSheet`（已是 `MobileDrawer`），调用方都做了 `isMobile ? <AuthSheet/> : <AuthDialog/>` 分支 ✅
+- ❌ ~~EventCard Order Preview~~ —— 移动端走的是 `/order-preview` 整页（非弹窗）✅
 
-把 `ClosePositionPopover` 拆成「逻辑/UI 内容」+「容器」两层，桌面继续用 Popover，移动端用 MobileDrawer，两端共用同一份内部表单。
+---
 
-### 1. 拆分组件
+### A. 严重违规（移动端居中 Dialog/AlertDialog）
 
-- 新建 `src/components/positions/ClosePositionForm.tsx`
-  - 抽离现在 `ClosePositionPopover.tsx` 里的全部内容：标题/方向/合约数、25/50/75/100% 快捷比例、Slider、Close price / Realized PnL / Released margin / Remaining size、底部 `Close all` / `Close XX%` 按钮
-  - Props：`position`, `onConfirm(qty)`, `onCancel`, `fullCloseOnly?`
-  - 不包含任何 Popover/Sheet 容器
+| # | 文件 | 弹窗 | 触发位置 |
+|---|------|------|---------|
+| 1 | `src/components/PositionCard.tsx:334` | **Edit TP/SL** Dialog | 移动端 Positions 列表里每张卡的 "Add/Edit TP/SL" 按钮（截图里就是这个） |
+| 2 | `src/components/OrderCard.tsx:131` | **Fill Order** AlertDialog | `/trade/order` 的 Orders tab，点订单卡 "Fill" 按钮 |
+| 3 | `src/components/OrderCard.tsx:181` | **Cancel Order** AlertDialog | 同上，点订单卡 "Cancel" 按钮 |
 
-- 改造 `src/components/positions/ClosePositionPopover.tsx`
-  - 桌面版容器，仅保留 `<Popover><PopoverTrigger>{children}</PopoverTrigger><PopoverContent>` 包裹 `<ClosePositionForm />`
-  - 保留现有 props，桌面调用方无需改动
+→ 全部改成「移动端 `MobileDrawer` + 桌面端保留 Dialog」。OrderCard 两个 AlertDialog 内容差不多，可以共用一个内部 `OrderConfirmContent` 组件。
 
-- 新建 `src/components/positions/ClosePositionDrawer.tsx`
-  - 移动端容器，使用 `MobileDrawer`：
-    - `title="Close position"`
-    - `description` 显示方向 + 合约数（替代原 Popover 内的副标题）
-    - 内容渲染 `<ClosePositionForm />`，确认后关闭抽屉
-  - Props：`open`, `onOpenChange`, `position`, `onConfirm`, `fullCloseOnly?`
+### B. 中度违规（用了 mobile 分支但走原生 `Drawer`，没走 `MobileDrawer`）
 
-### 2. 调用方调整
+视觉/handle/安全区与项目其它抽屉不一致。
 
-- `src/components/PositionCard.tsx`（移动端 Position 卡片）
-  - 移除 `ClosePositionPopover` 引用
-  - 用 `useState` 管理 `closeOpen`，Close 按钮 `onClick={() => setCloseOpen(true)}`
-  - 渲染 `<ClosePositionDrawer open={closeOpen} ... />`
+| # | 文件 | 现状 |
+|---|------|------|
+| 4 | `src/components/AirdropHomepageModal.tsx` | mobile 用 `@/components/ui/drawer` |
+| 5 | `src/components/rewards/RedeemDialog.tsx` | mobile 用 `@/components/ui/drawer` |
+| 6 | `src/components/rewards/XShareConfirmDialog.tsx` | mobile 用 `@/components/ui/drawer` |
 
-- `src/pages/TradeOrder.tsx`（移动端订单页）
-  - 同上：把 `ClosePositionPopover` 替换为 `ClosePositionDrawer` + state 触发
+→ 把 `<Drawer><DrawerContent>` 整段换成 `<MobileDrawer title=... description=...>`。
 
-- `src/components/DesktopPositionsPanel.tsx`
-  - **不动**，继续用 `ClosePositionPopover`（桌面版）
+### C. 其它（不算违规但需确认）
 
-### 3. 视觉/交互细节（对齐 style-guide）
+| # | 文件 | 说明 |
+|---|------|------|
+| 7 | `src/components/MobileTradingLayout.tsx` | 直接用 `Sheet`，但这是侧边导航 `side="left"`，不是底部弹窗，**保留** |
+| 8 | `src/components/MobileHeader.tsx`、`Portfolio.tsx`、`Wallet.tsx` 的移动端 Popover | 只是字段说明 tooltip，不是编辑/确认，**保留** |
+| 9 | `src/components/events/ChgTimeframePicker.tsx` | 时间段切换 Popover，移动端用户感知有但操作轻，**可选改 Drawer**，非必须 |
+| 10 | `src/components/BinaryEventHint.tsx` | 已有 `useIsMobile` 分支，需顺手确认移动分支是 `MobileDrawer` |
 
-- Drawer 高度：`auto`，让内容自适应；showHandle 默认 true
-- Form 内部按 `MobileDrawerActions` 的间距规范处理底部按钮（`pt-2 gap-2`，full width）
-- 触摸目标按钮 `h-11`，符合移动端最小命中区域
-- 抽屉关闭后清理本地 ratio 状态
+### D. 已合规（样板参考）
 
-## 不动的部分
+`TopUpDialog` / `RewardsWelcomeModal` / `TreasureClaimDialog` / `PolymarketConnectDialog` / `ConnectedAccountsCard` / `AuthSheet` / `ClosePositionDrawer`（上轮新加）
 
-- 所有 hooks（`partialClosePosition`、`partialClosePositionInDb`、store）保持不变
-- 业务逻辑（Realized PnL、Released margin 计算）保持不变
-- 桌面 Popover 视觉/位置不变
+---
+
+## 推荐范围
+
+**A 组 3 个（必修） + B 组 3 个（建议修）**，一共 6 个文件。
+
+A 组要新建/抽出来的共用子组件：
+- `EditTpSlForm`（PositionCard 用）
+- `OrderConfirmContent`（OrderCard 用，type 区分 fill / cancel）
+
+要不要我现在按 A+B 一次全改？或者只先把 A 组 3 个改了？
