@@ -38,7 +38,7 @@ import { orderToPosition } from "@/lib/orderUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
-import { ClosePositionPopover } from "@/components/positions/ClosePositionPopover";
+import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
 
 export const DesktopPositionsPanel = () => {
   // Use unified hooks - Supabase for logged-in users, local for guests
@@ -343,7 +343,7 @@ export const DesktopPositionsPanel = () => {
                           </button>
                         </td>
                         <td className="px-3 py-2 text-sm">
-                          <ClosePositionPopover
+                          <ClosePositionDialog
                             event={position.event}
                             option={position.option}
                             side={position.type}
@@ -365,7 +365,7 @@ export const DesktopPositionsPanel = () => {
                             >
                               Close
                             </button>
-                          </ClosePositionPopover>
+                          </ClosePositionDialog>
                         </td>
                       </tr>
                     );

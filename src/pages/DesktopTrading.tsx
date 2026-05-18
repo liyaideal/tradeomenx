@@ -6,7 +6,7 @@ import { EventInfoContent } from "@/components/EventInfoContent";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
-import { ClosePositionPopover } from "@/components/positions/ClosePositionPopover";
+import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
 import { useOrders } from "@/hooks/useOrders";
 import {
   Tooltip,
@@ -1274,7 +1274,7 @@ export default function DesktopTrading() {
                             {position.isAirdrop ? (
                               <span className="text-xs text-muted-foreground">—</span>
                             ) : (
-                            <ClosePositionPopover
+                            <ClosePositionDialog
                               event={position.event}
                               option={position.option}
                               side={position.type}
@@ -1294,7 +1294,7 @@ export default function DesktopTrading() {
                               <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">
                                 Close
                               </button>
-                            </ClosePositionPopover>
+                            </ClosePositionDialog>
                             )}
                           </td>
                         </tr>
