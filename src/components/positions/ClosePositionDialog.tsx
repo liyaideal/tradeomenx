@@ -67,9 +67,9 @@ export const ClosePositionDialog = ({
           margin={margin}
           fullCloseOnly={fullCloseOnly}
           onConfirm={handleConfirm}
+          onCancel={() => setOpen(false)}
           isClosing={isClosing}
           showHeader={false}
-          variant="comfortable"
         />
       </DialogContent>
     </Dialog>
