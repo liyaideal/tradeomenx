@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, FileSearch, Scale, ChevronRight, ChevronLeft, ExternalLink, Lock, Eye, Zap, Percent } from "lucide-react";
+import { Shield, FileSearch, Scale, ChevronRight, ExternalLink, Lock, Eye, Zap, Percent } from "lucide-react";
+import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -257,9 +258,7 @@ const TransparencyPage = () => {
     >
       <EventsDesktopHeader />
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
-        <button onClick={() => navigate("/settings")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ChevronLeft className="w-4 h-4" /> Back to Settings
-        </button>
+        <DesktopBackLink label="Settings" onClick={() => navigate("/settings")} className="mb-6" />
         {content}
       </main>
       <SeoFooter />
