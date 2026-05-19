@@ -88,7 +88,7 @@ const MobileHome = () => {
           <HomeTopEvents
             title={isAuthed && !hasPosition ? "Pick your first prediction" : "Top Events"}
             interlude={
-              !isAuthed ? <TrialCallout onSignIn={() => setAuthOpen(true)} /> : undefined
+              !isAuthed ? <MainnetLaunchCallout /> : undefined
             }
           />
         </div>
