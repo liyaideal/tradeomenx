@@ -329,7 +329,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
   const [composedState, setComposedState] = useState<ComposedState>("s0New");
 
   const eventsConfig: Record<EventsState, { title: string; withInterlude: boolean; note: string }> = {
-    guest: { title: "Top Events", withInterlude: true, note: "Guest user — TrialCallout interlude inserted between cards" },
+    guest: { title: "Top Events", withInterlude: true, note: "Guest user — MainnetLaunchCallout interlude inserted between cards" },
     authedNoPosition: { title: "Pick your first prediction", withInterlude: false, note: "Authenticated, no positions yet — title swaps to onboarding copy" },
     authedWithPosition: { title: "Top Events", withInterlude: false, note: "Authenticated with positions — default title, no interlude" },
   };
