@@ -1,6 +1,7 @@
 ---
 name: activation-system
-description: Mainnet user activation funnel — state machine + checklist + Wallet hub + Logo MAINNET badge. Drives deposit→first-trade→campaign conversion.
+description: Mainnet user activation funnel — state machine + checklist + Logo MAINNET badge. Drives deposit→first-trade conversion.
+
 type: feature
 ---
 
