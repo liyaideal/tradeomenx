@@ -291,17 +291,37 @@ const TopEventsReplica = ({ title, withInterlude }: { title: string; withInterlu
 type GreetingState = "guest" | "authedActive" | "authedEmpty";
 type SlotState = "guestOrEmpty" | "onboarding" | "positionAlert";
 type EventsState = "guest" | "authedNoPosition" | "authedWithPosition";
+type ComposedState = "guest" | "s0New" | "s1Deposited" | "s2Traded" | "s3Active";
+
+const composedMatrix: Record<ComposedState, {
+  label: string;
+  greeting: "guest" | "authedActive" | "authedEmpty";
+  slot: "null" | "onboarding" | "positionAlert";
+  eventsTitle: string;
+  interlude: boolean;
+  note: string;
+}> = {
+  guest:        { label: "Guest",        greeting: "guest",       slot: "null",          eventsTitle: "Top Events",                  interlude: true,  note: "未登录：PersonalSlot 收起（empty:hidden），TopEvents 中插入 TrialCallout。" },
+  s0New:        { label: "S0_NEW",       greeting: "authedEmpty", slot: "onboarding",    eventsTitle: "Pick your first prediction",  interlude: false, note: "已登录、未充值：Greeting 显示 0 equity 文案，PersonalSlot = OnboardingCard (Step 1)。" },
+  s1Deposited:  { label: "S1_DEPOSITED", greeting: "authedEmpty", slot: "onboarding",    eventsTitle: "Pick your first prediction",  interlude: false, note: "已充值、未交易：Greeting 仍是无 7D 数据态，PersonalSlot = OnboardingCard (Step 2)。" },
+  s2Traded:     { label: "S2_TRADED",    greeting: "authedActive", slot: "positionAlert", eventsTitle: "Top Events",                 interlude: false, note: "已交易、volume < $5k：Greeting 含 7D sparkline，PersonalSlot 切到 PositionAlertCard。" },
+  s3Active:     { label: "S3_ACTIVE",   greeting: "authedActive", slot: "positionAlert", eventsTitle: "Top Events",                  interlude: false, note: "volume ≥ $5k：与 S2 视觉一致；激活引导全部隐藏。" },
+};
 
 export const MobileHomeSection = (_: MobileHomeSectionProps) => {
   const [greetingState, setGreetingState] = useState<GreetingState>("guest");
   const [slotState, setSlotState] = useState<SlotState>("onboarding");
   const [eventsState, setEventsState] = useState<EventsState>("guest");
+  const [composedState, setComposedState] = useState<ComposedState>("s0New");
 
   const eventsConfig: Record<EventsState, { title: string; withInterlude: boolean; note: string }> = {
     guest: { title: "Top Events", withInterlude: true, note: "Guest user — TrialCallout interlude inserted between cards" },
     authedNoPosition: { title: "Pick your first prediction", withInterlude: false, note: "Authenticated, no positions yet — title swaps to onboarding copy" },
     authedWithPosition: { title: "Top Events", withInterlude: false, note: "Authenticated with positions — default title, no interlude" },
   };
+
+  const composed = composedMatrix[composedState];
+
 
   return (
     <div className="space-y-12">
@@ -345,6 +365,102 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
           </CardContent>
         </Card>
       </SectionWrapper>
+
+      {/* ============================== */}
+      {/* COMPOSED PREVIEW · 5 STATES    */}
+      {/* ============================== */}
+      <SectionWrapper
+        id="mobile-home-composed"
+        title="Composed Preview"
+        platform="mobile"
+        description="整页按用户激活状态拼出来长什么样。切换 chip 看 Greeting / PersonalSlot / TopEvents 三个模块在每个 state 下的实际显隐与文案。"
+      >
+        <Card className="trading-card">
+          <CardHeader className="pb-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground">State:</span>
+              {(Object.keys(composedMatrix) as ComposedState[]).map((id) => (
+                <Badge
+                  key={id}
+                  variant={composedState === id ? "default" : "outline"}
+                  className="cursor-pointer font-mono"
+                  onClick={() => setComposedState(id)}
+                >
+                  {composedMatrix[id].label}
+                </Badge>
+              ))}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Frame>
+              <div className="space-y-3">
+                <HeaderReplica />
+                <div className="pt-1">
+                  {composed.greeting === "guest" && <HomeGreetingGuest />}
+                  {composed.greeting === "authedActive" && <HomeGreetingAuthed hasData />}
+                  {composed.greeting === "authedEmpty" && <HomeGreetingAuthed hasData={false} />}
+                </div>
+                {composed.slot !== "null" && (
+                  <div className="mt-3">
+                    {composed.slot === "onboarding" && <OnboardingCardReplica />}
+                    {composed.slot === "positionAlert" && <PositionAlertReplica />}
+                  </div>
+                )}
+                {composed.slot === "null" && (
+                  <div className="text-[10px] font-mono text-muted-foreground/70 italic">
+                    — PersonalSlot collapsed (empty:hidden) —
+                  </div>
+                )}
+                <div className="mt-5 -mx-1 flex gap-2 overflow-x-auto pb-1">
+                  <CampaignBannerReplica theme="gold" />
+                  <CampaignBannerReplica theme="primary" />
+                  <CampaignBannerReplica theme="green" />
+                </div>
+                <div className="mt-5">
+                  <TopEventsReplica title={composed.eventsTitle} withInterlude={composed.interlude} />
+                </div>
+              </div>
+            </Frame>
+
+            <p className="mt-4 text-xs text-muted-foreground">{composed.note}</p>
+
+            <SubSection title="State matrix" className="mt-6">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 text-muted-foreground font-medium">State</th>
+                      <th className="text-left py-2 text-muted-foreground font-medium">Greeting</th>
+                      <th className="text-left py-2 text-muted-foreground font-medium">PersonalSlot</th>
+                      <th className="text-left py-2 text-muted-foreground font-medium">TopEvents title</th>
+                      <th className="text-left py-2 text-muted-foreground font-medium">Interlude</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/50">
+                    {(Object.keys(composedMatrix) as ComposedState[]).map((id) => {
+                      const row = composedMatrix[id];
+                      return (
+                        <tr key={id} className={composedState === id ? "bg-primary/5" : ""}>
+                          <td className="py-1.5 font-mono font-medium">{row.label}</td>
+                          <td className="py-1.5 font-mono text-muted-foreground">{row.greeting}</td>
+                          <td className="py-1.5 font-mono text-muted-foreground">{row.slot === "null" ? "— hidden —" : row.slot}</td>
+                          <td className="py-1.5">{row.eventsTitle}</td>
+                          <td className="py-1.5 text-muted-foreground">{row.interlude ? <code className="font-mono text-primary">&lt;TrialCallout/&gt;</code> : "—"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                State 来源：<code className="font-mono">useActivationState</code>（GUEST · S0_NEW · S1_DEPOSITED · S2_TRADED · S3_ACTIVE）。下面的各模块 playground 只展示单卡视觉，整页拼装请以此为准。
+              </p>
+            </SubSection>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
+
 
       {/* ============================== */}
       {/* HEADER (HOME PRESET)           */}
