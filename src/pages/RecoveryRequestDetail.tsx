@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Copy, Loader2, ExternalLink, Check, X, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, Copy, Loader2, ExternalLink, Check, X } from 'lucide-react';
+import { DesktopBackLink } from '@/components/ui/desktop-back-link';
 import { toast } from 'sonner';
 import { useRecoveryRequest, useRecoveryRequests } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
@@ -203,13 +204,7 @@ export default function RecoveryRequestDetailPage() {
       <main className="flex-1">
         <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
           <div>
-            <button
-              onClick={back}
-              className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Recovery requests
-            </button>
+            <DesktopBackLink label="Recovery requests" onClick={back} className="mb-3" />
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
                 <h1 className="text-2xl font-semibold">Recovery request</h1>

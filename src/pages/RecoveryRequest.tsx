@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, AlertTriangle, ChevronRight, Loader2, Plus, Inbox, Info, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, AlertTriangle, ChevronRight, Loader2, Plus, Inbox, Info } from 'lucide-react';
+import { DesktopBackLink } from '@/components/ui/desktop-back-link';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecoveryRequests } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
@@ -163,13 +164,7 @@ export default function RecoveryRequestPage() {
         <main className="flex-1">
           <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
             <div>
-              <button
-                onClick={() => navigate('/wallet')}
-                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Wallet
-              </button>
+              <DesktopBackLink label="Wallet" onClick={() => navigate('/wallet')} className="mb-3" />
               <h1 className="text-2xl font-semibold">Recovery requests</h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Submit and track wrong-chain deposit recoveries.
