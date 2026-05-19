@@ -461,7 +461,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                           <td className="py-1.5 font-mono text-muted-foreground">{row.slot === "null" ? "— hidden —" : row.slot}</td>
                           <td className="py-1.5 font-mono text-muted-foreground">{row.onboardingStep ? `${row.onboardingStep} of 3` : "—"}</td>
                           <td className="py-1.5">{row.eventsTitle}</td>
-                          <td className="py-1.5 text-muted-foreground">{row.interlude ? <code className="font-mono text-primary">&lt;TrialCallout/&gt;</code> : "—"}</td>
+                          <td className="py-1.5 text-muted-foreground">{row.interlude ? <code className="font-mono text-mainnet-gold">&lt;MainnetLaunchCallout/&gt;</code> : "—"}</td>
                         </tr>
                       );
                     })}
