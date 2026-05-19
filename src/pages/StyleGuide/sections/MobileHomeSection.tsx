@@ -278,11 +278,12 @@ const TopEventsReplica = ({ title, withInterlude }: { title: string; withInterlu
         </p>
       </div>
       {withInterlude && (
-        <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-center">
-          <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
-            Trial Callout
+        <div className="rounded-xl border border-mainnet-gold/30 bg-mainnet-gold/5 p-3">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-mainnet-gold">
+            Mainnet Launch Callout
           </p>
-          <p className="mt-1 text-[12px] text-foreground">Try $10 demo position</p>
+          <p className="mt-1 text-[12px] font-semibold text-foreground">Trade once. Earn up to $200.</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground"><span className="font-mono">$5K</span> weekly pool · Mainnet Launch is live.</p>
         </div>
       )}
       <div className="rounded-xl border border-border/40 bg-card p-3">
