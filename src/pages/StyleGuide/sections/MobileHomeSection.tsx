@@ -723,7 +723,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/50">
-                    <tr><td className="py-1.5">Guest</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5"><code className="font-mono text-primary">&lt;TrialCallout/&gt;</code></td></tr>
+                    <tr><td className="py-1.5">Guest</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5"><code className="font-mono text-mainnet-gold">&lt;MainnetLaunchCallout/&gt;</code></td></tr>
                     <tr><td className="py-1.5">Authed · no position</td><td className="py-1.5 font-mono">Pick your first prediction</td><td className="py-1.5 text-muted-foreground">none</td></tr>
                     <tr><td className="py-1.5">Authed · with position</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5 text-muted-foreground">none</td></tr>
                   </tbody>
