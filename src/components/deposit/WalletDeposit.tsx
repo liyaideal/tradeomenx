@@ -42,8 +42,8 @@ const CHECKLIST_ITEMS = [
     label: 'I am using the Base network (not Ethereum, BSC, Polygon, Arbitrum, or any other chain)',
   },
   {
-    id: 'contract',
-    label: 'I have verified the USDC contract address shown below',
+    id: 'address',
+    label: 'I have double-checked the deposit address below before sending',
   },
 ] as const;
 
