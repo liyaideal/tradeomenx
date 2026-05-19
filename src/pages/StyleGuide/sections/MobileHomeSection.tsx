@@ -308,16 +308,18 @@ const composedMatrix: Record<ComposedState, {
   label: string;
   greeting: "guest" | "authedActive" | "authedEmpty";
   slot: "null" | "onboarding" | "positionAlert";
+  onboardingStep: 2 | 3 | null;
   eventsTitle: string;
   interlude: boolean;
   note: string;
 }> = {
-  guest:        { label: "Guest",        greeting: "guest",       slot: "null",          eventsTitle: "Top Events",                  interlude: true,  note: "未登录：PersonalSlot 收起（empty:hidden），TopEvents 中插入 TrialCallout。" },
-  s0New:        { label: "S0_NEW",       greeting: "authedEmpty", slot: "onboarding",    eventsTitle: "Pick your first prediction",  interlude: false, note: "已登录、未充值：Greeting 显示 0 equity 文案，PersonalSlot = OnboardingCard (Step 1)。" },
-  s1Deposited:  { label: "S1_DEPOSITED", greeting: "authedEmpty", slot: "onboarding",    eventsTitle: "Pick your first prediction",  interlude: false, note: "已充值、未交易：Greeting 仍是无 7D 数据态，PersonalSlot = OnboardingCard (Step 2)。" },
-  s2Traded:     { label: "S2_TRADED",    greeting: "authedActive", slot: "positionAlert", eventsTitle: "Top Events",                 interlude: false, note: "已交易、volume < $5k：Greeting 含 7D sparkline，PersonalSlot 切到 PositionAlertCard。" },
-  s3Active:     { label: "S3_ACTIVE",   greeting: "authedActive", slot: "positionAlert", eventsTitle: "Top Events",                  interlude: false, note: "volume ≥ $5k：与 S2 视觉一致；激活引导全部隐藏。" },
+  guest:       { label: "Guest",        greeting: "guest",        slot: "null",          onboardingStep: null, eventsTitle: "Top Events",                 interlude: true,  note: "未登录：PersonalSlot 收起（empty:hidden），TopEvents 中插入 TrialCallout。" },
+  s0New:       { label: "S0_NEW",       greeting: "authedEmpty",  slot: "onboarding",    onboardingStep: 2,    eventsTitle: "Pick your first prediction", interlude: false, note: "已登录、未充值：OnboardingCard 当前 step = Deposit USDC on Base（Step 2 of 3，进度 1/3）。Greeting 无 7D 数据。" },
+  s1Deposited: { label: "S1_DEPOSITED", greeting: "authedEmpty",  slot: "onboarding",    onboardingStep: 3,    eventsTitle: "Pick your first prediction", interlude: false, note: "已充值、未交易：OnboardingCard 当前 step = Place your first trade（Step 3 of 3，进度 2/3）。Greeting 仍无 7D 数据。" },
+  s2Traded:    { label: "S2_TRADED",    greeting: "authedActive", slot: "positionAlert", onboardingStep: null, eventsTitle: "Top Events",                 interlude: false, note: "已交易、volume < $5k：Greeting 含 7D sparkline，PersonalSlot 切到 PositionAlertCard。" },
+  s3Active:    { label: "S3_ACTIVE",    greeting: "authedActive", slot: "positionAlert", onboardingStep: null, eventsTitle: "Top Events",                 interlude: false, note: "volume ≥ $5k：home 屏视觉与 S2 完全一致 —— 差异仅出现在 Wallet hero 和 Mainnet Launch 进度页。" },
 };
+
 
 export const MobileHomeSection = (_: MobileHomeSectionProps) => {
   const [greetingState, setGreetingState] = useState<GreetingState>("guest");
