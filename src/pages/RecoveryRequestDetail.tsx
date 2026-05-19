@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Copy, Loader2, ExternalLink, Check, X, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, Copy, Loader2, ExternalLink, Check, X } from 'lucide-react';
+import { DesktopBackLink } from '@/components/ui/desktop-back-link';
 import { toast } from 'sonner';
 import { useRecoveryRequest, useRecoveryRequests } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
