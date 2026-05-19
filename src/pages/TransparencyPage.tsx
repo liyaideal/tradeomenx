@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, FileSearch, Scale, ChevronRight, ChevronLeft, ExternalLink, Lock, Eye, Zap, Percent } from "lucide-react";
+import { Shield, FileSearch, Scale, ChevronRight, ExternalLink, Lock, Eye, Zap, Percent } from "lucide-react";
+import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
