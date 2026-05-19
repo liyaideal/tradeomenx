@@ -193,21 +193,32 @@ const HomeGreetingAuthed = ({ hasData }: { hasData: boolean }) => (
 
 /* ---------- C. PersonalSlot replicas ---------- */
 
-const OnboardingCardReplica = () => (
-  <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-          Step 1 of 3
-        </p>
-        <p className="mt-1 text-[14px] font-semibold text-foreground">
-          Deposit to start trading
-        </p>
+const OnboardingCardReplica = ({ step = 2 }: { step?: 2 | 3 }) => {
+  const completed = step - 1; // step 2 → 1/3 done, step 3 → 2/3 done
+  const label = step === 2 ? "Deposit USDC on Base" : "Place your first trade";
+  return (
+    <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
+            Step {step} of 3
+          </p>
+          <p className="mt-1 text-[14px] font-semibold text-foreground">{label}</p>
+        </div>
+        <ChevronRight className="h-4 w-4 flex-shrink-0 text-primary" />
       </div>
-      <ChevronRight className="h-4 w-4 text-primary" />
+      <div className="mt-3 flex items-center gap-1">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className={`h-1 flex-1 rounded-full ${i < completed ? "bg-primary" : "bg-muted"}`}
+          />
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
 
 const PositionAlertReplica = () => (
   <div className="rounded-2xl border border-trading-green/30 bg-trading-green/5 p-4">
