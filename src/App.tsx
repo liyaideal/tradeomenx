@@ -20,6 +20,8 @@ import SettlementDetail from "./pages/SettlementDetail";
 import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
+import RecoveryRequest from "./pages/RecoveryRequest";
+import RecoveryRequestDetail from "./pages/RecoveryRequestDetail";
 import Settings from "./pages/Settings";
 import Rewards from "./pages/Rewards";
 import FaqPage from "./pages/FaqPage";
@@ -110,6 +112,8 @@ const App = () => (
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/deposit" element={<Deposit />} />
               <Route path="/withdraw" element={<Withdraw />} />
+              <Route path="/wallet/recovery" element={<RecoveryRequest />} />
+              <Route path="/wallet/recovery/:id" element={<RecoveryRequestDetail />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/settings" element={<Settings />} />

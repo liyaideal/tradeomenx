@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Copy, Check, MoreHorizontal, RefreshCw, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Copy, Check, MoreHorizontal, RefreshCw, Info, AlertTriangle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +30,22 @@ const BASE_USDC_CONFIG = {
   fee: 0,
 };
 
-const WARNING_ACK_KEY = 'omenx:deposit:base-usdc-warning-ack';
+const WARNING_ACK_KEY = 'omenx:deposit:base-usdc-warning-ack-v2';
+
+const CHECKLIST_ITEMS = [
+  {
+    id: 'token',
+    label: 'I am sending USDC (not USDT, ETH, BNB, or any other token)',
+  },
+  {
+    id: 'network',
+    label: 'I am using the Base network (not Ethereum, BSC, Polygon, Arbitrum, or any other chain)',
+  },
+  {
+    id: 'contract',
+    label: 'I have verified the USDC contract address shown below',
+  },
+] as const;
 
 interface WalletDepositProps {
   onDone?: () => void;
@@ -75,7 +92,14 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
     }
   };
 
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const allChecked = CHECKLIST_ITEMS.every((item) => checkedItems[item.id]);
+
+  const toggleItem = (id: string) =>
+    setCheckedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+
   const handleAcknowledgeWarning = () => {
+    if (!allChecked) return;
     window.localStorage.setItem(warningAckKey, 'true');
     setWarningAcknowledged(true);
   };
@@ -87,7 +111,7 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
     )}>
       <div className="flex items-start gap-3">
         <Info className="w-5 h-5 text-trading-yellow shrink-0 mt-0.5" />
-        <div className={cn("text-trading-yellow leading-relaxed", warningAcknowledged ? "text-xs" : "text-sm space-y-3")}>
+        <div className={cn("text-trading-yellow leading-relaxed flex-1", warningAcknowledged ? "text-xs" : "text-sm space-y-4")}>
           <div>
             <span className="font-semibold">Only send USDC on Base network.</span>
             <br />
@@ -95,13 +119,49 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
             <br />
             Sending other tokens or using a different network may result in <span className="font-semibold">permanent loss of funds</span>.
           </div>
+
           {!warningAcknowledged && (
-            <Button
-              onClick={handleAcknowledgeWarning}
-              className={cn("w-full bg-trading-yellow text-background hover:bg-trading-yellow/90", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
-            >
-              I understand, show deposit address
-            </Button>
+            <>
+              <div className="space-y-2.5 pt-1">
+                {CHECKLIST_ITEMS.map((item) => (
+                  <label
+                    key={item.id}
+                    htmlFor={`deposit-ack-${item.id}`}
+                    className="flex items-start gap-2.5 cursor-pointer select-none text-sm text-foreground"
+                  >
+                    <Checkbox
+                      id={`deposit-ack-${item.id}`}
+                      checked={!!checkedItems[item.id]}
+                      onCheckedChange={() => toggleItem(item.id)}
+                      className="mt-0.5 border-trading-yellow data-[state=checked]:bg-trading-yellow data-[state=checked]:text-background"
+                    />
+                    <span className="leading-snug">{item.label}</span>
+                  </label>
+                ))}
+              </div>
+
+              <Button
+                onClick={handleAcknowledgeWarning}
+                disabled={!allChecked}
+                className={cn(
+                  "w-full bg-trading-yellow text-background hover:bg-trading-yellow/90 disabled:opacity-40",
+                  isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg"
+                )}
+              >
+                {allChecked ? 'Show deposit address' : 'Confirm all items above to continue'}
+              </Button>
+
+              <div className="flex items-start gap-2 pt-1 text-xs text-muted-foreground">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-px text-muted-foreground" />
+                <span>
+                  Sent to the wrong chain by mistake?{' '}
+                  <Link to="/wallet/recovery" className="text-primary hover:underline font-medium">
+                    Request recovery
+                  </Link>{' '}
+                  (10% fee applies).
+                </span>
+              </div>
+            </>
           )}
         </div>
       </div>

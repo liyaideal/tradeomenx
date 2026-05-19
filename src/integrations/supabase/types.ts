@@ -811,6 +811,69 @@ export type Database = {
         }
         Relationships: []
       }
+      recovery_requests: {
+        Row: {
+          accepted_at: string | null
+          admin_note: string | null
+          claimed_amount: number
+          completed_at: string | null
+          created_at: string
+          estimated_return: number | null
+          fee_percent: number
+          id: string
+          processed_tx_hash: string | null
+          quoted_at: string | null
+          sender_address: string
+          status: string
+          tx_hash: string
+          updated_at: string
+          user_id: string
+          user_note: string | null
+          wrong_network: string
+          wrong_token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          admin_note?: string | null
+          claimed_amount: number
+          completed_at?: string | null
+          created_at?: string
+          estimated_return?: number | null
+          fee_percent?: number
+          id?: string
+          processed_tx_hash?: string | null
+          quoted_at?: string | null
+          sender_address: string
+          status?: string
+          tx_hash: string
+          updated_at?: string
+          user_id: string
+          user_note?: string | null
+          wrong_network: string
+          wrong_token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          admin_note?: string | null
+          claimed_amount?: number
+          completed_at?: string | null
+          created_at?: string
+          estimated_return?: number | null
+          fee_percent?: number
+          id?: string
+          processed_tx_hash?: string | null
+          quoted_at?: string | null
+          sender_address?: string
+          status?: string
+          tx_hash?: string
+          updated_at?: string
+          user_id?: string
+          user_note?: string | null
+          wrong_network?: string
+          wrong_token?: string
+        }
+        Relationships: []
+      }
       referral_codes: {
         Row: {
           code: string
