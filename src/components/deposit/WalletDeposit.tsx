@@ -148,17 +148,6 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
               >
                 {allChecked ? 'Show deposit address' : 'Confirm all items above to continue'}
               </Button>
-
-              <div className="flex items-start gap-2 pt-1 text-xs text-muted-foreground">
-                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-px text-muted-foreground" />
-                <span>
-                  Sent to the wrong chain by mistake?{' '}
-                  <Link to="/wallet/recovery" className="text-primary hover:underline font-medium">
-                    Request recovery
-                  </Link>{' '}
-                  (10% fee applies).
-                </span>
-              </div>
             </>
           )}
         </div>
