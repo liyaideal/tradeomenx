@@ -258,9 +258,7 @@ const TransparencyPage = () => {
     >
       <EventsDesktopHeader />
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
-        <button onClick={() => navigate("/settings")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ChevronLeft className="w-4 h-4" /> Back to Settings
-        </button>
+        <DesktopBackLink label="Settings" onClick={() => navigate("/settings")} className="mb-6" />
         {content}
       </main>
       <SeoFooter />
