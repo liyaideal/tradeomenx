@@ -193,21 +193,32 @@ const HomeGreetingAuthed = ({ hasData }: { hasData: boolean }) => (
 
 /* ---------- C. PersonalSlot replicas ---------- */
 
-const OnboardingCardReplica = () => (
-  <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-          Step 1 of 3
-        </p>
-        <p className="mt-1 text-[14px] font-semibold text-foreground">
-          Deposit to start trading
-        </p>
+const OnboardingCardReplica = ({ step = 2 }: { step?: 2 | 3 }) => {
+  const completed = step - 1; // step 2 → 1/3 done, step 3 → 2/3 done
+  const label = step === 2 ? "Deposit USDC on Base" : "Place your first trade";
+  return (
+    <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
+            Step {step} of 3
+          </p>
+          <p className="mt-1 text-[14px] font-semibold text-foreground">{label}</p>
+        </div>
+        <ChevronRight className="h-4 w-4 flex-shrink-0 text-primary" />
       </div>
-      <ChevronRight className="h-4 w-4 text-primary" />
+      <div className="mt-3 flex items-center gap-1">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className={`h-1 flex-1 rounded-full ${i < completed ? "bg-primary" : "bg-muted"}`}
+          />
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
 
 const PositionAlertReplica = () => (
   <div className="rounded-2xl border border-trading-green/30 bg-trading-green/5 p-4">
@@ -297,16 +308,18 @@ const composedMatrix: Record<ComposedState, {
   label: string;
   greeting: "guest" | "authedActive" | "authedEmpty";
   slot: "null" | "onboarding" | "positionAlert";
+  onboardingStep: 2 | 3 | null;
   eventsTitle: string;
   interlude: boolean;
   note: string;
 }> = {
-  guest:        { label: "Guest",        greeting: "guest",       slot: "null",          eventsTitle: "Top Events",                  interlude: true,  note: "未登录：PersonalSlot 收起（empty:hidden），TopEvents 中插入 TrialCallout。" },
-  s0New:        { label: "S0_NEW",       greeting: "authedEmpty", slot: "onboarding",    eventsTitle: "Pick your first prediction",  interlude: false, note: "已登录、未充值：Greeting 显示 0 equity 文案，PersonalSlot = OnboardingCard (Step 1)。" },
-  s1Deposited:  { label: "S1_DEPOSITED", greeting: "authedEmpty", slot: "onboarding",    eventsTitle: "Pick your first prediction",  interlude: false, note: "已充值、未交易：Greeting 仍是无 7D 数据态，PersonalSlot = OnboardingCard (Step 2)。" },
-  s2Traded:     { label: "S2_TRADED",    greeting: "authedActive", slot: "positionAlert", eventsTitle: "Top Events",                 interlude: false, note: "已交易、volume < $5k：Greeting 含 7D sparkline，PersonalSlot 切到 PositionAlertCard。" },
-  s3Active:     { label: "S3_ACTIVE",   greeting: "authedActive", slot: "positionAlert", eventsTitle: "Top Events",                  interlude: false, note: "volume ≥ $5k：与 S2 视觉一致；激活引导全部隐藏。" },
+  guest:       { label: "Guest",        greeting: "guest",        slot: "null",          onboardingStep: null, eventsTitle: "Top Events",                 interlude: true,  note: "未登录：PersonalSlot 收起（empty:hidden），TopEvents 中插入 TrialCallout。" },
+  s0New:       { label: "S0_NEW",       greeting: "authedEmpty",  slot: "onboarding",    onboardingStep: 2,    eventsTitle: "Pick your first prediction", interlude: false, note: "已登录、未充值：OnboardingCard 当前 step = Deposit USDC on Base（Step 2 of 3，进度 1/3）。Greeting 无 7D 数据。" },
+  s1Deposited: { label: "S1_DEPOSITED", greeting: "authedEmpty",  slot: "onboarding",    onboardingStep: 3,    eventsTitle: "Pick your first prediction", interlude: false, note: "已充值、未交易：OnboardingCard 当前 step = Place your first trade（Step 3 of 3，进度 2/3）。Greeting 仍无 7D 数据。" },
+  s2Traded:    { label: "S2_TRADED",    greeting: "authedActive", slot: "positionAlert", onboardingStep: null, eventsTitle: "Top Events",                 interlude: false, note: "已交易、volume < $5k：Greeting 含 7D sparkline，PersonalSlot 切到 PositionAlertCard。" },
+  s3Active:    { label: "S3_ACTIVE",    greeting: "authedActive", slot: "positionAlert", onboardingStep: null, eventsTitle: "Top Events",                 interlude: false, note: "volume ≥ $5k：home 屏视觉与 S2 完全一致 —— 差异仅出现在 Wallet hero 和 Mainnet Launch 进度页。" },
 };
+
 
 export const MobileHomeSection = (_: MobileHomeSectionProps) => {
   const [greetingState, setGreetingState] = useState<GreetingState>("guest");
@@ -402,7 +415,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                 </div>
                 {composed.slot !== "null" && (
                   <div className="mt-3">
-                    {composed.slot === "onboarding" && <OnboardingCardReplica />}
+                    {composed.slot === "onboarding" && <OnboardingCardReplica step={composed.onboardingStep ?? 2} />}
                     {composed.slot === "positionAlert" && <PositionAlertReplica />}
                   </div>
                 )}
@@ -432,6 +445,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                       <th className="text-left py-2 text-muted-foreground font-medium">State</th>
                       <th className="text-left py-2 text-muted-foreground font-medium">Greeting</th>
                       <th className="text-left py-2 text-muted-foreground font-medium">PersonalSlot</th>
+                      <th className="text-left py-2 text-muted-foreground font-medium">Onboarding step</th>
                       <th className="text-left py-2 text-muted-foreground font-medium">TopEvents title</th>
                       <th className="text-left py-2 text-muted-foreground font-medium">Interlude</th>
                     </tr>
@@ -444,6 +458,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                           <td className="py-1.5 font-mono font-medium">{row.label}</td>
                           <td className="py-1.5 font-mono text-muted-foreground">{row.greeting}</td>
                           <td className="py-1.5 font-mono text-muted-foreground">{row.slot === "null" ? "— hidden —" : row.slot}</td>
+                          <td className="py-1.5 font-mono text-muted-foreground">{row.onboardingStep ? `${row.onboardingStep} of 3` : "—"}</td>
                           <td className="py-1.5">{row.eventsTitle}</td>
                           <td className="py-1.5 text-muted-foreground">{row.interlude ? <code className="font-mono text-primary">&lt;TrialCallout/&gt;</code> : "—"}</td>
                         </tr>
