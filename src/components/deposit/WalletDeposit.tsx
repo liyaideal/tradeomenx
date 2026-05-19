@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Copy, Check, MoreHorizontal, RefreshCw, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Copy, Check, MoreHorizontal, RefreshCw, Info, AlertTriangle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
