@@ -20,6 +20,8 @@ import SettlementDetail from "./pages/SettlementDetail";
 import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
+import RecoveryRequest from "./pages/RecoveryRequest";
+import RecoveryRequestDetail from "./pages/RecoveryRequestDetail";
 import Settings from "./pages/Settings";
 import Rewards from "./pages/Rewards";
 import FaqPage from "./pages/FaqPage";
