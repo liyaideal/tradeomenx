@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Copy, Check, MoreHorizontal, RefreshCw, Info, AlertTriangle } from 'lucide-react';
+import { Copy, Check, MoreHorizontal, RefreshCw, Info } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -42,8 +41,8 @@ const CHECKLIST_ITEMS = [
     label: 'I am using the Base network (not Ethereum, BSC, Polygon, Arbitrum, or any other chain)',
   },
   {
-    id: 'contract',
-    label: 'I have verified the USDC contract address shown below',
+    id: 'address',
+    label: 'I have double-checked the deposit address below before sending',
   },
 ] as const;
 
@@ -115,8 +114,6 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
           <div>
             <span className="font-semibold">Only send USDC on Base network.</span>
             <br />
-            Contract: <code className="text-[10px] bg-trading-yellow/10 px-1 py-0.5 rounded break-all">{BASE_USDC_CONFIG.contractAddress}</code>
-            <br />
             Sending other tokens or using a different network may result in <span className="font-semibold">permanent loss of funds</span>.
           </div>
 
@@ -150,17 +147,6 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
               >
                 {allChecked ? 'Show deposit address' : 'Confirm all items above to continue'}
               </Button>
-
-              <div className="flex items-start gap-2 pt-1 text-xs text-muted-foreground">
-                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-px text-muted-foreground" />
-                <span>
-                  Sent to the wrong chain by mistake?{' '}
-                  <Link to="/wallet/recovery" className="text-primary hover:underline font-medium">
-                    Request recovery
-                  </Link>{' '}
-                  (10% fee applies).
-                </span>
-              </div>
             </>
           )}
         </div>
