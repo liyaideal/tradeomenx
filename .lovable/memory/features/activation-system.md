@@ -21,7 +21,7 @@ State drives `nextStepHref` / `nextStepLabel` and component visibility.
 
 ## Surfaces
 - **`ActivationChecklist`** — 3-step persistent card (verify ✓ / deposit / first trade). Mounted in `MobileHome` below CampaignBannerCarousel. Hidden for GUEST/S2/S3.
-- **`ActivationHero`** — Wallet page top card (mobile + desktop left col). S0: "Deposit now" CTA. S1: "Browse markets" CTA. Hidden for S2/S3.
+
 - **`DepositActivationHint`** — Thin success bar above Deposit page tabs, S0 only.
 - **`MainnetBadge`** + `Logo.showMainnetBadge=true` — permanent brand signal in all headers, independent of activation state.
 
