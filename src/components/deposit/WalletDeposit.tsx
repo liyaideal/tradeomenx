@@ -115,8 +115,6 @@ export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
           <div>
             <span className="font-semibold">Only send USDC on Base network.</span>
             <br />
-            Contract: <code className="text-[10px] bg-trading-yellow/10 px-1 py-0.5 rounded break-all">{BASE_USDC_CONFIG.contractAddress}</code>
-            <br />
             Sending other tokens or using a different network may result in <span className="font-semibold">permanent loss of funds</span>.
           </div>
 
