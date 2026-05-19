@@ -53,9 +53,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
   if (step === "idle") {
     return (
       <div className="space-y-6">
-        <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <DesktopBackLink onClick={onBack} />
         <div className="trading-card p-6 md:p-8 text-center space-y-5">
           <div className="w-20 h-20 mx-auto rounded-2xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center">
             <Shield className="w-10 h-10 text-emerald-400" />

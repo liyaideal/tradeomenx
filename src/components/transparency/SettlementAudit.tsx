@@ -14,9 +14,7 @@ export const SettlementAudit = ({ onBack }: Props) => {
   if (step === "idle") {
     return (
       <div className="space-y-6">
-        <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <DesktopBackLink onClick={onBack} />
         <div className="trading-card p-6 md:p-8 text-center space-y-5">
           <div className="w-20 h-20 mx-auto rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center">
             <Gavel className="w-10 h-10 text-cyan-400" />
@@ -40,9 +38,7 @@ export const SettlementAudit = ({ onBack }: Props) => {
   if (step === "select") {
     return (
       <div className="space-y-6">
-        <button onClick={reset} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <DesktopBackLink onClick={reset} />
         <div className="trading-card p-5 md:p-6 space-y-4">
           <h3 className="font-semibold">Select a Resolved Event</h3>
           {isLoading ? (
@@ -75,9 +71,7 @@ export const SettlementAudit = ({ onBack }: Props) => {
   if (step === "fetching" || step === "verifying") {
     return (
       <div className="space-y-6">
-        <button onClick={reset} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <DesktopBackLink onClick={reset} />
         <div className="trading-card p-5 md:p-6 space-y-3 animate-fade-in">
           {[
             { key: "fetching", label: "Fetching on-chain EventResolved log..." },
