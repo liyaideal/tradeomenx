@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Clock, 
@@ -8,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Zap,
+  AlertTriangle,
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
