@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileSearch, Loader2, CheckCircle2, ArrowLeft, ExternalLink, Copy, Check, ArrowRightLeft } from "lucide-react";
+import { FileSearch, Loader2, CheckCircle2, ExternalLink, Copy, Check, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTradeVerification } from "@/hooks/useTradeVerification";
 import { toast } from "sonner";
@@ -81,9 +81,7 @@ export const TradeVerification = ({ onBack }: Props) => {
   // Fetching / Comparing / Result
   return (
     <div className="space-y-6">
-      <button onClick={() => { reset(); onBack(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Back
-      </button>
+      <DesktopBackLink onClick={() => { reset(); onBack(); }} />
 
       <div className="trading-card p-5 md:p-6 space-y-5">
         {/* Progress */}

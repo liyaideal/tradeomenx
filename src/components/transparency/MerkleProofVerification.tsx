@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Loader2, CheckCircle2, ChevronDown, ChevronUp, Copy, Check, ExternalLink, ArrowLeft } from "lucide-react";
+import { Shield, Loader2, CheckCircle2, ChevronDown, ChevronUp, Copy, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMerkleVerification, type MerkleStep } from "@/hooks/useMerkleVerification";
 import { toast } from "sonner";
@@ -86,9 +86,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
   // Processing / Result
   return (
     <div className="space-y-6">
-      <button onClick={() => { reset(); onBack(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Back
-      </button>
+      <DesktopBackLink onClick={() => { reset(); onBack(); }} />
 
       <div className="trading-card p-6 md:p-8 space-y-6">
         {/* Progress steps */}

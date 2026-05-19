@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, CheckCircle2, Gavel, ExternalLink, ArrowRightLeft, Trophy, Hash } from "lucide-react";
+import { Loader2, CheckCircle2, Gavel, ExternalLink, ArrowRightLeft, Trophy, Hash } from "lucide-react";
 import { useSettlementAudit } from "@/hooks/useSettlementAudit";
 import { format } from "date-fns";
 
@@ -97,9 +97,7 @@ export const SettlementAudit = ({ onBack }: Props) => {
   if (step === "result" && audit) {
     return (
       <div className="space-y-6">
-        <button onClick={() => { reset(); onBack(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <DesktopBackLink onClick={() => { reset(); onBack(); }} />
 
         <div className="space-y-4 animate-fade-in">
           {/* Verified banner */}

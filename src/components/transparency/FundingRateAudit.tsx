@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, CheckCircle2, Percent, ExternalLink, ArrowRightLeft, TrendingUp, TrendingDown } from "lucide-react";
+import { Loader2, CheckCircle2, Percent, ExternalLink, ArrowRightLeft, TrendingUp, TrendingDown } from "lucide-react";
 import { useFundingRateAudit, type FundingRateStep } from "@/hooks/useFundingRateAudit";
 
 interface Props {
@@ -99,9 +99,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
     const DirectionIcon = audit.direction === "paid" ? TrendingDown : TrendingUp;
     return (
       <div className="space-y-6">
-        <button onClick={() => { reset(); onBack(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <DesktopBackLink onClick={() => { reset(); onBack(); }} />
 
         <div className="space-y-4 animate-fade-in">
           {/* Match banner */}
