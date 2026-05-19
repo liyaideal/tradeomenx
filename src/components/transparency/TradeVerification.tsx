@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FileSearch, Loader2, CheckCircle2, ExternalLink, Copy, Check, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useTradeVerification } from "@/hooks/useTradeVerification";
 import { toast } from "sonner";
 

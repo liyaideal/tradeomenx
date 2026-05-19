@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Shield, Loader2, CheckCircle2, ChevronDown, ChevronUp, Copy, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useMerkleVerification, type MerkleStep } from "@/hooks/useMerkleVerification";
 import { toast } from "sonner";
 import { format } from "date-fns";

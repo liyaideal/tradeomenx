@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { Loader2, CheckCircle2, Gavel, ExternalLink, ArrowRightLeft, Trophy, Hash } from "lucide-react";
 import { useSettlementAudit } from "@/hooks/useSettlementAudit";
 import { format } from "date-fns";

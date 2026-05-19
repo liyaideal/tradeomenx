@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { Loader2, CheckCircle2, Percent, ExternalLink, ArrowRightLeft, TrendingUp, TrendingDown } from "lucide-react";
 import { useFundingRateAudit, type FundingRateStep } from "@/hooks/useFundingRateAudit";
 
