@@ -291,17 +291,37 @@ const TopEventsReplica = ({ title, withInterlude }: { title: string; withInterlu
 type GreetingState = "guest" | "authedActive" | "authedEmpty";
 type SlotState = "guestOrEmpty" | "onboarding" | "positionAlert";
 type EventsState = "guest" | "authedNoPosition" | "authedWithPosition";
+type ComposedState = "guest" | "s0New" | "s1Deposited" | "s2Traded" | "s3Active";
+
+const composedMatrix: Record<ComposedState, {
+  label: string;
+  greeting: "guest" | "authedActive" | "authedEmpty";
+  slot: "null" | "onboarding" | "positionAlert";
+  eventsTitle: string;
+  interlude: boolean;
+  note: string;
+}> = {
+  guest:        { label: "Guest",        greeting: "guest",       slot: "null",          eventsTitle: "Top Events",                  interlude: true,  note: "未登录：PersonalSlot 收起（empty:hidden），TopEvents 中插入 TrialCallout。" },
+  s0New:        { label: "S0_NEW",       greeting: "authedEmpty", slot: "onboarding",    eventsTitle: "Pick your first prediction",  interlude: false, note: "已登录、未充值：Greeting 显示 0 equity 文案，PersonalSlot = OnboardingCard (Step 1)。" },
+  s1Deposited:  { label: "S1_DEPOSITED", greeting: "authedEmpty", slot: "onboarding",    eventsTitle: "Pick your first prediction",  interlude: false, note: "已充值、未交易：Greeting 仍是无 7D 数据态，PersonalSlot = OnboardingCard (Step 2)。" },
+  s2Traded:     { label: "S2_TRADED",    greeting: "authedActive", slot: "positionAlert", eventsTitle: "Top Events",                 interlude: false, note: "已交易、volume < $5k：Greeting 含 7D sparkline，PersonalSlot 切到 PositionAlertCard。" },
+  s3Active:     { label: "S3_ACTIVE",   greeting: "authedActive", slot: "positionAlert", eventsTitle: "Top Events",                  interlude: false, note: "volume ≥ $5k：与 S2 视觉一致；激活引导全部隐藏。" },
+};
 
 export const MobileHomeSection = (_: MobileHomeSectionProps) => {
   const [greetingState, setGreetingState] = useState<GreetingState>("guest");
   const [slotState, setSlotState] = useState<SlotState>("onboarding");
   const [eventsState, setEventsState] = useState<EventsState>("guest");
+  const [composedState, setComposedState] = useState<ComposedState>("s0New");
 
   const eventsConfig: Record<EventsState, { title: string; withInterlude: boolean; note: string }> = {
     guest: { title: "Top Events", withInterlude: true, note: "Guest user — TrialCallout interlude inserted between cards" },
     authedNoPosition: { title: "Pick your first prediction", withInterlude: false, note: "Authenticated, no positions yet — title swaps to onboarding copy" },
     authedWithPosition: { title: "Top Events", withInterlude: false, note: "Authenticated with positions — default title, no interlude" },
   };
+
+  const composed = composedMatrix[composedState];
+
 
   return (
     <div className="space-y-12">
