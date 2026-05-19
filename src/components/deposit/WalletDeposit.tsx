@@ -30,7 +30,22 @@ const BASE_USDC_CONFIG = {
   fee: 0,
 };
 
-const WARNING_ACK_KEY = 'omenx:deposit:base-usdc-warning-ack';
+const WARNING_ACK_KEY = 'omenx:deposit:base-usdc-warning-ack-v2';
+
+const CHECKLIST_ITEMS = [
+  {
+    id: 'token',
+    label: 'I am sending USDC (not USDT, ETH, BNB, or any other token)',
+  },
+  {
+    id: 'network',
+    label: 'I am using the Base network (not Ethereum, BSC, Polygon, Arbitrum, or any other chain)',
+  },
+  {
+    id: 'contract',
+    label: 'I have verified the USDC contract address shown below',
+  },
+] as const;
 
 interface WalletDepositProps {
   onDone?: () => void;
