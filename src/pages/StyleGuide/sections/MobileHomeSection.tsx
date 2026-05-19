@@ -415,7 +415,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                 </div>
                 {composed.slot !== "null" && (
                   <div className="mt-3">
-                    {composed.slot === "onboarding" && <OnboardingCardReplica />}
+                    {composed.slot === "onboarding" && <OnboardingCardReplica step={composed.onboardingStep ?? 2} />}
                     {composed.slot === "positionAlert" && <PositionAlertReplica />}
                   </div>
                 )}
