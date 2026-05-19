@@ -1,38 +1,36 @@
-## 问题
-`/style-guide` 的 MobileHome 区域目前是把每个模块（Header / HomeGreeting / PersonalSlot / CampaignRail / TopEvents）单独 playground，缺一个**组合预览** —— 看不到"在某个用户状态下，整页是怎么拼出来的、哪个模块出现、哪个隐藏"。截图里的 PersonalSlot 卡片就是这种孤立状态，无法回答"什么时候真正会看见这张卡 / 不会看见"。
+## 背景
+guest 在 mobile home 的 Top Events 卡片之间会插入一张 `<TrialCallout/>`（"$10 to try, no deposit needed"），对应"$10 试用金"活动还没准备上线。改为在该插槽推 Mainnet Launch 活动，复用同一个引流位。
 
-## 改动范围
-仅改 `src/pages/StyleGuide/sections/MobileHomeSection.tsx`，新增一个置顶的 **"Composed Preview"** SubSection；现有 5 个独立 playground 保留不动。
+注意：Mainnet Launch 已经在 Top Events 上方的 `HomeCampaignRail` 用大 banner 展示一次。为避免重复感，interlude 用**一张视觉更克制的小卡**（图标 + 双行文案 + 右侧 CTA），与上方大 banner 区分开。
 
-### 1. 新增 Composed Preview（在 Page Skeleton 之后、HomeGreeting 之前）
-- 顶部 State 切换器（5 个 chip）：
-  - `Guest`
-  - `S0_NEW`（已登录、未充值）
-  - `S1_DEPOSITED`（已充值、未交易）
-  - `S2_TRADED`（已交易、volume < $5k，含持仓）
-  - `S3_ACTIVE`（volume ≥ $5k，含持仓）
-- 在一个 `<Frame>`（mobile 360px）里**完整组合**：HeaderReplica → HomeGreeting → PersonalSlot → CampaignRail → TopEvents，按真实 `mt-3 / mt-5` 间距。
-- 每个状态用一张组合表驱动现有 4 个 replica（复用 `HomeGreetingGuest/Authed`、`OnboardingCardReplica`、`PositionAlertReplica`、`CampaignBannerReplica`、`TopEventsReplica`），不引入新替身。
+## 改动
 
-### 2. 组合表（驱动逻辑，纯展示用）
-```text
-State          Greeting             PersonalSlot         TopEvents title              Interlude
-Guest          guest                — (empty:hidden)     Top Events                   TrialCallout
-S0_NEW         authedEmpty          OnboardingCard       Pick your first prediction   —
-S1_DEPOSITED   authedEmpty          OnboardingCard       Pick your first prediction   —
-S2_TRADED      authedActive         PositionAlertCard    Top Events                   —
-S3_ACTIVE      authedActive         PositionAlertCard    Top Events                   —
-```
-表下方加一段 caption 直接列出"此状态下 PersonalSlot 显隐 / TopEvents title / Interlude"，回答"到底怎么展示"。
+### 1. 新建 `src/components/home/MainnetLaunchCallout.tsx`
+结构与 `TrialCallout` 一致（便于无缝替换插槽），不同点：
+- icon: `Trophy`（lucide）替换 `Gift`
+- 配色用 `mainnet-gold`（项目已有 token，见 `CampaignBannerCarousel.tsx`）替换 `primary`
+- 主文案：`Trade once. Earn up to $200.`
+- 副文案：`$5K weekly pool · Mainnet Launch is live.`
+- 右侧 CTA: `Join` + `ArrowRight`
+- 点击行为：`onClick` 跳转 `/mainnet-launch`（用 `react-router-dom` `useNavigate`，不接 `onSignIn`）
+- 保持 `rounded-2xl border bg-card px-4 py-3.5`、`radial-gradient` 角落高光（色相换成 `mainnet-gold`）
 
-### 3. 在现有 PersonalSlot SubSection 里补充
-- 在 Resolution order 下加一行小注："想看整页效果请回到顶部 Composed Preview"，避免用户在孤立卡上误判。
+### 2. `src/pages/MobileHome.tsx`
+- 移除 `import { TrialCallout } ...`
+- 新增 `import { MainnetLaunchCallout } from "@/components/home/MainnetLaunchCallout";`
+- `HomeTopEvents` 的 `interlude` 改为：`!isAuthed ? <MainnetLaunchCallout /> : undefined`
+- `setAuthOpen` 仍保留给 `HomeGreeting`/`AuthSheet` 使用
 
-## 不动
-- `MobileHome.tsx` 业务代码
-- `useActivationState` / 数据层
-- 其他 StyleGuide section
-- 现有 replica 组件本身
+### 3. `src/pages/StyleGuide/sections/MobileHomeSection.tsx`（style guide 预览同步）
+- 替换 `TrialCalloutReplica` 的内容渲染为 Mainnet Launch 小卡的同款样式（图标 + 文案 + CTA），或直接 import 真实的 `MainnetLaunchCallout`
+- `composedMatrix.guest.note` 改为："未登录：PersonalSlot 收起，TopEvents 中插入 Mainnet Launch 小卡（引流到 /mainnet-launch）"
+- 矩阵表格 `<TrialCallout/>` 字样改为 `<MainnetLaunchCallout/>`
+- "Title & interlude rules" 表格里 Guest 行同步改
 
-## 交付
-单文件 diff：`src/pages/StyleGuide/sections/MobileHomeSection.tsx`（约 +120 行）。
+### 4. 保留 `src/components/home/TrialCallout.tsx`
+不删除，等"$10 试用金"活动正式上线时可直接切回。在文件顶部加注释说明当前未被引用。
+
+## 不在范围
+- `HomeCampaignRail` 不动（已展示 Mainnet Launch 大 banner）
+- 桌面 home 不动（本次只调 mobile）
+- 不改任何业务/状态逻辑

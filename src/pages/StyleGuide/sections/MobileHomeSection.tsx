@@ -278,11 +278,12 @@ const TopEventsReplica = ({ title, withInterlude }: { title: string; withInterlu
         </p>
       </div>
       {withInterlude && (
-        <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-center">
-          <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
-            Trial Callout
+        <div className="rounded-xl border border-mainnet-gold/30 bg-mainnet-gold/5 p-3">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-mainnet-gold">
+            Mainnet Launch Callout
           </p>
-          <p className="mt-1 text-[12px] text-foreground">Try $10 demo position</p>
+          <p className="mt-1 text-[12px] font-semibold text-foreground">Trade once. Earn up to $200.</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground"><span className="font-mono">$5K</span> weekly pool · Mainnet Launch is live.</p>
         </div>
       )}
       <div className="rounded-xl border border-border/40 bg-card p-3">
@@ -313,7 +314,7 @@ const composedMatrix: Record<ComposedState, {
   interlude: boolean;
   note: string;
 }> = {
-  guest:       { label: "Guest",        greeting: "guest",        slot: "null",          onboardingStep: null, eventsTitle: "Top Events",                 interlude: true,  note: "未登录：PersonalSlot 收起（empty:hidden），TopEvents 中插入 TrialCallout。" },
+  guest:       { label: "Guest",        greeting: "guest",        slot: "null",          onboardingStep: null, eventsTitle: "Top Events",                 interlude: true,  note: "未登录：PersonalSlot 收起（empty:hidden），TopEvents 中插入 MainnetLaunchCallout（引流到 /mainnet-launch）。" },
   s0New:       { label: "S0_NEW",       greeting: "authedEmpty",  slot: "onboarding",    onboardingStep: 2,    eventsTitle: "Pick your first prediction", interlude: false, note: "已登录、未充值：OnboardingCard 当前 step = Deposit USDC on Base（Step 2 of 3，进度 1/3）。Greeting 无 7D 数据。" },
   s1Deposited: { label: "S1_DEPOSITED", greeting: "authedEmpty",  slot: "onboarding",    onboardingStep: 3,    eventsTitle: "Pick your first prediction", interlude: false, note: "已充值、未交易：OnboardingCard 当前 step = Place your first trade（Step 3 of 3，进度 2/3）。Greeting 仍无 7D 数据。" },
   s2Traded:    { label: "S2_TRADED",    greeting: "authedActive", slot: "positionAlert", onboardingStep: null, eventsTitle: "Top Events",                 interlude: false, note: "已交易、volume < $5k：Greeting 含 7D sparkline，PersonalSlot 切到 PositionAlertCard。" },
@@ -328,7 +329,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
   const [composedState, setComposedState] = useState<ComposedState>("s0New");
 
   const eventsConfig: Record<EventsState, { title: string; withInterlude: boolean; note: string }> = {
-    guest: { title: "Top Events", withInterlude: true, note: "Guest user — TrialCallout interlude inserted between cards" },
+    guest: { title: "Top Events", withInterlude: true, note: "Guest user — MainnetLaunchCallout interlude inserted between cards" },
     authedNoPosition: { title: "Pick your first prediction", withInterlude: false, note: "Authenticated, no positions yet — title swaps to onboarding copy" },
     authedWithPosition: { title: "Top Events", withInterlude: false, note: "Authenticated with positions — default title, no interlude" },
   };
@@ -460,7 +461,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                           <td className="py-1.5 font-mono text-muted-foreground">{row.slot === "null" ? "— hidden —" : row.slot}</td>
                           <td className="py-1.5 font-mono text-muted-foreground">{row.onboardingStep ? `${row.onboardingStep} of 3` : "—"}</td>
                           <td className="py-1.5">{row.eventsTitle}</td>
-                          <td className="py-1.5 text-muted-foreground">{row.interlude ? <code className="font-mono text-primary">&lt;TrialCallout/&gt;</code> : "—"}</td>
+                          <td className="py-1.5 text-muted-foreground">{row.interlude ? <code className="font-mono text-mainnet-gold">&lt;MainnetLaunchCallout/&gt;</code> : "—"}</td>
                         </tr>
                       );
                     })}
@@ -722,7 +723,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/50">
-                    <tr><td className="py-1.5">Guest</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5"><code className="font-mono text-primary">&lt;TrialCallout/&gt;</code></td></tr>
+                    <tr><td className="py-1.5">Guest</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5"><code className="font-mono text-mainnet-gold">&lt;MainnetLaunchCallout/&gt;</code></td></tr>
                     <tr><td className="py-1.5">Authed · no position</td><td className="py-1.5 font-mono">Pick your first prediction</td><td className="py-1.5 text-muted-foreground">none</td></tr>
                     <tr><td className="py-1.5">Authed · with position</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5 text-muted-foreground">none</td></tr>
                   </tbody>

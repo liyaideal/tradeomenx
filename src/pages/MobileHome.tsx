@@ -18,7 +18,7 @@ import { HomeGreeting } from "@/components/home/HomeGreeting";
 
 import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
 import { HomeTopEvents } from "@/components/home/HomeTopEvents";
-import { TrialCallout } from "@/components/home/TrialCallout";
+import { MainnetLaunchCallout } from "@/components/home/MainnetLaunchCallout";
 import { PersonalSlot } from "@/components/home/PersonalSlot";
 
 const MobileHome = () => {
@@ -88,7 +88,7 @@ const MobileHome = () => {
           <HomeTopEvents
             title={isAuthed && !hasPosition ? "Pick your first prediction" : "Top Events"}
             interlude={
-              !isAuthed ? <TrialCallout onSignIn={() => setAuthOpen(true)} /> : undefined
+              !isAuthed ? <MainnetLaunchCallout /> : undefined
             }
           />
         </div>

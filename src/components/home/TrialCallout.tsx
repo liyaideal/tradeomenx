@@ -1,3 +1,6 @@
+// NOTE: Currently unused. The "$10 demo position" campaign has not launched yet —
+// the guest interlude on MobileHome temporarily uses <MainnetLaunchCallout/>.
+// Keep this file so we can swap back when the trial bonus campaign goes live.
 import { ArrowRight, Gift } from "lucide-react";
 
 interface TrialCalloutProps {
