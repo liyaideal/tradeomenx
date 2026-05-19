@@ -263,6 +263,18 @@ export const PendingConfirmations = ({ className }: PendingConfirmationsProps) =
               );
             })
           )}
+
+          {/* Wrong-chain recovery entry */}
+          <Link
+            to="/wallet/recovery"
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
+          >
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span>
+              Sent to the wrong network?{' '}
+              <span className="text-primary underline-offset-2 hover:underline">Request recovery</span>
+            </span>
+          </Link>
         </div>
       )}
     </div>
