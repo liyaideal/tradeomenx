@@ -74,18 +74,28 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
     setError(null);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const validationError = validateWithdrawal({
       token: 'USDC',
       amount,
       toAddress: selectedAddress,
+      network: selectedWallet?.network,
     });
     if (validationError) {
       setError(validationError);
       return;
     }
+    setVerifyOpen(true);
+  };
+
+  const doSubmit = async () => {
     try {
-      await submitWithdrawal({ token: 'USDC', amount, toAddress: selectedAddress });
+      await submitWithdrawal({
+        token: 'USDC',
+        amount,
+        toAddress: selectedAddress,
+        network: selectedWallet?.network,
+      });
       toast.success('Withdrawal request submitted');
     } catch (err: any) {
       toast.error(err.message || 'Failed to submit withdrawal');
