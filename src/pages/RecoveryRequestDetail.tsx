@@ -116,23 +116,6 @@ export default function RecoveryRequestDetailPage() {
     </div>
   );
 
-  const creditedCard = req.status === 'completed' && req.estimated_return != null && (
-    <div className={`rounded-xl border border-trading-green/30 bg-trading-green/5 ${isMobile ? 'p-4' : 'p-6'} space-y-2`}>
-      <div className="text-sm font-semibold text-trading-green">Funds credited</div>
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">Credited to balance</span>
-        <span className="font-mono font-semibold text-trading-green">
-          +${Number(req.estimated_return).toFixed(2)}
-        </span>
-      </div>
-      {req.processed_tx_hash && (
-        <div className="flex items-center justify-between text-xs pt-1 border-t border-trading-green/20">
-          <span className="text-muted-foreground">Internal ref</span>
-          <span className="font-mono">{truncate(req.processed_tx_hash)}</span>
-        </div>
-      )}
-    </div>
-  );
 
   const detailsCard = (
     <div className={`rounded-xl border bg-card ${isMobile ? 'p-4' : 'p-6'} space-y-3`}>
