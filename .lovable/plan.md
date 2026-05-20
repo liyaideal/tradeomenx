@@ -1,27 +1,26 @@
-# 把验证流程接到真正的 Withdraw 入口
+# 统一 Verify withdrawal 顶部排版
 
 ## 问题
+- 桌面：右上 `Step 1 of 2` 跟关闭按钮 X 叠在一起。
+- 移动：MobileDrawer 标题独占一行，step 单独靠右又是一行，整体很散。
 
-`/withdraw` 路由渲染的是 `Withdraw.tsx → WalletWithdraw.tsx`，而我上一轮把 `WithdrawVerifyDialog` 接到了另一个组件 `WithdrawForm.tsx`（目前未在主流程使用），所以钱包页提交时绕过了验证，直接进 Processing。
+## 方案（两端统一）
+把 step 指示符作为**标题下方的副标题**统一呈现，跟说明文字合并成一行，避开 X 关闭按钮，桌面/移动结构一致。
 
-## 修复方案（仅前端，无后端改动）
+格式：`Step 1 of 2 · Confirm it's you before sending funds off-platform.`
+- text-xs / text-muted-foreground
+- 居左，紧贴标题下方
+- 只 1 个步骤时省略 `Step X of Y · ` 前缀
 
-### 1. `src/components/withdraw/WalletWithdraw.tsx`
-- 引入 `WithdrawVerifyDialog`
-- 新增 `verifyOpen` state
-- 拆分 `handleSubmit`：
-  - 旧 `handleSubmit` 只做 `validateWithdrawal`，校验通过后 `setVerifyOpen(true)`
-  - 新增 `doSubmit`：真正执行 `submitWithdrawal({ token, amount, toAddress, network: selectedWallet?.network })`，并 toast 成功/失败
-- 在 JSX 末尾挂 `<WithdrawVerifyDialog open onOpenChange onVerified={doSubmit} />`
-- 同时把现有 `submitWithdrawal` 调用补上 `network: selectedWallet?.network`（与 WithdrawForm 一致，避免 Solana/Tron 地址被 EVM 校验拦下）
+## 文件改动
+`src/components/withdraw/WithdrawVerifyDialog.tsx`
+- 删除 `stepBadge` 单独的 JSX 与桌面端 title 右侧、移动端 section 顶部的占位
+- 桌面：`DialogDescription` 内容改为 `{stepPrefix}Confirm it's you …`
+- 移动：在 `MobileDrawerSection` 最上方加同样格式的一行小字（左对齐、text-xs、muted），替换原先靠右的 step 行
 
-### 2. （可选清理）`src/components/withdraw/WithdrawForm.tsx`
-- 该组件目前未被任何路由使用。本轮不删，保留其验证逻辑作为备用；如需删除可在下一轮处理。
+不动 PanelHeading（图标+标题+描述居中），只动 dialog/drawer 顶部副标题。
 
 ## 验证
-
-- 在 `/withdraw` 输入金额 + 选地址 → 点 Withdraw
-- 应弹出 `WithdrawVerifyDialog`（移动端 MobileDrawer / 桌面 Dialog）
-- 根据 Settings 里的 `withdraw_2fa_mode` 走对应步骤（demo OTP 全部 `111111`）
-- 未绑邮箱时走 `bind_email` 子流程；未启用 TOTP 时走 `bind_totp` 子流程
-- 验证通过后才进入 Processing
+- 桌面 1021px：标题不与 X 重叠；副标题为 `Step 1 of 2 · …`
+- 移动 390px：标题下方紧跟一行小字 `Step 1 of 2 · …`（不再单独右上一行）
+- 单步骤场景下副标题只剩说明文字
