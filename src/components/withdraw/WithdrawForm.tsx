@@ -82,6 +82,7 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
         token: token.symbol,
         amount,
         toAddress: selectedAddress,
+        network: selectedWallet?.network,
       });
       toast.success('Withdrawal request submitted');
     } catch (err: any) {
@@ -94,6 +95,7 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
       token: token.symbol,
       amount,
       toAddress: selectedAddress,
+      network: selectedWallet?.network,
     });
 
     if (validationError) {
