@@ -22,7 +22,6 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
-  DEMO_OTP_HINT,
   formatTotpSecret,
   generateDemoTotpSecret,
   verifyDemoOtp,
@@ -326,14 +325,9 @@ export const WithdrawVerifyDialog = ({
     }
   })();
 
-  const header = totalSteps > 0 && (
-    <div className="flex items-center justify-between text-xs text-muted-foreground">
-      <span>{DEMO_OTP_HINT}</span>
-      {totalSteps > 1 && (
-        <span>
-          Step {stepIdx + 1} of {totalSteps}
-        </span>
-      )}
+  const header = totalSteps > 1 && (
+    <div className="flex items-center justify-end text-xs text-muted-foreground">
+      <span>Step {stepIdx + 1} of {totalSteps}</span>
     </div>
   );
 
