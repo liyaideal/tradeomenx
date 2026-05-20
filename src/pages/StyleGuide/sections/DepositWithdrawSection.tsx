@@ -4,6 +4,7 @@ import { ArrowDown } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { cn } from "@/lib/utils";
+import { RecoveryStatusTimeline, RecoveryStatusBadge } from "@/components/recovery/RecoveryStatusTimeline";
 
 interface DepositWithdrawSectionProps {
   isMobile: boolean;
