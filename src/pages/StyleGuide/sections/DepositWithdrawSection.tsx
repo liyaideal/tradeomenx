@@ -4,6 +4,7 @@ import { ArrowDown } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { cn } from "@/lib/utils";
+import { RecoveryStatusTimeline, RecoveryStatusBadge } from "@/components/recovery/RecoveryStatusTimeline";
 
 interface DepositWithdrawSectionProps {
   isMobile: boolean;
@@ -262,6 +263,58 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
       <CodePreview code={`<p className="text-[10px] text-center text-muted-foreground">
   Powered by <span className="font-semibold">SOCKET</span>
 </p>`} />
+    </SubSection>
+
+    {/* ── Recovery Request Status ── */}
+    <SubSection
+      title="Recovery Request Status"
+      description="Wrong-network recovery uses a streamlined 3-state machine: Submitted → Completed, or Rejected. A flat 10% fee is applied, no quote/accept step. Used in /wallet/recovery and its detail page."
+    >
+      <div className="grid grid-cols-1 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Status Badges (list rows)</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center gap-3">
+            <RecoveryStatusBadge status="submitted" />
+            <RecoveryStatusBadge status="completed" />
+            <RecoveryStatusBadge status="rejected" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Timeline — Submitted (processing)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RecoveryStatusTimeline status="submitted" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Timeline — Completed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RecoveryStatusTimeline status="completed" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Timeline — Rejected</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RecoveryStatusTimeline status="rejected" />
+          </CardContent>
+        </Card>
+      </div>
+
+      <CodePreview code={`import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
+
+<RecoveryStatusBadge status="submitted" />
+<RecoveryStatusTimeline status="completed" />
+// status: 'submitted' | 'completed' | 'rejected'`} />
     </SubSection>
   </SectionWrapper>
 );
