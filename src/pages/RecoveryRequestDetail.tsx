@@ -190,8 +190,7 @@ export default function RecoveryRequestDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
             <div className="space-y-6">
               {statusCard}
-              {quoteCard}
-              {creditedCard}
+              {payoutCard}
               {adminCard}
             </div>
             <div className="space-y-6">
@@ -208,8 +207,7 @@ export default function RecoveryRequestDetailPage() {
   return renderShell(
     <main className="flex-1 overflow-auto pb-24 px-4 py-5 space-y-5">
       {statusCard}
-      {quoteCard}
-      {creditedCard}
+      {payoutCard}
       {detailsCard}
       {adminCard}
       {supportFooter}
