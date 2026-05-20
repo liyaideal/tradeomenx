@@ -780,10 +780,13 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          totp_enabled: boolean
+          totp_secret: string | null
           trial_balance: number | null
           updated_at: string
           user_id: string
           username: string | null
+          withdraw_2fa_mode: string
         }
         Insert: {
           auth_method?: string | null
@@ -792,10 +795,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          totp_enabled?: boolean
+          totp_secret?: string | null
           trial_balance?: number | null
           updated_at?: string
           user_id: string
           username?: string | null
+          withdraw_2fa_mode?: string
         }
         Update: {
           auth_method?: string | null
@@ -804,10 +810,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          totp_enabled?: boolean
+          totp_secret?: string | null
           trial_balance?: number | null
           updated_at?: string
           user_id?: string
           username?: string | null
+          withdraw_2fa_mode?: string
         }
         Relationships: []
       }

@@ -1,95 +1,105 @@
-## 背景
+## 目标
 
-你提的对——既然 `fee_percent = 10` 是固定常量，`estimated_return = claimed_amount * 0.9` 完全可以前端算出来，根本不需要 "quoted → 用户 accept → processing" 这条审批链。
+1. **Withdraw 流程**：用户点 Withdraw → 弹出验证 Dialog（邮箱 OTP / TOTP / 两者）→ 全部通过后才真正提交。
+2. **Settings → Security** 新增「Withdrawal verification」偏好：Email only / Authenticator only / Both。
+3. 处理「未绑定邮箱」和「未绑定 Authenticator」两种前置缺失场景。
 
-当前 8 个 status（`submitted / reviewing / quoted / accepted / rejected / processing / completed / unrecoverable`）对应的管理员动作其实只有两种：
-- "钱到账了，已转给用户" → completed
-- "搞不定 / 不符合规则" → rejected
+> Demo 设定：邮箱 OTP 和 TOTP 都接受固定码 **`111111`**，不接入真实邮件、不 toast 显示验证码。UI 上仅在 Dialog 顶部小字提示 "Demo: use 111111"。
 
-中间所有节点都是冗余的过程信号。
+---
 
-## 精简后的状态机（3 个状态）
+## 数据库变更
 
-```text
-submitted ──► completed
-          └─► rejected
+`profiles` 表新增字段：
+
+| 字段 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `withdraw_2fa_mode` | text | `'email'` | `'email'` / `'totp'` / `'both'` |
+| `totp_enabled` | boolean | `false` | 是否完成 Authenticator 绑定 |
+| `totp_secret` | text | null | 模拟 secret（demo 用） |
+
+约束：`CHECK (withdraw_2fa_mode IN ('email','totp','both'))`。RLS 沿用现有 profile policies。
+
+> 注：邮箱是否绑定通过现有 `profiles.email` 字段判断，无需新增字段。
+
+---
+
+## 验证流程（核心：前置条件 → 验证步骤）
+
+`WithdrawForm.handleSubmit` 改为：
+
+```
+1. 表单校验通过
+2. 读取 profile.withdraw_2fa_mode
+3. 计算需要的步骤：steps = []
+   - 若 mode 含 email → 需要 profile.email，否则进入「Bind email」分支
+   - 若 mode 含 totp  → 需要 totp_enabled,    否则进入「Bind authenticator」分支
+4. 打开 WithdrawVerifyDialog（按 steps 渲染，进度 1/N → N/N）
+5. 全部通过 → 真正 submitWithdrawal
 ```
 
-| status      | 含义                                       | 触发方                |
-| ----------- | ------------------------------------------ | --------------------- |
-| `submitted` | 用户提交，团队处理中（含审核 + 链上找回）  | 用户提交              |
-| `completed` | 资金已到账用户余额                         | 管理员（1 次点击）    |
-| `rejected`  | 无法找回（混合原 rejected / unrecoverable，用 `admin_note` 说明原因） | 管理员（1 次点击）    |
+### 缺失前置的分支
 
-去掉：`reviewing`、`quoted`、`accepted`、`processing`、`unrecoverable`。
+**A. 缺邮箱**（mode 含 email 但 profile.email 为空）
+- Dialog 第一屏渲染「Add email to continue」面板：Email Input + "Send code" → 6 格 OTP（接受 111111）→ 写入 `profiles.email`。完成后自动进入下一步或直接通过 email 验证。
+- 备用出口："Go to Settings to add email"，关闭 Dialog 跳 `/settings`。
 
-管理员动作：原来一笔要点 3~4 次 → **现在 1 次**（complete 或 reject）。
+**B. 缺 Authenticator**（mode 含 totp 但 totp_enabled 为 false）
+- Dialog 直接渲染「Set up authenticator to continue」面板：复用 `Setup2FADialog` 内容（demo 二维码 + secret + 输入 111111 确认 → 写 `totp_enabled=true`）。完成后进入下一步或直接通过 totp 验证。
+- 备用出口：跳 `/settings` 的 Security 卡。
 
-## 用户端 UX 影响
+**C. 都缺**：先做 A，再做 B，再走正常验证步骤（实际上 A/B 完成后等价已通过对应验证，可直接合并跳过对应步骤）。
 
-- 提交后用户看到的就是 `Submitted · Processing recovery`（不再分多个微步骤）
-- 找回金额（90% 净到账）在提交那一刻就在详情页显示出来 —— 因为可以算，不需要等"报价"
-- 完成时收到 toast / 邮件，详情页变 `Completed` + 显示到账金额
-- 被拒时显示 `Rejected` + 团队的解释文本（`admin_note`）
+> 兜底：如果用户在 Settings 之外（如登录刚注册）从未填过邮箱，提交 Withdraw 时一定会被 A 分支拦住，所以无需再加 deposit-style 全局 banner。
 
-把"等报价 + 看报价 + 接受/拒绝"这套流程整个砍掉，确实更顺。
+---
 
-## 改动范围
+## Settings → Security 卡
 
-### 数据库（migration）
+新建 `SecurityCard.tsx`，插到 Settings 中（ConnectedAccountsCard 附近）：
 
-1. 数据迁移（把现有非终态记录归并到 `submitted`，非完成终态归并到 `rejected` / `completed`）：
-   ```sql
-   update recovery_requests
-     set status='submitted'
-     where status in ('reviewing','quoted','accepted','processing');
-   update recovery_requests
-     set status='rejected'
-     where status='unrecoverable';
-   ```
-2. 加 CHECK 约束限制为 3 个值：
-   ```sql
-   alter table recovery_requests
-     add constraint recovery_status_chk
-     check (status in ('submitted','completed','rejected'));
-   ```
-3. 更新 `enforce_recovery_request_user_update()` 触发器：
-   - 删掉 `quoted → accepted/rejected` 这条分支
-   - 非管理员对 `status` 的任何修改都直接拒绝（用户没有任何 status 改写权限了）
-4. 可选：`quoted_at` / `accepted_at` / `fee_percent` / `estimated_return` 这些列短期保留以兼容历史数据，新流程不再写入
+1. **Withdrawal verification**
+   - RadioGroup / Segmented：Email only / Authenticator only / Both
+   - 切换到含 totp 的选项时，若 `totp_enabled=false`，先弹 `Setup2FADialog` 完成绑定再写偏好；用户取消则不改偏好。
+   - 切换到含 email 的选项时，若 `profile.email` 为空，inline 提示 "Add an email in your profile first"（不强弹，因为 Settings 已有 email 编辑区）。
 
-### Hook 改动 `useRecoveryRequests.ts`
+2. **Authenticator app**
+   - 状态 Badge：Enabled / Not set
+   - 按钮：Set up / Disable
+   - Disable 时若当前 mode 是 totp/both，提示 "Will switch to Email only"，确认后同时回退 `withdraw_2fa_mode='email'`。
 
-- `RecoveryStatus` 缩为 `'submitted' | 'completed' | 'rejected'`
-- 删除 `respondToQuote` mutation 和相关导出
-- `useRecoveryRequest` / `useRecoveryRequests` 其它部分保持不变
+---
 
-### 组件改动
+## 前端文件清单
 
-**`RecoveryStatusTimeline.tsx`**
-- STEPS 缩成 2 步：`Submitted → Completed`
-- `RecoveryStatusBadge` 配色：
-  - `submitted` → primary (Loader2 旋转图标 + "Processing")
-  - `completed` → trading-green
-  - `rejected` → destructive
+**新建**
+- `src/components/withdraw/WithdrawVerifyDialog.tsx` — Dialog（桌面）+ MobileDrawer（移动）包装，按 steps 渲染 Email OTP / TOTP / Bind email / Bind authenticator 四类面板，公用 6 格 InputOTP。
+- `src/components/settings/SecurityCard.tsx`
+- `src/components/settings/Setup2FADialog.tsx` — demo 二维码（SVG 占位 / `qrcode.react` 任选）+ secret + 6 格 InputOTP（接受 111111）。
+- `src/lib/demoOtp.ts` — 常量 `DEMO_OTP_CODE = '111111'`，工具 `verifyDemoOtp(code)`，生成假 base32 secret。
+- supabase migration（3 个字段 + check）
 
-**`RecoveryRequestDetail.tsx`**
-- 删掉整段 `quoteCard`（Quote received / Accept / Decline 按钮）以及 `onAccept` / `onDecline`
-- 在 `detailsCard` 里增加一行 "You will receive" = `claimed_amount * 0.9`（提交时就显示）
-- `creditedCard` 仍在 `status === 'completed'` 时显示
+**改动**
+- `src/components/withdraw/WithdrawForm.tsx` — 提交前打开 verify dialog；不再直接 submit。
+- `src/pages/Settings.tsx` — 插入 SecurityCard。
+- `src/hooks/useUserProfile.ts` — 暴露 `withdraw_2fa_mode` / `totp_enabled` / `totp_secret`，新增 `updateWithdrawMode`、`enableTotp`、`disableTotp`、`bindEmail`（若现有 `updateEmail` 已够用则复用）。
+- `src/pages/StyleGuide/sections/DepositWithdrawSection.tsx` — Playground 展示 verify dialog 在 4 种状态下的渲染（email-only / totp-only / both / 缺邮箱 / 缺 totp）。
 
-**`RecoveryForm.tsx`**（如有"预估到账"显示同步用 90%）
+---
 
-**`RecoveryRequest.tsx` 列表**
-- 状态 badge 用新映射；其它不动
+## 设计规范
 
-## 不动的东西
+- 桌面 Dialog + 移动 MobileDrawer（按 memory: desktop-overlay-conventions）
+- MobileDrawer 内卡片 `rounded-lg border bg-muted/30 p-3`、按钮 `MobileDrawerActions` + Cancel + Primary（按 mobile-drawer-content-spec）
+- OTP 6 格用现有 `InputOTP`
+- 文案 sentence case，无 emoji，错误码用 `text-destructive`
+- 顶部「Demo: use 111111」用 `text-xs text-muted-foreground` 的提示条
 
-- 路由、URL、RLS 策略、`fee_percent` 列默认值（仍 10）
-- mobile / desktop 布局结构
+---
 
-## 需要你确认的 1 个点
+## 不改动
 
-被拒绝时是否要给用户**退回原资产**的承诺？目前没有这一环，文案就是"无法找回，详见说明"。如果你后续要做"退回手续费 / 退回部分"那是另一个独立 feature，先不掺进这次精简里。
-
-确认无误就开始执行。
+- `useWithdraw` 后端逻辑、submitWithdrawal API
+- URL / 路由
+- 登录流程（仅影响 Withdraw 与 Settings）
+- 不接入真实邮件、不接入真实 TOTP、不调用 Lovable Auth MFA
