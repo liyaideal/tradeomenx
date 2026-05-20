@@ -70,7 +70,6 @@ export default function RecoveryRequestPage() {
           <div className="flex flex-wrap gap-2 pt-1">
             <Pill>10% flat fee</Pill>
             <Pill>3–7 business days</Pill>
-            <Pill>No quote needed</Pill>
           </div>
         </div>
       </div>
