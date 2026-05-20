@@ -2,15 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
-export type RecoveryStatus =
-  | 'submitted'
-  | 'reviewing'
-  | 'quoted'
-  | 'accepted'
-  | 'rejected'
-  | 'processing'
-  | 'completed'
-  | 'unrecoverable';
+export type RecoveryStatus = 'submitted' | 'completed' | 'rejected';
 
 export interface RecoveryRequest {
   id: string;
@@ -85,23 +77,7 @@ export const useRecoveryRequests = () => {
     },
   });
 
-  const respondToQuote = useMutation({
-    mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => {
-      const { data, error } = await supabase
-        .from('recovery_requests')
-        .update({ status: accept ? 'accepted' : 'rejected' })
-        .eq('id', id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data as RecoveryRequest;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['recovery-requests'] });
-    },
-  });
-
-  return { list, create, respondToQuote };
+  return { list, create };
 };
 
 export const useRecoveryRequest = (id: string | undefined) => {
