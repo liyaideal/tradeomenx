@@ -259,6 +259,13 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
           onSelectAddress={(addr) => { setSelectedAddress(addr); setShowAddressSelect(false); }}
         />
       )}
+
+      {/* Multi-step withdrawal verification (email OTP / TOTP) */}
+      <WithdrawVerifyDialog
+        open={verifyOpen}
+        onOpenChange={setVerifyOpen}
+        onVerified={doSubmit}
+      />
     </div>
   );
 };
