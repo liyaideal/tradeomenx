@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { WithdrawAddressSelect } from './WithdrawAddressSelect';
 import { WithdrawAddressSelectDialog } from './WithdrawAddressSelectDialog';
 import { WithdrawStatusTracker } from './WithdrawStatusTracker';
+import { WithdrawVerifyDialog } from './WithdrawVerifyDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate } from 'react-router-dom';
 
