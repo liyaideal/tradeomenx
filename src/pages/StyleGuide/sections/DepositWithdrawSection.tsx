@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { cn } from "@/lib/utils";
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from "@/components/recovery/RecoveryStatusTimeline";
+import { WithdrawVerifyDialog } from "@/components/withdraw/WithdrawVerifyDialog";
 
 interface DepositWithdrawSectionProps {
   isMobile: boolean;
@@ -32,10 +35,15 @@ const BRAND_LOGOS = [
   { name: "SOCKET", src: "" },
 ];
 
-export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps) => (
+export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps) => {
+  const [verifyOpen, setVerifyOpen] = useState(false);
+
+  return (
   <SectionWrapper
     id="deposit-withdraw"
     title="Deposit & Withdraw"
+    description="Design system for all deposit, withdrawal, and cross-chain bridging components. Consistent typography, chain logos, and layout patterns."
+  >
     description="Design system for all deposit, withdrawal, and cross-chain bridging components. Consistent typography, chain logos, and layout patterns."
   >
     {/* ── Chain & Token Logos ── */}
@@ -316,5 +324,44 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
 <RecoveryStatusTimeline status="completed" />
 // status: 'submitted' | 'completed' | 'rejected'`} />
     </SubSection>
+
+    {/* ── Withdraw Verification ── */}
+    <SubSection
+      title="Withdraw Verification"
+      description="Live verification dialog used by /wallet/withdraw. Step queue is derived from profile.withdraw_2fa_mode + bound state. Demo accepts code 111111 for both email OTP and TOTP."
+    >
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">Launch verify dialog</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Opens the same multi-step dialog rendered before a real withdrawal. Steps reflect your
+            current Settings (withdrawal verification mode) and whether email / authenticator are bound.
+            Switch modes in <span className="font-medium">Settings → Security</span> to see different flows.
+          </p>
+          <Button onClick={() => setVerifyOpen(true)}>Open verify dialog</Button>
+        </CardContent>
+      </Card>
+
+      <WithdrawVerifyDialog
+        open={verifyOpen}
+        onOpenChange={setVerifyOpen}
+        onVerified={() => Promise.resolve()}
+      />
+
+      <CodePreview code={`import { WithdrawVerifyDialog } from '@/components/withdraw/WithdrawVerifyDialog';
+
+<WithdrawVerifyDialog
+  open={open}
+  onOpenChange={setOpen}
+  onVerified={() => submitWithdrawal(...)}
+/>
+// Steps auto-derived from profile.withdraw_2fa_mode:
+//   'email' → email OTP (or Bind email if profile.email empty)
+//   'totp'  → TOTP    (or Bind authenticator if !totp_enabled)
+//   'both'  → both, in sequence`} />
+    </SubSection>
   </SectionWrapper>
-);
+  );
+};
