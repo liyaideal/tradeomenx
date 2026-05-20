@@ -59,25 +59,10 @@ export default function RecoveryRequestDetailPage() {
     toast.success(`${label} copied`);
   };
 
-  const onAccept = async () => {
-    try {
-      await respondToQuote.mutateAsync({ id: req.id, accept: true });
-      toast.success('Quote accepted. Processing will begin shortly.');
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Failed to accept');
-    }
-  };
-
-  const onDecline = async () => {
-    try {
-      await respondToQuote.mutateAsync({ id: req.id, accept: false });
-      toast.success('Quote declined.');
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Failed to decline');
-    }
-  };
-
-  const showQuoteActions = req.status === 'quoted';
+  const amountNum = Number(req.claimed_amount) || 0;
+  const feeAmount = (amountNum * FEE_PERCENT) / 100;
+  const estimatedReturn =
+    req.estimated_return != null ? Number(req.estimated_return) : amountNum - feeAmount;
 
   // Reusable card content blocks
   const statusCard = (
@@ -87,44 +72,47 @@ export default function RecoveryRequestDetailPage() {
         <RecoveryStatusBadge status={req.status} />
       </div>
       <RecoveryStatusTimeline status={req.status} />
+      {req.status === 'submitted' && (
+        <p className="text-xs text-muted-foreground">
+          Our team is reviewing and attempting recovery. This typically takes 3–7 business days.
+        </p>
+      )}
     </div>
   );
 
-  const quoteCard = showQuoteActions && req.estimated_return != null && (
-    <div className={`rounded-xl border border-trading-yellow/30 bg-trading-yellow/5 ${isMobile ? 'p-4' : 'p-6'} space-y-3`}>
-      <div className="text-sm font-semibold">Quote received — please confirm</div>
+  const payoutCard = req.status !== 'rejected' && (
+    <div
+      className={`rounded-xl border ${
+        req.status === 'completed'
+          ? 'border-trading-green/30 bg-trading-green/5'
+          : 'border-border bg-muted/30'
+      } ${isMobile ? 'p-4' : 'p-6'} space-y-2`}
+    >
+      <div className="text-sm font-semibold">
+        {req.status === 'completed' ? 'Funds credited' : 'Estimated payout'}
+      </div>
       <div className="space-y-1.5 text-sm">
-        <Row label="Amount sent" value={`$${Number(req.claimed_amount).toFixed(2)}`} />
-        <Row
-          label={`Recovery fee (${req.fee_percent}%)`}
-          value={`-$${((Number(req.claimed_amount) * Number(req.fee_percent)) / 100).toFixed(2)}`}
-        />
+        <Row label="Amount sent" value={`$${amountNum.toFixed(2)}`} />
+        <Row label={`Recovery fee (${FEE_PERCENT}%)`} value={`-$${feeAmount.toFixed(2)}`} />
         <div className="border-t pt-2 flex items-center justify-between">
-          <span className="font-medium">You will receive</span>
-          <span className="font-mono font-semibold text-trading-yellow">
-            ${Number(req.estimated_return).toFixed(2)}
+          <span className="font-medium">
+            {req.status === 'completed' ? 'Credited to balance' : 'You will receive'}
+          </span>
+          <span
+            className={`font-mono font-semibold ${
+              req.status === 'completed' ? 'text-trading-green' : 'text-primary'
+            }`}
+          >
+            {req.status === 'completed' ? '+' : ''}${estimatedReturn.toFixed(2)}
           </span>
         </div>
       </div>
-      <div className="flex gap-2 pt-1">
-        <Button
-          variant="outline"
-          onClick={onDecline}
-          disabled={respondToQuote.isPending}
-          className={`flex-1 ${isMobile ? 'h-11 rounded-xl' : 'h-10 rounded-lg'}`}
-        >
-          <X className="w-4 h-4 mr-1.5" />
-          Decline
-        </Button>
-        <Button
-          onClick={onAccept}
-          disabled={respondToQuote.isPending}
-          className={`flex-1 ${isMobile ? 'h-11 rounded-xl' : 'h-10 rounded-lg'}`}
-        >
-          <Check className="w-4 h-4 mr-1.5" />
-          Accept
-        </Button>
-      </div>
+      {req.status === 'completed' && req.processed_tx_hash && (
+        <div className="flex items-center justify-between text-xs pt-1 border-t border-trading-green/20">
+          <span className="text-muted-foreground">Internal ref</span>
+          <span className="font-mono">{truncate(req.processed_tx_hash)}</span>
+        </div>
+      )}
     </div>
   );
 
