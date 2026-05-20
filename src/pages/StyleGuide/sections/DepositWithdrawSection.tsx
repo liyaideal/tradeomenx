@@ -336,7 +336,7 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
           <p className="text-xs text-muted-foreground">
             Opens the same multi-step dialog rendered before a real withdrawal. Steps reflect your
             current Settings (withdrawal verification mode) and whether email / authenticator are bound.
-            Switch modes in <span className="font-medium">Settings → Security</span> to see different flows.
+            Switch modes in <span className="font-medium">Settings → Withdrawal verification</span> to see different flows.
           </p>
           <Button onClick={() => setVerifyOpen(true)}>Open verify dialog</Button>
         </CardContent>
