@@ -44,8 +44,6 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
     title="Deposit & Withdraw"
     description="Design system for all deposit, withdrawal, and cross-chain bridging components. Consistent typography, chain logos, and layout patterns."
   >
-    description="Design system for all deposit, withdrawal, and cross-chain bridging components. Consistent typography, chain logos, and layout patterns."
-  >
     {/* ── Chain & Token Logos ── */}
     <SubSection title="Chain & Token Logos" description="Always use official SVG logos from /chain-logos/ and /token-logos/. Never use emoji, text, or generic icons.">
       <div className="grid grid-cols-2 gap-4">
