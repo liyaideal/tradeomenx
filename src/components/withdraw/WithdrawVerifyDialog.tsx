@@ -325,11 +325,8 @@ export const WithdrawVerifyDialog = ({
     }
   })();
 
-  const stepBadge = totalSteps > 1 && (
-    <span className="text-xs font-normal text-muted-foreground tabular-nums">
-      Step {stepIdx + 1} of {totalSteps}
-    </span>
-  );
+  const stepPrefix = totalSteps > 1 ? `Step ${stepIdx + 1} of ${totalSteps} · ` : "";
+  const subtitle = `${stepPrefix}Confirm it's you before sending funds off-platform.`;
 
   if (!open || totalSteps === 0) {
     // Edge case: no steps required (shouldn't happen, but allow safe close)
@@ -344,7 +341,7 @@ export const WithdrawVerifyDialog = ({
         title="Verify withdrawal"
       >
         <MobileDrawerSection>
-          {stepBadge && <div className="flex justify-end -mt-1 mb-1">{stepBadge}</div>}
+          <p className="text-xs text-muted-foreground -mt-1 mb-3">{subtitle}</p>
           {renderStep()}
         </MobileDrawerSection>
         <MobileDrawerActions>
@@ -373,16 +370,11 @@ export const WithdrawVerifyDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="flex items-center justify-between gap-3">
-            <DialogTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
-              Verify withdrawal
-            </DialogTitle>
-            {stepBadge}
-          </div>
-          <DialogDescription>
-            Confirm it's you before sending funds off-platform.
-          </DialogDescription>
+          <DialogTitle className="flex items-center gap-2 pr-6">
+            <Shield className="w-5 h-5 text-primary" />
+            Verify withdrawal
+          </DialogTitle>
+          <DialogDescription>{subtitle}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">{renderStep()}</div>
