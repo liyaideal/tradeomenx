@@ -9,6 +9,7 @@ import {
   getWithdrawMinimum 
 } from '@/types/withdraw';
 import { useUserProfile } from './useUserProfile';
+import { supabase } from '@/integrations/supabase/client';
 
 // Mock data for development - will be replaced with actual API calls
 const MOCK_WITHDRAW_LIMITS: WithdrawLimits = {
