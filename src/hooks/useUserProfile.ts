@@ -44,6 +44,9 @@ export interface Profile {
   trial_balance: number | null;
   created_at: string;
   updated_at: string;
+  withdraw_2fa_mode?: string | null;
+  totp_enabled?: boolean | null;
+  totp_secret?: string | null;
 }
 
 const PROFILE_QUERY_KEY = ["user-profile"];
@@ -366,6 +369,40 @@ export const useUserProfile = () => {
     return updateTrialBalance(newTrialBalance);
   };
 
+  // ---- Security / withdraw verification ----
+  const updateWithdraw2faMode = async (mode: "email" | "totp" | "both") => {
+    try {
+      await updateMutation.mutateAsync({ withdraw_2fa_mode: mode } as Partial<Profile>);
+      return { success: true as const };
+    } catch (error: any) {
+      return { success: false as const, error: error.message };
+    }
+  };
+
+  const enableTotp = async (secret: string) => {
+    try {
+      await updateMutation.mutateAsync({
+        totp_enabled: true,
+        totp_secret: secret,
+      } as Partial<Profile>);
+      return { success: true as const };
+    } catch (error: any) {
+      return { success: false as const, error: error.message };
+    }
+  };
+
+  const disableTotp = async () => {
+    try {
+      await updateMutation.mutateAsync({
+        totp_enabled: false,
+        totp_secret: null,
+      } as Partial<Profile>);
+      return { success: true as const };
+    } catch (error: any) {
+      return { success: false as const, error: error.message };
+    }
+  };
+
   // Calculate total available balance (trial + real)
   const totalBalance = (profile?.trial_balance ?? 0) + (profile?.balance ?? 0);
 
@@ -397,6 +434,9 @@ export const useUserProfile = () => {
     deductBalanceWithDetails,
     addBalance,
     addTrialBalance,
+    updateWithdraw2faMode,
+    enableTotp,
+    disableTotp,
     
     // Refetch
     refetchProfile: refetch,

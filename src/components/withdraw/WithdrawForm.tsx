@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { WithdrawAddressSelect } from './WithdrawAddressSelect';
 import { WithdrawStatusTracker } from './WithdrawStatusTracker';
+import { WithdrawVerifyDialog } from './WithdrawVerifyDialog';
 
 interface WithdrawFormProps {
   token: TokenConfig;
@@ -41,6 +42,7 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [showAddressSelect, setShowAddressSelect] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [verifyOpen, setVerifyOpen] = useState(false);
 
   const fee = getWithdrawFee(token.symbol);
   const minAmount = getWithdrawMinimum(token.symbol);
@@ -74,7 +76,20 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
     setError(null);
   };
 
-  const handleSubmit = async () => {
+  const doSubmit = async () => {
+    try {
+      await submitWithdrawal({
+        token: token.symbol,
+        amount,
+        toAddress: selectedAddress,
+      });
+      toast.success('Withdrawal request submitted');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to submit withdrawal');
+    }
+  };
+
+  const handleSubmit = () => {
     const validationError = validateWithdrawal({
       token: token.symbol,
       amount,
@@ -86,16 +101,8 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
       return;
     }
 
-    try {
-      await submitWithdrawal({
-        token: token.symbol,
-        amount,
-        toAddress: selectedAddress,
-      });
-      toast.success('Withdrawal request submitted');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to submit withdrawal');
-    }
+    // Open verification dialog; actual submit fires only after verification passes.
+    setVerifyOpen(true);
   };
 
   // If we have a current withdrawal, show status tracker
@@ -257,6 +264,13 @@ export const WithdrawForm = ({ token, onBack }: WithdrawFormProps) => {
           setSelectedAddress(address);
           setShowAddressSelect(false);
         }}
+      />
+
+      {/* Multi-step withdrawal verification (email OTP / TOTP) */}
+      <WithdrawVerifyDialog
+        open={verifyOpen}
+        onOpenChange={setVerifyOpen}
+        onVerified={doSubmit}
       />
     </div>
   );
