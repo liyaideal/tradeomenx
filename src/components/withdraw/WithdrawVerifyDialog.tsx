@@ -325,10 +325,10 @@ export const WithdrawVerifyDialog = ({
     }
   })();
 
-  const header = totalSteps > 1 && (
-    <div className="flex items-center justify-end text-xs text-muted-foreground">
-      <span>Step {stepIdx + 1} of {totalSteps}</span>
-    </div>
+  const stepBadge = totalSteps > 1 && (
+    <span className="text-xs font-normal text-muted-foreground tabular-nums">
+      Step {stepIdx + 1} of {totalSteps}
+    </span>
   );
 
   if (!open || totalSteps === 0) {
@@ -344,7 +344,7 @@ export const WithdrawVerifyDialog = ({
         title="Verify withdrawal"
       >
         <MobileDrawerSection>
-          {header}
+          {stepBadge && <div className="flex justify-end -mt-1 mb-1">{stepBadge}</div>}
           {renderStep()}
         </MobileDrawerSection>
         <MobileDrawerActions>
@@ -373,19 +373,19 @@ export const WithdrawVerifyDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary" />
-            Verify withdrawal
-          </DialogTitle>
+          <div className="flex items-center justify-between gap-3">
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              Verify withdrawal
+            </DialogTitle>
+            {stepBadge}
+          </div>
           <DialogDescription>
             Confirm it's you before sending funds off-platform.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {header}
-          {renderStep()}
-        </div>
+        <div className="space-y-4">{renderStep()}</div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
