@@ -1,13 +1,14 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Copy, Loader2, ExternalLink, Check, X } from 'lucide-react';
+import { ChevronLeft, Copy, Loader2, ExternalLink } from 'lucide-react';
 import { DesktopBackLink } from '@/components/ui/desktop-back-link';
 import { toast } from 'sonner';
-import { useRecoveryRequest, useRecoveryRequests } from '@/hooks/useRecoveryRequests';
+import { useRecoveryRequest } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
-import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EventsDesktopHeader } from '@/components/EventsDesktopHeader';
 import { BottomNav } from '@/components/BottomNav';
+
+const FEE_PERCENT = 10;
 
 export default function RecoveryRequestDetailPage() {
   const navigate = useNavigate();
