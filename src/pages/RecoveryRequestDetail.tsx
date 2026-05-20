@@ -15,7 +15,6 @@ export default function RecoveryRequestDetailPage() {
   const isMobile = useIsMobile();
   const { id } = useParams();
   const { data: req, isLoading } = useRecoveryRequest(id);
-  const { respondToQuote } = useRecoveryRequests();
 
   if (isMobile === undefined) return null;
 
