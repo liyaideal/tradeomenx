@@ -342,9 +342,11 @@ export const WithdrawVerifyDialog = ({
         open={open}
         onOpenChange={onOpenChange}
         title="Verify withdrawal"
-        headerExtra={stepBadge || undefined}
       >
-        <MobileDrawerSection>{renderStep()}</MobileDrawerSection>
+        <MobileDrawerSection>
+          {stepBadge && <div className="flex justify-end -mt-1 mb-1">{stepBadge}</div>}
+          {renderStep()}
+        </MobileDrawerSection>
         <MobileDrawerActions>
           <Button
             onClick={primary.onClick}
