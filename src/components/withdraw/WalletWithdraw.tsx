@@ -42,6 +42,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [showAddressSelect, setShowAddressSelect] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [verifyOpen, setVerifyOpen] = useState(false);
 
   const fee = getWithdrawFee('USDC');
   const minAmount = getWithdrawMinimum('USDC');
