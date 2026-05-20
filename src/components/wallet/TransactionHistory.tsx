@@ -362,21 +362,31 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                 )}
                 onClick={() => showExpandable && toggleExpand(tx.id)}
               >
-                {/* Main Row */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                      getTransactionBgColor(tx)
-                    )}>
-                      {getTransactionIcon(tx)}
+                {isMobile ? (
+                  /* ----- Mobile: two-layer row (see DESIGN.md §8 Transaction History Row Spec) ----- */
+                  <>
+                    {/* Row 1: icon + description + amount */}
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                        getTransactionBgColor(tx)
+                      )}>
+                        {getTransactionIcon(tx)}
+                      </div>
+                      <span className="text-sm font-medium truncate flex-1 min-w-0">
+                        {formatDescription(tx)}
+                      </span>
+                      <span className={cn(
+                        "text-sm font-semibold font-mono shrink-0 text-right",
+                        tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
+                      )}>
+                        {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+                      </span>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium truncate">
-                          {formatDescription(tx)}
-                        </span>
-                        {/* Type badge for cross-chain and fiat */}
+                    {/* Row 2: date + badge + status icon (aligned to description) */}
+                    <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
+                      <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
+                        <span>{tx.date}</span>
                         {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell'].includes(tx.type) && (
                           <span className={cn(
                             "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
@@ -385,7 +395,6 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                             {TYPE_BADGE_CONFIG[tx.type].label}
                           </span>
                         )}
-                        {/* Show status icon inline if pending/processing */}
                         {tx.status && tx.status !== 'completed' && (
                           <StatusIcon className={cn(
                             "w-3.5 h-3.5 shrink-0",
@@ -394,29 +403,71 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                           )} />
                         )}
                       </div>
-                      <div className="text-xs text-muted-foreground">{tx.date}</div>
+                      {showExpandable && (
+                        <ChevronDown className={cn(
+                          "w-4 h-4 text-muted-foreground transition-transform shrink-0 mt-0.5",
+                          isExpanded && "rotate-180"
+                        )} />
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  /* ----- Desktop: single-line row ----- */
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                        getTransactionBgColor(tx)
+                      )}>
+                        {getTransactionIcon(tx)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium truncate">
+                            {formatDescription(tx)}
+                          </span>
+                          {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell'].includes(tx.type) && (
+                            <span className={cn(
+                              "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
+                              TYPE_BADGE_CONFIG[tx.type].className
+                            )}>
+                              {TYPE_BADGE_CONFIG[tx.type].label}
+                            </span>
+                          )}
+                          {tx.status && tx.status !== 'completed' && (
+                            <StatusIcon className={cn(
+                              "w-3.5 h-3.5 shrink-0",
+                              statusConfig.color,
+                              tx.status === 'processing' && "animate-spin"
+                            )} />
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{tx.date}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={cn(
+                        "text-sm font-semibold font-mono",
+                        tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
+                      )}>
+                        {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+                      </span>
+                      {showExpandable && (
+                        <ChevronDown className={cn(
+                          "w-4 h-4 text-muted-foreground transition-transform",
+                          isExpanded && "rotate-180"
+                        )} />
+                      )}
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className={cn(
-                      "text-sm font-semibold font-mono",
-                      tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
-                    )}>
-                      {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
-                    </span>
-                    {showExpandable && (
-                      <ChevronDown className={cn(
-                        "w-4 h-4 text-muted-foreground transition-transform",
-                        isExpanded && "rotate-180"
-                      )} />
-                    )}
-                  </div>
-                </div>
+                )}
 
                 {/* Expandable details */}
                 {isExpanded && hasDetails(tx) && (
-                  <div className="mt-3 pt-3 border-t border-border/30 ml-[52px] space-y-2">
+                  <div className={cn(
+                    "mt-3 pt-3 border-t border-border/30 space-y-2",
+                    isMobile ? "pl-[52px]" : "ml-[52px]"
+                  )}>
                     {tx.status && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Status</span>
@@ -430,7 +481,6 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                       </div>
                     )}
 
-                    {/* Route info for cross-chain */}
                     {tx.sourceChain && tx.destChain && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Route</span>
@@ -439,7 +489,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                         </span>
                       </div>
                     )}
-                    
+
                     {tx.network && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Network</span>

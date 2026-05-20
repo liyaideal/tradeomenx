@@ -9,6 +9,7 @@ import {
   getWithdrawMinimum 
 } from '@/types/withdraw';
 import { useUserProfile } from './useUserProfile';
+import { supabase } from '@/integrations/supabase/client';
 
 // Mock data for development - will be replaced with actual API calls
 const MOCK_WITHDRAW_LIMITS: WithdrawLimits = {
@@ -80,12 +81,28 @@ export const useWithdraw = () => {
         throw new Error('Exceeds daily withdrawal limit');
       }
 
-      // TODO: Replace with actual API call
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Persist a row in the transactions ledger so it shows up in
+      // /wallet > Transaction History immediately.
+      const { data: inserted, error: insertError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user!.id,
+          type: 'withdraw',
+          amount: -amount,
+          description: 'Withdrawal to wallet',
+          status: 'processing',
+          network: data.network || null,
+          tx_hash: null,
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        throw new Error(insertError.message || 'Failed to submit withdrawal');
+      }
 
       const newWithdrawal: WithdrawRecord = {
-        id: `wd-${Date.now()}`,
+        id: inserted!.id,
         amount,
         fee,
         netAmount: amount - fee,
@@ -101,6 +118,7 @@ export const useWithdraw = () => {
       setCurrentWithdrawal(withdrawal);
       queryClient.invalidateQueries({ queryKey: ['pending-withdrawals'] });
       queryClient.invalidateQueries({ queryKey: ['withdraw-limits'] });
+      queryClient.invalidateQueries({ queryKey: ['wallet-fund-transactions'] });
     },
   });
 

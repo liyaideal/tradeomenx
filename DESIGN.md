@@ -457,7 +457,7 @@ import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 | failed | `XCircle` | `text-trading-red` | — |
 | cancelled | `AlertCircle` | `text-muted-foreground` | — |
 
-### Transaction Card Layout
+### Transaction Card Layout (compact summary card)
 
 ```
 flex items-center justify-between p-3 bg-card rounded-lg border border-border/50
@@ -465,6 +465,50 @@ flex items-center justify-between p-3 bg-card rounded-lg border border-border/50
 
 - Left: Icon (colored circle) + amount + description
 - Right: Status badge
+
+### Transaction History Row Spec
+
+Used in `/wallet` Transaction History list (`TransactionHistory.tsx`). Rows live inside a `bg-card border border-border/50 rounded-xl divide-y divide-border/30` container; each row is `p-4` and becomes `cursor-pointer hover:bg-muted/30` when `hasDetails(tx)` is true (txHash / non-completed status / network / fee / sourceChain / destChain).
+
+**Shared atoms**
+
+- Icon disc: `w-10 h-10 rounded-full flex items-center justify-center shrink-0`, background = `getTransactionBgColor(tx)` (e.g. `bg-trading-green/20`, `bg-trading-red/20`, `bg-blue-500/20`)
+- Description: `text-sm font-medium truncate` (sentence case, see §3.5)
+- Amount: `text-sm font-semibold font-mono shrink-0`, green if `>= 0` (with `+` prefix), red otherwise; absolute value formatted as `$1,234.56`
+- Type badge (only for `cross_chain_in`, `cross_chain_out`, `fiat_buy`, `fiat_sell`): `inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap`, colors from `TYPE_BADGE_CONFIG`
+- Status icon (only when `status !== 'completed'`): `w-3.5 h-3.5 shrink-0` from `STATUS_CONFIG`, `processing` adds `animate-spin`
+- Chevron (only when row is expandable): `w-4 h-4 text-muted-foreground transition-transform`, `rotate-180` when expanded
+
+**Desktop (`!isMobile`) — single line**
+
+```
+[icon]  Description  [badge?] [status?]              date     amount  chevron?
+```
+
+- Outer: `flex items-center justify-between`
+- Left cluster: `flex items-center gap-3 min-w-0 flex-1` containing icon + a `min-w-0 flex-1` text block where the first row is `flex items-center gap-2` (description / badge / status) and the second row is `text-xs text-muted-foreground` date
+- Right cluster: `flex items-center gap-2 shrink-0` containing amount + chevron
+
+**Mobile (`isMobile`) — two layers**
+
+```
+[icon]  Description                                       amount
+        date · [badge?] · [status?]                       chevron?
+```
+
+- Row 1: `flex items-center gap-3` → icon + `text-sm font-medium truncate flex-1 min-w-0` description + amount (`shrink-0 text-right`)
+- Row 2: `flex items-start justify-between gap-2 mt-1 pl-[52px]` (52px = 40px icon + 12px gap, keeps the secondary line aligned to the description)
+  - Left: `flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0` containing date, optional badge, optional status icon
+  - Right: chevron with `shrink-0 mt-0.5`
+
+**Expanded details panel** (`isExpanded && hasDetails(tx)`): `mt-3 pt-3 border-t border-border/30 space-y-2`, left padding `ml-[52px]` on desktop / `pl-[52px]` on mobile so it aligns under the description. Each detail row is `flex items-center justify-between text-sm` with `text-muted-foreground` label and value styled per type (hashes/fees `font-mono`, explorer link `text-primary hover:underline` + `<ExternalLink className="w-3 h-3" />`).
+
+**Do / Don't**
+
+- ✅ Always render amount on the first visual line so it never gets squeezed under badges or spinners
+- ✅ Keep the secondary metadata (date / badge / status) on its own line on mobile
+- ❌ Don't put the type badge or spinner inline with the description on mobile — at 390px the description gets truncated to `Bri...` and badges overlap the amount
+- ❌ Don't drop the `pl-[52px]` alignment on mobile rows 2 / expanded panel — losing it breaks the icon-anchored visual rhythm
 
 ### Vertical Stepper
 
