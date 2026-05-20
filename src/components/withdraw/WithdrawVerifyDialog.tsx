@@ -22,7 +22,6 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
-  DEMO_OTP_HINT,
   formatTotpSecret,
   generateDemoTotpSecret,
   verifyDemoOtp,
