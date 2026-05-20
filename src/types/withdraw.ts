@@ -40,6 +40,7 @@ export interface WithdrawFormData {
   token: string;
   amount: string;
   toAddress: string;
+  network?: string;
 }
 
 // Fee configuration per token
