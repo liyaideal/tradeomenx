@@ -12,6 +12,8 @@ import {
   ExternalLink,
   ArrowUpRight,
   ArrowDownLeft,
+  ArrowLeftRight,
+  ChevronDown,
 } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
