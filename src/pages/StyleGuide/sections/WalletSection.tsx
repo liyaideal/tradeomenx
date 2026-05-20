@@ -12,6 +12,8 @@ import {
   ExternalLink,
   ArrowUpRight,
   ArrowDownLeft,
+  ArrowLeftRight,
+  ChevronDown,
 } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
@@ -346,7 +348,178 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
         </Card>
       </SectionWrapper>
 
+      {/* Transaction History Row */}
+      <SectionWrapper
+        id="transaction-history-row"
+        title="Transaction History Row"
+        platform="shared"
+        description="Canonical row layout used on /wallet — desktop single-line, mobile two-layer. See DESIGN.md §8."
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Desktop — single line</CardTitle>
+            <CardDescription>
+              {`flex items-center justify-between`} · icon + description + type badge + status icon on the left, amount + chevron on the right
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-card border border-border/50 rounded-xl divide-y divide-border/30">
+              {/* Deposit completed */}
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
+                    <ArrowDownLeft className="w-5 h-5 text-trading-green" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium truncate">Deposit on Ethereum</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">20/05/2026, 17:05</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-sm font-semibold font-mono text-trading-green">+$500.00</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </div>
+
+              {/* Withdraw processing */}
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 rounded-full bg-trading-red/20 flex items-center justify-center shrink-0">
+                    <ArrowUpRight className="w-5 h-5 text-trading-red" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium truncate">Withdrawal to wallet</span>
+                      <Loader2 className="w-3.5 h-3.5 shrink-0 text-trading-yellow animate-spin" />
+                    </div>
+                    <div className="text-xs text-muted-foreground">20/05/2026, 18:34</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-sm font-semibold font-mono text-trading-red">-$2,000.00</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </div>
+
+              {/* Cross-chain in */}
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+                    <ArrowLeftRight className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium truncate">Bridge from Arbitrum</span>
+                      <span className="inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap border-blue-500/40 text-blue-400">
+                        Cross-Chain In
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">20/05/2026, 19:11</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-sm font-semibold font-mono text-trading-green">+$1,200.00</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="trading-card mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Mobile — two-layer</CardTitle>
+            <CardDescription>
+              Row 1: icon + description {`(truncate flex-1)`} + amount {`(shrink-0)`}.
+              Row 2: {`pl-[52px]`} aligns under the description — date · type badge · status icon · chevron.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mx-auto max-w-[390px] bg-card border border-border/50 rounded-xl divide-y divide-border/30">
+              {/* Withdraw processing */}
+              <div className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-trading-red/20 flex items-center justify-center shrink-0">
+                    <ArrowUpRight className="w-5 h-5 text-trading-red" />
+                  </div>
+                  <span className="text-sm font-medium truncate flex-1 min-w-0">Withdrawal to wallet</span>
+                  <span className="text-sm font-semibold font-mono shrink-0 text-right text-trading-red">-$2,000.00</span>
+                </div>
+                <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
+                  <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
+                    <span>20/05/2026, 18:34</span>
+                    <Loader2 className="w-3.5 h-3.5 shrink-0 text-trading-yellow animate-spin" />
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                </div>
+              </div>
+
+              {/* Cross-chain in */}
+              <div className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+                    <ArrowLeftRight className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <span className="text-sm font-medium truncate flex-1 min-w-0">Bridge from Arbitrum</span>
+                  <span className="text-sm font-semibold font-mono shrink-0 text-right text-trading-green">+$1,200.00</span>
+                </div>
+                <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
+                  <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
+                    <span>20/05/2026, 19:11</span>
+                    <span className="inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap border-blue-500/40 text-blue-400">
+                      Cross-Chain In
+                    </span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                </div>
+              </div>
+
+              {/* Deposit completed (no badge, no status icon, no chevron when no details) */}
+              <div className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
+                    <ArrowDownLeft className="w-5 h-5 text-trading-green" />
+                  </div>
+                  <span className="text-sm font-medium truncate flex-1 min-w-0">Deposit on Ethereum</span>
+                  <span className="text-sm font-semibold font-mono shrink-0 text-right text-trading-green">+$500.00</span>
+                </div>
+                <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
+                  <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
+                    <span>20/05/2026, 17:05</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <CodePreview
+              className="mt-4"
+              code={`{/* Mobile: two-layer row */}
+<div className="p-4">
+  {/* Row 1: icon + description + amount */}
+  <div className="flex items-center gap-3">
+    <div className="w-10 h-10 rounded-full shrink-0">{icon}</div>
+    <span className="text-sm font-medium truncate flex-1 min-w-0">{description}</span>
+    <span className="text-sm font-semibold font-mono shrink-0 text-right">{amount}</span>
+  </div>
+  {/* Row 2: aligned with description via pl-[52px] */}
+  <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
+    <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground">
+      <span>{date}</span>
+      {typeBadge}
+      {statusIcon /* w-3.5 h-3.5, processing → animate-spin */}
+    </div>
+    {hasDetails(tx) && <ChevronDown className="w-4 h-4 shrink-0 mt-0.5" />}
+  </div>
+</div>`}
+            />
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
       {/* Stepper / Progress Timeline */}
+
       <SectionWrapper
         id="stepper-timeline"
         title="Stepper / Progress Timeline"
