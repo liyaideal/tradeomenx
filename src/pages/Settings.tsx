@@ -531,7 +531,8 @@ const Settings = () => {
           <EmailCard />
           <LinkedAccountCard />
           <ConnectedAccountsCard />
-          <SecurityCard />
+          <AccountSecurityCard />
+          <WithdrawalVerificationCard />
           
           {/* Transparency Audit entry */}
           <button
