@@ -68,6 +68,18 @@ const StyleGuideIndex = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Campaign Style Guide entry */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/campaign-style-guide")}
+              className="h-8 gap-1.5"
+            >
+              <Megaphone className="h-3.5 w-3.5" />
+              {!isMobile && <span>Campaign Style Guide</span>}
+            </Button>
+
+
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
