@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { WithdrawAddressSelect } from './WithdrawAddressSelect';
 import { WithdrawAddressSelectDialog } from './WithdrawAddressSelectDialog';
 import { WithdrawStatusTracker } from './WithdrawStatusTracker';
+import { WithdrawVerifyDialog } from './WithdrawVerifyDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate } from 'react-router-dom';
 
@@ -41,6 +42,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [showAddressSelect, setShowAddressSelect] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [verifyOpen, setVerifyOpen] = useState(false);
 
   const fee = getWithdrawFee('USDC');
   const minAmount = getWithdrawMinimum('USDC');
@@ -72,18 +74,28 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
     setError(null);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const validationError = validateWithdrawal({
       token: 'USDC',
       amount,
       toAddress: selectedAddress,
+      network: selectedWallet?.network,
     });
     if (validationError) {
       setError(validationError);
       return;
     }
+    setVerifyOpen(true);
+  };
+
+  const doSubmit = async () => {
     try {
-      await submitWithdrawal({ token: 'USDC', amount, toAddress: selectedAddress });
+      await submitWithdrawal({
+        token: 'USDC',
+        amount,
+        toAddress: selectedAddress,
+        network: selectedWallet?.network,
+      });
       toast.success('Withdrawal request submitted');
     } catch (err: any) {
       toast.error(err.message || 'Failed to submit withdrawal');
@@ -247,6 +259,13 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
           onSelectAddress={(addr) => { setSelectedAddress(addr); setShowAddressSelect(false); }}
         />
       )}
+
+      {/* Multi-step withdrawal verification (email OTP / TOTP) */}
+      <WithdrawVerifyDialog
+        open={verifyOpen}
+        onOpenChange={setVerifyOpen}
+        onVerified={doSubmit}
+      />
     </div>
   );
 };
