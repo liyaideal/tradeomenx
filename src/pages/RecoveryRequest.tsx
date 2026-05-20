@@ -65,12 +65,12 @@ export default function RecoveryRequestPage() {
             (covers source-chain gas, bridge cost, and manual processing).
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            We cannot recover funds sent to chains we do not operate on. We will review and reply within 48 hours.
+            We cannot recover funds sent to chains we do not operate on. You'll be notified once funds are credited or if recovery is not possible.
           </p>
           <div className="flex flex-wrap gap-2 pt-1">
-            <Pill>10% fee</Pill>
+            <Pill>10% flat fee</Pill>
             <Pill>3–7 business days</Pill>
-            <Pill>48h review</Pill>
+            <Pill>No quote needed</Pill>
           </div>
         </div>
       </div>

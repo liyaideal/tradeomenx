@@ -205,15 +205,16 @@ export const RecoveryForm = () => {
         <Row label="Amount sent" value={`$${(amountNum || 0).toFixed(2)}`} />
         <Row label={`Recovery fee (${FEE_PERCENT}%)`} value={`-$${((amountNum * FEE_PERCENT) / 100).toFixed(2)}`} />
         <div className="border-t pt-2 flex items-center justify-between">
-          <span className="font-medium">Estimated return</span>
+          <span className="font-medium">You will receive</span>
           <span className="font-mono font-semibold text-primary">
             ${(estimatedReturn || 0).toFixed(2)}
           </span>
         </div>
         <p className="text-xs text-muted-foreground pt-1">
-          Final amount may vary based on actual gas and bridge costs. We will confirm a final quote after review.
+          Flat {FEE_PERCENT}% fee covers source-chain gas, bridge cost, and manual processing. Typical turnaround: 3–7 business days.
         </p>
       </div>
+
 
       <Button
         onClick={submit}
