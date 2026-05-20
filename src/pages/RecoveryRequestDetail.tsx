@@ -160,7 +160,7 @@ export default function RecoveryRequestDetailPage() {
     <div className="text-xs text-muted-foreground text-center pt-2">
       Questions?{' '}
       <a
-        href="https://discord.gg/lovable-dev"
+        href="https://discord.gg/qXssm2crf9"
         target="_blank"
         rel="noopener noreferrer"
         className="text-primary hover:underline inline-flex items-center gap-0.5"
