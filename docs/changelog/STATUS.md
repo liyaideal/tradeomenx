@@ -19,6 +19,19 @@
 
 ---
 
+## 2026-05-21 — 资金费率审计：结算周期列表中间页
+
+源文档：[2026-05-21-funding-rate-periods-step.md](./2026-05-21-funding-rate-periods-step.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| 1 | `useFundingRateAudit` 增加 `periods` step + `loadPeriods/selectPeriod/backToPeriods` | `src/hooks/useFundingRateAudit.ts` | ⬜ | 选持仓后 step 变为 `periods` 并发起 ledger 查询；selectPeriod 后走 fetching→comparing→result | |
+| 2 | Periods 结算列表页（持仓头卡 + 倒序列表 + 空态） | `FundingRateAudit.tsx` periods 分支 | ⬜ | 列表与 `position_funding_ledger`（按 position、`amount≠0`、倒序）一致；空 ledger 显示空态 | |
+| 3 | Result 详情页新增 "Settlement Window" 卡 + on-chain 字段表追加 windowStart/End/SettlementTsMs | `FundingRateAudit.tsx` result 分支 | ⬜ | 详情页 rate/amount/window/settledAt 与所选 ledger 行一致 | |
+| 4 | Result 按钮拆分：Verify Another Settlement / Change Position | `FundingRateAudit.tsx` result actions | ⬜ | 前者回 periods、后者回 select；BaseScan 链接照常打开 | |
+
+---
+
 ## 2026-05-21 — Style Guide 增量
 
 源文档：[2026-05-21-style-guide-tx-row.md](./2026-05-21-style-guide-tx-row.md)
