@@ -34,6 +34,7 @@ docs/
 2. 逐份阅读对应 `YYYY-MM-DD-{slug}.md`，每份文档已用统一骨架写清"做了什么 / 没动什么 / 已废弃什么"
 3. 再到你们自己的工程里实施改动；遇到规范类问题（颜色、字号、组件用法）查 `DESIGN.md`
 4. 建议在你们仓库内对同步点打 tag：`spec/YYYY-MM-DD-{slug}`，便于后续追溯某个需求版本对应的代码状态
+5. **追踪实施进度**：见 [`docs/changelog/STATUS.md`](./changelog/STATUS.md)。研发每完成一项请改对应状态标记，PM 每周回顾未完成项
 
 **不要**直接 diff Lovable 仓库的 commit 来反推需求 —— commit 颗粒度很碎，且 Lovable 改动会包含许多与本次需求无关的样式调整。
 

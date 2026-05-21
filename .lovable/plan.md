@@ -1,65 +1,122 @@
-# 建立 docs/changelog/ 让研发能在仓库内对齐需求
+# 新增交付对照表 / 实施检查清单
 
-## 背景
+## 目标
 
-研发是参考 Lovable 仓库另起一套工程在做，并不是直接在 Lovable 代码里开发。当前痛点：每次 Lovable push 一批 commit，研发只能靠 diff 代码猜需求，容易漏掉之前提过的需求。
+在 `docs/changelog/` 旁新增一份 **总览级对照表**，把每份交付文档拆解成"需求条目 → 研发实施状态 → QA 测试要点"的三列清单，让你 / 研发 / QA 都能一眼看到：
 
-之前产出的 delivery doc 都散落在 `/mnt/documents/`（agent 私人空间，研发看不到）。把它们沉淀到项目仓库里，研发 clone / pull 就能看到。
+- 研发已完成哪些、未完成哪些、有疑问哪些
+- 每条需求 QA 该测什么、在哪页测、用什么账号测
+- 同步进度的统一标记位（不再靠口头沟通）
 
 ## 方案
 
-在仓库根新增 `docs/changelog/` 目录，承载所有交付说明文档，并写一份 README 告诉研发怎么用。
+### 1. 新建 `docs/changelog/STATUS.md`（交付对照表）
 
-### 1. 新建 `docs/README.md`
+总览表，按交付文档分节，每节内是一张细分需求表。
 
-中文，给研发看。内容覆盖：
+**整体结构：**
 
-- 这个目录是什么：Lovable 端产出的"需求交付说明"
-- 怎么用：每次 pull 代码后，先看 `changelog/` 里最新文档，再去对照他们自己仓库做改动
-- 文件命名规范：`YYYY-MM-DD-{slug}.md`，例如 `2026-05-20-wallet-tx-history.md`
-- 每份文档结构（引用 delivery-doc skill 的标准骨架）：功能目标 / 状态机 / 数据库 / 用户端 / Admin / 已废弃 / Style Guide / 涉及文件 / 未变更项
-- 配套机制：建议研发那边对应 commit 打 tag `spec/YYYY-MM-DD-{slug}`，方便后续追溯
-- 与 `DESIGN.md` / `CAMPAIGN_DESIGN.md` 的关系：长效规范放 DESIGN.md，单次需求变更放 changelog/
+```markdown
+# 交付实施对照表
 
-### 2. 把 `/mnt/documents/` 里现有的 delivery doc 搬进仓库
+> 同步约定：研发每完成一项，在对应单元格把 status 改成 ✅；遇阻塞改成 ⚠️ 并在备注列写原因。
+> PM 每周三回顾本表，未完成项进入下周需求会议。
 
-按时间归档为 `docs/changelog/` 下文件（重命名时按 `YYYY-MM-DD-{slug}.md` 规范）：
-
-| 源文件 | 目标文件 |
+## 状态图例
+| 标记 | 含义 |
 |---|---|
-| `recovery-spec-v2.md`（2026-05-20） | `docs/changelog/2026-05-20-recovery-v2.md` |
-| `requirements_2026-05-20.md` | `docs/changelog/2026-05-20-requirements.md` |
-| `2026-05-20-delivery-spec.md`（含 Style Guide 增量） | `docs/changelog/2026-05-21-style-guide-tx-row.md`（按最近一次更新时间） |
-| `omenx-recent-shipped-requirements_v2.md`（2026-05-11） | `docs/changelog/2026-05-11-shipped-requirements-v2.md` |
+| ⬜ | 未开始 |
+| 🟡 | 进行中 |
+| ✅ | 已完成且自测通过 |
+| ⚠️ | 阻塞 / 有疑问 |
+| ➖ | 不适用 / 已废弃 |
 
-`omenx-recent-shipped-requirements.md`（v1，已被 v2 取代）和 `transparency-changes.docx`（docx 不适合放仓库）不搬入。
+---
 
-### 3. 在 `docs/changelog/` 加一个 `INDEX.md`
+## 2026-05-21 — Style Guide 交付
+源文档：[2026-05-21-style-guide-tx-row.md](./2026-05-21-style-guide-tx-row.md)
 
-按倒序列出所有交付文档，一行一条：日期 + 标题 + 链接 + 一句话摘要。让研发一眼看到最新需求。
+| # | 需求条目 | 实施位置（参考） | 状态 | QA 测试要点 | 备注 |
+|---|---|---|---|---|---|
+| 1 | Transaction History Row 桌面单行 | `/wallet` 桌面端 | ⬜ | 桌面 ≥md：icon+描述+类型徽章+状态图标 同一行，金额右对齐 | |
+| 2 | Transaction History Row 移动两层 | `/wallet` 移动端 | ⬜ | 390px：第一行 icon+描述+金额；第二行 pl-[52px] 对齐 date/badge/status | |
+| 3 | `/campaign-style-guide` 入口 | `/style-guide` 顶部 | ⬜ | StyleGuide 顶部 Megaphone 按钮，移动端只显示图标 | |
 
-### 4. 更新顶层 `README.md`
+## 2026-05-20 — 需求批次
+源文档：[2026-05-20-requirements.md](./2026-05-20-requirements.md)
+（按 §1–§N 拆条目 …）
 
-在合适位置加一小段，告诉新来的研发："产品需求变更见 `docs/changelog/`，长效设计规范见 `DESIGN.md` / `CAMPAIGN_DESIGN.md`。"
+## 2026-05-20 — Recovery v2
+源文档：[2026-05-20-recovery-v2.md](./2026-05-20-recovery-v2.md)
+（按状态机 + 数据库 + 用户端 + Admin 四组拆条目 …）
 
-### 5. 写入项目 memory
+## 2026-05-11 — 已上线需求合集 v2
+源文档：[2026-05-11-shipped-requirements-v2.md](./2026-05-11-shipped-requirements-v2.md)
+（这批默认全部 ✅，因为已是"已上线"基线 …）
+```
 
-在 `mem://index.md` Core 末尾追加一条规则，约定以后产出的 delivery doc **同时**写到 `docs/changelog/`，不只放 `/mnt/documents/`。这样下次我做交付文档时会自动落到仓库里。
+### 2. 需求条目拆解原则
+
+为了让对照表真正能用，每份交付文档我会按以下规则提取条目：
+
+- 一个 §子章节 = 1 个条目；若子章节内包含多个独立可验收点，再拆
+- 数据库相关单独列：`schema 变更 / RLS / Trigger` 各算一项
+- Style Guide 类的条目把"playground 是否搭好" 与 "真实页面是否落地"分开列
+- 已废弃项也保留一行，状态填 ➖，让研发知道"要主动删旧实现"
+- 控制颗粒度：每份文档 5–15 行，太碎就合并相近条目
+
+### 3. QA 测试要点写法
+
+每行只写**最小可验证步骤**，3 类常用模板：
+
+| 类型 | 写法示例 |
+|---|---|
+| 页面/组件 | "/wallet 桌面端：Transaction History 单行不换行，金额右对齐" |
+| 状态流转 | "提交 Recovery 申请 → 列表出现 status=pending → Admin 标 approved → 用户端看到 approved 徽章" |
+| 数据库 | "Supabase `recovery_requests` 表存在 status 字段；用户 A 只能 select 自己的行（RLS 验证）" |
+
+不写"覆盖率"、"边界值"这种泛词。
+
+### 4. 实施位置（参考）列
+
+只填**最有可能的入口路径**，给研发定位用，不强制：
+
+- 前端页面：`/wallet`、`/recovery`、`/style-guide#transaction-history-row`
+- 数据库：`public.recovery_requests`、`public.transactions`
+- Edge Function：`generate-deposit-address`
+
+研发实际改在哪里由他们决定，这列不影响验收。
+
+### 5. 更新 `docs/README.md`
+
+在"研发使用方式"章节末尾加一段：
+
+> **追踪实施进度**：见 `docs/changelog/STATUS.md`。研发每完成一项请改对应状态标记，PM 每周回顾。
+
+### 6. 更新 `docs/changelog/INDEX.md`
+
+在表格上方加一行链接到 STATUS.md：
+
+> **总览**：[交付实施对照表 STATUS.md](./STATUS.md) — 跨文档汇总，看实施进度从这里开始。
+
+### 7. 更新 mem://index.md
+
+在 Core "Delivery Docs" 那条规则后追加：每新增 delivery doc 必须同时在 `STATUS.md` 顶部追加一节，初始状态 ⬜。
 
 ## 涉及文件
 
-- 新增：`docs/README.md`
-- 新增：`docs/changelog/INDEX.md`
-- 新增：`docs/changelog/2026-05-11-shipped-requirements-v2.md`
-- 新增：`docs/changelog/2026-05-20-recovery-v2.md`
-- 新增：`docs/changelog/2026-05-20-requirements.md`
-- 新增：`docs/changelog/2026-05-21-style-guide-tx-row.md`
-- 修改：`README.md`（加一段"研发协作说明"）
-- 修改：`mem://index.md`（Core 加一条 delivery doc 落地规则）
+- 新增：`docs/changelog/STATUS.md`
+- 修改：`docs/README.md`（加一段进度追踪指引）
+- 修改：`docs/changelog/INDEX.md`（顶部加 STATUS.md 链接）
+- 修改：`mem://index.md`（Delivery Docs 规则扩展）
 
 ## 不做的事
 
-- 不动任何业务代码、组件、样式
-- 不动 GitHub 仓库配置 / 不开分支策略（研发场景用不上）
-- 不搬 `omenx-recent-shipped-requirements.md` v1 和 `.docx` 文件
-- 不改 `DESIGN.md` / `CAMPAIGN_DESIGN.md` 内容
+- 不替每条需求"猜"研发的实际进度，全部初始化为 ⬜；具体状态由研发首次 review 时填写
+- 不做自动化的 status 同步（脚本/CI），保持手动维护，门槛最低
+- 不动 `docs/changelog/` 下已有的 4 份历史交付文档内容
+
+## 待你确认（如果有意见可在批准前提）
+
+1. 状态标记用 emoji（⬜🟡✅⚠️➖）还是纯文本（TODO/WIP/DONE/BLOCKED/N/A）？默认 emoji，更直观
+2. `2026-05-11-shipped-requirements-v2.md` 是历史已上线基线，默认全部标 ✅，是否需要？默认是
