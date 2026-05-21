@@ -271,14 +271,17 @@ export const FundingRateAudit = ({ onBack }: Props) => {
           <div className="trading-card p-4 space-y-1.5">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Settlement Window</p>
             {[
-              { label: "settledAt", value: fmtDateTime(audit.settledAt) },
-              { label: "windowStart", value: fmtDateTime(audit.windowStart) },
-              { label: "windowEnd", value: fmtDateTime(audit.windowEnd) },
-              { label: "notional", value: `$${audit.notional.toFixed(2)}` },
+              { label: "Settled at",         key: "settledAt",   value: fmtDateTime(audit.settledAt) },
+              { label: "Window start",       key: "windowStart", value: fmtDateTime(audit.windowStart) },
+              { label: "Window end",         key: "windowEnd",   value: fmtDateTime(audit.windowEnd) },
+              { label: "Position notional",  key: "notional",    value: `$${audit.notional.toFixed(2)}` },
             ].map((row) => (
-              <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs">
-                <span className="text-muted-foreground">{row.label}</span>
-                <span className="font-mono text-foreground/80">{row.value}</span>
+              <div key={row.key} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs gap-3">
+                <div className="min-w-0">
+                  <div className="text-foreground/80">{row.label}</div>
+                  <div className="text-[10px] font-mono text-muted-foreground/60">{row.key}</div>
+                </div>
+                <span className="font-mono text-foreground/80 text-right shrink-0">{row.value}</span>
               </div>
             ))}
           </div>
@@ -287,21 +290,25 @@ export const FundingRateAudit = ({ onBack }: Props) => {
           <div className="trading-card p-4 space-y-1.5">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">On-Chain Event Fields</p>
             {[
-              { label: "eventId", value: audit.eventId },
-              { label: "marketId", value: audit.outcomeId.toString() },
-              { label: "fundingRate", value: audit.fundingRate.toFixed(6) },
-              { label: "windowStartTsMs", value: new Date(audit.windowStart).getTime().toString(), mono: true },
-              { label: "windowEndTsMs", value: new Date(audit.windowEnd).getTime().toString(), mono: true },
-              { label: "settlementTsMs", value: new Date(audit.settledAt).getTime().toString(), mono: true },
-              { label: "txHash", value: `${audit.txHash.slice(0, 6)}...${audit.txHash.slice(-6)}`, mono: true },
-              { label: "blockNumber", value: `#${audit.blockNumber.toLocaleString()}` },
+              { label: "Event ID",            key: "eventId",         value: audit.eventId },
+              { label: "Market ID",           key: "marketId",        value: audit.outcomeId.toString() },
+              { label: "Funding rate",        key: "fundingRate",     value: audit.fundingRate.toFixed(6) },
+              { label: "Window start (ms)",   key: "windowStartTsMs", value: new Date(audit.windowStart).getTime().toString(), mono: true },
+              { label: "Window end (ms)",     key: "windowEndTsMs",   value: new Date(audit.windowEnd).getTime().toString(),   mono: true },
+              { label: "Settled at (ms)",     key: "settlementTsMs",  value: new Date(audit.settledAt).getTime().toString(),   mono: true },
+              { label: "Transaction hash",    key: "txHash",          value: `${audit.txHash.slice(0, 6)}...${audit.txHash.slice(-6)}`, mono: true },
+              { label: "Block number",        key: "blockNumber",     value: `#${audit.blockNumber.toLocaleString()}` },
             ].map((row) => (
-              <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs">
-                <span className="text-muted-foreground">{row.label}</span>
-                <span className={`${row.mono ? "font-mono" : ""} text-foreground/80`}>{row.value}</span>
+              <div key={row.key} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs gap-3">
+                <div className="min-w-0">
+                  <div className="text-foreground/80">{row.label}</div>
+                  <div className="text-[10px] font-mono text-muted-foreground/60">{row.key}</div>
+                </div>
+                <span className={`${row.mono ? "font-mono" : ""} text-foreground/80 text-right shrink-0`}>{row.value}</span>
               </div>
             ))}
           </div>
+
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
