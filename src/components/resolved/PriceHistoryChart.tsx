@@ -357,7 +357,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
                 fontFamily="monospace"
                 dominantBaseline="middle"
               >
-                ${price.toFixed(isMobile ? 0 : 2)}
+                ${price.toFixed(2)}
               </text>
             </g>
           ))}
