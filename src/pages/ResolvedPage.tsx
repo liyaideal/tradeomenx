@@ -8,7 +8,7 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileStatusDropdown } from "@/components/EventFilters";
 import { ResolvedGroupedGrid } from "@/components/resolved/ResolvedGroupedGrid";
-import { ResolvedViewMode } from "@/components/resolved/ResolvedViewToggle";
+import { ResolvedViewToggle, ResolvedViewMode } from "@/components/resolved/ResolvedViewToggle";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import {
   ResolvedFilters,
@@ -132,11 +132,14 @@ const ResolvedPage = () => {
           </div>
         </div>
 
-        {/* Desktop Filters (includes view toggle) */}
+        {/* Tabs row: All Resolved / My Settled (mirrors /events EventTabs) */}
+        <div className="flex items-center justify-between gap-3">
+          <ResolvedViewToggle value={viewMode} onChange={handleViewChange} />
+        </div>
+
+        {/* Desktop inline filter chips (mirrors /events FilterChips) */}
         {!isMobile && (
           <ResolvedFilters
-            viewMode={viewMode}
-            onViewModeChange={handleViewChange}
             category={category}
             onCategoryChange={setCategory}
             search={search}
