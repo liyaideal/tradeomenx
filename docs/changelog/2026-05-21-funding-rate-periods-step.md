@@ -75,3 +75,11 @@ idle → select(持仓) → periods(结算周期列表) → fetching → compari
 - result 上 `Verify Another Settlement` 回到 periods，`Change Position` 回到 select。
 - 空 ledger 持仓显示空态，不报错。
 - 桌面 1021×777 与移动窄屏均无横向滚动。
+
+## 列表高度策略（更新）
+
+Position 选择列表与 Periods 结算列表统一规则：
+
+- 条目 **≤ 18** 时不设 `max-height`，卡片按内容撑开，无内部滚动条、无大块空白。
+- 条目 **> 18** 时锁定 `max-height: min(70vh, 1100px)`（持仓）/ `min(70vh, 1000px)`（结算），仅此时出现内部滚动条。
+- 不引入分页或虚拟列表；数据层查询上限保持 `positions ≤ 20` / `position_funding_ledger ≤ 200`。
