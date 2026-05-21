@@ -14,7 +14,7 @@
 - **Grid Cards:** Only Style B (MarketCardB) exists. Style A and C were removed after community vote.
 - **Campaign Landing:** Use `CAMPAIGN_DESIGN.md` + `/campaign-style-guide`; keep separate from product DESIGN.md.
 - **Home Feed:** Priority-sorted stream. 3 tiers (personal/opportunity/browse), max 1 tier-1 visible, 2nd+ same-kind → compact. Logic in `useHomeFeed`.
-- **Delivery Docs:** 所有交付说明同时写到 `docs/changelog/YYYY-MM-DD-{slug}.md` 并更新 `docs/changelog/INDEX.md`，不能只放 `/mnt/documents/`。研发以 `docs/` 为唯一需求来源。
+- **Delivery Docs:** 所有交付说明同时写到 `docs/changelog/YYYY-MM-DD-{slug}.md` 并更新 `docs/changelog/INDEX.md`，不能只放 `/mnt/documents/`。每新增一份 doc 必须同时在 `docs/changelog/STATUS.md` **顶部** 追加一节，所有需求条目初始状态 ⬜。研发以 `docs/` 为唯一需求来源。
 
 ## Memories
 - [Mainnet activation system](mem://features/activation-system) — User activation funnel, state machine, checklist, Wallet hub, MAINNET badge
