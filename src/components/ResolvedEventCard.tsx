@@ -28,7 +28,6 @@ const OptionItem = ({
   option: ResolvedEventOption;
 }) => {
   const isWinner = option.is_winner;
-  const displayPrice = option.final_price ?? option.price;
   
   return (
     <div
@@ -48,9 +47,11 @@ const OptionItem = ({
           {option.label}
         </span>
       </div>
-      <span className={`font-mono text-sm font-semibold flex-shrink-0 ml-2 ${isWinner ? "text-trading-green" : "text-muted-foreground"}`}>
-        ${typeof displayPrice === 'number' ? displayPrice.toFixed(2) : displayPrice}
-      </span>
+      {isWinner && (
+        <span className="flex-shrink-0 ml-2 text-[10px] uppercase tracking-wide bg-trading-green/20 text-trading-green border border-trading-green/30 rounded px-1.5 py-0.5">
+          Winner
+        </span>
+      )}
     </div>
   );
 };
