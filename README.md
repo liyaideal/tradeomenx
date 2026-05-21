@@ -4,6 +4,15 @@
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
+## 研发协作说明（重要）
+
+本仓库由 Lovable 端产出，**研发实施时请以 `docs/` 目录为准，而非直接 diff 本仓库 commit**。
+
+- **产品需求变更**：`docs/changelog/` —— 每次需求/迭代的交付说明，先看 `INDEX.md`
+- **长效设计规范**：`DESIGN.md`（产品端）、`CAMPAIGN_DESIGN.md`（活动页）
+- **协作约定**：见 `docs/README.md`
+
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
