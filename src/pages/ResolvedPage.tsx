@@ -132,11 +132,14 @@ const ResolvedPage = () => {
           </div>
         </div>
 
-        {/* Desktop Filters (includes view toggle) */}
+        {/* Tabs row: All Resolved / My Settled (mirrors /events EventTabs) */}
+        <div className="flex items-center justify-between gap-3">
+          <ResolvedViewToggle value={viewMode} onChange={handleViewChange} />
+        </div>
+
+        {/* Desktop inline filter chips (mirrors /events FilterChips) */}
         {!isMobile && (
           <ResolvedFilters
-            viewMode={viewMode}
-            onViewModeChange={handleViewChange}
             category={category}
             onCategoryChange={setCategory}
             search={search}
