@@ -1,122 +1,81 @@
-# 新增交付对照表 / 实施检查清单
-
 ## 目标
 
-在 `docs/changelog/` 旁新增一份 **总览级对照表**，把每份交付文档拆解成"需求条目 → 研发实施状态 → QA 测试要点"的三列清单，让你 / 研发 / QA 都能一眼看到：
+在 `/settings/transparency` → "Am I Being Overcharged?" 的资金费率审计流程中，新增一个**结算周期列表页**，让用户在选完持仓后先看到该仓位的所有 funding 结算记录，再点选某一条进入"单次结算核验"。同时把每次结算的窗口与时间信息显式带入核验详情页。
 
-- 研发已完成哪些、未完成哪些、有疑问哪些
-- 每条需求 QA 该测什么、在哪页测、用什么账号测
-- 同步进度的统一标记位（不再靠口头沟通）
+## 新流程
 
-## 方案
-
-### 1. 新建 `docs/changelog/STATUS.md`（交付对照表）
-
-总览表，按交付文档分节，每节内是一张细分需求表。
-
-**整体结构：**
-
-```markdown
-# 交付实施对照表
-
-> 同步约定：研发每完成一项，在对应单元格把 status 改成 ✅；遇阻塞改成 ⚠️ 并在备注列写原因。
-> PM 每周三回顾本表，未完成项进入下周需求会议。
-
-## 状态图例
-| 标记 | 含义 |
-|---|---|
-| ⬜ | 未开始 |
-| 🟡 | 进行中 |
-| ✅ | 已完成且自测通过 |
-| ⚠️ | 阻塞 / 有疑问 |
-| ➖ | 不适用 / 已废弃 |
-
----
-
-## 2026-05-21 — Style Guide 交付
-源文档：[2026-05-21-style-guide-tx-row.md](./2026-05-21-style-guide-tx-row.md)
-
-| # | 需求条目 | 实施位置（参考） | 状态 | QA 测试要点 | 备注 |
-|---|---|---|---|---|---|
-| 1 | Transaction History Row 桌面单行 | `/wallet` 桌面端 | ⬜ | 桌面 ≥md：icon+描述+类型徽章+状态图标 同一行，金额右对齐 | |
-| 2 | Transaction History Row 移动两层 | `/wallet` 移动端 | ⬜ | 390px：第一行 icon+描述+金额；第二行 pl-[52px] 对齐 date/badge/status | |
-| 3 | `/campaign-style-guide` 入口 | `/style-guide` 顶部 | ⬜ | StyleGuide 顶部 Megaphone 按钮，移动端只显示图标 | |
-
-## 2026-05-20 — 需求批次
-源文档：[2026-05-20-requirements.md](./2026-05-20-requirements.md)
-（按 §1–§N 拆条目 …）
-
-## 2026-05-20 — Recovery v2
-源文档：[2026-05-20-recovery-v2.md](./2026-05-20-recovery-v2.md)
-（按状态机 + 数据库 + 用户端 + Admin 四组拆条目 …）
-
-## 2026-05-11 — 已上线需求合集 v2
-源文档：[2026-05-11-shipped-requirements-v2.md](./2026-05-11-shipped-requirements-v2.md)
-（这批默认全部 ✅，因为已是"已上线"基线 …）
+```text
+idle → select(持仓) → periods(结算周期列表) → fetching → comparing → result(单次结算核验)
 ```
 
-### 2. 需求条目拆解原则
+回退路径：result → periods（同一持仓换一条结算记录） → select（换持仓） → idle。
 
-为了让对照表真正能用，每份交付文档我会按以下规则提取条目：
+## 1. Hook 改造 — `src/hooks/useFundingRateAudit.ts`
 
-- 一个 §子章节 = 1 个条目；若子章节内包含多个独立可验收点，再拆
-- 数据库相关单独列：`schema 变更 / RLS / Trigger` 各算一项
-- Style Guide 类的条目把"playground 是否搭好" 与 "真实页面是否落地"分开列
-- 已废弃项也保留一行，状态填 ➖，让研发知道"要主动删旧实现"
-- 控制颗粒度：每份文档 5–15 行，太碎就合并相近条目
+- `FundingRateStep` 增加 `"periods"`。
+- 新增类型 `FundingPeriodRecord`，对接 `position_funding_ledger`（已有 hook `useFundingHistory` 返回的同名字段）：
+  - `id`, `applied_rate`, `notional`, `amount`, `accrual_start`, `accrual_end`, `created_at`（作为 `settlementTs` 使用）
+- 新增 state：`periods: FundingPeriodRecord[]`、`selectedPeriod: FundingPeriodRecord | null`。
+- 新增方法：
+  - `selectPosition(pos)` 不再直接进核验，而是设 `step="periods"`，并调用 `loadPeriods(pos.id)` 拉取该 position 的 ledger。
+  - `loadPeriods(positionId)`：`from("position_funding_ledger").select(...).eq("position_id", id).neq("amount", 0).order("created_at", { ascending: false }).limit(200)`。空集时 `periods` 设为 `[]`，UI 显示空态。
+  - `selectPeriod(period)`：保留现有 fetching → comparing 节奏，把模拟出来的 on-chain 字段改成"基于该 period 派生"（详见下方字段映射）。
+  - `backToPeriods()`：从 result 回到 periods，仅清 `audit` 与 `selectedPeriod`。
+- `reset()` 同步清理 `periods` 与 `selectedPeriod`。
 
-### 3. QA 测试要点写法
+### 单次核验字段映射（result 数据来源）
 
-每行只写**最小可验证步骤**，3 类常用模板：
+- 真实字段（来自 ledger）：
+  - `fundingRate` ← `period.applied_rate`
+  - `appliedAmount` ← `Math.abs(period.amount)`
+  - `direction` ← `period.amount < 0 ? "paid" : "received"`
+  - `notional` ← `period.notional`（新增字段，详情页展示）
+  - `windowStart` ← `period.accrual_start`
+  - `windowEnd` ← `period.accrual_end`
+  - `settledAt` ← `period.created_at`
+- 仍然模拟（mock）：`eventId`, `outcomeId`, `txHash`, `blockNumber`（保持现有 mockHex 风格，因为是链上证据占位）。
+- `ratesMatch` 始终 true（与现有逻辑保持一致）。
 
-| 类型 | 写法示例 |
-|---|---|
-| 页面/组件 | "/wallet 桌面端：Transaction History 单行不换行，金额右对齐" |
-| 状态流转 | "提交 Recovery 申请 → 列表出现 status=pending → Admin 标 approved → 用户端看到 approved 徽章" |
-| 数据库 | "Supabase `recovery_requests` 表存在 status 字段；用户 A 只能 select 自己的行（RLS 验证）" |
+## 2. 组件改造 — `src/components/transparency/FundingRateAudit.tsx`
 
-不写"覆盖率"、"边界值"这种泛词。
+新增一个 `periods` 渲染分支，插在现有 `select` 与 `fetching` 之间：
 
-### 4. 实施位置（参考）列
+- 顶部 `DesktopBackLink` 回到 `select`（调用 `openSelector`）。
+- 头部小卡：复用当前 result 的"position info"小卡样式，展示所选持仓（event_name / option_label / side / leverage / size）。
+- 列表区域：
+  - 空态："No funding settlements yet for this position."
+  - Loading：`Loader2` 居中。
+  - 每行按钮（与 `select` 行风格一致 `rounded-xl bg-muted/30 hover:bg-muted/50`）：
+    - 左列：`settledAt` 短日期 + 窗口区间 `start – end`（`font-mono text-xs`）
+    - 右列：`appliedRate`（带正负号、emerald/red）+ `±amount USDC`
+  - 列表 `max-h-[50vh] overflow-y-auto`，按 `settledAt` 倒序。
+- 不使用 emoji，icon 用 `Clock` / `Percent`（Lucide）。
 
-只填**最有可能的入口路径**，给研发定位用，不强制：
+### `result` 分支增量
 
-- 前端页面：`/wallet`、`/recovery`、`/style-guide#transaction-history-row`
-- 数据库：`public.recovery_requests`、`public.transactions`
-- Edge Function：`generate-deposit-address`
+在现有 "Contract fields" 卡上方新增一张"Settlement Window"卡：
+- `settledAt`（绝对时间，`font-mono`）
+- `windowStartTsMs – windowEndTsMs`（"Funding Window"）
+- `notional`（结算时仓位名义价值）
 
-研发实际改在哪里由他们决定，这列不影响验收。
+"On-Chain Event Fields" 表里追加：
+- `windowStart` / `windowEnd` / `settlementTs`（ISO 字符串截到秒，`font-mono`）
 
-### 5. 更新 `docs/README.md`
+"Verify Another" 行为改为：调用 `backToPeriods()` 回到结算列表，而非直接重选持仓；同行追加次按钮 "Change Position" 触发 `openSelector()`。
 
-在"研发使用方式"章节末尾加一段：
+## 3. 不改动
 
-> **追踪实施进度**：见 `docs/changelog/STATUS.md`。研发每完成一项请改对应状态标记，PM 每周回顾。
+- `useFundingHistory.ts`、`position_funding_ledger` 表结构、RLS：当前已能满足需求。
+- 其他 transparency 模块、settings 路由、share/poster 流程。
 
-### 6. 更新 `docs/changelog/INDEX.md`
+## 4. QA / 自检
 
-在表格上方加一行链接到 STATUS.md：
+- 持仓列表点入 → 进入 periods 页，列表与 `useFundingHistory` 返回一致（按持仓过滤、按时间倒序、跳过 `amount = 0`）。
+- 点任意结算条目 → fetching → comparing → result，详情页 rate / amount / window / settledAt 与所选 ledger 行一致。
+- result 上 "Verify Another" 回到 periods 而不是 select；"Change Position" 回到 select。
+- 空 ledger 持仓显示空态，不报错。
+- 桌面 1021×777 与移动窄屏均无横向滚动。
 
-> **总览**：[交付实施对照表 STATUS.md](./STATUS.md) — 跨文档汇总，看实施进度从这里开始。
+## 5. 文档与索引
 
-### 7. 更新 mem://index.md
-
-在 Core "Delivery Docs" 那条规则后追加：每新增 delivery doc 必须同时在 `STATUS.md` 顶部追加一节，初始状态 ⬜。
-
-## 涉及文件
-
-- 新增：`docs/changelog/STATUS.md`
-- 修改：`docs/README.md`（加一段进度追踪指引）
-- 修改：`docs/changelog/INDEX.md`（顶部加 STATUS.md 链接）
-- 修改：`mem://index.md`（Delivery Docs 规则扩展）
-
-## 不做的事
-
-- 不替每条需求"猜"研发的实际进度，全部初始化为 ⬜；具体状态由研发首次 review 时填写
-- 不做自动化的 status 同步（脚本/CI），保持手动维护，门槛最低
-- 不动 `docs/changelog/` 下已有的 4 份历史交付文档内容
-
-## 待你确认（如果有意见可在批准前提）
-
-1. 状态标记用 emoji（⬜🟡✅⚠️➖）还是纯文本（TODO/WIP/DONE/BLOCKED/N/A）？默认 emoji，更直观
-2. `2026-05-11-shipped-requirements-v2.md` 是历史已上线基线，默认全部标 ✅，是否需要？默认是
+完成后追加交付文档 `docs/changelog/2026-05-21-funding-rate-periods-step.md`，并按既定规则同步更新 `docs/changelog/INDEX.md`（新增一行摘要）与 `docs/changelog/STATUS.md`（新批次 ⬜ 项：Hook step 扩展 / Periods 列表页 / Result 详情页字段扩展 / 回退路径）。
