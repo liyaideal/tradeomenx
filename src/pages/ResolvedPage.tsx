@@ -8,13 +8,11 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileStatusDropdown } from "@/components/EventFilters";
 import { ResolvedGroupedGrid } from "@/components/resolved/ResolvedGroupedGrid";
-import { ResolvedViewToggle, ResolvedViewMode } from "@/components/resolved/ResolvedViewToggle";
+import { ResolvedViewMode } from "@/components/resolved/ResolvedViewToggle";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import {
   ResolvedFilters,
   MobileResolvedFilterDrawer,
-  TimeRangeFilter,
-  SortByOption,
 } from "@/components/ResolvedFilters";
 import { useResolvedEvents } from "@/hooks/useResolvedEvents";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -26,11 +24,8 @@ const ResolvedPage = () => {
   const { user } = useUserProfile();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Filter states
-  const [timeRange, setTimeRange] = useState<TimeRangeFilter>("all");
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<SortByOption>("settlement");
   const [displayCount, setDisplayCount] = useState(20);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
 
@@ -49,12 +44,9 @@ const ResolvedPage = () => {
     setDisplayCount(20);
   };
 
-  // Fetch resolved events
   const { data: events = [], isLoading } = useResolvedEvents({
-    timeRange,
     category,
     search,
-    sortBy,
   });
 
   const filteredEvents = useMemo(() => {
@@ -85,7 +77,6 @@ const ResolvedPage = () => {
           : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)",
       }}
     >
-      {/* Header */}
       {isMobile ? (
         <MobileHeader
           showLogo
@@ -129,36 +120,27 @@ const ResolvedPage = () => {
               {!isMobile && <MarketStatusTabs active="resolved" />}
               {isMobile && (
                 <MobileResolvedFilterDrawer
-                  timeRange={timeRange}
-                  onTimeRangeChange={setTimeRange}
+                  viewMode={viewMode}
+                  onViewModeChange={handleViewChange}
                   category={category}
                   onCategoryChange={setCategory}
                   search={search}
                   onSearchChange={setSearch}
-                  sortBy={sortBy}
-                  onSortByChange={setSortBy}
                 />
               )}
             </div>
           </div>
         </div>
 
-        {/* All / Mine toggle */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <ResolvedViewToggle value={viewMode} onChange={handleViewChange} />
-        </div>
-
-        {/* Desktop Filters */}
+        {/* Desktop Filters (includes view toggle) */}
         {!isMobile && (
           <ResolvedFilters
-            timeRange={timeRange}
-            onTimeRangeChange={setTimeRange}
+            viewMode={viewMode}
+            onViewModeChange={handleViewChange}
             category={category}
             onCategoryChange={setCategory}
             search={search}
             onSearchChange={setSearch}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
           />
         )}
 
@@ -192,7 +174,7 @@ const ResolvedPage = () => {
             <p className="text-sm text-muted-foreground max-w-sm">
               {viewMode === "mine"
                 ? "Trade on active markets and your settled outcomes will appear here."
-                : search || category !== "all" || timeRange !== "all"
+                : search || category !== "all"
                 ? "Try adjusting your filters to find more events."
                 : "There are no resolved events yet. Check back later!"}
             </p>

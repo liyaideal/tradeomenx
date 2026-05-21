@@ -9,29 +9,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
-import { Filter, Search, X } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ResolvedViewToggle, ResolvedViewMode } from "@/components/resolved/ResolvedViewToggle";
 
-export type TimeRangeFilter = "all" | "month" | "quarter" | "year";
-export type SortByOption = "settlement" | "volume" | "name";
-
-interface ResolvedFiltersProps {
-  timeRange: TimeRangeFilter;
-  onTimeRangeChange: (value: TimeRangeFilter) => void;
+export interface ResolvedFiltersProps {
+  viewMode: ResolvedViewMode;
+  onViewModeChange: (value: ResolvedViewMode) => void;
   category: string;
   onCategoryChange: (value: string) => void;
   search: string;
   onSearchChange: (value: string) => void;
-  sortBy: SortByOption;
-  onSortByChange: (value: SortByOption) => void;
 }
-
-const timeRangeOptions = [
-  { value: "all", label: "All" },
-  { value: "month", label: "This Month" },
-  { value: "quarter", label: "This Quarter" },
-  { value: "year", label: "This Year" },
-];
 
 const categoryOptions = [
   { value: "all", label: "All Categories" },
@@ -43,22 +32,14 @@ const categoryOptions = [
   { value: "entertainment", label: "Entertainment" },
 ];
 
-const sortOptions = [
-  { value: "settlement", label: "By Settlement Time" },
-  { value: "volume", label: "By Volume" },
-  { value: "name", label: "By Name" },
-];
-
 // Mobile Filter Drawer
 export const MobileResolvedFilterDrawer = ({
-  timeRange,
-  onTimeRangeChange,
+  viewMode,
+  onViewModeChange,
   category,
   onCategoryChange,
   search,
   onSearchChange,
-  sortBy,
-  onSortByChange,
 }: ResolvedFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(search);
@@ -69,30 +50,33 @@ export const MobileResolvedFilterDrawer = ({
   };
 
   const handleReset = () => {
-    onTimeRangeChange("all");
+    onViewModeChange("all");
     onCategoryChange("all");
-    onSortByChange("settlement");
     setLocalSearch("");
     onSearchChange("");
   };
 
   return (
     <>
-      <Button 
-        variant="ghost" 
-        size="icon" 
+      <Button
+        variant="ghost"
+        size="icon"
         className="h-9 w-9 rounded-full bg-muted/50"
         onClick={() => setIsOpen(true)}
       >
         <Filter className="h-4 w-4" />
       </Button>
-      
-      <MobileDrawer
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        title="Filters"
-      >
+
+      <MobileDrawer open={isOpen} onOpenChange={setIsOpen} title="Filters">
         <div className="space-y-6">
+          {/* View Mode */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">View</label>
+            <div className="flex">
+              <ResolvedViewToggle value={viewMode} onChange={onViewModeChange} />
+            </div>
+          </div>
+
           {/* Search */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Search</label>
@@ -107,24 +91,6 @@ export const MobileResolvedFilterDrawer = ({
             </div>
           </div>
 
-          {/* Time Range */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Time Range</label>
-            <div className="flex flex-wrap gap-2">
-              {timeRangeOptions.map((option) => (
-                <Button
-                  key={option.value}
-                  variant={timeRange === option.value ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => onTimeRangeChange(option.value as TimeRangeFilter)}
-                  className="flex-1 min-w-[70px]"
-                >
-                  {option.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-
           {/* Category */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Category</label>
@@ -134,23 +100,6 @@ export const MobileResolvedFilterDrawer = ({
               </SelectTrigger>
               <SelectContent>
                 {categoryOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Sort */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Sort By</label>
-            <Select value={sortBy} onValueChange={(v) => onSortByChange(v as SortByOption)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select sort" />
-              </SelectTrigger>
-              <SelectContent>
-                {sortOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -176,14 +125,12 @@ export const MobileResolvedFilterDrawer = ({
 
 // Desktop Filters
 export const ResolvedFilters = ({
-  timeRange,
-  onTimeRangeChange,
+  viewMode,
+  onViewModeChange,
   category,
   onCategoryChange,
   search,
   onSearchChange,
-  sortBy,
-  onSortByChange,
 }: ResolvedFiltersProps) => {
   const isMobile = useIsMobile();
 
@@ -192,31 +139,10 @@ export const ResolvedFilters = ({
   }
 
   return (
-    <div className="bg-card/50 border border-border/40 rounded-xl p-5 space-y-4">
-      {/* Time Range Pills */}
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-medium text-muted-foreground">Time Range:</span>
-        <div className="flex gap-2">
-          {timeRangeOptions.map((option) => (
-            <Button
-              key={option.value}
-              variant={timeRange === option.value ? "default" : "outline"}
-              size="sm"
-              onClick={() => onTimeRangeChange(option.value as TimeRangeFilter)}
-              className={`text-xs ${
-                timeRange === option.value
-                  ? "bg-primary text-primary-foreground"
-                  : "border-border/50 hover:border-primary/50"
-              }`}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Search, Category, Sort */}
+    <div className="bg-card/50 border border-border/40 rounded-xl p-4">
       <div className="flex items-center gap-4 flex-wrap">
+        <ResolvedViewToggle value={viewMode} onChange={onViewModeChange} />
+
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-muted-foreground">Search:</span>
           <div className="relative">
@@ -225,35 +151,19 @@ export const ResolvedFilters = ({
               placeholder="Enter event name..."
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9 w-48 bg-background/50"
+              className="pl-9 w-56 bg-background/50"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           <span className="text-sm font-medium text-muted-foreground">Category:</span>
           <Select value={category} onValueChange={onCategoryChange}>
-            <SelectTrigger className="w-40 bg-background/50">
+            <SelectTrigger className="w-44 bg-background/50">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
               {categoryOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-2 ml-auto">
-          <span className="text-sm font-medium text-muted-foreground">Sort:</span>
-          <Select value={sortBy} onValueChange={(v) => onSortByChange(v as SortByOption)}>
-            <SelectTrigger className="w-44 bg-background/50">
-              <SelectValue placeholder="By Settlement Time" />
-            </SelectTrigger>
-            <SelectContent>
-              {sortOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
