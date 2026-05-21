@@ -47,12 +47,30 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
     });
   };
 
-  // Convert price history to USD prices and generate mock data if needed
+  // Normalize all prices to 0–1 binary contract scale and generate mock data if needed
   const chartData = useMemo(() => {
+    // Normalizer: ensure values are on 0–1 scale. If a feed comes in as 0–100, divide by 100.
+    const normalize = (v: number) => {
+      if (!isFinite(v) || v < 0) return 0;
+      if (v > 1) return Math.min(1, v / 100);
+      return v;
+    };
+
     const hasRealData = Object.values(priceHistory).some(arr => arr.length > 0);
-    
+
     if (hasRealData) {
-      return priceHistory;
+      const normalized: Record<string, PriceHistoryPoint[]> = {};
+      for (const [id, points] of Object.entries(priceHistory)) {
+        const opt = options.find(o => o.id === id);
+        const target = opt ? (opt.is_winner ? 1 : 0) : null;
+        normalized[id] = points.map((p, i) => ({
+          ...p,
+          price: i === points.length - 1 && target !== null
+            ? target
+            : Number(normalize(p.price).toFixed(4)),
+        }));
+      }
+      return normalized;
     }
 
     const mockData: Record<string, PriceHistoryPoint[]> = {};
@@ -61,27 +79,32 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
 
     options.forEach((option) => {
       const points: PriceHistoryPoint[] = [];
-      const finalUsdPrice = option.final_price ?? option.price * 100;
-      
-      let price = finalUsdPrice * (0.3 + Math.random() * 0.4);
-      
+      const target = option.is_winner ? 1 : 0;
+      const startSeed = Math.min(0.95, Math.max(0.05, normalize(option.price) || (option.is_winner ? 0.5 : 0.4)));
+      let price = startSeed;
+
       for (let i = 0; i < pointCount; i++) {
         const date = new Date(now);
         date.setDate(date.getDate() - (pointCount - i));
-        
-        const change = (Math.random() - 0.5) * finalUsdPrice * 0.1;
-        price = Math.max(0.01, price + change);
-        
+
+        // random walk in 0–1 space
+        const change = (Math.random() - 0.5) * 0.08;
+        price = Math.min(0.99, Math.max(0.01, price + change));
+
+        // converge toward settlement in last 30% of points
         if (i > pointCount * 0.7) {
-          price = price + (finalUsdPrice - price) * 0.2;
+          price = price + (target - price) * 0.25;
         }
-        
+
+        // pin final point to settlement
+        if (i === pointCount - 1) price = target;
+
         points.push({
           price: Number(price.toFixed(4)),
           recorded_at: date.toISOString(),
         });
       }
-      
+
       mockData[option.id] = points;
     });
 
@@ -334,7 +357,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
                 fontFamily="monospace"
                 dominantBaseline="middle"
               >
-                ${price.toFixed(isMobile ? 0 : 2)}
+                ${price.toFixed(2)}
               </text>
             </g>
           ))}

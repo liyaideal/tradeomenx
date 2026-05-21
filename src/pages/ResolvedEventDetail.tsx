@@ -164,7 +164,7 @@ const ResolvedEventDetail = () => {
                     </span>
                   </div>
                   <span className={`font-mono text-sm font-semibold ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
-                    ${(option.final_price ?? option.price).toFixed(4)}
+                    ${option.is_winner ? "1.00" : "0.00"}
                   </span>
                 </div>
               ))}
@@ -412,7 +412,7 @@ const ResolvedEventDetail = () => {
                         </span>
                       </div>
                       <span className={`font-mono font-semibold ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
-                        ${(option.final_price ?? option.price).toFixed(4)}
+                        ${option.is_winner ? "1.00" : "0.00"}
                       </span>
                     </div>
                   ))}
