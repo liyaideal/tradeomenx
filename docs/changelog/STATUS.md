@@ -29,6 +29,7 @@
 | 2 | Periods 结算列表页（持仓头卡 + 倒序列表 + 空态） | `FundingRateAudit.tsx` periods 分支 | ⬜ | 列表与 `position_funding_ledger`（按 position、`amount≠0`、倒序）一致；空 ledger 显示空态 | |
 | 3 | Result 详情页新增 "Settlement Window" 卡 + on-chain 字段表追加 windowStart/End/SettlementTsMs | `FundingRateAudit.tsx` result 分支 | ⬜ | 详情页 rate/amount/window/settledAt 与所选 ledger 行一致 | |
 | 4 | Result 按钮拆分：Verify Another Settlement / Change Position | `FundingRateAudit.tsx` result actions | ⬜ | 前者回 periods、后者回 select；BaseScan 链接照常打开 | |
+| 5 | Position/Periods 列表 ≤18 条按内容自适应高度，>18 才出现内部滚动 | `FundingRateAudit.tsx` select / periods 分支 | ⬜ | 3 / 18 / 25 三档：≤18 无滚动条且不留空白，>18 锁 `min(70vh, 1100px)` 并出现内部滚动 | |
 
 ---
 

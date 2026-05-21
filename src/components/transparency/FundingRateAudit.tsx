@@ -77,7 +77,14 @@ export const FundingRateAudit = ({ onBack }: Props) => {
           ) : positions.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">No positions found.</p>
           ) : (
-            <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+            <div
+              className="space-y-2"
+              style={
+                positions.length > 18
+                  ? { maxHeight: "min(70vh, 1100px)", overflowY: "auto" }
+                  : undefined
+              }
+            >
               {positions.map((pos) => (
                 <button key={pos.id} onClick={() => selectPosition(pos)} className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between mb-1">
@@ -133,7 +140,14 @@ export const FundingRateAudit = ({ onBack }: Props) => {
               No funding settlements yet for this position.
             </p>
           ) : (
-            <div className="space-y-2 max-h-[55vh] overflow-y-auto">
+            <div
+              className="space-y-2"
+              style={
+                periods.length > 18
+                  ? { maxHeight: "min(70vh, 1000px)", overflowY: "auto" }
+                  : undefined
+              }
+            >
               {periods.map((p) => {
                 const isPaid = p.amount < 0;
                 const rateColor = p.applied_rate >= 0 ? "text-emerald-400" : "text-red-400";
