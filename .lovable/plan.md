@@ -1,106 +1,36 @@
-# Resolved 列表改版 Plan (H + G + J)
+# Seed "My Settled" 数据
 
 ## 目标
-让 `/resolved` 与 `/` (Active) 在视觉语言上完全统一，同时保留 Resolved 自身的"档案"气质，并新增"我的已结算"快速视图。
+让 `/resolved` 的 **My Settled** 视图对每个账号都有内容可看。当前 `userParticipated` 的判定是 `trades.event_name === events.name`，而 `handle_new_user()` 种的 trades 用的是 "Fed Interest Rate Decision" 等假名，跟实际 resolved events 的 name 完全对不上 —— 所以新老用户的 Mine 都是空的。
 
----
+## 方案
 
-## 1. 统一卡片语言 (Direction H)
+### 1. 更新 `handle_new_user()` trigger
+在现有 trade/position 种子之后追加 4 笔与真实 resolved events 匹配的 closed trades + closed positions，覆盖赢/亏混合：
 
-复用 Active 的 **MarketCardB** 视觉骨架（分类背景图 + 圆角 + border hover + 分类徽章），但内容字段改为结算语义：
+| event_name | option | side | 结果 | 备注 |
+|---|---|---|---|---|
+| Will Bitcoin exceed $100K by end of 2024? | YES | buy | win  | +大额 PnL |
+| Will Fed cut interest rates in December 2024? | Yes | buy | win | +中等 |
+| Super Bowl LVIII Winner | San Francisco 49ers | buy | loss | −中等 |
+| Oscar Best Picture 2024 | Oppenheimer | buy | win | +小额 |
 
-**卡片内容（约 ≈140px 高）：**
-- 顶部：分类徽章 + Settled 日期（右上角小字）
-- 中部：事件标题（2 行截断）
-- 底部行：
-  - 左：`✓ {winningOptionLabel}` (text-success)
-  - 右：Volume（`font-mono`），用户参与过则显示 PnL chip（`+$120` 绿 / `-$45` 红）
+净 PnL 为正，体现"档案有赢有亏"。
 
-**响应式：**
-- Desktop: `grid-cols-2 lg:grid-cols-3`
-- Mobile: `grid-cols-1`
-
-**移除：** `ResolvedEventCard.tsx`（被新卡片取代）
-
----
-
-## 2. All / Mine 切换 (Direction G)
-
-在 `ResolvedFilters` 之上新增一个 **EventTabs 风格**的切换：
-
-```text
-[ All Resolved ]  [ My Settled ]
-```
-
-- **All**（默认）：展示所有已结算事件
-- **Mine**：仅展示 `userParticipated === true` 的事件，按 `settled_at` desc 排序
-- 未登录用户点 Mine → 触发现有登录流程（复用 `useAuthGate`）
-- 状态：`viewMode: "all" | "mine"`，URL query `?view=mine` 可分享
-
----
-
-## 3. 时间分组头 (Direction J)
-
-在卡片网格之上插入 sticky 分组标题，按 `settled_at` 归档：
-
-```text
-THIS WEEK              (12)
-[card] [card] [card]
-...
-
-EARLIER THIS MONTH     (28)
-[card] [card] [card]
-...
-
-OCTOBER 2025           (47)
-...
-```
-
-**分组规则：**
-- `This Week`（近 7 天）
-- `Earlier This Month`（本月剩余）
-- 之后按 `MMMM YYYY` 分组（如 `October 2025`）
-
-**样式：** `text-xs uppercase tracking-wider text-muted-foreground`，右侧括号显示数量，与 Active 的章节头风格一致。
-
----
+### 2. 历史用户回填
+对 `auth.users` 里所有用户，如果他们在 trades 表里还没有这些 event_name 的记录，就一次性补种相同的 4 笔。用 `ON CONFLICT` / `NOT EXISTS` 防止重复。
 
 ## 文件改动
+- 新建一个 Supabase migration：
+  - `CREATE OR REPLACE FUNCTION public.handle_new_user()` —— 在原函数末尾追加新增的 trades / positions INSERT。
+  - `DO $$ ... $$` 块：遍历现有用户回填。
 
-**新建：**
-- `src/components/resolved/ResolvedMarketCard.tsx` — 复用 MarketCardB 骨架的结算卡片
-- `src/components/resolved/ResolvedViewToggle.tsx` — All / Mine 切换
-- `src/components/resolved/ResolvedGroupedGrid.tsx` — 按时间分组渲染网格
-- `src/lib/resolvedGrouping.ts` — `groupBySettledAt(events)` 工具函数
-
-**修改：**
-- `src/pages/ResolvedPage.tsx`
-  - 新增 `viewMode` state + URL 同步
-  - 未登录点击 Mine → `useAuthGate`
-  - `events.filter(e => viewMode === "mine" ? e.userParticipated : true)`
-  - 渲染 `<ResolvedViewToggle />` + `<ResolvedGroupedGrid />`
-
-**删除：**
-- `src/components/ResolvedEventCard.tsx`
-
-**不变：**
-- `useResolvedEvents.ts`、Detail 页、`ResolvedFilters`、Share / Settlement banners、数据库 schema
-
----
-
-## 技术细节
-
-- 卡片骨架直接 import / 抽 `MarketCardB` 的样式 token（分类背景、border、hover），避免重复定义
-- 分组函数纯客户端计算，基于已过滤后的 `events`
-- Mine 视图为空时显示空态：`You haven't settled any markets yet.` + CTA → `/`
-- 字段命名遵循 memory：`camelCase` on-chain，`Title Case` 标题，`font-mono` 数字与金额
-
----
+## 不变
+- 前端 (`useResolvedEvents`, `ResolvedPage`, 新卡片) 不动
+- `event_options.is_winner` 等已有数据不动
+- 不影响 deposits/withdrawals/points/airdrop 等其他种子
 
 ## 验收
-
-1. Desktop `/resolved` 卡片网格与 `/` Active 视觉一致
-2. Mobile 单列卡片，节奏与 Active mobile 一致
-3. All / Mine 切换工作，URL 可分享
-4. 时间分组头正确显示，sticky 滚动友好
-5. 未登录点 Mine 正确触发登录
+1. 新注册用户立刻在 `/resolved?view=mine` 看到 4 条记录
+2. 现有账号刷新后也能看到这 4 条
+3. PnL 颜色正确（绿/红 chip）
