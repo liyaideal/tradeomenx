@@ -1,74 +1,69 @@
-# Resolved 页筛选区整理
+# Resolved 详情页结算价口径统一
 
 ## 背景
 
-当前 `/resolved` 页面的筛选/切换有两处入口，存在冗余：
+数据库里 `event_options.final_price` 的口径完全乱：
 
-1. 页面标题下方独立一行的 `ResolvedViewToggle`（All Resolved / My Settled）
-2. 下方的 `ResolvedFilters`（Time Range / Search / Category / Sort）
+| event | label | price (0–1) | final_price | is_winner |
+|---|---|---|---|---|
+| BTC > 100K | YES | 0.6234 | **83.29** | t |
+| BTC > 100K | NO | 0.3766 | **17.32** | f |
+| Oscar Best Picture | Oppenheimer | 0.80 | **1.00** | t |
+| Oscar Best Picture | Poor Things | 0.12 | **0.00** | f |
+| Gov shutdown | November 4-7 | 0.0534 | **1.4** | f |
+| Apple Fall Event | September 12 | 0.3567 | **45.44** | t |
 
-同时列表已改为按结算时间分组的卡片网格（This Week / Earlier This Month / MMMM YYYY），`Time Range` 与 `Sort by Settlement Time` 已经和分组逻辑重复。
+详情页 `ResolvedEventDetail` 把它直接 `$ … toFixed(4)` 渲染，所以才出现 `$83.2900`、`$1.4000`、`$45.4400` 这种"奇怪的价格"。
+
+平台一直没有百分比/概率显示。事件交易期内的价格本来就是 0–1 的二元合约价（YES/NO 合约的美元价），结算时收敛到 winner = $1.00 / loser = $0.00。需要 UI 反映这个事实，而不是去渲染乱七八糟的 `final_price`。
 
 ## 目标
 
-- 把 All Resolved / My Settled 切换收编进筛选区，作为筛选区的"主视图"控件，桌面与移动端一致。
-- 精简过时筛选项，让筛选区只保留真正有用的维度。
-- 不改动数据层（`useResolvedEvents`、grouping、卡片）行为。
+- **Final Results**（详情页结算结果卡片）：winner 显示 `$1.00`，loser 显示 `$0.00`。
+- **Price History**（详情页价格曲线）：保留中间价格走势，但 y 轴单位是 0–1 美元合约价；终点对齐到 winner=$1 / loser=$0。
+- 全程不引入百分比（既不显示 `83%`，也不显示 `Closing X%`）。
 
 ## 改动
 
-### 1. 桌面筛选栏（`ResolvedFilters`）
+### 1. `src/pages/ResolvedEventDetail.tsx`
 
-新布局（单行 + 自适应换行）：
+- 移动端 Final Results（约 146–170 行）和桌面端 Final Results（约 393–419 行）中：
+  - 把右侧
+    ```tsx
+    ${(option.final_price ?? option.price).toFixed(4)}
+    ```
+    改为：
+    ```tsx
+    ${option.is_winner ? "1.00" : "0.00"}
+    ```
+  - 单位字号、颜色、`font-mono` 保持现状。
 
-```text
-[ All Resolved | My Settled ]   Search: [____]   Category: [All ▾]
-```
+### 2. `src/components/resolved/PriceHistoryChart.tsx`
 
-- 左侧：视图切换 Segmented（沿用 `ResolvedViewToggle` 的样式与逻辑，但作为筛选栏的第一个控件）。
-- 中部：`Search`（保留）。
-- 右侧：`Category`（保留）。
+数据归一化层（不动 SVG 绘图代码，只动 `chartData` 计算）：
 
-删除项：
+- 现在 mock 生成用 `option.final_price ?? option.price * 100`，导致 y 轴跑到 ~$83；需要改成：
+  - **目标终点价**：`is_winner ? 1.0 : 0.0`（始终是二元合约的结算价）。
+  - **起点价**：用 `option.price`（已经是 0–1 概率/合约价）做随机扰动起点。
+  - **中间点**：仍然随机游走，但 clamp 到 `[0, 1]`，并在最后 30% 区间逐步收敛到 1.0 或 0.0。
+- 如果 `priceHistory` 里已有真实数据：把 `points[i].price` 一律 clamp/缩放到 0–1（如果当前值看起来在 0–100 区间，则 `÷ 100`；如果 >1 就 ÷100），保证 y 轴一致。
+- 显示文案：
+  - 折线末端价格标签 `$lastPoint.price.toFixed(2)` 保留，但因为现在 0–1，会显示 `$0.83`、`$1.00`、`$0.00`，符合合约价口径。
+  - Tooltip 主价格 `$tooltip.price.toFixed(2)` 同理。
+  - Tooltip 里的"涨跌幅"行 `+12.3%` 是**变化率**，不是概率，平台一直可以接受这种 %CHG（参考 `/events` 列表 MarketCardB 的 chg 列），保留。
+- y 轴上下界、网格线如有硬编码 100 上限，改成 1.0；如果是 dynamic min/max，无需改动。
 
-- `Time Range`（All / This Month / This Quarter / This Year）——与分组标题（This Week / Earlier This Month / MMMM YYYY）信息重复。
-- `Sort By`（Settlement / Volume / Name）——网格已严格按结算时间倒序分组，提供其他排序会破坏分组结构；如果之后想加，再单独评估。
+### 3. 其他模块完全不动
 
-### 2. 移动端筛选 Drawer（`MobileResolvedFilterDrawer`）
-
-- Drawer 顶部新增一组 Segmented：All Resolved / My Settled。
-- 保留：Search、Category。
-- 删除：Time Range、Sort By。
-- Reset 行为相应更新（重置视图为 All、清空 search、category 回到 all）。
-
-入口仍是 Header 右侧的 Filter 图标；视图切换不再单独占一行。
-
-### 3. 页面（`ResolvedPage.tsx`）
-
-- 移除标题下方独立那行的 `<ResolvedViewToggle />`。
-- 将 `viewMode` / `handleViewChange` 作为 props 传给桌面 `ResolvedFilters` 和移动 `MobileResolvedFilterDrawer`。
-- 未登录用户点击 "My Settled" 仍触发 `AuthDialog`（逻辑保留，仅触发位置变成筛选区内的 Segmented）。
-- 删除未再使用的 state：`timeRange`、`sortBy`，以及它们传入 `useResolvedEvents` 的参数。
-
-### 4. `useResolvedEvents`
-
-- 入参中移除 `timeRange` 和 `sortBy` 的使用（保留 `category`、`search`）。
-- 内部仍按 `settled_at desc` 返回，配合 grouping 使用。
-- 不破坏 hook 的对外签名时，可保留参数但忽略；如果只此一处调用，则直接精简签名（倾向后者）。
-
-### 5. 组件文件
-
-- `ResolvedViewToggle.tsx` 不删除，作为内嵌控件继续被 `ResolvedFilters` 复用。
-- `ResolvedFilters.tsx`、`ResolvedPage.tsx`、`useResolvedEvents.ts` 做对应更新。
-
-## 不改动
-
-- `ResolvedGroupedGrid` / `ResolvedMarketCard` / `resolvedGrouping`
-- 数据库、迁移、PnL/grouping 逻辑
-- 路由 `?view=mine` 行为（继续作为 viewMode 的来源/出口）
+- `useResolvedEventDetail` hook、数据库字段、`event_options.final_price` 本身。
+- `EventStatisticsCard` / `SettlementEvidenceCard` / `EventRulesCard` / `RelatedEventCard` / `SettlementTimeline`。
+- 列表卡片 `ResolvedMarketCard`、首页、`/portfolio/settlement/*`。
 
 ## 验收
 
-- 桌面：标题下只有一行筛选条，左侧是 All/Mine 切换，中间 Search，右侧 Category；切换 Mine 未登录会弹出 AuthDialog。
-- 移动：Header 右侧 Filter 图标打开 Drawer，第一项是 All/Mine 切换，下方是 Search、Category；不再有独立的切换行。
-- 网格仍按 This Week / Earlier This Month / MMMM YYYY 分组展示，URL `?view=mine` 与 UI 同步。
+- 任意 `/resolved/:id`（含 `resolved-5`、BTC>100K、Apple Fall Event 等）：
+  - Final Results：winner 行右侧 `$1.00`（绿）；其余行 `$0.00`（灰）。
+  - Price History：曲线在 0–1 区间运行，winner 收敛到 $1.00、loser 收敛到 $0.00；终点标签和 tooltip 显示 `$0.xx` / `$1.00` / `$0.00`。
+- 页面任何位置不再出现 `$83.2900`、`$45.4400`、`$1.4000` 这种异常数字。
+- 不出现"%"作为概率/赔率（只有 tooltip 的"涨跌幅 %CHG"保留）。
+- 桌面 + 移动表现一致。
