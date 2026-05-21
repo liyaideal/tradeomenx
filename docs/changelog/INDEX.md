@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-05-21 | [资金费率审计：结算周期列表中间页](./2026-05-21-funding-rate-periods-step.md) | Transparency 资金费率核验新增 periods 步骤，选持仓后先列出该仓位所有结算，再核验单次；详情页补充 window / settlementTs / notional |
 | 2026-05-21 | [Style Guide 交付（含 Wallet Transaction History Row）](./2026-05-21-style-guide-tx-row.md) | `/style-guide` 新增 Transaction History Row playground（桌面单行 + 移动两层），WalletSection 增量；`/campaign-style-guide` 入口加到 StyleGuide 顶部 |
 | 2026-05-20 | [需求批次 2026-05-20](./2026-05-20-requirements.md) | 当日合并交付的多需求清单（功能目标 / 数据库 / 用户端 / Admin） |
 | 2026-05-20 | [错链充值找回 v2](./2026-05-20-recovery-v2.md) | Recovery 找回流程 v2，合并 v1 已上线 + v2 最新改动，含状态机与表结构 |
