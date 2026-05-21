@@ -194,7 +194,7 @@ export const useFundingRateAudit = () => {
       setSelectedPeriod(null);
       setAudit(null);
       setStep("periods");
-      await loadPeriods(pos.id);
+      await loadPeriods(pos.id, pos);
     },
     [loadPeriods]
   );
