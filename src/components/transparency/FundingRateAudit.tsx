@@ -1,14 +1,43 @@
 import { Button } from "@/components/ui/button";
 import { DesktopBackLink } from "@/components/ui/desktop-back-link";
-import { Loader2, CheckCircle2, Percent, ExternalLink, ArrowRightLeft, TrendingUp, TrendingDown } from "lucide-react";
-import { useFundingRateAudit, type FundingRateStep } from "@/hooks/useFundingRateAudit";
+import { Loader2, CheckCircle2, Percent, ExternalLink, ArrowRightLeft, TrendingUp, TrendingDown, Clock, RefreshCw } from "lucide-react";
+import { useFundingRateAudit } from "@/hooks/useFundingRateAudit";
 
 interface Props {
   onBack: () => void;
 }
 
+const fmtDateTime = (iso: string) =>
+  new Date(iso).toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+const fmtShort = (iso: string) =>
+  new Date(iso).toLocaleString(undefined, {
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
 export const FundingRateAudit = ({ onBack }: Props) => {
-  const { step, positions, selectedPosition, audit, isLoading, openSelector, selectPosition, reset } = useFundingRateAudit();
+  const {
+    step,
+    positions,
+    periods,
+    selectedPosition,
+    audit,
+    isLoading,
+    openSelector,
+    selectPosition,
+    selectPeriod,
+    backToPeriods,
+    reset,
+  } = useFundingRateAudit();
 
   /* ── Idle ── */
   if (step === "idle") {
@@ -22,8 +51,8 @@ export const FundingRateAudit = ({ onBack }: Props) => {
           <div className="space-y-2 max-w-md mx-auto">
             <h2 className="text-xl font-bold">Am I Being Overcharged?</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Compare the funding rate applied to your position against the on-chain{" "}
-              <code className="text-xs bg-muted/50 px-1 rounded">FundingRate</code> event log to verify no unfair fees were deducted.
+              Compare each funding settlement applied to your position against the on-chain{" "}
+              <code className="text-xs bg-muted/50 px-1 rounded">FundingRate</code> event log to verify every period was charged fairly.
             </p>
           </div>
           <Button onClick={openSelector} className="px-8 gap-2">
@@ -34,7 +63,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
     );
   }
 
-  /* ── Select ── */
+  /* ── Select position ── */
   if (step === "select") {
     return (
       <div className="space-y-6">
@@ -69,14 +98,90 @@ export const FundingRateAudit = ({ onBack }: Props) => {
     );
   }
 
+  /* ── Periods list ── */
+  if (step === "periods" && selectedPosition) {
+    return (
+      <div className="space-y-6">
+        <DesktopBackLink onClick={openSelector} />
+
+        {/* Position header card */}
+        <div className="trading-card p-4 space-y-1">
+          <p className="text-sm font-semibold">{selectedPosition.event_name}</p>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span>{selectedPosition.option_label}</span>
+            <span className={selectedPosition.side === "long" ? "text-emerald-400" : "text-red-400"}>{selectedPosition.side.toUpperCase()}</span>
+            <span>{selectedPosition.leverage}x</span>
+            <span>Size: {selectedPosition.size}</span>
+          </div>
+        </div>
+
+        <div className="trading-card p-5 md:p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold">Funding Settlements</h3>
+            <span className="text-xs text-muted-foreground">{periods.length} period{periods.length === 1 ? "" : "s"}</span>
+          </div>
+          <p className="text-xs text-muted-foreground -mt-2">
+            Each row is one funding window. Pick any settlement to verify its rate against the on-chain record.
+          </p>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin" /> Loading settlements...
+            </div>
+          ) : periods.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No funding settlements yet for this position.
+            </p>
+          ) : (
+            <div className="space-y-2 max-h-[55vh] overflow-y-auto">
+              {periods.map((p) => {
+                const isPaid = p.amount < 0;
+                const rateColor = p.applied_rate >= 0 ? "text-emerald-400" : "text-red-400";
+                const amtColor = isPaid ? "text-red-400" : "text-emerald-400";
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => selectPeriod(p)}
+                    className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          <span className="font-mono">{fmtDateTime(p.created_at)}</span>
+                        </div>
+                        <div className="text-[11px] text-muted-foreground font-mono truncate">
+                          {fmtShort(p.accrual_start)} – {fmtShort(p.accrual_end)}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className={`text-sm font-mono font-semibold ${rateColor}`}>
+                          {p.applied_rate >= 0 ? "+" : ""}
+                          {(p.applied_rate * 100).toFixed(4)}%
+                        </div>
+                        <div className={`text-xs font-mono ${amtColor}`}>
+                          {isPaid ? "-" : "+"}${Math.abs(p.amount).toFixed(4)}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   /* ── Processing ── */
   if (step === "fetching" || step === "comparing") {
     return (
       <div className="space-y-6">
-        <DesktopBackLink onClick={reset} />
+        <DesktopBackLink onClick={backToPeriods} />
         <div className="trading-card p-5 md:p-6 space-y-3 animate-fade-in">
           {[
-            { key: "fetching", label: "Fetching on-chain FundingRate event log..." },
+            { key: "fetching", label: "Fetching on-chain FundingRate event log for this window..." },
             { key: "comparing", label: "Comparing applied rate vs on-chain record..." },
           ].map((s) => {
             const isActive = s.key === step;
@@ -100,7 +205,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
     const DirectionIcon = audit.direction === "paid" ? TrendingDown : TrendingUp;
     return (
       <div className="space-y-6">
-        <DesktopBackLink onClick={() => { reset(); onBack(); }} />
+        <DesktopBackLink onClick={backToPeriods} />
 
         <div className="space-y-4 animate-fade-in">
           {/* Match banner */}
@@ -108,7 +213,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
             <CheckCircle2 className="w-8 h-8 text-purple-400 shrink-0" />
             <div>
               <h3 className="font-bold text-purple-400">Funding Rate Verified ✓</h3>
-              <p className="text-xs text-muted-foreground">The applied rate matches the on-chain record exactly.</p>
+              <p className="text-xs text-muted-foreground">This settlement matches the on-chain record exactly.</p>
             </div>
           </div>
 
@@ -148,6 +253,22 @@ export const FundingRateAudit = ({ onBack }: Props) => {
             </div>
           </div>
 
+          {/* Settlement window */}
+          <div className="trading-card p-4 space-y-1.5">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Settlement Window</p>
+            {[
+              { label: "settledAt", value: fmtDateTime(audit.settledAt) },
+              { label: "windowStart", value: fmtDateTime(audit.windowStart) },
+              { label: "windowEnd", value: fmtDateTime(audit.windowEnd) },
+              { label: "notional", value: `$${audit.notional.toFixed(2)}` },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs">
+                <span className="text-muted-foreground">{row.label}</span>
+                <span className="font-mono text-foreground/80">{row.value}</span>
+              </div>
+            ))}
+          </div>
+
           {/* Contract fields */}
           <div className="trading-card p-4 space-y-1.5">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">On-Chain Event Fields</p>
@@ -155,6 +276,9 @@ export const FundingRateAudit = ({ onBack }: Props) => {
               { label: "eventId", value: audit.eventId },
               { label: "marketId", value: audit.outcomeId.toString() },
               { label: "fundingRate", value: audit.fundingRate.toFixed(6) },
+              { label: "windowStartTsMs", value: new Date(audit.windowStart).getTime().toString(), mono: true },
+              { label: "windowEndTsMs", value: new Date(audit.windowEnd).getTime().toString(), mono: true },
+              { label: "settlementTsMs", value: new Date(audit.settledAt).getTime().toString(), mono: true },
               { label: "txHash", value: `${audit.txHash.slice(0, 6)}...${audit.txHash.slice(-6)}`, mono: true },
               { label: "blockNumber", value: `#${audit.blockNumber.toLocaleString()}` },
             ].map((row) => (
@@ -166,14 +290,17 @@ export const FundingRateAudit = ({ onBack }: Props) => {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button variant="outline" size="sm" className="flex-1 text-xs gap-1.5"
               onClick={() => window.open(`https://basescan.org/tx/${audit.txHash}`, "_blank")}
             >
               <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
             </Button>
+            <Button variant="outline" size="sm" className="flex-1 text-xs gap-1.5" onClick={backToPeriods}>
+              <RefreshCw className="w-3.5 h-3.5" /> Verify Another Settlement
+            </Button>
             <Button size="sm" className="flex-1 text-xs gap-1.5" onClick={openSelector}>
-              <ArrowRightLeft className="w-3.5 h-3.5" /> Verify Another
+              <ArrowRightLeft className="w-3.5 h-3.5" /> Change Position
             </Button>
           </div>
         </div>
