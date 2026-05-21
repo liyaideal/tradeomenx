@@ -277,13 +277,11 @@ export const FundingRateAudit = ({ onBack }: Props) => {
               { label: "Position notional",  key: "notional",    value: `$${audit.notional.toFixed(2)}` },
             ].map((row) => (
               <div key={row.key} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs gap-3">
-                <div className="min-w-0">
-                  <div className="text-foreground/80">{row.label}</div>
-                  <div className="text-[10px] font-mono text-muted-foreground/60">{row.key}</div>
-                </div>
+                <span className="text-muted-foreground">{row.label}</span>
                 <span className="font-mono text-foreground/80 text-right shrink-0">{row.value}</span>
               </div>
             ))}
+
           </div>
 
           {/* Contract fields */}
@@ -300,13 +298,11 @@ export const FundingRateAudit = ({ onBack }: Props) => {
               { label: "Block number",        key: "blockNumber",     value: `#${audit.blockNumber.toLocaleString()}` },
             ].map((row) => (
               <div key={row.key} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs gap-3">
-                <div className="min-w-0">
-                  <div className="text-foreground/80">{row.label}</div>
-                  <div className="text-[10px] font-mono text-muted-foreground/60">{row.key}</div>
-                </div>
+                <span className="text-muted-foreground">{row.label}</span>
                 <span className={`${row.mono ? "font-mono" : ""} text-foreground/80 text-right shrink-0`}>{row.value}</span>
               </div>
             ))}
+
           </div>
 
 
