@@ -55,6 +55,75 @@ const mockHex = (len: number) => {
   return r;
 };
 
+// ── Demo fallback data ──────────────────────────────────────────────
+// Shown when the current account has no real positions / funding history,
+// so every visitor can experience the full audit flow.
+const DEMO_POSITION_TEMPLATES: Array<{
+  event_name: string; option_label: string; side: string;
+  size: number; leverage: number; entry_price: number; ageDays: number;
+}> = [
+  { event_name: "SOL Weekly Performance",     option_label: "Up >5%",         side: "short", size: 80,  leverage: 10, entry_price: 0.42, ageDays: 9  },
+  { event_name: "ETH Price Prediction",       option_label: "Above $4,000",   side: "long",  size: 50,  leverage: 10, entry_price: 0.61, ageDays: 7  },
+  { event_name: "BTC End of Week Price",      option_label: "Above $100,000", side: "long",  size: 100, leverage: 10, entry_price: 0.55, ageDays: 5  },
+  { event_name: "Fed Interest Rate Decision", option_label: "Hold Steady",    side: "long",  size: 200, leverage: 10, entry_price: 0.72, ageDays: 12 },
+  { event_name: "Apple Stock Movement",       option_label: "Up >2%",         side: "long",  size: 150, leverage: 10, entry_price: 0.48, ageDays: 4  },
+  { event_name: "Gold Price Weekly",          option_label: "Down >1%",       side: "short", size: 100, leverage: 10, entry_price: 0.53, ageDays: 6  },
+];
+
+const buildDemoPositions = (): PositionRecord[] => {
+  const now = Date.now();
+  return DEMO_POSITION_TEMPLATES.map((t, i) => ({
+    id: `demo-pos-${i + 1}`,
+    event_name: t.event_name,
+    option_label: t.option_label,
+    side: t.side,
+    size: t.size,
+    leverage: t.leverage,
+    entry_price: t.entry_price,
+    created_at: new Date(now - t.ageDays * 24 * 60 * 60 * 1000).toISOString(),
+  }));
+};
+
+// Deterministic pseudo-random from string (stable periods per position)
+const seededRand = (seed: string, i: number) => {
+  let h = 2166136261;
+  const s = `${seed}:${i}`;
+  for (let k = 0; k < s.length; k++) {
+    h ^= s.charCodeAt(k);
+    h = (h * 16777619) >>> 0;
+  }
+  return (h % 100000) / 100000;
+};
+
+const buildDemoPeriods = (pos: PositionRecord): FundingPeriodRecord[] => {
+  const WINDOW_MS = 8 * 60 * 60 * 1000; // 8h funding windows
+  const start = new Date(pos.created_at).getTime();
+  const now = Date.now();
+  const total = Math.min(40, Math.max(3, Math.floor((now - start) / WINDOW_MS)));
+  const sideMul = pos.side === "long" ? 1 : -1;
+  const records: FundingPeriodRecord[] = [];
+  for (let i = 0; i < total; i++) {
+    const wStart = start + i * WINDOW_MS;
+    const wEnd = wStart + WINDOW_MS;
+    // rate ~ -0.08% .. +0.12% per 8h window
+    const rate = (seededRand(pos.id, i) - 0.4) * 0.002;
+    const notional = pos.size * pos.entry_price;
+    // long pays when rate>0; signed from user's perspective
+    const amount = -rate * notional * sideMul;
+    if (Math.abs(amount) < 1e-6) continue;
+    records.push({
+      id: `demo-fund-${pos.id}-${i}`,
+      applied_rate: rate,
+      notional,
+      amount,
+      accrual_start: new Date(wStart).toISOString(),
+      accrual_end: new Date(wEnd).toISOString(),
+      created_at: new Date(wEnd + 30_000).toISOString(),
+    });
+  }
+  return records.reverse(); // newest first
+};
+
 export const useFundingRateAudit = () => {
   const { user } = useAuth();
   const [step, setStep] = useState<FundingRateStep>("idle");
@@ -66,21 +135,31 @@ export const useFundingRateAudit = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const loadPositions = useCallback(async () => {
-    if (!user) return;
     setIsLoading(true);
-    const { data } = await supabase
-      .from("positions")
-      .select("id, event_name, option_label, side, size, leverage, entry_price, created_at")
-      .eq("user_id", user.id)
-      .in("status", ["Open", "Closed"])
-      .order("created_at", { ascending: false })
-      .limit(20);
-    setPositions((data as PositionRecord[]) || []);
+    let rows: PositionRecord[] = [];
+    if (user) {
+      const { data } = await supabase
+        .from("positions")
+        .select("id, event_name, option_label, side, size, leverage, entry_price, created_at")
+        .eq("user_id", user.id)
+        .in("status", ["Open", "Closed"])
+        .order("created_at", { ascending: false })
+        .limit(20);
+      rows = (data as PositionRecord[]) || [];
+    }
+    // Fallback so every visitor sees a populated list
+    if (rows.length === 0) rows = buildDemoPositions();
+    setPositions(rows);
     setIsLoading(false);
   }, [user]);
 
-  const loadPeriods = useCallback(async (positionId: string) => {
+  const loadPeriods = useCallback(async (positionId: string, posFallback?: PositionRecord) => {
     setIsLoading(true);
+    if (positionId.startsWith("demo-pos-")) {
+      setPeriods(posFallback ? buildDemoPeriods(posFallback) : []);
+      setIsLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from("position_funding_ledger")
       .select("id, applied_rate, notional, amount, accrual_start, accrual_end, created_at")
@@ -88,12 +167,15 @@ export const useFundingRateAudit = () => {
       .neq("amount", 0)
       .order("created_at", { ascending: false })
       .limit(200);
-    setPeriods(((data as FundingPeriodRecord[]) || []).map((p) => ({
+    let rows = ((data as FundingPeriodRecord[]) || []).map((p) => ({
       ...p,
       applied_rate: Number(p.applied_rate),
       notional: Number(p.notional),
       amount: Number(p.amount),
-    })));
+    }));
+    // Real position with no funding history yet → demo periods so flow is testable
+    if (rows.length === 0 && posFallback) rows = buildDemoPeriods(posFallback);
+    setPeriods(rows);
     setIsLoading(false);
   }, []);
 
@@ -112,7 +194,7 @@ export const useFundingRateAudit = () => {
       setSelectedPeriod(null);
       setAudit(null);
       setStep("periods");
-      await loadPeriods(pos.id);
+      await loadPeriods(pos.id, pos);
     },
     [loadPeriods]
   );
