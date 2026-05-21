@@ -140,7 +140,14 @@ export const FundingRateAudit = ({ onBack }: Props) => {
               No funding settlements yet for this position.
             </p>
           ) : (
-            <div className="space-y-2 max-h-[55vh] overflow-y-auto">
+            <div
+              className="space-y-2"
+              style={
+                periods.length > 18
+                  ? { maxHeight: "min(70vh, 1000px)", overflowY: "auto" }
+                  : undefined
+              }
+            >
               {periods.map((p) => {
                 const isPaid = p.amount < 0;
                 const rateColor = p.applied_rate >= 0 ? "text-emerald-400" : "text-red-400";
