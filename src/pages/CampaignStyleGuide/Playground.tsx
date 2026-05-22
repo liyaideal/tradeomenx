@@ -9,7 +9,8 @@ import { ProgressDashboard } from "@/components/mainnet-launch/ProgressDashboard
 import { MobileFloatingCTA } from "@/components/mainnet-launch/MobileFloatingCTA";
 import { TrustBar } from "@/components/mainnet-launch/TrustBar";
 import { SectionShell, SectionTitle } from "@/components/mainnet-launch/SectionShell";
-import { MAINNET_REBATE_TIERS, getCurrentTier, getNextTier, getTierProgress } from "@/lib/mainnetLaunch";
+import { Slider } from "@/components/ui/slider";
+import { MAINNET_REBATE_TIERS, FIRST_TRADE_VOLUME, getCurrentTier, getNextTier, getTierProgress } from "@/lib/mainnetLaunch";
 
 const REUSED_IN: Record<string, string[]> = {
   countdown: ["Mainnet Launch"],
