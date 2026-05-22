@@ -132,70 +132,263 @@ const CountdownDemo = () => {
   );
 };
 
-// — Volume presets: cover EVERY user state across the activation + tier ladder.
-//   Tiers: $10K / $50K / $100K / $300K / $500K / $750K / $1M.
-//   First-trade bonus threshold: $5K. Below that → ProgressDashboard renders null.
-type VolumePreset = {
-  id: string;
-  label: string;
-  note: string;
-  volume: number;
-};
+// — Volume slider: drag any volume across [$0, $1.5M] and read the derived state live.
+//   Slider value is an INDEX into a 3001-step grid (=$500 increments) so the thumb
+//   can land on every meaningful boundary ($4,999.5 vs $5,000 etc).
+const VOLUME_MAX = 1_500_000;
+const VOLUME_STEP = 500;
+const VOLUME_STEPS = VOLUME_MAX / VOLUME_STEP; // 3000
 
-const VOLUME_PRESETS: readonly VolumePreset[] = [
-  { id: "zero", label: "$0 · not started", note: "Guest / signed up, no trade yet.", volume: 0 },
-  { id: "sub-bonus", label: "$1K · pre-bonus", note: "Trading, below the $5K first-trade bonus.", volume: 1_000 },
-  { id: "bonus", label: "$5K · bonus unlocked", note: "Crossed first-trade bonus, no rebate tier yet.", volume: 5_000 },
-  { id: "pre-tier1", label: "$8K · no tier matched", note: "Bonus unlocked, currentTier === null.", volume: 8_000 },
-  { id: "tier1", label: "$10K · tier 1 ($5)", note: "First rebate tier just hit.", volume: 10_000 },
-  { id: "between-1-2", label: "$30K · between t1–t2", note: "Climbing toward $50K.", volume: 30_000 },
-  { id: "tier2", label: "$50K · tier 2 ($10)", note: "", volume: 50_000 },
-  { id: "tier3", label: "$100K · tier 3 ($20)", note: "", volume: 100_000 },
-  { id: "mid", label: "$120K · mid-tier", note: "Default storybook state.", volume: 120_000 },
-  { id: "tier4", label: "$300K · tier 4 ($60)", note: "", volume: 300_000 },
-  { id: "tier5", label: "$500K · tier 5 ($100)", note: "", volume: 500_000 },
-  { id: "tier6", label: "$750K · tier 6 ($150)", note: "", volume: 750_000 },
-  { id: "top", label: "$1M · top tier ($200)", note: "Final ladder rung.", volume: 1_000_000 },
-  { id: "past-top", label: "$1.5M · past top", note: "Beyond last tier — nextTier === null.", volume: 1_500_000 },
+const VOLUME_TICKS: ReadonlyArray<{ volume: number; label: string; sub?: string }> = [
+  { volume: 0, label: "$0", sub: "start" },
+  { volume: 5_000, label: "$5K", sub: "bonus" },
+  { volume: 10_000, label: "$10K", sub: "t1" },
+  { volume: 50_000, label: "$50K", sub: "t2" },
+  { volume: 100_000, label: "$100K", sub: "t3" },
+  { volume: 300_000, label: "$300K", sub: "t4" },
+  { volume: 500_000, label: "$500K", sub: "t5" },
+  { volume: 750_000, label: "$750K", sub: "t6" },
+  { volume: 1_000_000, label: "$1M", sub: "top" },
+  { volume: VOLUME_MAX, label: "$1.5M", sub: "past" },
 ];
 
-const PresetNote = ({ note }: { note: string }) =>
-  note ? (
-    <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{note}</p>
-  ) : null;
+type DerivedVolumeState = {
+  state:
+    | "GUEST"
+    | "PRE_BONUS"
+    | "BONUS_UNLOCKED"
+    | "NO_TIER"
+    | "TIER_1"
+    | "TIER_2"
+    | "TIER_3"
+    | "TIER_4"
+    | "TIER_5"
+    | "TIER_6"
+    | "TOP_TIER"
+    | "PAST_TOP";
+  label: string;
+  description: string;
+  currentTier: ReturnType<typeof getCurrentTier>;
+  nextTier: ReturnType<typeof getNextTier>;
+  progressToNext: number;
+  volumeToNext: number;
+  event1Qualified: boolean;
+  dashboardRenders: "component" | "null";
+};
+
+const deriveVolumeState = (volume: number): DerivedVolumeState => {
+  const currentTier = getCurrentTier(volume);
+  const nextTier = getNextTier(volume);
+  const progressToNext = getTierProgress(volume);
+  const volumeToNext = nextTier ? Math.max(0, nextTier.volume - volume) : 0;
+  const event1Qualified = volume >= FIRST_TRADE_VOLUME;
+
+  let state: DerivedVolumeState["state"] = "GUEST";
+  let label = "Guest · no trade";
+  let description = "Signed up but no trade volume yet. Treat as guest in activation funnel.";
+
+  if (volume === 0) {
+    state = "GUEST";
+  } else if (volume < FIRST_TRADE_VOLUME) {
+    state = "PRE_BONUS";
+    label = "Pre-bonus";
+    description = `Trading, $${(FIRST_TRADE_VOLUME - volume).toLocaleString()} short of the $5K first-trade bonus.`;
+  } else if (!currentTier) {
+    state = volume === FIRST_TRADE_VOLUME ? "BONUS_UNLOCKED" : "NO_TIER";
+    label = state === "BONUS_UNLOCKED" ? "Bonus unlocked" : "Bonus unlocked · no tier";
+    description = "First-trade bonus cleared. currentTier === null until $10K (tier 1).";
+  } else if (!nextTier) {
+    state = currentTier.volume === MAINNET_REBATE_TIERS[MAINNET_REBATE_TIERS.length - 1].volume
+      ? volume > currentTier.volume
+        ? "PAST_TOP"
+        : "TOP_TIER"
+      : "TOP_TIER";
+    label = state === "PAST_TOP" ? "Past top tier" : "Top tier";
+    description = state === "PAST_TOP"
+      ? "Beyond the final ladder rung — nextTier === null."
+      : "On the final ladder rung — nextTier === null.";
+  } else {
+    const tierIdx = MAINNET_REBATE_TIERS.findIndex((t) => t.volume === currentTier.volume);
+    state = (`TIER_${tierIdx + 1}` as DerivedVolumeState["state"]);
+    label = `Tier ${tierIdx + 1} · $${currentTier.rebate} rebate`;
+    description = `On tier ${tierIdx + 1}. $${volumeToNext.toLocaleString()} to tier ${tierIdx + 2} ($${nextTier.rebate}).`;
+  }
+
+  return {
+    state,
+    label,
+    description,
+    currentTier,
+    nextTier,
+    progressToNext,
+    volumeToNext,
+    event1Qualified,
+    dashboardRenders: event1Qualified ? "component" : "null",
+  };
+};
+
+const fmt = (n: number) => `$${n.toLocaleString()}`;
+
+const VolumeSlider = ({
+  volume,
+  onChange,
+}: {
+  volume: number;
+  onChange: (v: number) => void;
+}) => {
+  const idx = Math.round(volume / VOLUME_STEP);
+  const derived = deriveVolumeState(volume);
+  return (
+    <div className="space-y-4 rounded-sm border border-border/40 bg-background/30 p-4">
+      <div className="flex items-end justify-between gap-4">
+        <div className="min-w-0">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            Trade volume
+          </p>
+          <p className="mt-1 font-mono text-2xl font-semibold text-foreground tabular-nums">
+            {fmt(volume)}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            State
+          </p>
+          <p className="mt-1 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-mainnet-gold">
+            {derived.state}
+          </p>
+          <p className="mt-0.5 text-xs text-foreground">{derived.label}</p>
+        </div>
+      </div>
+
+      <Slider
+        value={[idx]}
+        min={0}
+        max={VOLUME_STEPS}
+        step={1}
+        onValueChange={(v) => onChange(v[0] * VOLUME_STEP)}
+        aria-label="Trade volume"
+      />
+
+      <div className="relative h-10">
+        {VOLUME_TICKS.map((t) => {
+          const left = (t.volume / VOLUME_MAX) * 100;
+          const active = Math.abs(t.volume - volume) < VOLUME_STEP / 2;
+          return (
+            <button
+              key={t.volume}
+              type="button"
+              onClick={() => onChange(t.volume)}
+              className="absolute top-0 -translate-x-1/2 cursor-pointer text-center transition-colors"
+              style={{ left: `${left}%` }}
+              aria-label={`Jump to ${t.label}`}
+            >
+              <span
+                className={`block h-2 w-px ${active ? "bg-mainnet-gold" : "bg-border"}`}
+              />
+              <span
+                className={`mt-1 block font-mono text-[10px] tabular-nums ${
+                  active ? "text-mainnet-gold" : "text-muted-foreground"
+                }`}
+              >
+                {t.label}
+              </span>
+              {t.sub && (
+                <span
+                  className={`block font-mono text-[9px] uppercase tracking-[0.12em] ${
+                    active ? "text-mainnet-gold/80" : "text-muted-foreground/60"
+                  }`}
+                >
+                  {t.sub}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-border/40 pt-3 font-mono text-[11px] tabular-nums md:grid-cols-4">
+        <DerivedRow label="event1Qualified" value={String(derived.event1Qualified)} tone={derived.event1Qualified ? "good" : "muted"} />
+        <DerivedRow
+          label="currentTier"
+          value={derived.currentTier ? `${fmt(derived.currentTier.volume)} · $${derived.currentTier.rebate}` : "null"}
+          tone={derived.currentTier ? "good" : "muted"}
+        />
+        <DerivedRow
+          label="nextTier"
+          value={derived.nextTier ? `${fmt(derived.nextTier.volume)} · $${derived.nextTier.rebate}` : "null"}
+          tone={derived.nextTier ? "default" : "muted"}
+        />
+        <DerivedRow label="progressToNext" value={`${derived.progressToNext.toFixed(1)}%`} tone="default" />
+        <DerivedRow label="volumeToNext" value={derived.nextTier ? fmt(derived.volumeToNext) : "—"} tone="default" />
+        <DerivedRow
+          label="Dashboard"
+          value={derived.dashboardRenders === "component" ? "renders" : "null"}
+          tone={derived.dashboardRenders === "component" ? "good" : "bad"}
+        />
+        <p className="col-span-2 text-[11px] leading-5 text-muted-foreground md:col-span-4">
+          {derived.description}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const DerivedRow = ({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "default" | "good" | "bad" | "muted";
+}) => (
+  <div className="flex items-center justify-between gap-2 border-b border-border/20 pb-1 last:border-0">
+    <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{label}</span>
+    <span
+      className={
+        tone === "good"
+          ? "text-trading-green"
+          : tone === "bad"
+            ? "text-trading-red"
+            : tone === "muted"
+              ? "text-muted-foreground"
+              : "text-foreground"
+      }
+    >
+      {value}
+    </span>
+  </div>
+);
 
 const RewardLadderDemo = () => {
-  const [pid, setPid] = useState("mid");
-  const preset = VOLUME_PRESETS.find((p) => p.id === pid)!;
-  const currentTier = getCurrentTier(preset.volume);
+  const [volume, setVolume] = useState(120_000);
+  const currentTier = getCurrentTier(volume);
   return (
     <div className="space-y-4">
-      <PresetRail presets={VOLUME_PRESETS} activeId={pid} onSelect={setPid} />
-      <PresetNote note={preset.note} />
+      <VolumeSlider volume={volume} onChange={setVolume} />
       <RewardLadder
         onCta={() => {}}
-        progressOverride={{ user: { id: "demo" }, volume: preset.volume, currentTier }}
+        progressOverride={{ user: { id: "demo" }, volume, currentTier }}
       />
     </div>
   );
 };
 
 const ProgressDashboardDemo = () => {
-  const [pid, setPid] = useState("mid");
-  const preset = VOLUME_PRESETS.find((p) => p.id === pid)!;
-  const currentTier = getCurrentTier(preset.volume);
-  const nextTier = getNextTier(preset.volume);
-  const progressToNext = getTierProgress(preset.volume);
-  const volumeToNextTier = nextTier ? Math.max(0, nextTier.volume - preset.volume) : 0;
-  const qualified = preset.volume >= 5_000;
+  const [volume, setVolume] = useState(120_000);
+  const currentTier = getCurrentTier(volume);
+  const nextTier = getNextTier(volume);
+  const progressToNext = getTierProgress(volume);
+  const volumeToNextTier = nextTier ? Math.max(0, nextTier.volume - volume) : 0;
+  const qualified = volume >= FIRST_TRADE_VOLUME;
   return (
     <div className="space-y-4">
-      <PresetRail presets={VOLUME_PRESETS} activeId={pid} onSelect={setPid} />
-      <PresetNote note={preset.note} />
+      <VolumeSlider volume={volume} onChange={setVolume} />
       {!qualified ? (
         <div className="rounded-sm border border-dashed border-border/60 bg-background/20 p-6 text-center text-sm text-muted-foreground">
-          Volume {`$${preset.volume.toLocaleString()}`} is below the $5K qualifying threshold — component renders{" "}
-          <span className="font-mono text-foreground">null</span>. Surface a CTA / empty state in its place.
+          Volume {fmt(volume)} is below the ${FIRST_TRADE_VOLUME.toLocaleString()} qualifying threshold —
+          component renders <span className="font-mono text-foreground">null</span>. Surface a CTA / empty
+          state in its place.
         </div>
       ) : (
         <ProgressDashboard
@@ -203,7 +396,7 @@ const ProgressDashboardDemo = () => {
           progressOverride={{
             user: { id: "demo" } as unknown as ReturnType<typeof useState>,
             event1Qualified: true,
-            volume: preset.volume,
+            volume,
             currentTier,
             nextTier,
             progressToNext,
