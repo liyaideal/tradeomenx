@@ -76,10 +76,40 @@ const PlaygroundCard = ({
 
 // — Countdown demo: pick from preset endsAt
 const COUNTDOWN_PRESETS = [
+  { id: "far", label: "> 7 days", offsetMs: 1000 * 60 * 60 * 24 * 9 },
   { id: "future", label: "> 1 day", offsetMs: 1000 * 60 * 60 * 36 },
+  { id: "today", label: "< 12 hours", offsetMs: 1000 * 60 * 60 * 6 },
   { id: "soon", label: "< 1 hour", offsetMs: 1000 * 60 * 12 },
+  { id: "lastmin", label: "< 1 minute", offsetMs: 1000 * 30 },
   { id: "ended", label: "Ended", offsetMs: -1 },
 ];
+
+// Horizontal scrollable preset rail — keeps every state visible without wrap.
+const PresetRail = <T extends { id: string; label: string }>({
+  presets,
+  activeId,
+  onSelect,
+}: {
+  presets: readonly T[];
+  activeId: string;
+  onSelect: (id: string) => void;
+}) => (
+  <div className="-mx-1 overflow-x-auto pb-1">
+    <div className="flex gap-2 px-1 whitespace-nowrap">
+      {presets.map((p) => (
+        <Button
+          key={p.id}
+          size="sm"
+          variant={p.id === activeId ? "default" : "outline"}
+          onClick={() => onSelect(p.id)}
+          className="shrink-0 font-mono text-[11px] uppercase tracking-[0.14em]"
+        >
+          {p.label}
+        </Button>
+      ))}
+    </div>
+  </div>
+);
 
 const CountdownDemo = () => {
   const [presetId, setPresetId] = useState("future");
@@ -87,19 +117,7 @@ const CountdownDemo = () => {
   const endsAt = new Date(Date.now() + preset.offsetMs);
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {COUNTDOWN_PRESETS.map((p) => (
-          <Button
-            key={p.id}
-            size="sm"
-            variant={p.id === presetId ? "default" : "outline"}
-            onClick={() => setPresetId(p.id)}
-            className="font-mono text-[11px] uppercase tracking-[0.14em]"
-          >
-            {p.label}
-          </Button>
-        ))}
-      </div>
+      <PresetRail presets={COUNTDOWN_PRESETS} activeId={presetId} onSelect={setPresetId} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-sm border border-border/40 bg-background/30 p-4">
           <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Compact</p>
@@ -114,12 +132,37 @@ const CountdownDemo = () => {
   );
 };
 
-// — RewardLadder demo: pick a volume preset
-const VOLUME_PRESETS = [
-  { id: "none", label: "$0 (not started)", volume: 0 },
-  { id: "mid", label: "$120K (mid-tier)", volume: 120_000 },
-  { id: "top", label: "$1M (top tier)", volume: 1_000_000 },
+// — Volume presets: cover EVERY user state across the activation + tier ladder.
+//   Tiers: $10K / $50K / $100K / $300K / $500K / $750K / $1M.
+//   First-trade bonus threshold: $5K. Below that → ProgressDashboard renders null.
+type VolumePreset = {
+  id: string;
+  label: string;
+  note: string;
+  volume: number;
+};
+
+const VOLUME_PRESETS: readonly VolumePreset[] = [
+  { id: "zero", label: "$0 · not started", note: "Guest / signed up, no trade yet.", volume: 0 },
+  { id: "sub-bonus", label: "$1K · pre-bonus", note: "Trading, below the $5K first-trade bonus.", volume: 1_000 },
+  { id: "bonus", label: "$5K · bonus unlocked", note: "Crossed first-trade bonus, no rebate tier yet.", volume: 5_000 },
+  { id: "pre-tier1", label: "$8K · no tier matched", note: "Bonus unlocked, currentTier === null.", volume: 8_000 },
+  { id: "tier1", label: "$10K · tier 1 ($5)", note: "First rebate tier just hit.", volume: 10_000 },
+  { id: "between-1-2", label: "$30K · between t1–t2", note: "Climbing toward $50K.", volume: 30_000 },
+  { id: "tier2", label: "$50K · tier 2 ($10)", note: "", volume: 50_000 },
+  { id: "tier3", label: "$100K · tier 3 ($20)", note: "", volume: 100_000 },
+  { id: "mid", label: "$120K · mid-tier", note: "Default storybook state.", volume: 120_000 },
+  { id: "tier4", label: "$300K · tier 4 ($60)", note: "", volume: 300_000 },
+  { id: "tier5", label: "$500K · tier 5 ($100)", note: "", volume: 500_000 },
+  { id: "tier6", label: "$750K · tier 6 ($150)", note: "", volume: 750_000 },
+  { id: "top", label: "$1M · top tier ($200)", note: "Final ladder rung.", volume: 1_000_000 },
+  { id: "past-top", label: "$1.5M · past top", note: "Beyond last tier — nextTier === null.", volume: 1_500_000 },
 ];
+
+const PresetNote = ({ note }: { note: string }) =>
+  note ? (
+    <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{note}</p>
+  ) : null;
 
 const RewardLadderDemo = () => {
   const [pid, setPid] = useState("mid");
@@ -127,13 +170,8 @@ const RewardLadderDemo = () => {
   const currentTier = getCurrentTier(preset.volume);
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {VOLUME_PRESETS.map((p) => (
-          <Button key={p.id} size="sm" variant={p.id === pid ? "default" : "outline"} onClick={() => setPid(p.id)} className="font-mono text-[11px] uppercase tracking-[0.14em]">
-            {p.label}
-          </Button>
-        ))}
-      </div>
+      <PresetRail presets={VOLUME_PRESETS} activeId={pid} onSelect={setPid} />
+      <PresetNote note={preset.note} />
       <RewardLadder
         onCta={() => {}}
         progressOverride={{ user: { id: "demo" }, volume: preset.volume, currentTier }}
@@ -142,7 +180,6 @@ const RewardLadderDemo = () => {
   );
 };
 
-// — ProgressDashboard demo: pick a volume preset
 const ProgressDashboardDemo = () => {
   const [pid, setPid] = useState("mid");
   const preset = VOLUME_PRESETS.find((p) => p.id === pid)!;
@@ -150,21 +187,15 @@ const ProgressDashboardDemo = () => {
   const nextTier = getNextTier(preset.volume);
   const progressToNext = getTierProgress(preset.volume);
   const volumeToNextTier = nextTier ? Math.max(0, nextTier.volume - preset.volume) : 0;
-
-  // Force qualified for demo (>= 5K)
-  const qualified = preset.volume >= 5_000 ? true : false;
+  const qualified = preset.volume >= 5_000;
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {VOLUME_PRESETS.map((p) => (
-          <Button key={p.id} size="sm" variant={p.id === pid ? "default" : "outline"} onClick={() => setPid(p.id)} className="font-mono text-[11px] uppercase tracking-[0.14em]">
-            {p.label}
-          </Button>
-        ))}
-      </div>
+      <PresetRail presets={VOLUME_PRESETS} activeId={pid} onSelect={setPid} />
+      <PresetNote note={preset.note} />
       {!qualified ? (
         <div className="rounded-sm border border-dashed border-border/60 bg-background/20 p-6 text-center text-sm text-muted-foreground">
-          Component renders <span className="font-mono text-foreground">null</span> when user has not crossed the qualifying threshold ($5K).
+          Volume {`$${preset.volume.toLocaleString()}`} is below the $5K qualifying threshold — component renders{" "}
+          <span className="font-mono text-foreground">null</span>. Surface a CTA / empty state in its place.
         </div>
       ) : (
         <ProgressDashboard
