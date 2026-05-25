@@ -157,8 +157,11 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
           const catInfo = getCategoryInfo(event.category);
           const catStyle = CATEGORY_STYLES[catInfo.label as CategoryType] || CATEGORY_STYLES.General;
           const metrics = getMockMetrics(event.id);
+          const sideLabels = parseSideLabels(event.side_labels);
           const mainOption = event.options[0];
           const secondOption = event.options.length === 2 ? event.options[1] : null;
+          const mainLabel = mainOption ? getDisplayOptionLabel(mainOption.label, event.options, sideLabels) : "";
+          const secondLabel = secondOption ? getDisplayOptionLabel(secondOption.label, event.options, sideLabels) : "";
           const mainChange = mainOption ? priceChanges.get(mainOption.id) : null;
           const mainPrice = mainOption?.price || 0.5;
           const sparklineData = generateSparkline(mainPrice);
