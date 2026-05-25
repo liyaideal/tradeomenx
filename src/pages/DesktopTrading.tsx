@@ -1159,7 +1159,8 @@ export default function DesktopTrading() {
                             </button>
                           </td>
                         </tr>
-                      ))
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
