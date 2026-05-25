@@ -1065,10 +1065,18 @@ export default function DesktopTrading() {
                         <td colSpan={9} className="px-4 py-6 text-center text-sm text-muted-foreground">No open orders</td>
                       </tr>
                     ) : (
-                      unifiedOrders.map((order, index) => (
+                      unifiedOrders.map((order, index) => {
+                        const orderOutcome = getBinaryOutcome(order.option);
+                        const orderLabelColor = orderOutcome === "yes"
+                          ? "text-trading-green"
+                          : orderOutcome === "no"
+                          ? "text-trading-red"
+                          : "text-foreground";
+                        const orderDisplay = (order as any).displayOption ?? order.option;
+                        return (
                         <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
                           <td className="px-4 py-2">
-                            <div className="text-sm font-medium">{order.option}</div>
+                            <div className={`text-sm font-medium ${orderLabelColor}`}>{orderDisplay}</div>
                             <HoverCard>
                               <HoverCardTrigger asChild>
                                 <div className="text-xs text-muted-foreground truncate max-w-[180px] cursor-help border-b border-dashed border-transparent hover:border-muted-foreground inline-block">
@@ -1094,9 +1102,13 @@ export default function DesktopTrading() {
                             </HoverCard>
                           </td>
                           <td className="px-4 py-2">
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {resolveBinarySideLabel(order.type === "buy" ? "yes" : "no", lookupSideLabels(order.event).labels)}
-                            </span>
+                            {orderOutcome ? (
+                              <span className="text-muted-foreground/40">—</span>
+                            ) : (
+                              <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
+                                {order.type === "buy" ? "Buy" : "Sell"}
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-2 text-sm">{order.orderType}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{order.price}</td>
