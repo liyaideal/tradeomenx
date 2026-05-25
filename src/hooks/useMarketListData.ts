@@ -2,12 +2,15 @@ import { useMemo } from "react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
 import { isClosingSoon, isNewEvent } from "@/components/events/ClosingSoonCountdown";
 import { getCategoryInfo } from "@/lib/categoryUtils";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 export type ChgTimeframe = "1h" | "4h" | "24h";
 
 export interface MarketChildRow {
   id: string;
   optionLabel: string;
+  /** Display label after applying sideLabels (e.g. team name for binary sports events). */
+  displayLabel: string;
   markPrice: number;
   change1h: number;
   change4h: number;
