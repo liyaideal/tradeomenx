@@ -502,11 +502,14 @@ export default function DesktopTrading() {
     : (side === "buy" ? "yes" : "no");
   const previewSideLabel = resolveBinarySideLabel(previewOutcome, isBinarySingleMarket ? binaryLabels : undefined);
   const previewSideColor: "green" | "red" = previewOutcome === "yes" ? "green" : "red";
+  // 单 market binary: Option 直接显示队名/别名（previewSideLabel），不再渲染独立 Side 行/chip
+  // 多 outcome: Option 显示 option 名，Side 显示 Yes/No
+  const previewOptionLabel = isBinarySingleMarket ? previewSideLabel : selectedOptionData.label;
 
   const orderDetails = useMemo(() => [
     { label: "Event", value: selectedEvent?.name || "" },
-    { label: "Option", value: selectedOptionData.label },
-    { label: "Side", value: previewSideLabel, highlight: previewSideColor },
+    { label: "Option", value: previewOptionLabel, highlight: isBinarySingleMarket ? previewSideColor : undefined },
+    ...(isBinarySingleMarket ? [] : [{ label: "Side", value: previewSideLabel, highlight: previewSideColor }]),
     { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
@@ -518,7 +521,7 @@ export default function DesktopTrading() {
     { label: "Margin required", value: `${displayCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, previewSideLabel, previewSideColor, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional, sidePrice]);
+  ], [selectedEvent, previewOptionLabel, isBinarySingleMarket, previewSideLabel, previewSideColor, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional, sidePrice]);
 
   const isReducingOrder = orderIntent.kind === "reduce" || orderIntent.kind === "close";
   const formattedIntent = orderIntent.kind.replace(/-/g, " ");
@@ -1824,11 +1827,15 @@ export default function DesktopTrading() {
             <div className="space-y-2 border-b border-border/30 pb-4">
               <p className="text-sm font-medium text-foreground pr-6 line-clamp-2">{selectedEvent?.name}</p>
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm text-muted-foreground truncate">{selectedOptionData.label}</span>
+                <span className={`text-sm truncate font-medium ${isBinarySingleMarket ? (previewSideColor === "green" ? "text-trading-green" : "text-trading-red") : "text-muted-foreground"}`}>
+                  {previewOptionLabel}
+                </span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={`rounded px-2 py-1 text-xs font-semibold ${previewSideColor === "green" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
-                    {previewSideLabel}
-                  </span>
+                  {!isBinarySingleMarket && (
+                    <span className={`rounded px-2 py-1 text-xs font-semibold ${previewSideColor === "green" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
+                      {previewSideLabel}
+                    </span>
+                  )}
                   <span className="rounded bg-muted px-2 py-1 text-xs font-semibold capitalize text-foreground">{formattedIntent}</span>
                 </div>
               </div>

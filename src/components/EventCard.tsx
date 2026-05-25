@@ -24,7 +24,7 @@ import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/catego
 import { LivePrice } from "@/components/LivePrice";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { usePriceHistory } from "@/hooks/usePriceHistory";
-import { isSingleMarketBinary } from "@/lib/eventUtils";
+import { isSingleMarketBinary, getDisplayOptionLabel, parseSideLabels } from "@/lib/eventUtils";
 
 export type EventStatus = "active" | "locked" | "resolved";
 
