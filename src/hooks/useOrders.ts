@@ -2,6 +2,7 @@ import { useMemo, useCallback } from "react";
 import { useAuth } from "./useAuth";
 import { useSupabaseOrders, SupabaseOrder } from "./useSupabaseOrders";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
+import { useEventDisplayLookup } from "./useEventDisplayLookup";
 
 // Unified order type for UI
 export interface UnifiedOrder {
@@ -10,6 +11,8 @@ export interface UnifiedOrder {
   orderType: "Limit" | "Market";
   event: string;
   option: string;
+  /** Display label after applying sideLabels (e.g. team name). Falls back to option. */
+  displayOption?: string;
   probability?: string;
   price: string;
   amount: string;
