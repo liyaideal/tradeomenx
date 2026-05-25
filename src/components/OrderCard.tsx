@@ -83,7 +83,7 @@ export const OrderCard = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            {!isBinaryAlias && (
+            {!isBinary && (
               <span
                 className={`px-2 py-0.5 rounded text-xs font-semibold ${
                   type === "buy"
@@ -91,7 +91,7 @@ export const OrderCard = ({
                     : "bg-trading-red/20 text-trading-red"
                 }`}
               >
-                {type === "buy" ? "Yes" : "No"}
+                {type === "buy" ? "Buy" : "Sell"}
               </span>
             )}
             <span className="text-sm text-muted-foreground">{orderType}</span>
