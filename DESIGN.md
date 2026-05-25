@@ -447,6 +447,9 @@ import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 
 桌面/移动的 Trade 面板里，binary 单 market 事件的 Yes/No 切换器规范：
 
+> **前置规则 — 不渲染 Market / Option 选择行**：单 market binary 事件**不得**在事件 header 下方追加 `Market: X or Y` 标签行，也不渲染 `Select Option:` chip。对阵信息已由事件标题（"UFC 316 Headliner: Pereira vs Ankalaev?"）+ Trade 面板内 Yes/No 切换器的 `binaryLabels` 表达，重复一行只会浪费纵向空间。多 outcome 事件（总统大选、多队冠军等）才保留 `Select Option:` chip 行。
+
+
 - **容器**：`grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg`（独立卡片岛，与外层 Trade 面板背景区分）
 - **按钮**：`relative flex flex-col h-full rounded-md overflow-hidden`，**不固定高度**，由内容驱动；`h-full` 配合 grid 默认 `items-stretch` 保证两侧外壳等高
 - **上层 label 区**：

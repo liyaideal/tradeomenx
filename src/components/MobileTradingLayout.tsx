@@ -7,7 +7,7 @@ import { EventSelectorSheet } from "@/components/EventSelectorSheet";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
-import { isSingleMarketBinary, getBinarySideLabels } from "@/lib/eventUtils";
+import { isSingleMarketBinary } from "@/lib/eventUtils";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
@@ -155,28 +155,14 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         onFavoriteToggle={() => toggleFavorite(selectedEvent.id)}
       />
 
-      {/* Option Chips — 单 market binary 事件折叠成只读 market 标签；多 outcome 保持横排选择 */}
-      {(() => {
-        const binary = isSingleMarketBinary(options);
-        if (binary) {
-          const { yes, no } = getBinarySideLabels(selectedEvent);
-          return (
-            <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
-              <span className="text-xs text-muted-foreground flex-shrink-0">Market:</span>
-              <span className="text-xs text-foreground font-medium">
-                {yes} <span className="text-muted-foreground">or</span> {no}
-              </span>
-            </div>
-          );
-        }
-        return (
-          <OptionChips
-            options={options}
-            selectedId={selectedOption}
-            onSelect={setSelectedOption}
-          />
-        );
-      })()}
+      {/* Option Chips — 单 market binary 不渲染（对阵信息已在标题+Yes/No 切换器表达）；多 outcome 才显示横排选择 */}
+      {!isSingleMarketBinary(options) && (
+        <OptionChips
+          options={options}
+          selectedId={selectedOption}
+          onSelect={setSelectedOption}
+        />
+      )}
 
       {/* Charts/Trade Tabs with MM Indicator */}
       <div className="flex items-center justify-between px-4 py-1.5 border-b border-border/30">
