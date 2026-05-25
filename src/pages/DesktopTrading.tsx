@@ -1106,7 +1106,7 @@ export default function DesktopTrading() {
                               <span className="text-muted-foreground/40">—</span>
                             ) : (
                               <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                                {order.type === "buy" ? "Buy" : "Sell"}
+                                {orderDisplay}
                               </span>
                             )}
                           </td>
@@ -2095,9 +2095,7 @@ export default function DesktopTrading() {
               : orderOutcome === "no"
               ? "text-trading-red font-medium"
               : (order.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium");
-            const typeLabel = orderOutcome
-              ? `${orderDisplay} ${order.orderType}`
-              : `${order.type === "buy" ? "Buy" : "Sell"} ${order.orderType}`;
+            const typeLabel = `${orderDisplay} ${order.orderType}`;
             return (
               <div className="bg-muted/50 rounded-lg p-4 space-y-2 my-2">
                 <div className="flex items-center justify-between text-sm">
