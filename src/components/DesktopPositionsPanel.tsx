@@ -260,7 +260,7 @@ export const DesktopPositionsPanel = () => {
                       ? formatMarkPrice(realtimePnL.markPrice) 
                       : position.markPrice;
                     const isProfitable = realtimePnL.pnl >= 0;
-                    const isBinaryYesPosition = position.option.toLowerCase() === "yes";
+                    const optionDisplay = position.displayOption ?? position.option;
                     return (
                       <tr key={index} className="border-b border-border/30 hover:bg-muted/30">
                         <td className="px-3 py-2 text-sm">
@@ -281,21 +281,9 @@ export const DesktopPositionsPanel = () => {
                                 className="font-medium cursor-pointer border-b border-dashed border-muted-foreground hover:border-foreground hover:text-primary transition-colors max-w-[150px] truncate inline-block text-left"
                                 title="View position details"
                               >
-                                {position.option}
+                                {optionDisplay}
                               </button>
                             </PositionDetailDialog>
-                            {isBinaryYesPosition && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="w-3.5 h-3.5 text-trading-yellow cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-[250px]">
-                                    <p className="text-xs">Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped.</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
                             <span className="text-xs text-muted-foreground">{position.leverage}</span>
                           </div>
                         </td>
