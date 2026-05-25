@@ -241,7 +241,11 @@ export default function SettlementDetail() {
                 {/* Option - can wrap on mobile */}
                 <div className={`flex items-center gap-1.5 ${isMobile ? "w-full sm:w-auto mt-1 sm:mt-0" : ""}`}>
                   <span className="text-xs text-muted-foreground shrink-0">Option</span>
-                  <span className="text-sm font-medium text-foreground">{settlement.option}</span>
+                  {(() => {
+                    const o = getBinaryOutcome(settlement.option);
+                    const cls = o === "yes" ? "text-trading-green" : o === "no" ? "text-trading-red" : "text-foreground";
+                    return <span className={`text-sm font-medium ${cls}`}>{settlement.option}</span>;
+                  })()}
                 </div>
               </div>
             </div>
