@@ -471,16 +471,23 @@ export default function Portfolio() {
                       {/* Header */}
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Badge
-                            variant="outline"
-                            className={`text-[10px] ${
-                              position.type === "long"
-                                ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                                : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                            }`}
-                          >
-                            {position.type === "long" ? "Yes" : "No"}
-                          </Badge>
+                          {(() => {
+                            const lc = position.option.trim().toLowerCase();
+                            const isAlias = position.displayOption && position.displayOption !== position.option && (lc === "yes" || lc === "no");
+                            if (isAlias) return null;
+                            return (
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] ${
+                                  position.type === "long"
+                                    ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                    : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                                }`}
+                              >
+                                {position.type === "long" ? "Yes" : "No"}
+                              </Badge>
+                            );
+                          })()}
                           <span className="text-xs text-muted-foreground">
                             {position.leverage}
                           </span>
@@ -614,16 +621,23 @@ export default function Portfolio() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1.5">
-                              <Badge
-                                variant="outline"
-                                className={`text-[10px] ${
-                                  position.type === "long"
-                                    ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                                    : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                                }`}
-                              >
-                                {position.type === "long" ? "Yes" : "No"}
-                              </Badge>
+                              {(() => {
+                                const lc = position.option.trim().toLowerCase();
+                                const isAlias = position.displayOption && position.displayOption !== position.option && (lc === "yes" || lc === "no");
+                                if (isAlias) return null;
+                                return (
+                                  <Badge
+                                    variant="outline"
+                                    className={`text-[10px] ${
+                                      position.type === "long"
+                                        ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                        : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                                    }`}
+                                  >
+                                    {position.type === "long" ? "Yes" : "No"}
+                                  </Badge>
+                                );
+                              })()}
                               <span className="text-xs text-muted-foreground">
                                 {position.leverage}
                               </span>

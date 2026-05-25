@@ -56,6 +56,10 @@ export const PositionCard = ({
   position: fullPosition,
 }: PositionCardProps) => {
   const optionDisplay = displayOption ?? option;
+  // 当 displayOption 已经是 binary 别名（如 "Alex Pereira"），option 原值是 "Yes"/"No"，
+  // 再渲染一个 Yes/No 侧别 chip 就是重复信息 → 隐藏。
+  const lcOpt = option.trim().toLowerCase();
+  const isBinaryAlias = displayOption !== undefined && displayOption !== option && (lcOpt === "yes" || lcOpt === "no");
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
   
@@ -198,15 +202,17 @@ export const PositionCard = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span
-              className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                type === "long"
-                  ? "bg-trading-green/20 text-trading-green"
-                  : "bg-trading-red/20 text-trading-red"
-              }`}
-            >
-              {type === "long" ? "Yes" : "No"}
-            </span>
+            {!isBinaryAlias && (
+              <span
+                className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                  type === "long"
+                    ? "bg-trading-green/20 text-trading-green"
+                    : "bg-trading-red/20 text-trading-red"
+                }`}
+              >
+                {type === "long" ? "Yes" : "No"}
+              </span>
+            )}
             <span className="text-xs text-muted-foreground">{leverage}</span>
             {isAirdrop && (
               <span className="inline-flex items-center gap-0.5 bg-primary/20 text-primary border border-primary/30 text-[9px] font-semibold px-1.5 py-0 rounded">
@@ -336,7 +342,7 @@ export const PositionCard = ({
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Position</span>
               <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
-                {type === "long" ? "Yes" : "No"} {leverage}
+                {isBinaryAlias ? optionDisplay : (type === "long" ? "Yes" : "No")} {leverage}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs">

@@ -156,6 +156,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
                 side={side}
                 onSideChange={setSide}
                 binaryMode={binaryMode}
+                sideLabels={isBinary ? labels : null}
               />
             );
           })()}

@@ -50,8 +50,17 @@ export const toCanonicalOrder = (optionLabel: string, side: "buy" | "sell", clic
   price: +clickedPrice.toFixed(4),
 });
 
-export const getIntentLabel = (intent: OrderIntent, uiSide: "buy" | "sell") => {
-  const label = intent.canonical.optionLabel;
+export const getIntentLabel = (
+  intent: OrderIntent,
+  uiSide: "buy" | "sell",
+  sideLabels?: { yes: string; no: string } | null,
+) => {
+  const raw = intent.canonical.optionLabel;
+  // 对 binary 单 market 的 "Yes"/"No" 做别名翻译；其他 optionLabel 原样返回
+  const lc = raw.trim().toLowerCase();
+  const label = sideLabels && (lc === "yes" || lc === "no")
+    ? (lc === "yes" ? sideLabels.yes : sideLabels.no)
+    : raw;
   if (intent.kind === "reduce") return `Reduce ${label}`;
   if (intent.kind === "close") return `Close ${label}`;
   if (intent.kind === "blocked-cross-zero") return "Close existing position first";

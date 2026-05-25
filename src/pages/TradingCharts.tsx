@@ -17,6 +17,7 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { cn } from "@/lib/utils";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
+import { getBinarySideLabels, isSingleMarketBinary } from "@/lib/eventUtils";
 import { ArrowRight } from "lucide-react";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
@@ -24,9 +25,10 @@ const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 interface TradingChartsContentProps {
   selectedEvent: TradingContextData['selectedEvent'];
   selectedOptionData: TradingContextData['selectedOptionData'];
+  options: TradingContextData['options'];
 }
 
-function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChartsContentProps) {
+function TradingChartsContent({ selectedEvent, selectedOptionData, options }: TradingChartsContentProps) {
   const navigate = useNavigate();
   const { positions, isLoading: positionsLoading } = usePositions();
   const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
@@ -40,6 +42,12 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
   const sideKey = tradeSideKey(selectedEvent.id, selectedOptionData.id);
   const side = useTradeSideStore((s) => s.sideByKey[sideKey] ?? "buy");
   const setSide = useTradeSideStore((s) => s.setSide);
+
+  // binary 单 market 别名（如体育队名）；非 binary 时回退 "Yes"/"No"
+  const isBinary = isSingleMarketBinary(options);
+  const sideLabels = getBinarySideLabels(selectedEvent);
+  const yesLabel = isBinary ? sideLabels.yes : "Yes";
+  const noLabel = isBinary ? sideLabels.no : "No";
 
   // Mirror price for sell perspective (Yes-only model: Sell = 1 - p)
   const longPrice = parseFloat(selectedOptionData.price);
@@ -116,7 +124,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
                 ? "bg-trading-green/15 text-trading-green"
                 : "bg-trading-red/15 text-trading-red"
             )}>
-              {side === "buy" ? "Yes" : "No"}
+              {side === "buy" ? yesLabel : noLabel}
             </span>
           </div>
         </div>
@@ -299,7 +307,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
                 : "bg-trading-green/15 text-trading-green border border-trading-green/30"
             )}
           >
-            <span>Yes</span>
+            <span>{yesLabel}</span>
             {side === "buy" && <ArrowRight className="w-3.5 h-3.5" />}
           </button>
           <button
@@ -312,7 +320,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
                 : "bg-trading-red/15 text-trading-red border border-trading-red/30"
             )}
           >
-            <span>No</span>
+            <span>{noLabel}</span>
             {side === "sell" && <ArrowRight className="w-3.5 h-3.5" />}
           </button>
         </div>
@@ -328,6 +336,7 @@ export default function TradingCharts() {
         <TradingChartsContent
           selectedEvent={context.selectedEvent}
           selectedOptionData={context.selectedOptionData}
+          options={context.options}
         />
       )}
     </MobileTradingLayout>

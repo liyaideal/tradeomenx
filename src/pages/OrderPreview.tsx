@@ -54,6 +54,11 @@ export default function OrderPreview() {
   // Get event and option from order data or use defaults
   const eventName = orderData.event || "Elon Musk # tweets December 12 - December 19, 2025?";
   const optionLabel = orderData.option || "200-219";
+  const sideLabels: { yes: string; no: string } | null = orderData.sideLabels ?? null;
+  const lcOpt = optionLabel.trim().toLowerCase();
+  const sideDisplay = sideLabels && (lcOpt === "yes" || lcOpt === "no")
+    ? (isBuy ? sideLabels.yes : sideLabels.no)
+    : (isBuy ? "Yes" : "No");
   const totalCost = parseFloat(orderCalculations.total) || 0;
   const orderIntent = useMemo(() => classifyOrderIntent({
     positions,
@@ -76,7 +81,7 @@ export default function OrderPreview() {
   const orderDetails: OrderDetail[] = [
     { label: "Event", value: eventName },
     { label: "Option", value: optionLabel },
-    { label: "Side", value: isBuy ? "Yes" : "No", highlight: isBuy ? "green" : "red" },
+    { label: "Side", value: sideDisplay, highlight: isBuy ? "green" : "red" },
     { label: "Margin type", value: orderData.marginType || "Cross" },
     { label: "Type", value: orderData.orderType || "Market" },
     { label: "Order Price", value: `${orderData.price || "0.0000"} USDC` },
@@ -224,7 +229,7 @@ export default function OrderPreview() {
             </>
           ) : (
             <>
-              {getIntentLabel(orderIntent, orderData.side || "buy")} - to win $ {potentialWin.toLocaleString()}
+              {getIntentLabel(orderIntent, orderData.side || "buy", sideLabels)} - to win $ {potentialWin.toLocaleString()}
             </>
           )}
         </button>
