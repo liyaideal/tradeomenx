@@ -104,8 +104,9 @@ export const OrderCard = ({
         {/* Event Info */}
         <div className="mb-2">
           <h3 className="font-medium text-foreground text-sm">{event}</h3>
-          <p className="text-xs text-muted-foreground">
-            {optionDisplay}{probability ? ` · ${probability}` : ""}
+          <p className="text-xs">
+            <span className={isBinary ? `${outcomeTextColor} font-medium` : "text-muted-foreground"}>{optionDisplay}</span>
+            {probability ? <span className="text-muted-foreground"> · {probability}</span> : null}
           </p>
         </div>
 
