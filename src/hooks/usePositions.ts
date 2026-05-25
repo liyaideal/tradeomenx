@@ -3,6 +3,7 @@ import { useAuth } from "./useAuth";
 import { useSupabasePositions, SupabasePosition } from "./useSupabasePositions";
 import { usePositionsStore, Position as LocalPosition } from "@/stores/usePositionsStore";
 import { useAirdropPositions, AirdropPosition } from "./useAirdropPositions";
+import { useEventDisplayLookup } from "./useEventDisplayLookup";
 
 // Unified position interface for components
 export interface UnifiedPosition {
