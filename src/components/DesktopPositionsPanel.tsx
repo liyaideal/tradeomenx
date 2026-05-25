@@ -282,7 +282,7 @@ export const DesktopPositionsPanel = () => {
                                         : "bg-trading-red/20 text-trading-red"
                                     }`}
                                   >
-                                    {position.option}
+                                    {position.type === "long" ? "Yes" : "No"}
                                   </span>
                                 )}
                                 <PositionDetailDialog
@@ -444,7 +444,7 @@ export const DesktopPositionsPanel = () => {
                               ? "bg-trading-green/20 text-trading-green"
                               : "bg-trading-red/20 text-trading-red"
                           }`}>
-                            {order.type === "buy" ? "Buy" : "Sell"}
+                            {order.type === "buy" ? "Yes" : "No"}
                           </span>
                         )}
                       </td>
