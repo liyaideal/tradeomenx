@@ -807,16 +807,20 @@ export default function Portfolio() {
                     {/* Header */}
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] ${
-                            settlement.side === "long"
-                              ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                              : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                          }`}
-                        >
-                          {settlement.side === "long" ? "Yes" : "No"}
-                        </Badge>
+                        {getBinaryOutcome(settlement.option) ? (
+                          <span className="text-xs text-muted-foreground/40">—</span>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] ${
+                              settlement.side === "long"
+                                ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                            }`}
+                          >
+                            {settlement.side === "long" ? "Yes" : "No"}
+                          </Badge>
+                        )}
                         <Badge
                           variant="outline"
                           className={`text-[10px] ${
@@ -947,16 +951,20 @@ export default function Portfolio() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1.5">
-                            <Badge
-                              variant="outline"
-                              className={`text-[10px] ${
-                                settlement.side === "long"
-                                  ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                                  : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                              }`}
-                            >
-                              {settlement.side === "long" ? "Yes" : "No"}
-                            </Badge>
+                            {getBinaryOutcome(settlement.option) ? (
+                              <span className="text-xs text-muted-foreground/40">—</span>
+                            ) : (
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] ${
+                                  settlement.side === "long"
+                                    ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                    : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                                }`}
+                              >
+                                {settlement.side === "long" ? "Yes" : "No"}
+                              </Badge>
+                            )}
                             <span className="text-xs text-muted-foreground">
                               {settlement.leverage}
                             </span>
