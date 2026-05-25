@@ -194,7 +194,7 @@ export const OrderCard = ({
             <span className="text-muted-foreground">Order Type</span>
             <span className={`${sideColor} font-medium`}>
               <AlertTriangle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
-              {sideText} {orderType}
+              {sideText ? `${sideText} ${orderType}` : orderType}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
