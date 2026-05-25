@@ -18,10 +18,10 @@ interface LiquidationRecord {
   closed_at: string;
 }
 
-/** positionSide enum: 0 = Long, 1 = Short */
+/** positionSide enum: 0 = Long(Yes), 1 = Short(No) */
 const POSITION_SIDE_ENUM: Record<string, { raw: number; label: string }> = {
-  long: { raw: 0, label: "Long" },
-  short: { raw: 1, label: "Short" },
+  long: { raw: 0, label: "Yes" },
+  short: { raw: 1, label: "No" },
 };
 
 /** Convert decimal price to 6-decimal integer (on-chain representation) */
