@@ -210,37 +210,46 @@ export const TradeForm = ({
 
   return (
     <div className="px-3 pb-2 space-y-2">
-      {/* Yes/No Toggle with embedded prices */}
+      {/* Yes/No Toggle — binary 单 market 下点击切换 option（联动 K 线/订单簿），否则切换 side */}
       <div className="space-y-1">
         <div className="flex bg-muted rounded-lg p-0.5">
           <button
-            onClick={() => setSide("buy")}
+            onClick={() => (binaryMode ? binaryMode.onSelectYes() : setSide("buy"))}
             className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
-              side === "buy"
+              (binaryMode ? binaryMode.isYesSelected : side === "buy")
                 ? "bg-trading-green text-trading-green-foreground"
                 : "text-muted-foreground"
             }`}
           >
-            <span className="text-xs font-semibold leading-tight">Yes</span>
-            <span className={`text-[11px] font-mono leading-tight ${side === "buy" ? "opacity-90" : "opacity-70"}`}>
-              {longPrice.toFixed(4)}
+            <span className="text-xs font-semibold leading-tight">
+              {binaryMode?.yesLabel ?? "Yes"}
+            </span>
+            <span className={`text-[11px] font-mono leading-tight ${
+              (binaryMode ? binaryMode.isYesSelected : side === "buy") ? "opacity-90" : "opacity-70"
+            }`}>
+              {(binaryMode?.yesPrice ?? longPrice).toFixed(4)}
             </span>
           </button>
           <button
-            onClick={() => setSide("sell")}
+            onClick={() => (binaryMode ? binaryMode.onSelectNo() : setSide("sell"))}
             className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
-              side === "sell"
+              (binaryMode ? !binaryMode.isYesSelected : side === "sell")
                 ? "bg-trading-red text-foreground"
                 : "text-muted-foreground"
             }`}
           >
-            <span className="text-xs font-semibold leading-tight">No</span>
-            <span className={`text-[11px] font-mono leading-tight ${side === "sell" ? "opacity-90" : "opacity-70"}`}>
-              {shortPrice.toFixed(4)}
+            <span className="text-xs font-semibold leading-tight">
+              {binaryMode?.noLabel ?? "No"}
+            </span>
+            <span className={`text-[11px] font-mono leading-tight ${
+              (binaryMode ? !binaryMode.isYesSelected : side === "sell") ? "opacity-90" : "opacity-70"
+            }`}>
+              {(binaryMode?.noPrice ?? shortPrice).toFixed(4)}
             </span>
           </button>
         </div>
       </div>
+
 
 
       {/* Margin & Leverage */}
