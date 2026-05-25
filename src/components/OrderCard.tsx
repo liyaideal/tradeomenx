@@ -86,7 +86,7 @@ export const OrderCard = ({
                     : "bg-trading-red/20 text-trading-red"
                 }`}
               >
-                Yes
+                {type === "buy" ? "Yes" : "No"}
               </span>
             )}
             <span className="text-sm text-muted-foreground">{orderType}</span>
