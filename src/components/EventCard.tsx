@@ -24,6 +24,7 @@ import { getCategoryFromName, CATEGORY_STYLES, CategoryType } from "@/lib/catego
 import { LivePrice } from "@/components/LivePrice";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { usePriceHistory } from "@/hooks/usePriceHistory";
+import { isSingleMarketBinary } from "@/lib/eventUtils";
 
 export type EventStatus = "active" | "locked" | "resolved";
 
@@ -712,12 +713,14 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                 <span className="text-muted-foreground text-sm">Option</span>
                 <span className="text-sm">{selectedOptionData.label}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-border/20">
-                <span className="text-muted-foreground text-sm">Side</span>
-                <span className={`text-sm font-medium ${tradeSide === "long" ? "text-trading-green" : "text-trading-red"}`}>
-                  {tradeSide === "long" ? "Yes" : "No"}
-                </span>
-              </div>
+              {!isSingleMarketBinary(event.options) && (
+                <div className="flex justify-between py-2 border-b border-border/20">
+                  <span className="text-muted-foreground text-sm">Side</span>
+                  <span className={`text-sm font-medium ${tradeSide === "long" ? "text-trading-green" : "text-trading-red"}`}>
+                    {tradeSide === "long" ? "Yes" : "No"}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between py-2 border-b border-border/20">
                 <span className="text-muted-foreground text-sm">Order Type</span>
                 <Badge variant="info" className="text-xs">Market</Badge>
