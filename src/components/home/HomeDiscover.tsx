@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { getCategoryFromName } from "@/lib/categoryUtils";
+import { getDisplayOptionLabel, parseSideLabels } from "@/lib/eventUtils";
 
 const getCountdown = (endTime: Date) => {
   const now = new Date();
