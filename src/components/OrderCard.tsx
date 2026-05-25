@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle } from "lucide-react";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 
 interface OrderCardProps {
   type: "buy" | "sell";
@@ -37,9 +38,13 @@ export const OrderCard = ({
   onFill,
 }: OrderCardProps) => {
   const optionDisplay = displayOption ?? option;
-  const lcOpt = option.trim().toLowerCase();
-  const isBinaryAlias = displayOption !== undefined && displayOption !== option && (lcOpt === "yes" || lcOpt === "no");
-  const sideText = isBinaryAlias ? optionDisplay : (type === "buy" ? "Yes" : "No");
+  const outcome = getBinaryOutcome(option);
+  const isBinary = outcome !== null;
+  const outcomeTextColor = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : "";
+  const sideText = isBinary ? optionDisplay : (type === "buy" ? "Buy" : "Sell");
+  const sideColor = isBinary
+    ? outcomeTextColor
+    : (type === "buy" ? "text-trading-green" : "text-trading-red");
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [fillDialogOpen, setFillDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -78,7 +83,7 @@ export const OrderCard = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            {!isBinaryAlias && (
+            {!isBinary && (
               <span
                 className={`px-2 py-0.5 rounded text-xs font-semibold ${
                   type === "buy"
@@ -86,7 +91,7 @@ export const OrderCard = ({
                     : "bg-trading-red/20 text-trading-red"
                 }`}
               >
-                {type === "buy" ? "Yes" : "No"}
+                {type === "buy" ? "Buy" : "Sell"}
               </span>
             )}
             <span className="text-sm text-muted-foreground">{orderType}</span>
@@ -99,8 +104,9 @@ export const OrderCard = ({
         {/* Event Info */}
         <div className="mb-2">
           <h3 className="font-medium text-foreground text-sm">{event}</h3>
-          <p className="text-xs text-muted-foreground">
-            {optionDisplay}{probability ? ` · ${probability}` : ""}
+          <p className="text-xs">
+            <span className={isBinary ? `${outcomeTextColor} font-medium` : "text-muted-foreground"}>{optionDisplay}</span>
+            {probability ? <span className="text-muted-foreground"> · {probability}</span> : null}
           </p>
         </div>
 
@@ -138,7 +144,7 @@ export const OrderCard = ({
         <div className="bg-muted/50 rounded-lg p-3 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Order Type</span>
-            <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
+            <span className={`${sideColor} font-medium`}>
               <CheckCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
               {sideText} {orderType}
             </span>
@@ -185,7 +191,7 @@ export const OrderCard = ({
         <div className="bg-muted/50 rounded-lg p-3 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Order Type</span>
-            <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
+            <span className={`${sideColor} font-medium`}>
               <AlertTriangle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
               {sideText} {orderType}
             </span>

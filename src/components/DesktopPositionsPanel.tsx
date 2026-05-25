@@ -420,22 +420,33 @@ export const DesktopPositionsPanel = () => {
                     </td>
                   </tr>
                 ) : (
-                  orders.map((order, index) => (
+                  orders.map((order, index) => {
+                    const orderOutcome = getBinaryOutcome(order.option);
+                    const orderLabelColor = orderOutcome === "yes"
+                      ? "text-trading-green"
+                      : orderOutcome === "no"
+                      ? "text-trading-red"
+                      : "text-foreground";
+                    return (
                     <tr key={order.id || index} className="border-b border-border/30 hover:bg-muted/30">
                       <td className="px-3 py-2 text-sm">
                         <div className="flex flex-col">
-                          <span className="font-medium max-w-[150px] truncate">{order.displayOption ?? order.option}</span>
+                          <span className={`font-medium max-w-[150px] truncate ${orderLabelColor}`}>{order.displayOption ?? order.option}</span>
                           <span className="text-xs text-muted-foreground max-w-[150px] truncate">{order.event}</span>
                         </div>
                       </td>
                       <td className="px-3 py-2 text-sm">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                          order.type === "buy"
-                            ? "bg-trading-green/20 text-trading-green"
-                            : "bg-trading-red/20 text-trading-red"
-                        }`}>
-                          {order.type === "buy" ? "Yes" : "No"}
-                        </span>
+                        {orderOutcome ? (
+                          <span className="text-muted-foreground/40">—</span>
+                        ) : (
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                            order.type === "buy"
+                              ? "bg-trading-green/20 text-trading-green"
+                              : "bg-trading-red/20 text-trading-red"
+                          }`}>
+                            {order.type === "buy" ? "Buy" : "Sell"}
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-2 text-sm text-muted-foreground">{order.orderType}</td>
                       <td className="px-3 py-2 text-sm font-mono">{order.price}</td>
@@ -472,7 +483,8 @@ export const DesktopPositionsPanel = () => {
                         </div>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>
