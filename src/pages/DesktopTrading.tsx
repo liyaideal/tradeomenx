@@ -1827,11 +1827,15 @@ export default function DesktopTrading() {
             <div className="space-y-2 border-b border-border/30 pb-4">
               <p className="text-sm font-medium text-foreground pr-6 line-clamp-2">{selectedEvent?.name}</p>
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm text-muted-foreground truncate">{selectedOptionData.label}</span>
+                <span className={`text-sm truncate font-medium ${isBinarySingleMarket ? (previewSideColor === "green" ? "text-trading-green" : "text-trading-red") : "text-muted-foreground"}`}>
+                  {previewOptionLabel}
+                </span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={`rounded px-2 py-1 text-xs font-semibold ${previewSideColor === "green" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
-                    {previewSideLabel}
-                  </span>
+                  {!isBinarySingleMarket && (
+                    <span className={`rounded px-2 py-1 text-xs font-semibold ${previewSideColor === "green" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
+                      {previewSideLabel}
+                    </span>
+                  )}
                   <span className="rounded bg-muted px-2 py-1 text-xs font-semibold capitalize text-foreground">{formattedIntent}</span>
                 </div>
               </div>
