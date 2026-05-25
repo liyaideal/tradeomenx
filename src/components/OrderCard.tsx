@@ -91,7 +91,7 @@ export const OrderCard = ({
                     : "bg-trading-red/20 text-trading-red"
                 }`}
               >
-                {type === "buy" ? "Buy" : "Sell"}
+                {optionDisplay}
               </span>
             )}
             <span className="text-sm text-muted-foreground">{orderType}</span>
