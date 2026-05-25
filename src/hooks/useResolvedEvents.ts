@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { parseSideLabels } from "@/lib/eventUtils";
 
 export interface ResolvedEventOption {
   id: string;
@@ -21,6 +22,8 @@ export interface ResolvedEvent {
   settled_at: string | null;
   winning_option_id: string | null;
   options: ResolvedEventOption[];
+  /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
+  sideLabels?: { yes: string; no: string };
   userParticipated: boolean;
   userPnl: number | null;
 }
