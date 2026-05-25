@@ -11,6 +11,8 @@ export interface UnifiedPosition {
   type: "long" | "short";
   event: string;
   option: string;
+  /** Display label after applying sideLabels (e.g. team name). Falls back to option. */
+  displayOption?: string;
   optionId?: string | null; // Direct reference to event_options for realtime price lookup
   entryPrice: string;
   markPrice: string;
