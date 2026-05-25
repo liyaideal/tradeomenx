@@ -219,7 +219,8 @@ export const PositionCard = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            {!isBinaryAlias && (
+            {!outcome && (
+              // 仅多 outcome 事件保留 Buy/Sell 配色 chip；binary 行 outcome 颜色挪到下方主标签
               <span className={`px-2 py-0.5 rounded text-xs font-semibold ${outcomeColorBg}`}>
                 {outcomeLabel}
               </span>
@@ -250,7 +251,9 @@ export const PositionCard = ({
           >
             <h3 className="font-medium text-foreground text-sm truncate">{event}</h3>
             <div className="flex items-center gap-2">
-              <p className="text-xs text-muted-foreground">{optionDisplay}</p>
+              <p className={`text-xs ${outcome ? outcomeColorText : "text-muted-foreground"}`}>
+                {optionDisplay}
+              </p>
               {fullPosition && (
                 <span className="text-[10px] text-primary">Details ›</span>
               )}
