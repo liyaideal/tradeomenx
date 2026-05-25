@@ -160,9 +160,10 @@ export const DesktopTradeForm = ({ selectedPrice = "0.1234", symbol = "BTC" }: D
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
-              Price <span className={side === "buy" ? "text-trading-green" : "text-trading-red"}>({side === "buy" ? "Long" : "Short"})</span>
+              Price <span className={side === "buy" ? "text-trading-green" : "text-trading-red"}>({side === "buy" ? "Yes" : "No"})</span>
             </span>
           </div>
+
           <div className="flex items-center bg-muted rounded-lg">
             <input
               type="text"
