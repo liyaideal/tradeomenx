@@ -18,6 +18,7 @@ export interface TradingContextData {
   selectedOption: string;
   selectedOptionData: EventOption;
   options: EventOption[];
+  setSelectedOption: (optionId: string) => void;
 }
 
 interface MobileTradingLayoutProps {
