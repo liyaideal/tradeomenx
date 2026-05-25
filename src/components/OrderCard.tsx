@@ -53,7 +53,7 @@ export const OrderCard = ({
     onCancel?.();
     toast({
       title: "Order Cancelled",
-      description: `Your ${type} order for ${option} has been cancelled.`,
+      description: `Your ${type} order for ${optionDisplay} has been cancelled.`,
     });
     setCancelDialogOpen(false);
   };
@@ -62,7 +62,7 @@ export const OrderCard = ({
     onFill?.();
     toast({
       title: "Order Filled",
-      description: `Your ${type} order for ${option} has been executed. Check your positions.`,
+      description: `Your ${type} order for ${optionDisplay} has been executed. Check your positions.`,
     });
     setFillDialogOpen(false);
   };
@@ -95,7 +95,7 @@ export const OrderCard = ({
         <div className="mb-2">
           <h3 className="font-medium text-foreground text-sm">{event}</h3>
           <p className="text-xs text-muted-foreground">
-            {option}{probability ? ` · ${probability}` : ""}
+            {optionDisplay}{probability ? ` · ${probability}` : ""}
           </p>
         </div>
 
@@ -140,7 +140,7 @@ export const OrderCard = ({
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Contract</span>
-            <span className="font-medium">{option}</span>
+            <span className="font-medium">{optionDisplay}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Price</span>
@@ -187,7 +187,7 @@ export const OrderCard = ({
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Contract</span>
-            <span className="font-medium">{option}</span>
+            <span className="font-medium">{optionDisplay}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Price</span>
