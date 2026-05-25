@@ -63,7 +63,7 @@ export const TradeForm = ({
   const feeRate = 0.0005; // 0.05% trading fee
   const longPrice = parseFloat(selectedPrice);
   const shortPrice = +(1 - longPrice).toFixed(4);
-  // Side-specific execution price (Buy = Long, Sell = Short)
+  // Side-specific execution price (Buy = Yes, Sell = No)
   const currentPrice = side === "buy" ? longPrice : shortPrice;
 
   // Calculate TP/SL prices based on percentage
