@@ -6,6 +6,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { usePositions } from "@/hooks/usePositions";
 
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
+import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 
 interface TradeFormProps {
   selectedPrice?: string;
@@ -512,17 +513,14 @@ export const TradeForm = ({
       )}
 
       {/* Submit Button */}
-      <button
+      <TradeSubmitButton
+        side={side}
+        label={getIntentLabel(orderIntent, side, sideLabels)}
+        potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
         onClick={handlePreview}
         disabled={orderIntent.kind === "blocked-cross-zero"}
-        className={`w-full py-2 rounded-lg font-semibold text-xs transition-all duration-200 active:scale-[0.98] ${
-          side === "buy"
-            ? "bg-trading-green text-trading-green-foreground"
-            : "bg-trading-red text-foreground"
-        } ${orderIntent.kind === "blocked-cross-zero" ? "opacity-60 cursor-not-allowed" : ""}`}
-      >
-        {getIntentLabel(orderIntent, side, sideLabels)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
-      </button>
+        size="sm"
+      />
     </div>
   );
 };
