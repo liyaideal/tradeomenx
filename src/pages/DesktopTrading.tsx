@@ -63,6 +63,7 @@ import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import { Badge } from "@/components/ui/badge";
+import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
