@@ -85,8 +85,12 @@ export default function OrderPreview() {
 
   const orderDetails: OrderDetail[] = [
     { label: "Event", value: eventName },
-    { label: "Option", value: optionLabel },
-    { label: "Side", value: sideDisplay, highlight: sideHighlight },
+    ...(isBinaryOption
+      ? [{ label: "Option", value: sideDisplay, highlight: sideHighlight as "green" | "red" }]
+      : [
+          { label: "Option", value: optionLabel },
+          { label: "Side", value: sideDisplay, highlight: sideHighlight as "green" | "red" },
+        ]),
     { label: "Margin type", value: orderData.marginType || "Cross" },
     { label: "Type", value: orderData.orderType || "Market" },
     { label: "Order Price", value: `${orderData.price || "0.0000"} USDC` },
