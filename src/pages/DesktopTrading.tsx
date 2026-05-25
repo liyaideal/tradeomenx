@@ -1439,7 +1439,7 @@ export default function DesktopTrading() {
                 className="relative flex flex-col rounded-md overflow-hidden transition-all"
               >
                 <div
-                  className={`relative flex-1 flex items-center justify-center px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
+                  className={`relative flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
                     !isYesSelected
                       ? "bg-trading-red text-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
