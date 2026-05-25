@@ -1,11 +1,6 @@
 import { useState, useMemo } from "react";
-import { TrendingUp, TrendingDown, Pencil, Info, Gift, Lock } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil, Gift, Lock } from "lucide-react";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
