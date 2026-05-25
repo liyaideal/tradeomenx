@@ -124,3 +124,13 @@ export const SETTLEMENT_TABLE_HEADERS = {
   RESULT: TRADING_TERMS.RESULT,
   ACTION: TRADING_TERMS.ACTION,
 } as const;
+
+/**
+ * Direction label helpers — UI 全站统一用 Yes/No 展示。
+ * 底层字段保持 'long'|'short'、'buy'|'sell'，仅在渲染层映射。
+ */
+export const sideLabel = (s: "long" | "short" | string): "Yes" | "No" =>
+  s === "long" ? "Yes" : "No";
+
+export const orderSideLabel = (s: "buy" | "sell" | string): "Yes" | "No" =>
+  s === "buy" ? "Yes" : "No";
