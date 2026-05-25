@@ -110,12 +110,15 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
       const catInfo = getCategoryInfo(event.category);
       const seed = event.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
 
+      const sideLabels = parseSideLabels(event.side_labels);
+
       // Build child market rows
       const children: MarketChildRow[] = event.options.map((opt, i) => {
         const optSeed = seed + i * 137;
         return {
           id: opt.id,
           optionLabel: opt.label,
+          displayLabel: getDisplayOptionLabel(opt.label, event.options, sideLabels),
           markPrice: opt.price,
           change1h: parseFloat(mockValue(optSeed + 10, -5, 5).toFixed(2)),
           change4h: parseFloat(mockValue(optSeed + 11, -10, 10).toFixed(2)),
