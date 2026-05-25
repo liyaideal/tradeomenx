@@ -29,6 +29,8 @@ interface TradeFormProps {
     onSelectYes: () => void;
     onSelectNo: () => void;
   };
+  /** binary 单 market 事件的两端别名（如体育队名），用于提交按钮等文案翻译 */
+  sideLabels?: { yes: string; no: string } | null;
 }
 
 
@@ -40,6 +42,7 @@ export const TradeForm = ({
   side: controlledSide,
   onSideChange,
   binaryMode,
+  sideLabels,
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance } = useUserProfile();
@@ -517,7 +520,7 @@ export const TradeForm = ({
             : "bg-trading-red text-foreground"
         } ${orderIntent.kind === "blocked-cross-zero" ? "opacity-60 cursor-not-allowed" : ""}`}
       >
-        {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+        {getIntentLabel(orderIntent, side, sideLabels)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
       </button>
     </div>
   );
