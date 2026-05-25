@@ -16,6 +16,19 @@ interface TradeFormProps {
   /** 受控 side：传入则由父组件管理，用于与 OrderBook 联动 */
   side?: "buy" | "sell";
   onSideChange?: (next: "buy" | "sell") => void;
+  /**
+   * 单 market binary 模式：传入后，Yes/No 按钮变成 option 切换器，
+   * 点击 No 不再翻转 side，而是切换 selectedOption 到 No 端的 long 仓位入口。
+   */
+  binaryMode?: {
+    yesLabel: string;
+    noLabel: string;
+    yesPrice: number;
+    noPrice: number;
+    isYesSelected: boolean;
+    onSelectYes: () => void;
+    onSelectNo: () => void;
+  };
 }
 
 
