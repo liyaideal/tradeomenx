@@ -1393,8 +1393,8 @@ export default function DesktopTrading() {
             </div>
 
             <div className="px-4 py-3 space-y-3">
-            {/* Yes/No Toggle — v3 双层结构（队名 + 底部价格条），与 TradeForm 一致 */}
-            <div className="grid grid-cols-2 gap-2 p-1 bg-background rounded-lg">
+            {/* Yes/No Toggle — v3 双层结构（队名 + 底部独立价格条），与 TradeForm 一致 */}
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg">
               <button
                 onClick={() => {
                   setSide("buy");
@@ -1405,7 +1405,7 @@ export default function DesktopTrading() {
                 className="relative flex flex-col h-14 rounded-md overflow-hidden transition-all"
               >
                 <div
-                  className={`flex-1 flex items-center justify-center px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
+                  className={`relative flex-1 flex items-center justify-center px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
                     isYesSelected
                       ? "bg-trading-green text-trading-green-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -1417,8 +1417,10 @@ export default function DesktopTrading() {
                   )}
                 </div>
                 <div
-                  className={`h-5 flex items-center justify-center text-[10px] font-mono ${
-                    isYesSelected ? "bg-black/15 text-trading-green-foreground" : "bg-black/20 text-muted-foreground"
+                  className={`h-[22px] flex items-center justify-center text-[11px] font-mono border-t ${
+                    isYesSelected
+                      ? "bg-trading-green/85 text-trading-green-foreground border-black/20"
+                      : "bg-muted-foreground/15 text-foreground/80 border-border/40"
                   }`}
                 >
                   {yesPrice.toFixed(4)}
@@ -1427,7 +1429,7 @@ export default function DesktopTrading() {
               <button
                 onClick={() => {
                   if (isBinarySingleMarket && yesNoOptions.no) {
-                    // binary 模式：Buy No 是 No 端的 long 仓位，不再是 Yes 端的 sell
+                    // binary 模式：Buy No 是 No 端的 long 仓位
                     setSide("buy");
                     setSelectedOption(yesNoOptions.no.id);
                   } else {
@@ -1437,7 +1439,7 @@ export default function DesktopTrading() {
                 className="relative flex flex-col h-14 rounded-md overflow-hidden transition-all"
               >
                 <div
-                  className={`flex-1 flex items-center justify-center px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
+                  className={`relative flex-1 flex items-center justify-center px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
                     !isYesSelected
                       ? "bg-trading-red text-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -1449,8 +1451,10 @@ export default function DesktopTrading() {
                   )}
                 </div>
                 <div
-                  className={`h-5 flex items-center justify-center text-[10px] font-mono ${
-                    !isYesSelected ? "bg-black/15 text-foreground" : "bg-black/20 text-muted-foreground"
+                  className={`h-[22px] flex items-center justify-center text-[11px] font-mono border-t ${
+                    !isYesSelected
+                      ? "bg-trading-red/85 text-foreground border-black/20"
+                      : "bg-muted-foreground/15 text-foreground/80 border-border/40"
                   }`}
                 >
                   {noPrice.toFixed(4)}
