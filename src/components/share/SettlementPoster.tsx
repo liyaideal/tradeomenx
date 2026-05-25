@@ -53,7 +53,9 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
     const themeStyle = posterThemes[theme];
     const isWin = result === 'win';
     const isLong = side === 'long';
-    const sideText = sideLabels ? (isLong ? sideLabels.yes : sideLabels.no) : (isLong ? 'Yes' : 'No');
+    const isBinaryOption = option.trim().toLowerCase() === 'yes' || option.trim().toLowerCase() === 'no';
+    const binaryAlias = sideLabels ? (isLong ? sideLabels.yes : sideLabels.no) : null;
+    const directionText = isLong ? 'Yes' : 'No';
     const settledDate = format(new Date(settledAt), 'MMM d, yyyy');
 
     // Side colors
@@ -228,24 +230,31 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
             {event}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            {/* Side Badge */}
-            <span style={{
-              padding: '3px 8px',
-              borderRadius: '4px',
-              background: sideBg,
-              border: `1px solid ${sideBorder}`,
-              color: sideColor,
-              fontSize: '10px',
-              fontWeight: 600,
-            }}>
-              {sideText} {leverage}x
-            </span>
-            {/* Option */}
-            <span style={{ fontSize: '11px', color: posterColors.textSecondary }}>
-              {option}
-            </span>
+            {isBinaryOption ? (
+              <span style={{ fontSize: '12px', fontWeight: 600, color: sideColor }}>
+                {binaryAlias ?? directionText} {leverage}x
+              </span>
+            ) : (
+              <>
+                <span style={{
+                  padding: '3px 8px',
+                  borderRadius: '4px',
+                  background: sideBg,
+                  border: `1px solid ${sideBorder}`,
+                  color: sideColor,
+                  fontSize: '10px',
+                  fontWeight: 600,
+                }}>
+                  {directionText} {leverage}x
+                </span>
+                <span style={{ fontSize: '11px', color: posterColors.textSecondary }}>
+                  {option}
+                </span>
+              </>
+            )}
           </div>
         </div>
+
 
         {/* Entry/Exit Prices */}
         <div style={{

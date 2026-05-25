@@ -533,12 +533,25 @@ export const DesktopPositionsPanel = () => {
               <div className="bg-muted/50 rounded-lg p-3 space-y-1">
                 {(() => {
                   const outcome = getBinaryOutcome(editingPosition.option);
-                  const colorClass = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : editingPosition.type === "long" ? "text-trading-green" : "text-trading-red";
-                  const label = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : editingPosition.option;
+                  const isLong = editingPosition.type === "long";
+                  // binary：方向已由 contract（队名/Yes/No）+ outcome 颜色表达，Position 行不再重复 side
+                  if (outcome) {
+                    const colorClass = outcome === "yes" ? "text-trading-green" : "text-trading-red";
+                    return (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Position</span>
+                        <span className={colorClass}>
+                          {editingPosition.displayOption ?? editingPosition.option} {editingPosition.leverage}
+                        </span>
+                      </div>
+                    );
+                  }
+                  // 多 outcome：side 显示 Yes/No
+                  const colorClass = isLong ? "text-trading-green" : "text-trading-red";
                   return (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Position</span>
-                      <span className={colorClass}>{label} {editingPosition.leverage}</span>
+                      <span className={colorClass}>{isLong ? "Yes" : "No"} {editingPosition.leverage}</span>
                     </div>
                   );
                 })()}
@@ -658,17 +671,29 @@ export const DesktopPositionsPanel = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          {selectedOrder && (
+          {selectedOrder && (() => {
+            const sOutcome = getBinaryOutcome(selectedOrder.option);
+            const sDisplay = selectedOrder.displayOption ?? selectedOrder.option;
+            const sIsBuy = selectedOrder.type === "buy";
+            const sColor = sOutcome === "yes"
+              ? "text-trading-green font-medium"
+              : sOutcome === "no"
+              ? "text-trading-red font-medium"
+              : (sIsBuy ? "text-trading-green font-medium" : "text-trading-red font-medium");
+            const sTypeText = sOutcome
+              ? `${sDisplay} ${selectedOrder.orderType}`
+              : `${sIsBuy ? "Yes" : "No"} ${selectedOrder.orderType}`;
+            return (
             <div className="bg-muted/50 rounded-lg p-3 space-y-2 my-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Order Type</span>
-                <span className={selectedOrder.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                  {selectedOrder.type === "buy" ? "Yes" : "No"} {selectedOrder.orderType}
+                <span className={sColor}>
+                  {sTypeText}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Contract</span>
-                <span className="font-medium">{selectedOrder.displayOption ?? selectedOrder.option}</span>
+                <span className={`font-medium ${sOutcome === "yes" ? "text-trading-green" : sOutcome === "no" ? "text-trading-red" : ""}`}>{sDisplay}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Price</span>
@@ -683,7 +708,8 @@ export const DesktopPositionsPanel = () => {
                 <span className="font-mono">{selectedOrder.total}</span>
               </div>
             </div>
-          )}
+            );
+          })()}
 
           <AlertDialogFooter className="flex gap-2 sm:gap-2">
             <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
@@ -710,17 +736,29 @@ export const DesktopPositionsPanel = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          {selectedOrder && (
+          {selectedOrder && (() => {
+            const cOutcome = getBinaryOutcome(selectedOrder.option);
+            const cDisplay = selectedOrder.displayOption ?? selectedOrder.option;
+            const cIsBuy = selectedOrder.type === "buy";
+            const cColor = cOutcome === "yes"
+              ? "text-trading-green font-medium"
+              : cOutcome === "no"
+              ? "text-trading-red font-medium"
+              : (cIsBuy ? "text-trading-green font-medium" : "text-trading-red font-medium");
+            const cTypeText = cOutcome
+              ? `${cDisplay} ${selectedOrder.orderType}`
+              : `${cIsBuy ? "Yes" : "No"} ${selectedOrder.orderType}`;
+            return (
             <div className="bg-muted/50 rounded-lg p-3 space-y-2 my-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Order Type</span>
-                <span className={selectedOrder.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                  {selectedOrder.type === "buy" ? "Yes" : "No"} {selectedOrder.orderType}
+                <span className={cColor}>
+                  {cTypeText}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Contract</span>
-                <span className="font-medium">{selectedOrder.displayOption ?? selectedOrder.option}</span>
+                <span className={`font-medium ${cOutcome === "yes" ? "text-trading-green" : cOutcome === "no" ? "text-trading-red" : ""}`}>{cDisplay}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Price</span>
@@ -731,7 +769,8 @@ export const DesktopPositionsPanel = () => {
                 <span className="font-mono">{selectedOrder.amount}</span>
               </div>
             </div>
-          )}
+            );
+          })()}
 
           <AlertDialogFooter className="flex gap-2 sm:gap-2">
             <AlertDialogCancel className="flex-1">Keep Order</AlertDialogCancel>

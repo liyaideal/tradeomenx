@@ -76,7 +76,9 @@ export const PositionCard = ({
     : type === "long"
     ? "text-trading-green"
     : "text-trading-red";
-  const outcomeLabel = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : option;
+  // 多 outcome 事件：chip 显示方向 Yes/No（long→Yes，short→No）。binary 事件 chip 被隐藏，此值用于 drawer。
+  const directionLabel = type === "long" ? "Yes" : "No";
+  const outcomeLabel = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : directionLabel;
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
   

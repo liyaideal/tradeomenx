@@ -496,10 +496,17 @@ export default function DesktopTrading() {
     };
   }, [tpValue, slValue, tpMode, slMode, side, currentPrice, amount, leverage]);
 
+  // Binary 下方向由用户点击的 Yes/No option 决定（side 恒为 buy）；多 outcome 才看 side
+  const previewOutcome: "yes" | "no" = isBinarySingleMarket
+    ? (isYesSelected ? "yes" : "no")
+    : (side === "buy" ? "yes" : "no");
+  const previewSideLabel = resolveBinarySideLabel(previewOutcome, isBinarySingleMarket ? binaryLabels : undefined);
+  const previewSideColor: "green" | "red" = previewOutcome === "yes" ? "green" : "red";
+
   const orderDetails = useMemo(() => [
     { label: "Event", value: selectedEvent?.name || "" },
     { label: "Option", value: selectedOptionData.label },
-    { label: "Side", value: resolveBinarySideLabel(side === "buy" ? "yes" : "no", isBinarySingleMarket ? binaryLabels : undefined), highlight: side === "buy" ? "green" : "red" as const },
+    { label: "Side", value: previewSideLabel, highlight: previewSideColor },
     { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
@@ -511,7 +518,7 @@ export default function DesktopTrading() {
     { label: "Margin required", value: `${displayCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional]);
+  ], [selectedEvent, selectedOptionData, previewSideLabel, previewSideColor, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional, sidePrice]);
 
   const isReducingOrder = orderIntent.kind === "reduce" || orderIntent.kind === "close";
   const formattedIntent = orderIntent.kind.replace(/-/g, " ");
@@ -1336,7 +1343,7 @@ export default function DesktopTrading() {
                             ) : (
                             <ClosePositionDialog
                               event={position.event}
-                              option={position.option}
+                              option={position.displayOption ?? position.option}
                               side={position.type}
                               size={Number(position.size) || 0}
                               entryPrice={parseFloat(position.entryPrice.replace(/[$,]/g, "")) || 0}
@@ -1819,8 +1826,8 @@ export default function DesktopTrading() {
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm text-muted-foreground truncate">{selectedOptionData.label}</span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={`rounded px-2 py-1 text-xs font-semibold ${side === "buy" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
-                    {resolveBinarySideLabel(side === "buy" ? "yes" : "no", isBinarySingleMarket ? binaryLabels : undefined)}
+                  <span className={`rounded px-2 py-1 text-xs font-semibold ${previewSideColor === "green" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
+                    {previewSideLabel}
                   </span>
                   <span className="rounded bg-muted px-2 py-1 text-xs font-semibold capitalize text-foreground">{formattedIntent}</span>
                 </div>

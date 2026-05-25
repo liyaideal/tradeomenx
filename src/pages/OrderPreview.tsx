@@ -57,9 +57,13 @@ export default function OrderPreview() {
   const optionLabel = orderData.option || "200-219";
   const sideLabels: { yes: string; no: string } | null = orderData.sideLabels ?? null;
   const lcOpt = optionLabel.trim().toLowerCase();
-  const sideDisplay = sideLabels && (lcOpt === "yes" || lcOpt === "no")
-    ? (isBuy ? sideLabels.yes : sideLabels.no)
+  const isBinaryOption = lcOpt === "yes" || lcOpt === "no";
+  // Binary: 方向由 option (yes/no) 决定，不看 buy/sell；多 outcome 才看 buy/sell
+  const previewOutcome: "yes" | "no" = isBinaryOption ? (lcOpt as "yes" | "no") : (isBuy ? "yes" : "no");
+  const sideDisplay = isBinaryOption
+    ? (sideLabels ? (previewOutcome === "yes" ? sideLabels.yes : sideLabels.no) : (previewOutcome === "yes" ? "Yes" : "No"))
     : (isBuy ? "Yes" : "No");
+  const sideHighlight: "green" | "red" = previewOutcome === "yes" ? "green" : "red";
   const totalCost = parseFloat(orderCalculations.total) || 0;
   const orderIntent = useMemo(() => classifyOrderIntent({
     positions,
@@ -82,7 +86,7 @@ export default function OrderPreview() {
   const orderDetails: OrderDetail[] = [
     { label: "Event", value: eventName },
     { label: "Option", value: optionLabel },
-    { label: "Side", value: sideDisplay, highlight: isBuy ? "green" : "red" },
+    { label: "Side", value: sideDisplay, highlight: sideHighlight },
     { label: "Margin type", value: orderData.marginType || "Cross" },
     { label: "Type", value: orderData.orderType || "Market" },
     { label: "Order Price", value: `${orderData.price || "0.0000"} USDC` },
