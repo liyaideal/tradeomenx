@@ -220,14 +220,8 @@ export const PositionCard = ({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             {!isBinaryAlias && (
-              <span
-                className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                  type === "long"
-                    ? "bg-trading-green/20 text-trading-green"
-                    : "bg-trading-red/20 text-trading-red"
-                }`}
-              >
-                {type === "long" ? "Yes" : "No"}
+              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${outcomeColorBg}`}>
+                {outcomeLabel}
               </span>
             )}
             <span className="text-xs text-muted-foreground">{leverage}</span>
