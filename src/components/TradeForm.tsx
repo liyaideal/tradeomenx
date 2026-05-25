@@ -39,6 +39,7 @@ export const TradeForm = ({
   eventOptions = [],
   side: controlledSide,
   onSideChange,
+  binaryMode,
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance } = useUserProfile();
