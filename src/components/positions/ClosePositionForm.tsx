@@ -72,11 +72,7 @@ export const ClosePositionForm = ({
     <div className="space-y-4">
       {showHeader && (
         <div className="text-xs text-muted-foreground truncate">
-          {option} ·{" "}
-          <span className={side === "long" ? "text-trading-green" : "text-trading-red"}>
-            {side === "long" ? "Yes" : "No"}
-          </span>{" "}
-          · <span className="font-mono">{safeSize.toLocaleString()}</span> contracts
+          {option} · <span className="font-mono">{safeSize.toLocaleString()}</span> contracts
         </div>
       )}
 
