@@ -131,13 +131,34 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
 
 
           {/* Trade Form */}
-          <TradeForm 
-            selectedPrice={selectedOptionData.price} 
-            eventName={selectedEvent?.name || ""}
-            optionLabel={selectedOptionData.label}
-            side={side}
-            onSideChange={setSide}
-          />
+          {(() => {
+            const isBinary = isSingleMarketBinary(options);
+            const labels = getBinarySideLabels(selectedEvent);
+            const yn = getYesNoOptions(options);
+            const yesPrice = yn.yes ? parseFloat(yn.yes.price) || 0 : 0;
+            const noPrice = yn.no ? parseFloat(yn.no.price) || 0 : 0;
+            const binaryMode = isBinary && yn.yes && yn.no
+              ? {
+                  yesLabel: labels.yes,
+                  noLabel: labels.no,
+                  yesPrice,
+                  noPrice,
+                  isYesSelected: selectedOptionData.id === yn.yes.id,
+                  onSelectYes: () => { setSide("buy"); setSelectedOption(yn.yes!.id); },
+                  onSelectNo: () => { setSide("buy"); setSelectedOption(yn.no!.id); },
+                }
+              : undefined;
+            return (
+              <TradeForm 
+                selectedPrice={selectedOptionData.price} 
+                eventName={selectedEvent?.name || ""}
+                optionLabel={selectedOptionData.label}
+                side={side}
+                onSideChange={setSide}
+                binaryMode={binaryMode}
+              />
+            );
+          })()}
         </div>
 
         {/* Right: Order Book — driven by trade form side */}
