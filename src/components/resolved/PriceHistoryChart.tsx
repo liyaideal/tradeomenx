@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 
 interface PriceHistoryChartProps {
   priceHistory: Record<string, PriceHistoryPoint[]>;
-  options: { id: string; label: string; is_winner: boolean; final_price: number | null; price: number }[];
+  options: { id: string; label: string; displayLabel?: string; is_winner: boolean; final_price: number | null; price: number }[];
   isMobile?: boolean;
 }
 
