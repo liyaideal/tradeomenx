@@ -498,7 +498,7 @@ export default function DesktopTrading() {
   const orderDetails = useMemo(() => [
     { label: "Event", value: selectedEvent?.name || "" },
     { label: "Option", value: selectedOptionData.label },
-    { label: "Side", value: side === "buy" ? "Yes" : "No", highlight: side === "buy" ? "green" : "red" as const },
+    { label: "Side", value: resolveBinarySideLabel(side === "buy" ? "yes" : "no", isBinarySingleMarket ? binaryLabels : undefined), highlight: side === "buy" ? "green" : "red" as const },
     { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
