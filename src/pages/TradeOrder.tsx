@@ -22,6 +22,8 @@ interface LocationState {
 interface TradeOrderContentProps {
   selectedEvent: TradingContextData['selectedEvent'];
   selectedOptionData: TradingContextData['selectedOptionData'];
+  options: TradingContextData['options'];
+  setSelectedOption: TradingContextData['setSelectedOption'];
 }
 
 
