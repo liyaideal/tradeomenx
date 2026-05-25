@@ -157,7 +157,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         isNew: newEvent,
         isClosingSoon: closingSoon,
         topMarket: maxVolChild && children.length >= 2
-          ? { label: maxVolChild.optionLabel }
+          ? { label: maxVolChild.displayLabel }
           : null,
         childCount: children.length,
         children: children.length >= 2 ? children : [],
