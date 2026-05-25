@@ -352,8 +352,8 @@ export const PositionCard = ({
           <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Position</span>
-              <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
-                {isBinaryAlias ? optionDisplay : (type === "long" ? "Yes" : "No")} {leverage}
+              <span className={outcomeColorText}>
+                {isBinaryAlias ? optionDisplay : outcomeLabel} {leverage}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs">
