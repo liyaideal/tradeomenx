@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 export interface PriceHistoryPoint {
   price: number;
@@ -44,9 +45,13 @@ export interface ResolvedEventDetail {
   settled_at: string | null;
   winning_option_id: string | null;
   external_links: ExternalLinkData[] | null;
+  /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
+  sideLabels?: { yes: string; no: string };
   options: {
     id: string;
     label: string;
+    /** sideLabels 解析后的展示文案（队名/Yes/No）。多 outcome 事件等于 label。 */
+    displayLabel: string;
     price: number;
     final_price: number | null;
     is_winner: boolean;
