@@ -225,10 +225,10 @@ export const TradeForm = ({
               <>
                 <button
                   onClick={() => (binaryMode ? binaryMode.onSelectYes() : setSide("buy"))}
-                  className="relative flex flex-col rounded-md overflow-hidden transition-all duration-200"
+                  className="relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200"
                 >
                   <div
-                    className={`relative flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
+                    className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
                       yesActive
                         ? "bg-trading-green text-trading-green-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -253,10 +253,10 @@ export const TradeForm = ({
                 </button>
                 <button
                   onClick={() => (binaryMode ? binaryMode.onSelectNo() : setSide("sell"))}
-                  className="relative flex flex-col rounded-md overflow-hidden transition-all duration-200"
+                  className="relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200"
                 >
                   <div
-                    className={`relative flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
+                    className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
                       noActive
                         ? "bg-trading-red text-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"

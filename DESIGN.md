@@ -448,9 +448,10 @@ import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 桌面/移动的 Trade 面板里，binary 单 market 事件的 Yes/No 切换器规范：
 
 - **容器**：`grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg`（独立卡片岛，与外层 Trade 面板背景区分）
-- **按钮**：`relative flex flex-col rounded-md overflow-hidden`，**不固定高度**，由内容驱动
+- **按钮**：`relative flex flex-col h-full rounded-md overflow-hidden`，**不固定高度**，由内容驱动；`h-full` 配合 grid 默认 `items-stretch` 保证两侧外壳等高
 - **上层 label 区**：
-  - `relative flex items-center justify-center min-h-[24px] py-1.5 px-2`
+  - `relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2`
+  - **必须** `flex-1`：一侧因 `line-clamp-2` 换行变高时，另一侧的 label 区会自动伸展填满剩余空间，两侧视觉等高
   - 文案 `text-[11px] font-semibold leading-tight line-clamp-2 text-center`
   - 选中 Yes → `bg-trading-green text-trading-green-foreground`
   - 选中 No → `bg-trading-red text-foreground`
@@ -462,7 +463,7 @@ import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
   - 选中 No → `bg-trading-red/85 text-foreground border-black/20`
   - 未选中 → `bg-muted-foreground/15 text-foreground/80 border-border/40`
 
-**高度自适应原则**：短标签（默认 Yes / No）保持紧凑（≈ 48px 总高），长标签（如球队名 "Oklahoma City Thunder"）`line-clamp-2` 撑到两行（≈ 62px 总高）。`grid` 自动保证两侧等高。**严禁**给按钮硬编码 `h-14` / `h-16`。
+**高度自适应原则**：短标签（默认 Yes / No）保持紧凑（≈ 48px 总高），长标签（如 "Magomed Ankalaev"）`line-clamp-2` 撑到两行（≈ 62px 总高）。**两侧必须等高**：通过 `grid items-stretch`（默认）+ 按钮 `h-full` + 上层 `flex-1` 三层叠加实现——一侧变高，另一侧 label 区自动拉伸填齐，价格条始终对齐。**严禁**给按钮硬编码 `h-14` / `h-16`，也**严禁**省略 `flex-1` 或 `h-full`（否则短标签那侧会出现底部空隙、参差不齐）。
 
 ---
 

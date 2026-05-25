@@ -950,11 +950,11 @@ const categoryInfo = getCategoryInfo(event.category);
                     <button
                       key={side}
                       onClick={() => setBinaryActive(side)}
-                      className="relative flex flex-col rounded-md overflow-hidden transition-all duration-200"
+                      className="relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200"
                     >
                       <div
                         className={cn(
-                          "relative flex items-center justify-center min-h-[24px] py-1.5 px-2",
+                          "relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2",
                           active ? activeBg : "bg-muted text-muted-foreground hover:bg-muted/80"
                         )}
                       >
@@ -978,10 +978,10 @@ const categoryInfo = getCategoryInfo(event.category);
             </div>
 
             <div className="text-xs text-muted-foreground space-y-1">
-              <p>· 容器 <code className="font-mono">bg-muted/30 grid-cols-2 gap-2 p-1</code></p>
-              <p>· 按钮不固定高度；上层 <code className="font-mono">min-h-[24px] py-1.5</code> + <code className="font-mono">line-clamp-2</code></p>
+              <p>· 容器 <code className="font-mono">bg-muted/30 grid-cols-2 gap-2 p-1</code>（grid 默认 <code className="font-mono">items-stretch</code> 同步两侧高度）</p>
+              <p>· 按钮 <code className="font-mono">flex flex-col h-full</code>；上层 <code className="font-mono">flex-1 min-h-[24px] py-1.5</code> + <code className="font-mono">line-clamp-2</code>，自动撑满到对侧高度</p>
               <p>· 价格条固定 <code className="font-mono">h-[22px]</code>，与上层用 <code className="font-mono">border-t</code> 分隔，选中态同色系 /85</p>
-              <p>· 严禁给按钮硬编码 <code className="font-mono">h-14</code> / <code className="font-mono">h-16</code></p>
+              <p>· 一侧换行升高时，另一侧通过 <code className="font-mono">h-full + flex-1</code> 自动等高；严禁硬编码 <code className="font-mono">h-14</code></p>
             </div>
           </CardContent>
         </Card>
