@@ -188,6 +188,9 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         }
       }
 
+      const sideLabels = parseSideLabels((event as any).side_labels);
+      const optionLabelsForBinary = (event.event_options || []).map((o: any) => ({ label: o.label }));
+
       return {
         id: event.id,
         name: event.name,
@@ -205,9 +208,11 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         external_links: Array.isArray((event as any).external_links)
           ? (event as any).external_links as ExternalLinkData[]
           : null,
+        sideLabels,
         options: (event.event_options || []).map((opt: any) => ({
           id: opt.id,
           label: opt.label,
+          displayLabel: getDisplayOptionLabel(opt.label, optionLabelsForBinary, sideLabels),
           price: opt.price,
           final_price: opt.final_price,
           is_winner: opt.is_winner,
