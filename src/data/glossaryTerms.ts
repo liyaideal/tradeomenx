@@ -139,7 +139,7 @@ export const glossaryTerms: GlossaryTerm[] = [
     definitionEn: "Yes and No shares are the basic tradable units in a binary prediction market, representing each side of a binary outcome.",
     definitionCn: "是/否份额是二元预测市场中的基本交易单位，分别代表二元结果的两个方向。",
     explanationEn: "A Yes share pays $1.00 if the event occurs and $0.00 if it does not. A No share is the inverse — it pays $1.00 if the event does not occur. In a well-functioning market, the price of a Yes share plus a No share equals approximately $1.00. On OmenX, the Buy Yes button corresponds to buying Yes shares (betting the event will happen, equivalent to a long position on the Yes outcome). Buy No corresponds to taking the No side (equivalent to a short position on the Yes outcome).",
-    explanationCn: "\"是\"份额在事件发生时支付 $1.00，未发生时支付 $0.00。\"否\"份额相反——事件未发生时支付 $1.00。在运行良好的市场中，\"是\"和\"否\"份额的价格之和约等于 $1.00。在 OmenX 上，做多 (Buy Long) 对应买入\"是\"份额，做空 (Sell Short) 对应持有\"否\"方向。",
+    explanationCn: "\"是\"份额在事件发生时支付 $1.00，未发生时支付 $0.00。\"否\"份额相反——事件未发生时支付 $1.00。在运行良好的市场中，\"是\"和\"否\"份额的价格之和约等于 $1.00。在 OmenX 上，Buy Yes 对应买入\"是\"份额（看涨事件发生，底层等价于 Yes 市场的多头）；Buy No 对应持有\"否\"方向（底层等价于 Yes 市场的空头）。",
     exampleEn: "For the market \"Will Gold hit $3,500 by June?\", buying a Yes share at $0.30 means you pay $0.30 and receive $1.00 if gold hits $3,500, for a profit of $0.70 per share.",
     exampleCn: "对于\"黄金是否会在 6 月前达到 $3,500？\"市场，以 $0.30 买入\"是\"份额意味着支付 $0.30，若黄金达标则获得 $1.00，每份额利润 $0.70。",
   },
