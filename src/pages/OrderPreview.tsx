@@ -215,24 +215,15 @@ export default function OrderPreview() {
 
       {/* Confirm Button */}
       <div className="fixed bottom-20 left-0 right-0 bg-background px-4 py-3">
-        <button
+        <TradeSubmitButton
+          side={orderData.side || "buy"}
+          label={getIntentLabel(orderIntent, orderData.side || "buy", sideLabels)}
+          potentialWin={potentialWin.toLocaleString()}
           onClick={handleConfirm}
-          disabled={isSubmitting}
-          className={`w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] animate-slide-up flex items-center justify-center gap-2 ${
-            isBuy ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
-          } ${isSubmitting ? "opacity-70" : ""}`}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            <>
-              {getIntentLabel(orderIntent, orderData.side || "buy", sideLabels)} - to win $ {potentialWin.toLocaleString()}
-            </>
-          )}
-        </button>
+          loading={isSubmitting}
+          size="lg"
+          className="animate-slide-up"
+        />
       </div>
 
       {/* Auth Sheet for login */}
