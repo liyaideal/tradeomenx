@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 import {
   Tooltip,
   TooltipContent,
@@ -472,19 +473,22 @@ export default function Portfolio() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           {(() => {
-                            const lc = position.option.trim().toLowerCase();
-                            const isAlias = position.displayOption && position.displayOption !== position.option && (lc === "yes" || lc === "no");
+                            const outcome = getBinaryOutcome(position.option);
+                            const isAlias = position.displayOption && position.displayOption !== position.option;
                             if (isAlias) return null;
+                            const isYes = outcome === "yes";
+                            const isNo = outcome === "no";
+                            const colorClass = isYes
+                              ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                              : isNo
+                              ? "border-trading-red/50 text-trading-red bg-trading-red/10"
+                              : position.type === "long"
+                              ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                              : "border-trading-red/50 text-trading-red bg-trading-red/10";
+                            const label = outcome ? (isYes ? "Yes" : "No") : position.option;
                             return (
-                              <Badge
-                                variant="outline"
-                                className={`text-[10px] ${
-                                  position.type === "long"
-                                    ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                                    : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                                }`}
-                              >
-                                {position.type === "long" ? "Yes" : "No"}
+                              <Badge variant="outline" className={`text-[10px] ${colorClass}`}>
+                                {label}
                               </Badge>
                             );
                           })()}
@@ -622,19 +626,22 @@ export default function Portfolio() {
                           <TableCell>
                             <div className="flex items-center gap-1.5">
                               {(() => {
-                                const lc = position.option.trim().toLowerCase();
-                                const isAlias = position.displayOption && position.displayOption !== position.option && (lc === "yes" || lc === "no");
+                                const outcome = getBinaryOutcome(position.option);
+                                const isAlias = position.displayOption && position.displayOption !== position.option;
                                 if (isAlias) return null;
+                                const isYes = outcome === "yes";
+                                const isNo = outcome === "no";
+                                const colorClass = isYes
+                                  ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                  : isNo
+                                  ? "border-trading-red/50 text-trading-red bg-trading-red/10"
+                                  : position.type === "long"
+                                  ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                  : "border-trading-red/50 text-trading-red bg-trading-red/10";
+                                const label = outcome ? (isYes ? "Yes" : "No") : position.option;
                                 return (
-                                  <Badge
-                                    variant="outline"
-                                    className={`text-[10px] ${
-                                      position.type === "long"
-                                        ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                                        : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                                    }`}
-                                  >
-                                    {position.type === "long" ? "Yes" : "No"}
+                                  <Badge variant="outline" className={`text-[10px] ${colorClass}`}>
+                                    {label}
                                   </Badge>
                                 );
                               })()}

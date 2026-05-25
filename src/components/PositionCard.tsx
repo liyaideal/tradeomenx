@@ -4,6 +4,7 @@ import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { usePositions, type UnifiedPosition } from "@/hooks/usePositions";
 import { ClosePositionDrawer } from "@/components/positions/ClosePositionDrawer";
@@ -58,8 +59,24 @@ export const PositionCard = ({
   const optionDisplay = displayOption ?? option;
   // 当 displayOption 已经是 binary 别名（如 "Alex Pereira"），option 原值是 "Yes"/"No"，
   // 再渲染一个 Yes/No 侧别 chip 就是重复信息 → 隐藏。
-  const lcOpt = option.trim().toLowerCase();
-  const isBinaryAlias = displayOption !== undefined && displayOption !== option && (lcOpt === "yes" || lcOpt === "no");
+  const outcome = getBinaryOutcome(option);
+  const isBinaryAlias = displayOption !== undefined && displayOption !== option && outcome !== null;
+  // Yes/No 颜色看 outcome（option_label），不看 type；多 outcome 才回退到 type-driven 配色
+  const outcomeColorBg = outcome === "yes"
+    ? "bg-trading-green/20 text-trading-green"
+    : outcome === "no"
+    ? "bg-trading-red/20 text-trading-red"
+    : type === "long"
+    ? "bg-trading-green/20 text-trading-green"
+    : "bg-trading-red/20 text-trading-red";
+  const outcomeColorText = outcome === "yes"
+    ? "text-trading-green"
+    : outcome === "no"
+    ? "text-trading-red"
+    : type === "long"
+    ? "text-trading-green"
+    : "text-trading-red";
+  const outcomeLabel = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : option;
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
   
@@ -203,14 +220,8 @@ export const PositionCard = ({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             {!isBinaryAlias && (
-              <span
-                className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                  type === "long"
-                    ? "bg-trading-green/20 text-trading-green"
-                    : "bg-trading-red/20 text-trading-red"
-                }`}
-              >
-                {type === "long" ? "Yes" : "No"}
+              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${outcomeColorBg}`}>
+                {outcomeLabel}
               </span>
             )}
             <span className="text-xs text-muted-foreground">{leverage}</span>
@@ -341,8 +352,8 @@ export const PositionCard = ({
           <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Position</span>
-              <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
-                {isBinaryAlias ? optionDisplay : (type === "long" ? "Yes" : "No")} {leverage}
+              <span className={outcomeColorText}>
+                {isBinaryAlias ? optionDisplay : outcomeLabel} {leverage}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs">

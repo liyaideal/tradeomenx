@@ -49,7 +49,7 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
-import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions } from "@/lib/eventUtils";
+import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
 import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
 
 
@@ -1223,21 +1223,9 @@ export default function DesktopTrading() {
                                   className="text-sm font-medium truncate border-b border-dashed border-muted-foreground hover:border-foreground hover:text-primary transition-colors text-left cursor-pointer"
                                   title="View position details"
                                 >
-                                  {position.option}
+                                  {position.displayOption ?? position.option}
                                 </button>
                               </PositionDetailDialog>
-                              {position.option.toLowerCase() === "yes" && (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Info className="w-3.5 h-3.5 text-trading-yellow cursor-help flex-shrink-0" />
-                                    </TooltipTrigger>
-                                    <TooltipContent className="max-w-[280px]">
-                                      <p className="text-xs">All positions on a binary event are displayed under the Yes outcome. Buying Yes is bullish on the event; buying No is bearish. P&L is always measured against Yes price moves.</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              )}
                             </div>
                             <HoverCard>
                               <HoverCardTrigger asChild>
@@ -1259,9 +1247,26 @@ export default function DesktopTrading() {
                             </HoverCard>
                           </td>
                           <td className="px-4 py-2">
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${position.type === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {resolveBinarySideLabel(position.type === "long" ? "yes" : "no", lookupSideLabels(position.event).labels)}
-                            </span>
+                            {(() => {
+                              const outcome = getBinaryOutcome(position.option);
+                              const isYesOutcome = outcome === "yes";
+                              const isNoOutcome = outcome === "no";
+                              const colorClass = isYesOutcome
+                                ? "bg-trading-green/20 text-trading-green"
+                                : isNoOutcome
+                                ? "bg-trading-red/20 text-trading-red"
+                                : position.type === "long"
+                                ? "bg-trading-green/20 text-trading-green"
+                                : "bg-trading-red/20 text-trading-red";
+                              const label = outcome
+                                ? resolveBinarySideLabel(outcome, lookupSideLabels(position.event).labels)
+                                : position.option;
+                              return (
+                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${colorClass}`}>
+                                  {label}
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.sizeDisplay}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.entryPrice}</td>
@@ -1916,16 +1921,27 @@ export default function DesktopTrading() {
             <div className="space-y-4">
               {/* Position Info */}
               <div className="bg-muted/50 rounded-lg p-3 space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Position</span>
-                  <span className={pos.type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {resolveBinarySideLabel(pos.type === "long" ? "yes" : "no", lookupSideLabels(pos.event).labels)} {pos.leverage}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
-                  <span className="font-medium">{pos.option}</span>
-                </div>
+                {(() => {
+                  const outcome = getBinaryOutcome(pos.option);
+                  const isYes = outcome === "yes";
+                  const isNo = outcome === "no";
+                  const colorClass = isYes ? "text-trading-green" : isNo ? "text-trading-red" : pos.type === "long" ? "text-trading-green" : "text-trading-red";
+                  const sideLabel = outcome
+                    ? resolveBinarySideLabel(outcome, lookupSideLabels(pos.event).labels)
+                    : pos.option;
+                  return (
+                    <>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Position</span>
+                        <span className={colorClass}>{sideLabel} {pos.leverage}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
+                        <span className="font-medium">{pos.displayOption ?? pos.option}</span>
+                      </div>
+                    </>
+                  );
+                })()}
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
                   <span className="font-mono">{pos.entryPrice}</span>

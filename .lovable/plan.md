@@ -1,38 +1,79 @@
-## 背景
-Mobile 端已完成 sideLabels 别名传播（"Buy Yes" → "Buy Carlos Alcaraz"），但 `src/pages/DesktopTrading.tsx` 仍有多处硬编码 `"Yes" / "No"`。截图显示 Trade 面板提交按钮仍写"Buy No - to win $0"，应显示"Buy Carlos Alcaraz - to win $..."。
 
-## 修复范围（仅 DesktopTrading.tsx）
+# 修复 Positions 模块对单 market binary 事件的展示
 
-仅当 `isBinarySingleMarket && binaryLabels` 同时存在时，用 `binaryLabels.yes / binaryLabels.no` 替换；否则保持现状 "Yes/No"。
+## 现象
 
-### A. 当前事件作用域（直接用顶层 `binaryLabels` / `isBinarySingleMarket`）
+`/trade` 截图里出现 5 条 binary 单 market 持仓（NBA Finals / Wimbledon / UFC 316 / Shanghai Derby），但渲染明显跟最新模型脱节：
 
-1. **L1762 主 Trade 面板提交按钮**：`getIntentLabel(orderIntent, side)` → `getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)`。
-2. **L1874 Order Preview Dialog 确认按钮**：同上。
-3. **L1793 Order Preview Dialog 顶部 side chip**：`side === "buy" ? "Yes" : "No"` → 二元时显示别名。
-4. **L499 `orderDetails` Side 字段**：同上替换。
+- "No · NBA Finals" 这一行的 Side 列显示绿色 "Boston Celtics"（应该是红色 "Oklahoma City Thunder"）
+- "Yes · Shanghai Derby" 的 Contracts 列只显示 `Yes`，没用上 sideLabels（应直接显示 "Shanghai Shenhua"）
+- Yes 选项旁边还挂着旧提示 "All positions on a binary event are displayed under the Yes outcome"
 
-### B. 跨事件聚合表（需按行 lookup 各自事件的 sideLabels）
+## 根因
 
-这些表行属于不同事件，需要从行的 `eventId`（或 `event` 名）映射到 `TradingEvent`，再通过 `getBinarySideLabels` 获取别名。若行所属事件非 single-market binary 或 lookup 失败，保留 "Yes/No"。
+`mem://features/binary-event-no-as-native-position` 已经把模型从"统一归到 Yes 轴"换成"Yes/No 独立持仓"：
+- `option_label` 现在直接代表 Yes 或 No
+- `side: long` = Buy（开多 Yes 或开多 No），`side: short` = Sell（平/反向减）
 
-5. **L1095 Open Orders 表 — side 列**。
-6. **L1260 Positions 表 — side 列**。
-7. **L1348 Airdrop counter side 列**。
-8. **L1930 Close Position Dialog — "Position" 行**。
-9. **L2070 Cancel Order AlertDialog — "Order Type" 行**。
+但 Positions 表的几个渲染点仍按旧模型，用 `position.type === "long" ? "Yes" : "No"` 推 Yes/No；对 "Buy No" 这种 `option=No, side=long` 的持仓就会反向：
 
-实现思路：在 DesktopTrading 顶层用现有事件源（`mockEvents` / context）构建 `Map<eventId, { isBinary, sideLabels }>` 或行内 `useMemo` 单次查找的 helper（如 `resolveBinaryLabels(eventName | eventId)`）。所属事件不可用时回退到 "Yes/No"。
+| 持仓 | 正确显示 | 当前显示 |
+|---|---|---|
+| Buy No · NBA Finals (option=No, side=long) | 红色 "Thunder" / "No" | 绿色 "Celtics" / "Yes" |
+| Buy Yes · Wimbledon (option=Yes, side=long) | 绿色 "Alcaraz" / "Yes" | 绿色 "Alcaraz" / "Yes"（恰好对） |
+| Sell Yes（减仓产生的 short） | 红色 "Yes（Sell）" | 红色 "No" |
 
-### C. 文档同步
+## 改造原则
 
-- `DESIGN.md` §Single-Market Binary Trade Toggle 的 sideLabels propagation 小节追加"Desktop /trade 同样适用：Trade 提交按钮、Order Preview、Side chip、Open Orders/Positions/Airdrops 表 side 列、Close/Cancel 弹窗均须用 sideLabels 替换 Yes/No"。
-- `mem://design/single-market-binary-ui` 追加相同条款。
+引入一个统一 helper：**Yes/No 看 `option_label`，颜色看 outcome（Yes=绿/No=红），方向词（Buy/Sell）才看 `side`**。多 outcome 事件维持现状。
 
-## 不改动
-- `TradingCharts.tsx`、`TradeForm.tsx`、`OrderPreview.tsx`、`positionIntent.ts` 已在上一轮完成。
-- 多 outcome 事件、Portfolio、Settlement、glossary、StyleGuide 内容均不变。
+## 改动清单（仅前端展示层）
 
-## 技术细节
-- `getBinarySideLabels` 接受 `TradingEvent`；`isSingleMarketBinary` 接受 options 数组。
-- B 类表格中的 row.eventId 在当前实现里映射到 `mockEvents` / `selectedEvent` context，需复用 DesktopTrading 已有的事件列表（避免新增数据流）。
+### 1. `src/lib/eventUtils.ts`
+新增小工具：
+- `getBinaryOutcome(optionLabel)` → `"yes" | "no" | null`（null = 非 Yes/No 选项）
+- `getOutcomeDisplay(optionLabel, sideLabels)` → 拼出展示文案：有 sideLabels 用队名，否则回退 "Yes"/"No"
+- `getOutcomeColorClass(optionLabel)` → 返回 `"trading-green" | "trading-red" | null`
+
+### 2. `src/pages/DesktopTrading.tsx`（/trade 持仓表）
+- Contracts 列：`position.option` 改为 `position.displayOption ?? position.option`，让 Shanghai Shenhua / Boston Celtics 直接出现在主标签上
+- 删除 1229-1240 行那段 stale Yes-axis tooltip
+- Side 列：从 `position.type === "long" ? "yes" : "no"` 改成基于 `getBinaryOutcome(position.option)`；颜色用 outcome 决定。如果不是 binary 选项（多 outcome 事件），保留原 Buy/Sell 语义
+
+### 3. `src/pages/Portfolio.tsx`
+- 桌面表的 Side 单元格（622-645）、移动卡片头部 Yes/No badge（474-490）：同样改成根据 `option_label`（binary）或 `side`（其他）决定 Yes/No 与配色
+- `isAlias` 检查保留：当 Contracts 已经显示 team 别名时，Side 列只渲染颜色 chip（Yes/No 不重复出现）
+
+### 4. `src/components/PositionCard.tsx`
+- 213 行 header chip 与 345 行 Edit Dialog 摘要：同样 outcome-driven，移除"`type === long ? Yes : No`"
+
+### 5. `src/components/DesktopPositionsPanel.tsx`
+- 268-273（Contracts 行内 chip）+ 509-510（TPSL Dialog 内 side 描述）：outcome-driven
+
+### 6. `src/components/positions/ClosePositionDrawer.tsx`
+- description 里的 `side === "long" ? "Yes" : "No"`：改为按 option_label 推 Yes/No 文案
+
+### 7. `src/components/OrderCard.tsx` 顺手检查
+- 如果 Open Orders 也有同模式 chip 渲染，按同一规则修；多 outcome 行为不动
+
+## 不动的部分
+
+- DB schema、`option_label`、`side`、`option_id`、`positions` 字段都不变
+- `usePositions` / `useSupabasePositions` 数据层不动（仅展示层 helper）
+- PnL/notional/margin 公式不变
+- 多 outcome 事件（>2 markets 或非 Yes/No）现有渲染完全保留
+- Settlements / Insights / Resolved 这些已经在前几轮接 sideLabels 的页面不动
+- Style Guide / Playground demo 这一轮不展开，留到下一次按 playground-state-coverage 补 outcome×side 全状态
+
+## QA 重点
+
+- Buy Yes（option=Yes, side=long）→ Contracts 显示 yes 队名 / Side 绿色 yes 队名
+- Buy No（option=No, side=long）→ Contracts 显示 no 队名 / Side 红色 no 队名
+- Sell Yes/No 减仓产生 short → Yes/No 跟着 option_label 走、颜色不再被 side 反转
+- 多 outcome（"Up >5%" / "Above $4,000"）继续显示原 Buy(Yes)/Sell(No) 配色
+- /trade 顶部 chip、Trade 面板、Portfolio 桌面表、Portfolio 移动卡片、Edit/Close 弹窗描述里的 Yes/No 全部一致
+- 旧的 "displayed under the Yes outcome" tooltip 完全消失
+
+## 记忆同步（实施时一并做）
+
+- 不新增 memory；现有 `mem://features/binary-event-no-as-native-position` 与 `mem://design/single-market-binary-ui` 已经覆盖，改动只是补齐 UI 层执行

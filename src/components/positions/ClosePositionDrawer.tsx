@@ -33,7 +33,7 @@ export const ClosePositionDrawer = ({
   isClosing = false,
 }: ClosePositionDrawerProps) => {
   const safeSize = Math.max(1, Math.floor(size));
-  const description = `${option} · ${side === "long" ? "Yes" : "No"} · ${safeSize.toLocaleString()} contracts`;
+  const description = `${option} · ${safeSize.toLocaleString()} contracts`;
 
   const handleConfirm = async (qty: number) => {
     await onConfirm(qty);

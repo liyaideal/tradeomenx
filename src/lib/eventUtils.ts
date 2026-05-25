@@ -75,3 +75,20 @@ export function getDisplayOptionLabel(
   if (lc === "no") return sideLabels.no;
   return optionLabel;
 }
+
+/**
+ * Position 的"outcome"语义：对单 market binary 持仓，Yes/No 来自 option_label
+ * （不再用 side 推导）。新模型下 Buy Yes 与 Buy No 是两个独立持仓，side: long
+ * 仅表示"开多/持有"，short 表示"被卖出/减仓方向"。
+ *
+ * - 返回 "yes" / "no" 表示该持仓属于哪一端
+ * - 返回 null 表示非 binary outcome（多 outcome 事件如 "Up >5%"），调用方
+ *   应回退到原 side-driven 渲染
+ */
+export function getBinaryOutcome(optionLabel: string | null | undefined): "yes" | "no" | null {
+  if (!optionLabel) return null;
+  const lc = optionLabel.trim().toLowerCase();
+  if (lc === "yes") return "yes";
+  if (lc === "no") return "no";
+  return null;
+}
