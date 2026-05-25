@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle } from "lucide-react";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 
 interface OrderCardProps {
   type: "buy" | "sell";
