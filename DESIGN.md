@@ -468,6 +468,8 @@ import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 
 **高度自适应原则**：短标签（默认 Yes / No）保持紧凑（≈ 48px 总高），长标签（如 "Magomed Ankalaev"）`line-clamp-2` 撑到两行（≈ 62px 总高）。**两侧必须等高**：通过 `grid items-stretch`（默认）+ 按钮 `h-full` + 上层 `flex-1` 三层叠加实现——一侧变高，另一侧 label 区自动拉伸填齐，价格条始终对齐。**严禁**给按钮硬编码 `h-14` / `h-16`，也**严禁**省略 `flex-1` 或 `h-full`（否则短标签那侧会出现底部空隙、参差不齐）。
 
+**sideLabels 别名传播规则**：事件配置了 `sideLabels`（体育队名等）时，所有展示"方向"的 UI 必须显示别名而非 Yes/No——包括 Trade 面板切换按钮（`binaryMode.yesLabel/noLabel`）、提交按钮（`getIntentLabel(intent, side, sideLabels)`）、OrderPreview Side 字段、TradingCharts 方向 chip/图例。持仓与订单卡片：当 `displayOption` 已渲染别名（判定 `displayOption !== option && (option === "Yes" || option === "No")` → `isBinaryAlias`）时，**禁止**再挂冗余 Yes/No 侧别 chip；详情面板里 "Yes/No + leverage" 应替换为 "alias + leverage"。
+
 ---
 
 
