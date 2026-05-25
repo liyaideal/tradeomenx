@@ -496,10 +496,17 @@ export default function DesktopTrading() {
     };
   }, [tpValue, slValue, tpMode, slMode, side, currentPrice, amount, leverage]);
 
+  // Binary 下方向由用户点击的 Yes/No option 决定（side 恒为 buy）；多 outcome 才看 side
+  const previewOutcome: "yes" | "no" = isBinarySingleMarket
+    ? (isYesSelected ? "yes" : "no")
+    : (side === "buy" ? "yes" : "no");
+  const previewSideLabel = resolveBinarySideLabel(previewOutcome, isBinarySingleMarket ? binaryLabels : undefined);
+  const previewSideColor: "green" | "red" = previewOutcome === "yes" ? "green" : "red";
+
   const orderDetails = useMemo(() => [
     { label: "Event", value: selectedEvent?.name || "" },
     { label: "Option", value: selectedOptionData.label },
-    { label: "Side", value: resolveBinarySideLabel(side === "buy" ? "yes" : "no", isBinarySingleMarket ? binaryLabels : undefined), highlight: side === "buy" ? "green" : "red" as const },
+    { label: "Side", value: previewSideLabel, highlight: previewSideColor },
     { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
@@ -511,7 +518,7 @@ export default function DesktopTrading() {
     { label: "Margin required", value: `${displayCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, selectedOptionData, side, sidePrice, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional]);
+  ], [selectedEvent, selectedOptionData, previewSideLabel, previewSideColor, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional, sidePrice]);
 
   const isReducingOrder = orderIntent.kind === "reduce" || orderIntent.kind === "close";
   const formattedIntent = orderIntent.kind.replace(/-/g, " ");
