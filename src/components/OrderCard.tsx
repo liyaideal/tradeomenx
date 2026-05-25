@@ -41,7 +41,8 @@ export const OrderCard = ({
   const outcome = getBinaryOutcome(option);
   const isBinary = outcome !== null;
   const outcomeTextColor = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : "";
-  const sideText = isBinary ? optionDisplay : (type === "buy" ? "Buy" : "Sell");
+  // Multi-outcome: chip is direction-only (Yes/No based on buy/sell). Binary: chip suppressed in header, displayOption used in drawer rows.
+  const sideText = isBinary ? optionDisplay : (type === "buy" ? "Yes" : "No");
   const sideColor = isBinary
     ? outcomeTextColor
     : (type === "buy" ? "text-trading-green" : "text-trading-red");
@@ -91,7 +92,7 @@ export const OrderCard = ({
                     : "bg-trading-red/20 text-trading-red"
                 }`}
               >
-                {type === "buy" ? "Buy" : "Sell"}
+                {type === "buy" ? "Yes" : "No"}
               </span>
             )}
             <span className="text-sm text-muted-foreground">{orderType}</span>
