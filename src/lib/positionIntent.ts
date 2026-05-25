@@ -39,24 +39,23 @@ export const parseMoney = (value?: string | number | null) => {
 
 export const isNoLabel = (label: string) => label.trim().toLowerCase() === "no";
 
-export const toCanonicalOrder = (optionLabel: string, side: "buy" | "sell", clickedPrice: number): CanonicalOrder => {
-  const noOption = isNoLabel(optionLabel);
-  const canonicalSide: CanonicalSide = noOption
-    ? side === "buy" ? "short" : "long"
-    : side === "buy" ? "long" : "short";
-
-  return {
-    optionLabel: noOption ? "Yes" : optionLabel,
-    side: canonicalSide,
-    price: +(canonicalSide === "long" ? clickedPrice : 1 - clickedPrice).toFixed(4),
-  };
-};
+/**
+ * Identity mapping: Yes and No options are now independent positions.
+ * Buy → long on the traded option, Sell → short on the traded option,
+ * price is the clicked price (no `1 - x` flip).
+ */
+export const toCanonicalOrder = (optionLabel: string, side: "buy" | "sell", clickedPrice: number): CanonicalOrder => ({
+  optionLabel,
+  side: side === "buy" ? "long" : "short",
+  price: +clickedPrice.toFixed(4),
+});
 
 export const getIntentLabel = (intent: OrderIntent, uiSide: "buy" | "sell") => {
-  if (intent.kind === "reduce") return `Reduce ${intent.canonical.side === "long" ? "No" : "Yes"}`;
-  if (intent.kind === "close") return `Close ${intent.canonical.side === "long" ? "No" : "Yes"}`;
+  const label = intent.canonical.optionLabel;
+  if (intent.kind === "reduce") return `Reduce ${label}`;
+  if (intent.kind === "close") return `Close ${label}`;
   if (intent.kind === "blocked-cross-zero") return "Close existing position first";
-  return uiSide === "buy" ? "Buy Yes" : "Buy No";
+  return uiSide === "buy" ? `Buy ${label}` : `Sell ${label}`;
 };
 
 export const classifyOrderIntent = ({

@@ -50,7 +50,7 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
 
-import { BinaryEventHint, isBinaryEvent, isNoOption } from "@/components/BinaryEventHint";
+
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade } from "@/services/tradingService";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
@@ -346,11 +346,7 @@ export default function DesktopTrading() {
   const available = balance;
   const feeRate = 0.0005; // 0.05% trading fee
 
-  // 检查是否为二元事件且当前选择了 No 选项
-  const showBinaryHint = useMemo(() => {
-    if (!options || options.length !== 2) return false;
-    return isBinaryEvent(options) && isNoOption(selectedOptionData.label);
-  }, [options, selectedOptionData.label]);
+  
   
   const orderBookData = useMemo(() => {
     const basePrice = parseFloat(selectedOptionData.price);
@@ -1798,12 +1794,6 @@ export default function DesktopTrading() {
             </div>
           </div>
 
-          {/* Binary Event Hint - 二元事件仓位合并提示 */}
-          {showBinaryHint && (
-            <div className="py-3 border-t border-border/30">
-              <BinaryEventHint variant="inline" side={side} />
-            </div>
-          )}
 
           <button
             onClick={handleConfirmOrder}

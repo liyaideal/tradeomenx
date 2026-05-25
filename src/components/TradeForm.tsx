@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { usePositions } from "@/hooks/usePositions";
-import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
+
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 
 interface TradeFormProps {
@@ -31,13 +31,7 @@ export const TradeForm = ({
   const { balance } = useUserProfile();
   const { positions } = usePositions();
 
-  // 检查是否为二元事件且当前选择了 No 选项
-  const showBinaryHint = useMemo(() => {
-    if (eventOptions.length !== 2) return false;
-    const labels = eventOptions.map(o => o.label.toLowerCase());
-    const isBinary = labels.includes("yes") && labels.includes("no");
-    return isBinary && isNoOption(optionLabel);
-  }, [eventOptions, optionLabel]);
+  
   
   const [internalSide, setInternalSide] = useState<"buy" | "sell">("buy");
   const side = controlledSide ?? internalSide;
@@ -441,12 +435,6 @@ export const TradeForm = ({
         </div>
       </div>
 
-      {/* Binary Event Hint - 二元事件仓位合并提示 */}
-      {showBinaryHint && (
-        <div className="py-2">
-          <BinaryEventHint variant="inline" side={side} />
-        </div>
-      )}
 
       {orderIntent.kind === "blocked-cross-zero" && (
         <div className="space-y-2 rounded-lg border border-trading-red/30 bg-trading-red/10 px-3 py-2 text-[11px] text-trading-red">

@@ -10,7 +10,7 @@ import { usePositions } from "@/hooks/usePositions";
 import { executeTrade } from "@/services/tradingService";
 import { Loader2 } from "lucide-react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
-import { BinaryEventHint, isNoOption } from "@/components/BinaryEventHint";
+
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 
 interface OrderDetail {
@@ -67,14 +67,6 @@ export default function OrderPreview() {
   const isReducing = orderIntent.kind === "reduce" || orderIntent.kind === "close";
   const effectiveTotalCost = orderIntent.incrementalMargin + (parseFloat(orderCalculations.estimatedFee) || 0);
 
-  // 检查是否为二元事件（Yes/No）- 如果选项是 Yes 或 No 则认为是二元事件
-  const isBinaryOrder = useMemo(() => {
-    const label = optionLabel.toLowerCase();
-    return label === "yes" || label === "no";
-  }, [optionLabel]);
-
-  // 如果是 No 选项，显示特殊提示
-  const showBinaryHint = isBinaryOrder && isNoOption(optionLabel);
 
   // Calculate how the payment will be split
   const trialDeduction = Math.min(trialBalance, effectiveTotalCost);
@@ -213,12 +205,6 @@ export default function OrderPreview() {
             ))}
           </div>
           
-          {/* Binary Event Hint - 二元事件仓位合并提示 */}
-          {showBinaryHint && (
-            <div className="mt-4 pt-3 border-t border-border/30">
-              <BinaryEventHint variant="inline" side={orderData.side} />
-            </div>
-          )}
         </div>
       </div>
 
