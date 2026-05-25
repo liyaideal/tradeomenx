@@ -7,6 +7,7 @@ import { EventSelectorSheet } from "@/components/EventSelectorSheet";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
+import { isSingleMarketBinary, getBinarySideLabels } from "@/lib/eventUtils";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
