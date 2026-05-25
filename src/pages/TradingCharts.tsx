@@ -25,9 +25,10 @@ const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 interface TradingChartsContentProps {
   selectedEvent: TradingContextData['selectedEvent'];
   selectedOptionData: TradingContextData['selectedOptionData'];
+  options: TradingContextData['options'];
 }
 
-function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChartsContentProps) {
+function TradingChartsContent({ selectedEvent, selectedOptionData, options }: TradingChartsContentProps) {
   const navigate = useNavigate();
   const { positions, isLoading: positionsLoading } = usePositions();
   const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
@@ -43,7 +44,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
   const setSide = useTradeSideStore((s) => s.setSide);
 
   // binary 单 market 别名（如体育队名）；非 binary 时回退 "Yes"/"No"
-  const isBinary = isSingleMarketBinary(selectedEvent.options ?? []);
+  const isBinary = isSingleMarketBinary(options);
   const sideLabels = getBinarySideLabels(selectedEvent);
   const yesLabel = isBinary ? sideLabels.yes : "Yes";
   const noLabel = isBinary ? sideLabels.no : "No";
@@ -335,6 +336,7 @@ export default function TradingCharts() {
         <TradingChartsContent
           selectedEvent={context.selectedEvent}
           selectedOptionData={context.selectedOptionData}
+          options={context.options}
         />
       )}
     </MobileTradingLayout>
