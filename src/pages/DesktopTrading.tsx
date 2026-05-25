@@ -921,26 +921,35 @@ export default function DesktopTrading() {
 
       </header>
 
-      {/* Option Chips Row */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 overflow-x-auto scrollbar-hide">
-        <span className="text-xs text-muted-foreground flex-shrink-0">Select Option:</span>
-        {options.map((option) => (
-          <button
-            key={option.id}
-            onClick={() => setSelectedOption(option.id)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              selectedOption === option.id
-                ? "bg-trading-purple/20 border border-trading-purple text-foreground"
-                : "bg-muted border border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <span>{option.label}</span>
-            <span className={`ml-2 font-mono ${selectedOption === option.id ? "text-trading-purple" : ""}`}>
-              ${option.price}
-            </span>
-          </button>
-        ))}
-      </div>
+      {/* Option Chips Row — 单 market binary 折叠成只读 market 标签；多 outcome 保留 chip 切换 */}
+      {isBinarySingleMarket ? (
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30">
+          <span className="text-xs text-muted-foreground flex-shrink-0">Market:</span>
+          <span className="text-xs text-foreground font-medium">
+            {binaryLabels.yes} <span className="text-muted-foreground">or</span> {binaryLabels.no}
+          </span>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 overflow-x-auto scrollbar-hide">
+          <span className="text-xs text-muted-foreground flex-shrink-0">Select Option:</span>
+          {options.map((option) => (
+            <button
+              key={option.id}
+              onClick={() => setSelectedOption(option.id)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                selectedOption === option.id
+                  ? "bg-trading-purple/20 border border-trading-purple text-foreground"
+                  : "bg-muted border border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <span>{option.label}</span>
+              <span className={`ml-2 font-mono ${selectedOption === option.id ? "text-trading-purple" : ""}`}>
+                ${option.price}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="flex-1 flex overflow-hidden">
         {/* Left Section: Chart + Order Book + Positions */}
