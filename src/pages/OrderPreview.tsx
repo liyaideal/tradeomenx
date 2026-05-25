@@ -12,6 +12,7 @@ import { Loader2 } from "lucide-react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
+import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 
 interface OrderDetail {
   label: string;
