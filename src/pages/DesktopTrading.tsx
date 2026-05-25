@@ -1106,7 +1106,7 @@ export default function DesktopTrading() {
                               <span className="text-muted-foreground/40">—</span>
                             ) : (
                               <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                                {order.type === "buy" ? "Buy" : "Sell"}
+                                {orderDisplay}
                               </span>
                             )}
                           </td>
