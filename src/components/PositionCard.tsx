@@ -43,6 +43,7 @@ export const PositionCard = ({
   type,
   event,
   option,
+  displayOption,
   optionId,
   entryPrice,
   markPrice,
@@ -59,6 +60,7 @@ export const PositionCard = ({
   positionIndex,
   position: fullPosition,
 }: PositionCardProps) => {
+  const optionDisplay = displayOption ?? option;
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
   
