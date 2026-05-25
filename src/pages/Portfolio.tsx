@@ -646,12 +646,13 @@ export default function Portfolio() {
                                 if (outcome) {
                                   return <span className="text-xs text-muted-foreground/40">—</span>;
                                 }
-                                const colorClass = position.type === "long"
+                                const isLong = position.type === "long";
+                                const colorClass = isLong
                                   ? "border-trading-green/50 text-trading-green bg-trading-green/10"
                                   : "border-trading-red/50 text-trading-red bg-trading-red/10";
                                 return (
                                   <Badge variant="outline" className={`text-[10px] ${colorClass}`}>
-                                    {position.option}
+                                    {isLong ? "Yes" : "No"}
                                   </Badge>
                                 );
                               })()}
