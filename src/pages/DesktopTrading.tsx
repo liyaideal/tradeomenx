@@ -1343,7 +1343,7 @@ export default function DesktopTrading() {
                             ) : (
                             <ClosePositionDialog
                               event={position.event}
-                              option={position.option}
+                              option={position.displayOption ?? position.option}
                               side={position.type}
                               size={Number(position.size) || 0}
                               entryPrice={parseFloat(position.entryPrice.replace(/[$,]/g, "")) || 0}
