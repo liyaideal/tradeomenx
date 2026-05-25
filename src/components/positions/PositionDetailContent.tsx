@@ -99,19 +99,25 @@ export const PositionDetailContent = ({
       <div className="space-y-5">
         {/* ============ Header summary ============ */}
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs">
-            <span
-              className={cn(
-                "px-2 py-0.5 rounded font-medium",
-                position.type === "long"
-                  ? "bg-trading-green/10 text-trading-green"
-                  : "bg-trading-red/10 text-trading-red"
-              )}
-            >
-              {position.type === "long" ? "Yes" : "No"} {position.leverage}
-            </span>
-            <span className="text-muted-foreground truncate">{position.option}</span>
-          </div>
+          {(() => {
+            const outcome = getBinaryOutcome(position.option);
+            const colorClass = outcome === "yes"
+              ? "bg-trading-green/10 text-trading-green"
+              : outcome === "no"
+              ? "bg-trading-red/10 text-trading-red"
+              : position.type === "long"
+              ? "bg-trading-green/10 text-trading-green"
+              : "bg-trading-red/10 text-trading-red";
+            const label = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : position.option;
+            return (
+              <div className="flex items-center gap-2 text-xs">
+                <span className={cn("px-2 py-0.5 rounded font-medium", colorClass)}>
+                  {label} {position.leverage}
+                </span>
+                <span className="text-muted-foreground truncate">{position.displayOption ?? position.option}</span>
+              </div>
+            );
+          })()}
         </div>
 
         {/* ============ Net PnL block ============ */}
