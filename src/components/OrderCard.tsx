@@ -37,6 +37,9 @@ export const OrderCard = ({
   onFill,
 }: OrderCardProps) => {
   const optionDisplay = displayOption ?? option;
+  const lcOpt = option.trim().toLowerCase();
+  const isBinaryAlias = displayOption !== undefined && displayOption !== option && (lcOpt === "yes" || lcOpt === "no");
+  const sideText = isBinaryAlias ? optionDisplay : (type === "buy" ? "Yes" : "No");
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [fillDialogOpen, setFillDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -75,15 +78,17 @@ export const OrderCard = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span
-              className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                type === "buy"
-                  ? "bg-trading-green/20 text-trading-green"
-                  : "bg-trading-red/20 text-trading-red"
-              }`}
-            >
-              {type === "buy" ? "Yes" : "No"}
-            </span>
+            {!isBinaryAlias && (
+              <span
+                className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                  type === "buy"
+                    ? "bg-trading-green/20 text-trading-green"
+                    : "bg-trading-red/20 text-trading-red"
+                }`}
+              >
+                Yes
+              </span>
+            )}
             <span className="text-sm text-muted-foreground">{orderType}</span>
           </div>
           <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${statusColors[status]}`}>
@@ -135,7 +140,7 @@ export const OrderCard = ({
             <span className="text-muted-foreground">Order Type</span>
             <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
               <CheckCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
-              {type === "buy" ? "Yes" : "No"} {orderType}
+              {sideText} {orderType}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
@@ -182,7 +187,7 @@ export const OrderCard = ({
             <span className="text-muted-foreground">Order Type</span>
             <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
               <AlertTriangle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
-              {type === "buy" ? "Yes" : "No"} {orderType}
+              {sideText} {orderType}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
