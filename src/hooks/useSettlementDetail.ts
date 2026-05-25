@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { parseSideLabels } from "@/lib/eventUtils";
 
 export interface TradeRecord {
   id: string;
@@ -34,6 +35,8 @@ export interface SettlementData {
   result: "win" | "lose";
   trades: TradeRecord[];
   priceHistory: PricePoint[];
+  /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
+  sideLabels?: { yes: string; no: string };
 }
 
 interface UseSettlementDetailOptions {
