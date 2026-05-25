@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-05-25 — Single-market binary 收敛（第三轮）
+
+源文档：[2026-05-25-single-market-binary-round3.md](./2026-05-25-single-market-binary-round3.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| BIN3-1 | 删除单 market binary 的 `Market:` 行与 `Select Option:` chip | `DesktopTrading.tsx` / `MobileTradingLayout.tsx` | ✅ | 二元事件 `/trade` 顶部无 Market 行、无 chip；多 outcome 仍渲染 chip | |
+| BIN3-2 | Yes/No 切换按钮等高规范（`grid items-stretch + h-full + flex-1` + `line-clamp-2`） | Trade 面板（mobile + desktop）、Style Guide TradingSection | ✅ | 长球员名一侧两行，另一侧自动撑齐，底边对齐、价格条对齐、无空隙 | |
+| BIN3-3 | 价格条选中态视觉（`bg-trading-{green,red}/85` + `border-t`，未选中 `bg-muted-foreground/15 + text-foreground/80`） | 同上 | ✅ | 选中色饱和、未选中弱化，可读但非主视觉 | |
+| BIN3-4 | 新增 `useEventSideLabelsLookup` + `resolveBinarySideLabel` | `src/hooks/useEventSideLabelsLookup.ts` | ✅ | 跨事件聚合表按行 lookup 不重复 fetch 事件 | |
+| BIN3-5 | Desktop `/trade` 当前事件作用域 4 处别名（Trade 提交按钮 / Preview 确认按钮 / Preview side chip / orderDetails Side 字段） | `DesktopTrading.tsx` | ✅ | 体育类事件按钮文案 "Buy {Player}" 而非 "Buy No" | |
+| BIN3-6 | Desktop 跨事件聚合表 5 处别名（Open Orders / Positions / Airdrops side 列、Close Position Dialog、Cancel Order AlertDialog） | `DesktopTrading.tsx` | ✅ | 多事件混排时每行 side 列按各自事件解析 | |
+| BIN3-7 | Mobile 端别名传播（Trade 按钮 / Preview / Charts / 持仓订单 chip 收敛） | `TradeForm.tsx` / `OrderPreview.tsx` / `TradingCharts.tsx` / `PositionCard.tsx` 等 | ✅ | 与 desktop 行为一致 | |
+| BIN3-8 | 文档同步：`DESIGN.md` + `mem://design/single-market-binary-ui` | DESIGN.md §Single-Market Binary Trade Toggle | ✅ | 包含等高规范 + 双端 sideLabels 传播规则 + 硬编码禁令 | |
+
+---
+
 ## 2026-05-25 — 安全加固：transactions / TOTP / Realtime
 
 源文档：[2026-05-25-security-hardening.md](./2026-05-25-security-hardening.md)
