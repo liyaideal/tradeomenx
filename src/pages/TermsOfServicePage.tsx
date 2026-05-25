@@ -24,7 +24,7 @@ const TermsOfServicePage = () => {
       <h2>3. Platform Description</h2>
       <p>OmenX is a prediction market trading platform that enables users to trade outcome contracts on real-world events. The Platform offers:</p>
       <ul>
-        <li><strong>Leveraged Outcome Trading:</strong> Long and short positions on event outcomes with adjustable leverage (up to 10x).</li>
+        <li><strong>Leveraged Outcome Trading:</strong> Yes and No positions on event outcomes with adjustable leverage (up to 10x). Under the hood, Yes corresponds to a long position and No to a short position on the Yes outcome.</li>
         <li><strong>Order Book Trading:</strong> Limit and market orders through a central limit order book (CLOB).</li>
         <li><strong>Cross-Margin Accounts:</strong> Unified trading accounts with shared margin across positions.</li>
         <li><strong>Settlement in USDC:</strong> All trades are denominated and settled in USDC on the Base blockchain.</li>

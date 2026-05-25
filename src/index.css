@@ -179,7 +179,7 @@
     @apply opacity-90 scale-[0.98];
   }
 
-  /* Buy/Long Button - GREEN with WHITE text */
+  /* Yes (Buy long) Button - GREEN with WHITE text */
   .btn-trading-green {
     @apply text-primary-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
     background: var(--gradient-button-green);
@@ -190,7 +190,7 @@
     @apply opacity-90 scale-[0.98];
   }
 
-  /* Sell/Short Button - RED with WHITE text */
+  /* No (Sell short) Button - RED with WHITE text */
   .btn-trading-red {
     @apply text-primary-foreground font-semibold rounded-xl py-3 px-6 transition-all duration-200;
     background: var(--gradient-button-red);
