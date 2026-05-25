@@ -41,7 +41,7 @@ export const OrderCard = ({
   const outcome = getBinaryOutcome(option);
   const isBinary = outcome !== null;
   const outcomeTextColor = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : "";
-  const sideText = isBinary ? optionDisplay : (type === "buy" ? "Buy" : "Sell");
+  const sideText = optionDisplay;
   const sideColor = isBinary
     ? outcomeTextColor
     : (type === "buy" ? "text-trading-green" : "text-trading-red");
