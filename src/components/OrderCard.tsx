@@ -41,8 +41,8 @@ export const OrderCard = ({
   const outcome = getBinaryOutcome(option);
   const isBinary = outcome !== null;
   const outcomeTextColor = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : "";
-  // Multi-outcome: chip is direction-only (Yes/No based on buy/sell). Binary: chip suppressed in header, displayOption used in drawer rows.
-  const sideText = isBinary ? optionDisplay : (type === "buy" ? "Yes" : "No");
+  // Multi-outcome: 方向 chip = Yes/No (基于 buy/sell)。Binary: header chip 隐藏，drawer 中 Order Type 不再重复 contract，只显示 orderType 文字。
+  const sideText = isBinary ? null : (type === "buy" ? "Yes" : "No");
   const sideColor = isBinary
     ? outcomeTextColor
     : (type === "buy" ? "text-trading-green" : "text-trading-red");
