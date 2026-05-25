@@ -66,7 +66,9 @@ const CompactMarketCard = ({ event, onTrade, highlight }: CompactMarketCardProps
         <div className="flex min-w-0 items-center gap-2 truncate text-muted-foreground">
           {visibleOptions.map((option, i) => (
             <span key={option.id} className="truncate">
-              <span className="text-foreground/80">{option.label}</span>{" "}
+              <span className="text-foreground/80">
+                {getDisplayOptionLabel(option.label, event.options, sideLabels)}
+              </span>{" "}
               <span className="font-mono font-semibold text-foreground">
                 ${option.price.toFixed(2)}
               </span>
