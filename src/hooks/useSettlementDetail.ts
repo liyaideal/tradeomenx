@@ -105,12 +105,14 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         console.error("Error fetching related trades:", relatedError);
       }
 
-      // Fetch event to get event_id for price history
+      // Fetch event to get event_id for price history (+ side_labels for alias display)
       const { data: eventData } = await supabase
         .from("events")
-        .select("id, end_date")
+        .select("id, end_date, side_labels")
         .eq("name", mainTrade.event_name)
         .maybeSingle();
+
+      const sideLabels = parseSideLabels((eventData as any)?.side_labels);
 
       // Fetch price history if we have event data
       let priceHistory: PricePoint[] = [];
