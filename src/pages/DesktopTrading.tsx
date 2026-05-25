@@ -1873,7 +1873,7 @@ export default function DesktopTrading() {
               </>
             ) : (
               <>
-                {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+                {getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
               </>
             )}
           </button>
