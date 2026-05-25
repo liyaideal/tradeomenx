@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 import {
   Tooltip,
   TooltipContent,
