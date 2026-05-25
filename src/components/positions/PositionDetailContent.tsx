@@ -5,6 +5,7 @@ import { UnifiedPosition } from "@/hooks/usePositions";
 import { useFundingHistory } from "@/hooks/useFundingHistory";
 import { useOptionFundingRate } from "@/hooks/useOptionFundingRate";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 import {
   Tooltip,
   TooltipContent,
