@@ -339,7 +339,7 @@ export default function PortfolioAirdrops() {
                               : "border-trading-red/50 text-trading-red bg-trading-red/10"
                           }`}
                         >
-                          {airdrop.counterSide === "long" ? "Long" : "Short"}
+                          {airdrop.counterSide === "long" ? "Yes" : "No"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right font-mono text-trading-green">

@@ -152,7 +152,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     }
 
     // Create, add, reduce, or close corresponding position with validated data (Market orders only)
-    // For binary events: No Long → Yes Short, No Short → Yes Long
+    // Binary events: all positions normalize to the Yes market (No-side trades convert internally)
     const isNoOption = validated.optionLabel.toLowerCase() === "no";
     let positionSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
     let positionOptionLabel = validated.optionLabel;

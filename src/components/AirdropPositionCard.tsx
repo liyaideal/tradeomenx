@@ -90,7 +90,7 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
       <div className="mb-2">
         <h3 className="font-medium text-foreground text-sm">{airdrop.counterEventName}</h3>
         <p className="text-xs text-muted-foreground">
-          {airdrop.counterOptionLabel} · {airdrop.counterSide === "long" ? "Long" : "Short"}
+          {airdrop.counterOptionLabel} · {airdrop.counterSide === "long" ? "Yes" : "No"}
         </p>
       </div>
 

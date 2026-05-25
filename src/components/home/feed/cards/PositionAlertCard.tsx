@@ -50,7 +50,7 @@ export const PositionAlertCard = ({ positionId, compact }: PositionAlertCardProp
             {pos.event}
           </p>
           <p className="mt-0.5 text-[12px] text-muted-foreground">
-            {pos.option} · {pos.type === "long" ? "Long" : "Short"}
+            {pos.option} · {pos.type === "long" ? "Yes" : "No"}
           </p>
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">

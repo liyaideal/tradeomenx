@@ -178,7 +178,7 @@ export const SettlementShareCard = ({
               : "border-trading-red/50 text-trading-red bg-trading-red/10"
             }`}
           >
-            {isLong ? "Long" : "Short"} {leverage}x
+            {isLong ? "Yes" : "No"} {leverage}x
           </Badge>
           <span className="text-xs text-muted-foreground">{option}</span>
         </div>

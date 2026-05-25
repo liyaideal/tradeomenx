@@ -477,7 +477,7 @@ export default function Portfolio() {
                                 : "border-trading-red/50 text-trading-red bg-trading-red/10"
                             }`}
                           >
-                            {position.type === "long" ? "Long" : "Short"}
+                            {position.type === "long" ? "Yes" : "No"}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
                             {position.leverage}
@@ -620,7 +620,7 @@ export default function Portfolio() {
                                     : "border-trading-red/50 text-trading-red bg-trading-red/10"
                                 }`}
                               >
-                                {position.type === "long" ? "Long" : "Short"}
+                                {position.type === "long" ? "Yes" : "No"}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
                                 {position.leverage}
@@ -783,7 +783,7 @@ export default function Portfolio() {
                               : "border-trading-red/50 text-trading-red bg-trading-red/10"
                           }`}
                         >
-                          {settlement.side === "long" ? "Long" : "Short"}
+                          {settlement.side === "long" ? "Yes" : "No"}
                         </Badge>
                         <Badge
                           variant="outline"
@@ -923,7 +923,7 @@ export default function Portfolio() {
                                   : "border-trading-red/50 text-trading-red bg-trading-red/10"
                               }`}
                             >
-                              {settlement.side === "long" ? "Long" : "Short"}
+                              {settlement.side === "long" ? "Yes" : "No"}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
                               {settlement.leverage}

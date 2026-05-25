@@ -14,7 +14,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface BinaryEventHintProps {
   /** Display mode: inline=text+icon, icon=icon only */
   variant?: "inline" | "icon";
-  /** The side user is betting: buy (Long) or sell (Short) */
+  /** The side user is betting: buy (Yes) or sell (No) */
   side?: "buy" | "sell";
   /** Custom class name */
   className?: string;
@@ -28,7 +28,7 @@ const getHintTexts = (side?: "buy" | "sell") => {
   const resultPosition = side === "buy" ? "Yes Short" : "Yes Long";
   return {
     brief: `This creates a ${resultPosition} position.`,
-    detailed: `No Long = Yes Short. No Short = Yes Long. Your P&L is calculated correctly.`,
+    detailed: `All positions on a binary event are unified under the Yes outcome. Buying Yes is bullish; Buying No is bearish. P&L is always measured against Yes price moves.`,
   };
 };
 

@@ -78,7 +78,7 @@ export const OrderCard = ({
                   : "bg-trading-red/20 text-trading-red"
               }`}
             >
-              {type === "buy" ? "Buy" : "Sell"}
+              {type === "buy" ? "Yes" : "No"}
             </span>
             <span className="text-sm text-muted-foreground">{orderType}</span>
           </div>
@@ -131,7 +131,7 @@ export const OrderCard = ({
             <span className="text-muted-foreground">Order Type</span>
             <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
               <CheckCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
-              {type === "buy" ? "Buy" : "Sell"} {orderType}
+              {type === "buy" ? "Yes" : "No"} {orderType}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
@@ -178,7 +178,7 @@ export const OrderCard = ({
             <span className="text-muted-foreground">Order Type</span>
             <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
               <AlertTriangle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
-              {type === "buy" ? "Buy" : "Sell"} {orderType}
+              {type === "buy" ? "Yes" : "No"} {orderType}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">

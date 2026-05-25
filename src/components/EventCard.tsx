@@ -687,7 +687,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
               }`}
             >
               <TrendingUp className={`h-4 w-4 ${tradeSide === "short" ? "rotate-180" : ""}`} />
-              {tradeSide === "long" ? "Buy Long" : "Sell Short"} — {selectedOptionData?.label || "Select option"}
+              {tradeSide === "long" ? "Buy Yes" : "Buy No"} — {selectedOptionData?.label || "Select option"}
             </button>
           </div>
         )}
@@ -715,7 +715,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
               <div className="flex justify-between py-2 border-b border-border/20">
                 <span className="text-muted-foreground text-sm">Side</span>
                 <span className={`text-sm font-medium ${tradeSide === "long" ? "text-trading-green" : "text-trading-red"}`}>
-                  {tradeSide === "long" ? "Buy | Long" : "Sell | Short"}
+                  {tradeSide === "long" ? "Yes" : "No"}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-border/20">
@@ -760,7 +760,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                 }`}
                 onClick={handleConfirmOrder}
               >
-                {tradeSide === "long" ? "Buy Long" : "Sell Short"} - Win ${orderDetails.potentialWin}
+                {tradeSide === "long" ? "Buy Yes" : "Buy No"} - Win ${orderDetails.potentialWin}
               </Button>
             </div>
           </div>

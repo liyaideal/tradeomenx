@@ -84,7 +84,7 @@ export default function OrderPreview() {
   const orderDetails: OrderDetail[] = [
     { label: "Event", value: eventName },
     { label: "Option", value: optionLabel },
-    { label: "Side", value: isBuy ? "Buy | Long" : "Sell | Short", highlight: isBuy ? "green" : "red" },
+    { label: "Side", value: isBuy ? "Yes" : "No", highlight: isBuy ? "green" : "red" },
     { label: "Margin type", value: orderData.marginType || "Cross" },
     { label: "Type", value: orderData.orderType || "Market" },
     { label: "Order Price", value: `${orderData.price || "0.0000"} USDC` },
