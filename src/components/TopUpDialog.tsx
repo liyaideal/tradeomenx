@@ -71,15 +71,15 @@ export function TopUpDialog({ open, onOpenChange, currentBalance, onTopUp }: Top
       const success = await addBalance(receivedAmount);
       
       if (success) {
-        // Record the transaction
-        const { error: txError } = await supabase
-          .from("transactions")
-          .insert({
-            user_id: user.id,
+        // Record the transaction via privileged edge function
+        const { error: txError } = await supabase.functions.invoke("record-transaction", {
+          body: {
             type: "card_deposit",
             amount: receivedAmount,
-            description: `Card deposit of $${numAmount.toFixed(2)} (Fee: $${(numAmount * feePercent).toFixed(2)})`
-          });
+            description: `Card deposit of $${numAmount.toFixed(2)} (Fee: $${(numAmount * feePercent).toFixed(2)})`,
+            status: "completed",
+          },
+        });
 
         if (txError) {
           console.error("Failed to record transaction:", txError);

@@ -81,24 +81,23 @@ export const useWithdraw = () => {
         throw new Error('Exceeds daily withdrawal limit');
       }
 
-      // Persist a row in the transactions ledger so it shows up in
-      // /wallet > Transaction History immediately.
-      const { data: inserted, error: insertError } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user!.id,
-          type: 'withdraw',
-          amount: -amount,
-          description: 'Withdrawal to wallet',
-          status: 'processing',
-          network: data.network || null,
-          tx_hash: null,
-        })
-        .select('id')
-        .single();
+      // Persist a row in the transactions ledger via privileged edge function
+      // (client-side INSERT is no longer allowed on the transactions table).
+      const { data: inserted, error: insertError } = await supabase.functions.invoke<{ id: string; error?: string }>(
+        'record-transaction',
+        {
+          body: {
+            type: 'withdraw',
+            amount: -amount,
+            description: 'Withdrawal to wallet',
+            status: 'processing',
+            network: data.network || null,
+          },
+        }
+      );
 
-      if (insertError) {
-        throw new Error(insertError.message || 'Failed to submit withdrawal');
+      if (insertError || !inserted?.id) {
+        throw new Error(insertError?.message || inserted?.error || 'Failed to submit withdrawal');
       }
 
       const newWithdrawal: WithdrawRecord = {
