@@ -111,7 +111,7 @@ export const PositionCard = ({
 
   const handleClosePartial = async (qty: number) => {
     if (!positionId || positionIndex === undefined) {
-      toast({ title: "Position Closed", description: `Your ${type} position on ${option} has been closed.` });
+      toast({ title: "Position Closed", description: `Your ${type} position on ${optionDisplay} has been closed.` });
       return;
     }
     await partialClosePosition(positionId, positionIndex, qty);
