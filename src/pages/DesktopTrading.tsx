@@ -1393,33 +1393,47 @@ export default function DesktopTrading() {
             </div>
 
             <div className="px-4 py-3 space-y-3">
-            {/* Yes/No Toggle with embedded prices */}
+            {/* Yes/No Toggle — binary 单 market 下点击同时切换 selectedOption，让 K 线/订单簿/价格行联动 */}
             <div className="space-y-1">
               <div className="flex bg-muted rounded-lg p-0.5">
                 <button
-                  onClick={() => setSide("buy")}
+                  onClick={() => {
+                    setSide("buy");
+                    if (isBinarySingleMarket && yesNoOptions.yes) {
+                      setSelectedOption(yesNoOptions.yes.id);
+                    }
+                  }}
                   className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
-                    side === "buy" ? "bg-trading-green text-trading-green-foreground" : "text-muted-foreground hover:text-foreground"
+                    isYesSelected ? "bg-trading-green text-trading-green-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <span className="text-xs font-semibold leading-tight">Yes</span>
-                  <span className={`text-[11px] font-mono leading-tight ${side === "buy" ? "opacity-90" : "opacity-70"}`}>
-                    {longPrice.toFixed(4)}
+                  <span className="text-xs font-semibold leading-tight">{binaryLabels.yes}</span>
+                  <span className={`text-[11px] font-mono leading-tight ${isYesSelected ? "opacity-90" : "opacity-70"}`}>
+                    {yesPrice.toFixed(4)}
                   </span>
                 </button>
                 <button
-                  onClick={() => setSide("sell")}
+                  onClick={() => {
+                    if (isBinarySingleMarket && yesNoOptions.no) {
+                      // binary 模式：Buy No 是 No 端的 long 仓位，不再是 Yes 端的 sell
+                      setSide("buy");
+                      setSelectedOption(yesNoOptions.no.id);
+                    } else {
+                      setSide("sell");
+                    }
+                  }}
                   className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
-                    side === "sell" ? "bg-trading-red text-foreground" : "text-muted-foreground hover:text-foreground"
+                    !isYesSelected ? "bg-trading-red text-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <span className="text-xs font-semibold leading-tight">No</span>
-                  <span className={`text-[11px] font-mono leading-tight ${side === "sell" ? "opacity-90" : "opacity-70"}`}>
-                    {shortPrice.toFixed(4)}
+                  <span className="text-xs font-semibold leading-tight">{binaryLabels.no}</span>
+                  <span className={`text-[11px] font-mono leading-tight ${!isYesSelected ? "opacity-90" : "opacity-70"}`}>
+                    {noPrice.toFixed(4)}
                   </span>
                 </button>
               </div>
             </div>
+
 
             {/* Margin Mode */}
             <div className="flex items-center justify-between relative">
