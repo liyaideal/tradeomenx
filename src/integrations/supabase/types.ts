@@ -394,6 +394,7 @@ export type Database = {
           rules: string | null
           settled_at: string | null
           settlement_description: string | null
+          side_labels: Json | null
           source_name: string | null
           source_url: string | null
           start_date: string | null
@@ -415,6 +416,7 @@ export type Database = {
           rules?: string | null
           settled_at?: string | null
           settlement_description?: string | null
+          side_labels?: Json | null
           source_name?: string | null
           source_url?: string | null
           start_date?: string | null
@@ -436,6 +438,7 @@ export type Database = {
           rules?: string | null
           settled_at?: string | null
           settlement_description?: string | null
+          side_labels?: Json | null
           source_name?: string | null
           source_url?: string | null
           start_date?: string | null

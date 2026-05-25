@@ -187,6 +187,15 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
       }));
     }
 
+    // Parse side labels (single-market binary aliases, e.g. sports team names)
+    let sideLabels: { yes: string; no: string } | undefined;
+    if (event.side_labels && typeof event.side_labels === 'object' && !Array.isArray(event.side_labels)) {
+      const sl = event.side_labels as Record<string, unknown>;
+      if (typeof sl.yes === 'string' && typeof sl.no === 'string') {
+        sideLabels = { yes: sl.yes, no: sl.no };
+      }
+    }
+
     return {
       id: event.id,
       name: event.name,
@@ -205,6 +214,7 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
       currentPrice,
       priceChange24h,
       priceLabel,
+      sideLabels,
     };
   };
 
