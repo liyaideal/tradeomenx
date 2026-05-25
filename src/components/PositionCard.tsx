@@ -238,26 +238,12 @@ export const PositionCard = ({
           >
             <h3 className="font-medium text-foreground text-sm truncate">{event}</h3>
             <div className="flex items-center gap-2">
-              <p className="text-xs text-muted-foreground">{option}</p>
+              <p className="text-xs text-muted-foreground">{optionDisplay}</p>
               {fullPosition && (
                 <span className="text-[10px] text-primary">Details ›</span>
               )}
             </div>
           </button>
-          {option.toLowerCase() === "yes" && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="p-0.5 rounded hover:bg-muted/50 transition-colors mt-0.5">
-                  <Info className="w-3 h-3 text-trading-yellow" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-3 text-xs" side="top" align="start">
-                <p className="text-muted-foreground">
-                  <span className="text-trading-yellow">💡</span> All positions on a binary event are displayed under the Yes outcome. Buying Yes is bullish on the event; buying No is bearish. P&L is always measured against Yes price moves.
-                </p>
-              </PopoverContent>
-            </Popover>
-          )}
         </div>
 
         {/* Position Details */}
