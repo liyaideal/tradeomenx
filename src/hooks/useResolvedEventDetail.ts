@@ -132,12 +132,16 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
 
         relatedEvents = (relatedEventsData || []).map((e: any) => {
           const winningOption = (e.event_options || []).find((o: any) => o.is_winner);
+          const relSideLabels = parseSideLabels(e.side_labels);
+          const relOptions = (e.event_options || []).map((o: any) => ({ label: o.label }));
           return {
             id: e.id,
             name: e.name,
             category: e.category,
             is_resolved: e.is_resolved,
-            winning_option_label: winningOption?.label || null,
+            winning_option_label: winningOption
+              ? getDisplayOptionLabel(winningOption.label, relOptions, relSideLabels)
+              : null,
           };
         });
       }
