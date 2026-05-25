@@ -31,6 +31,7 @@ import { usePositions } from "@/hooks/usePositions";
 import { usePositionsStore } from "@/stores/usePositionsStore";
 import { orderToPosition } from "@/lib/orderUtils";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
