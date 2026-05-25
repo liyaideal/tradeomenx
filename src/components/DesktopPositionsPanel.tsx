@@ -483,7 +483,8 @@ export const DesktopPositionsPanel = () => {
                         </div>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>
