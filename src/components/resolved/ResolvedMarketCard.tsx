@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ResolvedEvent } from "@/hooks/useResolvedEvents";
 import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
+import { getDisplayOptionLabel } from "@/lib/eventUtils";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
