@@ -125,7 +125,7 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         const { data: relatedEventsData } = await supabase
           .from("events")
           .select(`
-            id, name, category, is_resolved, winning_option_id,
+            id, name, category, is_resolved, winning_option_id, side_labels,
             event_options (id, label, is_winner)
           `)
           .in("id", ids);
