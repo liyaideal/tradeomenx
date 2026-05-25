@@ -307,7 +307,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               <span className={`${isMobile ? "text-xs" : "text-sm"} ${
                 option.is_winner ? "text-foreground font-medium" : "text-muted-foreground"
               } truncate`}>
-                {option.label}
+                {option.displayLabel ?? option.label}
               </span>
               <span className={`${isMobile ? "text-[10px]" : "text-xs"} font-mono font-medium flex-shrink-0 ${
                 isPositive ? "text-trading-green" : "text-trading-red"
