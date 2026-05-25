@@ -9,6 +9,8 @@ interface OrderCardProps {
   orderType: "Limit" | "Market";
   event: string;
   option: string;
+  /** Display label after applying sideLabels; falls back to option. */
+  displayOption?: string;
   probability?: string;
   price: string;
   amount: string;
@@ -24,6 +26,7 @@ export const OrderCard = ({
   orderType,
   event,
   option,
+  displayOption,
   probability,
   price,
   amount,
@@ -33,6 +36,7 @@ export const OrderCard = ({
   onCancel,
   onFill,
 }: OrderCardProps) => {
+  const optionDisplay = displayOption ?? option;
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [fillDialogOpen, setFillDialogOpen] = useState(false);
   const { toast } = useToast();
