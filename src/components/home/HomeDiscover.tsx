@@ -31,6 +31,7 @@ const CompactMarketCard = ({ event, onTrade, highlight }: CompactMarketCardProps
   const categoryInfo = getCategoryFromName(event.name);
   const visibleOptions = event.options.slice(0, 2);
   const moreCount = event.options.length - visibleOptions.length;
+  const sideLabels = parseSideLabels(event.side_labels);
 
   return (
     <div
