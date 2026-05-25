@@ -182,7 +182,7 @@ const ResolvedEventDetail = () => {
                 sourceName={event.source_name}
                 sourceUrl={event.source_url}
                 settlementDescription={event.settlement_description}
-                winningOptionLabel={null}
+                winningOptionLabel={winningOption?.displayLabel || null}
               />
             </CardContent>
           </Card>
