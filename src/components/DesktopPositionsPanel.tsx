@@ -266,13 +266,22 @@ export const DesktopPositionsPanel = () => {
                       <tr key={index} className="border-b border-border/30 hover:bg-muted/30">
                         <td className="px-3 py-2 text-sm">
                           <div className="flex items-center gap-2">
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                              position.type === "long"
+                            {(() => {
+                              const outcome = getBinaryOutcome(position.option);
+                              const colorClass = outcome === "yes"
                                 ? "bg-trading-green/20 text-trading-green"
-                                : "bg-trading-red/20 text-trading-red"
-                            }`}>
-                              {position.type === "long" ? "Yes" : "No"}
-                            </span>
+                                : outcome === "no"
+                                ? "bg-trading-red/20 text-trading-red"
+                                : position.type === "long"
+                                ? "bg-trading-green/20 text-trading-green"
+                                : "bg-trading-red/20 text-trading-red";
+                              const label = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : position.option;
+                              return (
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${colorClass}`}>
+                                  {label}
+                                </span>
+                              );
+                            })()}
                             <PositionDetailDialog
                               position={position}
                               liveMarkPrice={realtimePnL.hasRealtimePrice ? realtimePnL.markPrice : undefined}
