@@ -2088,17 +2088,27 @@ export default function DesktopTrading() {
           
           {cancellingOrderIndex !== null && unifiedOrders[cancellingOrderIndex] && (() => {
             const order = unifiedOrders[cancellingOrderIndex];
+            const orderOutcome = getBinaryOutcome(order.option);
+            const orderDisplay = (order as any).displayOption ?? order.option;
+            const outcomeColor = orderOutcome === "yes"
+              ? "text-trading-green font-medium"
+              : orderOutcome === "no"
+              ? "text-trading-red font-medium"
+              : (order.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium");
+            const typeLabel = orderOutcome
+              ? `${orderDisplay} ${order.orderType}`
+              : `${order.type === "buy" ? "Buy" : "Sell"} ${order.orderType}`;
             return (
               <div className="bg-muted/50 rounded-lg p-4 space-y-2 my-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Order Type</span>
-                  <span className={order.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                    {resolveBinarySideLabel(order.type === "buy" ? "yes" : "no", lookupSideLabels(order.event).labels)} {order.orderType}
+                  <span className={outcomeColor}>
+                    {typeLabel}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Contract</span>
-                  <span className="font-medium">{order.option}</span>
+                  <span className={`font-medium ${orderOutcome === "yes" ? "text-trading-green" : orderOutcome === "no" ? "text-trading-red" : ""}`}>{orderDisplay}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Event</span>
