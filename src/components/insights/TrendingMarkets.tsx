@@ -196,7 +196,7 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
               <div className="flex items-center gap-3 mb-2">
                 {mainOption && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-muted-foreground">{mainOption.label}:</span>
+                    <span className="text-xs text-muted-foreground">{mainLabel}:</span>
                     <span className="text-sm font-bold text-foreground font-mono">${mainPrice.toFixed(2)}</span>
                     {mainChange && (
                       <span className={`text-[10px] font-medium ${mainChange.change >= 0 ? "text-trading-green" : "text-trading-red"}`}>
@@ -207,7 +207,7 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                 )}
                 {secondOption && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-muted-foreground">{secondOption.label}:</span>
+                    <span className="text-xs text-muted-foreground">{secondLabel}:</span>
                     <span className="text-sm font-bold text-foreground font-mono">${secondOption.price.toFixed(2)}</span>
                   </div>
                 )}
