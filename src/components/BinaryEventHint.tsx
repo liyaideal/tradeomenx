@@ -21,14 +21,14 @@ interface BinaryEventHintProps {
 }
 
 /**
- * Get dynamic hint text based on the side
- * No Long → Yes Short, No Short → Yes Long
+ * Get dynamic hint text based on the side.
+ * Display layer is unified to Yes/No; underlying `side` stays long/short.
  */
 const getHintTexts = (side?: "buy" | "sell") => {
-  const resultPosition = side === "buy" ? "Yes Short" : "Yes Long";
+  const sideLabel = side === "buy" ? "Yes" : "No";
   return {
-    brief: `This creates a ${resultPosition} position.`,
-    detailed: `All positions on a binary event are unified under the Yes outcome. Buying Yes is bullish; Buying No is bearish. P&L is always measured against Yes price moves.`,
+    brief: `This opens a ${sideLabel} position on the Yes market.`,
+    detailed: `All positions on a binary event are unified under the Yes outcome. Buying Yes is bullish on the event; Buying No is bearish. P&L is always measured against Yes price moves.`,
   };
 };
 
