@@ -149,7 +149,7 @@ export const DesktopPositionsPanel = () => {
         }
         toast({
           title: "Order Filled",
-          description: `${order.type === 'buy' ? 'Yes' : 'No'} position opened for ${order.option}`,
+          description: `${order.type === 'buy' ? 'Yes' : 'No'} position opened for ${order.displayOption ?? order.option}`,
         });
       } catch (error) {
         toast({
@@ -177,7 +177,7 @@ export const DesktopPositionsPanel = () => {
         }
         toast({
           title: "Order Cancelled",
-          description: `Your ${order.type} order for ${order.option} has been cancelled.`,
+          description: `Your ${order.type} order for ${order.displayOption ?? order.option} has been cancelled.`,
         });
       } catch (error) {
         toast({
@@ -317,7 +317,7 @@ export const DesktopPositionsPanel = () => {
                         <td className="px-3 py-2 text-sm">
                           <ClosePositionDialog
                             event={position.event}
-                            option={position.option}
+                            option={position.displayOption ?? position.option}
                             side={position.type}
                             size={Number(position.size) || 0}
                             entryPrice={parseFloat(position.entryPrice.replace(/[$,]/g, "")) || 0}
@@ -409,7 +409,7 @@ export const DesktopPositionsPanel = () => {
                     <tr key={order.id || index} className="border-b border-border/30 hover:bg-muted/30">
                       <td className="px-3 py-2 text-sm">
                         <div className="flex flex-col">
-                          <span className="font-medium max-w-[150px] truncate">{order.option}</span>
+                          <span className="font-medium max-w-[150px] truncate">{order.displayOption ?? order.option}</span>
                           <span className="text-xs text-muted-foreground max-w-[150px] truncate">{order.event}</span>
                         </div>
                       </td>
@@ -512,7 +512,7 @@ export const DesktopPositionsPanel = () => {
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
-                  <span className="font-medium">{editingPosition.option}</span>
+                  <span className="font-medium">{editingPosition.displayOption ?? editingPosition.option}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
@@ -636,7 +636,7 @@ export const DesktopPositionsPanel = () => {
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Contract</span>
-                <span className="font-medium">{selectedOrder.option}</span>
+                <span className="font-medium">{selectedOrder.displayOption ?? selectedOrder.option}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Price</span>
@@ -688,7 +688,7 @@ export const DesktopPositionsPanel = () => {
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Contract</span>
-                <span className="font-medium">{selectedOrder.option}</span>
+                <span className="font-medium">{selectedOrder.displayOption ?? selectedOrder.option}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Price</span>
