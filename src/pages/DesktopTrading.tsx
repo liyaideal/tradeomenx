@@ -366,6 +366,23 @@ export default function DesktopTrading() {
   const shortPrice = useMemo(() => +(1 - longPrice).toFixed(4), [longPrice]);
   const sidePrice = side === "buy" ? longPrice : shortPrice;
 
+  // Binary single-market 检测：折叠顶部 chip 行、Yes/No 按钮直连 option 切换
+  const isBinarySingleMarket = useMemo(() => isSingleMarketBinary(options), [options]);
+  const binaryLabels = useMemo(() => getBinarySideLabels(selectedEvent), [selectedEvent]);
+  const yesNoOptions = useMemo(() => getYesNoOptions(options), [options]);
+  const yesPrice = useMemo(
+    () => (yesNoOptions.yes ? parseFloat(yesNoOptions.yes.price) || 0 : longPrice),
+    [yesNoOptions.yes, longPrice],
+  );
+  const noPrice = useMemo(
+    () => (yesNoOptions.no ? parseFloat(yesNoOptions.no.price) || 0 : shortPrice),
+    [yesNoOptions.no, shortPrice],
+  );
+  const isYesSelected = isBinarySingleMarket
+    ? selectedOption === yesNoOptions.yes?.id
+    : side === "buy";
+
+
   // Calculate order values based on amount and leverage
   const orderCalculations = useMemo(() => {
     const amountValue = parseFloat(amount) || 0;
