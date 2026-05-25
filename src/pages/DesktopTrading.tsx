@@ -1858,24 +1858,15 @@ export default function DesktopTrading() {
           </div>
 
 
-          <button
+          <TradeSubmitButton
+            side={side}
+            label={getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)}
+            potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             onClick={handleConfirmOrder}
-            disabled={isSubmittingOrder}
-            className={`w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 active:scale-[0.98] mt-4 flex items-center justify-center gap-2 ${
-              side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
-            } ${isSubmittingOrder ? "opacity-70 cursor-not-allowed" : ""}`}
-          >
-            {isSubmittingOrder ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                {getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
-              </>
-            )}
-          </button>
+            loading={isSubmittingOrder}
+            size="lg"
+            className="mt-4"
+          />
         </DialogContent>
       </Dialog>
 
