@@ -1761,7 +1761,7 @@ export default function DesktopTrading() {
                 side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
               } ${orderIntent.kind === "blocked-cross-zero" ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+              {getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             </button>
             </div>
           </div>
