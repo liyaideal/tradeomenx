@@ -265,37 +265,42 @@ export const DesktopPositionsPanel = () => {
                     return (
                       <tr key={index} className="border-b border-border/30 hover:bg-muted/30">
                         <td className="px-3 py-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            {(() => {
-                              const outcome = getBinaryOutcome(position.option);
-                              const colorClass = outcome === "yes"
-                                ? "bg-trading-green/20 text-trading-green"
-                                : outcome === "no"
-                                ? "bg-trading-red/20 text-trading-red"
-                                : position.type === "long"
-                                ? "bg-trading-green/20 text-trading-green"
-                                : "bg-trading-red/20 text-trading-red";
-                              const label = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : position.option;
-                              return (
-                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${colorClass}`}>
-                                  {label}
-                                </span>
-                              );
-                            })()}
-                            <PositionDetailDialog
-                              position={position}
-                              liveMarkPrice={realtimePnL.hasRealtimePrice ? realtimePnL.markPrice : undefined}
-                            >
-                              <button
-                                type="button"
-                                className="font-medium cursor-pointer border-b border-dashed border-muted-foreground hover:border-foreground hover:text-primary transition-colors max-w-[150px] truncate inline-block text-left"
-                                title="View position details"
-                              >
-                                {optionDisplay}
-                              </button>
-                            </PositionDetailDialog>
-                            <span className="text-xs text-muted-foreground">{position.leverage}</span>
-                          </div>
+                          {(() => {
+                            const outcome = getBinaryOutcome(position.option);
+                            const nameColorClass = outcome === "yes"
+                              ? "text-trading-green hover:text-trading-green/80 border-trading-green/40 hover:border-trading-green"
+                              : outcome === "no"
+                              ? "text-trading-red hover:text-trading-red/80 border-trading-red/40 hover:border-trading-red"
+                              : "hover:text-primary border-muted-foreground hover:border-foreground";
+                            return (
+                              <div className="flex items-center gap-2">
+                                {!outcome && (
+                                  <span
+                                    className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                                      position.type === "long"
+                                        ? "bg-trading-green/20 text-trading-green"
+                                        : "bg-trading-red/20 text-trading-red"
+                                    }`}
+                                  >
+                                    {position.option}
+                                  </span>
+                                )}
+                                <PositionDetailDialog
+                                  position={position}
+                                  liveMarkPrice={realtimePnL.hasRealtimePrice ? realtimePnL.markPrice : undefined}
+                                >
+                                  <button
+                                    type="button"
+                                    className={`font-medium cursor-pointer border-b border-dashed transition-colors max-w-[150px] truncate inline-block text-left ${nameColorClass}`}
+                                    title="View position details"
+                                  >
+                                    {optionDisplay}
+                                  </button>
+                                </PositionDetailDialog>
+                                <span className="text-xs text-muted-foreground">{position.leverage}</span>
+                              </div>
+                            );
+                          })()}
                         </td>
                         <td className="px-3 py-2 text-sm font-mono">{position.sizeDisplay}</td>
                         <td className="px-3 py-2 text-sm font-mono">{position.margin}</td>
