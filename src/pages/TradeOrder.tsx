@@ -27,7 +27,7 @@ interface TradeOrderContentProps {
 }
 
 
-function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderContentProps) {
+function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSelectedOption }: TradeOrderContentProps) {
   const location = useLocation();
   const state = location.state as LocationState | null;
   
