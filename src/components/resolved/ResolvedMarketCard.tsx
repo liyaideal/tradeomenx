@@ -93,7 +93,7 @@ export const ResolvedMarketCard = ({ event, onClick }: ResolvedMarketCardProps) 
             <>
               <Check className="h-3.5 w-3.5 text-trading-green flex-shrink-0" />
               <span className="text-[12px] font-medium text-trading-green truncate">
-                {winner.label}
+                {getDisplayOptionLabel(winner.label, event.options, event.sideLabels)}
               </span>
             </>
           ) : (
