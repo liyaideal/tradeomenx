@@ -18,6 +18,8 @@ interface PositionCardProps {
   type: "long" | "short";
   event: string;
   option: string;
+  /** Display label after applying sideLabels; falls back to option. */
+  displayOption?: string;
   optionId?: string | null;
   entryPrice: string;
   markPrice: string;
