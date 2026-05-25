@@ -101,24 +101,45 @@ export const PositionDetailContent = ({
         <div className="space-y-1">
           {(() => {
             const outcome = getBinaryOutcome(position.option);
-            const colorClass = outcome === "yes"
-              ? "bg-trading-green/10 text-trading-green"
-              : outcome === "no"
-              ? "bg-trading-red/10 text-trading-red"
-              : position.type === "long"
-              ? "bg-trading-green/10 text-trading-green"
-              : "bg-trading-red/10 text-trading-red";
-            const label = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : position.option;
+            // Binary single-market row: outcome color goes on the main label
+            // (team name or Yes/No); no redundant Yes/No chip. See
+            // mem://design/single-market-binary-ui.
+            if (outcome !== null) {
+              const label = position.displayOption ?? position.option;
+              const colorClass =
+                outcome === "yes" ? "text-trading-green" : "text-trading-red";
+              return (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className={cn("font-semibold truncate", colorClass)}>
+                    {label}
+                  </span>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {position.leverage}
+                  </span>
+                </div>
+              );
+            }
+            // Multi-outcome event: keep existing chip + optional secondary label
+            const chipColor =
+              position.type === "long"
+                ? "bg-trading-green/10 text-trading-green"
+                : "bg-trading-red/10 text-trading-red";
+            const secondary = position.displayOption;
+            const showSecondary =
+              secondary && secondary !== position.option;
             return (
               <div className="flex items-center gap-2 text-xs">
-                <span className={cn("px-2 py-0.5 rounded font-medium", colorClass)}>
-                  {label} {position.leverage}
+                <span className={cn("px-2 py-0.5 rounded font-medium", chipColor)}>
+                  {position.option} {position.leverage}
                 </span>
-                <span className="text-muted-foreground truncate">{position.displayOption ?? position.option}</span>
+                {showSecondary && (
+                  <span className="text-muted-foreground truncate">{secondary}</span>
+                )}
               </div>
             );
           })()}
         </div>
+
 
         {/* ============ Net PnL block ============ */}
         <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
