@@ -371,6 +371,7 @@ export default function DesktopTrading() {
   const isBinarySingleMarket = useMemo(() => isSingleMarketBinary(options), [options]);
   const binaryLabels = useMemo(() => getBinarySideLabels(selectedEvent), [selectedEvent]);
   const yesNoOptions = useMemo(() => getYesNoOptions(options), [options]);
+  const lookupSideLabels = useEventSideLabelsLookup();
   const yesPrice = useMemo(
     () => (yesNoOptions.yes ? parseFloat(yesNoOptions.yes.price) || 0 : longPrice),
     [yesNoOptions.yes, longPrice],
