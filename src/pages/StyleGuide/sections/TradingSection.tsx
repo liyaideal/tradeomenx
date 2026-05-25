@@ -23,6 +23,16 @@ interface TradingSectionProps {
 
 export const TradingSection = ({ isMobile }: TradingSectionProps) => {
   const [selectedOption, setSelectedOption] = useState("opt1");
+
+  // Single-market binary toggle playground
+  const binaryPresets = [
+    { id: "yn", label: "Yes / No (default)", yes: "Yes", no: "No", yesPrice: 0.3, noPrice: 0.7 },
+    { id: "nba", label: "NBA teams (long labels)", yes: "Boston Celtics", no: "Oklahoma City Thunder", yesPrice: 0.52, noPrice: 0.48 },
+    { id: "epl", label: "Single-word teams", yes: "Arsenal", no: "Chelsea", yesPrice: 0.61, noPrice: 0.39 },
+  ];
+  const [binaryPresetIdx, setBinaryPresetIdx] = useState(0);
+  const [binaryActive, setBinaryActive] = useState<"yes" | "no">("yes");
+  const binaryPreset = binaryPresets[binaryPresetIdx];
   
   // Account Risk Playground
   const [riskTotalAssets, setRiskTotalAssets] = useState(100);
@@ -895,6 +905,83 @@ const categoryInfo = getCategoryInfo(event.category);
   {categoryInfo.label}
 </Badge>`}
               />
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
+      <SectionWrapper
+        id="binary-trade-toggle"
+        title="Single-Market Binary Trade Toggle"
+        description="Yes/No 切换器：高度由内容驱动，短标签紧凑，长队名换行才撑高。两侧 grid-cols-2 自动等高。"
+      >
+        <Card>
+          <CardContent className="p-6 space-y-6">
+            {/* PresetRail */}
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {binaryPresets.map((p, idx) => (
+                <button
+                  key={p.id}
+                  onClick={() => setBinaryPresetIdx(idx)}
+                  className={cn(
+                    "shrink-0 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border",
+                    idx === binaryPresetIdx
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted text-muted-foreground border-border hover:text-foreground"
+                  )}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Live demo */}
+            <div className="max-w-sm">
+              <div className="grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg">
+                {(["yes", "no"] as const).map((side) => {
+                  const active = binaryActive === side;
+                  const label = side === "yes" ? binaryPreset.yes : binaryPreset.no;
+                  const price = side === "yes" ? binaryPreset.yesPrice : binaryPreset.noPrice;
+                  const activeBg = side === "yes" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground";
+                  const activePriceBg = side === "yes"
+                    ? "bg-trading-green/85 text-trading-green-foreground border-black/20"
+                    : "bg-trading-red/85 text-foreground border-black/20";
+                  return (
+                    <button
+                      key={side}
+                      onClick={() => setBinaryActive(side)}
+                      className="relative flex flex-col rounded-md overflow-hidden transition-all duration-200"
+                    >
+                      <div
+                        className={cn(
+                          "relative flex items-center justify-center min-h-[24px] py-1.5 px-2",
+                          active ? activeBg : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        )}
+                      >
+                        <span className="text-[11px] font-semibold leading-tight line-clamp-2 text-center">{label}</span>
+                        {active && (
+                          <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]" />
+                        )}
+                      </div>
+                      <div
+                        className={cn(
+                          "h-[22px] flex items-center justify-center border-t text-[11px] font-mono",
+                          active ? activePriceBg : "bg-muted-foreground/15 text-foreground/80 border-border/40"
+                        )}
+                      >
+                        {price.toFixed(4)}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p>· 容器 <code className="font-mono">bg-muted/30 grid-cols-2 gap-2 p-1</code></p>
+              <p>· 按钮不固定高度；上层 <code className="font-mono">min-h-[24px] py-1.5</code> + <code className="font-mono">line-clamp-2</code></p>
+              <p>· 价格条固定 <code className="font-mono">h-[22px]</code>，与上层用 <code className="font-mono">border-t</code> 分隔，选中态同色系 /85</p>
+              <p>· 严禁给按钮硬编码 <code className="font-mono">h-14</code> / <code className="font-mono">h-16</code></p>
             </div>
           </CardContent>
         </Card>
