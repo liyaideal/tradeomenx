@@ -213,7 +213,7 @@ export const TradeForm = ({
       {/* Yes/No Toggle — binary 单 market 下点击切换 option（联动 K 线/订单簿），否则切换 side */}
       {/* 双层结构：上层 label（队名/Yes/No），下层独立色块价格条 */}
       <div className="space-y-1">
-        <div className="grid grid-cols-2 gap-2 p-1 bg-background rounded-lg">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg">
           {(() => {
             const yesActive = binaryMode ? binaryMode.isYesSelected : side === "buy";
             const noActive = binaryMode ? !binaryMode.isYesSelected : side === "sell";
@@ -242,13 +242,13 @@ export const TradeForm = ({
                     )}
                   </div>
                   <div
-                    className={`h-5 flex items-center justify-center ${
+                    className={`h-[22px] flex items-center justify-center border-t ${
                       yesActive
-                        ? "bg-black/15 text-trading-green-foreground"
-                        : "bg-black/20 text-muted-foreground"
+                        ? "bg-trading-green/85 text-trading-green-foreground border-black/20"
+                        : "bg-muted-foreground/15 text-foreground/80 border-border/40"
                     }`}
                   >
-                    <span className="text-[10px] font-mono">{yesPriceVal}</span>
+                    <span className="text-[11px] font-mono">{yesPriceVal}</span>
                   </div>
                 </button>
                 <button
@@ -270,11 +270,13 @@ export const TradeForm = ({
                     )}
                   </div>
                   <div
-                    className={`h-5 flex items-center justify-center ${
-                      noActive ? "bg-black/15 text-foreground" : "bg-black/20 text-muted-foreground"
+                    className={`h-[22px] flex items-center justify-center border-t ${
+                      noActive
+                        ? "bg-trading-red/85 text-foreground border-black/20"
+                        : "bg-muted-foreground/15 text-foreground/80 border-border/40"
                     }`}
                   >
-                    <span className="text-[10px] font-mono">{noPriceVal}</span>
+                    <span className="text-[11px] font-mono">{noPriceVal}</span>
                   </div>
                 </button>
               </>
