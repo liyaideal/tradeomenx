@@ -249,6 +249,7 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         result: isWin ? "win" : "lose",
         trades,
         priceHistory,
+        sideLabels,
       };
     },
     enabled: !!settlementId && !!user,
