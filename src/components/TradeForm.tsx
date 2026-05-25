@@ -211,42 +211,75 @@ export const TradeForm = ({
   return (
     <div className="px-3 pb-2 space-y-2">
       {/* Yes/No Toggle — binary 单 market 下点击切换 option（联动 K 线/订单簿），否则切换 side */}
+      {/* 双层结构：上层 label（队名/Yes/No），下层独立色块价格条 */}
       <div className="space-y-1">
-        <div className="flex bg-muted rounded-lg p-0.5">
-          <button
-            onClick={() => (binaryMode ? binaryMode.onSelectYes() : setSide("buy"))}
-            className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
-              (binaryMode ? binaryMode.isYesSelected : side === "buy")
-                ? "bg-trading-green text-trading-green-foreground"
-                : "text-muted-foreground"
-            }`}
-          >
-            <span className="text-xs font-semibold leading-tight">
-              {binaryMode?.yesLabel ?? "Yes"}
-            </span>
-            <span className={`text-[11px] font-mono leading-tight ${
-              (binaryMode ? binaryMode.isYesSelected : side === "buy") ? "opacity-90" : "opacity-70"
-            }`}>
-              {(binaryMode?.yesPrice ?? longPrice).toFixed(4)}
-            </span>
-          </button>
-          <button
-            onClick={() => (binaryMode ? binaryMode.onSelectNo() : setSide("sell"))}
-            className={`flex-1 py-1.5 px-2 rounded-md transition-all duration-200 flex flex-col items-center gap-0 ${
-              (binaryMode ? !binaryMode.isYesSelected : side === "sell")
-                ? "bg-trading-red text-foreground"
-                : "text-muted-foreground"
-            }`}
-          >
-            <span className="text-xs font-semibold leading-tight">
-              {binaryMode?.noLabel ?? "No"}
-            </span>
-            <span className={`text-[11px] font-mono leading-tight ${
-              (binaryMode ? !binaryMode.isYesSelected : side === "sell") ? "opacity-90" : "opacity-70"
-            }`}>
-              {(binaryMode?.noPrice ?? shortPrice).toFixed(4)}
-            </span>
-          </button>
+        <div className="grid grid-cols-2 gap-2 p-1 bg-background rounded-lg">
+          {(() => {
+            const yesActive = binaryMode ? binaryMode.isYesSelected : side === "buy";
+            const noActive = binaryMode ? !binaryMode.isYesSelected : side === "sell";
+            const yesLabel = binaryMode?.yesLabel ?? "Yes";
+            const noLabel = binaryMode?.noLabel ?? "No";
+            const yesPriceVal = (binaryMode?.yesPrice ?? longPrice).toFixed(4);
+            const noPriceVal = (binaryMode?.noPrice ?? shortPrice).toFixed(4);
+            return (
+              <>
+                <button
+                  onClick={() => (binaryMode ? binaryMode.onSelectYes() : setSide("buy"))}
+                  className="relative flex flex-col h-14 rounded-md overflow-hidden transition-all duration-200"
+                >
+                  <div
+                    className={`relative flex-1 flex items-center justify-center px-2 ${
+                      yesActive
+                        ? "bg-trading-green text-trading-green-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    <span className="text-[11px] font-semibold leading-tight line-clamp-2 text-center">
+                      {yesLabel}
+                    </span>
+                    {yesActive && (
+                      <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]" />
+                    )}
+                  </div>
+                  <div
+                    className={`h-5 flex items-center justify-center ${
+                      yesActive
+                        ? "bg-black/15 text-trading-green-foreground"
+                        : "bg-black/20 text-muted-foreground"
+                    }`}
+                  >
+                    <span className="text-[10px] font-mono">{yesPriceVal}</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => (binaryMode ? binaryMode.onSelectNo() : setSide("sell"))}
+                  className="relative flex flex-col h-14 rounded-md overflow-hidden transition-all duration-200"
+                >
+                  <div
+                    className={`relative flex-1 flex items-center justify-center px-2 ${
+                      noActive
+                        ? "bg-trading-red text-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    <span className="text-[11px] font-semibold leading-tight line-clamp-2 text-center">
+                      {noLabel}
+                    </span>
+                    {noActive && (
+                      <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]" />
+                    )}
+                  </div>
+                  <div
+                    className={`h-5 flex items-center justify-center ${
+                      noActive ? "bg-black/15 text-foreground" : "bg-black/20 text-muted-foreground"
+                    }`}
+                  >
+                    <span className="text-[10px] font-mono">{noPriceVal}</span>
+                  </div>
+                </button>
+              </>
+            );
+          })()}
         </div>
       </div>
 
