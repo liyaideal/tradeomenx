@@ -15,6 +15,7 @@ import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useReferral } from "@/hooks/useReferral";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 import { format, formatDistanceStrict } from "date-fns";
 
 export default function SettlementDetail() {
@@ -212,19 +213,21 @@ export default function SettlementDetail() {
               
               {/* Position Info: Side / Leverage / Option */}
               <div className={`flex ${isMobile ? "flex-wrap" : ""} items-center gap-x-3 gap-y-2 mt-3`}>
-                {/* Side Badge */}
-                <Badge 
-                  variant="outline" 
-                  className={`shrink-0 ${isLong 
-                    ? "border-trading-green/50 text-trading-green bg-trading-green/10" 
-                    : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                  }`}
-                >
-                  {isLong ? "Yes" : "No"}
-                </Badge>
-                
-                {/* Separator */}
-                <span className="text-border shrink-0">|</span>
+                {/* Side Badge — multi-outcome only; binary 单 market 由 Option 行的 outcome 颜色承载方向 */}
+                {!getBinaryOutcome(settlement.option) && (
+                  <>
+                    <Badge 
+                      variant="outline" 
+                      className={`shrink-0 ${isLong 
+                        ? "border-trading-green/50 text-trading-green bg-trading-green/10" 
+                        : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                      }`}
+                    >
+                      {isLong ? "Yes" : "No"}
+                    </Badge>
+                    <span className="text-border shrink-0">|</span>
+                  </>
+                )}
                 
                 {/* Leverage */}
                 <div className="flex items-center gap-1.5 shrink-0">
