@@ -1,60 +1,99 @@
-## 目标
+# Long/Short + Buy/Sell → 全部 Yes/No 化
 
-把 `CampaignStyleGuide/Playground.tsx` 里 `RewardLadderDemo` 和 `ProgressDashboardDemo` 现在的横滑按钮（14 个 preset chip）改成一根**可拖动的交易量滑杆**，研发拖到任意 volume 都能立刻看到组件在该状态下的真实表现，包括所有边界状态。
+## 背景
+- 底层数据语义已统一到"Yes 市场的 long / short"，但 UI 同时存在 **Long/Short** + **Buy/Sell** 两套方向词，又叠加 `long + short = 1` 双价展示，导致用户出现"开 short、价格涨却显示亏"的反直觉。
+- 决定：**展示层取消 Long/Short 与 Buy/Sell 的区分，统一为 Yes / No**。
+  - Buy = Long → **Yes**
+  - Sell = Short → **No**
+- 底层 `side: 'long' | 'short'`、order `side: 'buy' | 'sell'`、Supabase 列、PnL 公式**全部不动**，只换展示文案。
 
-## 交互设计
+## 映射表（仅展示层）
 
-滑杆控件 `VolumeSlider`（基于现有 shadcn `Slider`），统一放在 demo 顶部：
+| 现有 UI 文案 | 新 UI 文案 |
+|---|---|
+| Long / Buy / Long Position / Open Long | **Yes** |
+| Short / Sell / Short Position / Open Short | **No** |
+| Buy Long / Sell Short | **Buy Yes / Buy No** |
+| Close Long / Close Short | **Close Yes / Close No** |
+| Reduce Long / Reduce Short | **Reduce Yes / Reduce No** |
+| Long Price / Short Price | **Yes Price / No Price** |
+| Long Order / Short Order | **Yes Order / No Order** |
 
-```text
-TRADE VOLUME                                       $ 120,000
-[●────────────────────────────────────────────]
-$0    $5K   $10K   $50K   $100K   $300K   $500K   $1M   $1.5M
-      bonus  t1     t2     t3      t4      t5      top
-```
+颜色保持：Yes = trading-green，No = trading-red。
 
-- **范围**：$0 → $1,500,000，`step = $500`（细到能停在 $4,999 / $5,000 / $9,999 边界）。
-- **非线性映射**：用分段函数把 slider 0–100 映射到 volume，让低区（$0–$10K，含 $5K 门槛和 t1）占 ~40% 行程，避免拖到一半还没出第一个 tier。
-- **刻度标记**：滑杆下方画出关键节点 tick（$0 / $5K bonus / 每个 tier / past-top），点击 tick 直接跳到该 volume——保留"一键回到典型状态"的能力，同时支持自由拖。
-- **实时状态徽章**：滑杆右侧展示当前 volume 对应的**派生状态**，研发不用对照源码就能看懂：
-  - `state` = GUEST / PRE_BONUS / BONUS_UNLOCKED / NO_TIER / TIER_n / TOP_TIER / PAST_TOP
-  - `currentTier` / `nextTier` / `progressToNext%` / `volumeToNext`
-  - `event1Qualified` (true/false)
-  - ProgressDashboard 的渲染分支（renders component / renders null）
-- **键盘**：← → 步进 $500，Shift+← → 步进 $10K，方便精细调试。
+## 改动清单
 
-## 受影响范围
+### 1. 词典层
+`src/lib/tradingTerms.ts`
+- `LONG: "Long"` → `LONG: "Yes"`
+- `SHORT: "Short"` → `SHORT: "No"`
+- `BUY: "Buy"` → `BUY: "Yes"`，`SELL: "Sell"` → `SELL: "No"`
+- 新增 helper：
+  ```ts
+  export const sideLabel = (s: 'long'|'short') => s === 'long' ? 'Yes' : 'No';
+  export const orderSideLabel = (s: 'buy'|'sell') => s === 'buy' ? 'Yes' : 'No';
+  ```
 
-只动一个文件：`src/pages/CampaignStyleGuide/Playground.tsx`
+### 2. Intent / Order utils
+- `src/lib/positionIntent.ts` → `getIntentLabel`：`Buy Long / Sell Short` → `Buy Yes / Buy No`；`Close/Reduce Long/Short` → `Close/Reduce Yes/No`
+- `src/lib/orderUtils.ts`：任何 `buy/sell`、`long/short` 渲染字符串走 helper
 
-- 新增内部组件 `VolumeSlider`（含 tick rail + 状态徽章面板），抽掉旧的 `VOLUME_PRESETS` 按钮分发逻辑。
-- `RewardLadderDemo` / `ProgressDashboardDemo` 把 `pid` state 换成 `volume: number`，其余 props 计算不变。
-- Countdown demo **保留 `PresetRail` 横滑按钮**——倒计时是离散场景（>7d / <1h / ended），滑杆不合适。
-- `PresetRail` 仍然保留（Countdown 在用），`VOLUME_PRESETS` 改造成 `VOLUME_TICKS`（label + volume + 颜色），只用于在滑杆下方画刻度。
+### 3. 交易表单 / 行情区 / 订单簿
+- `TradeForm.tsx`、`DesktopTradeForm.tsx`、`OrderPreview.tsx`
+- `OrderBook.tsx`、`DesktopOrderBook.tsx`：买卖盘表头 / 行内标签 Buy→Yes、Sell→No
+- 双价行标题 `Long / Short` → `Yes / No`
+- CTA 按钮：`Buy Long / Sell Short` → `Buy Yes / Buy No`
 
-## 状态推导（统一函数）
+### 4. 持仓 / 订单 / 结算
+- `PositionCard.tsx`、`DesktopPositionsPanel.tsx`
+- `positions/{ClosePositionForm,ClosePositionDialog,ClosePositionDrawer,PositionDetailContent}.tsx`
+- `pages/{Portfolio,PortfolioAirdrops,SettlementDetail,OrderPreview}.tsx`
+- `AirdropPositionCard.tsx`
+- 所有 `position.type === 'long' ? 'Long' : 'Short'`、`order.side === 'buy' ? 'Buy' : 'Sell'` → Yes/No
 
-新增 `deriveVolumeState(volume)` 返回：
+### 5. 分享 / Home / 卡片
+- `share/SettlementPoster.tsx`、`settlement/SettlementShareCard.tsx`
+- `EventCard.tsx`、`events/MarketListView.tsx`
+- `home/HomeDiscover.tsx`、`home/feed/cards/PositionAlertCard.tsx`
+- `BinaryEventHint.tsx`：tooltip 改为统一 Yes/No 心智表述
 
-```ts
-{
-  state: "GUEST" | "PRE_BONUS" | "BONUS_UNLOCKED" | "NO_TIER"
-       | "TIER_1" | "TIER_2" | ... | "TOP_TIER" | "PAST_TOP",
-  currentTier, nextTier, progressToNext, volumeToNext,
-  event1Qualified, dashboardRenders: "component" | "null",
-}
-```
+### 6. Style Guide / Playground
+- `pages/StyleGuide.tsx`、`StyleGuide/sections/{CommonUI,Forms,MobileHome,Transparency}.tsx`
+- `pages/CampaignStyleGuide/Playground.tsx`
+- 所有 demo（含 Order/Trade 示例）同步 Yes/No
 
-Ladder demo 和 Dashboard demo 共享同一份推导，确保两边展示一致。
+### 7. 透明度 / 审计 / 图表
+- `hooks/useLiquidationAudit.ts`、`useTradeVerification.ts`：返回字段中的展示字符串改 Yes/No；列 key 不动
+- `pages/TradingCharts.tsx`：图例 / 标题
+- `services/tradingService.ts`：用户可见日志 / 描述字符串
+
+### 8. 文案 / 内容
+- `data/glossaryTerms.ts`：
+  - "Long" → "Yes (Long)"，"Short" → "No (Short)"，新增 "Buy / Sell" 重定向到 Yes/No 词条
+  - 解释里写明"OmenX 把买 Yes = 做多 Yes 市场、买 No = 做空 Yes 市场，所有方向均以 Yes 市场为基准"
+  - 保留旧 anchor id（`#long`/`#short`/`#buy`/`#sell`）做 SEO 兼容
+- `pages/TermsOfServicePage.tsx`：仅在描述用户操作处改 Yes/No，金融定义保留 long/short 学术词
+- `index.css`：仅注释更新
+
+## 不改动
+- DB 列 `side`、`order.side`、TS 类型 `'long'|'short'` / `'buy'|'sell'`
+- `positionIntent` canonical 逻辑、`isNoLabel` 转换、PnL 公式
+- 双价 `long+short=1` 计算结构（仅替换列标签）
+- 颜色 token（trading-green / trading-red 继续按 Yes/No 分配）
+
+## 验证（1021×777）
+1. /trade：CTA = "Buy Yes / Buy No"；双价行 = "Yes Price / No Price"；OrderBook 卖一买一对应 No/Yes 颜色一致
+2. /trade Positions / Orders 列：Side 列全部 Yes/No
+3. /portfolio、/portfolio/settlements、/portfolio/airdrops：列表 + drawer/dialog 全部 Yes/No
+4. BinaryEventHint tooltip 一致 Yes/No
+5. /resolved 分享卡片、SettlementPoster：Yes/No
+6. /style-guide & /campaign/style-guide：demo 全部同步
+7. Glossary：可搜到 Yes (Long) / No (Short)；`#long`/`#short`/`#buy`/`#sell` anchor 仍命中
+8. 控制台 / Network 无报错；Supabase 写入仍是 `side: 'long'|'short'`、`order.side: 'buy'|'sell'`
+9. 全仓 `rg -n "\b(Long|Short|Buy|Sell)\b" src` 复核，仅剩注释 / 类型定义 / Glossary 注解
 
 ## 记忆更新
-
-更新 `mem://design/playground-state-coverage`：在"状态覆盖"原则上加一条——**连续型参数（交易量、价格、时间余量）首选 slider + tick；离散型参数（已结束/未开始、tier 命中点 demo）才用 PresetRail 按钮**。两种形态都要在右侧/下方实时展示当前派生状态，避免研发反查源码。
-
-## 验证
-
-在 1021×777 viewport（用户当前 viewport）下检查：
-1. 拖到 $0、$4,999、$5,000、$8,000、$10,000、$1,000,000、$1,500,000，Ladder 高亮、ProgressDashboard 渲染/null 切换、状态徽章文本均正确。
-2. 点击每个 tick 都能精确落到对应 volume。
-3. 键盘 ← → / Shift+← → 步进正确。
-4. 移动 viewport 下滑杆和状态面板自适应竖排，不溢出。
+- `mem://index.md` Core 加一条：
+  > **Direction labels:** UI 全站统一使用 Yes / No；禁止再出现面向用户的 Long/Short/Buy/Sell。底层 `side` 与 `order.side` 字段保留 `'long'|'short'`、`'buy'|'sell'` 不变。
+- 新建 `mem://design/yes-no-terminology.md`：映射表、双价结构、颜色语义、Glossary anchor 兼容、`sideLabel`/`orderSideLabel` helper 用法。
+- 更新 `binary-event-ui-clarification`：tooltip 文案与 Yes/No 心智对齐。

@@ -136,7 +136,7 @@ export const HomeDiscover = () => {
                     <span className={`font-mono uppercase tracking-wider ${
                       isLong ? "text-trading-green" : "text-trading-red"
                     }`}>
-                      {isLong ? "Long" : "Short"}
+                      {isLong ? "Yes" : "No"}
                     </span>
                     <span className="opacity-40">·</span>
                     <span className="truncate">{position.option}</span>

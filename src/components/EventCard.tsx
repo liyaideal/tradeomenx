@@ -603,7 +603,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Long/Short Toggle - uses standardized btn-trading classes */}
+              {/* Yes/No Toggle - uses standardized btn-trading classes */}
               <div className="flex rounded-xl overflow-hidden border border-border/50 bg-background/50 p-0.5">
                 <button
                   onClick={() => setTradeSide("long")}
@@ -613,7 +613,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                       : "btn-trading-inactive"
                   }`}
                 >
-                  Long
+                  Yes
                 </button>
                 <button
                   onClick={() => setTradeSide("short")}
@@ -623,9 +623,10 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                       : "btn-trading-inactive"
                   }`}
                 >
-                  Short
+                  No
                 </button>
               </div>
+
 
               {/* Leverage - pill style */}
               <div className="flex items-center gap-2 ml-auto">
@@ -686,7 +687,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
               }`}
             >
               <TrendingUp className={`h-4 w-4 ${tradeSide === "short" ? "rotate-180" : ""}`} />
-              {tradeSide === "long" ? "Buy Long" : "Sell Short"} — {selectedOptionData?.label || "Select option"}
+              {tradeSide === "long" ? "Buy Yes" : "Buy No"} — {selectedOptionData?.label || "Select option"}
             </button>
           </div>
         )}
@@ -714,7 +715,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
               <div className="flex justify-between py-2 border-b border-border/20">
                 <span className="text-muted-foreground text-sm">Side</span>
                 <span className={`text-sm font-medium ${tradeSide === "long" ? "text-trading-green" : "text-trading-red"}`}>
-                  {tradeSide === "long" ? "Buy | Long" : "Sell | Short"}
+                  {tradeSide === "long" ? "Yes" : "No"}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-border/20">
@@ -759,7 +760,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                 }`}
                 onClick={handleConfirmOrder}
               >
-                {tradeSide === "long" ? "Buy Long" : "Sell Short"} - Win ${orderDetails.potentialWin}
+                {tradeSide === "long" ? "Buy Yes" : "Buy No"} - Win ${orderDetails.potentialWin}
               </Button>
             </div>
           </div>

@@ -28,12 +28,12 @@ export const TRADING_TERMS = {
   LEVERAGE: "LVG",                   // 杠杆 (简写)
   LEVERAGE_FULL: "Leverage",         // 杠杆 (完整)
   
-  // 方向相关
+  // 方向相关 (展示层统一 Yes/No；底层 side 字段保留 long/short、buy/sell 不变)
   SIDE: "Side",                      // 方向
-  LONG: "Long",                      // 做多
-  SHORT: "Short",                    // 做空
-  BUY: "Buy",                        // 买入
-  SELL: "Sell",                      // 卖出
+  LONG: "Yes",                       // long 仓位 → 展示 Yes
+  SHORT: "No",                       // short 仓位 → 展示 No
+  BUY: "Yes",                        // buy 订单 → 展示 Yes
+  SELL: "No",                        // sell 订单 → 展示 No
   
   // 盈亏相关
   PNL: "P&L",                        // Profit & Loss
@@ -124,3 +124,13 @@ export const SETTLEMENT_TABLE_HEADERS = {
   RESULT: TRADING_TERMS.RESULT,
   ACTION: TRADING_TERMS.ACTION,
 } as const;
+
+/**
+ * Direction label helpers — UI 全站统一用 Yes/No 展示。
+ * 底层字段保持 'long'|'short'、'buy'|'sell'，仅在渲染层映射。
+ */
+export const sideLabel = (s: "long" | "short" | string): "Yes" | "No" =>
+  s === "long" ? "Yes" : "No";
+
+export const orderSideLabel = (s: "buy" | "sell" | string): "Yes" | "No" =>
+  s === "buy" ? "Yes" : "No";

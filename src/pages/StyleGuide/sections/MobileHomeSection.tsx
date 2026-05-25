@@ -228,7 +228,7 @@ const PositionAlertReplica = () => (
           Position update
         </p>
         <p className="mt-1 text-[13px] font-semibold text-foreground">
-          BTC &gt; $100k · Yes Long
+          BTC &gt; $100k · Yes
         </p>
         <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
           +$24.30 <span className="text-trading-green">+12.4%</span>

@@ -1144,7 +1144,7 @@ toast("Default message");`}
                   size="sm" 
                   onClick={() => {
                     toast("Order placed", {
-                      description: "BTC/USDT • Long • 0.5 BTC @ $42,350",
+                      description: "BTC/USDT • Yes • 0.5 BTC @ $42,350",
                       duration: 5000,
                     });
                   }}
@@ -1182,7 +1182,7 @@ toast("Item deleted", {
 
 // Toast with description
 toast("Order placed", {
-  description: "BTC/USDT • Long • 0.5 BTC",
+  description: "BTC/USDT • Yes • 0.5 BTC",
   duration: 5000,
 });
 
@@ -1204,7 +1204,7 @@ toast.dismiss();`}
                   variant="outline" 
                   size="sm"
                   className="border-trading-green/30 text-trading-green hover:bg-trading-green/10"
-                  onClick={() => toast.success("Order Filled", { description: "Long 0.5 BTC @ $42,350.00" })}
+                  onClick={() => toast.success("Order Filled", { description: "Yes 0.5 BTC @ $42,350.00" })}
                 >
                   Order Filled
                 </Button>
@@ -1445,7 +1445,7 @@ toast.promise(asyncFn(), {
                 <div className="p-3 bg-white/5 rounded-lg space-y-1">
                   <p className="text-xs text-white font-medium">Event Name Here</p>
                   <div className="flex items-center gap-2 text-[10px]">
-                    <span className="px-1.5 py-0.5 bg-trading-green/20 text-trading-green rounded">Long 10x</span>
+                    <span className="px-1.5 py-0.5 bg-trading-green/20 text-trading-green rounded">Yes 10x</span>
                     <span className="text-white/60">Option Label</span>
                   </div>
                 </div>

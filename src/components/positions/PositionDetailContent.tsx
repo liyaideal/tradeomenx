@@ -107,7 +107,7 @@ export const PositionDetailContent = ({
                   : "bg-trading-red/10 text-trading-red"
               )}
             >
-              {position.type === "long" ? "Long" : "Short"} {position.leverage}
+              {position.type === "long" ? "Yes" : "No"} {position.leverage}
             </span>
             <span className="text-muted-foreground truncate">{position.option}</span>
           </div>

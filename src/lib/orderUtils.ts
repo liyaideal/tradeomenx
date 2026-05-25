@@ -30,7 +30,7 @@ export function orderToPosition(order: Order): Position {
   const pnl = order.type === 'buy' ? priceDiff * size : -priceDiff * size;
   const pnlPercent = ((pnl / parseFloat(totalValue)) * 100);
   
-  // Apply binary event conversion: No Long → Yes Short, No Short → Yes Long
+  // Binary events: normalize to Yes market (No-side trades convert internally)
   const isNo = isNoOption(order.option);
   const positionOption = isNo ? "Yes" : order.option;
   const positionType: "long" | "short" = isNo 

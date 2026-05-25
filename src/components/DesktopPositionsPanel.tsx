@@ -149,7 +149,7 @@ export const DesktopPositionsPanel = () => {
         }
         toast({
           title: "Order Filled",
-          description: `${order.type === 'buy' ? 'Long' : 'Short'} position opened for ${order.option}`,
+          description: `${order.type === 'buy' ? 'Yes' : 'No'} position opened for ${order.option}`,
         });
       } catch (error) {
         toast({
@@ -270,7 +270,7 @@ export const DesktopPositionsPanel = () => {
                                 ? "bg-trading-green/20 text-trading-green"
                                 : "bg-trading-red/20 text-trading-red"
                             }`}>
-                              {position.type === "long" ? "Long" : "Short"}
+                              {position.type === "long" ? "Yes" : "No"}
                             </span>
                             <PositionDetailDialog
                               position={position}
@@ -365,7 +365,7 @@ export const DesktopPositionsPanel = () => {
                             ? "bg-trading-green/20 text-trading-green"
                             : "bg-trading-red/20 text-trading-red"
                         }`}>
-                          {airdrop.counterSide === "long" ? "Long" : "Short"}
+                          {airdrop.counterSide === "long" ? "Yes" : "No"}
                         </span>
                         <span className="font-medium max-w-[150px] truncate">{airdrop.counterOptionLabel}</span>
                         <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
@@ -431,7 +431,7 @@ export const DesktopPositionsPanel = () => {
                             ? "bg-trading-green/20 text-trading-green"
                             : "bg-trading-red/20 text-trading-red"
                         }`}>
-                          {order.type === "buy" ? "Buy" : "Sell"}
+                          {order.type === "buy" ? "Yes" : "No"}
                         </span>
                       </td>
                       <td className="px-3 py-2 text-sm text-muted-foreground">{order.orderType}</td>
@@ -519,7 +519,7 @@ export const DesktopPositionsPanel = () => {
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Position</span>
                   <span className={editingPosition.type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {editingPosition.type === "long" ? "Long" : "Short"} {editingPosition.leverage}
+                    {editingPosition.type === "long" ? "Yes" : "No"} {editingPosition.leverage}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
@@ -643,7 +643,7 @@ export const DesktopPositionsPanel = () => {
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Order Type</span>
                 <span className={selectedOrder.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                  {selectedOrder.type === "buy" ? "Buy" : "Sell"} {selectedOrder.orderType}
+                  {selectedOrder.type === "buy" ? "Yes" : "No"} {selectedOrder.orderType}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
@@ -695,7 +695,7 @@ export const DesktopPositionsPanel = () => {
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Order Type</span>
                 <span className={selectedOrder.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                  {selectedOrder.type === "buy" ? "Buy" : "Sell"} {selectedOrder.orderType}
+                  {selectedOrder.type === "buy" ? "Yes" : "No"} {selectedOrder.orderType}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">

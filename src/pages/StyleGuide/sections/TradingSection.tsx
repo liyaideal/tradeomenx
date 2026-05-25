@@ -78,12 +78,12 @@ export const TradingSection = ({ isMobile }: TradingSectionProps) => {
               <div className="p-4 bg-trading-green/10 border border-trading-green/30 rounded-lg text-center">
                 <TrendingUp className="h-6 w-6 text-trading-green mx-auto mb-2" />
                 <p className="text-sm font-medium text-trading-green">Green</p>
-                <p className="text-xs text-muted-foreground">Profit, Buy, Success</p>
+                <p className="text-xs text-muted-foreground">Profit, Yes side, Success</p>
               </div>
               <div className="p-4 bg-trading-red/10 border border-trading-red/30 rounded-lg text-center">
                 <TrendingDown className="h-6 w-6 text-trading-red mx-auto mb-2" />
                 <p className="text-sm font-medium text-trading-red">Red</p>
-                <p className="text-xs text-muted-foreground">Loss, Sell, Error</p>
+                <p className="text-xs text-muted-foreground">Loss, No side, Error</p>
               </div>
               <div className="p-4 bg-trading-yellow/10 border border-trading-yellow/30 rounded-lg text-center">
                 <AlertTriangle className="h-6 w-6 text-trading-yellow mx-auto mb-2" />
@@ -425,7 +425,7 @@ const style = CATEGORY_STYLES[category];
                       </td>
                       <td className="px-3 py-2 text-sm">
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-trading-green/20 text-trading-green">
-                          Buy
+                          Yes
                         </span>
                       </td>
                       <td className="px-3 py-2 text-sm text-muted-foreground">Limit</td>
@@ -580,7 +580,7 @@ const style = CATEGORY_STYLES[category];
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="px-2 py-0.5 rounded text-xs font-semibold bg-trading-green/20 text-trading-green">
-                        Buy
+                        Yes
                       </span>
                       <span className="text-sm text-muted-foreground">Limit</span>
                     </div>

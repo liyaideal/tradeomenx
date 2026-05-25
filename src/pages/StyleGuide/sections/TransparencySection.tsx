@@ -48,7 +48,7 @@ interface Props {
 export const TransparencySection = ({ isMobile }: Props) => {
   const fieldRows = [
     { label: "uid", value: "0x3b4e780d...c6b3bf", rule: "Contract field → camelCase" },
-    { label: "positionSide", value: "0 (Long)", rule: "Contract field → camelCase" },
+    { label: "positionSide", value: "0 (Yes)", rule: "Contract field → camelCase" },
     { label: "markPrice", value: "$0.5500", rule: "Contract field → camelCase" },
     { label: "txHash", value: "0xd4b90415...ae8c32", rule: "Blockchain meta → camelCase" },
     { label: "blockNumber", value: "#18,316,336", rule: "Blockchain meta → camelCase" },

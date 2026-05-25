@@ -364,7 +364,7 @@ export default function DesktopTrading() {
     return { change, percentage, isPositive };
   }, [selectedOptionData.price]);
 
-  // Long/Short asymmetric pricing: shortPrice = 1 - longPrice
+  // Yes/No asymmetric pricing: noPrice = 1 - yesPrice (underlying side stays long/short)
   const longPrice = useMemo(() => parseFloat(selectedOptionData.price) || 0, [selectedOptionData.price]);
   const shortPrice = useMemo(() => +(1 - longPrice).toFixed(4), [longPrice]);
   const sidePrice = side === "buy" ? longPrice : shortPrice;
@@ -482,7 +482,7 @@ export default function DesktopTrading() {
   const orderDetails = useMemo(() => [
     { label: "Event", value: selectedEvent?.name || "" },
     { label: "Option", value: selectedOptionData.label },
-    { label: "Side", value: side === "buy" ? "Buy | Long" : "Sell | Short", highlight: side === "buy" ? "green" : "red" as const },
+    { label: "Side", value: side === "buy" ? "Yes" : "No", highlight: side === "buy" ? "green" : "red" as const },
     { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
@@ -1076,7 +1076,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {order.type === "buy" ? "Buy" : "Sell"}
+                              {order.type === "buy" ? "Yes" : "No"}
                             </span>
                           </td>
                           <td className="px-4 py-2 text-sm">{order.orderType}</td>
@@ -1214,7 +1214,7 @@ export default function DesktopTrading() {
                                       <Info className="w-3.5 h-3.5 text-trading-yellow cursor-help flex-shrink-0" />
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-[280px]">
-                                      <p className="text-xs">Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped (No Long → Yes Short, No Short → Yes Long).</p>
+                                      <p className="text-xs">All positions on a binary event are displayed under the Yes outcome. Buying Yes is bullish on the event; buying No is bearish. P&L is always measured against Yes price moves.</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
@@ -1241,7 +1241,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${position.type === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {position.type === "long" ? "Long" : "Short"}
+                              {position.type === "long" ? "Yes" : "No"}
                             </span>
                           </td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.sizeDisplay}</td>
@@ -1329,7 +1329,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${airdrop.counterSide === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {airdrop.counterSide === "long" ? "Long" : "Short"}
+                              {airdrop.counterSide === "long" ? "Yes" : "No"}
                             </span>
                           </td>
                           <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
@@ -1370,7 +1370,7 @@ export default function DesktopTrading() {
             </div>
 
             <div className="px-4 py-3 space-y-3">
-            {/* Buy/Sell Toggle with embedded Long/Short prices */}
+            {/* Yes/No Toggle with embedded prices */}
             <div className="space-y-1">
               <div className="flex bg-muted rounded-lg p-0.5">
                 <button
@@ -1379,7 +1379,7 @@ export default function DesktopTrading() {
                     side === "buy" ? "bg-trading-green text-trading-green-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <span className="text-xs font-semibold leading-tight">Buy | Long</span>
+                  <span className="text-xs font-semibold leading-tight">Yes</span>
                   <span className={`text-[11px] font-mono leading-tight ${side === "buy" ? "opacity-90" : "opacity-70"}`}>
                     {longPrice.toFixed(4)}
                   </span>
@@ -1390,7 +1390,7 @@ export default function DesktopTrading() {
                     side === "sell" ? "bg-trading-red text-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <span className="text-xs font-semibold leading-tight">Sell | Short</span>
+                  <span className="text-xs font-semibold leading-tight">No</span>
                   <span className={`text-[11px] font-mono leading-tight ${side === "sell" ? "opacity-90" : "opacity-70"}`}>
                     {shortPrice.toFixed(4)}
                   </span>
@@ -1732,7 +1732,7 @@ export default function DesktopTrading() {
                 <span className="text-sm text-muted-foreground truncate">{selectedOptionData.label}</span>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={`rounded px-2 py-1 text-xs font-semibold ${side === "buy" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
-                    {side === "buy" ? "Buy | Long" : "Sell | Short"}
+                    {side === "buy" ? "Yes" : "No"}
                   </span>
                   <span className="rounded bg-muted px-2 py-1 text-xs font-semibold capitalize text-foreground">{formattedIntent}</span>
                 </div>
@@ -1875,7 +1875,7 @@ export default function DesktopTrading() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Position</span>
                   <span className={pos.type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {pos.type === "long" ? "Long" : "Short"} {pos.leverage}
+                    {pos.type === "long" ? "Yes" : "No"} {pos.leverage}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
@@ -2015,7 +2015,7 @@ export default function DesktopTrading() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Order Type</span>
                   <span className={order.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                    {order.type === "buy" ? "Buy" : "Sell"} {order.orderType}
+                    {order.type === "buy" ? "Yes" : "No"} {order.orderType}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">

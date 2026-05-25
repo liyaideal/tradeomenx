@@ -152,7 +152,7 @@ const ChildRowContent = ({
       <span className="text-sm text-muted-foreground">● {child.optionLabel}</span>
     </td>
 
-    {/* Price (Long price; Short = 1 − Long) */}
+    {/* Price (Yes price; No = 1 − Yes) */}
     <td className="w-[90px] text-right font-mono text-sm text-foreground">
       ${child.markPrice.toFixed(2)}
     </td>
@@ -259,7 +259,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                               </span>
                             </TooltipTrigger>
                             <TooltipContent side="bottom" className="text-xs max-w-[220px]">
-                              Showing Long price. Short price = 1 − Long. Learn more in Glossary.
+                              Showing Yes price. No price = 1 − Yes. Learn more in Glossary.
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>

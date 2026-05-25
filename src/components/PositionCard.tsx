@@ -206,7 +206,7 @@ export const PositionCard = ({
                   : "bg-trading-red/20 text-trading-red"
               }`}
             >
-              {type === "long" ? "Long" : "Short"}
+              {type === "long" ? "Yes" : "No"}
             </span>
             <span className="text-xs text-muted-foreground">{leverage}</span>
             {isAirdrop && (
@@ -249,7 +249,7 @@ export const PositionCard = ({
               </PopoverTrigger>
               <PopoverContent className="w-64 p-3 text-xs" side="top" align="start">
                 <p className="text-muted-foreground">
-                  <span className="text-trading-yellow">💡</span> Binary event positions are unified under Yes. If you placed a No trade, the direction is automatically flipped (No Long → Yes Short, No Short → Yes Long).
+                  <span className="text-trading-yellow">💡</span> All positions on a binary event are displayed under the Yes outcome. Buying Yes is bullish on the event; buying No is bearish. P&L is always measured against Yes price moves.
                 </p>
               </PopoverContent>
             </Popover>
@@ -351,7 +351,7 @@ export const PositionCard = ({
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Position</span>
               <span className={type === "long" ? "text-trading-green" : "text-trading-red"}>
-                {type === "long" ? "Long" : "Short"} {leverage}
+                {type === "long" ? "Yes" : "No"} {leverage}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs">

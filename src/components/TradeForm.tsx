@@ -63,7 +63,7 @@ export const TradeForm = ({
   const feeRate = 0.0005; // 0.05% trading fee
   const longPrice = parseFloat(selectedPrice);
   const shortPrice = +(1 - longPrice).toFixed(4);
-  // Side-specific execution price (Buy = Long, Sell = Short)
+  // Side-specific execution price (Buy = Yes, Sell = No)
   const currentPrice = side === "buy" ? longPrice : shortPrice;
 
   // Calculate TP/SL prices based on percentage
@@ -202,7 +202,7 @@ export const TradeForm = ({
 
   return (
     <div className="px-3 pb-2 space-y-2">
-      {/* Buy/Sell Toggle with embedded Long/Short prices */}
+      {/* Yes/No Toggle with embedded prices */}
       <div className="space-y-1">
         <div className="flex bg-muted rounded-lg p-0.5">
           <button
@@ -213,7 +213,7 @@ export const TradeForm = ({
                 : "text-muted-foreground"
             }`}
           >
-            <span className="text-xs font-semibold leading-tight">Buy</span>
+            <span className="text-xs font-semibold leading-tight">Yes</span>
             <span className={`text-[11px] font-mono leading-tight ${side === "buy" ? "opacity-90" : "opacity-70"}`}>
               {longPrice.toFixed(4)}
             </span>
@@ -226,13 +226,14 @@ export const TradeForm = ({
                 : "text-muted-foreground"
             }`}
           >
-            <span className="text-xs font-semibold leading-tight">Sell</span>
+            <span className="text-xs font-semibold leading-tight">No</span>
             <span className={`text-[11px] font-mono leading-tight ${side === "sell" ? "opacity-90" : "opacity-70"}`}>
               {shortPrice.toFixed(4)}
             </span>
           </button>
         </div>
       </div>
+
 
       {/* Margin & Leverage */}
       <div className="flex items-center gap-2">

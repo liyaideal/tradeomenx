@@ -220,7 +220,7 @@ export default function SettlementDetail() {
                     : "border-trading-red/50 text-trading-red bg-trading-red/10"
                   }`}
                 >
-                  {isLong ? "Long" : "Short"}
+                  {isLong ? "Yes" : "No"}
                 </Badge>
                 
                 {/* Separator */}

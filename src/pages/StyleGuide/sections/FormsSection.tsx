@@ -53,11 +53,11 @@ const contactSchema = z.object({
 
 // Sample table data
 const tradeHistory = [
-  { id: "1", pair: "BTC/YES", type: "Long", amount: "$500", price: "0.65", pnl: "+$125", status: "closed" },
-  { id: "2", pair: "ETH/NO", type: "Short", amount: "$300", price: "0.42", pnl: "-$45", status: "closed" },
-  { id: "3", pair: "SOL/YES", type: "Long", amount: "$1,000", price: "0.78", pnl: "+$220", status: "open" },
-  { id: "4", pair: "DOGE/YES", type: "Long", amount: "$200", price: "0.33", pnl: "+$66", status: "open" },
-  { id: "5", pair: "ADA/NO", type: "Short", amount: "$450", price: "0.55", pnl: "-$90", status: "closed" },
+  { id: "1", pair: "BTC/YES", type: "Yes", amount: "$500", price: "0.65", pnl: "+$125", status: "closed" },
+  { id: "2", pair: "ETH/NO", type: "No", amount: "$300", price: "0.42", pnl: "-$45", status: "closed" },
+  { id: "3", pair: "SOL/YES", type: "Yes", amount: "$1,000", price: "0.78", pnl: "+$220", status: "open" },
+  { id: "4", pair: "DOGE/YES", type: "Yes", amount: "$200", price: "0.33", pnl: "+$66", status: "open" },
+  { id: "5", pair: "ADA/NO", type: "No", amount: "$450", price: "0.55", pnl: "-$90", status: "closed" },
 ];
 
 const userList = [
@@ -166,7 +166,7 @@ export const FormsSection = ({ isMobile }: FormsSectionProps) => {
                     <TableRow key={trade.id}>
                       <TableCell className="font-medium font-mono">{trade.pair}</TableCell>
                       <TableCell>
-                        <span className={trade.type === "Long" ? "text-trading-green" : "text-trading-red"}>
+                        <span className={trade.type === "Yes" ? "text-trading-green" : "text-trading-red"}>
                           {trade.type}
                         </span>
                       </TableCell>

@@ -116,7 +116,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
                 ? "bg-trading-green/15 text-trading-green"
                 : "bg-trading-red/15 text-trading-red"
             )}>
-              {side === "buy" ? "Long" : "Short"}
+              {side === "buy" ? "Yes" : "No"}
             </span>
           </div>
         </div>
@@ -299,7 +299,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
                 : "bg-trading-green/15 text-trading-green border border-trading-green/30"
             )}
           >
-            <span>Buy | Long</span>
+            <span>Yes</span>
             {side === "buy" && <ArrowRight className="w-3.5 h-3.5" />}
           </button>
           <button
@@ -312,7 +312,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData }: TradingChar
                 : "bg-trading-red/15 text-trading-red border border-trading-red/30"
             )}
           >
-            <span>Sell | Short</span>
+            <span>No</span>
             {side === "sell" && <ArrowRight className="w-3.5 h-3.5" />}
           </button>
         </div>

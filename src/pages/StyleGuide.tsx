@@ -755,7 +755,7 @@ const StyleGuide = () => {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">Status Text</span>
-                        <span className="text-sm">Long Position</span>
+                        <span className="text-sm">Yes Position</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">Section Headers</span>
@@ -2608,7 +2608,7 @@ const riskRatio = (IM / equity) * 100;      // (${riskIMTotal} / ${playgroundRis
             <Card className="trading-card p-4">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="h-5 w-5 text-trading-green" />
-                <span className="font-medium">Profit / Long</span>
+                <span className="font-medium">Profit / Yes</span>
               </div>
               <p className="price-green text-2xl mb-2">+$1,234.56</p>
               <p className="text-trading-green text-sm">+12.34%</p>
@@ -2620,7 +2620,7 @@ const riskRatio = (IM / equity) * 100;      // (${riskIMTotal} / ${playgroundRis
             <Card className="trading-card p-4">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingDown className="h-5 w-5 text-trading-red" />
-                <span className="font-medium">Loss / Short</span>
+                <span className="font-medium">Loss / No</span>
               </div>
               <p className="price-red text-2xl mb-2">-$567.89</p>
               <p className="text-trading-red text-sm">-5.67%</p>
@@ -2840,42 +2840,42 @@ const categoryInfo = getCategoryFromName(event.name);
                 </p>
               </div>
 
-              {/* Buy/Long Button */}
+              {/* Buy Yes Button */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <button className="btn-trading-green">
                     <TrendingUp className="h-4 w-4 inline mr-2" />
-                    Buy | Long
+                    Buy Yes
                   </button>
                   <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-trading-green">
                     .btn-trading-green
                   </code>
                 </div>
                 <p className="text-xs text-muted-foreground pl-1">
-                  For: Buy actions, Long positions, Profit indicators, Success confirmations
+                  For: Yes side (buy long), profit indicators, success confirmations
                 </p>
                 <CodePreview 
-                  code={`<button className="btn-trading-green">Buy | Long</button>`}
+                  code={`<button className="btn-trading-green">Buy Yes</button>`}
                   id="btn-green-code"
                 />
               </div>
 
-              {/* Sell/Short Button */}
+              {/* Buy No Button */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <button className="btn-trading-red">
                     <TrendingDown className="h-4 w-4 inline mr-2" />
-                    Sell | Short
+                    Buy No
                   </button>
                   <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-trading-red">
                     .btn-trading-red
                   </code>
                 </div>
                 <p className="text-xs text-muted-foreground pl-1">
-                  For: Sell actions, Short positions, Loss indicators, Destructive actions
+                  For: No side (sell short), loss indicators, destructive actions
                 </p>
                 <CodePreview 
-                  code={`<button className="btn-trading-red">Sell | Short</button>`}
+                  code={`<button className="btn-trading-red">Buy No</button>`}
                   id="btn-red-code"
                 />
               </div>
@@ -2910,21 +2910,21 @@ const categoryInfo = getCategoryFromName(event.name);
                   </code>
                 </div>
                 <p className="text-xs text-muted-foreground pl-1">
-                  For: Unselected toggle options in Long/Short switches
+                  For: Unselected toggle options in Yes/No switches
                 </p>
               </div>
 
               {/* Usage Example: Toggle Group */}
               <div className="space-y-3 pt-4 border-t border-border/50">
-                <h4 className="text-sm font-medium text-foreground">Usage Example: Long/Short Toggle</h4>
+                <h4 className="text-sm font-medium text-foreground">Usage Example: Yes/No Toggle</h4>
                 <div className="flex rounded-xl overflow-hidden border border-border/50 bg-background/50 p-0.5 w-fit">
-                  <button className="btn-trading-green px-5 py-2 text-sm rounded-lg">Long</button>
-                  <button className="btn-trading-inactive px-5 py-2 text-sm rounded-lg">Short</button>
+                  <button className="btn-trading-green px-5 py-2 text-sm rounded-lg">Yes</button>
+                  <button className="btn-trading-inactive px-5 py-2 text-sm rounded-lg">No</button>
                 </div>
                 <CodePreview 
                   code={`<div className="flex rounded-xl border border-border/50 p-0.5">
-  <button className={side === "long" ? "btn-trading-green" : "btn-trading-inactive"}>Long</button>
-  <button className={side === "short" ? "btn-trading-red" : "btn-trading-inactive"}>Short</button>
+  <button className={side === "long" ? "btn-trading-green" : "btn-trading-inactive"}>Yes</button>
+  <button className={side === "short" ? "btn-trading-red" : "btn-trading-inactive"}>No</button>
 </div>`}
                   id="toggle-example-code"
                 />

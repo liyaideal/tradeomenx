@@ -53,10 +53,10 @@ export const toCanonicalOrder = (optionLabel: string, side: "buy" | "sell", clic
 };
 
 export const getIntentLabel = (intent: OrderIntent, uiSide: "buy" | "sell") => {
-  if (intent.kind === "reduce") return `Reduce ${intent.canonical.side === "long" ? "Short" : "Long"}`;
-  if (intent.kind === "close") return `Close ${intent.canonical.side === "long" ? "Short" : "Long"}`;
+  if (intent.kind === "reduce") return `Reduce ${intent.canonical.side === "long" ? "No" : "Yes"}`;
+  if (intent.kind === "close") return `Close ${intent.canonical.side === "long" ? "No" : "Yes"}`;
   if (intent.kind === "blocked-cross-zero") return "Close existing position first";
-  return uiSide === "buy" ? "Buy Long" : "Sell Short";
+  return uiSide === "buy" ? "Buy Yes" : "Buy No";
 };
 
 export const classifyOrderIntent = ({

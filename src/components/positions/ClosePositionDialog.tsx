@@ -42,7 +42,7 @@ export const ClosePositionDialog = ({
   isClosing = false,
 }: ClosePositionDialogProps) => {
   const safeSize = Math.max(1, Math.floor(size));
-  const description = `${option} · ${side === "long" ? "Long" : "Short"} ${leverage} · ${safeSize.toLocaleString()} contracts`;
+  const description = `${option} · ${side === "long" ? "Yes" : "No"} ${leverage} · ${safeSize.toLocaleString()} contracts`;
   const [open, setOpen] = useState(false);
 
   const handleConfirm = async (qty: number) => {

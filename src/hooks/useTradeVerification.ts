@@ -18,10 +18,10 @@ interface TradeRecord {
   status: string;
 }
 
-/** Side enum used in the smart contract: 0=Open Long, 1=Close Long, 2=Open Short, 3=Close Short */
+/** Side enum used in the smart contract: 0=Open Long(Yes), 1=Close Long, 2=Open Short(No), 3=Close Short */
 const SIDE_ENUM: Record<string, { raw: number; label: string }> = {
-  buy: { raw: 0, label: "Open Long" },
-  sell: { raw: 3, label: "Close Short" },
+  buy: { raw: 0, label: "Open Yes" },
+  sell: { raw: 3, label: "Close No" },
 };
 
 /** Convert a decimal price (e.g. 0.5) to 6-decimal integer (500000) used on-chain */

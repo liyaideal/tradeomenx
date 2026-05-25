@@ -234,7 +234,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
               fontSize: '10px',
               fontWeight: 600,
             }}>
-              {isLong ? 'Long' : 'Short'} {leverage}x
+              {isLong ? 'Yes' : 'No'} {leverage}x
             </span>
             {/* Option */}
             <span style={{ fontSize: '11px', color: posterColors.textSecondary }}>
