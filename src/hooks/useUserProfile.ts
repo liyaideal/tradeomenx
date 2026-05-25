@@ -46,7 +46,9 @@ export interface Profile {
   updated_at: string;
   withdraw_2fa_mode?: string | null;
   totp_enabled?: boolean | null;
-  totp_secret?: string | null;
+  // NOTE: totp_secret intentionally NOT exposed on the client.
+  // It lives in the server-only `user_security` table and is managed via the
+  // `totp-manage` edge function.
 }
 
 const PROFILE_QUERY_KEY = ["user-profile"];
@@ -381,10 +383,13 @@ export const useUserProfile = () => {
 
   const enableTotp = async (secret: string) => {
     try {
-      await updateMutation.mutateAsync({
-        totp_enabled: true,
-        totp_secret: secret,
-      } as Partial<Profile>);
+      const { data, error } = await supabase.functions.invoke("totp-manage", {
+        body: { action: "enable", secret },
+      });
+      if (error || (data as any)?.error) {
+        throw new Error(error?.message || (data as any)?.error || "Failed to enable TOTP");
+      }
+      await refetch();
       return { success: true as const };
     } catch (error: any) {
       return { success: false as const, error: error.message };
@@ -393,10 +398,13 @@ export const useUserProfile = () => {
 
   const disableTotp = async () => {
     try {
-      await updateMutation.mutateAsync({
-        totp_enabled: false,
-        totp_secret: null,
-      } as Partial<Profile>);
+      const { data, error } = await supabase.functions.invoke("totp-manage", {
+        body: { action: "disable" },
+      });
+      if (error || (data as any)?.error) {
+        throw new Error(error?.message || (data as any)?.error || "Failed to disable TOTP");
+      }
+      await refetch();
       return { success: true as const };
     } catch (error: any) {
       return { success: false as const, error: error.message };
