@@ -144,7 +144,7 @@ export const OrderCard = ({
         <div className="bg-muted/50 rounded-lg p-3 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Order Type</span>
-            <span className={type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
+            <span className={`${sideColor} font-medium`}>
               <CheckCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
               {sideText} {orderType}
             </span>
