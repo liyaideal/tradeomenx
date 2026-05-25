@@ -149,7 +149,7 @@ const ChildRowContent = ({
 
     {/* Market name (indented) */}
     <td className="pr-3 pl-8">
-      <span className="text-sm text-muted-foreground">● {child.optionLabel}</span>
+      <span className="text-sm text-muted-foreground">● {child.displayLabel}</span>
     </td>
 
     {/* Price (Yes price; No = 1 − Yes) */}
