@@ -1206,68 +1206,73 @@ export default function DesktopTrading() {
                               : ""
                           }`}
                         >
-                          <td className="px-4 py-2">
-                            <div className="flex items-center gap-1.5 flex-nowrap">
-                              {position.isAirdrop && (
-                                <span className="inline-flex items-center gap-0.5 bg-primary/20 text-primary border border-primary/30 text-[9px] font-semibold px-1 py-px rounded whitespace-nowrap flex-shrink-0">
-                                  <Gift className="w-2.5 h-2.5" />
-                                  AIRDROP
-                                </span>
-                              )}
-                              <PositionDetailDialog
-                                position={position}
-                                liveMarkPrice={realtimePnL.hasRealtimePrice ? realtimePnL.markPrice : undefined}
-                              >
-                                <button
-                                  type="button"
-                                  className="text-sm font-medium truncate border-b border-dashed border-muted-foreground hover:border-foreground hover:text-primary transition-colors text-left cursor-pointer"
-                                  title="View position details"
-                                >
-                                  {position.displayOption ?? position.option}
-                                </button>
-                              </PositionDetailDialog>
-                            </div>
-                            <HoverCard>
-                              <HoverCardTrigger asChild>
-                                <div className="text-xs text-muted-foreground truncate max-w-[180px] cursor-help border-b border-dashed border-transparent hover:border-muted-foreground inline-block">
-                                  {position.event}
-                                </div>
-                              </HoverCardTrigger>
-                              <HoverCardContent className="w-72 p-3" side="bottom" align="start">
-                                <p className="text-sm font-medium mb-2">{position.event}</p>
-                                <a 
-                                  href="#" 
-                                  className="text-sm text-primary flex items-center gap-1.5 hover:underline"
-                                  onClick={(e) => e.preventDefault()}
-                                >
-                                  <ExternalLink className="w-3.5 h-3.5" />
-                                  Go to this event
-                                </a>
-                              </HoverCardContent>
-                            </HoverCard>
-                          </td>
-                          <td className="px-4 py-2">
-                            {(() => {
-                              const outcome = getBinaryOutcome(position.option);
-                              const isYesOutcome = outcome === "yes";
-                              const isNoOutcome = outcome === "no";
-                              const colorClass = isYesOutcome
-                                ? "bg-trading-green/20 text-trading-green"
-                                : isNoOutcome
-                                ? "bg-trading-red/20 text-trading-red"
-                                : position.type === "long"
-                                ? "bg-trading-green/20 text-trading-green"
-                                : "bg-trading-red/20 text-trading-red";
-                              const label = outcome
-                                ? resolveBinarySideLabel(outcome, lookupSideLabels(position.event).labels)
-                                : position.option;
-                              return (
-                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${colorClass}`}>
-                                  {label}
-                                </span>
-                              );
-                            })()}
-                          </td>
+                          {(() => {
+                            const outcome = getBinaryOutcome(position.option);
+                            const contractColorClass = outcome === "yes"
+                              ? "text-trading-green hover:text-trading-green/80 border-trading-green/40 hover:border-trading-green"
+                              : outcome === "no"
+                              ? "text-trading-red hover:text-trading-red/80 border-trading-red/40 hover:border-trading-red"
+                              : "hover:text-primary border-muted-foreground hover:border-foreground";
+                            return (
+                              <>
+                                <td className="px-4 py-2">
+                                  <div className="flex items-center gap-1.5 flex-nowrap">
+                                    {position.isAirdrop && (
+                                      <span className="inline-flex items-center gap-0.5 bg-primary/20 text-primary border border-primary/30 text-[9px] font-semibold px-1 py-px rounded whitespace-nowrap flex-shrink-0">
+                                        <Gift className="w-2.5 h-2.5" />
+                                        AIRDROP
+                                      </span>
+                                    )}
+                                    <PositionDetailDialog
+                                      position={position}
+                                      liveMarkPrice={realtimePnL.hasRealtimePrice ? realtimePnL.markPrice : undefined}
+                                    >
+                                      <button
+                                        type="button"
+                                        className={`text-sm font-medium truncate border-b border-dashed transition-colors text-left cursor-pointer ${contractColorClass}`}
+                                        title="View position details"
+                                      >
+                                        {position.displayOption ?? position.option}
+                                      </button>
+                                    </PositionDetailDialog>
+                                  </div>
+                                  <HoverCard>
+                                    <HoverCardTrigger asChild>
+                                      <div className="text-xs text-muted-foreground truncate max-w-[180px] cursor-help border-b border-dashed border-transparent hover:border-muted-foreground inline-block">
+                                        {position.event}
+                                      </div>
+                                    </HoverCardTrigger>
+                                    <HoverCardContent className="w-72 p-3" side="bottom" align="start">
+                                      <p className="text-sm font-medium mb-2">{position.event}</p>
+                                      <a
+                                        href="#"
+                                        className="text-sm text-primary flex items-center gap-1.5 hover:underline"
+                                        onClick={(e) => e.preventDefault()}
+                                      >
+                                        <ExternalLink className="w-3.5 h-3.5" />
+                                        Go to this event
+                                      </a>
+                                    </HoverCardContent>
+                                  </HoverCard>
+                                </td>
+                                <td className="px-4 py-2">
+                                  {outcome ? (
+                                    <span className="text-xs text-muted-foreground/40">—</span>
+                                  ) : (
+                                    <span
+                                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                        position.type === "long"
+                                          ? "bg-trading-green/20 text-trading-green"
+                                          : "bg-trading-red/20 text-trading-red"
+                                      }`}
+                                    >
+                                      {position.option}
+                                    </span>
+                                  )}
+                                </td>
+                              </>
+                            );
+                          })()}
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.sizeDisplay}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.entryPrice}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{displayMarkPrice}</td>
