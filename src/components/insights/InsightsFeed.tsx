@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart3, Sparkles, Clock, Flame, TrendingUp, ArrowRight, Share2 } from "lucide-react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 interface InsightCard {
   id: string;
