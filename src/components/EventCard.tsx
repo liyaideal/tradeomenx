@@ -603,7 +603,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Long/Short Toggle - uses standardized btn-trading classes */}
+              {/* Yes/No Toggle - uses standardized btn-trading classes */}
               <div className="flex rounded-xl overflow-hidden border border-border/50 bg-background/50 p-0.5">
                 <button
                   onClick={() => setTradeSide("long")}
@@ -613,7 +613,7 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                       : "btn-trading-inactive"
                   }`}
                 >
-                  Long
+                  Yes
                 </button>
                 <button
                   onClick={() => setTradeSide("short")}
@@ -623,9 +623,10 @@ export const EventCard = ({ event, onEventClick, onTrade }: EventCardProps) => {
                       : "btn-trading-inactive"
                   }`}
                 >
-                  Short
+                  No
                 </button>
               </div>
+
 
               {/* Leverage - pill style */}
               <div className="flex items-center gap-2 ml-auto">
