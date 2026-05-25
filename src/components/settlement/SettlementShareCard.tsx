@@ -177,17 +177,27 @@ export const SettlementShareCard = ({
           {event}
         </h2>
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge 
-            variant="outline" 
-            className={`text-[10px] ${isLong 
-              ? "border-trading-green/50 text-trading-green bg-trading-green/10" 
-              : "border-trading-red/50 text-trading-red bg-trading-red/10"
-            }`}
-          >
-            {sideText} {leverage}x
-          </Badge>
-          <span className="text-xs text-muted-foreground">{option}</span>
+          {isBinaryOption ? (
+            // Binary: 队名/Yes/No 作为合约名展示，颜色按 long/short outcome
+            <span className={`text-sm font-semibold ${isLong ? "text-trading-green" : "text-trading-red"}`}>
+              {binaryAlias ?? directionText} {leverage}x
+            </span>
+          ) : (
+            <>
+              <Badge
+                variant="outline"
+                className={`text-[10px] ${isLong
+                  ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                  : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                }`}
+              >
+                {directionText} {leverage}x
+              </Badge>
+              <span className="text-xs text-muted-foreground">{option}</span>
+            </>
+          )}
         </div>
+
       </div>
 
       {/* Trade Details - Compact */}
