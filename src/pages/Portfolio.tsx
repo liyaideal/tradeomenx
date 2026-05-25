@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -91,6 +92,7 @@ export default function Portfolio() {
   const { positions, isLoading: positionsLoading } = usePositions();
   const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
   const { airdrops } = useAirdropPositions();
+  const resolveDisplayOption = useEventDisplayLookup();
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   // Use the same risk metrics as the Account Risk module in /trade
   const riskMetrics = useRealtimeRiskMetrics();
@@ -505,7 +507,7 @@ export default function Portfolio() {
                           {position.event}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          {position.option}
+                          {position.displayOption ?? position.option}
                         </p>
                       </div>
 
@@ -603,7 +605,7 @@ export default function Portfolio() {
                           <TableCell>
                             <div>
                               <div className="font-medium text-sm line-clamp-1">
-                                {position.option}
+                                {position.displayOption ?? position.option}
                               </div>
                               <div className="text-xs text-muted-foreground line-clamp-1">
                                 {position.event}
@@ -818,7 +820,7 @@ export default function Portfolio() {
                         {settlement.event}
                       </h3>
                       <p className="text-xs text-muted-foreground">
-                        {settlement.option}
+                        {resolveDisplayOption(settlement.event, settlement.option)}
                       </p>
                     </div>
 
@@ -906,7 +908,7 @@ export default function Portfolio() {
                         <TableCell>
                           <div>
                             <div className="font-medium text-sm line-clamp-1">
-                              {settlement.option}
+                              {resolveDisplayOption(settlement.event, settlement.option)}
                             </div>
                             <div className="text-xs text-muted-foreground line-clamp-1">
                               {settlement.event}

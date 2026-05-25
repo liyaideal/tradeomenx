@@ -1,11 +1,6 @@
 import { useState, useMemo } from "react";
-import { TrendingUp, TrendingDown, Pencil, Info, Gift, Lock } from "lucide-react";
+import { TrendingUp, TrendingDown, Pencil, Gift, Lock } from "lucide-react";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
@@ -18,6 +13,8 @@ interface PositionCardProps {
   type: "long" | "short";
   event: string;
   option: string;
+  /** Display label after applying sideLabels; falls back to option. */
+  displayOption?: string;
   optionId?: string | null;
   entryPrice: string;
   markPrice: string;
@@ -41,6 +38,7 @@ export const PositionCard = ({
   type,
   event,
   option,
+  displayOption,
   optionId,
   entryPrice,
   markPrice,
@@ -57,6 +55,7 @@ export const PositionCard = ({
   positionIndex,
   position: fullPosition,
 }: PositionCardProps) => {
+  const optionDisplay = displayOption ?? option;
   // Calculate real-time P&L using live market prices
   const { calculateRealtimePnL } = useRealtimePositionsPnL();
   
@@ -107,7 +106,7 @@ export const PositionCard = ({
 
   const handleClosePartial = async (qty: number) => {
     if (!positionId || positionIndex === undefined) {
-      toast({ title: "Position Closed", description: `Your ${type} position on ${option} has been closed.` });
+      toast({ title: "Position Closed", description: `Your ${type} position on ${optionDisplay} has been closed.` });
       return;
     }
     await partialClosePosition(positionId, positionIndex, qty);
@@ -234,26 +233,12 @@ export const PositionCard = ({
           >
             <h3 className="font-medium text-foreground text-sm truncate">{event}</h3>
             <div className="flex items-center gap-2">
-              <p className="text-xs text-muted-foreground">{option}</p>
+              <p className="text-xs text-muted-foreground">{optionDisplay}</p>
               {fullPosition && (
                 <span className="text-[10px] text-primary">Details ›</span>
               )}
             </div>
           </button>
-          {option.toLowerCase() === "yes" && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="p-0.5 rounded hover:bg-muted/50 transition-colors mt-0.5">
-                  <Info className="w-3 h-3 text-trading-yellow" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-3 text-xs" side="top" align="start">
-                <p className="text-muted-foreground">
-                  <span className="text-trading-yellow">💡</span> All positions on a binary event are displayed under the Yes outcome. Buying Yes is bullish on the event; buying No is bearish. P&L is always measured against Yes price moves.
-                </p>
-              </PopoverContent>
-            </Popover>
-          )}
         </div>
 
         {/* Position Details */}
@@ -321,7 +306,7 @@ export const PositionCard = ({
           <ClosePositionDrawer
             open={closeOpen}
             onOpenChange={setCloseOpen}
-            option={option}
+            option={optionDisplay}
             side={type}
             size={parseFloat(String(size).replace(/,/g, "")) || 0}
             entryPrice={parseFloat(entryPrice.replace(/[$,]/g, "")) || 0}

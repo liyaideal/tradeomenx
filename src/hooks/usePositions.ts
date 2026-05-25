@@ -3,6 +3,7 @@ import { useAuth } from "./useAuth";
 import { useSupabasePositions, SupabasePosition } from "./useSupabasePositions";
 import { usePositionsStore, Position as LocalPosition } from "@/stores/usePositionsStore";
 import { useAirdropPositions, AirdropPosition } from "./useAirdropPositions";
+import { useEventDisplayLookup } from "./useEventDisplayLookup";
 
 // Unified position interface for components
 export interface UnifiedPosition {
@@ -10,6 +11,8 @@ export interface UnifiedPosition {
   type: "long" | "short";
   event: string;
   option: string;
+  /** Display label after applying sideLabels (e.g. team name). Falls back to option. */
+  displayOption?: string;
   optionId?: string | null; // Direct reference to event_options for realtime price lookup
   entryPrice: string;
   markPrice: string;
@@ -180,14 +183,20 @@ export const usePositions = () => {
   // Activated airdrops (merged into positions list)
   const { activatedAirdrops } = useAirdropPositions();
   
+  // Lookup for sideLabels-aware display labels
+  const resolveDisplayOption = useEventDisplayLookup();
+
   // Convert to unified format (including activated airdrops)
   const positions: UnifiedPosition[] = useMemo(() => {
     const base = isLoggedIn
       ? supabasePositions.map(convertSupabasePosition)
       : localPositions.map(convertLocalPosition);
     const airdropPositions = activatedAirdrops.map(convertAirdropPosition);
-    return [...base, ...airdropPositions];
-  }, [isLoggedIn, supabasePositions, localPositions, activatedAirdrops]);
+    return [...base, ...airdropPositions].map((p) => ({
+      ...p,
+      displayOption: resolveDisplayOption(p.event, p.option),
+    }));
+  }, [isLoggedIn, supabasePositions, localPositions, activatedAirdrops, resolveDisplayOption]);
   
   // Refetch positions (for logged-in users)
   const refetch = useCallback(() => {

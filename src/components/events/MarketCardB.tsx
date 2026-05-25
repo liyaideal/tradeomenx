@@ -113,7 +113,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
             const chg = getChange(child, chgTimeframe);
             return (
               <div key={child.id} className="flex items-center justify-between">
-                <span className="text-[11px] text-muted-foreground truncate max-w-[60%]">{child.optionLabel}</span>
+                <span className="text-[11px] text-muted-foreground truncate max-w-[60%]">{child.displayLabel}</span>
                 <span className={cn("text-[11px] font-mono font-semibold whitespace-nowrap tabular-nums", chg >= 0 ? "text-trading-green" : "text-trading-red")}>
                   {chg >= 0 ? "▲" : "▼"} {chg >= 0 ? "+" : ""}{chg.toFixed(2)}%
                 </span>

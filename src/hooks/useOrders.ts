@@ -2,6 +2,7 @@ import { useMemo, useCallback } from "react";
 import { useAuth } from "./useAuth";
 import { useSupabaseOrders, SupabaseOrder } from "./useSupabaseOrders";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
+import { useEventDisplayLookup } from "./useEventDisplayLookup";
 
 // Unified order type for UI
 export interface UnifiedOrder {
@@ -10,6 +11,8 @@ export interface UnifiedOrder {
   orderType: "Limit" | "Market";
   event: string;
   option: string;
+  /** Display label after applying sideLabels (e.g. team name). Falls back to option. */
+  displayOption?: string;
   probability?: string;
   price: string;
   amount: string;
@@ -88,15 +91,20 @@ export const useOrders = () => {
   // Local orders for guests
   const { orders: localOrders, cancelOrder: cancelLocalOrder, fillOrder: fillLocalOrder } = useOrdersStore();
 
+  const resolveDisplayOption = useEventDisplayLookup();
+
   // Get unified orders based on auth state
   const orders = useMemo((): UnifiedOrder[] => {
-    if (isLoggedIn) {
-      return supabaseOrders.map(convertSupabaseOrder);
-    }
-    return localOrders
-      .filter((o) => o.status === "Pending" || o.status === "Partial Filled")
-      .map(convertLocalOrder);
-  }, [isLoggedIn, supabaseOrders, localOrders]);
+    const base = isLoggedIn
+      ? supabaseOrders.map(convertSupabaseOrder)
+      : localOrders
+          .filter((o) => o.status === "Pending" || o.status === "Partial Filled")
+          .map(convertLocalOrder);
+    return base.map((o) => ({
+      ...o,
+      displayOption: resolveDisplayOption(o.event, o.option),
+    }));
+  }, [isLoggedIn, supabaseOrders, localOrders, resolveDisplayOption]);
 
   // Refetch orders
   const refetch = useCallback(() => {

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown, Trophy, ChevronRight, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSettlements } from "@/hooks/useSettlements";
+import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { usePositions } from "@/hooks/usePositions";
@@ -74,6 +75,7 @@ export default function PortfolioSettlements() {
   const { data: settlements = [], isLoading } = useSettlements();
   const { airdrops } = useAirdropPositions();
   const { positions } = usePositions();
+  const resolveDisplayOption = useEventDisplayLookup();
 
   // Calculate settlements stats
   const settlementsStats = useMemo(() => {
@@ -274,7 +276,7 @@ export default function PortfolioSettlements() {
                       {settlement.event}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {settlement.option}
+                      {resolveDisplayOption(settlement.event, settlement.option)}
                     </div>
                   </div>
 
@@ -313,7 +315,7 @@ export default function PortfolioSettlements() {
                         {settlement.event}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {settlement.option}
+                        {resolveDisplayOption(settlement.event, settlement.option)}
                       </TableCell>
                       <TableCell>
                         <Badge
