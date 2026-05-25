@@ -100,6 +100,7 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
             final_price: opt.final_price,
             is_winner: opt.is_winner,
           })),
+          sideLabels: parseSideLabels((event as any).side_labels),
           userParticipated: userEventTrades.length > 0,
           userPnl: userEventTrades.length > 0 ? userPnl : null,
         };
