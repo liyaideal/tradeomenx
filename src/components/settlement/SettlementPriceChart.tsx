@@ -46,7 +46,7 @@ export const SettlementPriceChart = ({
   const chartWidth = isMobile ? 320 : 700;
   const padding = {
     top: 10,
-    right: isMobile ? 35 : 50,
+    right: isMobile ? 56 : 64,
     bottom: isMobile ? 25 : 30,
     left: 5,
   };
@@ -365,21 +365,21 @@ export const SettlementPriceChart = ({
       </svg>
 
       {/* Price labels */}
-      <div 
-        className="absolute text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/20 text-primary"
-        style={{ 
-          right: 0, 
+      <div
+        className="absolute text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/20 text-primary whitespace-nowrap"
+        style={{
+          right: 0,
           top: priceToY(entryPrice) * (isMobile ? 160 : 200) / chartHeight - 8,
         }}
       >
         Entry
       </div>
-      <div 
-        className={`absolute text-[10px] font-mono px-1.5 py-0.5 rounded ${
+      <div
+        className={`absolute text-[10px] font-mono px-1.5 py-0.5 rounded whitespace-nowrap ${
           isProfit ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"
         }`}
-        style={{ 
-          right: 0, 
+        style={{
+          right: 0,
           top: priceToY(exitPrice) * (isMobile ? 160 : 200) / chartHeight - 8,
         }}
       >

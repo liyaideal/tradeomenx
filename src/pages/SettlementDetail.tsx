@@ -212,39 +212,33 @@ export default function SettlementDetail() {
               </div>
               
               {/* Position Info: Side / Leverage / Option */}
-              <div className={`flex ${isMobile ? "flex-wrap" : ""} items-center gap-x-3 gap-y-2 mt-3`}>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-3">
                 {/* Side Badge — multi-outcome only; binary 单 market 由 Option 行的 outcome 颜色承载方向 */}
                 {!getBinaryOutcome(settlement.option) && (
-                  <>
-                    <Badge 
-                      variant="outline" 
-                      className={`shrink-0 ${isLong 
-                        ? "border-trading-green/50 text-trading-green bg-trading-green/10" 
-                        : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                      }`}
-                    >
-                      {isLong ? "Yes" : "No"}
-                    </Badge>
-                    <span className="text-border shrink-0">|</span>
-                  </>
+                  <Badge
+                    variant="outline"
+                    className={`shrink-0 ${isLong
+                      ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                      : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                    }`}
+                  >
+                    {isLong ? "Yes" : "No"}
+                  </Badge>
                 )}
-                
+
                 {/* Leverage */}
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-xs text-muted-foreground">Leverage</span>
                   <span className="text-sm font-medium text-foreground">{settlement.leverage}x</span>
                 </div>
-                
-                {/* Separator - hide on mobile when wrapping to new line */}
-                <span className={`text-border shrink-0 ${isMobile ? "hidden sm:inline" : ""}`}>|</span>
-                
-                {/* Option - can wrap on mobile */}
-                <div className={`flex items-center gap-1.5 ${isMobile ? "w-full sm:w-auto mt-1 sm:mt-0" : ""}`}>
+
+                {/* Option */}
+                <div className="flex items-center gap-1.5 min-w-0">
                   <span className="text-xs text-muted-foreground shrink-0">Option</span>
                   {(() => {
                     const o = getBinaryOutcome(settlement.option);
                     const cls = o === "yes" ? "text-trading-green" : o === "no" ? "text-trading-red" : "text-foreground";
-                    return <span className={`text-sm font-medium ${cls}`}>{settlement.option}</span>;
+                    return <span className={`text-sm font-medium truncate ${cls}`}>{settlement.option}</span>;
                   })()}
                 </div>
               </div>

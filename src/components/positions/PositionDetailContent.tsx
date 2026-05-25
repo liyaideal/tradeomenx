@@ -119,20 +119,20 @@ export const PositionDetailContent = ({
                 </div>
               );
             }
-            // Multi-outcome event: keep existing chip + optional secondary label
-            const chipColor =
-              position.type === "long"
-                ? "bg-trading-green/10 text-trading-green"
-                : "bg-trading-red/10 text-trading-red";
-            const secondary = position.displayOption;
-            const showSecondary =
-              secondary && secondary !== position.option;
+            // Multi-outcome event: chip 文案统一为 Yes/No（long → Yes, short → No），
+            // option 名作为 secondary 跟在 chip 右边。颜色：long=green / short=red。
+            const isLong = position.type === "long";
+            const chipColor = isLong
+              ? "bg-trading-green/10 text-trading-green"
+              : "bg-trading-red/10 text-trading-red";
+            const chipLabel = isLong ? "Yes" : "No";
+            const secondary = position.displayOption ?? position.option;
             return (
               <div className="flex items-center gap-2 text-xs">
                 <span className={cn("px-2 py-0.5 rounded font-medium", chipColor)}>
-                  {position.option} {position.leverage}
+                  {chipLabel} {position.leverage}
                 </span>
-                {showSecondary && (
+                {secondary && (
                   <span className="text-muted-foreground truncate">{secondary}</span>
                 )}
               </div>
