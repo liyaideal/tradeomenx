@@ -1347,7 +1347,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${airdrop.counterSide === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {airdrop.counterSide === "long" ? "Yes" : "No"}
+                              {resolveBinarySideLabel(airdrop.counterSide === "long" ? "yes" : "no", lookupSideLabels(airdrop.counterEventName).labels)}
                             </span>
                           </td>
                           <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
