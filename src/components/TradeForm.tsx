@@ -202,6 +202,7 @@ export const TradeForm = ({
         price: currentPrice.toFixed(4),
         event: eventName,
         option: optionLabel,
+        sideLabels: sideLabels ?? null,
         orderCalculations: displayCalculations,
         tpsl: tpsl ? {
           tp: tpValue ? { value: tpValue, mode: tpMode, price: tpslCalculations.tpPrice } : null,
