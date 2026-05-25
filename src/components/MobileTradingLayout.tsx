@@ -116,6 +116,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
     selectedOption,
     selectedOptionData,
     options,
+    setSelectedOption,
   };
 
   return (
