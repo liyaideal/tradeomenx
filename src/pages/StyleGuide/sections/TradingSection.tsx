@@ -982,6 +982,7 @@ const categoryInfo = getCategoryInfo(event.category);
               <p>· 按钮 <code className="font-mono">flex flex-col h-full</code>；上层 <code className="font-mono">flex-1 min-h-[24px] py-1.5</code> + <code className="font-mono">line-clamp-2</code>，自动撑满到对侧高度</p>
               <p>· 价格条固定 <code className="font-mono">h-[22px]</code>，与上层用 <code className="font-mono">border-t</code> 分隔，选中态同色系 /85</p>
               <p>· 一侧换行升高时，另一侧通过 <code className="font-mono">h-full + flex-1</code> 自动等高；严禁硬编码 <code className="font-mono">h-14</code></p>
+              <p>· <strong>单 market binary 事件不要</strong>在事件 header 下追加 <code className="font-mono">Market: X or Y</code> 行或 <code className="font-mono">Select Option:</code> chip——对阵信息已由标题 + Yes/No 切换器承担</p>
             </div>
           </CardContent>
         </Card>
