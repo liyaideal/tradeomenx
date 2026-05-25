@@ -315,7 +315,7 @@ export default function PortfolioSettlements() {
                         {settlement.event}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {settlement.option}
+                        {resolveDisplayOption(settlement.event, settlement.option)}
                       </TableCell>
                       <TableCell>
                         <Badge
