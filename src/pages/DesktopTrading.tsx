@@ -1929,7 +1929,7 @@ export default function DesktopTrading() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Position</span>
                   <span className={pos.type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {pos.type === "long" ? "Yes" : "No"} {pos.leverage}
+                    {resolveBinarySideLabel(pos.type === "long" ? "yes" : "no", lookupSideLabels(pos.event).labels)} {pos.leverage}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
