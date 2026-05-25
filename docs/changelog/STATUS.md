@@ -19,6 +19,59 @@
 
 ---
 
+## 2026-05-25 — 安全加固：transactions / TOTP / Realtime
+
+源文档：[2026-05-25-security-hardening.md](./2026-05-25-security-hardening.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| SEC1 | 新增 `record-transaction` Edge Function；客户端 `transactions` INSERT policy drop | `supabase/functions/record-transaction/`、`transactions` 表 | ⬜ | 客户端直 insert 报 RLS 403；通过 invoke 成功返回新行 id；type/status 越界返回 4xx | |
+| SEC2 | `useWithdraw` / `TopUpDialog` / `PendingConfirmations` 改走 `record-transaction` | 提现 / 充值流程 | ⬜ | Withdraw 提交后流水立即出现且 id 为 UUID（非 `wd-${ts}`）；失败不写库 | |
+| SEC3 | 新增 `user_security` 表（RLS 无 client policy）+ 数据迁移 + drop `profiles.totp_secret` | DB | ⬜ | anon/authenticated 查 `user_security` 返回 0 行；`profiles` 不再有 `totp_secret` 列 | |
+| SEC4 | 新增 `totp-manage` Edge Function；`useUserProfile` enable/disable 改 invoke | `supabase/functions/totp-manage/`、Settings | ⬜ | 设置内 enable/disable TOTP 走 invoke；前端类型不再含 secret；disable 时若提现依赖 TOTP 自动回落 Email | |
+| SEC5 | `realtime.messages` 启用 RLS，仅 authenticated 接收 postgres_changes | DB | ⬜ | 未登录访客订阅业务表 channel 拿不到事件；登录后正常 | |
+| SEC6 | Field-locking triggers：`enforce_points_account_user_update` / `enforce_user_task_user_write` / `enforce_referral_user_update` | DB triggers | ⬜ | 客户端尝试 update 关键字段（balance / status / claimed_at）→ raise exception | |
+| SEC7 | `points_redemptions` 客户端 INSERT policy drop；统一走 `redeem-points` | DB + 任务奖励流程 | ⬜ | 客户端直 insert 拒绝；通过 invoke 兑换正常 | |
+| SEC8 | 内部 trigger 函数（`handle_new_user` / `update_updated_at_column` 等）REVOKE EXECUTE | DB | ⬜ | 公共角色无法 SELECT 调用这些函数；trigger 上下文照常执行 | `has_role` / `lookup_referral_code` 保留 authenticated EXECUTE |
+
+---
+
+## 2026-05-25 — 全站方向文案 Long/Short + Buy/Sell → Yes/No
+
+源文档：[2026-05-25-yes-no-terminology.md](./2026-05-25-yes-no-terminology.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| YN1 | `tradingTerms.ts` 字典 + `sideLabel()` / `orderSideLabel()` helper | `src/lib/tradingTerms.ts` | ⬜ | 全站方向文案统一从 helper 取值；LONG="Yes" / SHORT="No" | |
+| YN2 | `positionIntent.ts` `getIntentLabel` 输出 Yes/No 组合 | `src/lib/positionIntent.ts` | ⬜ | CTA 文案 `Buy Yes / Buy No / Close Yes / Reduce No` 正确 | |
+| YN3 | 交易界面：TradeForm / DesktopTradeForm / OrderPreview / OrderBook / DesktopOrderBook | `/trade` | ⬜ | Yes/No 切换 + Buy Yes/Buy No CTA + 列头 Yes Price/No Price + 角标 Y/N + 颜色不变 | |
+| YN4 | 持仓 / 结算 / 分享：PositionCard / DesktopPositionsPanel / Close*  / SettlementPoster / SettlementShareCard / AirdropPositionCard | `/portfolio`、`/settlement`、分享卡 | ⬜ | Side 列、按钮、分享卡全部 Yes/No；颜色 green/red 不变 | |
+| YN5 | 事件列表 / 首页：EventCard / MarketListView / HomeDiscover / PositionAlertCard / BinaryEventHint | `/events`、`/` | ⬜ | tooltip 与教育文案统一 Yes/No；BinaryEventHint 文案更新 | |
+| YN6 | 审计 / 透明度：TradeVerification / FundingRateAudit / useTradeVerification / useLiquidationAudit | `/transparency` 各子页 | ⬜ | 徽章 YES/NO；资金费方向描述 `Yes pays No` / `No pays Yes` | |
+| YN7 | Style Guide / Playground 全部 demo mock 数据更新 | `/style-guide`、`/campaign-style-guide` | ⬜ | 所有 demo 文案统一 Yes/No；Playground 卡片标签更新 | |
+| YN8 | Glossary / Terms：双标条目 `Yes (Long)` / `No (Short)`，SEO anchor 保留 | `data/glossaryTerms.ts`、`TermsOfServicePage.tsx` | ⬜ | 词条标题 / URL anchor 不变；条目正文双标 | |
+| YN9 | B 类保留：Hedge 落地页、Glossary 教学映射、ToS 法律映射、SellToFiat | 对应文件 | ➖ | 保持 Long/Short 不变；研发实现时不要顺手替换 | |
+| YN10 | 底层不动：`side: 'long'\|'short'`、`order.side: 'buy'\|'sell'`、Supabase schema、PnL 公式、`no = 1 − yes` | TS 类型、DB、PnL | ➖ | 数据写入与既有逻辑兼容；前端只在渲染层映射 | 详见 §5 |
+
+---
+
+## 2026-05-21 — /resolved 列表 + 详情页改版
+
+源文档：[2026-05-21-resolved-revamp.md](./2026-05-21-resolved-revamp.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| RES1 | /resolved 列表改为 Event→Markets 两级结构 | `ResolvedGroupedGrid` + `ResolvedMarketCard` | ⬜ | 同一事件下 markets 聚合在一个分组下；binary YES/NO 也走分组结构 | 旧 `ResolvedEventCard.tsx` 删除 |
+| RES2 | Market 卡片不渲染价格，仅 Winner badge + Check/X 图标 | `ResolvedMarketCard.tsx` | ⬜ | 卡片无 `$0.62` / `$83.29` 类异常值；winner 高亮 trading-green | |
+| RES3 | 头部三段式：Title / Tabs(All Resolved / My Settled) / 内联筛选 | `ResolvedPage.tsx` | ⬜ | 桌面 Search + Category 内联无 Card 包裹；视觉与 /events 一致 | |
+| RES4 | 桌面 `ResolvedFilters` 去掉 Status / Sort / Tag 筛选 | `ResolvedFilters.tsx` | ⬜ | 只剩 Search + Category | |
+| RES5 | 移动 `MobileResolvedFilterDrawer` 收纳全部筛选（含 View 切换） | 移动 `/resolved` | ⬜ | Drawer 按 §3.2 排版；Apply/Cancel 按 §5.1 规范 | |
+| RES6 | 详情页 Final Results 改为 `is_winner ? "$1.00" : "$0.00"`，不再读 `final_price` | `ResolvedEventDetail.tsx` | ⬜ | 双列 grid；winner 行 trading-green；不出现 `$83.29` 类异常 | |
+| RES7 | Price History Chart 归一化到 0–1 区间，末点对齐 winner=1 / loser=0 | `resolved/PriceHistoryChart.tsx` | ⬜ | y 轴 grid label `$0.xx`；真实价格 > 1 自动 `/100` 归一；mock 用 ±0.08 随机游走 | tooltip 变化率 % 保留 |
+| RES8 | `handle_new_user` trigger 回填 4 笔 settled trades + 4 条 closed positions | DB | ⬜ | 新用户注册即可在 My Settled 看到 4 笔示例数据 | 老用户不补 |
+
+---
+
 ## 2026-05-21 — 资金费率审计：结算周期列表中间页
 
 源文档：[2026-05-21-funding-rate-periods-step.md](./2026-05-21-funding-rate-periods-step.md)
