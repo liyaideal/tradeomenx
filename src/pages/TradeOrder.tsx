@@ -4,6 +4,7 @@ import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { ChevronDown, Gift } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
+import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions } from "@/lib/eventUtils";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { AirdropPositionCard } from "@/components/AirdropPositionCard";
@@ -22,10 +23,12 @@ interface LocationState {
 interface TradeOrderContentProps {
   selectedEvent: TradingContextData['selectedEvent'];
   selectedOptionData: TradingContextData['selectedOptionData'];
+  options: TradingContextData['options'];
+  setSelectedOption: TradingContextData['setSelectedOption'];
 }
 
 
-function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderContentProps) {
+function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSelectedOption }: TradeOrderContentProps) {
   const location = useLocation();
   const state = location.state as LocationState | null;
   
@@ -128,13 +131,34 @@ function TradeOrderContent({ selectedEvent, selectedOptionData }: TradeOrderCont
 
 
           {/* Trade Form */}
-          <TradeForm 
-            selectedPrice={selectedOptionData.price} 
-            eventName={selectedEvent?.name || ""}
-            optionLabel={selectedOptionData.label}
-            side={side}
-            onSideChange={setSide}
-          />
+          {(() => {
+            const isBinary = isSingleMarketBinary(options);
+            const labels = getBinarySideLabels(selectedEvent);
+            const yn = getYesNoOptions(options);
+            const yesPrice = yn.yes ? parseFloat(yn.yes.price) || 0 : 0;
+            const noPrice = yn.no ? parseFloat(yn.no.price) || 0 : 0;
+            const binaryMode = isBinary && yn.yes && yn.no
+              ? {
+                  yesLabel: labels.yes,
+                  noLabel: labels.no,
+                  yesPrice,
+                  noPrice,
+                  isYesSelected: selectedOptionData.id === yn.yes.id,
+                  onSelectYes: () => { setSide("buy"); setSelectedOption(yn.yes!.id); },
+                  onSelectNo: () => { setSide("buy"); setSelectedOption(yn.no!.id); },
+                }
+              : undefined;
+            return (
+              <TradeForm 
+                selectedPrice={selectedOptionData.price} 
+                eventName={selectedEvent?.name || ""}
+                optionLabel={selectedOptionData.label}
+                side={side}
+                onSideChange={setSide}
+                binaryMode={binaryMode}
+              />
+            );
+          })()}
         </div>
 
         {/* Right: Order Book — driven by trade form side */}
@@ -287,6 +311,8 @@ export default function TradeOrder() {
         <TradeOrderContent 
           selectedEvent={context.selectedEvent} 
           selectedOptionData={context.selectedOptionData} 
+          options={context.options}
+          setSelectedOption={context.setSelectedOption}
         />
       )}
     </MobileTradingLayout>
