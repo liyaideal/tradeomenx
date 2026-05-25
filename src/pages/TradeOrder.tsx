@@ -289,6 +289,8 @@ export default function TradeOrder() {
         <TradeOrderContent 
           selectedEvent={context.selectedEvent} 
           selectedOptionData={context.selectedOptionData} 
+          options={context.options}
+          setSelectedOption={context.setSelectedOption}
         />
       )}
     </MobileTradingLayout>
