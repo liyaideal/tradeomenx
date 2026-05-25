@@ -23,6 +23,7 @@ export interface DatabaseEvent {
   settlement_description: string | null;
   price_label: string | null;
   external_links: Json | null; // Raw JSON from DB, parsed to ExternalLink[] in useEvents
+  side_labels: Json | null; // { yes: string; no: string } for single-market binary events (e.g. sports team names)
   is_resolved: boolean;
   winning_option_id: string | null;
   settled_at: string | null;
