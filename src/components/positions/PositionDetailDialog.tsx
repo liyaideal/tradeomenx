@@ -35,7 +35,9 @@ export const PositionDetailDialog = ({
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="max-w-md bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="truncate">{position.event}</DialogTitle>
+          <DialogTitle className="pr-8 text-base leading-snug line-clamp-2">
+            {position.event}
+          </DialogTitle>
         </DialogHeader>
         <PositionDetailContent
           position={position}

@@ -1,71 +1,57 @@
 
-# 优化 binary 单 market 持仓的 Side 展示（桌面 + 移动）
+# 优化 Position 详情弹窗（桌面 Dialog + 移动 Drawer）排版与 binary 适配
 
 ## 问题
 
-binary 单 market 持仓在持仓表/卡片里，Side 列/Side badge 与 Contracts 主标签内容重复（都是队名），还会因为 badge 窄宽折出 "Oklahoma / City Thunder" 这种丑换行。
+`/trade` 列表点开持仓详情后弹窗（桌面 `PositionDetailDialog` + 移动 `PositionDetailDrawer`，共用 `PositionDetailContent`）有两个问题：
+
+1. **右上角超出**：`DialogTitle` 用 `truncate` 渲染长事件名（"NBA Finals 2026 Game 7: Celtics vs Thunder"），但 Dialog 右上 X 关闭按钮（`right-4 top-4`）没给标题留 padding，长 title 会被 X 覆盖/挤压
+2. **没针对 binary 单 market 优化**：header summary 区现在渲染 `"Yes 10x"` chip + 灰色队名（如 "Boston Celtics"），与新规则 `single-market-binary-ui`「outcome 颜色挂在主标签，不重复 Yes/No 字样」不一致；信息也重复
 
 ## 方案
 
-**binary 单 market 行的 Side 不渲染内容；把 outcome 颜色挪到 Contracts 主标签上**，让用户依然能一眼区分 Yes / No 边。
+### 1. `src/components/positions/PositionDetailDialog.tsx`
+- `DialogTitle` 改：`truncate` → `pr-8 line-clamp-2 leading-snug text-base`
+  - `pr-8` 给右上 X 让位
+  - `line-clamp-2` 允许换两行而不是粗暴 truncate
+  - `text-base` 把默认 `text-lg` 调小（事件名长，`lg` 容易撑两行 + 视觉过重）
 
-非 binary（多 outcome 事件）维持现状。
+### 2. `src/components/positions/PositionDetailContent.tsx` Header summary（line 100-121）
+按 binary outcome 分支重写：
 
-### 视觉规范
+**binary 行**（`getBinaryOutcome(option) !== null`）：
+```tsx
+<div className="flex items-center gap-2 text-sm">
+  <span className={cn("font-semibold", outcomeColor /* trading-green / trading-red */)}>
+    {position.displayOption ?? position.option}   {/* 队名或 Yes/No */}
+  </span>
+  <span className="text-xs text-muted-foreground">{position.leverage}</span>
+</div>
+```
+- 主标签直接是队名/Yes/No，用 outcome 颜色（绿/红）
+- 不再渲染 "Yes/No · 队名" 双层 chip
+- leverage 小灰字独立
 
-| 场景 | Contracts 主标签 | Side |
-|---|---|---|
-| binary Yes 边（Buy Yes Celtics / Buy Yes 无 alias） | `text-trading-green` | 空：渲染 `—`，`text-muted-foreground/40` |
-| binary No 边（Buy No Thunder / Buy No 无 alias） | `text-trading-red` | 同上 `—` |
-| 多 outcome（"Up >5%" / "Above $4,000"） | 保持 `text-foreground` | 现有 Buy/Sell 彩色 badge |
+**多 outcome 行**：保持现有 `"<option> <leverage>"` chip + 灰色 displayOption，但去掉重复（displayOption 与 option 相同时不渲染第二行）。
 
-判定：`getBinaryOutcome(position.option) !== null` → binary 规则；否则旧规则。
+### 3. Mobile（`PositionDetailDrawer`）
+- 数据/排版完全复用 `PositionDetailContent`，自动同步上面 2 的改动
+- `MobileDrawer` title 在移动端宽度足够，已用 SheetTitle 自适应，不动
 
-事件副标题保持 `text-muted-foreground`，不上色。
+## 不动
 
-## 改动文件（桌面 + 移动）
-
-### 桌面
-
-1. **`src/pages/DesktopTrading.tsx`** — `/trade` 持仓表（~1209-1270）
-   - Contracts `<button>`：按 binary outcome 加 `text-trading-green` / `text-trading-red`
-   - Side `<td>`：binary 行渲染 `—`；非 binary 保留 Buy/Sell badge
-
-2. **`src/pages/Portfolio.tsx`** 桌面表（~622-645）
-   - 同 DesktopTrading 同步处理
-
-3. **`src/components/DesktopPositionsPanel.tsx`**（268-273 行内 Contracts chip）
-   - Contracts 主标签上色；Side chip binary 时留空
-
-### 移动
-
-4. **`src/components/PositionCard.tsx`**（移动 `/portfolio` 与 `/trade` 移动 Positions 抽屉里的卡片）
-   - 213 行头部 chip：binary 时**移除** Yes/No badge；卡片头部主标签（队名/Yes/No）改为 outcome 颜色
-   - 345 行 Edit Dialog 摘要：同步逻辑（binary 不重复 Yes/No 字样）
-
-5. **`src/pages/Portfolio.tsx`** 移动卡片块（474-490）
-   - 与 PositionCard 头部一致：binary 行去掉 Yes/No badge，主标签上色
-
-### 不动
-
-- `src/lib/eventUtils.ts` helper 已就绪
-- TPSL / Close / Detail Drawer 描述里的 Yes/No 文案保持上一轮改动（这些场景没有"列重复"问题）
-- 多 outcome 渲染不变
-- 数据层、PnL 公式、写库逻辑全部不动
-- Style Guide / Playground 这次不动，留下次按 playground-state-coverage 统一补 binary outcome × side 全状态
+- 数据层、PnL/funding 公式、Net PnL 块、Position 块、Funding 块、History 表格全部不动
+- 多 outcome 事件的渲染基本不变
+- 其它 Dialog（TPSL / Close / Edit）不动
 
 ## QA
 
-桌面 + 移动镜像验证：
-- Buy Yes Celtics → 主标签 "Boston Celtics" 绿色；Side 列 `—` / 移动卡片头部无 Yes badge
-- Buy No Thunder → 主标签 "Oklahoma City Thunder" 红色；Side 列 `—` / 移动卡片头部无 No badge
-- Buy Yes（无 alias）→ 主标签 "Yes" 绿色；Side `—`
-- 多 outcome "Up >5%" → 主标签白色；Side 显示绿色 "Buy" badge（现状）
-- 列表里不再出现 "Boston / Celtics"、"Oklahoma / City Thunder" 换行
+- 桌面：NBA Finals binary 持仓 → 弹窗顶部 "NBA Finals 2026 Game 7: Celtics vs Thunder" 完整显示（最多两行）、不被 X 覆盖；下面 "Boston Celtics" 绿色 + "10x" 小灰字
+- Buy No Thunder → 主标签 "Oklahoma City Thunder" 红色
+- Bitcoin reach $150,000（多 outcome "Yes"）→ 保持现有 chip 渲染
+- 移动 drawer 同样表现
+- 短事件名（如 "Up >5%"）渲染不退化
 
 ## 记忆同步
 
-更新 `mem://design/single-market-binary-ui` 追加一行：
-> binary 单 market 在持仓/订单聚合表（桌面表 + 移动卡片）里，outcome 颜色挂在 Contracts 主标签上；Side 列/Side badge 对 binary 行留空（桌面 `—`，移动不渲染），避免与 Contracts 重复。
-
-同步 `mem://index.md` 对应描述。
+不新增 memory；`mem://design/single-market-binary-ui` 已经覆盖"binary 详情类弹窗里也不再重复 Yes/No + 队名"的精神，无需更新文案。
