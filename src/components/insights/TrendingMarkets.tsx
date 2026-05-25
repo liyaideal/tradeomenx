@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Flame, DollarSign, BarChart3, Sparkles, Clock, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
 import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 type SortTab = "trending" | "volume" | "active" | "new" | "closing";
 
