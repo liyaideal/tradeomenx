@@ -42,7 +42,11 @@ export const ClosePositionDialog = ({
   isClosing = false,
 }: ClosePositionDialogProps) => {
   const safeSize = Math.max(1, Math.floor(size));
-  const description = `${option} · ${side === "long" ? "Yes" : "No"} ${leverage} · ${safeSize.toLocaleString()} contracts`;
+  // 如果 option 字面就是 Yes/No（多 outcome 或无 sideLabels 的 binary），保留 "Yes/No" 后缀；
+  // 否则 option 已经是别名（如 "Alex Pereira"），再加 Yes/No 就重复了。
+  const lcOpt = option.trim().toLowerCase();
+  const sideSuffix = lcOpt === "yes" || lcOpt === "no" ? ` · ${side === "long" ? "Yes" : "No"}` : "";
+  const description = `${option}${sideSuffix} ${leverage} · ${safeSize.toLocaleString()} contracts`;
   const [open, setOpen] = useState(false);
 
   const handleConfirm = async (qty: number) => {
