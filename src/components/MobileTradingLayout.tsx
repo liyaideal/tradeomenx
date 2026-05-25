@@ -152,12 +152,28 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         onFavoriteToggle={() => toggleFavorite(selectedEvent.id)}
       />
 
-      {/* Option Chips */}
-      <OptionChips
-        options={options}
-        selectedId={selectedOption}
-        onSelect={setSelectedOption}
-      />
+      {/* Option Chips — 单 market binary 事件折叠成只读 market 标签；多 outcome 保持横排选择 */}
+      {(() => {
+        const binary = isSingleMarketBinary(options);
+        if (binary) {
+          const { yes, no } = getBinarySideLabels(selectedEvent);
+          return (
+            <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
+              <span className="text-xs text-muted-foreground flex-shrink-0">Market:</span>
+              <span className="text-xs text-foreground font-medium">
+                {yes} <span className="text-muted-foreground">or</span> {no}
+              </span>
+            </div>
+          );
+        }
+        return (
+          <OptionChips
+            options={options}
+            selectedId={selectedOption}
+            onSelect={setSelectedOption}
+          />
+        );
+      })()}
 
       {/* Charts/Trade Tabs with MM Indicator */}
       <div className="flex items-center justify-between px-4 py-1.5 border-b border-border/30">
