@@ -311,7 +311,7 @@ export const PositionCard = ({
           <ClosePositionDrawer
             open={closeOpen}
             onOpenChange={setCloseOpen}
-            option={option}
+            option={optionDisplay}
             side={type}
             size={parseFloat(String(size).replace(/,/g, "")) || 0}
             entryPrice={parseFloat(entryPrice.replace(/[$,]/g, "")) || 0}
