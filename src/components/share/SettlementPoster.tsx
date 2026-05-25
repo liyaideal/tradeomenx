@@ -22,6 +22,8 @@ interface SettlementPosterProps {
   username?: string;
   avatarUrl?: string;
   referralCode?: string;
+  /** Single-market binary 别名（如体育队名）。其它事件请留空。 */
+  sideLabels?: { yes: string; no: string };
 }
 
 /**
