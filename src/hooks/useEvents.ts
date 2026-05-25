@@ -42,6 +42,11 @@ export interface TradingEvent {
   priceChange24h?: string;
   priceLabel?: string;
   stats?: EventStats;
+  /**
+   * 单 market binary 事件的两端展示别名（如体育："上海申花" / "山东鲁能"）。
+   * 缺省时 UI fallback 到 "Yes" / "No"；底层 option.label 仍是 "Yes"/"No"。
+   */
+  sideLabels?: { yes: string; no: string };
 }
 
 // Local storage keys
