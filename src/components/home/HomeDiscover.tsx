@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { getCategoryFromName } from "@/lib/categoryUtils";
-import { getDisplayOptionLabel, parseSideLabels } from "@/lib/eventUtils";
+import { getDisplayOptionLabel, parseSideLabels, getBinaryOutcome } from "@/lib/eventUtils";
 
 const getCountdown = (endTime: Date) => {
   const now = new Date();
@@ -122,6 +122,20 @@ export const HomeDiscover = () => {
             {positions.slice(0, 5).map((position, index) => {
               const isProfit = position.pnl.startsWith("+");
               const isLong = position.type === "long";
+              const outcome = getBinaryOutcome(position.option);
+              const optionDisplay = (position as any).displayOption ?? position.option;
+              // binary 单 market: 方向由 option(Yes/No) 决定，颜色随 outcome；多 outcome: 沿用 long/short → Yes/No
+              const colorClass = outcome === "yes"
+                ? "bg-trading-green text-trading-green"
+                : outcome === "no"
+                ? "bg-trading-red text-trading-red"
+                : isLong
+                ? "bg-trading-green text-trading-green"
+                : "bg-trading-red text-trading-red";
+              const [bgClass, textClass] = colorClass.split(" ");
+              const sideLabel = outcome
+                ? optionDisplay
+                : isLong ? "Yes" : "No";
               return (
                 <div
                   key={index}
@@ -132,18 +146,16 @@ export const HomeDiscover = () => {
                     {position.event}
                   </p>
                   <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full ${
-                        isLong ? "bg-trading-green" : "bg-trading-red"
-                      }`}
-                    />
-                    <span className={`font-mono uppercase tracking-wider ${
-                      isLong ? "text-trading-green" : "text-trading-red"
-                    }`}>
-                      {isLong ? "Yes" : "No"}
+                    <span className={`h-1.5 w-1.5 rounded-full ${bgClass}`} />
+                    <span className={`font-mono uppercase tracking-wider truncate max-w-[140px] ${textClass}`}>
+                      {sideLabel}
                     </span>
-                    <span className="opacity-40">·</span>
-                    <span className="truncate">{position.option}</span>
+                    {!outcome && (
+                      <>
+                        <span className="opacity-40">·</span>
+                        <span className="truncate">{position.option}</span>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-end justify-between">
                     <div>
