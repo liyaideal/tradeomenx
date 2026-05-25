@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 interface BiggestMoversProps {
   events: EventWithOptions[];
