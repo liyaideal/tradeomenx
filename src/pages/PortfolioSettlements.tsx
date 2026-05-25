@@ -276,7 +276,7 @@ export default function PortfolioSettlements() {
                       {settlement.event}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {settlement.option}
+                      {resolveDisplayOption(settlement.event, settlement.option)}
                     </div>
                   </div>
 
