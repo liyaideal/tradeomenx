@@ -444,7 +444,7 @@ export const DesktopPositionsPanel = () => {
                               ? "bg-trading-green/20 text-trading-green"
                               : "bg-trading-red/20 text-trading-red"
                           }`}>
-                            {order.displayOption ?? order.option}
+                            {order.type === "buy" ? "Buy" : "Sell"}
                           </span>
                         )}
                       </td>

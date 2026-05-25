@@ -41,7 +41,7 @@ export const OrderCard = ({
   const outcome = getBinaryOutcome(option);
   const isBinary = outcome !== null;
   const outcomeTextColor = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : "";
-  const sideText = optionDisplay;
+  const sideText = isBinary ? optionDisplay : (type === "buy" ? "Buy" : "Sell");
   const sideColor = isBinary
     ? outcomeTextColor
     : (type === "buy" ? "text-trading-green" : "text-trading-red");
@@ -91,7 +91,7 @@ export const OrderCard = ({
                     : "bg-trading-red/20 text-trading-red"
                 }`}
               >
-                {optionDisplay}
+                {type === "buy" ? "Buy" : "Sell"}
               </span>
             )}
             <span className="text-sm text-muted-foreground">{orderType}</span>
