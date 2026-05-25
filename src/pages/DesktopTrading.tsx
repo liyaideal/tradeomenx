@@ -2069,7 +2069,7 @@ export default function DesktopTrading() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Order Type</span>
                   <span className={order.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                    {order.type === "buy" ? "Yes" : "No"} {order.orderType}
+                    {resolveBinarySideLabel(order.type === "buy" ? "yes" : "no", lookupSideLabels(order.event).labels)} {order.orderType}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
