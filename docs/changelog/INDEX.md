@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-05-25 | [Single-market binary 收敛（第三轮）](./2026-05-25-single-market-binary-round3.md) | `/trade` 本体收敛：彻底删除 `Market:` / `Select Option:` 行；Yes/No 按钮 `grid items-stretch + h-full + flex-1` 等高规范；新增 `useEventSideLabelsLookup` + `resolveBinarySideLabel`，desktop 9 处硬编码 Yes/No 全部替换为按行 lookup 的 sideLabels |
 | 2026-05-25 | [sideLabels 平台级贯穿（第二轮）](./2026-05-25-sidelabels-platform-wide-round2.md) | 把别名渗透到 Resolved 详情/列表 / Insights Feed / BiggestMovers / TrendingMarkets / HomeDiscover；`SettlementPoster` 与 `SettlementShareCard` 新增 `sideLabels` prop，`useResolvedEventDetail` / `useResolvedEvents` / `useSettlementDetail` 一并下发 |
 | 2026-05-25 | [sideLabels 平台级贯穿（第一轮）](./2026-05-25-sidelabels-platform-wide.md) | 把 single-market binary 的 sideLabels 别名扩展到 MarketCardB / MarketListView / Portfolio 持仓 / 订单 / Settlements / DesktopPositionsPanel；新增 `getDisplayOptionLabel` + `useEventDisplayLookup`；同步移除两处已过时的"Yes 轴归一化"提示 |
 | 2026-05-25 | [Single-market binary 事件 UI 收敛](./2026-05-25-single-market-binary-collapse.md) | 单 market binary 事件顶部 chip 行折叠为 `Market: Yes or No` 只读标签；Yes/No 切换归到 Trade 面板按钮（同时切 side + selectedOption，联动 K 线/订单簿）；新增 `TradingEvent.sideLabels` 支持体育类两端别名（"上海申花/山东鲁能"） |
