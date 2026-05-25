@@ -183,14 +183,20 @@ export const usePositions = () => {
   // Activated airdrops (merged into positions list)
   const { activatedAirdrops } = useAirdropPositions();
   
+  // Lookup for sideLabels-aware display labels
+  const resolveDisplayOption = useEventDisplayLookup();
+
   // Convert to unified format (including activated airdrops)
   const positions: UnifiedPosition[] = useMemo(() => {
     const base = isLoggedIn
       ? supabasePositions.map(convertSupabasePosition)
       : localPositions.map(convertLocalPosition);
     const airdropPositions = activatedAirdrops.map(convertAirdropPosition);
-    return [...base, ...airdropPositions];
-  }, [isLoggedIn, supabasePositions, localPositions, activatedAirdrops]);
+    return [...base, ...airdropPositions].map((p) => ({
+      ...p,
+      displayOption: resolveDisplayOption(p.event, p.option),
+    }));
+  }, [isLoggedIn, supabasePositions, localPositions, activatedAirdrops, resolveDisplayOption]);
   
   // Refetch positions (for logged-in users)
   const refetch = useCallback(() => {
