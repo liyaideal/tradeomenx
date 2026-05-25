@@ -6,6 +6,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { usePositions } from "@/hooks/usePositions";
 
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
+import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 
 interface TradeFormProps {
   selectedPrice?: string;
