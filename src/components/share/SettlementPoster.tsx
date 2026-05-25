@@ -47,11 +47,13 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
     username = 'Trader',
     avatarUrl,
     referralCode = 'OMENX2025',
+    sideLabels,
   }, ref) => {
     const theme = getThemeForResult(result);
     const themeStyle = posterThemes[theme];
     const isWin = result === 'win';
     const isLong = side === 'long';
+    const sideText = sideLabels ? (isLong ? sideLabels.yes : sideLabels.no) : (isLong ? 'Yes' : 'No');
     const settledDate = format(new Date(settledAt), 'MMM d, yyyy');
 
     // Side colors
