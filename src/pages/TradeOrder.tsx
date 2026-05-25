@@ -4,6 +4,7 @@ import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { ChevronDown, Gift } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
+import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions } from "@/lib/eventUtils";
 import { OrderCard } from "@/components/OrderCard";
 import { PositionCard } from "@/components/PositionCard";
 import { AirdropPositionCard } from "@/components/AirdropPositionCard";
