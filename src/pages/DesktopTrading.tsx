@@ -2095,9 +2095,7 @@ export default function DesktopTrading() {
               : orderOutcome === "no"
               ? "text-trading-red font-medium"
               : (order.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium");
-            const typeLabel = orderOutcome
-              ? `${orderDisplay} ${order.orderType}`
-              : `${order.type === "buy" ? "Buy" : "Sell"} ${order.orderType}`;
+            const typeLabel = `${orderDisplay} ${order.orderType}`;
             return (
               <div className="bg-muted/50 rounded-lg p-4 space-y-2 my-2">
                 <div className="flex items-center justify-between text-sm">
