@@ -50,6 +50,7 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions } from "@/lib/eventUtils";
+import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
 
 
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -370,6 +371,7 @@ export default function DesktopTrading() {
   const isBinarySingleMarket = useMemo(() => isSingleMarketBinary(options), [options]);
   const binaryLabels = useMemo(() => getBinarySideLabels(selectedEvent), [selectedEvent]);
   const yesNoOptions = useMemo(() => getYesNoOptions(options), [options]);
+  const lookupSideLabels = useEventSideLabelsLookup();
   const yesPrice = useMemo(
     () => (yesNoOptions.yes ? parseFloat(yesNoOptions.yes.price) || 0 : longPrice),
     [yesNoOptions.yes, longPrice],
@@ -496,7 +498,7 @@ export default function DesktopTrading() {
   const orderDetails = useMemo(() => [
     { label: "Event", value: selectedEvent?.name || "" },
     { label: "Option", value: selectedOptionData.label },
-    { label: "Side", value: side === "buy" ? "Yes" : "No", highlight: side === "buy" ? "green" : "red" as const },
+    { label: "Side", value: resolveBinarySideLabel(side === "buy" ? "yes" : "no", isBinarySingleMarket ? binaryLabels : undefined), highlight: side === "buy" ? "green" : "red" as const },
     { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
@@ -1092,7 +1094,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {order.type === "buy" ? "Yes" : "No"}
+                              {resolveBinarySideLabel(order.type === "buy" ? "yes" : "no", lookupSideLabels(order.event).labels)}
                             </span>
                           </td>
                           <td className="px-4 py-2 text-sm">{order.orderType}</td>
@@ -1257,7 +1259,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${position.type === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {position.type === "long" ? "Yes" : "No"}
+                              {resolveBinarySideLabel(position.type === "long" ? "yes" : "no", lookupSideLabels(position.event).labels)}
                             </span>
                           </td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.sizeDisplay}</td>
@@ -1345,7 +1347,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${airdrop.counterSide === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
-                              {airdrop.counterSide === "long" ? "Yes" : "No"}
+                              {resolveBinarySideLabel(airdrop.counterSide === "long" ? "yes" : "no", lookupSideLabels(airdrop.counterEventName).labels)}
                             </span>
                           </td>
                           <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
@@ -1759,7 +1761,7 @@ export default function DesktopTrading() {
                 side === "buy" ? "bg-trading-green text-trading-green-foreground" : "bg-trading-red text-foreground"
               } ${orderIntent.kind === "blocked-cross-zero" ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+              {getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             </button>
             </div>
           </div>
@@ -1790,7 +1792,7 @@ export default function DesktopTrading() {
                 <span className="text-sm text-muted-foreground truncate">{selectedOptionData.label}</span>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={`rounded px-2 py-1 text-xs font-semibold ${side === "buy" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
-                    {side === "buy" ? "Yes" : "No"}
+                    {resolveBinarySideLabel(side === "buy" ? "yes" : "no", isBinarySingleMarket ? binaryLabels : undefined)}
                   </span>
                   <span className="rounded bg-muted px-2 py-1 text-xs font-semibold capitalize text-foreground">{formattedIntent}</span>
                 </div>
@@ -1871,7 +1873,7 @@ export default function DesktopTrading() {
               </>
             ) : (
               <>
-                {getIntentLabel(orderIntent, side)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
+                {getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)} - to win $ {parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
               </>
             )}
           </button>
@@ -1927,7 +1929,7 @@ export default function DesktopTrading() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Position</span>
                   <span className={pos.type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {pos.type === "long" ? "Yes" : "No"} {pos.leverage}
+                    {resolveBinarySideLabel(pos.type === "long" ? "yes" : "no", lookupSideLabels(pos.event).labels)} {pos.leverage}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
@@ -2067,7 +2069,7 @@ export default function DesktopTrading() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Order Type</span>
                   <span className={order.type === "buy" ? "text-trading-green font-medium" : "text-trading-red font-medium"}>
-                    {order.type === "buy" ? "Yes" : "No"} {order.orderType}
+                    {resolveBinarySideLabel(order.type === "buy" ? "yes" : "no", lookupSideLabels(order.event).labels)} {order.orderType}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">

@@ -470,6 +470,8 @@ import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 
 **sideLabels 别名传播规则**：事件配置了 `sideLabels`（体育队名等）时，所有展示"方向"的 UI 必须显示别名而非 Yes/No——包括 Trade 面板切换按钮（`binaryMode.yesLabel/noLabel`）、提交按钮（`getIntentLabel(intent, side, sideLabels)`）、OrderPreview Side 字段、TradingCharts 方向 chip/图例。持仓与订单卡片：当 `displayOption` 已渲染别名（判定 `displayOption !== option && (option === "Yes" || option === "No")` → `isBinaryAlias`）时，**禁止**再挂冗余 Yes/No 侧别 chip；详情面板里 "Yes/No + leverage" 应替换为 "alias + leverage"。
 
+**Desktop `/trade` 同样适用**：(1) 当前事件作用域——Trade 提交按钮、Order Preview 确认按钮、Preview 顶部 side chip、`orderDetails` 的 Side 字段必须通过 `getIntentLabel(..., isBinarySingleMarket ? binaryLabels : undefined)` 或 `resolveBinarySideLabel(...)` 渲染别名。(2) 跨事件聚合表（Open Orders / Positions / Airdrops 的 side 列、Close Position Dialog 的 Position 行、Cancel Order AlertDialog 的 Order Type 行）需通过 `useEventSideLabelsLookup()` 按行的 `event` 名解析对应 sideLabels；非 single-market binary 或 lookup 失败时回退 Yes/No。**禁止**在 desktop 任何 binary 方向位置硬编码 `"Yes" / "No"` 字面量。
+
 ---
 
 
