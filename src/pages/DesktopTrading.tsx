@@ -1826,8 +1826,8 @@ export default function DesktopTrading() {
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm text-muted-foreground truncate">{selectedOptionData.label}</span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={`rounded px-2 py-1 text-xs font-semibold ${side === "buy" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
-                    {resolveBinarySideLabel(side === "buy" ? "yes" : "no", isBinarySingleMarket ? binaryLabels : undefined)}
+                  <span className={`rounded px-2 py-1 text-xs font-semibold ${previewSideColor === "green" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
+                    {previewSideLabel}
                   </span>
                   <span className="rounded bg-muted px-2 py-1 text-xs font-semibold capitalize text-foreground">{formattedIntent}</span>
                 </div>
