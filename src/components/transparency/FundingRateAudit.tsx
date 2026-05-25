@@ -89,7 +89,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
                 <button key={pos.id} onClick={() => selectPosition(pos)} className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium truncate flex-1">{pos.event_name}</span>
-                    <span className={`text-xs font-semibold ml-2 ${pos.side === "long" ? "text-emerald-400" : "text-red-400"}`}>{pos.side.toUpperCase()}</span>
+                    <span className={`text-xs font-semibold ml-2 ${pos.side === "long" ? "text-emerald-400" : "text-red-400"}`}>{pos.side === "long" ? "YES" : "NO"}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span>{pos.option_label}</span>
@@ -116,7 +116,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
           <p className="text-sm font-semibold">{selectedPosition.event_name}</p>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span>{selectedPosition.option_label}</span>
-            <span className={selectedPosition.side === "long" ? "text-emerald-400" : "text-red-400"}>{selectedPosition.side.toUpperCase()}</span>
+            <span className={selectedPosition.side === "long" ? "text-emerald-400" : "text-red-400"}>{selectedPosition.side === "long" ? "YES" : "NO"}</span>
             <span>{selectedPosition.leverage}x</span>
             <span>Size: {selectedPosition.size}</span>
           </div>
@@ -236,7 +236,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
             <p className="text-sm font-semibold">{audit.position.event_name}</p>
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span>{audit.position.option_label}</span>
-              <span className={audit.position.side === "long" ? "text-emerald-400" : "text-red-400"}>{audit.position.side.toUpperCase()}</span>
+              <span className={audit.position.side === "long" ? "text-emerald-400" : "text-red-400"}>{audit.position.side === "long" ? "YES" : "NO"}</span>
               <span>{audit.position.leverage}x</span>
               <span>Size: {audit.position.size}</span>
             </div>
@@ -249,7 +249,7 @@ export const FundingRateAudit = ({ onBack }: Props) => {
               {audit.fundingRateFormatted}
             </p>
             <p className="text-xs text-muted-foreground">
-              {audit.fundingRate >= 0 ? "Longs pay Shorts" : "Shorts pay Longs"}
+              {audit.fundingRate >= 0 ? "Yes pays No" : "No pays Yes"}
             </p>
           </div>
 

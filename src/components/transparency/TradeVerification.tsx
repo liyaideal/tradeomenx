@@ -62,7 +62,7 @@ export const TradeVerification = ({ onBack }: Props) => {
                 <button key={t.id} onClick={() => selectTrade(t)} className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium truncate flex-1">{t.event_name}</span>
-                    <span className={`text-xs font-semibold ml-2 ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>{t.side === "buy" ? "LONG" : "SHORT"}</span>
+                    <span className={`text-xs font-semibold ml-2 ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>{t.side === "buy" ? "YES" : "NO"}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span>{t.option_label}</span>
@@ -125,7 +125,7 @@ export const TradeVerification = ({ onBack }: Props) => {
               <p className="text-sm font-semibold">{comparison.trade.event_name}</p>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span>{comparison.trade.option_label}</span>
-                <span className={comparison.trade.side === "buy" ? "text-emerald-400" : "text-red-400"}>{comparison.trade.side === "buy" ? "LONG" : "SHORT"}</span>
+                <span className={comparison.trade.side === "buy" ? "text-emerald-400" : "text-red-400"}>{comparison.trade.side === "buy" ? "YES" : "NO"}</span>
                 <span>@ {comparison.trade.price}</span>
                 <span>×{comparison.trade.quantity}</span>
               </div>
