@@ -1436,7 +1436,7 @@ export default function DesktopTrading() {
                     setSide("sell");
                   }
                 }}
-                className="relative flex flex-col h-14 rounded-md overflow-hidden transition-all"
+                className="relative flex flex-col rounded-md overflow-hidden transition-all"
               >
                 <div
                   className={`relative flex-1 flex items-center justify-center px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
