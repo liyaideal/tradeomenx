@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart3, Sparkles, Clock, Flame, TrendingUp, ArrowRight, Share2 } from "lucide-react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 interface InsightCard {
   id: string;
@@ -26,7 +27,9 @@ const generateInsights = (
   const now = new Date();
 
   events.forEach((event) => {
+    const sideLabels = parseSideLabels(event.side_labels);
     event.options.forEach((opt) => {
+      const optLabel = getDisplayOptionLabel(opt.label, event.options, sideLabels);
       const change = priceChanges.get(opt.id);
       if (change && Math.abs(change.change) > 5) {
         const direction = change.change > 0 ? "surged" : "dropped";
@@ -39,8 +42,8 @@ const generateInsights = (
           icon: "📊",
           type: "Market Insight",
           timestamp: new Date(now.getTime() - Math.random() * 12 * 60 * 60 * 1000),
-          title: `${event.name} — ${opt.label} probability ${direction} to ${(opt.price * 100).toFixed(0)}%`,
-          body: `The "${opt.label}" option ${direction} from $${change.prev.toFixed(2)} to $${change.current.toFixed(2)} (${change.change >= 0 ? "+" : ""}${change.change.toFixed(1)}%) over the past 24h. Trading volume reached $${(volume / 1000).toFixed(1)}K with ${traders} unique traders.`,
+          title: `${event.name} — ${optLabel} probability ${direction} to ${(opt.price * 100).toFixed(0)}%`,
+          body: `The "${optLabel}" option ${direction} from $${change.prev.toFixed(2)} to $${change.current.toFixed(2)} (${change.change >= 0 ? "+" : ""}${change.change.toFixed(1)}%) over the past 24h. Trading volume reached $${(volume / 1000).toFixed(1)}K with ${traders} unique traders.`,
           eventId: event.id,
         });
       }

@@ -21,6 +21,8 @@ interface SettlementShareCardProps {
   username?: string;
   avatarUrl?: string;
   referralCode?: string;
+  /** Single-market binary 别名（如体育队名）。其它事件请留空。 */
+  sideLabels?: { yes: string; no: string };
 }
 
 export const SettlementShareCard = ({
@@ -37,9 +39,11 @@ export const SettlementShareCard = ({
   username = "Trader",
   avatarUrl,
   referralCode = "OMENX2024",
+  sideLabels,
 }: SettlementShareCardProps) => {
   const isWin = result === "win";
   const isLong = side === "long";
+  const sideText = sideLabels ? (isLong ? sideLabels.yes : sideLabels.no) : (isLong ? "Yes" : "No");
   const settledDate = format(new Date(settledAt), "MMM d, yyyy");
 
   // Theme colors based on result
@@ -178,7 +182,7 @@ export const SettlementShareCard = ({
               : "border-trading-red/50 text-trading-red bg-trading-red/10"
             }`}
           >
-            {isLong ? "Yes" : "No"} {leverage}x
+            {sideText} {leverage}x
           </Badge>
           <span className="text-xs text-muted-foreground">{option}</span>
         </div>

@@ -160,7 +160,7 @@ const ResolvedEventDetail = () => {
                       <X className="h-4 w-4 text-trading-red/70" />
                     )}
                     <span className={`text-sm ${option.is_winner ? "text-trading-green font-medium" : "text-muted-foreground"}`}>
-                      {option.label}
+                      {option.displayLabel}
                     </span>
                   </div>
                   <span className={`font-mono text-sm font-semibold ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
@@ -182,7 +182,7 @@ const ResolvedEventDetail = () => {
                 sourceName={event.source_name}
                 sourceUrl={event.source_url}
                 settlementDescription={event.settlement_description}
-                winningOptionLabel={null}
+                winningOptionLabel={winningOption?.displayLabel || null}
               />
             </CardContent>
           </Card>
@@ -408,7 +408,7 @@ const ResolvedEventDetail = () => {
                           <X className="h-5 w-5 text-trading-red/70" />
                         )}
                         <span className={`font-medium ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
-                          {option.label}
+                          {option.displayLabel}
                         </span>
                       </div>
                       <span className={`font-mono font-semibold ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
@@ -492,7 +492,7 @@ const ResolvedEventDetail = () => {
                   sourceName={event.source_name}
                   sourceUrl={event.source_url}
                   settlementDescription={event.settlement_description}
-                  winningOptionLabel={winningOption?.label || null}
+                  winningOptionLabel={winningOption?.displayLabel || null}
                 />
               </CardContent>
             </Card>

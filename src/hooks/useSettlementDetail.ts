@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { parseSideLabels } from "@/lib/eventUtils";
 
 export interface TradeRecord {
   id: string;
@@ -34,6 +35,8 @@ export interface SettlementData {
   result: "win" | "lose";
   trades: TradeRecord[];
   priceHistory: PricePoint[];
+  /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
+  sideLabels?: { yes: string; no: string };
 }
 
 interface UseSettlementDetailOptions {
@@ -102,12 +105,14 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         console.error("Error fetching related trades:", relatedError);
       }
 
-      // Fetch event to get event_id for price history
+      // Fetch event to get event_id for price history (+ side_labels for alias display)
       const { data: eventData } = await supabase
         .from("events")
-        .select("id, end_date")
+        .select("id, end_date, side_labels")
         .eq("name", mainTrade.event_name)
         .maybeSingle();
+
+      const sideLabels = parseSideLabels((eventData as any)?.side_labels);
 
       // Fetch price history if we have event data
       let priceHistory: PricePoint[] = [];
@@ -244,6 +249,7 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         result: isWin ? "win" : "lose",
         trades,
         priceHistory,
+        sideLabels,
       };
     },
     enabled: !!settlementId && !!user,

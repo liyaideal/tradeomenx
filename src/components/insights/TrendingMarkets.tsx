@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Flame, DollarSign, BarChart3, Sparkles, Clock, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
 import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 type SortTab = "trending" | "volume" | "active" | "new" | "closing";
 
@@ -156,8 +157,11 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
           const catInfo = getCategoryInfo(event.category);
           const catStyle = CATEGORY_STYLES[catInfo.label as CategoryType] || CATEGORY_STYLES.General;
           const metrics = getMockMetrics(event.id);
+          const sideLabels = parseSideLabels(event.side_labels);
           const mainOption = event.options[0];
           const secondOption = event.options.length === 2 ? event.options[1] : null;
+          const mainLabel = mainOption ? getDisplayOptionLabel(mainOption.label, event.options, sideLabels) : "";
+          const secondLabel = secondOption ? getDisplayOptionLabel(secondOption.label, event.options, sideLabels) : "";
           const mainChange = mainOption ? priceChanges.get(mainOption.id) : null;
           const mainPrice = mainOption?.price || 0.5;
           const sparklineData = generateSparkline(mainPrice);
@@ -192,7 +196,7 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
               <div className="flex items-center gap-3 mb-2">
                 {mainOption && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-muted-foreground">{mainOption.label}:</span>
+                    <span className="text-xs text-muted-foreground">{mainLabel}:</span>
                     <span className="text-sm font-bold text-foreground font-mono">${mainPrice.toFixed(2)}</span>
                     {mainChange && (
                       <span className={`text-[10px] font-medium ${mainChange.change >= 0 ? "text-trading-green" : "text-trading-red"}`}>
@@ -203,7 +207,7 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                 )}
                 {secondOption && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-muted-foreground">{secondOption.label}:</span>
+                    <span className="text-xs text-muted-foreground">{secondLabel}:</span>
                     <span className="text-sm font-bold text-foreground font-mono">${secondOption.price.toFixed(2)}</span>
                   </div>
                 )}

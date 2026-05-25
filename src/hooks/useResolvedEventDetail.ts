@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 export interface PriceHistoryPoint {
   price: number;
@@ -44,9 +45,13 @@ export interface ResolvedEventDetail {
   settled_at: string | null;
   winning_option_id: string | null;
   external_links: ExternalLinkData[] | null;
+  /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
+  sideLabels?: { yes: string; no: string };
   options: {
     id: string;
     label: string;
+    /** sideLabels 解析后的展示文案（队名/Yes/No）。多 outcome 事件等于 label。 */
+    displayLabel: string;
     price: number;
     final_price: number | null;
     is_winner: boolean;
@@ -120,19 +125,23 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         const { data: relatedEventsData } = await supabase
           .from("events")
           .select(`
-            id, name, category, is_resolved, winning_option_id,
+            id, name, category, is_resolved, winning_option_id, side_labels,
             event_options (id, label, is_winner)
           `)
           .in("id", ids);
 
         relatedEvents = (relatedEventsData || []).map((e: any) => {
           const winningOption = (e.event_options || []).find((o: any) => o.is_winner);
+          const relSideLabels = parseSideLabels(e.side_labels);
+          const relOptions = (e.event_options || []).map((o: any) => ({ label: o.label }));
           return {
             id: e.id,
             name: e.name,
             category: e.category,
             is_resolved: e.is_resolved,
-            winning_option_label: winningOption?.label || null,
+            winning_option_label: winningOption
+              ? getDisplayOptionLabel(winningOption.label, relOptions, relSideLabels)
+              : null,
           };
         });
       }
@@ -179,6 +188,9 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         }
       }
 
+      const sideLabels = parseSideLabels((event as any).side_labels);
+      const optionLabelsForBinary = (event.event_options || []).map((o: any) => ({ label: o.label }));
+
       return {
         id: event.id,
         name: event.name,
@@ -196,9 +208,11 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         external_links: Array.isArray((event as any).external_links)
           ? (event as any).external_links as ExternalLinkData[]
           : null,
+        sideLabels,
         options: (event.event_options || []).map((opt: any) => ({
           id: opt.id,
           label: opt.label,
+          displayLabel: getDisplayOptionLabel(opt.label, optionLabelsForBinary, sideLabels),
           price: opt.price,
           final_price: opt.final_price,
           is_winner: opt.is_winner,

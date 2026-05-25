@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { getCategoryFromName } from "@/lib/categoryUtils";
+import { getDisplayOptionLabel, parseSideLabels } from "@/lib/eventUtils";
 
 const getCountdown = (endTime: Date) => {
   const now = new Date();
@@ -30,6 +31,7 @@ const CompactMarketCard = ({ event, onTrade, highlight }: CompactMarketCardProps
   const categoryInfo = getCategoryFromName(event.name);
   const visibleOptions = event.options.slice(0, 2);
   const moreCount = event.options.length - visibleOptions.length;
+  const sideLabels = parseSideLabels(event.side_labels);
 
   return (
     <div
@@ -64,7 +66,9 @@ const CompactMarketCard = ({ event, onTrade, highlight }: CompactMarketCardProps
         <div className="flex min-w-0 items-center gap-2 truncate text-muted-foreground">
           {visibleOptions.map((option, i) => (
             <span key={option.id} className="truncate">
-              <span className="text-foreground/80">{option.label}</span>{" "}
+              <span className="text-foreground/80">
+                {getDisplayOptionLabel(option.label, event.options, sideLabels)}
+              </span>{" "}
               <span className="font-mono font-semibold text-foreground">
                 ${option.price.toFixed(2)}
               </span>

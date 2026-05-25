@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 
 interface PriceHistoryChartProps {
   priceHistory: Record<string, PriceHistoryPoint[]>;
-  options: { id: string; label: string; is_winner: boolean; final_price: number | null; price: number }[];
+  options: { id: string; label: string; displayLabel?: string; is_winner: boolean; final_price: number | null; price: number }[];
   isMobile?: boolean;
 }
 
@@ -245,7 +245,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
             y: (y / chartHeight) * rect.height,
             price: point.price,
             date: format(new Date(point.recorded_at), "MMM d, yyyy"),
-            label: option.label,
+            label: option.displayLabel ?? option.label,
             color,
             startPrice: priceChange.startPrice,
             changePercent: changeFromStart,
@@ -307,7 +307,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
               <span className={`${isMobile ? "text-xs" : "text-sm"} ${
                 option.is_winner ? "text-foreground font-medium" : "text-muted-foreground"
               } truncate`}>
-                {option.label}
+                {option.displayLabel ?? option.label}
               </span>
               <span className={`${isMobile ? "text-[10px]" : "text-xs"} font-mono font-medium flex-shrink-0 ${
                 isPositive ? "text-trading-green" : "text-trading-red"

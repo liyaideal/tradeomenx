@@ -22,6 +22,8 @@ interface SettlementPosterProps {
   username?: string;
   avatarUrl?: string;
   referralCode?: string;
+  /** Single-market binary 别名（如体育队名）。其它事件请留空。 */
+  sideLabels?: { yes: string; no: string };
 }
 
 /**
@@ -45,11 +47,13 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
     username = 'Trader',
     avatarUrl,
     referralCode = 'OMENX2025',
+    sideLabels,
   }, ref) => {
     const theme = getThemeForResult(result);
     const themeStyle = posterThemes[theme];
     const isWin = result === 'win';
     const isLong = side === 'long';
+    const sideText = sideLabels ? (isLong ? sideLabels.yes : sideLabels.no) : (isLong ? 'Yes' : 'No');
     const settledDate = format(new Date(settledAt), 'MMM d, yyyy');
 
     // Side colors
@@ -234,7 +238,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
               fontSize: '10px',
               fontWeight: 600,
             }}>
-              {isLong ? 'Yes' : 'No'} {leverage}x
+              {sideText} {leverage}x
             </span>
             {/* Option */}
             <span style={{ fontSize: '11px', color: posterColors.textSecondary }}>

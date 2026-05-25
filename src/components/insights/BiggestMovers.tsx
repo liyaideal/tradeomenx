@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
+import { parseSideLabels, getDisplayOptionLabel } from "@/lib/eventUtils";
 
 interface BiggestMoversProps {
   events: EventWithOptions[];
@@ -23,19 +24,20 @@ const sparklinePath = (positive: boolean): string => {
 export const BiggestMovers = ({ events, priceChanges }: BiggestMoversProps) => {
   const navigate = useNavigate();
   // Flatten options with their changes
-  const optionsWithChanges = events.flatMap((event) =>
-    event.options.map((opt) => {
+  const optionsWithChanges = events.flatMap((event) => {
+    const sideLabels = parseSideLabels(event.side_labels);
+    return event.options.map((opt) => {
       const change = priceChanges.get(opt.id);
       return {
         eventId: event.id,
         eventName: event.name,
-        optionLabel: opt.label,
+        optionLabel: getDisplayOptionLabel(opt.label, event.options, sideLabels),
         price: opt.price,
         change: change?.change || 0,
         prev: change?.prev || opt.price,
       };
-    })
-  );
+    });
+  });
 
   const gainers = [...optionsWithChanges]
     .filter((o) => o.change > 0)
