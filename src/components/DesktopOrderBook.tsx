@@ -539,11 +539,11 @@ export const DesktopOrderBook = ({
             </>
           )}
 
-          {/* Buy/Sell Ratio */}
+          {/* Yes/No Ratio */}
           <div className="px-3 py-2 border-t border-border/30">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
-                <span className="text-xs px-1 border border-trading-green text-trading-green">B</span>
+                <span className="text-xs px-1 border border-trading-green text-trading-green">Y</span>
                 <span className="text-xs text-trading-green font-medium transition-all duration-300">{Math.round(buyRatio)}%</span>
               </div>
               <div className="flex-1 h-1.5 bg-muted rounded overflow-hidden flex">
@@ -552,7 +552,7 @@ export const DesktopOrderBook = ({
               </div>
               <div className="flex items-center gap-1">
                 <span className="text-xs text-trading-red font-medium transition-all duration-300">{Math.round(100 - buyRatio)}%</span>
-                <span className="text-xs px-1 border border-trading-red text-trading-red">S</span>
+                <span className="text-xs px-1 border border-trading-red text-trading-red">N</span>
               </div>
             </div>
           </div>

@@ -125,7 +125,7 @@ const CountdownDemo = () => {
           <Countdown compact endsAt={endsAt} className="text-mainnet-gold text-base" />
         </div>
         <div className="rounded-sm border border-border/40 bg-background/30 p-4">
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Long</p>
+          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Yes</p>
           <Countdown endsAt={endsAt} className="text-mainnet-gold text-base" />
         </div>
       </div>
