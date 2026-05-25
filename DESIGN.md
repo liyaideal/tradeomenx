@@ -443,7 +443,29 @@ Use `CATEGORY_STYLES` from `@/lib/categoryUtils` — never hardcode category col
 import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 ```
 
+### Single-Market Binary Trade Toggle
+
+桌面/移动的 Trade 面板里，binary 单 market 事件的 Yes/No 切换器规范：
+
+- **容器**：`grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg`（独立卡片岛，与外层 Trade 面板背景区分）
+- **按钮**：`relative flex flex-col rounded-md overflow-hidden`，**不固定高度**，由内容驱动
+- **上层 label 区**：
+  - `relative flex items-center justify-center min-h-[24px] py-1.5 px-2`
+  - 文案 `text-[11px] font-semibold leading-tight line-clamp-2 text-center`
+  - 选中 Yes → `bg-trading-green text-trading-green-foreground`
+  - 选中 No → `bg-trading-red text-foreground`
+  - 未选中 → `bg-muted text-muted-foreground hover:bg-muted/80`
+  - 选中态右上角加 `absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]` 圆点
+- **下层 price 区**（固定 `h-[22px]`，与上层用 `border-t` 分隔）：
+  - 文字 `text-[11px] font-mono`
+  - 选中 Yes → `bg-trading-green/85 text-trading-green-foreground border-black/20`
+  - 选中 No → `bg-trading-red/85 text-foreground border-black/20`
+  - 未选中 → `bg-muted-foreground/15 text-foreground/80 border-border/40`
+
+**高度自适应原则**：短标签（默认 Yes / No）保持紧凑（≈ 48px 总高），长标签（如球队名 "Oklahoma City Thunder"）`line-clamp-2` 撑到两行（≈ 62px 总高）。`grid` 自动保证两侧等高。**严禁**给按钮硬编码 `h-14` / `h-16`。
+
 ---
+
 
 ## 8. Wallet & Transaction Patterns
 
