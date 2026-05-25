@@ -53,7 +53,9 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
     const themeStyle = posterThemes[theme];
     const isWin = result === 'win';
     const isLong = side === 'long';
-    const sideText = sideLabels ? (isLong ? sideLabels.yes : sideLabels.no) : (isLong ? 'Yes' : 'No');
+    const isBinaryOption = option.trim().toLowerCase() === 'yes' || option.trim().toLowerCase() === 'no';
+    const binaryAlias = sideLabels ? (isLong ? sideLabels.yes : sideLabels.no) : null;
+    const directionText = isLong ? 'Yes' : 'No';
     const settledDate = format(new Date(settledAt), 'MMM d, yyyy');
 
     // Side colors
