@@ -491,6 +491,7 @@ export default function SettlementDetail() {
           username={profile?.username || "Trader"}
           avatarUrl={profile?.avatar_url || undefined}
           referralCode={referralCode || "OMENX2025"}
+          sideLabels={settlement.sideLabels}
         />
       </ShareModal>
     </div>
