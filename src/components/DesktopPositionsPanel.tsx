@@ -533,12 +533,25 @@ export const DesktopPositionsPanel = () => {
               <div className="bg-muted/50 rounded-lg p-3 space-y-1">
                 {(() => {
                   const outcome = getBinaryOutcome(editingPosition.option);
-                  const colorClass = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : editingPosition.type === "long" ? "text-trading-green" : "text-trading-red";
-                  const label = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : editingPosition.option;
+                  const isLong = editingPosition.type === "long";
+                  // binary：方向已由 contract（队名/Yes/No）+ outcome 颜色表达，Position 行不再重复 side
+                  if (outcome) {
+                    const colorClass = outcome === "yes" ? "text-trading-green" : "text-trading-red";
+                    return (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Position</span>
+                        <span className={colorClass}>
+                          {editingPosition.displayOption ?? editingPosition.option} {editingPosition.leverage}
+                        </span>
+                      </div>
+                    );
+                  }
+                  // 多 outcome：side 显示 Yes/No
+                  const colorClass = isLong ? "text-trading-green" : "text-trading-red";
                   return (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Position</span>
-                      <span className={colorClass}>{label} {editingPosition.leverage}</span>
+                      <span className={colorClass}>{isLong ? "Yes" : "No"} {editingPosition.leverage}</span>
                     </div>
                   );
                 })()}
