@@ -23,6 +23,16 @@ interface TradingSectionProps {
 
 export const TradingSection = ({ isMobile }: TradingSectionProps) => {
   const [selectedOption, setSelectedOption] = useState("opt1");
+
+  // Single-market binary toggle playground
+  const binaryPresets = [
+    { id: "yn", label: "Yes / No (default)", yes: "Yes", no: "No", yesPrice: 0.3, noPrice: 0.7 },
+    { id: "nba", label: "NBA teams (long labels)", yes: "Boston Celtics", no: "Oklahoma City Thunder", yesPrice: 0.52, noPrice: 0.48 },
+    { id: "epl", label: "Single-word teams", yes: "Arsenal", no: "Chelsea", yesPrice: 0.61, noPrice: 0.39 },
+  ];
+  const [binaryPresetIdx, setBinaryPresetIdx] = useState(0);
+  const [binaryActive, setBinaryActive] = useState<"yes" | "no">("yes");
+  const binaryPreset = binaryPresets[binaryPresetIdx];
   
   // Account Risk Playground
   const [riskTotalAssets, setRiskTotalAssets] = useState(100);
