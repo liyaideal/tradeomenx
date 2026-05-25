@@ -514,12 +514,17 @@ export const DesktopPositionsPanel = () => {
             <div className="space-y-4">
               {/* Position Info */}
               <div className="bg-muted/50 rounded-lg p-3 space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Position</span>
-                  <span className={editingPosition.type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {editingPosition.type === "long" ? "Yes" : "No"} {editingPosition.leverage}
-                  </span>
-                </div>
+                {(() => {
+                  const outcome = getBinaryOutcome(editingPosition.option);
+                  const colorClass = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : editingPosition.type === "long" ? "text-trading-green" : "text-trading-red";
+                  const label = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : editingPosition.option;
+                  return (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Position</span>
+                      <span className={colorClass}>{label} {editingPosition.leverage}</span>
+                    </div>
+                  );
+                })()}
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
                   <span className="font-medium">{editingPosition.displayOption ?? editingPosition.option}</span>
