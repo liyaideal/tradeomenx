@@ -160,7 +160,7 @@ const ResolvedEventDetail = () => {
                       <X className="h-4 w-4 text-trading-red/70" />
                     )}
                     <span className={`text-sm ${option.is_winner ? "text-trading-green font-medium" : "text-muted-foreground"}`}>
-                      {option.label}
+                      {option.displayLabel}
                     </span>
                   </div>
                   <span className={`font-mono text-sm font-semibold ${option.is_winner ? "text-trading-green" : "text-muted-foreground"}`}>
