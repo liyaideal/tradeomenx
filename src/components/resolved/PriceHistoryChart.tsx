@@ -245,7 +245,7 @@ export const PriceHistoryChart = ({ priceHistory, options, isMobile = false }: P
             y: (y / chartHeight) * rect.height,
             price: point.price,
             date: format(new Date(point.recorded_at), "MMM d, yyyy"),
-            label: option.label,
+            label: option.displayLabel ?? option.label,
             color,
             startPrice: priceChange.startPrice,
             changePercent: changeFromStart,
