@@ -1,77 +1,48 @@
-## 背景
-
-`/trade` 页面已经把单 market binary 事件的两端 Yes/No 替换为 `sideLabels` 别名（如 Carlos Alcaraz / Jannik Sinner），但事件列表卡片（MarketCardB）、市场列表行（MarketListView 的 child row）、Portfolio 持仓/订单、Resolved 详情、Insights、Share Poster 等地方仍然显示原始 `option.label` = "Yes" / "No"。截图里的"NBA Finals 2026 Game 7"卡片就是这种情况：标题是队名 vs 队名，但下面 outcome mini-table 还是 Yes / No。
-
 ## 目标
 
-只要事件是 single-market binary 且 `event.side_labels` 有值，平台上一切渲染 option label 的地方都应显示对应的别名；多 outcome 事件、底层数据（`option.label`/`positions.option_id`/PnL 公式）完全不变。
+把 `TradeForm.tsx` 里的 Yes/No 切换按钮改成所选方向（v3）：
 
-## 设计原则
+- 按钮分上下两层：上层放队名/Yes/No 文案，下层独立色块放价格
+- 固定按钮高度，避免长队名换行后两侧高度错位
+- 选中态：绿色（Yes 方）/ 红色（No 方），右上角加一个白色发光小圆点指示活动状态
+- 未选中态：上层 `bg-muted`、下层 `bg-black/20` 色阶
 
-1. 在 `src/lib/eventUtils.ts` 新增一个统一 helper：
-   ```ts
-   getDisplayOptionLabel(event, option | optionLabel): string
-   ```
-   - 多 outcome 事件 → 原 `option.label`
-   - 单 market binary + 无 sideLabels → 仍是 "Yes" / "No"
-   - 单 market binary + 有 sideLabels → 返回 `sideLabels.yes` / `sideLabels.no`
-2. 数据 hook（`useMarketListData`、Portfolio/positions/orders 等已经从 DB 取 `events.side_labels`）顺手把 `sideLabels` 透传给下游 row 类型；UI 层直接调 helper，不再硬编码字符串。
-3. 不动 DB schema，不动 `option.label` 真值，不动 `side: 'long' | 'short'`，不动 PnL/持仓存储。
+## 改动范围
 
-## 受影响范围
+仅 1 个文件：
 
-按业务模块归类，括号里是要做的最小改动。
+- `src/components/TradeForm.tsx`（第 213-251 行的 Yes/No 切换 block）
 
-### 1. Events 列表 / 首页发现
+不动业务逻辑、数据接口（`binaryMode.yesLabel/noLabel/yesPrice/noPrice`、`setSide` 行为保留）、不改 PnL / 持仓模型。
 
-- `src/hooks/useMarketListData.ts` — `MarketChildRow` 增 `displayLabel?: string`，构造时调用 helper；`EventRow.topMarket.label` 同样替换。
-- `src/components/events/MarketCardB.tsx` — outcome mini-table 用 `child.displayLabel ?? child.optionLabel`（screenshot 2 直接受影响）。
-- `src/components/events/MarketListView.tsx` — `ChildRowContent` 的 `● {child.optionLabel}` 改为 displayLabel。
-- `src/components/home/HomeDiscover.tsx` — 列出的 Yes/No 文案同步走 displayLabel。
-- `src/components/home/HomeTournamentsRail.tsx` — 同 MarketCardB 路径。
-- `src/components/EventCard.tsx` — Quick Trade 区块的硬编码 Yes/No 按钮、Buy Yes/Buy No、确认弹窗"Side: Yes/No"全部走 sideLabels（落到一个组件内本地变量即可）。
+## 设计规范（落到 tokens）
 
-### 2. Portfolio / 订单 / 持仓
+按钮容器
+- 外层 `grid grid-cols-2 gap-2 p-1 bg-background rounded-lg`（替换原 `flex bg-muted rounded-lg p-0.5`）
+- 每个按钮 `flex flex-col h-14 rounded-md overflow-hidden transition-all` + `relative`
 
-- `src/components/PositionCard.tsx`、`src/components/OrderCard.tsx`、`src/pages/Portfolio.tsx`、`src/pages/PortfolioSettlements.tsx`、`src/pages/PortfolioAirdrops.tsx` — 这些地方按 `option_id` 显示 option label；改成查出 event 后调 helper（这些页面已经能拿到 event/options 数据，只需在 render label 时换一行）。
+上层（label 区，flex-1）
+- 选中 Yes：`bg-trading-green text-trading-green-foreground`
+- 选中 No：`bg-trading-red text-foreground`
+- 未选中：`bg-muted text-muted-foreground hover:bg-muted/80`
+- 文字：`text-[11px] font-semibold leading-tight line-clamp-2 text-center px-2`
+- 单 market binary 用 `yesLabel/noLabel`（队名）；标准 binary 显示 "Yes"/"No"
 
-### 3. Resolved（已结算）
+下层（price 区，固定 h-5）
+- 选中：`bg-black/15 text-current`（继承上层前景色）
+- 未选中：`bg-black/20 text-muted-foreground`
+- 文字：`text-[10px] font-mono`，4 位小数
 
-- `src/pages/ResolvedEventDetail.tsx`、`src/components/resolved/RelatedEventCard.tsx`、`src/components/resolved/EventShareCard.tsx`、`src/components/resolved/PriceHistoryChart.tsx`、`src/components/resolved/ResolvedMarketCard.tsx`、`src/components/ResolvedFilters.tsx` — 同样把 `option.label` 包成 helper 调用；Resolved 的 share/海报别名要正确。
+活动指示
+- 选中态：上层右上角 `absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]`
 
-### 4. Insights / 自动 feed
+## 验证
 
-- `src/components/insights/InsightsFeed.tsx`、`src/components/insights/BiggestMovers.tsx`、`src/components/insights/TrendingMarkets.tsx` — 自动生成的描述句子里 `${opt.label}` 替换。
+- `/trade?event=nba-finals-2026-g7`（Boston Celtics / Oklahoma City Thunder）两按钮高度对齐、队名 2 行不溢出
+- 切换到普通 binary 事件（如 BTC 100k Yes/No）仍显示 "Yes"/"No"、行为一致
+- 切换 Yes/No 时 K 线/订单簿仍然跟随（不动 `binaryMode.onSelectYes/No` 回调）
 
-### 5. Share / 海报
+## 不做的事
 
-- `src/components/ShareModal.tsx`、`src/components/share/SettlementPoster.tsx`、`src/components/settlement/SettlementShareCard.tsx` — 分享海报里"Bought Yes / Bought No"按 sideLabels 显示队名（PNG/截图都受影响）。
-
-### 6. Trade 页面查漏
-
-- `src/components/OptionChips.tsx` — 多 outcome 路径用不到，但二级保护：组件内若收到 binary options 时也按 helper 渲染（防 regression）。
-- `src/components/EventSelectorSheet.tsx`、`src/components/EventInfoContent.tsx` — 若展示 option 列表，同样替换。
-
-### 7. Transparency（数据透明）
-
-- `src/components/transparency/SettlementAudit.tsx`、`src/components/transparency/TradeVerification.tsx` — 审计页是链上证据，**保留原始 Yes/No** 真值（写一行 `// 不走 sideLabels：这是链上原始字段`），并在 plan 里说明这个例外。
-
-### 8. 不动
-
-- DB schema、`option.label`、`positions.option_id`、`orders.side`、PnL 公式。
-- 多 outcome chip 行（>2 markets）。
-- Style Guide / Playground 仅追加 sideLabels 演示数据（per playground-state-coverage），但本轮先聚焦正式产品页面，Playground 留到下一轮。
-
-## 实施顺序
-
-1. eventUtils 加 helper + 类型
-2. 数据层（`useMarketListData`、Portfolio/positions/orders hook）透传 sideLabels
-3. 列表/卡片层批量替换（MarketCardB、MarketListView、HomeDiscover、EventCard、HomeTournamentsRail）
-4. Portfolio / Resolved / Share / Insights 批量替换
-5. 走查 Transparency 是否需要例外注释
-6. 浏览器肉眼验证：/events 卡片、Hot rail、市场列表展开、单个 sports binary 事件的 trade/portfolio/resolved/share 流转
-
-## 文档
-
-- `docs/changelog/2026-05-25-sidelabels-platform-wide.md` 记录这次跨页面统一
-- `mem://design/single-market-binary-ui.md` 补一句"sideLabels 必须贯穿所有渲染 option label 的页面，Transparency 审计模块是唯一例外（保留链上原值）"
+- 不改 Playground / DESIGN.md / 内存（按钮属于内部组件细节，不进核心 token 集）
+- 不改 mobile drawer 里同等按钮（如果存在，留到下轮）— 本次只动桌面 `TradeForm.tsx`
