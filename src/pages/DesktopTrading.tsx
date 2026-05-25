@@ -50,6 +50,7 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions } from "@/lib/eventUtils";
+import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
 
 
 import { useUserProfile } from "@/hooks/useUserProfile";
