@@ -1921,16 +1921,27 @@ export default function DesktopTrading() {
             <div className="space-y-4">
               {/* Position Info */}
               <div className="bg-muted/50 rounded-lg p-3 space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Position</span>
-                  <span className={pos.type === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {resolveBinarySideLabel(pos.type === "long" ? "yes" : "no", lookupSideLabels(pos.event).labels)} {pos.leverage}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
-                  <span className="font-medium">{pos.option}</span>
-                </div>
+                {(() => {
+                  const outcome = getBinaryOutcome(pos.option);
+                  const isYes = outcome === "yes";
+                  const isNo = outcome === "no";
+                  const colorClass = isYes ? "text-trading-green" : isNo ? "text-trading-red" : pos.type === "long" ? "text-trading-green" : "text-trading-red";
+                  const sideLabel = outcome
+                    ? resolveBinarySideLabel(outcome, lookupSideLabels(pos.event).labels)
+                    : pos.option;
+                  return (
+                    <>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Position</span>
+                        <span className={colorClass}>{sideLabel} {pos.leverage}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">{TRADING_TERMS.CONTRACT}</span>
+                        <span className="font-medium">{pos.displayOption ?? pos.option}</span>
+                      </div>
+                    </>
+                  );
+                })()}
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
                   <span className="font-mono">{pos.entryPrice}</span>
