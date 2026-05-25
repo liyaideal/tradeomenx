@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-05-25 | [二元事件 No 作为独立持仓](./2026-05-25-binary-no-native-positions.md) | 配合 Yes/No 文案改造废弃 No→Yes 翻转归一化：`tradingService` / `positionIntent` / `orderUtils` 三处改为 identity 映射，删除 `BinaryEventHint` 组件；Buy No 直接开 No 仓，Yes/No 可同时持有；底层类型 / schema / PnL 公式 / 历史数据不动 |
 | 2026-05-25 | [安全加固：transactions / TOTP / Realtime 三项硬化](./2026-05-25-security-hardening.md) | 关键写入收敛到 Edge Function：新增 `record-transaction` / `totp-manage`，拆出 `user_security` 表并 drop `profiles.totp_secret`，启用 `realtime.messages` RLS，新增多个 field-locking trigger |
 | 2026-05-25 | [全站方向文案 Long/Short + Buy/Sell → Yes/No](./2026-05-25-yes-no-terminology.md) | 仅改展示层文案（约 37 文件 + 审计徽章 + 订单簿 Y/N），保留底层 `side: 'long'\|'short'`、`order.side: 'buy'\|'sell'`、PnL 公式与双价结构；Hedge 落地页 / Glossary / ToS 明确保留 |
 | 2026-05-21 | [/resolved 列表 + 详情页改版](./2026-05-21-resolved-revamp.md) | /resolved 列表升级为 Event→Markets 两级结构（新增 `ResolvedGroupedGrid` / `ResolvedMarketCard`、删除旧 `ResolvedEventCard`），头部对齐 /events 三段式，详情页 Final Results / Price History 改为 0/1 二元口径，`My Settled` 通过 trigger 回填 4 笔演示数据 |

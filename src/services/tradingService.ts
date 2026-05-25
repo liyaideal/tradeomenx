@@ -152,18 +152,11 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     }
 
     // Create, add, reduce, or close corresponding position with validated data (Market orders only)
-    // Binary events: all positions normalize to the Yes market (No-side trades convert internally)
-    const isNoOption = validated.optionLabel.toLowerCase() === "no";
-    let positionSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
-    let positionOptionLabel = validated.optionLabel;
-    let canonicalClosePrice = validated.side === "buy" ? validated.price : +(1 - validated.price).toFixed(4);
-    
-    if (isNoOption) {
-      // Convert No trades to Yes positions with opposite side
-      positionOptionLabel = "Yes";
-      positionSide = validated.side === "buy" ? "short" : "long";
-      canonicalClosePrice = +(1 - validated.price).toFixed(4);
-    }
+    // Binary events: Yes and No are independent positions; No is no longer remapped onto the Yes axis.
+    // Buy → long on the traded option; Sell → short on the traded option. Entry = clicked price.
+    const positionSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
+    const positionOptionLabel = validated.optionLabel;
+    const canonicalClosePrice = validated.price;
 
     const oppositeSide = positionSide === "long" ? "short" : "long";
     const { data: oppositePosition, error: oppositeFindError } = await supabase
