@@ -38,9 +38,13 @@ export const OrderCard = ({
   onFill,
 }: OrderCardProps) => {
   const optionDisplay = displayOption ?? option;
-  const lcOpt = option.trim().toLowerCase();
-  const isBinaryAlias = displayOption !== undefined && displayOption !== option && (lcOpt === "yes" || lcOpt === "no");
-  const sideText = isBinaryAlias ? optionDisplay : (type === "buy" ? "Yes" : "No");
+  const outcome = getBinaryOutcome(option);
+  const isBinary = outcome !== null;
+  const outcomeTextColor = outcome === "yes" ? "text-trading-green" : outcome === "no" ? "text-trading-red" : "";
+  const sideText = isBinary ? optionDisplay : (type === "buy" ? "Buy" : "Sell");
+  const sideColor = isBinary
+    ? outcomeTextColor
+    : (type === "buy" ? "text-trading-green" : "text-trading-red");
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [fillDialogOpen, setFillDialogOpen] = useState(false);
   const { toast } = useToast();
