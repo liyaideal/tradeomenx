@@ -1,41 +1,40 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
 import { Gift, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTreasureDrop } from "@/hooks/useTreasureDrop";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
-import { useRewardsWelcomeSeen } from "@/hooks/useRewardsWelcomeSeen";
 import rewardsGiftBox from "@/assets/rewards-gift-box.gif";
 
 /**
- * One-time welcome modal shown to logged-in users on the Home page.
- * Appears exactly once per user account (persisted in localStorage).
- * Closing via X / overlay / Esc / "Maybe later" / the CTA all mark it
- * as seen — after that, the FloatingRewardsButton is the permanent
- * entry point to the Rewards Center.
+ * Welcome modal shown on Home page for logged-in users who haven't yet
+ * claimed their treasure drop. The modal is dismissible — users can close
+ * it via the X button, the overlay, the Esc key, or the "Maybe later"
+ * action. Dismissing only suppresses the modal for the current session;
+ * on the next visit (if the treasure is still unclaimed) it will appear
+ * again. Once the treasure is claimed, the FloatingRewardsButton takes over.
  */
 export const RewardsWelcomeModal = () => {
-  // Disabled for mainnet launch — Beta points are paused.
-  return null;
-  // eslint-disable-next-line no-unreachable
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
+  const { hasClaimed, isLoading } = useTreasureDrop();
   const isAuthFlowOpen = useAuthFlowStore((state) => state.isOpen);
-  const { hasSeen, markSeen } = useRewardsWelcomeSeen();
+  const [dismissed, setDismissed] = useState(false);
 
-  // Show only for logged-in users who have never seen it (and not during auth flow)
-  const shouldShow = !!user && !isAuthFlowOpen && !hasSeen;
+  // Only show for logged-in users who haven't claimed treasure and haven't dismissed
+  const shouldShow = !!user && !hasClaimed && !isLoading && !isAuthFlowOpen && !dismissed;
 
   const handleGoToRewards = () => {
-    markSeen();
     navigate("/rewards");
   };
 
   const handleDismiss = () => {
-    markSeen();
+    setDismissed(true);
   };
 
   const content = (
@@ -53,10 +52,10 @@ export const RewardsWelcomeModal = () => {
 
       {/* Headline */}
       <h2 className="text-xl font-bold text-foreground mb-0.5">
-        Welcome to Rewards Center
+        Claim Free Trial Funds
       </h2>
-      <p className="text-sm text-muted-foreground mb-2 whitespace-nowrap">
-        Complete tasks, earn points, unlock perks.
+      <p className="text-sm text-muted-foreground mb-2 max-w-[260px]">
+        Do tasks, earn points, trade for free!
       </p>
 
       {/* Steps preview */}
@@ -64,7 +63,7 @@ export const RewardsWelcomeModal = () => {
         {[
           { step: "1", label: "Complete Tasks", desc: "Easy one-time missions", icon: "🎯" },
           { step: "2", label: "Earn Points", desc: "Instant point rewards", icon: "⭐" },
-          { step: "3", label: "Unlock Perks", desc: "Redemption opening soon", icon: "💰" },
+          { step: "3", label: "Get Trial Funds", desc: "Convert points to capital", icon: "💰" },
         ].map((item) => (
           <div
             key={item.step}
@@ -97,7 +96,7 @@ export const RewardsWelcomeModal = () => {
         variant="ghost"
         size="sm"
         onClick={handleDismiss}
-        className="mt-2 text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+        className="mt-2 text-muted-foreground hover:text-foreground"
       >
         Maybe later
       </Button>
