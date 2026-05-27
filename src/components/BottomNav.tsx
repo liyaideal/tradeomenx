@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { showRewardsPausedToast } from "@/lib/rewardsPause";
+
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
