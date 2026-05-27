@@ -245,7 +245,7 @@ export default function Rewards() {
         referralLink={referralLink}
         onConfirm={handleXShareConfirm}
       />
-      {pausedDialogDesktop}
+      
     </div>
   );
 }
