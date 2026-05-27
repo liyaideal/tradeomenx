@@ -33,7 +33,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { showRewardsPausedToast } from "@/lib/rewardsPause";
+
 
 // Main nav (4 items). Resolved is now an Events page tab; Leaderboard is a
 // regular nav entry without trophy/purple-border decoration.
