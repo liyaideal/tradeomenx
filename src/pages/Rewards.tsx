@@ -211,7 +211,7 @@ export default function Rewards() {
           referralLink={referralLink}
           onConfirm={handleXShareConfirm}
         />
-        {pausedDrawerMobile}
+        
       </div>
     );
   }
