@@ -218,7 +218,7 @@ export const BottomNav = () => {
             label="Rewards"
             onClick={() => {
               setProfileSheetOpen(false);
-              showRewardsPausedToast();
+              navigate("/rewards");
             }}
           />
           <MobileDrawerListItem
@@ -226,7 +226,7 @@ export const BottomNav = () => {
             label="Referral"
             onClick={() => {
               setProfileSheetOpen(false);
-              showRewardsPausedToast();
+              navigate("/referral");
             }}
           />
           <MobileDrawerListItem
