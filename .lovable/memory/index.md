@@ -53,6 +53,7 @@
 - [Trading partial fill UX](mem://design/trading-partial-fill-ux) — Popover interface for partial executions
 - [Mystery box system](mem://features/mystery-box-system) — Treasure drop animation and probability logic
 - [Points security architecture](mem://technical/points-security-architecture) — Edge function processing for point transactions
+- [Rewards mainnet pause](mem://features/rewards/mainnet-launch-pause) — Only points→trial-balance redemption is paused (403); all other rewards features are live.
 - [Expired event fallback](mem://features/expired-event-fallback) — Fallback UI for invalid market URLs
 - [X share authorization](mem://features/x-share-authorization-flow) — Twitter share modal and OAuth flow
 - [Auth gate overlay](mem://features/auth-gate-overlay) — Blur overlay for unauthenticated users

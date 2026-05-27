@@ -33,7 +33,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { showRewardsPausedToast } from "@/lib/rewardsPause";
+
 
 // Main nav (4 items). Resolved is now an Events page tab; Leaderboard is a
 // regular nav entry without trophy/purple-border decoration.
@@ -160,11 +160,11 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
                   {/* Account & activity */}
-                  <DropdownMenuItem onClick={showRewardsPausedToast}>
+                  <DropdownMenuItem onClick={() => navigate("/rewards")}>
                     <Gift className="mr-2 h-4 w-4 text-primary" />
                     Rewards
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={showRewardsPausedToast}>
+                  <DropdownMenuItem onClick={() => navigate("/referral")}>
                     <Users className="mr-2 h-4 w-4 text-primary" />
                     Referral
                   </DropdownMenuItem>
