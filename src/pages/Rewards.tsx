@@ -186,42 +186,6 @@ export default function Rewards() {
     </div>
   );
 
-  const pausedContent = (
-    <div className="flex flex-col items-center text-center py-2">
-      <Logo size="xl" className="mb-4" />
-      <h2 className="text-xl font-bold text-foreground mb-2">{REWARDS_PAUSED_TITLE}</h2>
-      <p className="text-sm text-muted-foreground leading-relaxed">
-        {REWARDS_PAUSED_DESCRIPTION}
-      </p>
-    </div>
-  );
-
-  const pausedDialogDesktop = (
-    <Dialog open={true}>
-      <DialogContent
-        className="sm:max-w-md border-primary/30 bg-gradient-to-b from-background to-background/95 [&>button]:hidden"
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
-      >
-        <DialogTitle className="sr-only">{REWARDS_PAUSED_TITLE}</DialogTitle>
-        <DialogDescription className="sr-only">{REWARDS_PAUSED_DESCRIPTION}</DialogDescription>
-        {pausedContent}
-      </DialogContent>
-    </Dialog>
-  );
-
-  const pausedDrawerMobile = (
-    <MobileDrawer
-      open={true}
-      onOpenChange={() => {}}
-      showHandle={false}
-      hideCloseButton={true}
-      className="bg-gradient-to-b from-background to-background/95"
-    >
-      {pausedContent}
-    </MobileDrawer>
-  );
 
   if (isMobile) {
     return (
