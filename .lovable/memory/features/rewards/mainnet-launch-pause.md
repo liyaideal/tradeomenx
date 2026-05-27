@@ -1,35 +1,30 @@
 ---
-name: Rewards mainnet launch pause
-description: All Beta points entry points are paused before mainnet. Toast on entries, non-dismissible dialog on /rewards, 503 from claim-task/claim-treasure/redeem-points.
+name: Rewards mainnet launch pause (redemption only)
+description: Only points→trial-balance redemption is paused before mainnet. All other rewards features (tasks, treasure drop, welcome modal, entry points) are LIVE again.
 type: feature
 ---
 
-# Rewards mainnet launch pause
+# Rewards mainnet launch pause (redemption only)
 
-Beta points stop accruing before mainnet launch. Existing balances will be converted at a set ratio to mainnet points.
+The full rewards pause was lifted. Only **points redemption → trial balance** is still disabled while the Beta→Mainnet conversion ratio is finalized.
 
-## Frontend
+## What is paused
 
-- **Unified copy** lives in `src/lib/rewardsPause.ts` (`REWARDS_PAUSED_TITLE`, `REWARDS_PAUSED_DESCRIPTION`, `showRewardsPausedToast()`). All entry points must use these — never re-write the wording.
-- **Entry points → toast (no navigation):**
-  - `FloatingRewardsButton` (mobile home, gold bonus badge) — also hides the claimable count badge
-  - `EventsDesktopHeader` user dropdown → Rewards / Referral
-  - `BottomNav` profile drawer → Rewards / Referral
-- **`RewardsWelcomeModal`**: hard-disabled (`return null` at top). New users are not pushed into the rewards flow.
-- **`/rewards` page**: page contents are intentionally untouched (so historical UI/data still renders read-only); a non-dismissible Dialog is overlayed:
-  - `[&>button]:hidden` removes the X
-  - `onEscapeKeyDown` / `onPointerDownOutside` / `onInteractOutside` all `preventDefault`
-  - No CTAs in the dialog body — purely informational
+- **`supabase/functions/redeem-points/index.ts`** returns 403 with copy "Points redemption is paused for mainnet launch. Please check back soon." Defense-in-depth: keep this server-side stop even if the client UI calls it.
 
-## Backend (defense in depth)
+The `RedeemDialog` UI in `/rewards` stays in place — clicking redeem just surfaces the 403 toast.
 
-All three points-issuing edge functions return their pause status without touching tables:
-- `claim-task` → 503 (added at top of try block)
-- `claim-treasure` → 503
-- `redeem-points` → 403
+## What is LIVE (do NOT re-pause)
+
+- `/rewards` page (no pause Dialog overlay)
+- `FloatingRewardsButton` — navigates to `/rewards`, shows claimable badge
+- `RewardsWelcomeModal` — first-visit promo for new users
+- `BottomNav` profile drawer → Rewards / Referral entries
+- `EventsDesktopHeader` dropdown → Rewards / Referral entries
+- `useTreasureDrop` hook + `claim-treasure` edge function (mystery box accrues points)
+- `claim-task` edge function (task rewards accrue points)
 
 ## Do NOT
 
-- Do not delete `points_accounts` / `points_ledger` / `user_tasks` rows — they are the source of truth for the mainnet conversion.
-- Do not remove the rewards components/pages — only their entry behavior is paused.
-- Do not change `MainnetLaunch` campaign rewards (RewardSnapshot / RewardLadder) — that is the campaign's own incentive system, unrelated to Beta points.
+- Do not delete `points_accounts` / `points_ledger` / `user_tasks` rows — source of truth for the eventual Beta→Mainnet conversion.
+- Do not re-introduce the global rewards pause toast / dialog without explicit instruction.
