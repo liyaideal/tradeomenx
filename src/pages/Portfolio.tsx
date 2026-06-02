@@ -264,6 +264,9 @@ export default function Portfolio() {
           </div>
         </div>
 
+        <VoucherBanner />
+
+
         {/* Desktop Tabs - 桌面端保留原有tabs */}
         {!isMobile && (
           <div className="flex border-b border-border">
