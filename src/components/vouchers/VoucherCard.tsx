@@ -1,17 +1,72 @@
-import { Ticket, Clock } from "lucide-react";
+import { Ticket, Clock, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
+import { cn } from "@/lib/utils";
 import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 
 interface VoucherCardProps {
   voucher: PositionVoucher;
   onRedeem: (voucher: PositionVoucher) => void;
+  /** Compact: single clickable row used as a selector in the left rail */
+  compact?: boolean;
+  selected?: boolean;
 }
 
-export const VoucherCard = ({ voucher, onRedeem }: VoucherCardProps) => {
+export const VoucherCard = ({ voucher, onRedeem, compact, selected }: VoucherCardProps) => {
   const { timeLeft, urgent } = useCountdown(voucher.expiresAt);
   const cap = voucher.faceValue * voucher.redeemableCapPct;
+
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={() => onRedeem(voucher)}
+        className={cn(
+          "w-full text-left rounded-xl border p-3 transition-all",
+          "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent",
+          selected
+            ? "border-primary ring-2 ring-primary/40 shadow-[0_0_0_1px_hsl(var(--primary)/0.4)]"
+            : "border-primary/20 hover:border-primary/40",
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 shrink-0 rounded-lg bg-primary/20 flex items-center justify-center">
+            {selected ? (
+              <Check className="w-5 h-5 text-primary" />
+            ) : (
+              <Ticket className="w-5 h-5 text-primary" />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[11px] text-muted-foreground truncate">
+                {voucher.code}
+              </span>
+              <span
+                className={cn(
+                  "flex items-center gap-1 text-[11px] font-mono shrink-0",
+                  urgent ? "text-trading-red" : "text-muted-foreground",
+                )}
+              >
+                <Clock className="w-3 h-3" />
+                {timeLeft}
+              </span>
+            </div>
+            <div className="flex items-baseline justify-between gap-2 mt-0.5">
+              <span className="font-mono text-lg text-foreground">
+                ${voucher.faceValue.toFixed(2)}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                cap{" "}
+                <span className="font-mono text-trading-green">${cap.toFixed(2)}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+    );
+  }
 
   return (
     <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4">

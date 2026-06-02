@@ -7,9 +7,9 @@ import { EventPickerList, type PickedOption } from "./EventPickerList";
 
 interface RedeemVoucherContentProps {
   voucher: PositionVoucher;
-  onClose: () => void;
-  /** On mobile we render in a drawer — wrap actions in a sticky footer */
-  variant?: "dialog" | "drawer";
+  onClose?: () => void;
+  /** dialog/drawer wrap actions in a footer; `inline` renders directly on the page */
+  variant?: "dialog" | "drawer" | "inline";
 }
 
 export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: RedeemVoucherContentProps) => {
@@ -24,7 +24,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
     if (!picked) return;
     const res = await redeem(voucher.id, picked.eventId, picked.optionId, picked.side);
     if (res.success) {
-      onClose();
+      onClose?.();
       navigate(`/trade?event=${picked.eventId}`);
     }
   };
@@ -90,9 +90,17 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
       </div>
 
       <div className={variant === "drawer" ? "flex gap-2 pt-2" : "flex justify-end gap-2 pt-2"}>
-        <Button variant="outline" onClick={onClose} className={variant === "drawer" ? "flex-1 h-11" : ""}>
-          Cancel
-        </Button>
+        {variant === "inline" ? (
+          picked && (
+            <Button variant="outline" onClick={() => setPicked(null)}>
+              Reset selection
+            </Button>
+          )
+        ) : (
+          <Button variant="outline" onClick={onClose} className={variant === "drawer" ? "flex-1 h-11" : ""}>
+            Cancel
+          </Button>
+        )}
         <Button
           onClick={handleSubmit}
           disabled={!picked || isRedeeming}
