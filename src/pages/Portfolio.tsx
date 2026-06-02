@@ -14,6 +14,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { VoucherBanner } from "@/components/vouchers/VoucherBanner";
 import { Button } from "@/components/ui/button";
 
 import {
