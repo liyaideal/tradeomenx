@@ -1,102 +1,70 @@
 ## 目标
 
-V1 只做"兑换页 + 兑换后进入 positions"两块。投放（运营后台）和邮件不在此次范围。复用 `airdrop_positions` 流水线，让兑换后的仓位自动出现在 `/portfolio` 和 `/trade` 的 Positions 模块。
+把"选 event → 确认 → 兑换"这套流程从 Dialog/Drawer 里拿出来，直接铺在 `/vouchers` 页面上，让单券用户进来也不空，多券用户也能流畅切换。
 
-## 关键差异 vs H2E
+## 新布局（桌面 ≥ md）
 
-| 维度 | H2E airdrop | Voucher 兑换 |
-|---|---|---|
-| 来源 | 系统匹配 polymarket 持仓后空投 | 用户主动用券兑换 |
-| 初始状态 | `pending`，要点 Activate | **直接 `active`**（兑换动作即激活） |
-| 用户能否手动平仓 | **不能** | **不能**（沿用 h2e 规则） |
-| 退出时机 | event 结算 / 对手 polymarket 仓位关闭 | event 结算 / **持仓满 72h** |
-| 收益封顶 | 现有 h2e 规则 | `min(unrealized_pnl, face_value × 50%)` |
+两栏，左窄右宽，左边券列表，右边兑换面板：
 
-→ 仓位 UI 上**不显示 Close 按钮**，Action 列保持锁定/连字符态（跟 h2e 的 active airdrop 一样），只靠系统自动平仓。
+```text
+┌─ Position Vouchers ─────────────────────────────────────────────┐
+│  Redeem a voucher to instantly open a free position...          │
+├──────────────────────────┬──────────────────────────────────────┤
+│  Available (1)           │  Redeem 6D96F701 · $10.00            │
+│  ┌────────────────────┐  │  ─────────────────────────────────── │
+│  │ ● 6D96F701  $10.00 │  │  [voucher summary card — code, face, │
+│  │   72h · cap $5     │  │   max profit, hold window, price band│
+│  └────────────────────┘  │   left-aligned strip]                │
+│  ┌────────────────────┐  │                                      │
+│  │   489FAB02 $25.00  │  │  Pick a market                       │
+│  └────────────────────┘  │  ┌────────────────────────────────┐  │
+│                          │  │ search + category filter       │  │
+│  Redeemed (2)            │  │ event row · event row · ...    │  │
+│  ...                     │  │ (scrollable, max-h ~480px)     │  │
+│  Expired (0)             │  └────────────────────────────────┘  │
+│                          │  Selected summary + risk disclaimer  │
+│                          │  [ Confirm & open position ]         │
+└──────────────────────────┴──────────────────────────────────────┘
+```
 
-## 数据模型
+- 默认选中第一张 `issued` 券，右栏直接渲染兑换面板。
+- 左侧每张 `issued` 券点一下就在右栏切，**不再弹 Dialog**。当前选中卡片加 `ring-2 ring-primary` 高亮。
+- 切换券时 `picked` 重置为 `null`（不同券价格区间不同，复用没意义）。
+- 没有任何券：右栏渲染空状态（与现在的 "No vouchers yet" 一致，左栏整体隐藏）。
+- 只有一张券：左栏依旧渲染（保持结构稳定），用户也能看到自己有几张。
 
-### 新表 `position_vouchers`
+## 新布局（移动 < md）
 
-- `user_id`、`code`（6 位字母数字）、`face_value`
-- `redeemable_cap_pct`（默认 0.5）、`max_holding_hours`（默认 72）
-- `entry_price_min`/`entry_price_max`（默认 0.20 / 0.80）
-- `min_hours_to_settlement`（默认 12）
-- `status`：`issued` / `redeemed` / `expired` / `revoked`
-- `issued_at` / `expires_at` / `redeemed_at`
-- `redeemed_airdrop_position_id`、`redeemed_event_id` / `redeemed_option_id` / `redeemed_side`
+单栏从上到下：
 
-RLS：用户 SELECT 自己的；INSERT/UPDATE 仅 admin / service_role。
+1. 标题块
+2. Available 列表 — 横向 `snap-x` 滑动的卡片条（一张时也美观，多张时左右滑）。
+3. 选中券的 redeem 面板（事件搜索 + 选择 + 确认按钮）。Cancel 按钮去掉，因为没有 dialog 可关；改成"Reset selection"次要按钮，仅当 `picked` 时显示。
+4. Redeemed / Expired 折叠区。
 
-### `airdrop_positions` 扩展
+→ 移动端干掉 `RedeemVoucherSheet` 的 MobileDrawer 调用。
 
-- `source` check 扩成 `('matched','welcome_gift','voucher')`
-- `connected_account_id` 改 nullable（voucher 没有连号）
-- 新增 `redeemable_cap numeric NULL` — voucher 行写 `face_value × cap_pct`，其余 source 为 NULL（走旧规则）
-- 复用 `expires_at` 表示"max_holding_until"（voucher 写 `now() + 72h`）
-- Voucher 仓位 INSERT 时 `status='active'`、`activated_at=now()`、`activated_trade_id=NULL`
+## 组件改动
 
-## 兑换页 `/vouchers`
+- **`src/pages/Vouchers.tsx`** 改造为两栏布局；管理 `selectedVoucherId`（默认第一张 issued）。
+- **`src/components/vouchers/VoucherCard.tsx`** 增加 `compact?: boolean` 和 `selected?: boolean` props。compact 模式渲染成单行选择卡（icon + code + face + 倒计时 + cap），去掉大段说明文字和 Redeem 按钮，整张卡 clickable。
+- **`src/components/vouchers/RedeemVoucherContent.tsx`** 加 `variant="inline"` 分支：
+  - 没有外层 Dialog/Drawer，去掉 Cancel 按钮（或改成 "Reset"）。
+  - 标题不再由 Dialog 提供，由 inline 容器自己渲染 `Redeem {code} · ${face}`。
+  - 提交成功后不需要 `onClose`，直接 navigate。
+- **`src/components/vouchers/RedeemVoucherSheet.tsx`** 删除（或保留作为后续别处复用，但 `/vouchers` 不再引用）。
+- **`src/components/vouchers/EventPickerList.tsx`** 不改逻辑，但确保它在 inline 模式下高度受控（外层加 `max-h-[480px] overflow-y-auto`）。
 
-未登录套 `AuthGateOverlay`。登录后列出该用户所有 `status='issued'` 的券。
+## 不在范围
 
-点 Redeem 打开 Dialog（桌面）/ MobileDrawer（移动）：
-
-1. **Step 1 — 选 event/option/side**
-   - 列出当前 tradable events（`useActiveEvents`）。
-   - 每个 option 校验：价格 ∈ voucher 区间、`end_date - now ≥ min_hours_to_settlement`、未 resolved。
-   - 不符合的灰掉 + tooltip 写原因（"Price out of 0.20–0.80 band" / "Closes within 12h" / "Already resolved"），不隐藏。
-   - 支持搜索 + category 筛选。
-2. **Step 2 — 确认面板**
-   - 展示 entry price、size = face/entry、`max holding until`（72h 倒计时）、`redeemable cap = face × 50%`、自动平仓规则、"Position can't be closed manually — auto-settles at event end or after 72h"。
-3. 提交 → edge function `redeem-position-voucher`。
-
-## Edge function `redeem-position-voucher`
-
-POST body `{ voucherId, eventId, optionId, side }`，service role 校验：
-
-1. 用 `voucherId + user_id` 锁券，确认 `issued` 且未过期。
-2. 再校验 event/option：未 resolved、settlement 余量、价格在 voucher 区间。
-3. INSERT `airdrop_positions`：
-   - `source='voucher'`、`connected_account_id=NULL`
-   - `counter_*` 写 event/option 快照
-   - `airdrop_value = face_value`、`redeemable_cap = face_value × cap_pct`
-   - `status='active'`、`activated_at=now()`、`expires_at=now() + max_holding_hours h`
-4. 乐观锁 UPDATE `position_vouchers ... WHERE status='issued' RETURNING`；空就报"券已被兑换"。
-5. 返回 airdrop_position id，前端跳 `/trade?event=…` 或 `/portfolio`。
-
-## 自动平仓（沿用 h2e settlement edge function）
-
-V1 不新建 cron。在现有 h2e settlement function 里把"settle 条件"扩成对 voucher source 同时支持：
-
-- event resolved → 按胜负结算，但收益封顶 `min(pnl, redeemable_cap)`，亏损不扣用户余额（trial）。
-- `now() > expires_at` → 强制以当时 mark price 平仓，同样套 `redeemable_cap`。
-
-> 这一步如果时间紧，可以先只做"event resolved → settle"，72h 强平先留 TODO，因为现有 h2e settlement 已经处理 event resolved，加 voucher cap 一行就行。
-
-## 前端改动清单
-
-- 新页面 `src/pages/Vouchers.tsx` + 路由 `/vouchers`。
-- 新组件：`VoucherCard` / `RedeemVoucherDialog`（桌面）/ `RedeemVoucherDrawer`（移动）/ `EventPickerList`（disabled + reason tooltip）。
-- 新 hook `src/hooks/usePositionVouchers.ts`。
-- `useAirdropPositions` / `AirdropPositionCard` / Positions 表加 `source==='voucher'` 分支：
-  - 徽章紫色 "Voucher"（替代 "Airdrop"）
-  - 直接走 active 分支（没有 Activate 按钮）
-  - **沿用 h2e 的"无 Close 按钮、TP/SL 锁定"行为**
-  - Tooltip 提示 redeemable cap 与自动结算时机
-- `Portfolio` / `MobileHome` 顶部加 "You have N unredeemed voucher(s) → Redeem" 入口横幅（没邮件，用户得自己找入口）。
-
-## 不在此次范围
-
-- 邮件发送
-- 运营后台投放页（运营直接往 `position_vouchers` insert）
-- 全新独立的强平 cron（V1 复用 h2e 那条 settlement function；72h 强平视时间情况）
+- 移动端事件选择交互（保持现有 list + 搜索）。
+- 邮件/运营投放。
+- 已兑换/已过期券的视觉重构。
 
 ## 实施顺序
 
-1. migration：建 `position_vouchers`、扩 `airdrop_positions.source`、加 `redeemable_cap`、放开 `connected_account_id` NULL、RLS / GRANT。
-2. edge function `redeem-position-voucher`。
-3. 前端：`/vouchers` 页 + 组件 + hook + 路由。
-4. Positions 渲染层加 voucher 分支（紫色徽章、直接 active、无 Close 按钮）。
-5. h2e settlement function 加 `redeemable_cap` 封顶分支。
-6. Portfolio 顶部未兑券提醒条。
+1. `VoucherCard` 加 compact + selected props。
+2. `RedeemVoucherContent` 加 inline variant。
+3. `Vouchers.tsx` 重写：两栏布局 + 默认选中 + 切换逻辑 + 移动单栏。
+4. 删除 `RedeemVoucherSheet` 引用（文件可保留）。
+
