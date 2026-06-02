@@ -1,23 +1,56 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Ticket, Sparkles } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
-import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
+import { usePositionVouchers } from "@/hooks/usePositionVouchers";
 import { VoucherCard } from "@/components/vouchers/VoucherCard";
-import { RedeemVoucherSheet } from "@/components/vouchers/RedeemVoucherSheet";
+import { RedeemVoucherContent } from "@/components/vouchers/RedeemVoucherContent";
 
 const Vouchers = () => {
   const isMobile = useIsMobile();
   const { vouchers, issuedVouchers, isLoading } = usePositionVouchers();
-  const [activeVoucher, setActiveVoucher] = useState<PositionVoucher | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Default-select the first available voucher; keep selection valid as the list changes
+  useEffect(() => {
+    if (issuedVouchers.length === 0) {
+      if (selectedId !== null) setSelectedId(null);
+      return;
+    }
+    if (!selectedId || !issuedVouchers.some((v) => v.id === selectedId)) {
+      setSelectedId(issuedVouchers[0].id);
+    }
+  }, [issuedVouchers, selectedId]);
+
+  const selected = issuedVouchers.find((v) => v.id === selectedId) ?? null;
 
   const redeemed = vouchers.filter((v) => v.status === "redeemed");
   const expired = vouchers.filter(
     (v) => v.status === "expired" || (v.status === "issued" && new Date(v.expiresAt).getTime() <= Date.now()),
   );
+
+  const redeemPanel = selected ? (
+    <div className="rounded-xl border border-border bg-card/40 p-4 md:p-5">
+      <div className="flex items-baseline justify-between gap-3 mb-4 pb-3 border-b border-border">
+        <div>
+          <div className="text-xs text-muted-foreground">Redeeming voucher</div>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span className="font-mono text-sm text-foreground">{selected.code}</span>
+            <span className="font-mono text-lg text-foreground">
+              ${selected.faceValue.toFixed(2)}
+            </span>
+          </div>
+        </div>
+        <div className="text-[11px] text-muted-foreground">
+          Pick a market below to open your free position.
+        </div>
+      </div>
+      <RedeemVoucherContent voucher={selected} variant="inline" />
+    </div>
+  ) : null;
 
   return (
     <div
@@ -34,7 +67,7 @@ const Vouchers = () => {
         title="Sign in to view your vouchers"
         description="Position vouchers let you open a free position on any tradeable event."
       >
-        <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-5xl mx-auto"} space-y-8`}>
+        <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-6xl mx-auto"} space-y-6`}>
           <div className="relative">
             {!isMobile && (
               <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
@@ -67,80 +100,131 @@ const Vouchers = () => {
             </div>
           )}
 
-          {!isLoading && issuedVouchers.length > 0 && (
-            <section className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <h2 className="text-sm font-medium text-foreground">
-                  Available ({issuedVouchers.length})
-                </h2>
-              </div>
-              <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3"}`}>
-                {issuedVouchers.map((v) => (
-                  <VoucherCard key={v.id} voucher={v} onRedeem={setActiveVoucher} />
-                ))}
-              </div>
-            </section>
-          )}
+          {!isLoading && vouchers.length > 0 && (
+            isMobile ? (
+              // ===== Mobile: single column =====
+              <div className="space-y-6">
+                {issuedVouchers.length > 0 && (
+                  <section className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <h2 className="text-sm font-medium text-foreground">
+                        Available ({issuedVouchers.length})
+                      </h2>
+                    </div>
+                    <div className="-mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1">
+                      {issuedVouchers.map((v) => (
+                        <div key={v.id} className="snap-start shrink-0 w-[78%] max-w-[280px]">
+                          <VoucherCard
+                            voucher={v}
+                            compact
+                            selected={v.id === selectedId}
+                            onRedeem={(vc) => setSelectedId(vc.id)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-          {!isLoading && redeemed.length > 0 && (
-            <section className="space-y-3">
-              <h2 className="text-sm font-medium text-muted-foreground">
-                Redeemed ({redeemed.length})
-              </h2>
-              <div className="space-y-2">
-                {redeemed.map((v) => (
-                  <div
-                    key={v.id}
-                    className="rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-between gap-3"
-                  >
-                    <div className="min-w-0">
+                {redeemPanel}
+
+                {redeemed.length > 0 && <RedeemedSection items={redeemed} />}
+                {expired.length > 0 && <ExpiredSection items={expired} />}
+              </div>
+            ) : (
+              // ===== Desktop: two-column =====
+              <div className="grid grid-cols-12 gap-6 items-start">
+                <aside className="col-span-4 space-y-6">
+                  {issuedVouchers.length > 0 && (
+                    <section className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
-                        <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <h2 className="text-sm font-medium text-foreground">
+                          Available ({issuedVouchers.length})
+                        </h2>
                       </div>
-                      <div className="text-[11px] text-muted-foreground mt-0.5">
-                        Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
+                      <div className="space-y-2">
+                        {issuedVouchers.map((v) => (
+                          <VoucherCard
+                            key={v.id}
+                            voucher={v}
+                            compact
+                            selected={v.id === selectedId}
+                            onRedeem={(vc) => setSelectedId(vc.id)}
+                          />
+                        ))}
                       </div>
-                    </div>
-                    <span className="text-[11px] text-primary">Position opened</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+                    </section>
+                  )}
 
-          {!isLoading && expired.length > 0 && (
-            <section className="space-y-3">
-              <h2 className="text-sm font-medium text-muted-foreground">Expired ({expired.length})</h2>
-              <div className="space-y-2">
-                {expired.map((v) => (
-                  <div
-                    key={v.id}
-                    className="rounded-lg border border-border bg-muted/10 p-3 flex items-center justify-between gap-3 opacity-70"
-                  >
-                    <div>
-                      <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
-                      <span className="font-mono text-sm ml-2">${v.faceValue.toFixed(2)}</span>
+                  {redeemed.length > 0 && <RedeemedSection items={redeemed} />}
+                  {expired.length > 0 && <ExpiredSection items={expired} />}
+                </aside>
+
+                <section className="col-span-8">
+                  {redeemPanel ?? (
+                    <div className="rounded-xl border border-border bg-card/40 p-10 text-center">
+                      <div className="text-sm text-muted-foreground">
+                        No active vouchers to redeem.
+                      </div>
                     </div>
-                    <span className="text-[11px] text-muted-foreground">Expired</span>
-                  </div>
-                ))}
+                  )}
+                </section>
               </div>
-            </section>
+            )
           )}
         </main>
       </AuthGateOverlay>
-
-      <RedeemVoucherSheet
-        voucher={activeVoucher}
-        open={!!activeVoucher}
-        onOpenChange={(open) => !open && setActiveVoucher(null)}
-      />
 
       {isMobile && <BottomNav />}
     </div>
   );
 };
+
+const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouchers>["vouchers"] }) => (
+  <section className="space-y-3">
+    <h2 className="text-sm font-medium text-muted-foreground">Redeemed ({items.length})</h2>
+    <div className="space-y-2">
+      {items.map((v) => (
+        <div
+          key={v.id}
+          className="rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-between gap-3"
+        >
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
+              <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground mt-0.5">
+              Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
+            </div>
+          </div>
+          <span className="text-[11px] text-primary">Position opened</span>
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
+const ExpiredSection = ({ items }: { items: ReturnType<typeof usePositionVouchers>["vouchers"] }) => (
+  <section className="space-y-3">
+    <h2 className="text-sm font-medium text-muted-foreground">Expired ({items.length})</h2>
+    <div className="space-y-2">
+      {items.map((v) => (
+        <div
+          key={v.id}
+          className="rounded-lg border border-border bg-muted/10 p-3 flex items-center justify-between gap-3 opacity-70"
+        >
+          <div>
+            <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
+            <span className="font-mono text-sm ml-2">${v.faceValue.toFixed(2)}</span>
+          </div>
+          <span className="text-[11px] text-muted-foreground">Expired</span>
+        </div>
+      ))}
+    </div>
+  </section>
+);
 
 export default Vouchers;
