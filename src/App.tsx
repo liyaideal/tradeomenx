@@ -24,6 +24,7 @@ import RecoveryRequest from "./pages/RecoveryRequest";
 import RecoveryRequestDetail from "./pages/RecoveryRequestDetail";
 import Settings from "./pages/Settings";
 import Rewards from "./pages/Rewards";
+import Vouchers from "./pages/Vouchers";
 import FaqPage from "./pages/FaqPage";
 import GlossaryPage from "./pages/GlossaryPage";
 import GlossaryEnPage from "./pages/GlossaryEnPage";
@@ -116,6 +117,7 @@ const App = () => (
               <Route path="/wallet/recovery/:id" element={<RecoveryRequestDetail />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/rewards" element={<Rewards />} />
+              <Route path="/vouchers" element={<Vouchers />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/settings/transparency" element={<TransparencyPage />} />
               <Route path="/style-guide" element={<StyleGuide />} />

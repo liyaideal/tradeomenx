@@ -19,7 +19,7 @@ export type Database = {
           activated_at: string | null
           activated_trade_id: string | null
           airdrop_value: number
-          connected_account_id: string
+          connected_account_id: string | null
           counter_event_name: string
           counter_option_label: string
           counter_price: number
@@ -33,6 +33,7 @@ export type Database = {
           external_side: string | null
           external_size: number | null
           id: string
+          redeemable_cap: number | null
           source: string
           status: string
           updated_at: string
@@ -42,7 +43,7 @@ export type Database = {
           activated_at?: string | null
           activated_trade_id?: string | null
           airdrop_value?: number
-          connected_account_id: string
+          connected_account_id?: string | null
           counter_event_name: string
           counter_option_label: string
           counter_price: number
@@ -56,6 +57,7 @@ export type Database = {
           external_side?: string | null
           external_size?: number | null
           id?: string
+          redeemable_cap?: number | null
           source?: string
           status?: string
           updated_at?: string
@@ -65,7 +67,7 @@ export type Database = {
           activated_at?: string | null
           activated_trade_id?: string | null
           airdrop_value?: number
-          connected_account_id?: string
+          connected_account_id?: string | null
           counter_event_name?: string
           counter_option_label?: string
           counter_price?: number
@@ -79,6 +81,7 @@ export type Database = {
           external_side?: string | null
           external_size?: number | null
           id?: string
+          redeemable_cap?: number | null
           source?: string
           status?: string
           updated_at?: string
@@ -651,6 +654,80 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      position_vouchers: {
+        Row: {
+          code: string
+          created_at: string
+          entry_price_max: number
+          entry_price_min: number
+          expires_at: string
+          face_value: number
+          id: string
+          issued_at: string
+          max_holding_hours: number
+          min_hours_to_settlement: number
+          redeemable_cap_pct: number
+          redeemed_airdrop_position_id: string | null
+          redeemed_at: string | null
+          redeemed_event_id: string | null
+          redeemed_option_id: string | null
+          redeemed_side: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          entry_price_max?: number
+          entry_price_min?: number
+          expires_at: string
+          face_value: number
+          id?: string
+          issued_at?: string
+          max_holding_hours?: number
+          min_hours_to_settlement?: number
+          redeemable_cap_pct?: number
+          redeemed_airdrop_position_id?: string | null
+          redeemed_at?: string | null
+          redeemed_event_id?: string | null
+          redeemed_option_id?: string | null
+          redeemed_side?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          entry_price_max?: number
+          entry_price_min?: number
+          expires_at?: string
+          face_value?: number
+          id?: string
+          issued_at?: string
+          max_holding_hours?: number
+          min_hours_to_settlement?: number
+          redeemable_cap_pct?: number
+          redeemed_airdrop_position_id?: string | null
+          redeemed_at?: string | null
+          redeemed_event_id?: string | null
+          redeemed_option_id?: string | null
+          redeemed_side?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "position_vouchers_redeemed_airdrop_position_id_fkey"
+            columns: ["redeemed_airdrop_position_id"]
+            isOneToOne: false
+            referencedRelation: "airdrop_positions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       positions: {
         Row: {

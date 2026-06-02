@@ -1,4 +1,4 @@
-import { Gift, Clock, Zap, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Gift, Ticket, Clock, Zap, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useCountdown } from "@/hooks/useCountdown";
 import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
@@ -54,16 +54,24 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
     : null;
 
   const isWelcomeGift = airdrop.source === "welcome_gift";
+  const isVoucher = airdrop.source === "voucher";
 
   return (
     <div className={`rounded-xl p-3 border ${config.bg} ${config.border}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
-            <Gift className="w-3 h-3" />
-            AIRDROP
-          </Badge>
+          {isVoucher ? (
+            <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
+              <Ticket className="w-3 h-3" />
+              VOUCHER
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
+              <Gift className="w-3 h-3" />
+              AIRDROP
+            </Badge>
+          )}
           {isWelcomeGift && (
             <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-trading-green/10 text-trading-green border-trading-green/30">
               WELCOME GIFT
@@ -115,7 +123,9 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
           <div>
             <span className="text-[10px] text-muted-foreground block">Source</span>
             <span className="text-xs text-muted-foreground truncate block">
-              {isWelcomeGift
+              {isVoucher
+                ? `Voucher · cap $${airdrop.redeemableCap?.toFixed(2) ?? "—"}`
+                : isWelcomeGift
                 ? "Welcome gift"
                 : `${airdrop.externalSide} @ $${airdrop.externalPrice?.toFixed(2)}`}
             </span>
@@ -124,7 +134,7 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
       </div>
 
       {/* External position reference — only when matched */}
-      {!isWelcomeGift && airdrop.externalEventName && (
+      {!isWelcomeGift && !isVoucher && airdrop.externalEventName && (
         <div className="text-[10px] text-muted-foreground mb-2 flex items-center gap-1">
           <span>Hedging:</span>
           <span className="truncate">{airdrop.externalEventName}</span>

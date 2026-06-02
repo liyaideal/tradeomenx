@@ -14,6 +14,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { VoucherBanner } from "@/components/vouchers/VoucherBanner";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -263,6 +264,9 @@ export default function Portfolio() {
             </p>
           </div>
         </div>
+
+        <VoucherBanner />
+
 
         {/* Desktop Tabs - 桌面端保留原有tabs */}
         {!isMobile && (
