@@ -5,13 +5,13 @@ import { useConnectedAccounts } from "./useConnectedAccounts";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 
-export type AirdropSource = "matched" | "welcome_gift";
+export type AirdropSource = "matched" | "welcome_gift" | "voucher";
 
 export interface AirdropPosition {
   id: string;
-  /** Source of the airdrop: matched to a real Polymarket position, or a fallback Welcome Gift */
+  /** Source of the airdrop: matched to a real Polymarket position, a fallback Welcome Gift, or redeemed from a position voucher */
   source: AirdropSource;
-  /** External (Polymarket) reference — null for welcome_gift */
+  /** External (Polymarket) reference — null for welcome_gift / voucher */
   externalEventName: string | null;
   externalSide: string | null;
   externalPrice: number | null;
@@ -21,6 +21,8 @@ export interface AirdropPosition {
   counterSide: string;
   counterPrice: number;
   airdropValue: number;
+  /** Per-position profit cap (voucher source only). null = no cap / legacy rules. */
+  redeemableCap: number | null;
   status: string;
   expiresAt: string;
   activatedAt: string | null;
@@ -214,6 +216,7 @@ export const useAirdropPositions = () => {
           counterSide: row.counter_side,
           counterPrice: Number(row.counter_price),
           airdropValue: Number(row.airdrop_value),
+          redeemableCap: row.redeemable_cap != null ? Number(row.redeemable_cap) : null,
           status: row.status,
           expiresAt: row.expires_at,
           activatedAt: row.activated_at,
