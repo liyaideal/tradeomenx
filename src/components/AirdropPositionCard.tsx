@@ -123,7 +123,9 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
           <div>
             <span className="text-[10px] text-muted-foreground block">Source</span>
             <span className="text-xs text-muted-foreground truncate block">
-              {isWelcomeGift
+              {isVoucher
+                ? `Voucher · cap $${airdrop.redeemableCap?.toFixed(2) ?? "—"}`
+                : isWelcomeGift
                 ? "Welcome gift"
                 : `${airdrop.externalSide} @ $${airdrop.externalPrice?.toFixed(2)}`}
             </span>
@@ -132,7 +134,7 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
       </div>
 
       {/* External position reference — only when matched */}
-      {!isWelcomeGift && airdrop.externalEventName && (
+      {!isWelcomeGift && !isVoucher && airdrop.externalEventName && (
         <div className="text-[10px] text-muted-foreground mb-2 flex items-center gap-1">
           <span>Hedging:</span>
           <span className="truncate">{airdrop.externalEventName}</span>
