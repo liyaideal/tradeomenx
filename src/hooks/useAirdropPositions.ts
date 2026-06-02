@@ -22,7 +22,7 @@ export interface AirdropPosition {
   counterPrice: number;
   airdropValue: number;
   /** Per-position profit cap (voucher source only). null = no cap / legacy rules. */
-  redeemableCap: number | null;
+  redeemableCap?: number | null;
   status: string;
   expiresAt: string;
   activatedAt: string | null;
