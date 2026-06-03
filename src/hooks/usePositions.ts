@@ -264,7 +264,7 @@ export const usePositions = () => {
         partialCloseLocalPosition(index, closeQty);
       }
     },
-    [isLoggedIn, supabasePositions, partialCloseSupabasePosition, partialCloseLocalPosition]
+    [isLoggedIn, supabasePositions, partialCloseSupabasePosition, partialCloseLocalPosition, closeAirdropPosition]
   );
   
   // Unified update TP/SL handler
