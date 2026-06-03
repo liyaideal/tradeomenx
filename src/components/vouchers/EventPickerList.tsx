@@ -145,7 +145,14 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
         {!isLoading && filtered.length === 0 && (
           <div className="text-xs text-muted-foreground text-center py-6">No events found</div>
         )}
-        {filtered.map((event) => (
+        {filtered.map((event) => {
+          const labels = event.options.map((o) => o.label.trim().toLowerCase());
+          const isBinary =
+            event.options.length === 2 &&
+            labels.includes("yes") &&
+            labels.includes("no");
+
+          return (
           <div key={event.id} className="rounded-lg border border-border bg-muted/30 p-3">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="min-w-0 flex-1">
@@ -153,7 +160,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                 <div className="text-[10px] text-muted-foreground capitalize">{event.category}</div>
               </div>
               <Badge variant="outline" className="text-[10px] shrink-0">
-                {event.options.length} option{event.options.length !== 1 ? "s" : ""}
+                {isBinary ? "Binary" : `${event.options.length} options`}
               </Badge>
             </div>
 
@@ -162,6 +169,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                 const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
                 const isSelectedLong = selected?.optionId === opt.id && selected?.side === "long";
                 const isSelectedShort = selected?.optionId === opt.id && selected?.side === "short";
+                const isYes = opt.label.trim().toLowerCase() === "yes";
 
                 const pickButton = (side: "long" | "short", isSelected: boolean, label: string, colorClass: string) => {
                   const inner = (
@@ -209,17 +217,31 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                       ${opt.price.toFixed(2)}
                     </div>
                     <div className="flex gap-1">
-                      {pickButton(
-                        "long",
-                        isSelectedLong,
-                        "Yes",
-                        "border-trading-green/40 bg-trading-green/15 text-trading-green",
-                      )}
-                      {pickButton(
-                        "short",
-                        isSelectedShort,
-                        "No",
-                        "border-trading-red/40 bg-trading-red/15 text-trading-red",
+                      {isBinary ? (
+                        // Binary 市场：option 本身就是 Yes/No，只显示一个 Buy 按钮（=long 该 outcome）
+                        pickButton(
+                          "long",
+                          isSelectedLong,
+                          `Buy ${opt.label}`,
+                          isYes
+                            ? "border-trading-green/40 bg-trading-green/15 text-trading-green"
+                            : "border-trading-red/40 bg-trading-red/15 text-trading-red",
+                        )
+                      ) : (
+                        <>
+                          {pickButton(
+                            "long",
+                            isSelectedLong,
+                            "Yes",
+                            "border-trading-green/40 bg-trading-green/15 text-trading-green",
+                          )}
+                          {pickButton(
+                            "short",
+                            isSelectedShort,
+                            "No",
+                            "border-trading-red/40 bg-trading-red/15 text-trading-red",
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -227,7 +249,8 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
               })}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
