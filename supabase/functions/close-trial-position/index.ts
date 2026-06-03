@@ -104,19 +104,40 @@ Deno.serve(async (req) => {
       .eq('status', 'activated') // optimistic lock
     if (uErr) return json({ error: uErr.message }, 500)
 
-    // 6) Credit the user's trial_balance with the positive PnL (if any)
+    // 6) Credit voucher_earnings pool (NOT trial_balance / wallet).
+    //    Users must hit the 50k USDC trading volume gate and then call
+    //    claim-voucher-earnings to move the pool into wallet.balance.
     if (creditedPnl > 0) {
-      const { data: profile } = await admin
-        .from('profiles')
-        .select('trial_balance')
+      const { data: pool } = await admin
+        .from('voucher_earnings')
+        .select('id, pending_amount')
         .eq('user_id', user.id)
         .maybeSingle()
 
-      const newTrial = Number(profile?.trial_balance ?? 0) + creditedPnl
-      await admin
-        .from('profiles')
-        .update({ trial_balance: newTrial })
-        .eq('user_id', user.id)
+      if (pool) {
+        await admin
+          .from('voucher_earnings')
+          .update({
+            pending_amount: Number(pool.pending_amount ?? 0) + creditedPnl,
+            last_settled_at: nowIso,
+          })
+          .eq('id', pool.id)
+      } else {
+        await admin.from('voucher_earnings').insert({
+          user_id: user.id,
+          pending_amount: creditedPnl,
+          lifetime_credited: 0,
+          last_settled_at: nowIso,
+        })
+      }
+
+      await admin.from('voucher_earnings_ledger').insert({
+        user_id: user.id,
+        type: 'accrual',
+        amount: creditedPnl,
+        airdrop_position_id: pos.id,
+        description: `Voucher position settled (${reason})`,
+      })
     }
 
     return json({
