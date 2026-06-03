@@ -119,9 +119,9 @@ const BannerDemo = () => {
 /* ---------------- 2. VoucherCard ---------------- */
 
 const VoucherCardDemo = () => {
-  const [state, setState] = useState<"issuedFresh" | "issuedUrgent" | "compact" | "compactSelected">("issuedFresh");
+  const [state, setState] = useState<"unselected" | "selected" | "urgent">("unselected");
   const voucher =
-    state === "issuedUrgent"
+    state === "urgent"
       ? baseVoucher({ expiresAt: new Date(Date.now() + 6 * 3600 * 1000).toISOString() })
       : baseVoucher();
   return (
@@ -130,24 +130,20 @@ const VoucherCardDemo = () => {
         value={state}
         onChange={setState}
         options={[
-          { id: "issuedFresh", label: "Full · fresh" },
-          { id: "issuedUrgent", label: "Full · expiring <24h" },
-          { id: "compact", label: "Compact · unselected" },
-          { id: "compactSelected", label: "Compact · selected" },
+          { id: "unselected", label: "Compact · unselected" },
+          { id: "selected", label: "Compact · selected" },
+          { id: "urgent", label: "Compact · expiring <24h" },
         ]}
       />
       <Frame>
-        <div className="max-w-md">
-          {state === "compact" || state === "compactSelected" ? (
-            <VoucherCard voucher={voucher} onRedeem={() => {}} compact selected={state === "compactSelected"} />
-          ) : (
-            <VoucherCard voucher={voucher} onRedeem={() => {}} />
-          )}
+        <div className="max-w-[280px]">
+          <VoucherCard voucher={voucher} onRedeem={() => {}} compact selected={state === "selected"} />
         </div>
       </Frame>
     </div>
   );
 };
+
 
 /* ---------------- 3. Earnings card ---------------- */
 
