@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
+import { parseSideLabels } from "@/lib/eventUtils";
 import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 
 export interface PickedOption {
