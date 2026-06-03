@@ -152,6 +152,14 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
             event.options.length === 2 &&
             labels.includes("yes") &&
             labels.includes("no");
+          const sideLabels = isBinary ? parseSideLabels((event as any).side_labels) : undefined;
+          const displayLabel = (optLabel: string) => {
+            if (!sideLabels) return optLabel;
+            const l = optLabel.trim().toLowerCase();
+            if (l === "yes") return sideLabels.yes;
+            if (l === "no") return sideLabels.no;
+            return optLabel;
+          };
 
           return (
           <div key={event.id} className="rounded-lg border border-border bg-muted/30 p-3">
@@ -171,6 +179,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                 const isSelectedLong = selected?.optionId === opt.id && selected?.side === "long";
                 const isSelectedShort = selected?.optionId === opt.id && selected?.side === "short";
                 const isYes = opt.label.trim().toLowerCase() === "yes";
+                const shownLabel = displayLabel(opt.label);
 
                 const pickButton = (side: "long" | "short", isSelected: boolean, label: string, colorClass: string) => {
                   const inner = (
@@ -214,17 +223,17 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
 
                 return (
                   <div key={opt.id} className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1 text-xs text-foreground/90 truncate">{opt.label}</div>
+                    <div className="min-w-0 flex-1 text-xs text-foreground/90 truncate">{shownLabel}</div>
                     <div className="font-mono text-xs text-muted-foreground tabular-nums w-12 text-right">
                       ${opt.price.toFixed(2)}
                     </div>
                     <div className="flex gap-1">
                       {isBinary ? (
-                        // Binary 市场：option 本身就是 Yes/No，只显示一个 Buy 按钮（=long 该 outcome）
+                        // Binary 市场：option 本身就是 Yes/No（或队名别名），只显示一个 Buy 按钮
                         pickButton(
                           "long",
                           isSelectedLong,
-                          `Buy ${opt.label}`,
+                          `Buy ${shownLabel}`,
                           isYes
                             ? "border-trading-green/40 bg-trading-green/15 text-trading-green"
                             : "border-trading-red/40 bg-trading-red/15 text-trading-red",
@@ -253,6 +262,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
           </div>
           );
         })}
+
       </div>
     </div>
   );
