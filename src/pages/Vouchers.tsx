@@ -255,8 +255,8 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
                   <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
-                  {sideLabel && (
-                    <span className={`inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider ${binaryOutcome ? "normal-case" : "uppercase"} ${sideLabelColor}`}>
+                  {sideLabel && !binaryOutcome && (
+                    <span className={`inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider uppercase ${sideLabelColor}`}>
                       {sideLabel}
                     </span>
                   )}
@@ -264,7 +264,14 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
                 {v.redeemedEventName && (
                   <div className="text-xs text-foreground/80 mt-1 truncate">{v.redeemedEventName}</div>
                 )}
-                <div className="text-[11px] text-muted-foreground mt-0.5">
+                {sideLabel && binaryOutcome && (
+                  <div className="mt-1.5 min-w-0">
+                    <span className={`inline-flex max-w-full items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] normal-case truncate ${sideLabelColor}`}>
+                      {sideLabel}
+                    </span>
+                  </div>
+                )}
+                <div className="text-[11px] text-muted-foreground mt-1">
                   Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
                 </div>
               </div>
