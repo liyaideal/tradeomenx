@@ -22,14 +22,20 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
   const size = picked ? voucher.faceValue / picked.price : 0;
   const isInline = variant === "inline";
 
-  // When user picks an option in inline mode, scroll the sticky action bar into view
+  // When user picks an option in inline mode, scroll the sticky action bar into view.
+  // On mobile we offset by the fixed BottomNav (~88px) so the bar isn't hidden behind it.
   useEffect(() => {
     if (!isInline || !picked) return;
     const el = stickyBarRef.current;
     if (!el) return;
-    // Defer until layout settles
     requestAnimationFrame(() => {
-      el.scrollIntoView({ behavior: "smooth", block: "end" });
+      const rect = el.getBoundingClientRect();
+      const bottomNavOffset = window.matchMedia("(max-width: 767px)").matches ? 96 : 16;
+      const targetBottom = window.innerHeight - bottomNavOffset;
+      const delta = rect.bottom - targetBottom;
+      if (delta > 0) {
+        window.scrollBy({ top: delta + 8, behavior: "smooth" });
+      }
     });
   }, [picked?.optionId, picked?.side, isInline]);
 
