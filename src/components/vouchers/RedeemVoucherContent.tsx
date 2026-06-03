@@ -83,7 +83,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
           <div className="text-xs text-muted-foreground">
             {picked.isBinary ? (
               <span className={picked.optionLabel.trim().toLowerCase() === "yes" ? "text-trading-green" : "text-trading-red"}>
-                {picked.optionLabel}
+                {picked.displayLabel}
               </span>
             ) : (
               <>
@@ -94,6 +94,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
               </>
             )}
           </div>
+
           <div className="grid grid-cols-3 gap-2 pt-2 text-xs">
             <div>
               <div className="text-[10px] text-muted-foreground">Entry</div>
