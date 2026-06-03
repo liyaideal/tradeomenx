@@ -304,7 +304,16 @@ export default function PortfolioAirdrops() {
                       />
                     </TableHead>
                     <TableHead className="text-muted-foreground">
-                      <HeaderWithInfo label="Source" description="Polymarket source position price." />
+                      <HeaderWithInfo
+                        label="Source"
+                        description={
+                          <div className="space-y-1">
+                            <p><span className="font-medium text-foreground">Matched:</span> price of the Polymarket source position this airdrop hedges.</p>
+                            <p><span className="font-medium text-foreground">Welcome gift:</span> no external source — a free starter position.</p>
+                            <p><span className="font-medium text-foreground">Voucher redemption:</span> no external source — opened by redeeming a position voucher.</p>
+                          </div>
+                        }
+                      />
                     </TableHead>
                     <TableHead className="text-muted-foreground">
                       <HeaderWithInfo
@@ -350,7 +359,9 @@ export default function PortfolioAirdrops() {
                         ${airdrop.counterPrice.toFixed(4)}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-xs max-w-[160px] truncate">
-                        {airdrop.source === "welcome_gift" || airdrop.externalPrice == null
+                        {airdrop.source === "voucher"
+                          ? "Voucher redemption"
+                          : airdrop.source === "welcome_gift" || airdrop.externalPrice == null
                           ? "Welcome gift"
                           : `${airdrop.externalSide} @ $${airdrop.externalPrice.toFixed(2)}`}
                       </TableCell>
