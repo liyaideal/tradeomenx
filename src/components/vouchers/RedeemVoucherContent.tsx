@@ -33,7 +33,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
     <div className="flex flex-col gap-4">
       <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Voucher</span>
+          <span className="text-muted-foreground">Voucher code</span>
           <span className="font-mono">{voucher.code}</span>
         </div>
         <div className="flex items-center justify-between text-sm mt-1">
@@ -41,7 +41,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
           <span className="font-mono text-trading-green">${voucher.faceValue.toFixed(2)}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Max realisable profit</span>
+          <span className="text-muted-foreground">Max profit</span>
           <span className="font-mono">${cap.toFixed(2)}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
@@ -74,7 +74,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
               <div className="font-mono">{size.toFixed(2)}</div>
             </div>
             <div>
-              <div className="text-[10px] text-muted-foreground">Profit cap</div>
+              <div className="text-[10px] text-muted-foreground">Max profit</div>
               <div className="font-mono text-trading-green">${cap.toFixed(2)}</div>
             </div>
           </div>
