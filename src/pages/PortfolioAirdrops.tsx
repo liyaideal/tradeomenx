@@ -121,6 +121,8 @@ export default function PortfolioAirdrops() {
   const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, settledAirdrops, isLoading, activateAirdrop, isActivating, closePosition } = useAirdropPositions();
   const { positions } = usePositions();
   const { data: settlements = [] } = useSettlements();
+  const sideLabelsLookup = useEventSideLabelsLookup();
+
 
   const handleTabChange = (tab: TabType) => {
     if (tab === "positions") {
