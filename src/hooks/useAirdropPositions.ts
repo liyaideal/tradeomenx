@@ -176,18 +176,69 @@ export const useAirdropPositions = () => {
 
   const queryKey = [...QUERY_KEY, scanKey];
 
+  const mapRow = (row: any): AirdropPosition => ({
+    id: row.id,
+    source: (row.source as AirdropSource) ?? "matched",
+    externalEventName: row.external_event_name ?? null,
+    externalSide: row.external_side ?? null,
+    externalPrice: row.external_price != null ? Number(row.external_price) : null,
+    counterEventName: row.counter_event_name,
+    counterEventId: row.counter_event_id || "",
+    counterOptionLabel: row.counter_option_label,
+    counterSide: row.counter_side,
+    counterPrice: Number(row.counter_price),
+    airdropValue: Number(row.airdrop_value),
+    redeemableCap: row.redeemable_cap != null ? Number(row.redeemable_cap) : null,
+    status: row.status,
+    expiresAt: row.expires_at,
+    activatedAt: row.activated_at,
+    createdAt: row.created_at,
+    settledPnl: row.settled_pnl != null ? Number(row.settled_pnl) : undefined,
+    settledAt: row.settled_at ?? null,
+    settlementTrigger:
+      row.close_reason === 'EVENT_RESOLVED'
+        ? 'event_resolved'
+        : row.close_reason
+        ? 'source_closed'
+        : undefined,
+  });
+
+  const fetchVoucherAirdropsFromSupabase = async (userId: string): Promise<AirdropPosition[]> => {
+    const { data, error } = await supabase
+      .from("airdrop_positions")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("source", "voucher")
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Error fetching voucher airdrop positions:", error);
+      return [];
+    }
+    return (data as any[] | null)?.map(mapRow) ?? [];
+  };
+
   const { data: airdrops = [], isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
       if (isDemoMode) {
-        if (!hasScanComplete || !user) return [];
+        if (!user) return [];
+
+        // Voucher-redeemed positions live in Supabase even in demo mode —
+        // always merge them so redeemed vouchers show up in Positions.
+        const voucherAirdrops = await fetchVoucherAirdropsFromSupabase(user.id);
+
+        if (!hasScanComplete) return voucherAirdrops;
 
         const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
-        if (cached && cached.length > 0) return cached;
+        const demoAirdrops = cached && cached.length > 0
+          ? cached.filter((a) => a.source !== "voucher")
+          : (() => {
+              const stored = loadDemoAirdrops(user.id, email);
+              saveDemoAirdrops(user.id, stored);
+              return stored;
+            })();
 
-        const storedDemoAirdrops = loadDemoAirdrops(user.id, email);
-        saveDemoAirdrops(user.id, storedDemoAirdrops);
-        return storedDemoAirdrops;
+        return [...voucherAirdrops, ...demoAirdrops];
       }
 
       if (!user) return [];
@@ -203,36 +254,7 @@ export const useAirdropPositions = () => {
         return [];
       }
 
-      if (data && data.length > 0) {
-        return (data as any[]).map((row): AirdropPosition => ({
-          id: row.id,
-          source: (row.source as AirdropSource) ?? "matched",
-          externalEventName: row.external_event_name ?? null,
-          externalSide: row.external_side ?? null,
-          externalPrice: row.external_price != null ? Number(row.external_price) : null,
-          counterEventName: row.counter_event_name,
-          counterEventId: row.counter_event_id || "",
-          counterOptionLabel: row.counter_option_label,
-          counterSide: row.counter_side,
-          counterPrice: Number(row.counter_price),
-          airdropValue: Number(row.airdrop_value),
-          redeemableCap: row.redeemable_cap != null ? Number(row.redeemable_cap) : null,
-          status: row.status,
-          expiresAt: row.expires_at,
-          activatedAt: row.activated_at,
-          createdAt: row.created_at,
-          settledPnl: row.settled_pnl != null ? Number(row.settled_pnl) : undefined,
-          settledAt: row.settled_at ?? null,
-          settlementTrigger:
-            row.close_reason === 'EVENT_RESOLVED'
-              ? 'event_resolved'
-              : row.close_reason
-              ? 'source_closed'
-              : undefined,
-        }));
-      }
-
-      return [];
+      return (data as any[] | null)?.map(mapRow) ?? [];
     },
     enabled: isDemoMode || !!user,
   });
