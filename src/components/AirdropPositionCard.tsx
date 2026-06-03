@@ -3,8 +3,10 @@ import { Gift, Ticket, Clock, Zap, AlertTriangle, CheckCircle2, X } from "lucide
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
+import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
 import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import type { AirdropPosition } from "@/hooks/useAirdropPositions";
+
 
 interface AirdropPositionCardProps {
   airdrop: AirdropPosition;
