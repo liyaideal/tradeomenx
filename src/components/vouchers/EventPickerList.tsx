@@ -50,15 +50,85 @@ interface EventPickerListProps {
 export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerListProps) => {
   const { events, isLoading } = useActiveEvents();
   const [query, setQuery] = useState("");
+  const [activeCats, setActiveCats] = useState<Set<string>>(new Set());
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    events.forEach((e) => e.category && set.add(e.category));
+    return Array.from(set).sort();
+  }, [events]);
+
+  const toggleCat = (c: string) =>
+    setActiveCats((prev) => {
+      const next = new Set(prev);
+      if (next.has(c)) next.delete(c);
+      else next.add(c);
+      return next;
+    });
+
+  // Per-event eligibility: at least one option passes the voucher rules
+  const eventEligibility = useMemo(() => {
+    const map = new Map<string, boolean>();
+    events.forEach((e) => {
+      const any = e.options.some(
+        (o) => checkEligibility(voucher, o.price, e.end_date, e.is_resolved).ok,
+      );
+      map.set(e.id, any);
+    });
+    return map;
+  }, [events, voucher]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return events;
-    return events.filter((e) => e.name.toLowerCase().includes(q) || e.category.toLowerCase().includes(q));
-  }, [events, query]);
+    const base = events.filter((e) => {
+      if (activeCats.size > 0 && !activeCats.has(e.category)) return false;
+      if (!q) return true;
+      return e.name.toLowerCase().includes(q) || e.category.toLowerCase().includes(q);
+    });
+    return [...base].sort((a, b) => {
+      const ae = eventEligibility.get(a.id) ? 1 : 0;
+      const be = eventEligibility.get(b.id) ? 1 : 0;
+      return be - ae;
+    });
+  }, [events, query, activeCats, eventEligibility]);
 
   return (
     <div className="space-y-3">
+      {categories.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setActiveCats(new Set())}
+            className={[
+              "h-7 px-2.5 rounded-full text-[11px] border transition",
+              activeCats.size === 0
+                ? "bg-primary/15 border-primary/40 text-primary"
+                : "bg-muted/30 border-border text-muted-foreground hover:text-foreground",
+            ].join(" ")}
+          >
+            All
+          </button>
+          {categories.map((c) => {
+            const active = activeCats.has(c);
+            return (
+              <button
+                key={c}
+                type="button"
+                onClick={() => toggleCat(c)}
+                className={[
+                  "h-7 px-2.5 rounded-full text-[11px] border capitalize transition",
+                  active
+                    ? "bg-primary/15 border-primary/40 text-primary"
+                    : "bg-muted/30 border-border text-muted-foreground hover:text-foreground",
+                ].join(" ")}
+              >
+                {c}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="relative">
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -68,6 +138,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
           className="pl-9 h-9 text-sm"
         />
       </div>
+
 
       <div className="max-h-[420px] overflow-y-auto space-y-2 pr-1">
         {isLoading && <div className="text-xs text-muted-foreground text-center py-6">Loading events...</div>}
