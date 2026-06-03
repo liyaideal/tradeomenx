@@ -600,7 +600,8 @@ export const VouchersSection = ({ isMobile: _isMobile }: VouchersSectionProps) =
           <BannerDemo />
         </SubSection>
 
-        <SubSection title="2. VoucherCard" description="Both the full Redeem card and the compact selector variant.">
+        <SubSection title="2. VoucherCard" description="Available 列表里使用的 compact 选择器卡片（业务里没有 Full 变体）。">
+
           <VoucherCardDemo />
         </SubSection>
 
