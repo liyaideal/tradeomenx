@@ -314,10 +314,36 @@ export const PositionCard = ({
         )}
 
         {/* Actions at bottom */}
-        {isAirdrop && fullPosition?.airdropSource !== "voucher" ? (
+        {isAirdrop && !isVoucher ? (
           <div className="flex items-center gap-1.5 py-1.5 text-[10px] text-muted-foreground border-t border-border/30 mt-1 pt-2">
             <Lock className="w-3 h-3" />
             <span>Auto-settles on event resolution</span>
+          </div>
+        ) : isVoucher ? (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCloseOpen(true)}
+              className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
+            >
+              Close position
+            </button>
+            <CloseVoucherDrawer
+              open={closeOpen}
+              onOpenChange={setCloseOpen}
+              event={event}
+              optionLabel={optionDisplay}
+              side={type}
+              entryPrice={parseFloat(entryPrice.replace(/[$,]/g, "")) || 0}
+              markPrice={
+                realtimeData?.hasRealtimePrice
+                  ? realtimeData.markPrice
+                  : parseFloat(markPrice.replace(/[$,]/g, "")) || 0
+              }
+              faceValue={fullPosition?.voucherFaceValue ?? parseFloat(margin.replace(/[$,]/g, "")) || 0}
+              redeemableCap={fullPosition?.voucherRedeemableCap ?? null}
+              isClosing={isClosing}
+              onConfirm={handleCloseVoucher}
+            />
           </div>
         ) : (
         <div className="flex gap-2">
