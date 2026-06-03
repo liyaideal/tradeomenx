@@ -1,26 +1,26 @@
-## 问题
-`EventPickerList` 内嵌一个 `max-h-[420px]` 可滚动列表，选中 Yes/No 后产生的"已选摘要 + Confirm"在列表下方，首屏不可见，导致用户以为点击没反应。
+## 问题根因
 
-## 方案：底部 sticky 操作栏（inline 变体）
+`useConnectedAccounts` 里 `DEMO_MODE = true`（硬编码），导致 `useAirdropPositions` 走 demo 分支，只读 localStorage 的 mock airdrops，**完全不查询 Supabase**。
 
-只改 `RedeemVoucherContent.tsx` 的 `inline` 分支（即 `/vouchers` 页面的兑换面板），其它不动。
+但是 voucher 兑换流程（`redeem-position-voucher` edge function）实际是把记录写到 Supabase 的 `airdrop_positions` 表里——刚已经确认数据库里有一条 `source='voucher' status='activated'` 的 UFC 仓位。结果：仓位写进去了，但前端读不到。
 
-### 改动
-1. **去掉 inline 分支里行内的 picked 摘要卡 + 按钮行**（lines 60–84 与 94–113 中 inline 部分），改成：
-   - 默认（未选）：底部 sticky 灰色提示条 `Select Yes or No on a market to continue`，右侧 disabled 的 "Confirm & open position" 按钮。
-   - 已选：底部 sticky 操作栏，单行排布：
-     - 左：`{eventName} · {optionLabel} · Yes/No`（小字截断）+ `Entry $x.xx · Size xx · Max profit $x.xx`（font-mono 数字）
-     - 右：`Reset` (ghost, 小) + `Confirm & open position` (primary)
-   - 容器：`sticky bottom-0 -mx-* px-* py-3 bg-background/95 backdrop-blur border-t border-border`，确保在 `/vouchers` 页面滚动时一直可见。
-2. **`dialog` / `drawer` 变体保持原样**（它们本身就有 footer，不存在看不到的问题）。
-3. 列表内 Yes/No 按钮被选中后保留现在的 ring 视觉反馈即可。
+`DesktopPositionsPanel` 渲染 `activatedAirdrops` 没有按 event 过滤，所以只要 hook 能拿到这条记录，就会出现在 Positions tab。
 
-### 文件
-- 仅 `src/components/vouchers/RedeemVoucherContent.tsx`
+## 修复
 
-### 不动
-- `EventPickerList.tsx`、edge functions、redeem 逻辑、文案字典字段（Face value / Max profit / Hold window / Entry）。
-- 移动端 drawer 变体（已有 `MobileDrawerActions` 规范）。
+只改 `src/hooks/useAirdropPositions.ts` 的 `queryFn`：
 
-### 验证
-桌面 1021 宽度下打开 `/vouchers` → Redeem → 不滚动也能看到底部条；点 Yes/No → 底部条立即填充并解锁 Confirm；点 Reset 恢复未选态；点 Confirm 走原流程跳 `/trade`。
+demo 分支保留原有 mock + localStorage 合并逻辑，**额外**从 Supabase 拉取当前用户 `source='voucher'` 的 airdrop_positions，把它们 prepend 到结果数组里（按 created_at 倒序）。
+
+- 仅拉 `source = 'voucher'` 这一类（matched/welcome_gift 在 demo 下仍然是 mock）。
+- 用现有的 row→`AirdropPosition` 映射函数（把 lines 207-232 抽成一个 helper，demo 和非 demo 两个分支共用），避免代码重复。
+- 不写回 localStorage（voucher 仓位是 Supabase 真实数据，每次刷新都重新拉，避免和服务端状态错位）。
+- 不需要 SQL 变更、不需要改 edge function、不需要改 panel。
+
+## 验证
+
+刷新 `/trade?event=ufc-316-headline`（或任意 event）后，Positions tab 出现一行 `No · UFC 316 Headliner…` 带 AIRDROP 徽章的绿底行；Portfolio → Airdrops 也能看到同一仓位（已经在用同一 hook）。
+
+## 不动
+
+- `DesktopPositionsPanel.tsx` / `EventPickerList.tsx` / `RedeemVoucherContent.tsx` / edge functions / DB schema / `DEMO_MODE` 开关。
