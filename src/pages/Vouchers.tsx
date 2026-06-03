@@ -255,23 +255,23 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
                   <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
-                  {sideLabel && !binaryOutcome && (
-                    <>
-                      <span className="inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-muted-foreground">
-                        {sideLabel}
-                      </span>
-                      {v.redeemedSide && (
-                        <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] tracking-wider uppercase ${
-                          v.redeemedSide === "long"
-                            ? "border-trading-green/40 bg-trading-green/10 text-trading-green"
-                            : "border-trading-red/40 bg-trading-red/10 text-trading-red"
-                        }`}>
-                          {v.redeemedSide === "long" ? "YES" : "NO"}
-                        </span>
-                      )}
-                    </>
-                  )}
                 </div>
+                {sideLabel && !binaryOutcome && (
+                  <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-muted-foreground">
+                      {sideLabel}
+                    </span>
+                    {v.redeemedSide && (
+                      <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] tracking-wider uppercase ${
+                        v.redeemedSide === "long"
+                          ? "border-trading-green/40 bg-trading-green/10 text-trading-green"
+                          : "border-trading-red/40 bg-trading-red/10 text-trading-red"
+                      }`}>
+                        {v.redeemedSide === "long" ? "YES" : "NO"}
+                      </span>
+                    )}
+                  </div>
+                )}
                 {v.redeemedEventName && (
                   <div className="text-xs text-foreground/80 mt-1 truncate">{v.redeemedEventName}</div>
                 )}
@@ -282,6 +282,7 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
                     </span>
                   </div>
                 )}
+
                 <div className="text-[11px] text-muted-foreground mt-1">
                   Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
                 </div>
