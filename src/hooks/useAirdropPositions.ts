@@ -316,6 +316,7 @@ export const useAirdropPositions = () => {
       const list = queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '', email);
       const target = list.find((a) => a.id === id);
       if (!target) return;
+      const isVoucherDemo = target.source === 'voucher';
       // demo PnL: random-ish but bounded
       const entry = target.counterPrice;
       const mark = Math.max(0.01, Math.min(0.99, entry + (Math.random() - 0.5) * 0.2));
@@ -329,9 +330,20 @@ export const useAirdropPositions = () => {
       );
       saveDemoAirdrops(user?.id ?? '', next);
       queryClient.setQueryData<AirdropPosition[]>(queryKey, next);
-      toast({ title: 'Position closed', description: credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited' });
+      toast({
+        title: isVoucherDemo ? 'Voucher position closed' : 'Position closed',
+        description: isVoucherDemo
+          ? (credited > 0
+              ? `+$${credited.toFixed(2)} credited to voucher earnings pool`
+              : 'No profit credited (loss floored to $0)')
+          : (credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited'),
+      });
       return;
     }
+
+    // Determine source before mutation so toast copy matches the position type.
+    const target = airdrops.find((a) => a.id === id);
+    const isVoucherClose = target?.source === 'voucher';
 
     const { data, error } = await supabase.functions.invoke('close-trial-position', {
       body: { airdropPositionId: id, reason: 'USER_CLOSE' },
@@ -346,11 +358,20 @@ export const useAirdropPositions = () => {
     }
     const credited = Number((data as any)?.creditedPnl ?? 0);
     toast({
-      title: 'Position closed',
-      description: credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited',
+      title: isVoucherClose ? 'Voucher position closed' : 'Position closed',
+      description: isVoucherClose
+        ? (credited > 0
+            ? `+$${credited.toFixed(2)} credited to voucher earnings pool`
+            : 'No profit credited (loss floored to $0)')
+        : (credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited'),
     });
     queryClient.invalidateQueries({ queryKey: QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+    if (isVoucherClose) {
+      queryClient.invalidateQueries({ queryKey: ['voucher-earnings'] });
+      queryClient.invalidateQueries({ queryKey: ['voucher-earnings-ledger'] });
+      queryClient.invalidateQueries({ queryKey: ['position-vouchers'] });
+    }
   };
 
   const pendingAirdrops = airdrops.filter((a) => a.status === "pending");
