@@ -88,10 +88,26 @@ Deno.serve(async (req) => {
       )
     }
 
+    // 2.5) Concurrency: at most 1 active voucher position per user
+    const { count: activeCount, error: cErr } = await admin
+      .from('airdrop_positions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('source', 'voucher')
+      .eq('status', 'activated')
+    if (cErr) return json({ error: cErr.message }, 500)
+    if ((activeCount ?? 0) >= 1) {
+      return json(
+        { error: 'You already have an active voucher position. Close it before redeeming another.' },
+        409,
+      )
+    }
+
     // 3) Create the airdrop position immediately as active
     const faceValue = Number(voucher.face_value)
     const cap = faceValue * Number(voucher.redeemable_cap_pct)
     const nowIso = new Date().toISOString()
+
     const expiresAt = new Date(Date.now() + Number(voucher.max_holding_hours) * 3600 * 1000).toISOString()
 
     const { data: airdrop, error: aErr } = await admin
