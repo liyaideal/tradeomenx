@@ -23,45 +23,124 @@ export const VoucherCard = ({ voucher, onRedeem, compact, selected }: VoucherCar
         type="button"
         onClick={() => onRedeem(voucher)}
         className={cn(
-          "w-full text-left rounded-xl border p-3 transition-all",
-          "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent",
+          "relative w-full text-left rounded-2xl overflow-hidden transition-all border bg-card",
           selected
-            ? "border-primary ring-2 ring-primary/40 shadow-[0_0_0_1px_hsl(var(--primary)/0.4)]"
-            : "border-primary/20 hover:border-primary/40",
+            ? "border-primary/40 shadow-[0_0_25px_-5px_hsl(var(--primary)/0.35)]"
+            : "border-border/60 opacity-60 hover:opacity-100 hover:border-border",
         )}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 shrink-0 rounded-lg bg-primary/20 flex items-center justify-center">
-            {selected ? (
-              <Check className="w-5 h-5 text-primary" />
-            ) : (
-              <Ticket className="w-5 h-5 text-primary" />
-            )}
+        {selected && (
+          <span
+            className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-12 rounded-b-full bg-primary"
+            style={{ boxShadow: "0 2px 10px hsl(var(--primary) / 0.5)" }}
+          />
+        )}
+
+        {/* Top zone: face value + expiry */}
+        <div className="p-5 flex justify-between items-start gap-3">
+          <div className="flex flex-col min-w-0">
+            <span
+              className={cn(
+                "text-[10px] font-bold uppercase tracking-[0.25em] mb-1.5",
+                selected ? "text-primary/80" : "text-muted-foreground/60",
+              )}
+            >
+              Face value
+            </span>
+            <span
+              className={cn(
+                "font-mono text-4xl font-bold tracking-tight leading-none",
+                selected ? "text-foreground" : "text-muted-foreground",
+              )}
+            >
+              ${voucher.faceValue.toFixed(2)}
+            </span>
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-mono text-[11px] text-muted-foreground truncate">
-                {voucher.code}
+          <div
+            className={cn(
+              "flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shrink-0",
+              urgent
+                ? "bg-trading-red/10 border-trading-red/30"
+                : "bg-muted/40 border-border",
+            )}
+          >
+            {urgent ? (
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-trading-red/75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-trading-red" />
               </span>
-              <span
-                className={cn(
-                  "flex items-center gap-1 text-[11px] font-mono shrink-0",
-                  urgent ? "text-trading-red" : "text-muted-foreground",
-                )}
-              >
-                <Clock className="w-3 h-3" />
-                {timeLeft}
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between gap-2 mt-0.5">
-              <span className="font-mono text-lg text-foreground">
-                ${voucher.faceValue.toFixed(2)}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                cap{" "}
-                <span className="font-mono text-trading-green">${cap.toFixed(2)}</span>
-              </span>
-            </div>
+            ) : (
+              <Clock className="w-3 h-3 text-muted-foreground" />
+            )}
+            <span
+              className={cn(
+                "font-mono text-[12px] font-bold",
+                urgent ? "text-trading-red" : "text-muted-foreground",
+              )}
+            >
+              {timeLeft}
+            </span>
+          </div>
+        </div>
+
+        {/* Perforation with side notches */}
+        <div className="relative flex items-center px-4">
+          <div className="absolute -left-3 w-6 h-6 rounded-full bg-background border border-border/60" />
+          <div
+            className={cn(
+              "w-full border-t-2 border-dashed",
+              selected ? "border-border/60" : "border-border/40",
+            )}
+          />
+          <div className="absolute -right-3 w-6 h-6 rounded-full bg-background border border-border/60" />
+        </div>
+
+        {/* Bottom zone: code + max payout */}
+        <div
+          className={cn(
+            "p-5 flex justify-between items-center gap-3",
+            selected ? "bg-gradient-to-b from-primary/[0.03] to-primary/[0.08]" : "bg-muted/20",
+          )}
+        >
+          <div className="flex flex-col min-w-0">
+            <span
+              className={cn(
+                "text-[9px] uppercase font-bold tracking-widest mb-2",
+                selected ? "text-muted-foreground" : "text-muted-foreground/60",
+              )}
+            >
+              Voucher code
+            </span>
+            <span
+              className={cn(
+                "font-mono text-sm font-bold tracking-[0.15em] px-2.5 py-1 rounded-md border w-fit",
+                selected
+                  ? "text-foreground bg-foreground/5 border-border"
+                  : "text-muted-foreground bg-muted/40 border-border/60",
+              )}
+            >
+              {voucher.code}
+            </span>
+          </div>
+          <div className="flex flex-col items-end">
+            <span
+              className={cn(
+                "text-[9px] uppercase font-bold tracking-widest mb-2",
+                selected ? "text-muted-foreground" : "text-muted-foreground/60",
+              )}
+            >
+              Max payout
+            </span>
+            <span
+              className={cn(
+                "font-mono text-sm font-bold px-2 py-1 rounded-md border",
+                selected
+                  ? "text-trading-green bg-trading-green/10 border-trading-green/20"
+                  : "text-trading-green/60 bg-trading-green/5 border-trading-green/10",
+              )}
+            >
+              ${cap.toFixed(2)}
+            </span>
           </div>
         </div>
       </button>
