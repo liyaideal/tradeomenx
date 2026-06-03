@@ -110,6 +110,8 @@ const Vouchers = () => {
             </div>
           </div>
 
+          <VoucherEarningsCard />
+
           {isLoading && (
             <div className="rounded-xl border border-border bg-card/40 p-8 text-center text-sm text-muted-foreground">
               Loading vouchers...
