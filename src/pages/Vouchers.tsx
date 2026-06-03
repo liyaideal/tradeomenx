@@ -8,6 +8,7 @@ import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
 import { VoucherCard } from "@/components/vouchers/VoucherCard";
 import { RedeemVoucherContent } from "@/components/vouchers/RedeemVoucherContent";
+import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 
 const Vouchers = () => {
   const isMobile = useIsMobile();
@@ -108,6 +109,8 @@ const Vouchers = () => {
               </p>
             </div>
           </div>
+
+          <VoucherEarningsCard />
 
           {isLoading && (
             <div className="rounded-xl border border-border bg-card/40 p-8 text-center text-sm text-muted-foreground">
