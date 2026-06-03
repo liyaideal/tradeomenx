@@ -1,29 +1,54 @@
-## 发现的问题
+## 问题
 
-`/vouchers` 的 Redeemed 模块现在只读 `position_vouchers.status`，但关闭 voucher airdrop 仓位时，前端实际关闭的是 `airdrop_positions`。虽然 `close-trial-position` 里尝试把对应 voucher 改成 `settled`，但这里有两个漏洞：
+对于 single-market binary event，DB 里 option label 始终是 `Yes`/`No`，但带 `side_labels` 时（如 UFC：Pereira / Ankalaev）UI 应展示队名别名。当前 voucher 与 airdrop 相关界面多处还在直接渲染 `Yes`/`No` 或原始 `optionLabel`，与 memory `single-market-binary-ui` 不一致。
 
-1. **数据库约束旧枚举不包含 `settled`**
-   `position_vouchers.status` 的 CHECK 约束目前只允许 `issued/redeemed/expired/revoked`。因此 edge function 里 `status: 'settled'` 很可能更新失败，但代码没有检查这个错误，导致 `/vouchers` 仍显示 `Position open`。
+Memory 规则复习：
+- 单 market binary：outcome 名（含 sideLabels 别名）就是 side；持仓/airdrop 行 **Side 列留空**，颜色挂在 Contracts/Outcome 主标签上。
+- Buy `Yes` long → outcome long；Buy `No` long → outcome long（不再翻转）。
 
-2. **前端显示完全信任 voucher.status**
-   `/vouchers` 没有 join / 查询对应 `airdrop_positions.status`，所以即使 airdrop 已经 `settled`，只要 voucher 还是 `redeemed`，UI 就会继续显示 `Position open`。
+## 改动范围（voucher / airdrop 链路一次性收齐）
 
-## 修复计划
+### 1. `src/components/vouchers/EventPickerList.tsx`
+- `PickedOption` 增加 `displayLabel: string`（binary 走 sideLabels 别名，否则等于 `optionLabel`）。
+- `onSelect` 时把 `displayLabel` 一起传出。
+- 列表内已展示别名（之前已修），保留。
 
-1. **修正数据库状态约束**
-   - 新增 migration，把 `position_vouchers.status` 允许值扩展为：`issued`, `redeemed`, `settled`, `expired`, `revoked`。
-   - 兼容已有数据，不改用户现有 voucher 记录。
+### 2. `src/components/vouchers/RedeemVoucherContent.tsx`
+- Dialog summary（line 84-95）binary 分支：用 `picked.displayLabel` 替换 `picked.optionLabel`；颜色仍按 yes(green)/no(red) 判定（基于原始 `optionLabel`）。
+- Inline sticky bar（line 145-159）同上。
+- 占位 hint `Select Yes or No on a market above to continue.` → `Select an outcome on a market above to continue.`
+- Non-binary 分支保持不变。
 
-2. **修正 close edge function 的错误处理**
-   - `close-trial-position` 更新 `position_vouchers.status = 'settled'` 后必须检查错误。
-   - 如果 voucher 状态更新失败，直接返回错误，避免前端误以为已完整关闭。
+### 3. `src/components/AirdropPositionCard.tsx`
+- 通过 `useEventSideLabelsLookup()`（按 `counterEventName` 查）拿到 `{ isBinary, labels }`。
+- 副标题（line 102-112）：
+  - binary 且有 labels：显示 `labels[yes|no]`（按 `counterOptionLabel` 的 yes/no 判定别名）。
+  - binary 无 labels：显示 `counterOptionLabel`（即 Yes/No）。
+  - 非 binary：保持现状 `optionLabel · Yes/No`。
 
-3. **让 `/vouchers` 用真实仓位状态兜底显示**
-   - 在 `usePositionVouchers` 查询 redeemed/settled vouchers 后，额外读取对应 `airdrop_positions.status`。
-   - 在 hook 里暴露 `redeemedAirdropStatus`（如 `activated` / `settled`）。
-   - `/vouchers` 的 RedeemedSection 判断：只要 voucher 自身是 `settled`，或关联 airdrop 已经 `settled`，就显示 `Position closed`。
-   - 这样即使旧数据的 voucher.status 还停在 `redeemed`，界面也会正确更新。
+### 4. `src/pages/PortfolioAirdrops.tsx`（desktop table，line 335-377）
+- 用同一个 lookup。
+- "Counter" 列 option label：binary 时用别名（如有）。
+- "Side" 列：binary 行**留空**（移除 Yes/No badge），颜色改挂在 Counter 列 option label 文本上（trading-green / trading-red）。非 binary 保持原 Yes/No badge。
+- Mobile 卡片复用 `AirdropPositionCard` 改动（步骤 3）。
 
-4. **关闭后的缓存刷新保持同步**
-   - 保留关闭成功后 invalidates：`airdrop-positions`, `position-vouchers`, `voucher-earnings`, `voucher-earnings-ledger`。
-   - 确保 `/vouchers` 页面重新拉取后能立刻看到 `Position closed`。
+### 5. `src/components/DesktopPositionsPanel.tsx`（airdrops 行，line 371 附近）
+- 同步步骤 4：airdrop 子表的 Side 单元格对 binary 行留空，outcome 颜色挂在 Contracts。
+
+### 6. `src/components/positions/CloseVoucherDialog.tsx` + `CloseVoucherDrawer.tsx`
+- 调用方传给 `CloseVoucherContent` 的 `optionLabel`：binary + 有 labels 时传别名（用 lookup 解析）。`CloseVoucherContent` 内部不变。
+
+## 不动的部分
+
+- `src/lib/tradingTerms.ts` 的 `Yes/No` 默认映射保留（基础默认值）。
+- 非 binary（多 outcome / 数值）市场逻辑全部保持原样。
+- Trade 面板、Positions 主表已遵循 sideLabels，不在本次范围内。
+
+## 验收
+
+- `/vouchers` redeem inline 栏 + dialog summary：UFC 类显示 `Pereira` 或 `Ankalaev`，不再出现 `· No`。
+- `/portfolio/airdrops` mobile 卡片：binary 副标题只显示 `Ankalaev`，颜色 red；不再出现 `No · Yes`。
+- `/portfolio/airdrops` desktop 表：binary 行 Side 列为空，Counter 列 option 文本带颜色。
+- `DesktopTrading` airdrops 子表同步。
+- Close voucher dialog/drawer 标题中的 Position 行使用别名。
+- 非 binary 事件视觉无变化。
