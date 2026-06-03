@@ -7,6 +7,7 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
 import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
+import { CloseVoucherDialog } from "@/components/positions/CloseVoucherDialog";
 import { PositionDetailDialog } from "@/components/positions/PositionDetailDialog";
 import { useOrders } from "@/hooks/useOrders";
 import {
