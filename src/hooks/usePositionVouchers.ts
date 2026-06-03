@@ -23,6 +23,8 @@ export interface PositionVoucher {
   redeemedEventId: string | null;
   redeemedOptionId: string | null;
   redeemedSide: string | null;
+  /** Resolved status of the linked airdrop_positions row, when redeemed. */
+  redeemedAirdropStatus: string | null;
 }
 
 const QUERY_KEY = ["position-vouchers"];
@@ -44,6 +46,7 @@ const mapRow = (row: any): PositionVoucher => ({
   redeemedEventId: row.redeemed_event_id,
   redeemedOptionId: row.redeemed_option_id,
   redeemedSide: row.redeemed_side,
+  redeemedAirdropStatus: null,
 });
 
 export const usePositionVouchers = () => {
@@ -65,9 +68,31 @@ export const usePositionVouchers = () => {
         console.error("Failed to fetch vouchers", error);
         return [];
       }
-      return (data as any[]).map(mapRow);
+      const mapped = (data as any[]).map(mapRow);
+
+      // Enrich with linked airdrop_positions.status so we can show "closed"
+      // even if the voucher row itself wasn't flipped to 'settled'.
+      const airdropIds = mapped
+        .map((v) => v.redeemedAirdropPositionId)
+        .filter((id): id is string => !!id);
+      if (airdropIds.length > 0) {
+        const { data: airdropRows } = await supabase
+          .from("airdrop_positions")
+          .select("id, status")
+          .in("id", airdropIds);
+        const statusById = new Map<string, string>(
+          (airdropRows ?? []).map((r: any) => [r.id, r.status]),
+        );
+        return mapped.map((v) =>
+          v.redeemedAirdropPositionId
+            ? { ...v, redeemedAirdropStatus: statusById.get(v.redeemedAirdropPositionId) ?? null }
+            : v,
+        );
+      }
+      return mapped;
     },
   });
+
 
   const issuedVouchers = vouchers.filter(
     (v) => v.status === "issued" && new Date(v.expiresAt).getTime() > Date.now(),
