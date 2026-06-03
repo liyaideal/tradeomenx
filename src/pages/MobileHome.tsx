@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthSheet } from "@/components/auth/AuthSheet";
-import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
 import {
   DropdownMenu,

@@ -13,7 +13,6 @@ import { BottomNav } from "@/components/BottomNav";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 
-import { RewardsWelcomeModal } from "@/components/rewards/RewardsWelcomeModal";
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData, EventRow, ChgTimeframe, getChange, getVolume } from "@/hooks/useMarketListData";
