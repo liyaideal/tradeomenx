@@ -98,8 +98,12 @@ Deno.serve(async (req) => {
     if (countErr) return json({ error: countErr.message }, 500)
     if ((activeCount ?? 0) >= 1) {
       return json(
-        { error: 'You already have an active voucher position. Close it before redeeming another.' },
-        409,
+        {
+          success: false,
+          code: 'ACTIVE_VOUCHER_POSITION_EXISTS',
+          error: 'You already have an active voucher position. Close it before redeeming another.',
+        },
+        200,
       )
     }
 
