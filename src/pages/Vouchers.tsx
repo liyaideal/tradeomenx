@@ -35,9 +35,9 @@ const Vouchers = () => {
   const redeemPanel = selected ? (() => {
     const cap = selected.faceValue * selected.redeemableCapPct;
     return (
-      <div className="rounded-xl border border-border bg-card/40 overflow-hidden">
+      <div className="rounded-xl border border-border bg-card/40">
         {/* Header band */}
-        <div className="relative border-b border-border bg-gradient-to-br from-primary/10 via-card/40 to-card/40 p-4 md:p-5">
+        <div className="relative border-b border-border bg-gradient-to-br from-primary/10 via-card/40 to-card/40 p-4 md:p-5 rounded-t-xl">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             {/* Left: label + face value + code chip */}
             <div className="flex flex-col gap-2">
