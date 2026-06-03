@@ -105,11 +105,15 @@ Deno.serve(async (req) => {
     if (uErr) return json({ error: uErr.message }, 500)
 
     // 5b) Also flip the matching voucher row to 'settled' so /vouchers reflects state
-    await admin
+    const { error: vUpdErr } = await admin
       .from('position_vouchers')
       .update({ status: 'settled' })
       .eq('redeemed_airdrop_position_id', pos.id)
       .eq('user_id', user.id)
+    if (vUpdErr) {
+      console.error('Failed to mark voucher as settled', vUpdErr)
+      return json({ error: `Failed to update voucher: ${vUpdErr.message}` }, 500)
+    }
 
     // 6) Credit voucher_earnings pool (NOT trial_balance / wallet).
     //    Users must hit the 50k USDC trading volume gate and then call
