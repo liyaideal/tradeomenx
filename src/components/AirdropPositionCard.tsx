@@ -18,6 +18,9 @@ interface AirdropPositionCardProps {
 export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose }: AirdropPositionCardProps) => {
   const [isClosing, setIsClosing] = useState(false);
   const { timeLeft, isExpired, urgent } = useCountdown(airdrop.expiresAt);
+  const sideLabelsLookup = useEventSideLabelsLookup();
+  const { isBinary: counterIsBinary, labels: counterSideLabels } = sideLabelsLookup(airdrop.counterEventName ?? "");
+
 
   const isPending = airdrop.status === "pending";
   const isActivated = airdrop.status === "activated";
