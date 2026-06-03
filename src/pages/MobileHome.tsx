@@ -96,7 +96,7 @@ const MobileHome = () => {
 
       <BottomNav />
 
-      <RewardsWelcomeModal />
+      
       <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
       <AirdropHomepageModal />
     </div>
