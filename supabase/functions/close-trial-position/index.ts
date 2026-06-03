@@ -73,16 +73,19 @@ Deno.serve(async (req) => {
       if (opt?.price != null) markPrice = Number(opt.price)
     }
 
-    // 3) Compute PnL: shares = face_value, entry = counter_price (counter side perspective)
-    //    For long side: pnl = (mark - entry) * shares
-    //    For short side: pnl = (entry - mark) * shares
+    // 3) Compute PnL using the canonical 5x-leveraged voucher math:
+    //    contracts = face_value × leverage / entry_price
+    //    long  PnL = (mark − entry) × contracts
+    //    short PnL = (entry − mark) × contracts
+    const VOUCHER_LEVERAGE = 5
     const entry = Number(pos.counter_price)
-    const shares = Number(pos.airdrop_value) // face value = share count (spec)
+    const faceValue = Number(pos.airdrop_value)
+    const contracts = faceValue * VOUCHER_LEVERAGE / Math.max(entry, 0.0001)
     const side = String(pos.counter_side)
-    const rawPnl = side === 'short' ? (entry - markPrice) * shares : (markPrice - entry) * shares
+    const rawPnl = side === 'short' ? (entry - markPrice) * contracts : (markPrice - entry) * contracts
 
     // 4) Cap profit at redeemable_cap; losses are floored at 0 credit (voucher funds are sandboxed)
-    const cap = pos.redeemable_cap != null ? Number(pos.redeemable_cap) : Number(pos.airdrop_value) * 0.5
+    const cap = pos.redeemable_cap != null ? Number(pos.redeemable_cap) : faceValue * 0.5
     const creditedPnl = Math.max(0, Math.min(rawPnl, cap))
 
     const nowIso = new Date().toISOString()
