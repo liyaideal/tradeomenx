@@ -1343,6 +1343,26 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-center">
                             {position.isAirdrop && position.airdropSource !== "voucher" ? (
                               <span className="text-xs text-muted-foreground">—</span>
+                            ) : position.airdropSource === "voucher" ? (
+                            <CloseVoucherDialog
+                              event={position.event}
+                              optionLabel={position.displayOption ?? position.option}
+                              side={position.type}
+                              entryPrice={parseFloat(position.entryPrice.replace(/[$,]/g, "")) || 0}
+                              markPrice={
+                                realtimePnL.hasRealtimePrice
+                                  ? realtimePnL.markPrice
+                                  : parseFloat(position.markPrice.replace(/[$,]/g, "")) || 0
+                              }
+                              faceValue={position.voucherFaceValue ?? position.marginNum}
+                              redeemableCap={position.voucherRedeemableCap ?? null}
+                              isClosing={isClosing}
+                              onConfirm={() => closePosition(position.id, index)}
+                            >
+                              <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">
+                                Close
+                              </button>
+                            </CloseVoucherDialog>
                             ) : (
                             <ClosePositionDialog
                               event={position.event}
@@ -1367,6 +1387,7 @@ export default function DesktopTrading() {
                             </ClosePositionDialog>
                             )}
                           </td>
+
                         </tr>
                         );
                       })}
