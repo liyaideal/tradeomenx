@@ -182,6 +182,10 @@ const StyleGuideIndex = () => {
           <TabsContent value="transparency" className="mt-0">
             <TransparencySection isMobile={isMobile} />
           </TabsContent>
+
+          <TabsContent value="vouchers" className="mt-0">
+            <VouchersSection isMobile={isMobile} />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
