@@ -104,6 +104,13 @@ Deno.serve(async (req) => {
       .eq('status', 'activated') // optimistic lock
     if (uErr) return json({ error: uErr.message }, 500)
 
+    // 5b) Also flip the matching voucher row to 'settled' so /vouchers reflects state
+    await admin
+      .from('position_vouchers')
+      .update({ status: 'settled' })
+      .eq('redeemed_airdrop_position_id', pos.id)
+      .eq('user_id', user.id)
+
     // 6) Credit voucher_earnings pool (NOT trial_balance / wallet).
     //    Users must hit the 50k USDC trading volume gate and then call
     //    claim-voucher-earnings to move the pool into wallet.balance.

@@ -4,7 +4,7 @@ import { useUserProfile } from "./useUserProfile";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
-export type VoucherStatus = "issued" | "redeemed" | "expired" | "revoked";
+export type VoucherStatus = "issued" | "redeemed" | "settled" | "expired" | "revoked";
 
 export interface PositionVoucher {
   id: string;

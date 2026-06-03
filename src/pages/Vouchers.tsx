@@ -28,7 +28,7 @@ const Vouchers = () => {
 
   const selected = issuedVouchers.find((v) => v.id === selectedId) ?? null;
 
-  const redeemed = vouchers.filter((v) => v.status === "redeemed");
+  const redeemed = vouchers.filter((v) => v.status === "redeemed" || v.status === "settled");
   const expired = vouchers.filter(
     (v) => v.status === "expired" || (v.status === "issued" && new Date(v.expiresAt).getTime() <= Date.now()),
   );
@@ -216,23 +216,28 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
   <section className="space-y-3">
     <h2 className="text-sm font-medium text-muted-foreground">Redeemed ({items.length})</h2>
     <div className="space-y-2">
-      {items.map((v) => (
-        <div
-          key={v.id}
-          className="rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-between gap-3"
-        >
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
-              <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
+      {items.map((v) => {
+        const isSettled = v.status === "settled";
+        return (
+          <div
+            key={v.id}
+            className={`rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-between gap-3 ${isSettled ? "opacity-70" : ""}`}
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
+                <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">
+                Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
+              </div>
             </div>
-            <div className="text-[11px] text-muted-foreground mt-0.5">
-              Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
-            </div>
+            <span className={`text-[11px] ${isSettled ? "text-muted-foreground" : "text-primary"}`}>
+              {isSettled ? "Position closed" : "Position open"}
+            </span>
           </div>
-          <span className="text-[11px] text-primary">Position opened</span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   </section>
 );
