@@ -48,10 +48,18 @@ export const CloseVoucherContent = ({
   const cap = redeemableCap != null ? redeemableCap : faceValue * 0.5;
   const credit = Math.max(0, Math.min(rawPnl, cap));
 
+  const isDrawer = variant === "drawer";
+
   const Actions = (
     <>
       {onCancel && (
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isClosing} className="h-11">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isClosing}
+          className={isDrawer ? "flex-1 h-11" : "h-11"}
+        >
           Cancel
         </Button>
       )}
@@ -60,7 +68,7 @@ export const CloseVoucherContent = ({
         variant="destructive"
         onClick={() => onConfirm()}
         disabled={isClosing}
-        className="h-11"
+        className={isDrawer ? "flex-1 h-11" : "h-11"}
       >
         {isClosing ? (
           <>
@@ -124,8 +132,10 @@ export const CloseVoucherContent = ({
         is never debited.
       </p>
 
-      {variant === "drawer" ? (
-        <MobileDrawerActions>{Actions}</MobileDrawerActions>
+      {isDrawer ? (
+        <MobileDrawerActions>
+          <div className="flex gap-2">{Actions}</div>
+        </MobileDrawerActions>
       ) : (
         <div className="flex justify-end gap-2 pt-2">{Actions}</div>
       )}
