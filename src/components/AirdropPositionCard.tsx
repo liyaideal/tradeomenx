@@ -1,5 +1,7 @@
-import { Gift, Ticket, Clock, Zap, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { Gift, Ticket, Clock, Zap, AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
 import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import type { AirdropPosition } from "@/hooks/useAirdropPositions";
@@ -8,9 +10,11 @@ interface AirdropPositionCardProps {
   airdrop: AirdropPosition;
   onActivate?: (id: string) => Promise<void>;
   isActivating?: boolean;
+  onClose?: (id: string) => Promise<void>;
 }
 
-export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: AirdropPositionCardProps) => {
+export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose }: AirdropPositionCardProps) => {
+  const [isClosing, setIsClosing] = useState(false);
   const { timeLeft, isExpired, urgent } = useCountdown(airdrop.expiresAt);
 
   const isPending = airdrop.status === "pending";
