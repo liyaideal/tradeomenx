@@ -31,6 +31,10 @@ export interface UnifiedPosition {
   airdropId?: string;
   /** When isAirdrop is true, the underlying source (matched / welcome_gift / voucher). */
   airdropSource?: AirdropSource;
+  /** Voucher face value (USD). Voucher source only. */
+  voucherFaceValue?: number;
+  /** Voucher profit cap (USD). Voucher source only; null → no cap stored, falls back to faceValue × 0.5. */
+  voucherRedeemableCap?: number | null;
   // Funding fee fields (raw numbers for math; UI formats as needed)
   fundingAccrued: number;     // Net cumulative funding paid (positive = user paid)
   lastFundingAt: string | null;
