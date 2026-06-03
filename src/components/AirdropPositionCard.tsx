@@ -102,9 +102,15 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
       <div className="mb-2">
         <h3 className="font-medium text-foreground text-sm">{airdrop.counterEventName}</h3>
         <p className="text-xs text-muted-foreground">
-          {airdrop.counterOptionLabel} · {airdrop.counterSide === "long" ? "Yes" : "No"}
+          {(() => {
+            const label = airdrop.counterOptionLabel ?? "";
+            const isBinaryOutcome = /^(yes|no)$/i.test(label.trim());
+            const sideText = airdrop.counterSide === "long" ? "Yes" : "No";
+            return isBinaryOutcome ? label : `${label} · ${sideText}`;
+          })()}
         </p>
       </div>
+
 
       {/* Details Grid */}
       <div className="grid grid-cols-3 gap-2 mb-2">
