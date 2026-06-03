@@ -1341,7 +1341,7 @@ export default function DesktopTrading() {
                             )}
                           </td>
                           <td className="px-4 py-2 text-center">
-                            {position.isAirdrop ? (
+                            {position.isAirdrop && position.airdropSource !== "voucher" ? (
                               <span className="text-xs text-muted-foreground">—</span>
                             ) : (
                             <ClosePositionDialog

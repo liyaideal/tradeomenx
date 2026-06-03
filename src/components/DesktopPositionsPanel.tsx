@@ -358,8 +358,8 @@ export const DesktopPositionsPanel = () => {
                     );
                   })
                 )}
-                {/* Activated airdrop rows */}
-                {activatedAirdrops.map((airdrop) => (
+                {/* Activated airdrop rows — vouchers render in the main positions table above, not here */}
+                {activatedAirdrops.filter((a) => a.source !== "voucher").map((airdrop) => (
                   <tr key={airdrop.id} className="border-b border-border/30 bg-trading-green/5">
                     <td className="px-3 py-2 text-sm">
                       <div className="flex items-center gap-2">

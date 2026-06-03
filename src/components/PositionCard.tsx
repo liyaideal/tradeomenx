@@ -306,7 +306,7 @@ export const PositionCard = ({
         )}
 
         {/* Actions at bottom */}
-        {isAirdrop ? (
+        {isAirdrop && fullPosition?.airdropSource !== "voucher" ? (
           <div className="flex items-center gap-1.5 py-1.5 text-[10px] text-muted-foreground border-t border-border/30 mt-1 pt-2">
             <Lock className="w-3 h-3" />
             <span>Auto-settles on event resolution</span>
