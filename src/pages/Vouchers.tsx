@@ -28,7 +28,14 @@ const Vouchers = () => {
 
   const selected = issuedVouchers.find((v) => v.id === selectedId) ?? null;
 
-  const redeemed = vouchers.filter((v) => v.status === "redeemed" || v.status === "settled");
+  const redeemed = vouchers.filter(
+    (v) =>
+      v.status === "redeemed" ||
+      v.status === "settled" ||
+      // Fallback: voucher row may still say 'redeemed' if its status flip lagged,
+      // but the underlying airdrop position has already been settled.
+      v.redeemedAirdropStatus === "settled",
+  );
   const expired = vouchers.filter(
     (v) => v.status === "expired" || (v.status === "issued" && new Date(v.expiresAt).getTime() <= Date.now()),
   );
