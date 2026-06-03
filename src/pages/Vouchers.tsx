@@ -256,9 +256,20 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
                   <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
                   <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
                   {sideLabel && !binaryOutcome && (
-                    <span className={`inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider uppercase ${sideLabelColor}`}>
-                      {sideLabel}
-                    </span>
+                    <>
+                      <span className="inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-muted-foreground">
+                        {sideLabel}
+                      </span>
+                      {v.redeemedSide && (
+                        <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] tracking-wider uppercase ${
+                          v.redeemedSide === "long"
+                            ? "border-trading-green/40 bg-trading-green/10 text-trading-green"
+                            : "border-trading-red/40 bg-trading-red/10 text-trading-red"
+                        }`}>
+                          {v.redeemedSide === "long" ? "YES" : "NO"}
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
                 {v.redeemedEventName && (
