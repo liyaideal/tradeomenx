@@ -269,7 +269,7 @@ export default function PortfolioAirdrops() {
                     if (airdrop.status === "activated") {
                       navigate(`/trade?event=${airdrop.counterEventId}`);
                     } else if (airdrop.status === "settled") {
-                      navigate("/wallet");
+                      navigate(airdrop.source === "voucher" ? "/vouchers" : "/wallet");
                     }
                   }}
                 >
