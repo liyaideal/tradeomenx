@@ -74,7 +74,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
               <div className="font-mono">{size.toFixed(2)}</div>
             </div>
             <div>
-              <div className="text-[10px] text-muted-foreground">Profit cap</div>
+              <div className="text-[10px] text-muted-foreground">Max profit</div>
               <div className="font-mono text-trading-green">${cap.toFixed(2)}</div>
             </div>
           </div>
