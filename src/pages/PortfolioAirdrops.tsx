@@ -398,7 +398,7 @@ export default function PortfolioAirdrops() {
                             variant="ghost"
                             size="sm"
                             className="h-7 text-xs"
-                            onClick={() => navigate("/wallet")}
+                            onClick={() => navigate(airdrop.source === "voucher" ? "/vouchers" : "/wallet")}
                           >
                             <span className={`font-mono ${(airdrop.settledPnl ?? 0) >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
                               <CheckCircle2 className="w-3 h-3 inline mr-1" />
