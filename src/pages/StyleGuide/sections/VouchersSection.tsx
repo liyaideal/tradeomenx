@@ -38,14 +38,14 @@ const baseVoucher = (overrides: Partial<PositionVoucher> = {}): PositionVoucher 
 
 /* ---------------- shared PresetRail ---------------- */
 
-const PresetRail = <T extends string>({
+const PresetRail = ({
   options,
   value,
   onChange,
 }: {
-  options: { id: T; label: string }[];
-  value: T;
-  onChange: (v: T) => void;
+  options: { id: string; label: string }[];
+  value: string;
+  onChange: (v: any) => void;
 }) => (
   <div className="flex flex-wrap gap-1.5">
     {options.map((o) => (
