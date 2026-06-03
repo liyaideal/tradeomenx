@@ -87,20 +87,30 @@ export const usePositionVouchers = () => {
       if (airdropIds.length > 0) {
         const { data: airdropRows } = await supabase
           .from("airdrop_positions")
-          .select("id, status")
+          .select("id, status, counter_event_name, counter_option_label, counter_side, settled_pnl, close_reason")
           .in("id", airdropIds);
-        const statusById = new Map<string, string>(
-          (airdropRows ?? []).map((r: any) => [r.id, r.status]),
+        const byId = new Map<string, any>(
+          (airdropRows ?? []).map((r: any) => [r.id, r]),
         );
-        return mapped.map((v) =>
-          v.redeemedAirdropPositionId
-            ? { ...v, redeemedAirdropStatus: statusById.get(v.redeemedAirdropPositionId) ?? null }
-            : v,
-        );
+        return mapped.map((v) => {
+          if (!v.redeemedAirdropPositionId) return v;
+          const r = byId.get(v.redeemedAirdropPositionId);
+          if (!r) return v;
+          return {
+            ...v,
+            redeemedAirdropStatus: r.status ?? null,
+            redeemedEventName: r.counter_event_name ?? null,
+            redeemedOutcomeLabel: r.counter_option_label ?? null,
+            redeemedSide: v.redeemedSide ?? r.counter_side ?? null,
+            redeemedSettledPnl: r.settled_pnl != null ? Number(r.settled_pnl) : null,
+            redeemedCloseReason: r.close_reason ?? null,
+          };
+        });
       }
       return mapped;
     },
   });
+
 
 
   const issuedVouchers = vouchers.filter(
