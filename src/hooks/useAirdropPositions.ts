@@ -23,6 +23,8 @@ export interface AirdropPosition {
   airdropValue: number;
   /** Per-position profit cap (voucher source only). null = no cap / legacy rules. */
   redeemableCap?: number | null;
+  /** Resolved event_options.id (voucher source) — enables realtime mark price lookup. */
+  optionId?: string | null;
   status: string;
   expiresAt: string;
   activatedAt: string | null;
@@ -214,7 +216,23 @@ export const useAirdropPositions = () => {
       console.error("Error fetching voucher airdrop positions:", error);
       return [];
     }
-    return (data as any[] | null)?.map(mapRow) ?? [];
+    const rows = (data as any[] | null) ?? [];
+    if (rows.length === 0) return [];
+
+    // Enrich with redeemed_option_id from position_vouchers (no FK, so manual lookup)
+    const ids = rows.map((r) => r.id);
+    const { data: vouchers } = await supabase
+      .from("position_vouchers")
+      .select("redeemed_airdrop_position_id, redeemed_option_id")
+      .in("redeemed_airdrop_position_id", ids);
+    const optionIdByAirdrop = new Map<string, string | null>(
+      (vouchers ?? []).map((v: any) => [v.redeemed_airdrop_position_id, v.redeemed_option_id ?? null]),
+    );
+
+    return rows.map((row) => ({
+      ...mapRow(row),
+      optionId: optionIdByAirdrop.get(row.id) ?? null,
+    }));
   };
 
   const { data: airdrops = [], isLoading } = useQuery({
