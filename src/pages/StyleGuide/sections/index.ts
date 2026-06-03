@@ -9,3 +9,4 @@ export { MobileHomeSection } from "./MobileHomeSection";
 export { UserIdentitySection } from "./UserIdentitySection";
 export { DepositWithdrawSection } from "./DepositWithdrawSection";
 export { TransparencySection } from "./TransparencySection";
+export { VouchersSection } from "./VouchersSection";
