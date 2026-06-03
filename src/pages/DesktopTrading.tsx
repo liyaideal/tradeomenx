@@ -222,7 +222,7 @@ export default function DesktopTrading() {
   const { user, balance, deductBalance, addBalance } = useUserProfile();
   
   // Positions and Orders state - using unified hooks (Supabase for logged-in, local for guests)
-  const { positions, partialClosePosition, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
+  const { positions, partialClosePosition, closePosition, updatePositionTpSl: updateTpSlFn, isClosing, refetch: refetchPositions } = usePositions();
   const { refetch: refetchOrders } = useOrders();
   
   // Realtime PnL calculation hook
