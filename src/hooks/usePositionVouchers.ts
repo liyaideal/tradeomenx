@@ -25,6 +25,10 @@ export interface PositionVoucher {
   redeemedSide: string | null;
   /** Resolved status of the linked airdrop_positions row, when redeemed. */
   redeemedAirdropStatus: string | null;
+  redeemedEventName: string | null;
+  redeemedOutcomeLabel: string | null;
+  redeemedSettledPnl: number | null;
+  redeemedCloseReason: string | null;
 }
 
 const QUERY_KEY = ["position-vouchers"];
@@ -47,6 +51,11 @@ const mapRow = (row: any): PositionVoucher => ({
   redeemedOptionId: row.redeemed_option_id,
   redeemedSide: row.redeemed_side,
   redeemedAirdropStatus: null,
+  redeemedEventName: null,
+  redeemedOutcomeLabel: null,
+  redeemedSettledPnl: null,
+  redeemedCloseReason: null,
+
 });
 
 export const usePositionVouchers = () => {
