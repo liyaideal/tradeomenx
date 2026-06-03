@@ -12,10 +12,13 @@ export interface PickedOption {
   eventName: string;
   optionId: string;
   optionLabel: string;
+  /** Display label resolved through sideLabels (e.g. "Pereira"); equal to optionLabel when no alias. */
+  displayLabel: string;
   price: number;
   side: "long" | "short";
   isBinary: boolean;
 }
+
 
 interface EligibilityResult {
   ok: boolean;
