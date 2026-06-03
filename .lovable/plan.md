@@ -1,54 +1,42 @@
-## 问题
 
-对于 single-market binary event，DB 里 option label 始终是 `Yes`/`No`，但带 `side_labels` 时（如 UFC：Pereira / Ankalaev）UI 应展示队名别名。当前 voucher 与 airdrop 相关界面多处还在直接渲染 `Yes`/`No` 或原始 `optionLabel`，与 memory `single-market-binary-ui` 不一致。
+## 目标
 
-Memory 规则复习：
-- 单 market binary：outcome 名（含 sideLabels 别名）就是 side；持仓/airdrop 行 **Side 列留空**，颜色挂在 Contracts/Outcome 主标签上。
-- Buy `Yes` long → outcome long；Buy `No` long → outcome long（不再翻转）。
+把 Vouchers 这套需求里所有 UI 模块 + 每个模块的全部状态，集中在 `/style-guide` 新建一个 **Vouchers** tab 的 playground 里，研发/QA 一处即可看清。不动业务代码，只新增 style-guide section。
 
-## 改动范围（voucher / airdrop 链路一次性收齐）
+## 模块清单（来自实际代码）
 
-### 1. `src/components/vouchers/EventPickerList.tsx`
-- `PickedOption` 增加 `displayLabel: string`（binary 走 sideLabels 别名，否则等于 `optionLabel`）。
-- `onSelect` 时把 `displayLabel` 一起传出。
-- 列表内已展示别名（之前已修），保留。
+| 模块 | 文件 | 状态枚举 |
+|---|---|---|
+| VoucherBanner | `components/vouchers/VoucherBanner.tsx` | 0 张可用 / 有 N 张可用 / 即将过期 |
+| VoucherCard | `components/vouchers/VoucherCard.tsx` | issued · 正常 / issued · 即将过期(<24h) / redeemed · position open / redeemed · position closed / settled / expired / revoked |
+| VoucherEarningsCard | `components/vouchers/VoucherEarningsCard.tsx` | pending 累积中（< 50k 名义额）/ 达标可 claim / claim 处理中 / 空池 |
+| EventPickerList (片段) | `components/vouchers/EventPickerList.tsx` | 含 eligible / locked-band / locked-time / locked-resolved 四种 option 行；binary vs multi-market 两种事件行 |
+| RedeemVoucherContent | `components/vouchers/RedeemVoucherContent.tsx` | 未选 / 已选 binary / 已选 multi-market · YES / 已选 multi-market · NO / 提交中 / 已有活动 voucher 持仓阻断 |
+| CloseVoucherContent | `components/positions/CloseVoucherContent.tsx` | 盈利 / 亏损 / 持有时间未到（disable）/ 提交中 |
+| Redeemed Voucher Row（Vouchers 页 Redeemed 区） | `pages/Vouchers.tsx` `RedeemedSection` | binary 别名（alias 在第二行）/ multi-market（market chip + YES/NO chip）/ 已结算 +pnl / 已结算 −pnl |
+| Position chip（持仓表里 voucher 来源标记） | `PositionCard.tsx` / `DesktopPositionsPanel.tsx` | "Voucher" 标 + 倒计时（>1d / <1h / 已超时待结算）|
 
-### 2. `src/components/vouchers/RedeemVoucherContent.tsx`
-- Dialog summary（line 84-95）binary 分支：用 `picked.displayLabel` 替换 `picked.optionLabel`；颜色仍按 yes(green)/no(red) 判定（基于原始 `optionLabel`）。
-- Inline sticky bar（line 145-159）同上。
-- 占位 hint `Select Yes or No on a market above to continue.` → `Select an outcome on a market above to continue.`
-- Non-binary 分支保持不变。
+## /style-guide 改动
 
-### 3. `src/components/AirdropPositionCard.tsx`
-- 通过 `useEventSideLabelsLookup()`（按 `counterEventName` 查）拿到 `{ isBinary, labels }`。
-- 副标题（line 102-112）：
-  - binary 且有 labels：显示 `labels[yes|no]`（按 `counterOptionLabel` 的 yes/no 判定别名）。
-  - binary 无 labels：显示 `counterOptionLabel`（即 Yes/No）。
-  - 非 binary：保持现状 `optionLabel · Yes/No`。
+1. 新文件 `src/pages/StyleGuide/sections/VouchersSection.tsx`
+   - 顶部一段 §intro：face value / max profit / hold window / price band / voucher code 字段定义（直接引用 `docs/copy-dictionary.md` 措辞，不引入新 copy）
+   - 按上面 8 个模块各开一个 `SectionWrapper` 子卡，每个模块用横向 `PresetRail`（已有的 playground 状态切换 pattern，见 mem://design/playground-state-coverage）让研发点切状态
+   - 用静态 mock prop 渲染真实组件，**不发请求**：为每个组件做一个 `mockVoucher / mockPickedOption / mockEarnings` 工厂
+   - 连续型参数（hold window 剩余小时、price band 边距、earnings 累积进度）用 Slider + tick rail，实时派生状态读数
+2. 注册到 `sections/index.ts`
+3. `StyleGuide/index.tsx` `tabs` 数组里加 `{ id: "vouchers", label: "Vouchers", icon: "🎫" }`，并加 `<TabsContent value="vouchers">`
+4. mock 数据集中放 `sections/_vouchersMocks.ts`，供 Section 复用
 
-### 4. `src/pages/PortfolioAirdrops.tsx`（desktop table，line 335-377）
-- 用同一个 lookup。
-- "Counter" 列 option label：binary 时用别名（如有）。
-- "Side" 列：binary 行**留空**（移除 Yes/No badge），颜色改挂在 Counter 列 option label 文本上（trading-green / trading-red）。非 binary 保持原 Yes/No badge。
-- Mobile 卡片复用 `AirdropPositionCard` 改动（步骤 3）。
+## 不做
 
-### 5. `src/components/DesktopPositionsPanel.tsx`（airdrops 行，line 371 附近）
-- 同步步骤 4：airdrop 子表的 Side 单元格对 binary 行留空，outcome 颜色挂在 Contracts。
-
-### 6. `src/components/positions/CloseVoucherDialog.tsx` + `CloseVoucherDrawer.tsx`
-- 调用方传给 `CloseVoucherContent` 的 `optionLabel`：binary + 有 labels 时传别名（用 lookup 解析）。`CloseVoucherContent` 内部不变。
-
-## 不动的部分
-
-- `src/lib/tradingTerms.ts` 的 `Yes/No` 默认映射保留（基础默认值）。
-- 非 binary（多 outcome / 数值）市场逻辑全部保持原样。
-- Trade 面板、Positions 主表已遵循 sideLabels，不在本次范围内。
+- 不改 Vouchers 业务页 (`pages/Vouchers.tsx`) 或任何 voucher 组件的真实行为
+- 不改 copy-dictionary、不新增字段名
+- 不新建数据库/edge function
+- 移动端只复用 `ViewportSwitcher`（已存在），不写专门的 mobile-only 变体
 
 ## 验收
 
-- `/vouchers` redeem inline 栏 + dialog summary：UFC 类显示 `Pereira` 或 `Ankalaev`，不再出现 `· No`。
-- `/portfolio/airdrops` mobile 卡片：binary 副标题只显示 `Ankalaev`，颜色 red；不再出现 `No · Yes`。
-- `/portfolio/airdrops` desktop 表：binary 行 Side 列为空，Counter 列 option 文本带颜色。
-- `DesktopTrading` airdrops 子表同步。
-- Close voucher dialog/drawer 标题中的 Position 行使用别名。
-- 非 binary 事件视觉无变化。
+- `/style-guide` 顶部 tab 多一项 Vouchers
+- 每个模块的全部状态在一屏内可切换浏览
+- 切换 Viewport 后移动/桌面变体都能正常渲染
+- 研发改组件时，对 playground 的所有状态都不破坏
