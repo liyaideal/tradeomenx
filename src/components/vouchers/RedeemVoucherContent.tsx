@@ -136,7 +136,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
       )}
 
       {isInline && (
-        <div ref={stickyBarRef} className="sticky bottom-0 z-10 -mx-4 md:-mx-5 -mb-4 md:-mb-5 px-4 md:px-5 py-3 bg-background/95 backdrop-blur border-t border-border rounded-b-xl scroll-mt-4 scroll-mb-4">
+        <div ref={stickyBarRef} className="sticky bottom-[88px] md:bottom-0 z-10 -mx-4 md:-mx-5 -mb-4 md:-mb-5 px-4 md:px-5 py-3 bg-background/95 backdrop-blur border-t border-border rounded-b-xl scroll-mt-4 scroll-mb-4">
           {picked ? (
             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
               <div className="min-w-0 flex-1">
