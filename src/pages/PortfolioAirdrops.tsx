@@ -277,6 +277,7 @@ export default function PortfolioAirdrops() {
                     airdrop={airdrop}
                     onActivate={activateAirdrop}
                     isActivating={isActivating}
+                    onClose={closePosition}
                   />
                 </div>
               ))}
