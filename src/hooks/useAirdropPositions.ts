@@ -312,7 +312,14 @@ export const useAirdropPositions = () => {
   };
 
   const closePosition = async (id: string) => {
-    if (isDemoMode) {
+    // Voucher-source airdrops live in Supabase even in demo mode, so they must
+    // always be settled via the edge function — otherwise the row stays
+    // `activated` and reappears on refresh.
+    const targetForRoute =
+      (queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? airdrops).find((a) => a.id === id);
+    const isVoucherRoute = targetForRoute?.source === 'voucher';
+
+    if (isDemoMode && !isVoucherRoute) {
       const list = queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '', email);
       const target = list.find((a) => a.id === id);
       if (!target) return;

@@ -1,56 +1,38 @@
-Make the **Close** button on voucher-redeemed positions actually work end-to-end with correct, voucher-aware UX and copy.
+### Root cause
 
-## Current state
+Voucher-redeemed airdrop positions live in the real Supabase `airdrop_positions` table (even for demo users — `fetchVoucherAirdropsFromSupabase` always reads from Supabase). But the close handler in `src/hooks/useAirdropPositions.ts` `closePosition` checks `isDemoMode` first and, when true, only updates **localStorage + React Query cache** with `status='settled'` — it never touches Supabase or calls the `close-trial-position` edge function.
 
-- The Close button on `/trade` voucher rows already renders `ClosePositionDialog` and wires through `partialClosePosition` → `closeAirdropPosition` → edge function `close-trial-position`. The backend correctly settles the position and credits the **voucher earnings pool** (not trial balance).
-- But the surface UX is broken / misleading:
-  1. The generic close dialog shows a partial-close slider and a naive `(mark − entry) × size` PnL preview — voucher positions are full-close-only, the PnL is **capped at `redeemable_cap`**, losses are floored at 0 credit, and the credit goes to the **voucher earnings pool**, not the wallet.
-  2. The success toast says `"+$X credited to trial balance"` — wrong destination. Per the Voucher Earnings memory rule, it must say voucher earnings pool.
-  3. After close, the Voucher Earnings pool card on `/vouchers` doesn't update because the close hook never invalidates the `voucher-earnings` query.
+So on refresh:
+1. localStorage says settled, but the cache is rebuilt from scratch.
+2. `fetchVoucherAirdropsFromSupabase` re-reads the row from Supabase where `status` is still `'activated'`.
+3. The position reappears in `/portfolio` Airdrops and in `/trade` Positions.
 
-## Changes
+This also means the voucher earnings pool never gets credited, even though the UI toast claims it did.
 
-### 1. Dedicated voucher close confirm dialog
-New file: `src/components/positions/CloseVoucherDialog.tsx`
+### Fix
 
-A small Dialog (no Slider, no partial-close, no quick-ratio buttons) that:
-- Shows event + market label, side badge, contracts, entry/mark prices, leverage.
-- Computes preview using the same canonical math as the edge function:
-  - `contracts = faceValue × 5 / entry`
-  - `rawPnl = (mark − entry) × contracts × sideSign`
-  - `credit = clamp(rawPnl, 0, cap)` where `cap = redeemableCap ?? faceValue × 0.5`
-- Renders three rows: **Raw PnL** (can be negative), **Profit cap**, **Credited to voucher earnings pool** (clamped value, green when > 0).
-- Footer: a sentence — "Profits accrue to your voucher earnings pool. Claim to wallet once you hit the 50,000 USDC volume gate."
-- Buttons: Cancel (Outline) + **Close position** (destructive `h-11` shadcn Button), `isClosing` spinner.
+In `src/hooks/useAirdropPositions.ts`, split the demo branch so **voucher source always goes through the real edge function**, and only `matched` / `welcome_gift` demos use the localStorage simulation:
 
-### 2. Use the voucher dialog on /trade
-File: `src/pages/DesktopTrading.tsx` (~line 1343-1368)
-- Branch: if `position.airdropSource === "voucher"`, render `CloseVoucherDialog` instead of `ClosePositionDialog`. Pass `faceValue`, `entry`, `mark`, `side`, `redeemableCap` and `onConfirm={() => closePosition(position.id, index)}` (full close, no qty).
-- Other rows keep `ClosePositionDialog` unchanged.
+```ts
+const closePosition = async (id: string) => {
+  const target = airdrops.find((a) => a.id === id);
+  const isVoucherClose = target?.source === 'voucher';
 
-`closePosition` (full close) is already exported from `usePositions`; voucher branch already routes correctly through it.
+  // Vouchers always persist to Supabase, even in demo mode
+  if (isDemoMode && !isVoucherClose) {
+    // ...existing demo localStorage branch for matched / welcome_gift...
+    return;
+  }
 
-### 3. Mobile parity
-File: `src/components/PositionCard.tsx` (~line 309-345)
-- The voucher branch currently falls into the same `Edit TPSL / Close` buttons block as normal positions. Change the voucher branch to:
-  - Hide TP/SL button.
-  - Render only a single full-width destructive "Close position" button that opens a new `CloseVoucherDrawer` (mirror of the dialog using `MobileDrawer` per the mobile-drawer-content-spec memory).
-- New file: `src/components/positions/CloseVoucherDrawer.tsx` — same content as the dialog, wrapped in `MobileDrawer` with `MobileDrawerActions`.
+  // Voucher (demo or real) + real matched/welcome_gift → edge function
+  const { data, error } = await supabase.functions.invoke('close-trial-position', { ... });
+  // ...existing real branch with toast + invalidations...
+};
+```
 
-### 4. Voucher-correct toast + cache invalidation
-File: `src/hooks/useAirdropPositions.ts` (`closePosition`, ~line 332 demo branch and ~line 348-353 prod branch)
-- Branch on the position's `source`. For voucher:
-  - Toast title: `"Voucher position closed"`.
-  - Toast description: `credited > 0 ? "+$X.XX credited to voucher earnings pool" : "No profit credited (loss floored to 0)"`.
-  - After invalidating `QUERY_KEY` and `user-profile`, also invalidate `['voucher-earnings']` and `['voucher-earnings-ledger']` so `/vouchers` updates immediately.
-- For matched / welcome_gift: keep existing trial-balance copy.
+No other files need changes. Backend (`close-trial-position`) already settles the row, caps PnL, and credits `voucher_earnings.pending_amount` correctly.
 
-### 5. Backend sanity check (read-only)
-The edge function `close-trial-position` already credits `voucher_earnings.pending_amount` and writes a `voucher_earnings_ledger` row. No backend changes.
-
-## Out of scope
-
-- No changes to the close logic for matched / welcome_gift airdrops.
-- No changes to the partial-close flow on normal positions.
-- No new database migrations.
-- No changes to the 50k USDC claim gate or the claim flow.
+### Out of scope
+- No changes to matched/welcome_gift demo behavior.
+- No schema or backend changes.
+- No UI changes to the Close dialog.
