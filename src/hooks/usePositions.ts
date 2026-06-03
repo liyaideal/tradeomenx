@@ -2,8 +2,9 @@ import { useMemo, useCallback } from "react";
 import { useAuth } from "./useAuth";
 import { useSupabasePositions, SupabasePosition } from "./useSupabasePositions";
 import { usePositionsStore, Position as LocalPosition } from "@/stores/usePositionsStore";
-import { useAirdropPositions, AirdropPosition } from "./useAirdropPositions";
+import { useAirdropPositions, AirdropPosition, AirdropSource } from "./useAirdropPositions";
 import { useEventDisplayLookup } from "./useEventDisplayLookup";
+
 
 // Unified position interface for components
 export interface UnifiedPosition {
@@ -28,6 +29,8 @@ export interface UnifiedPosition {
   slMode: "%" | "$";
   isAirdrop?: boolean;
   airdropId?: string;
+  /** When isAirdrop is true, the underlying source (matched / welcome_gift / voucher). */
+  airdropSource?: AirdropSource;
   // Funding fee fields (raw numbers for math; UI formats as needed)
   fundingAccrued: number;     // Net cumulative funding paid (positive = user paid)
   lastFundingAt: string | null;
@@ -121,15 +124,24 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
   };
 };
 
+// Voucher positions are 5x leveraged per spec; matched/welcome_gift remain 1x.
+const VOUCHER_LEVERAGE = 5;
+
 // Convert activated airdrop to unified position format
 const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
-  const qty = Math.round(airdrop.airdropValue / airdrop.counterPrice);
+  const isVoucher = airdrop.source === "voucher";
+  const lev = isVoucher ? VOUCHER_LEVERAGE : 1;
+  // qty = faceValue × leverage / entryPrice (5x for voucher → 250 contracts on $25 @ 0.5)
+  const qty = Math.max(
+    1,
+    Math.round((airdrop.airdropValue * lev) / Math.max(airdrop.counterPrice, 0.0001)),
+  );
   return {
     id: `airdrop-${airdrop.id}`,
     type: airdrop.counterSide as "long" | "short",
     event: airdrop.counterEventName,
     option: airdrop.counterOptionLabel,
-    optionId: null,
+    optionId: airdrop.optionId ?? null,
     entryPrice: `$${airdrop.counterPrice.toFixed(4)}`,
     markPrice: `$${airdrop.counterPrice.toFixed(4)}`,
     size: String(qty),
@@ -137,21 +149,22 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     margin: `$${airdrop.airdropValue.toFixed(2)}`,
     pnl: "+$0.00",
     pnlPercent: "+0.0%",
-    leverage: "1x",
+    leverage: `${lev}x`,
     tp: "",
     sl: "",
     tpMode: "%",
     slMode: "%",
     isAirdrop: true,
     airdropId: airdrop.id,
+    airdropSource: airdrop.source,
     fundingAccrued: 0,
     lastFundingAt: null,
     entryPriceNum: airdrop.counterPrice,
     markPriceNum: airdrop.counterPrice,
     sizeNum: qty,
     marginNum: airdrop.airdropValue,
-    leverageNum: 1,
-    createdAt: new Date().toISOString(),
+    leverageNum: lev,
+    createdAt: airdrop.createdAt ?? new Date().toISOString(),
     _source: "airdrop",
   };
 };
