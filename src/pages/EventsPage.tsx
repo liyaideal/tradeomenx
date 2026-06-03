@@ -367,7 +367,7 @@ const EventsPage = () => {
       </main>
 
       {isMobile && <BottomNav />}
-      {!isMobile && <RewardsWelcomeModal />}
+      
       
       {!isMobile && <AirdropHomepageModal />}
 
