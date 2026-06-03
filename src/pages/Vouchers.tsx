@@ -149,7 +149,7 @@ const Vouchers = () => {
                         Available ({issuedVouchers.length})
                       </h2>
                     </div>
-                    <div className="-mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1">
+                    <div className="-mx-4 px-5 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 pt-1">
                       {issuedVouchers.map((v) => (
                         <div key={v.id} className="snap-start shrink-0 w-[78%] max-w-[280px]">
                           <VoucherCard
