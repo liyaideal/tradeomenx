@@ -28,7 +28,14 @@ const Vouchers = () => {
 
   const selected = issuedVouchers.find((v) => v.id === selectedId) ?? null;
 
-  const redeemed = vouchers.filter((v) => v.status === "redeemed" || v.status === "settled");
+  const redeemed = vouchers.filter(
+    (v) =>
+      v.status === "redeemed" ||
+      v.status === "settled" ||
+      // Fallback: voucher row may still say 'redeemed' if its status flip lagged,
+      // but the underlying airdrop position has already been settled.
+      v.redeemedAirdropStatus === "settled",
+  );
   const expired = vouchers.filter(
     (v) => v.status === "expired" || (v.status === "issued" && new Date(v.expiresAt).getTime() <= Date.now()),
   );
@@ -217,11 +224,11 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
     <h2 className="text-sm font-medium text-muted-foreground">Redeemed ({items.length})</h2>
     <div className="space-y-2">
       {items.map((v) => {
-        const isSettled = v.status === "settled";
+        const isClosed = v.status === "settled" || v.redeemedAirdropStatus === "settled";
         return (
           <div
             key={v.id}
-            className={`rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-between gap-3 ${isSettled ? "opacity-70" : ""}`}
+            className={`rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-between gap-3 ${isClosed ? "opacity-70" : ""}`}
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -232,8 +239,8 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
                 Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
               </div>
             </div>
-            <span className={`text-[11px] ${isSettled ? "text-muted-foreground" : "text-primary"}`}>
-              {isSettled ? "Position closed" : "Position open"}
+            <span className={`text-[11px] ${isClosed ? "text-muted-foreground" : "text-primary"}`}>
+              {isClosed ? "Position closed" : "Position open"}
             </span>
           </div>
         );
