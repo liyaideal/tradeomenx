@@ -176,7 +176,7 @@ export const useAirdropPositions = () => {
     .sort()
     .join(",");
 
-  const queryKey = [...QUERY_KEY, scanKey];
+  const queryKey = [...QUERY_KEY, user?.id ?? "anon", scanKey];
 
   const mapRow = (row: any): AirdropPosition => ({
     id: row.id,
