@@ -19,6 +19,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
 
   const cap = voucher.faceValue * voucher.redeemableCapPct;
   const size = picked ? voucher.faceValue / picked.price : 0;
+  const isInline = variant === "inline";
 
   const handleSubmit = async () => {
     if (!picked) return;
@@ -31,7 +32,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
 
   return (
     <div className="flex flex-col gap-4">
-      {variant !== "inline" && (
+      {!isInline && (
         <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Voucher code</span>
@@ -57,7 +58,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
         <EventPickerList voucher={voucher} selected={picked} onSelect={setPicked} />
       </div>
 
-      {picked && (
+      {!isInline && picked && (
         <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
           <div className="text-xs font-medium text-foreground">{picked.eventName}</div>
           <div className="text-xs text-muted-foreground">
@@ -83,34 +84,65 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
         </div>
       )}
 
-      <div className="flex items-start gap-2 text-[11px] text-muted-foreground rounded-md bg-muted/30 p-2.5">
-        <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-trading-yellow" />
-        <span>
-          Position can't be closed manually — it auto-settles when the event ends or after {voucher.maxHoldingHours}h.
-          Profits are capped at ${cap.toFixed(2)}; losses don't affect your balance.
-        </span>
-      </div>
+      {!isInline && (
+        <div className="flex items-start gap-2 text-[11px] text-muted-foreground rounded-md bg-muted/30 p-2.5">
+          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-trading-yellow" />
+          <span>
+            Profits are capped at ${cap.toFixed(2)}; losses don't affect your balance.
+          </span>
+        </div>
+      )}
 
-      <div className={variant === "drawer" ? "flex gap-2 pt-2" : "flex justify-end gap-2 pt-2"}>
-        {variant === "inline" ? (
-          picked && (
-            <Button variant="outline" onClick={() => setPicked(null)}>
-              Reset selection
-            </Button>
-          )
-        ) : (
+      {!isInline && (
+        <div className={variant === "drawer" ? "flex gap-2 pt-2" : "flex justify-end gap-2 pt-2"}>
           <Button variant="outline" onClick={onClose} className={variant === "drawer" ? "flex-1 h-11" : ""}>
             Cancel
           </Button>
-        )}
-        <Button
-          onClick={handleSubmit}
-          disabled={!picked || isRedeeming}
-          className={variant === "drawer" ? "flex-1 h-11" : ""}
-        >
-          {isRedeeming ? "Redeeming..." : "Confirm & open position"}
-        </Button>
-      </div>
+          <Button
+            onClick={handleSubmit}
+            disabled={!picked || isRedeeming}
+            className={variant === "drawer" ? "flex-1 h-11" : ""}
+          >
+            {isRedeeming ? "Redeeming..." : "Confirm & open position"}
+          </Button>
+        </div>
+      )}
+
+      {isInline && (
+        <div className="sticky bottom-0 z-10 -mx-4 md:-mx-5 -mb-4 md:-mb-5 px-4 md:px-5 py-3 bg-background/95 backdrop-blur border-t border-border rounded-b-xl">
+          {picked ? (
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs text-foreground truncate">
+                  <span className="font-medium">{picked.eventName}</span>
+                  <span className="text-muted-foreground"> · {picked.optionLabel} · </span>
+                  <span className={picked.side === "long" ? "text-trading-green" : "text-trading-red"}>
+                    {picked.side === "long" ? "Yes" : "No"}
+                  </span>
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-0.5 flex gap-3 font-mono tabular-nums">
+                  <span>Entry ${picked.price.toFixed(4)}</span>
+                  <span>Size {size.toFixed(2)}</span>
+                  <span className="text-trading-green">Max profit ${cap.toFixed(2)}</span>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setPicked(null)}>
+                Reset
+              </Button>
+              <Button onClick={handleSubmit} disabled={isRedeeming}>
+                {isRedeeming ? "Redeeming..." : "Confirm & open position"}
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground">
+                Select Yes or No on a market above to continue.
+              </span>
+              <Button disabled>Confirm & open position</Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
