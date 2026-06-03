@@ -13,6 +13,7 @@ export interface PickedOption {
   optionLabel: string;
   price: number;
   side: "long" | "short";
+  isBinary: boolean;
 }
 
 interface EligibilityResult {
