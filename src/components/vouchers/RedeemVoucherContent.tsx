@@ -132,7 +132,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
       {isInline && (
         <div ref={stickyBarRef} className="sticky bottom-0 z-10 -mx-4 md:-mx-5 -mb-4 md:-mb-5 px-4 md:px-5 py-3 bg-background/95 backdrop-blur border-t border-border rounded-b-xl scroll-mt-4 scroll-mb-4">
           {picked ? (
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
               <div className="min-w-0 flex-1">
                 <div className="text-xs text-foreground truncate">
                   <span className="font-medium">{picked.eventName}</span>
@@ -152,25 +152,27 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
                     </>
                   )}
                 </div>
-                <div className="text-[11px] text-muted-foreground mt-0.5 flex gap-3 font-mono tabular-nums">
+                <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono tabular-nums">
                   <span>Entry ${picked.price.toFixed(4)}</span>
                   <span>Size {size.toFixed(2)}</span>
                   <span className="text-trading-green">Max profit ${cap.toFixed(2)}</span>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setPicked(null)}>
-                Reset
-              </Button>
-              <Button onClick={handleSubmit} disabled={isRedeeming}>
-                {isRedeeming ? "Redeeming..." : "Confirm & open position"}
-              </Button>
+              <div className="flex items-center gap-2 md:shrink-0">
+                <Button variant="ghost" size="sm" onClick={() => setPicked(null)}>
+                  Reset
+                </Button>
+                <Button onClick={handleSubmit} disabled={isRedeeming} className="flex-1 md:flex-none h-10 md:h-9">
+                  {isRedeeming ? "Redeeming..." : "Confirm & open position"}
+                </Button>
+              </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
               <span className="text-xs text-muted-foreground">
                 Select Yes or No on a market above to continue.
               </span>
-              <Button disabled>Confirm & open position</Button>
+              <Button disabled className="w-full md:w-auto h-10 md:h-9">Confirm & open position</Button>
             </div>
           )}
         </div>

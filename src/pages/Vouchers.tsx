@@ -46,13 +46,13 @@ const Vouchers = () => {
       <div className="rounded-xl border border-border bg-card/40">
         {/* Header band */}
         <div className="relative border-b border-border bg-gradient-to-br from-primary/10 via-card/40 to-card/40 p-4 md:p-5 rounded-t-xl">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 md:gap-4">
             {/* Left: label + face value + code chip */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 min-w-0">
               <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
                 Redeeming voucher
               </div>
-              <div className="flex items-baseline gap-3">
+              <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
                 <span className="font-mono text-3xl md:text-4xl font-semibold text-foreground leading-none">
                   ${selected.faceValue.toFixed(2)}
                 </span>
@@ -63,12 +63,12 @@ const Vouchers = () => {
             </div>
 
             {/* Right: meta stats */}
-            <div className="flex items-stretch gap-2">
-              <div className="rounded-lg border border-border bg-background/40 px-3 py-2 min-w-[92px]">
+            <div className="grid grid-cols-2 gap-2 md:flex md:items-stretch">
+              <div className="rounded-lg border border-border bg-background/40 px-3 py-2 md:min-w-[92px]">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Max profit</div>
                 <div className="font-mono text-sm text-trading-green mt-0.5">${cap.toFixed(2)}</div>
               </div>
-              <div className="rounded-lg border border-border bg-background/40 px-3 py-2 min-w-[92px]">
+              <div className="rounded-lg border border-border bg-background/40 px-3 py-2 md:min-w-[92px]">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Hold window</div>
                 <div className="font-mono text-sm text-foreground mt-0.5">{selected.maxHoldingHours}h</div>
               </div>
