@@ -88,7 +88,22 @@ Deno.serve(async (req) => {
       )
     }
 
-    // 2.5) (concurrency cap removed — each voucher is independent and capped by its own face value)
+    // 2.5) Enforce: only one active voucher position at a time
+    const { count: activeCount, error: countErr } = await admin
+      .from('airdrop_positions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('source', 'voucher')
+      .eq('status', 'activated')
+    if (countErr) return json({ error: countErr.message }, 500)
+    if ((activeCount ?? 0) >= 1) {
+      return json(
+        { error: 'You already have an active voucher position. Close it before redeeming another.' },
+        409,
+      )
+    }
+
+
 
 
 
