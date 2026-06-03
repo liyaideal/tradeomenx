@@ -24,6 +24,7 @@ import {
   UserIdentitySection,
   DepositWithdrawSection,
   TransparencySection,
+  VouchersSection,
 } from "./sections";
 
 const StyleGuideIndex = () => {
