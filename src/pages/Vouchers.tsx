@@ -32,25 +32,52 @@ const Vouchers = () => {
     (v) => v.status === "expired" || (v.status === "issued" && new Date(v.expiresAt).getTime() <= Date.now()),
   );
 
-  const redeemPanel = selected ? (
-    <div className="rounded-xl border border-border bg-card/40 p-4 md:p-5">
-      <div className="flex items-baseline justify-between gap-3 mb-4 pb-3 border-b border-border">
-        <div>
-          <div className="text-xs text-muted-foreground">Redeeming voucher</div>
-          <div className="flex items-baseline gap-2 mt-0.5">
-            <span className="font-mono text-sm text-foreground">{selected.code}</span>
-            <span className="font-mono text-lg text-foreground">
-              ${selected.faceValue.toFixed(2)}
-            </span>
+  const redeemPanel = selected ? (() => {
+    const cap = selected.faceValue * selected.redeemableCapPct;
+    return (
+      <div className="rounded-xl border border-border bg-card/40 overflow-hidden">
+        {/* Header band */}
+        <div className="relative border-b border-border bg-gradient-to-br from-primary/10 via-card/40 to-card/40 p-4 md:p-5">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            {/* Left: label + face value + code chip */}
+            <div className="flex flex-col gap-2">
+              <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                Redeeming voucher
+              </div>
+              <div className="flex items-baseline gap-3">
+                <span className="font-mono text-3xl md:text-4xl font-semibold text-foreground leading-none">
+                  ${selected.faceValue.toFixed(2)}
+                </span>
+                <span className="inline-flex items-center rounded-md border border-border bg-muted/40 px-2 py-0.5 font-mono text-[11px] tracking-widest text-muted-foreground">
+                  {selected.code}
+                </span>
+              </div>
+            </div>
+
+            {/* Right: meta stats */}
+            <div className="flex items-stretch gap-2">
+              <div className="rounded-lg border border-border bg-background/40 px-3 py-2 min-w-[92px]">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Max profit</div>
+                <div className="font-mono text-sm text-trading-green mt-0.5">${cap.toFixed(2)}</div>
+              </div>
+              <div className="rounded-lg border border-border bg-background/40 px-3 py-2 min-w-[92px]">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Hold window</div>
+                <div className="font-mono text-sm text-foreground mt-0.5">{selected.maxHoldingHours}h</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 text-[11px] text-muted-foreground">
+            Pick a market below to open your free position.
           </div>
         </div>
-        <div className="text-[11px] text-muted-foreground">
-          Pick a market below to open your free position.
+
+        <div className="p-4 md:p-5">
+          <RedeemVoucherContent voucher={selected} variant="inline" />
         </div>
       </div>
-      <RedeemVoucherContent voucher={selected} variant="inline" />
-    </div>
-  ) : null;
+    );
+  })() : null;
 
   return (
     <div
