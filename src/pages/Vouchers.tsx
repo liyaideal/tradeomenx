@@ -112,9 +112,12 @@ const Vouchers = () => {
                 Position Vouchers
               </h1>
               <p className="text-muted-foreground text-sm mt-1.5 max-w-xl">
-                Redeem a voucher to instantly open a free position on any eligible event. Profits are capped per voucher; losses don't touch your balance.
+                {isMobile
+                  ? "Open a free position on any eligible event. Profits capped; losses don't touch your balance."
+                  : "Redeem a voucher to instantly open a free position on any eligible event. Profits are capped per voucher; losses don't touch your balance."}
               </p>
             </div>
+
           </div>
 
           <VoucherEarningsCard />
@@ -149,7 +152,7 @@ const Vouchers = () => {
                         Available ({issuedVouchers.length})
                       </h2>
                     </div>
-                    <div className="-mx-4 px-5 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 pt-1">
+                    <div className="-mx-4 px-6 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 pt-2">
                       {issuedVouchers.map((v) => (
                         <div key={v.id} className="snap-start shrink-0 w-[78%] max-w-[280px]">
                           <VoucherCard
@@ -225,29 +228,51 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
     <div className="space-y-2">
       {items.map((v) => {
         const isClosed = v.status === "settled" || v.redeemedAirdropStatus === "settled";
+        const pnl = v.redeemedSettledPnl;
+        const pnlColor =
+          pnl == null ? "text-muted-foreground" : pnl >= 0 ? "text-trading-green" : "text-trading-red";
+        const sideLabel = v.redeemedOutcomeLabel || (v.redeemedSide ? v.redeemedSide.toUpperCase() : null);
         return (
           <div
             key={v.id}
-            className={`rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-between gap-3 ${isClosed ? "opacity-70" : ""}`}
+            className={`rounded-lg border border-border bg-muted/20 p-3 ${isClosed ? "opacity-80" : ""}`}
           >
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
-                <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
+                  <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
+                  {sideLabel && (
+                    <span className="inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {sideLabel}
+                    </span>
+                  )}
+                </div>
+                {v.redeemedEventName && (
+                  <div className="text-xs text-foreground/80 mt-1 truncate">{v.redeemedEventName}</div>
+                )}
+                <div className="text-[11px] text-muted-foreground mt-0.5">
+                  Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
+                </div>
               </div>
-              <div className="text-[11px] text-muted-foreground mt-0.5">
-                Redeemed {v.redeemedAt ? new Date(v.redeemedAt).toLocaleDateString() : ""}
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <span className={`text-[11px] ${isClosed ? "text-muted-foreground" : "text-primary"}`}>
+                  {isClosed ? "Position closed" : "Position open"}
+                </span>
+                {isClosed && pnl != null && (
+                  <span className={`font-mono text-sm ${pnlColor}`}>
+                    {pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}
+                  </span>
+                )}
               </div>
             </div>
-            <span className={`text-[11px] ${isClosed ? "text-muted-foreground" : "text-primary"}`}>
-              {isClosed ? "Position closed" : "Position open"}
-            </span>
           </div>
         );
       })}
     </div>
   </section>
 );
+
 
 const ExpiredSection = ({ items }: { items: ReturnType<typeof usePositionVouchers>["vouchers"] }) => (
   <section className="space-y-3">
