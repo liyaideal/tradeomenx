@@ -106,15 +106,32 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
       {/* Counter Position Info */}
       <div className="mb-2">
         <h3 className="font-medium text-foreground text-sm">{airdrop.counterEventName}</h3>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs">
           {(() => {
-            const label = airdrop.counterOptionLabel ?? "";
-            const isBinaryOutcome = /^(yes|no)$/i.test(label.trim());
+            const rawLabel = airdrop.counterOptionLabel ?? "";
+            const trimmed = rawLabel.trim().toLowerCase();
+            const isBinaryOutcome = counterIsBinary || /^(yes|no)$/i.test(trimmed);
+            if (isBinaryOutcome) {
+              const aliased = counterSideLabels
+                ? trimmed === "yes"
+                  ? counterSideLabels.yes
+                  : trimmed === "no"
+                  ? counterSideLabels.no
+                  : rawLabel
+                : rawLabel;
+              const colorClass = trimmed === "yes" ? "text-trading-green" : "text-trading-red";
+              return <span className={colorClass}>{aliased}</span>;
+            }
             const sideText = airdrop.counterSide === "long" ? "Yes" : "No";
-            return isBinaryOutcome ? label : `${label} · ${sideText}`;
+            return (
+              <span className="text-muted-foreground">
+                {rawLabel} · {sideText}
+              </span>
+            );
           })()}
         </p>
       </div>
+
 
 
       {/* Details Grid */}
