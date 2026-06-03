@@ -6,6 +6,8 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
+import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
+import { getBinaryOutcome } from "@/lib/eventUtils";
 import { VoucherCard } from "@/components/vouchers/VoucherCard";
 import { RedeemVoucherContent } from "@/components/vouchers/RedeemVoucherContent";
 import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
@@ -223,16 +225,26 @@ const Vouchers = () => {
   );
 };
 
-const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouchers>["vouchers"] }) => (
-  <section className="space-y-3">
-    <h2 className="text-sm font-medium text-muted-foreground">Redeemed ({items.length})</h2>
-    <div className="space-y-2">
-      {items.map((v) => {
+const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouchers>["vouchers"] }) => {
+  const sideLabelsLookup = useEventSideLabelsLookup();
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-medium text-muted-foreground">Redeemed ({items.length})</h2>
+      <div className="space-y-2">
+        {items.map((v) => {
         const isClosed = v.status === "settled" || v.redeemedAirdropStatus === "settled";
         const pnl = v.redeemedSettledPnl;
         const pnlColor =
           pnl == null ? "text-muted-foreground" : pnl >= 0 ? "text-trading-green" : "text-trading-red";
-        const sideLabel = v.redeemedOutcomeLabel || (v.redeemedSide ? v.redeemedSide.toUpperCase() : null);
+        const rawOutcome = v.redeemedOutcomeLabel ?? null;
+        const binaryOutcome = getBinaryOutcome(rawOutcome);
+        const { labels: redeemedSideLabels } = sideLabelsLookup(v.redeemedEventName ?? "");
+        const sideLabel = binaryOutcome && redeemedSideLabels
+          ? redeemedSideLabels[binaryOutcome]
+          : rawOutcome || (v.redeemedSide ? v.redeemedSide.toUpperCase() : null);
+        const sideLabelColor =
+          binaryOutcome === "yes" ? "text-trading-green" : binaryOutcome === "no" ? "text-trading-red" : "text-muted-foreground";
         return (
           <div
             key={v.id}
@@ -244,7 +256,7 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
                   <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
                   <span className="font-mono text-sm">${v.faceValue.toFixed(2)}</span>
                   {sideLabel && (
-                    <span className="inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <span className={`inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider ${binaryOutcome ? "normal-case" : "uppercase"} ${sideLabelColor}`}>
                       {sideLabel}
                     </span>
                   )}
@@ -269,10 +281,11 @@ const RedeemedSection = ({ items }: { items: ReturnType<typeof usePositionVouche
             </div>
           </div>
         );
-      })}
-    </div>
-  </section>
-);
+        })}
+      </div>
+    </section>
+  );
+};
 
 
 const ExpiredSection = ({ items }: { items: ReturnType<typeof usePositionVouchers>["vouchers"] }) => (
