@@ -31,24 +31,26 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Voucher code</span>
-          <span className="font-mono">{voucher.code}</span>
+      {variant !== "inline" && (
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Voucher code</span>
+            <span className="font-mono">{voucher.code}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm mt-1">
+            <span className="text-muted-foreground">Face value</span>
+            <span className="font-mono text-trading-green">${voucher.faceValue.toFixed(2)}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Max profit</span>
+            <span className="font-mono">${cap.toFixed(2)}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Hold window</span>
+            <span className="font-mono">{voucher.maxHoldingHours}h</span>
+          </div>
         </div>
-        <div className="flex items-center justify-between text-sm mt-1">
-          <span className="text-muted-foreground">Face value</span>
-          <span className="font-mono text-trading-green">${voucher.faceValue.toFixed(2)}</span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Max profit</span>
-          <span className="font-mono">${cap.toFixed(2)}</span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Hold window</span>
-          <span className="font-mono">{voucher.maxHoldingHours}h</span>
-        </div>
-      </div>
+      )}
 
       <div>
         <div className="text-sm font-medium mb-2">Pick a market</div>
