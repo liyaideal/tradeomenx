@@ -499,18 +499,19 @@ const RedeemedRowDemo = () => {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-mono text-xs text-muted-foreground">{code}</span>
                 <span className="font-mono text-sm">${face.toFixed(2)}</span>
-                {!isBinary && (
-                  <>
-                    <span className="inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-muted-foreground">
-                      Above 5.0%
-                    </span>
-                    <span className="inline-flex items-center rounded border border-trading-green/40 bg-trading-green/10 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-trading-green">
-                      YES
-                    </span>
-                  </>
-                )}
               </div>
+              {!isBinary && (
+                <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-muted-foreground">
+                    Above 5.0%
+                  </span>
+                  <span className="inline-flex items-center rounded border border-trading-green/40 bg-trading-green/10 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-trading-green">
+                    YES
+                  </span>
+                </div>
+              )}
               <div className="text-xs text-foreground/80 mt-1 truncate">{eventName}</div>
+
               {isBinary && (
                 <div className="mt-1.5 min-w-0">
                   <span className="inline-flex max-w-full items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] normal-case truncate text-trading-red">
