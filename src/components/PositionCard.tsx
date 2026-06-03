@@ -126,7 +126,9 @@ export const PositionCard = ({
   const [slMode, setSlMode] = useState<"%" | "$">("$");
   const { toast } = useToast();
 
-  const { partialClosePosition, isClosing } = usePositions();
+  const { partialClosePosition, closePosition, isClosing } = usePositions();
+
+  const isVoucher = isAirdrop && fullPosition?.airdropSource === "voucher";
 
   const handleClosePartial = async (qty: number) => {
     if (!positionId || positionIndex === undefined) {
@@ -134,6 +136,11 @@ export const PositionCard = ({
       return;
     }
     await partialClosePosition(positionId, positionIndex, qty);
+  };
+
+  const handleCloseVoucher = async () => {
+    if (!positionId || positionIndex === undefined) return;
+    await closePosition(positionId, positionIndex);
   };
 
   const handleSave = () => {
