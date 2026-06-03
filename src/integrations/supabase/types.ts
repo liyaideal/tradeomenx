@@ -1403,6 +1403,66 @@ export type Database = {
         }
         Relationships: []
       }
+      voucher_earnings: {
+        Row: {
+          created_at: string
+          id: string
+          last_settled_at: string | null
+          lifetime_credited: number
+          pending_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_settled_at?: string | null
+          lifetime_credited?: number
+          pending_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_settled_at?: string | null
+          lifetime_credited?: number
+          pending_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      voucher_earnings_ledger: {
+        Row: {
+          airdrop_position_id: string | null
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          airdrop_position_id?: string | null
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          airdrop_position_id?: string | null
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           address: string
