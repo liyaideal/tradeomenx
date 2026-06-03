@@ -342,7 +342,7 @@ export const useAirdropPositions = () => {
         description: isVoucherDemo
           ? (credited > 0
               ? `+$${credited.toFixed(2)} credited to voucher earnings pool`
-              : 'No profit credited (loss floored to $0)')
+              : 'No profit credited')
           : (credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited'),
       });
       return;
@@ -369,7 +369,7 @@ export const useAirdropPositions = () => {
       description: isVoucherClose
         ? (credited > 0
             ? `+$${credited.toFixed(2)} credited to voucher earnings pool`
-            : 'No profit credited (loss floored to $0)')
+            : 'No profit credited')
         : (credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited'),
     });
     queryClient.invalidateQueries({ queryKey: QUERY_KEY });
