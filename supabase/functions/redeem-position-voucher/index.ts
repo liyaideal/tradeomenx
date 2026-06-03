@@ -79,7 +79,12 @@ Deno.serve(async (req) => {
     if (!option) return json({ error: 'Option not found' }, 404)
 
     const price = Number(option.price)
-    if (price < Number(voucher.entry_price_min) || price > Number(voucher.entry_price_max)) {
+    // Allow a small slippage tolerance so live price drift between picker render
+    // and submit doesn't reject a redemption the UI deemed eligible.
+    const BAND_SLIPPAGE = 0.03
+    const bandMin = Number(voucher.entry_price_min) - BAND_SLIPPAGE
+    const bandMax = Number(voucher.entry_price_max) + BAND_SLIPPAGE
+    if (price < bandMin || price > bandMax) {
       return json(
         {
           error: `Price ${price.toFixed(2)} is outside the voucher band ${voucher.entry_price_min}–${voucher.entry_price_max}`,
