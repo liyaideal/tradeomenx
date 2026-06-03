@@ -169,9 +169,30 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
       )}
 
       {isActivated && (
-        <div className="flex items-center gap-2 text-xs text-trading-green py-1">
-          <Zap className="w-3 h-3" />
-          <span>Activated — Position is now live</span>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs text-trading-green py-1">
+            <Zap className="w-3 h-3" />
+            <span>Activated — Position is now live</span>
+          </div>
+          {onClose && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full h-8 text-xs gap-1.5"
+              disabled={isClosing}
+              onClick={async () => {
+                setIsClosing(true);
+                try {
+                  await onClose(airdrop.id);
+                } finally {
+                  setIsClosing(false);
+                }
+              }}
+            >
+              <X className="w-3 h-3" />
+              {isClosing ? "Closing…" : "Close position"}
+            </Button>
+          )}
         </div>
       )}
 
