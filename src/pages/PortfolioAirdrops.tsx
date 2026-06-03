@@ -430,7 +430,9 @@ export default function PortfolioAirdrops() {
                         ) : null}
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
+
                 </TableBody>
               </Table>
             </div>
