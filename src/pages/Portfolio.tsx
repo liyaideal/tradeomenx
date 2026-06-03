@@ -93,7 +93,7 @@ export default function Portfolio() {
   const { user, isLoading: authLoading } = useUserProfile();
   const { positions, isLoading: positionsLoading } = usePositions();
   const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
-  const { airdrops } = useAirdropPositions();
+  const { airdrops, closePosition } = useAirdropPositions();
   const resolveDisplayOption = useEventDisplayLookup();
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   // Use the same risk metrics as the Account Risk module in /trade
@@ -1047,7 +1047,7 @@ export default function Portfolio() {
               </div>
             ) : (
               airdrops.map((airdrop) => (
-                <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+                <AirdropPositionCard key={airdrop.id} airdrop={airdrop} onClose={closePosition} />
               ))
             )}
           </div>

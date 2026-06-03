@@ -1,5 +1,7 @@
-import { Gift, Ticket, Clock, Zap, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { Gift, Ticket, Clock, Zap, AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
 import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import type { AirdropPosition } from "@/hooks/useAirdropPositions";
@@ -8,9 +10,11 @@ interface AirdropPositionCardProps {
   airdrop: AirdropPosition;
   onActivate?: (id: string) => Promise<void>;
   isActivating?: boolean;
+  onClose?: (id: string) => Promise<void>;
 }
 
-export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: AirdropPositionCardProps) => {
+export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose }: AirdropPositionCardProps) => {
+  const [isClosing, setIsClosing] = useState(false);
   const { timeLeft, isExpired, urgent } = useCountdown(airdrop.expiresAt);
 
   const isPending = airdrop.status === "pending";
@@ -165,9 +169,30 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating }: Airdr
       )}
 
       {isActivated && (
-        <div className="flex items-center gap-2 text-xs text-trading-green py-1">
-          <Zap className="w-3 h-3" />
-          <span>Activated — Position is now live</span>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs text-trading-green py-1">
+            <Zap className="w-3 h-3" />
+            <span>Activated — Position is now live</span>
+          </div>
+          {onClose && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full h-8 text-xs gap-1.5"
+              disabled={isClosing}
+              onClick={async () => {
+                setIsClosing(true);
+                try {
+                  await onClose(airdrop.id);
+                } finally {
+                  setIsClosing(false);
+                }
+              }}
+            >
+              <X className="w-3 h-3" />
+              {isClosing ? "Closing…" : "Close position"}
+            </Button>
+          )}
         </div>
       )}
 

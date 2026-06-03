@@ -221,6 +221,14 @@ export const useAirdropPositions = () => {
           expiresAt: row.expires_at,
           activatedAt: row.activated_at,
           createdAt: row.created_at,
+          settledPnl: row.settled_pnl != null ? Number(row.settled_pnl) : undefined,
+          settledAt: row.settled_at ?? null,
+          settlementTrigger:
+            row.close_reason === 'EVENT_RESOLVED'
+              ? 'event_resolved'
+              : row.close_reason
+              ? 'source_closed'
+              : undefined,
         }));
       }
 
@@ -228,6 +236,7 @@ export const useAirdropPositions = () => {
     },
     enabled: isDemoMode || !!user,
   });
+
 
   const activateAirdrop = async (id: string) => {
     setIsActivating(true);
@@ -262,6 +271,48 @@ export const useAirdropPositions = () => {
     }
   };
 
+  const closePosition = async (id: string) => {
+    if (isDemoMode) {
+      const list = queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '', email);
+      const target = list.find((a) => a.id === id);
+      if (!target) return;
+      // demo PnL: random-ish but bounded
+      const entry = target.counterPrice;
+      const mark = Math.max(0.01, Math.min(0.99, entry + (Math.random() - 0.5) * 0.2));
+      const raw = (target.counterSide === 'short' ? entry - mark : mark - entry) * target.airdropValue;
+      const cap = target.redeemableCap ?? target.airdropValue * 0.5;
+      const credited = Math.max(0, Math.min(raw, cap));
+      const next = list.map((a) =>
+        a.id === id
+          ? { ...a, status: 'settled', settledPnl: credited, settledAt: new Date().toISOString(), settlementTrigger: 'source_closed' as const }
+          : a,
+      );
+      saveDemoAirdrops(user?.id ?? '', next);
+      queryClient.setQueryData<AirdropPosition[]>(queryKey, next);
+      toast({ title: 'Position closed', description: credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited' });
+      return;
+    }
+
+    const { data, error } = await supabase.functions.invoke('close-trial-position', {
+      body: { airdropPositionId: id, reason: 'USER_CLOSE' },
+    });
+    if (error || (data as any)?.error) {
+      toast({
+        title: 'Close failed',
+        description: (data as any)?.error ?? error?.message ?? 'Unknown error',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const credited = Number((data as any)?.creditedPnl ?? 0);
+    toast({
+      title: 'Position closed',
+      description: credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited',
+    });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+  };
+
   const pendingAirdrops = airdrops.filter((a) => a.status === "pending");
   const activatedAirdrops = airdrops.filter((a) => a.status === "activated");
   const expiredAirdrops = airdrops.filter((a) => a.status === "expired");
@@ -276,5 +327,6 @@ export const useAirdropPositions = () => {
     isLoading,
     activateAirdrop,
     isActivating,
+    closePosition,
   };
 };
