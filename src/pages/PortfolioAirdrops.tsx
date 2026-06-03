@@ -12,6 +12,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
