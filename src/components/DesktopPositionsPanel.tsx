@@ -34,6 +34,8 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { getBinaryOutcome } from "@/lib/eventUtils";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
+
 import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
 import { PositionDetailDialog } from "@/components/positions/PositionDetailDialog";
 
