@@ -75,10 +75,18 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
         <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
           <div className="text-xs font-medium text-foreground">{picked.eventName}</div>
           <div className="text-xs text-muted-foreground">
-            {picked.optionLabel} ·{" "}
-            <span className={picked.side === "long" ? "text-trading-green" : "text-trading-red"}>
-              {picked.side === "long" ? "Yes" : "No"}
-            </span>
+            {picked.isBinary ? (
+              <span className={picked.optionLabel.trim().toLowerCase() === "yes" ? "text-trading-green" : "text-trading-red"}>
+                {picked.optionLabel}
+              </span>
+            ) : (
+              <>
+                {picked.optionLabel} ·{" "}
+                <span className={picked.side === "long" ? "text-trading-green" : "text-trading-red"}>
+                  {picked.side === "long" ? "Yes" : "No"}
+                </span>
+              </>
+            )}
           </div>
           <div className="grid grid-cols-3 gap-2 pt-2 text-xs">
             <div>
@@ -128,10 +136,21 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
               <div className="min-w-0 flex-1">
                 <div className="text-xs text-foreground truncate">
                   <span className="font-medium">{picked.eventName}</span>
-                  <span className="text-muted-foreground"> · {picked.optionLabel} · </span>
-                  <span className={picked.side === "long" ? "text-trading-green" : "text-trading-red"}>
-                    {picked.side === "long" ? "Yes" : "No"}
-                  </span>
+                  {picked.isBinary ? (
+                    <>
+                      <span className="text-muted-foreground"> · </span>
+                      <span className={picked.optionLabel.trim().toLowerCase() === "yes" ? "text-trading-green" : "text-trading-red"}>
+                        {picked.optionLabel}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-muted-foreground"> · {picked.optionLabel} · </span>
+                      <span className={picked.side === "long" ? "text-trading-green" : "text-trading-red"}>
+                        {picked.side === "long" ? "Yes" : "No"}
+                      </span>
+                    </>
+                  )}
                 </div>
                 <div className="text-[11px] text-muted-foreground mt-0.5 flex gap-3 font-mono tabular-nums">
                   <span>Entry ${picked.price.toFixed(4)}</span>

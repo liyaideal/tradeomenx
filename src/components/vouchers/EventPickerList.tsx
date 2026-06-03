@@ -13,6 +13,7 @@ export interface PickedOption {
   optionLabel: string;
   price: number;
   side: "long" | "short";
+  isBinary: boolean;
 }
 
 interface EligibilityResult {
@@ -185,6 +186,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                           optionLabel: opt.label,
                           price: opt.price,
                           side,
+                          isBinary,
                         });
                       }}
                       className={[
