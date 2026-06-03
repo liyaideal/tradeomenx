@@ -51,6 +51,7 @@ const StyleGuideIndex = () => {
     { id: "mobile", label: "Mobile", icon: "📱" },
     { id: "identity", label: "Identity", icon: "👤" },
     { id: "transparency", label: "Transparency", icon: "🔗" },
+    { id: "vouchers", label: "Vouchers", icon: "🎫" },
   ];
 
   return (
