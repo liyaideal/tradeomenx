@@ -1319,7 +1319,7 @@ export default function DesktopTrading() {
                                   <TooltipTrigger asChild>
                                     <span className="inline-flex items-center justify-center text-muted-foreground mx-auto"><Lock className="w-3.5 h-3.5" /></span>
                                   </TooltipTrigger>
-                                  <TooltipContent><p className="text-xs">Airdrop positions auto-settle on event resolution</p></TooltipContent>
+                                  <TooltipContent><p className="text-xs">{position.airdropSource === "voucher" ? "Voucher positions don't support TP/SL. Close manually within the hold window." : "Airdrop positions auto-settle on event resolution"}</p></TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             ) : (
