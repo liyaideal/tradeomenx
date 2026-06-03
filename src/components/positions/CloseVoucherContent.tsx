@@ -132,8 +132,10 @@ export const CloseVoucherContent = ({
         is never debited.
       </p>
 
-      {variant === "drawer" ? (
-        <MobileDrawerActions>{Actions}</MobileDrawerActions>
+      {isDrawer ? (
+        <MobileDrawerActions>
+          <div className="flex gap-2">{Actions}</div>
+        </MobileDrawerActions>
       ) : (
         <div className="flex justify-end gap-2 pt-2">{Actions}</div>
       )}
