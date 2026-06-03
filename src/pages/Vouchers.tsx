@@ -112,9 +112,12 @@ const Vouchers = () => {
                 Position Vouchers
               </h1>
               <p className="text-muted-foreground text-sm mt-1.5 max-w-xl">
-                Redeem a voucher to instantly open a free position on any eligible event. Profits are capped per voucher; losses don't touch your balance.
+                {isMobile
+                  ? "Open a free position on any eligible event. Profits capped; losses don't touch your balance."
+                  : "Redeem a voucher to instantly open a free position on any eligible event. Profits are capped per voucher; losses don't touch your balance."}
               </p>
             </div>
+
           </div>
 
           <VoucherEarningsCard />
