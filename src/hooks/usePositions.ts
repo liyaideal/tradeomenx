@@ -161,6 +161,8 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     isAirdrop: true,
     airdropId: airdrop.id,
     airdropSource: airdrop.source,
+    voucherFaceValue: isVoucher ? airdrop.airdropValue : undefined,
+    voucherRedeemableCap: isVoucher ? airdrop.redeemableCap ?? null : undefined,
     fundingAccrued: 0,
     lastFundingAt: null,
     entryPriceNum: airdrop.counterPrice,
