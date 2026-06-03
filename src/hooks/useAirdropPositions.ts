@@ -221,6 +221,14 @@ export const useAirdropPositions = () => {
           expiresAt: row.expires_at,
           activatedAt: row.activated_at,
           createdAt: row.created_at,
+          settledPnl: row.settled_pnl != null ? Number(row.settled_pnl) : undefined,
+          settledAt: row.settled_at ?? null,
+          settlementTrigger:
+            row.close_reason === 'EVENT_RESOLVED'
+              ? 'event_resolved'
+              : row.close_reason
+              ? 'source_closed'
+              : undefined,
         }));
       }
 
@@ -228,6 +236,7 @@ export const useAirdropPositions = () => {
     },
     enabled: isDemoMode || !!user,
   });
+
 
   const activateAirdrop = async (id: string) => {
     setIsActivating(true);
