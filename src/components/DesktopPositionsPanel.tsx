@@ -46,6 +46,8 @@ export const DesktopPositionsPanel = () => {
   const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   const { pendingAirdrops, activatedAirdrops } = useAirdropPositions();
+  const sideLabelsLookup = useEventSideLabelsLookup();
+
   
   const [activeTab, setActiveTab] = useState("Positions");
   const [tpSlOpen, setTpSlOpen] = useState(false);
