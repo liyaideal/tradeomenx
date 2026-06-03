@@ -129,7 +129,7 @@ export const VoucherCard = ({ voucher, onRedeem, compact, selected }: VoucherCar
                 selected ? "text-muted-foreground" : "text-muted-foreground/60",
               )}
             >
-              Max payout
+              Max profit
             </span>
             <span
               className={cn(
