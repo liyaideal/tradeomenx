@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,10 +16,23 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
   const [picked, setPicked] = useState<PickedOption | null>(null);
   const { redeem, isRedeeming } = usePositionVouchers();
   const navigate = useNavigate();
+  const stickyBarRef = useRef<HTMLDivElement | null>(null);
 
   const cap = voucher.faceValue * voucher.redeemableCapPct;
   const size = picked ? voucher.faceValue / picked.price : 0;
   const isInline = variant === "inline";
+
+  // When user picks an option in inline mode, scroll the sticky action bar into view
+  useEffect(() => {
+    if (!isInline || !picked) return;
+    const el = stickyBarRef.current;
+    if (!el) return;
+    // Defer until layout settles
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
+  }, [picked?.optionId, picked?.side, isInline]);
+
 
   const handleSubmit = async () => {
     if (!picked) return;
@@ -109,7 +122,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
       )}
 
       {isInline && (
-        <div className="sticky bottom-0 z-10 -mx-4 md:-mx-5 -mb-4 md:-mb-5 px-4 md:px-5 py-3 bg-background/95 backdrop-blur border-t border-border rounded-b-xl">
+        <div ref={stickyBarRef} className="sticky bottom-0 z-10 -mx-4 md:-mx-5 -mb-4 md:-mb-5 px-4 md:px-5 py-3 bg-background/95 backdrop-blur border-t border-border rounded-b-xl scroll-mt-4 scroll-mb-4">
           {picked ? (
             <div className="flex items-center gap-3">
               <div className="min-w-0 flex-1">
