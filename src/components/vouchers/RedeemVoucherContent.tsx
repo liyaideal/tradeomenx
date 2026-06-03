@@ -16,10 +16,23 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
   const [picked, setPicked] = useState<PickedOption | null>(null);
   const { redeem, isRedeeming } = usePositionVouchers();
   const navigate = useNavigate();
+  const stickyBarRef = useRef<HTMLDivElement | null>(null);
 
   const cap = voucher.faceValue * voucher.redeemableCapPct;
   const size = picked ? voucher.faceValue / picked.price : 0;
   const isInline = variant === "inline";
+
+  // When user picks an option in inline mode, scroll the sticky action bar into view
+  useEffect(() => {
+    if (!isInline || !picked) return;
+    const el = stickyBarRef.current;
+    if (!el) return;
+    // Defer until layout settles
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
+  }, [picked?.optionId, picked?.side, isInline]);
+
 
   const handleSubmit = async () => {
     if (!picked) return;
