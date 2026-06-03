@@ -174,11 +174,11 @@ export const VoucherCard = ({ voucher, onRedeem, compact, selected }: VoucherCar
 
       <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
         <div>
-          <div className="text-[10px] text-muted-foreground">Max Profit</div>
+          <div className="text-[10px] text-muted-foreground">Max profit</div>
           <div className="font-mono text-trading-green">${cap.toFixed(2)}</div>
         </div>
         <div>
-          <div className="text-[10px] text-muted-foreground">Hold Window</div>
+          <div className="text-[10px] text-muted-foreground">Hold window</div>
           <div className="font-mono">{voucher.maxHoldingHours}h</div>
         </div>
         <div>
