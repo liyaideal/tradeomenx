@@ -1047,7 +1047,7 @@ export default function Portfolio() {
               </div>
             ) : (
               airdrops.map((airdrop) => (
-                <AirdropPositionCard key={airdrop.id} airdrop={airdrop} />
+                <AirdropPositionCard key={airdrop.id} airdrop={airdrop} onClose={closePosition} />
               ))
             )}
           </div>
