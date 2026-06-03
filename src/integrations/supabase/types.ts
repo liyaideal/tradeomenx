@@ -19,12 +19,14 @@ export type Database = {
           activated_at: string | null
           activated_trade_id: string | null
           airdrop_value: number
+          close_reason: string | null
           connected_account_id: string | null
           counter_event_name: string
           counter_option_label: string
           counter_price: number
           counter_side: string
           created_at: string
+          exit_price: number | null
           expired_at: string | null
           expires_at: string
           external_event_name: string | null
@@ -34,6 +36,8 @@ export type Database = {
           external_size: number | null
           id: string
           redeemable_cap: number | null
+          settled_at: string | null
+          settled_pnl: number | null
           source: string
           status: string
           updated_at: string
@@ -43,12 +47,14 @@ export type Database = {
           activated_at?: string | null
           activated_trade_id?: string | null
           airdrop_value?: number
+          close_reason?: string | null
           connected_account_id?: string | null
           counter_event_name: string
           counter_option_label: string
           counter_price: number
           counter_side: string
           created_at?: string
+          exit_price?: number | null
           expired_at?: string | null
           expires_at: string
           external_event_name?: string | null
@@ -58,6 +64,8 @@ export type Database = {
           external_size?: number | null
           id?: string
           redeemable_cap?: number | null
+          settled_at?: string | null
+          settled_pnl?: number | null
           source?: string
           status?: string
           updated_at?: string
@@ -67,12 +75,14 @@ export type Database = {
           activated_at?: string | null
           activated_trade_id?: string | null
           airdrop_value?: number
+          close_reason?: string | null
           connected_account_id?: string | null
           counter_event_name?: string
           counter_option_label?: string
           counter_price?: number
           counter_side?: string
           created_at?: string
+          exit_price?: number | null
           expired_at?: string | null
           expires_at?: string
           external_event_name?: string | null
@@ -82,6 +92,8 @@ export type Database = {
           external_size?: number | null
           id?: string
           redeemable_cap?: number | null
+          settled_at?: string | null
+          settled_pnl?: number | null
           source?: string
           status?: string
           updated_at?: string
