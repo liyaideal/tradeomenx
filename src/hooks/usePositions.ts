@@ -194,7 +194,7 @@ export const usePositions = () => {
   } = usePositionsStore();
 
   // Activated airdrops (merged into positions list)
-  const { activatedAirdrops } = useAirdropPositions();
+  const { activatedAirdrops, closePosition: closeAirdropPosition } = useAirdropPositions();
   
   // Lookup for sideLabels-aware display labels
   const resolveDisplayOption = useEventDisplayLookup();
@@ -221,11 +221,10 @@ export const usePositions = () => {
   // Unified close position handler
   const closePosition = useCallback(
     async (positionId: string, index: number) => {
-      // Airdrop positions — just remove from local state for now
+      // Airdrop positions — route voucher closes through the trial-position edge function
       if (positionId.startsWith("airdrop-")) {
-        // For demo: could mark as closed; for now just toast
-        const { toast } = await import("sonner");
-        toast.success("Airdrop position closed");
+        const rawId = positionId.slice("airdrop-".length);
+        await closeAirdropPosition(rawId);
         return;
       }
       if (isLoggedIn) {
@@ -243,15 +242,16 @@ export const usePositions = () => {
         closeLocalPosition(index);
       }
     },
-    [isLoggedIn, supabasePositions, closeSupabasePosition, closeLocalPosition]
+    [isLoggedIn, supabasePositions, closeSupabasePosition, closeLocalPosition, closeAirdropPosition]
   );
 
   // Unified partial close handler — closeQty is integer contracts
   const partialClosePosition = useCallback(
     async (positionId: string, index: number, closeQty: number) => {
       if (positionId.startsWith("airdrop-")) {
-        const { toast } = await import("sonner");
-        toast.success("Airdrop position closed");
+        // Airdrop / voucher positions are always full-close; ignore qty and call the edge fn.
+        const rawId = positionId.slice("airdrop-".length);
+        await closeAirdropPosition(rawId);
         return;
       }
       if (isLoggedIn) {
