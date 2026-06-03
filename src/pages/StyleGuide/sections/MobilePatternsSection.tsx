@@ -584,20 +584,18 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
           <Card className="trading-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Detail Page Header</CardTitle>
-              <CardDescription className="text-[10px]">Back + Logo combined</CardDescription>
+              <CardDescription className="text-[10px]">Back + centered title (no logo)</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="bg-background rounded-lg border border-border overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-                  <div className="flex items-center gap-2">
-                    <button className="h-9 w-9 flex items-center justify-center">
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <Logo size="md" showMainnetBadge={false} />
-                  </div>
+                <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-border">
+                  <button className="h-9 w-9 flex items-center justify-center flex-shrink-0">
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
                   <h1 className="text-sm font-semibold flex-1 text-center">Event Details</h1>
-                  <div className="w-9" />
+                  <div className="w-9 flex-shrink-0" />
                 </div>
+
               </div>
             </CardContent>
           </Card>
