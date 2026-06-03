@@ -8,6 +8,7 @@ import { getBinaryOutcome } from "@/lib/eventUtils";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { usePositions, type UnifiedPosition } from "@/hooks/usePositions";
 import { ClosePositionDrawer } from "@/components/positions/ClosePositionDrawer";
+import { CloseVoucherDrawer } from "@/components/positions/CloseVoucherDrawer";
 import { PositionDetailDrawer } from "@/components/positions/PositionDetailDrawer";
 
 interface PositionCardProps {
