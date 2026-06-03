@@ -83,7 +83,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
           <div className="text-xs text-muted-foreground">
             {picked.isBinary ? (
               <span className={picked.optionLabel.trim().toLowerCase() === "yes" ? "text-trading-green" : "text-trading-red"}>
-                {picked.optionLabel}
+                {picked.displayLabel}
               </span>
             ) : (
               <>
@@ -94,6 +94,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
               </>
             )}
           </div>
+
           <div className="grid grid-cols-3 gap-2 pt-2 text-xs">
             <div>
               <div className="text-[10px] text-muted-foreground">Entry</div>
@@ -146,7 +147,7 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
                     <>
                       <span className="text-muted-foreground"> · </span>
                       <span className={picked.optionLabel.trim().toLowerCase() === "yes" ? "text-trading-green" : "text-trading-red"}>
-                        {picked.optionLabel}
+                        {picked.displayLabel}
                       </span>
                     </>
                   ) : (
@@ -176,9 +177,10 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
           ) : (
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
               <span className="text-xs text-muted-foreground">
-                Select Yes or No on a market above to continue.
+                Select an outcome on a market above to continue.
               </span>
               <Button disabled className="w-full md:w-auto h-10 md:h-9">Confirm & open position</Button>
+
             </div>
           )}
         </div>

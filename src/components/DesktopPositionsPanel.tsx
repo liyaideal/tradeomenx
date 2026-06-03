@@ -34,6 +34,8 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { getBinaryOutcome } from "@/lib/eventUtils";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
+
 import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
 import { PositionDetailDialog } from "@/components/positions/PositionDetailDialog";
 
@@ -44,6 +46,8 @@ export const DesktopPositionsPanel = () => {
   const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   const { pendingAirdrops, activatedAirdrops } = useAirdropPositions();
+  const sideLabelsLookup = useEventSideLabelsLookup();
+
   
   const [activeTab, setActiveTab] = useState("Positions");
   const [tpSlOpen, setTpSlOpen] = useState(false);
@@ -359,24 +363,40 @@ export const DesktopPositionsPanel = () => {
                   })
                 )}
                 {/* Activated airdrop rows — vouchers render in the main positions table above, not here */}
-                {activatedAirdrops.filter((a) => a.source !== "voucher").map((airdrop) => (
+                {activatedAirdrops.filter((a) => a.source !== "voucher").map((airdrop) => {
+                  const { isBinary: rowIsBinary, labels: rowSideLabels } = sideLabelsLookup(airdrop.counterEventName ?? "");
+                  const rawLabel = airdrop.counterOptionLabel ?? "";
+                  const trimmed = rawLabel.trim().toLowerCase();
+                  const isBinaryOutcome = rowIsBinary || trimmed === "yes" || trimmed === "no";
+                  const aliasedLabel = isBinaryOutcome && rowSideLabels
+                    ? trimmed === "yes" ? rowSideLabels.yes : trimmed === "no" ? rowSideLabels.no : rawLabel
+                    : rawLabel;
+                  const binaryColorClass = trimmed === "yes" ? "text-trading-green" : "text-trading-red";
+                  return (
                   <tr key={airdrop.id} className="border-b border-border/30 bg-trading-green/5">
                     <td className="px-3 py-2 text-sm">
                       <div className="flex items-center gap-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                          airdrop.counterSide === "long"
-                            ? "bg-trading-green/20 text-trading-green"
-                            : "bg-trading-red/20 text-trading-red"
-                        }`}>
-                          {airdrop.counterSide === "long" ? "Yes" : "No"}
-                        </span>
-                        <span className="font-medium max-w-[150px] truncate">{airdrop.counterOptionLabel}</span>
+                        {isBinaryOutcome ? (
+                          <span className={`font-medium max-w-[180px] truncate ${binaryColorClass}`}>{aliasedLabel}</span>
+                        ) : (
+                          <>
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                              airdrop.counterSide === "long"
+                                ? "bg-trading-green/20 text-trading-green"
+                                : "bg-trading-red/20 text-trading-red"
+                            }`}>
+                              {airdrop.counterSide === "long" ? "Yes" : "No"}
+                            </span>
+                            <span className="font-medium max-w-[150px] truncate">{rawLabel}</span>
+                          </>
+                        )}
                         <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
                           <Gift className="w-3 h-3" />
                           AIRDROP
                         </Badge>
                       </div>
                     </td>
+
                     <td className="px-3 py-2 text-sm font-mono">—</td>
                     <td className="px-3 py-2 text-sm font-mono text-trading-green">${airdrop.airdropValue.toFixed(2)}</td>
                     <td className="px-3 py-2 text-sm font-mono">${airdrop.counterPrice.toFixed(4)}</td>
@@ -391,7 +411,9 @@ export const DesktopPositionsPanel = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
+
               </tbody>
             </table>
           </div>

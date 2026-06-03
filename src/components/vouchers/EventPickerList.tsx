@@ -12,10 +12,13 @@ export interface PickedOption {
   eventName: string;
   optionId: string;
   optionLabel: string;
+  /** Display label resolved through sideLabels (e.g. "Pereira"); equal to optionLabel when no alias. */
+  displayLabel: string;
   price: number;
   side: "long" | "short";
   isBinary: boolean;
 }
+
 
 interface EligibilityResult {
   ok: boolean;
@@ -194,6 +197,8 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                           eventName: event.name,
                           optionId: opt.id,
                           optionLabel: opt.label,
+                          displayLabel: shownLabel,
+
                           price: opt.price,
                           side,
                           isBinary,

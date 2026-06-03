@@ -12,6 +12,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -119,6 +121,8 @@ export default function PortfolioAirdrops() {
   const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, settledAirdrops, isLoading, activateAirdrop, isActivating, closePosition } = useAirdropPositions();
   const { positions } = usePositions();
   const { data: settlements = [] } = useSettlements();
+  const sideLabelsLookup = useEventSideLabelsLookup();
+
 
   const handleTabChange = (tab: TabType) => {
     if (tab === "positions") {
@@ -332,26 +336,42 @@ export default function PortfolioAirdrops() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {airdrops.map((airdrop) => (
+                  {airdrops.map((airdrop) => {
+                    const { isBinary: rowIsBinary, labels: rowSideLabels } = sideLabelsLookup(airdrop.counterEventName ?? "");
+                    const rawLabel = airdrop.counterOptionLabel ?? "";
+                    const trimmed = rawLabel.trim().toLowerCase();
+                    const isBinaryOutcome = rowIsBinary || trimmed === "yes" || trimmed === "no";
+                    const aliasedLabel = isBinaryOutcome && rowSideLabels
+                      ? trimmed === "yes" ? rowSideLabels.yes : trimmed === "no" ? rowSideLabels.no : rawLabel
+                      : rawLabel;
+                    const binaryColorClass = trimmed === "yes" ? "text-trading-green" : "text-trading-red";
+                    return (
                     <TableRow key={airdrop.id} className="border-border/50">
                       <TableCell>
                         <div className="max-w-[220px]">
                           <div className="font-medium text-foreground truncate">{airdrop.counterEventName}</div>
-                          <div className="text-xs text-muted-foreground">{airdrop.counterOptionLabel}</div>
+                          <div className={`text-xs ${isBinaryOutcome ? binaryColorClass : "text-muted-foreground"}`}>
+                            {aliasedLabel}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] ${
-                            airdrop.counterSide === "long"
-                              ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                              : "border-trading-red/50 text-trading-red bg-trading-red/10"
-                          }`}
-                        >
-                          {airdrop.counterSide === "long" ? "Yes" : "No"}
-                        </Badge>
+                        {isBinaryOutcome ? (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] ${
+                              airdrop.counterSide === "long"
+                                ? "border-trading-green/50 text-trading-green bg-trading-green/10"
+                                : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                            }`}
+                          >
+                            {airdrop.counterSide === "long" ? "Yes" : "No"}
+                          </Badge>
+                        )}
                       </TableCell>
+
                       <TableCell className="text-right font-mono text-trading-green">
                         ${airdrop.airdropValue.toFixed(2)}
                       </TableCell>
@@ -410,7 +430,9 @@ export default function PortfolioAirdrops() {
                         ) : null}
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
+
                 </TableBody>
               </Table>
             </div>
