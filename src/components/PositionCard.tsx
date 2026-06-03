@@ -339,7 +339,7 @@ export const PositionCard = ({
                   ? realtimeData.markPrice
                   : parseFloat(markPrice.replace(/[$,]/g, "")) || 0
               }
-              faceValue={fullPosition?.voucherFaceValue ?? parseFloat(margin.replace(/[$,]/g, "")) || 0}
+              faceValue={fullPosition?.voucherFaceValue ?? (parseFloat(margin.replace(/[$,]/g, "")) || 0)}
               redeemableCap={fullPosition?.voucherRedeemableCap ?? null}
               isClosing={isClosing}
               onConfirm={handleCloseVoucher}
