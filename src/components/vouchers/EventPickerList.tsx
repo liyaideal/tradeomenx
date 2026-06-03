@@ -197,6 +197,8 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                           eventName: event.name,
                           optionId: opt.id,
                           optionLabel: opt.label,
+                          displayLabel: shownLabel,
+
                           price: opt.price,
                           side,
                           isBinary,
