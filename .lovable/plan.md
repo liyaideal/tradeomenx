@@ -1,57 +1,38 @@
-## 目标
-Voucher 仓位平仓盈利不再直接进 `trial_balance`，改为进入独立的 **Voucher Earnings** 池。在 `/vouchers` 页面新增展示模块，用户累计成交名义额达到 **50,000 USDC** 后，可一键 claim 全部累计盈利到 wallet 的 available balance（`profiles.balance`）。
+Fix three voucher-related copy/labelling issues so voucher-redeemed airdrop positions are not mislabelled as welcome gifts or generic airdrops.
 
-## 改动概览
+## Changes
 
-### 1. 数据库（migration）
-新增 `voucher_earnings` 表（每用户一行池子余额）：
-- `user_id`（unique）
-- `pending_amount`（待 claim 的累计盈利）
-- `lifetime_credited`（历史已 claim 总额，统计用）
-- `last_settled_at`
+### 1. Source column value (/portfolio/airdrops)
+File: `src/pages/PortfolioAirdrops.tsx` (~line 352-355)
 
-新增 `voucher_earnings_ledger` 表（明细，方便 UI 列表与审计）：
-- `user_id`、`type`（`accrual` | `claim`）
-- `amount`（accrual 为正、claim 为负）
-- `airdrop_position_id`（accrual 时关联）
-- `created_at`
+Current logic only distinguishes `welcome_gift` vs matched, so voucher rows fall into the "Welcome gift" branch.
 
-新增 RLS：用户可 SELECT 自己的行；只有 service_role 可写。配套 GRANT。
+New logic:
+- `source === "voucher"` → `Voucher redemption`
+- `source === "welcome_gift"` → `Welcome gift`
+- else (matched) → `${externalSide} @ $${externalPrice}`
 
-### 2. Edge function 改造
-- `close-trial-position`：把"盈利 → `profiles.trial_balance`"那段替换为"盈利 → `voucher_earnings.pending_amount` + 一条 `accrual` ledger"。
-- 新增 `claim-voucher-earnings`：
-  1. 校验 user，读取 `voucher_earnings.pending_amount`；
-  2. 计算用户历史交易量 = `SELECT COALESCE(SUM(amount),0) FROM trades WHERE user_id=? AND status='Filled'`；
-  3. 若 < 50000 或 pending ≤ 0 → 返回 400 + 当前进度；
-  4. 否则把 pending 加到 `profiles.balance`，pending 清零，`lifetime_credited += amount`，写一条 `claim` ledger，并在 `transactions` 表（如果允许 service_role 写入）插入一条 `voucher_claim` 类型记录用于交易历史。
+### 2. Source column tooltip (/portfolio/airdrops)
+File: `src/pages/PortfolioAirdrops.tsx` (~line 307)
 
-### 3. 前端
-- 新建 `src/hooks/useVoucherEarnings.ts`：
-  - 查询 `voucher_earnings` 当前用户行；
-  - 查询交易量（直接 `select sum`）；
-  - 暴露 `pending`、`volume`、`required = 50000`、`progressPct`、`canClaim`、`claim()`。
-- 新建 `src/components/vouchers/VoucherEarningsCard.tsx`：
-  - 顶部大字：Pending Earnings（USDC，font-mono）
-  - 中部：交易量进度条 `volume / 50,000 USDC`，剩余多少达标
-  - 底部按钮：达标且 pending>0 → `Claim to wallet`；否则 disabled，附说明文案
-  - 可选：展开最近 ledger 明细
-- `src/pages/Vouchers.tsx`：在 voucher 列表上方插入 `VoucherEarningsCard`。
-- 文案统一加入 `docs/copy-dictionary.md`：`Pending earnings / Trading volume / Claim to wallet / Volume requirement`。
+Current: `"Polymarket source position price."` — only describes matched airdrops.
 
-### 4. 记忆更新
-新增 `mem://features/voucher-earnings-pool`，记录：
-- 盈利只进 `voucher_earnings.pending_amount`，**绝不**进 `trial_balance`；
-- claim 门槛：lifetime Filled trades 名义额 ≥ 50,000 USDC；
-- claim 一次清空所有 pending → `profiles.balance`。
-更新 index Core 一行提示。
+New (multi-line, same `HeaderWithInfo` description pattern as Status):
+- Matched: the price of the Polymarket source position this airdrop hedges.
+- Welcome gift: no external source — a free starter position.
+- Voucher redemption: no external source — opened by redeeming a position voucher.
 
-## 技术细节
-- 不修改 `airdrop_positions.settled_pnl` 字段（仍记录原始 credited PnL，方便审计）；只改"钱去哪儿"。
-- `transactions` 表当前用户无 INSERT 权限，由 edge function 用 service_role 写入新 `type = 'voucher_claim'`，并在 `TransactionHistory` 的类型映射中补一个标签 + 颜色（属于现有 history-labels 体系内的小补充）。
-- 历史已经误入 `trial_balance` 的 voucher 盈利不回滚（避免破坏现有余额），仅从本次改动起生效，UI 上以"Pending earnings"从 0 开始累计。
+### 3. TP/SL lock tooltip on /trade desktop positions table
+File: `src/pages/DesktopTrading.tsx` (~line 1316-1324)
 
-## 不在范围
-- 不调整 voucher 仓位的杠杆 / 关闭逻辑 / cap 公式；
-- 不改 wallet 页面其它余额结构；
-- 不做 partial claim、不做手动选择 claim 多少。
+Current tooltip for any `isAirdrop` row: `"Airdrop positions auto-settle on event resolution"`. Wrong for voucher (voucher closes via the hold-window, profit goes to the Voucher earnings pool, no auto-settle on resolution).
+
+New: branch on `position.airdropSource`:
+- `voucher` → `"Voucher positions don't support TP/SL. Close manually within the hold window."`
+- everything else (matched / welcome_gift) → keep existing copy.
+
+## Out of scope
+
+- No business-logic changes (TP/SL is already locked for vouchers, closing flow already routes through the voucher pool).
+- Mobile `PositionCard` / `AirdropPositionCard` copy is not in the screenshots and not flagged — leave untouched.
+- No copy-dictionary additions; these strings are descriptive UI helpers, not field labels.
