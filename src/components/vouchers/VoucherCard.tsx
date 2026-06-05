@@ -121,14 +121,18 @@ export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, cla
         <div
           className={cn(
             "p-5 flex justify-between items-center gap-3",
-            selected ? "bg-gradient-to-b from-primary/[0.03] to-primary/[0.08]" : "bg-muted/20",
+            selected
+              ? "bg-gradient-to-b from-primary/[0.03] to-primary/[0.08]"
+              : isGranted
+                ? "bg-gradient-to-b from-primary/[0.02] to-primary/[0.05]"
+                : "bg-muted/20",
           )}
         >
           <div className="flex flex-col min-w-0">
             <span
               className={cn(
                 "text-[9px] uppercase font-bold tracking-widest mb-2",
-                selected ? "text-muted-foreground" : "text-muted-foreground/60",
+                selected || isGranted ? "text-muted-foreground" : "text-muted-foreground/60",
               )}
             >
               Voucher code
@@ -136,7 +140,7 @@ export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, cla
             <span
               className={cn(
                 "font-mono text-sm font-bold tracking-[0.15em] px-2.5 py-1 rounded-md border w-fit",
-                selected
+                selected || isGranted
                   ? "text-foreground bg-foreground/5 border-border"
                   : "text-muted-foreground bg-muted/40 border-border/60",
               )}
@@ -148,7 +152,7 @@ export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, cla
             <span
               className={cn(
                 "text-[9px] uppercase font-bold tracking-widest mb-2",
-                selected ? "text-muted-foreground" : "text-muted-foreground/60",
+                selected || isGranted ? "text-muted-foreground" : "text-muted-foreground/60",
               )}
             >
               Max profit
@@ -156,7 +160,7 @@ export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, cla
             <span
               className={cn(
                 "font-mono text-sm font-bold px-2 py-1 rounded-md border",
-                selected
+                selected || isGranted
                   ? "text-trading-green bg-trading-green/10 border-trading-green/20"
                   : "text-trading-green/60 bg-trading-green/5 border-trading-green/10",
               )}
