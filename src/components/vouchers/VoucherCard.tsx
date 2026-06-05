@@ -39,11 +39,6 @@ export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, cla
               : "border-border/60 opacity-60 hover:opacity-100 hover:border-border",
         )}
       >
-        {isGranted && (
-          <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/15 border border-primary/30 text-[10px] font-medium uppercase tracking-wider text-primary">
-            <Gift className="w-3 h-3" /> {claiming ? "Claiming…" : "Tap to claim"}
-          </span>
-        )}
         {selected && !isGranted && (
           <span
             className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-12 rounded-b-full bg-primary"
@@ -51,13 +46,13 @@ export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, cla
           />
         )}
 
-        {/* Top zone: face value + expiry */}
+        {/* Top zone: face value + status/expiry */}
         <div className="p-5 flex justify-between items-start gap-3">
           <div className="flex flex-col min-w-0">
             <span
               className={cn(
                 "text-[10px] font-bold uppercase tracking-[0.25em] mb-1.5",
-                selected ? "text-primary/80" : "text-muted-foreground/60",
+                selected ? "text-primary/80" : isGranted ? "text-primary/70" : "text-muted-foreground/60",
               )}
             >
               Face value
@@ -65,37 +60,49 @@ export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, cla
             <span
               className={cn(
                 "font-mono text-4xl font-bold tracking-tight leading-none",
-                selected ? "text-foreground" : "text-muted-foreground",
+                selected || isGranted ? "text-foreground" : "text-muted-foreground",
               )}
             >
               ${voucher.faceValue.toFixed(2)}
             </span>
           </div>
-          <div
-            className={cn(
-              "flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shrink-0",
-              urgent
-                ? "bg-trading-red/10 border-trading-red/30"
-                : "bg-muted/40 border-border",
-            )}
-          >
-            {urgent ? (
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-trading-red/75 animate-ping" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-trading-red" />
+          {isGranted ? (
+            <div className="flex flex-col items-end gap-1.5 shrink-0">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 border border-primary/40 text-[10px] font-bold uppercase tracking-wider text-primary">
+                <Gift className="w-3 h-3" />
+                {claiming ? "Claiming…" : "Tap to claim"}
               </span>
-            ) : (
-              <Clock className="w-3 h-3 text-muted-foreground" />
-            )}
-            <span
+              <span className="text-[10px] text-muted-foreground/70 font-mono">
+                Expires in {timeLeft}
+              </span>
+            </div>
+          ) : (
+            <div
               className={cn(
-                "font-mono text-[12px] font-bold",
-                urgent ? "text-trading-red" : "text-muted-foreground",
+                "flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shrink-0",
+                urgent
+                  ? "bg-trading-red/10 border-trading-red/30"
+                  : "bg-muted/40 border-border",
               )}
             >
-              {timeLeft}
-            </span>
-          </div>
+              {urgent ? (
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-trading-red/75 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-trading-red" />
+                </span>
+              ) : (
+                <Clock className="w-3 h-3 text-muted-foreground" />
+              )}
+              <span
+                className={cn(
+                  "font-mono text-[12px] font-bold",
+                  urgent ? "text-trading-red" : "text-muted-foreground",
+                )}
+              >
+                {timeLeft}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Perforation with side notches */}
