@@ -35,7 +35,9 @@ export const useCountdown = (expiresAt: string | null | undefined): CountdownRes
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
     let timeLeft: string;
-    if (hours >= 1) {
+    if (days >= 1) {
+      timeLeft = remHours > 0 ? `${days}d ${remHours}h` : `${days}d`;
+    } else if (hours >= 1) {
       timeLeft = `${hours}h ${minutes}m`;
     } else if (minutes >= 1) {
       timeLeft = `${minutes}m ${seconds}s`;
