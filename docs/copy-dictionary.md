@@ -26,6 +26,10 @@ Single source of truth for user-visible field names across the app.
 | **Available** | Section for `claimed` vouchers ready to redeem (within 7-day window) | Ready, Claimed vouchers |
 | **Redeem voucher** | Primary button on claimed voucher | Use voucher, Open position |
 | **Claim window 7 days** | Window between claim and forced expiry | 7-day expiry, Use within 7 days |
+| **Left today** | Remaining quota in today's daily pool, format `X / Y left today` | Available today, X remaining, In stock |
+| **Resets in {Xh Ym}** | Countdown to next UTC midnight pool reset | Refreshes in, Next batch, Back in |
+| **Sold out today** | Pool exhausted state for current UTC day, paired with `· resets in {Xh Ym}` | Out of stock, Gone, Empty pool |
+| **Sold out** | Disabled CTA label when pool exhausted | Unavailable, Closed |
 
 ### Voucher earnings tiers (`VoucherEarningsCard`)
 

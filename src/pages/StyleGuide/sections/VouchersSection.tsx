@@ -120,38 +120,56 @@ const BannerDemo = () => {
 /* ---------------- 2. VoucherCard ---------------- */
 
 type CardState =
-  | "grantedFresh"
+  | "grantedComfortable"
+  | "grantedWarning"
+  | "grantedUrgent"
+  | "grantedSoldOut"
   | "grantedClaiming"
   | "claimedUnselected"
   | "claimedSelected"
   | "claimedUrgent";
 
+const POOL_PRESETS: Record<string, { remaining: number; total: number } | null> = {
+  grantedComfortable: { remaining: 653, total: 1000 },
+  grantedWarning: { remaining: 340, total: 1000 },
+  grantedUrgent: { remaining: 87, total: 1000 },
+  grantedSoldOut: { remaining: 0, total: 1000 },
+  grantedClaiming: { remaining: 653, total: 1000 },
+};
+
 const VoucherCardDemo = () => {
-  const [state, setState] = useState<CardState>("grantedFresh");
+  const [state, setState] = useState<CardState>("grantedComfortable");
 
   const voucher: PositionVoucher = (() => {
-    switch (state) {
-      case "grantedFresh":
-      case "grantedClaiming":
-        return baseVoucher({
-          status: "granted",
-          claimedAt: null,
-          expiresAt: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
-        });
-      case "claimedUrgent":
-        return baseVoucher({
-          status: "claimed",
-          expiresAt: new Date(Date.now() + 6 * 3600 * 1000).toISOString(),
-        });
-      case "claimedSelected":
-      case "claimedUnselected":
-      default:
-        return baseVoucher({
-          status: "claimed",
-          expiresAt: new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString(),
-        });
+    if (state.startsWith("granted")) {
+      return baseVoucher({
+        status: "granted",
+        claimedAt: null,
+        expiresAt: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
+      });
     }
+    if (state === "claimedUrgent") {
+      return baseVoucher({
+        status: "claimed",
+        expiresAt: new Date(Date.now() + 6 * 3600 * 1000).toISOString(),
+      });
+    }
+    return baseVoucher({
+      status: "claimed",
+      expiresAt: new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString(),
+    });
   })();
+
+  const poolPreset = POOL_PRESETS[state];
+  const poolOverride = poolPreset
+    ? {
+        faceValue: 25,
+        totalQuota: poolPreset.total,
+        claimedCount: poolPreset.total - poolPreset.remaining,
+        remaining: poolPreset.remaining,
+        resetsAt: new Date(Date.now() + 8 * 3600 * 1000 + 12 * 60 * 1000).toISOString(),
+      }
+    : null;
 
   return (
     <div className="space-y-3">
@@ -159,7 +177,10 @@ const VoucherCardDemo = () => {
         value={state}
         onChange={setState}
         options={[
-          { id: "grantedFresh", label: "Granted · tap to claim" },
+          { id: "grantedComfortable", label: "Granted · 653/1000 (comfortable)" },
+          { id: "grantedWarning", label: "Granted · 340/1000 (warning)" },
+          { id: "grantedUrgent", label: "Granted · 87/1000 (urgent · red pulse)" },
+          { id: "grantedSoldOut", label: "Granted · sold out" },
           { id: "grantedClaiming", label: "Granted · claiming…" },
           { id: "claimedUnselected", label: "Claimed · fresh (7d window)" },
           { id: "claimedSelected", label: "Claimed · selected" },
@@ -167,7 +188,7 @@ const VoucherCardDemo = () => {
         ]}
       />
       <Frame>
-        <div className="max-w-[280px]">
+        <div className="max-w-[320px]">
           <VoucherCard
             voucher={voucher}
             onRedeem={() => {}}
@@ -175,6 +196,7 @@ const VoucherCardDemo = () => {
             compact
             selected={state === "claimedSelected"}
             claiming={state === "grantedClaiming"}
+            poolOverride={state.startsWith("granted") ? poolOverride : undefined}
           />
         </div>
       </Frame>

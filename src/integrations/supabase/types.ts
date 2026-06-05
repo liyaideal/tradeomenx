@@ -1406,6 +1406,36 @@ export type Database = {
         }
         Relationships: []
       }
+      voucher_daily_pools: {
+        Row: {
+          claimed_count: number
+          created_at: string
+          face_value: number
+          id: string
+          pool_date: string
+          total_quota: number
+          updated_at: string
+        }
+        Insert: {
+          claimed_count?: number
+          created_at?: string
+          face_value: number
+          id?: string
+          pool_date: string
+          total_quota: number
+          updated_at?: string
+        }
+        Update: {
+          claimed_count?: number
+          created_at?: string
+          face_value?: number
+          id?: string
+          pool_date?: string
+          total_quota?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       voucher_earnings: {
         Row: {
           created_at: string
@@ -1516,7 +1546,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_daily_voucher_pool: {
+        Args: { _face_value: number }
+        Returns: boolean
+      }
+      ensure_voucher_pool_today: { Args: never; Returns: undefined }
       gen_voucher_code: { Args: never; Returns: string }
+      get_voucher_pool_today: {
+        Args: never
+        Returns: {
+          claimed_count: number
+          face_value: number
+          remaining: number
+          resets_at: string
+          total_quota: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

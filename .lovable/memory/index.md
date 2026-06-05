@@ -17,6 +17,8 @@
 - **Delivery Docs:** 所有交付说明同时写到 `docs/changelog/YYYY-MM-DD-{slug}.md`，不能只放 `/mnt/documents/`。每次发布交付文档**必须在同一轮**完成三件事：(1) 写入 `docs/changelog/*.md`；(2) 在 `docs/changelog/INDEX.md` 表格**顶部**插入一行（日期 + 标题链接 + 一句话摘要 ≤80 字，摘要直接引用文档顶部 quote block 的关键信息）；(3) 在 `docs/changelog/STATUS.md` **顶部**追加一节，所有需求条目初始状态 ⬜。修订旧文档（vN）时 INDEX 旧行的备注列标注"已被 vN 取代"。研发以 `docs/` 为唯一需求来源。
 
 ## Memories
+- [Voucher daily pool](mem://features/voucher-daily-pool) — Daily UTC-reset quota for voucher granting; powers the scarcity bar on granted cards
+- [Voucher granted frosted reveal](mem://design/voucher-granted-frosted-reveal) — Granted card layout: scarcity bar on top, frosted-blur code+max-profit with centered Tap to claim pill
 - [Mainnet activation system](mem://features/activation-system) — User activation funnel, state machine, checklist, Wallet hub, MAINNET badge
 - [Chart adaptive timeframes](mem://features/chart-adaptive-timeframes) — Rules for default candlestick timeframe based on time until settlement
 - [Header tweet count](mem://features/header-tweet-count) — Tweet count display in mobile header
