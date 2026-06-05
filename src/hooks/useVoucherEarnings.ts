@@ -2,8 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-
-export const VOUCHER_CLAIM_VOLUME_REQUIRED = 50_000;
+import { VOUCHER_TIERS, deriveVoucherTierState } from "@/lib/voucherTiers";
 
 interface VoucherEarningsState {
   pending: number;
@@ -61,7 +60,6 @@ export function useVoucherEarnings() {
     refresh();
   }, [refresh]);
 
-  // Realtime: react to voucher position settlements and new trades
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -82,13 +80,12 @@ export function useVoucherEarnings() {
     };
   }, [user, refresh]);
 
-  const required = VOUCHER_CLAIM_VOLUME_REQUIRED;
-  const progressPct = useMemo(
-    () => Math.max(0, Math.min(100, (state.volume / required) * 100)),
-    [state.volume, required],
+  const tierState = useMemo(
+    () => deriveVoucherTierState(state.volume, state.pending, state.lifetimeCredited),
+    [state.volume, state.pending, state.lifetimeCredited],
   );
-  const volumeMet = state.volume >= required;
-  const canClaim = volumeMet && state.pending > 0 && !state.claiming;
+
+  const canClaim = tierState.claimable > 0 && !state.claiming;
 
   const claim = useCallback(async () => {
     if (!user || !canClaim) return;
@@ -112,9 +109,8 @@ export function useVoucherEarnings() {
     pending: state.pending,
     lifetimeCredited: state.lifetimeCredited,
     volume: state.volume,
-    required,
-    progressPct,
-    volumeMet,
+    tiers: VOUCHER_TIERS,
+    tierState,
     canClaim,
     loading: state.loading,
     claiming: state.claiming,

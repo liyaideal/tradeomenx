@@ -1,4 +1,4 @@
-import { Ticket, Clock, Check } from "lucide-react";
+import { Ticket, Clock, Check, Gift } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
@@ -7,29 +7,44 @@ import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 
 interface VoucherCardProps {
   voucher: PositionVoucher;
-  onRedeem: (voucher: PositionVoucher) => void;
+  onRedeem?: (voucher: PositionVoucher) => void;
+  onClaim?: (voucher: PositionVoucher) => void;
   /** Compact: single clickable row used as a selector in the left rail */
   compact?: boolean;
   selected?: boolean;
+  claiming?: boolean;
 }
 
-export const VoucherCard = ({ voucher, onRedeem, compact, selected }: VoucherCardProps) => {
+export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, claiming }: VoucherCardProps) => {
+  const isGranted = voucher.status === "granted";
   const { timeLeft, urgent } = useCountdown(voucher.expiresAt);
   const cap = voucher.faceValue * voucher.redeemableCapPct;
 
   if (compact) {
+    const handleClick = () => {
+      if (isGranted) onClaim?.(voucher);
+      else onRedeem?.(voucher);
+    };
     return (
       <button
         type="button"
-        onClick={() => onRedeem(voucher)}
+        onClick={handleClick}
+        disabled={claiming}
         className={cn(
           "relative w-full text-left rounded-2xl overflow-hidden transition-all border bg-card",
           selected
             ? "border-primary/40 shadow-[0_0_25px_-5px_hsl(var(--primary)/0.35)]"
-            : "border-border/60 opacity-60 hover:opacity-100 hover:border-border",
+            : isGranted
+              ? "border-primary/30 hover:border-primary/60"
+              : "border-border/60 opacity-60 hover:opacity-100 hover:border-border",
         )}
       >
-        {selected && (
+        {isGranted && (
+          <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/15 border border-primary/30 text-[10px] font-medium uppercase tracking-wider text-primary">
+            <Gift className="w-3 h-3" /> {claiming ? "Claiming…" : "Tap to claim"}
+          </span>
+        )}
+        {selected && !isGranted && (
           <span
             className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-12 rounded-b-full bg-primary"
             style={{ boxShadow: "0 2px 10px hsl(var(--primary) / 0.5)" }}
@@ -193,8 +208,12 @@ export const VoucherCard = ({ voucher, onRedeem, compact, selected }: VoucherCar
         Pick any tradeable event to open a free position. Auto-settles at event end or after {voucher.maxHoldingHours}h.
       </p>
 
-      <Button className="w-full h-9" onClick={() => onRedeem(voucher)}>
-        Redeem voucher
+      <Button
+        className="w-full h-9"
+        onClick={() => (isGranted ? onClaim?.(voucher) : onRedeem?.(voucher))}
+        disabled={claiming}
+      >
+        {isGranted ? (claiming ? "Claiming…" : "Claim voucher") : "Redeem voucher"}
       </Button>
     </div>
   );

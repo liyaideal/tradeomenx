@@ -1,26 +1,37 @@
-import { Coins, Wallet, TrendingUp } from "lucide-react";
+import { Coins, Wallet, TrendingUp, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { useVoucherEarnings } from "@/hooks/useVoucherEarnings";
+import { VOUCHER_TIERS, formatTierCap, deriveVoucherTierState, type VoucherTier } from "@/lib/voucherTiers";
+import { cn } from "@/lib/utils";
 
 const fmt = (n: number) =>
   n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export const VoucherEarningsCard = () => {
-  const {
-    pending,
-    lifetimeCredited,
-    volume,
-    required,
-    progressPct,
-    volumeMet,
-    canClaim,
-    claiming,
-    loading,
-    claim,
-  } = useVoucherEarnings();
+interface Props {
+  /** Optional override (for /style-guide playground). */
+  data?: {
+    pending: number;
+    lifetimeCredited: number;
+    volume: number;
+  };
+}
 
-  const remaining = Math.max(0, required - volume);
+export const VoucherEarningsCard = ({ data }: Props = {}) => {
+  const live = useVoucherEarnings();
+  const pending = data?.pending ?? live.pending;
+  const lifetimeCredited = data?.lifetimeCredited ?? live.lifetimeCredited;
+  const volume = data?.volume ?? live.volume;
+  const loading = data ? false : live.loading;
+  const claiming = live.claiming;
+
+  // Re-derive tier state from whichever data source is in use, so the playground
+  // can drive every visual state.
+  const tierState = data
+    ? deriveVoucherTierState(volume, pending, lifetimeCredited)
+    : live.tierState;
+  const canClaim = data ? tierState.claimable > 0 : live.canClaim;
+
+  const { current, next, volumeToNext, claimable, lifetimeAtCap } = tierState;
 
   return (
     <section className="rounded-xl border border-border bg-gradient-to-br from-trading-green/5 via-card/40 to-card/40 p-4 md:p-5">
@@ -38,7 +49,7 @@ export const VoucherEarningsCard = () => {
             <span className="text-xs text-muted-foreground">USDC</span>
           </div>
           <div className="mt-3 text-[11px] md:text-xs text-muted-foreground max-w-md">
-            Profits from voucher positions accrue here. Hit the trading volume target to claim them to your available balance.
+            Profits from voucher positions accrue here. Hit higher trading-volume tiers to unlock more claimable to your available balance.
           </div>
           {lifetimeCredited > 0 && (
             <div className="mt-auto pt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -48,31 +59,67 @@ export const VoucherEarningsCard = () => {
           )}
         </div>
 
-        {/* Volume progress + claim */}
+        {/* Tier rail + claim */}
         <div className="rounded-lg border border-border bg-background/40 p-3 md:p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
               <TrendingUp className="w-3.5 h-3.5" />
-              Trading volume
+              Volume tier
             </div>
             <div className="font-mono text-xs text-foreground">
-              ${fmt(volume)} <span className="text-muted-foreground">/ ${required.toLocaleString()}</span>
+              ${fmt(volume)}{" "}
+              <span className="text-muted-foreground">filled volume</span>
             </div>
           </div>
-          <Progress value={progressPct} className="h-1.5" />
-          <div className="text-[11px] text-muted-foreground">
-            {volumeMet
-              ? "Volume requirement met. You can claim your pending earnings now."
-              : `$${fmt(remaining)} more in filled-trade volume to unlock claim.`}
+
+          {/* Segmented tier bar */}
+          <div className="flex items-stretch gap-1">
+            {VOUCHER_TIERS.map((t) => {
+              const reached = !!current && current.id >= t.id;
+              const isCurrent = current?.id === t.id;
+              return (
+                <TierSegment
+                  key={t.id}
+                  tier={t}
+                  reached={reached}
+                  isCurrent={isCurrent}
+                />
+              );
+            })}
           </div>
+
+          {/* Helper line */}
+          <div className="text-[11px] text-muted-foreground min-h-[16px]">
+            {!current && (
+              <>Trade ${fmt(VOUCHER_TIERS[0].volume - volume)} more to reach T1 (up to ${VOUCHER_TIERS[0].maxClaim} claimable).</>
+            )}
+            {current && next && (
+              <>
+                Tier <span className="text-foreground">{current.label}</span> unlocked — up to{" "}
+                <span className="text-foreground">{formatTierCap(current)}</span>. Trade ${fmt(volumeToNext)} more to reach {next.label} ({formatTierCap(next)}).
+              </>
+            )}
+            {current && !next && (
+              <>Tier <span className="text-foreground">{current.label}</span> unlocked — unlimited claims.</>
+            )}
+          </div>
+
           <Button
-            onClick={claim}
-            disabled={!canClaim}
+            onClick={live.claim}
+            disabled={!canClaim || claiming || !!data}
             className="w-full mt-auto"
             size="sm"
           >
-            <Wallet className="w-4 h-4 mr-2" />
-            {claiming ? "Claiming…" : "Claim to wallet"}
+            {claimable > 0 ? <Wallet className="w-4 h-4 mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
+            {claiming
+              ? "Claiming…"
+              : claimable > 0
+                ? `Claim $${fmt(claimable)} to wallet`
+                : lifetimeAtCap
+                  ? "Tier cap claimed — reach next tier"
+                  : pending <= 0
+                    ? "Nothing to claim"
+                    : "Trade more to unlock"}
           </Button>
         </div>
       </div>
@@ -80,3 +127,40 @@ export const VoucherEarningsCard = () => {
   );
 };
 
+const TierSegment = ({
+  tier,
+  reached,
+  isCurrent,
+}: {
+  tier: VoucherTier;
+  reached: boolean;
+  isCurrent: boolean;
+}) => (
+  <div
+    className={cn(
+      "flex-1 rounded-md border px-2 py-1.5 flex flex-col items-center gap-0.5 transition-colors",
+      reached
+        ? isCurrent
+          ? "border-primary/60 bg-primary/15"
+          : "border-trading-green/40 bg-trading-green/10"
+        : "border-border bg-muted/20 opacity-60",
+    )}
+  >
+    <span
+      className={cn(
+        "text-[10px] uppercase tracking-wider font-medium",
+        reached ? (isCurrent ? "text-primary" : "text-trading-green") : "text-muted-foreground",
+      )}
+    >
+      {tier.label}
+    </span>
+    <span
+      className={cn(
+        "font-mono text-[11px]",
+        reached ? "text-foreground" : "text-muted-foreground",
+      )}
+    >
+      {formatTierCap(tier)}
+    </span>
+  </div>
+);

@@ -4,7 +4,7 @@ import { useUserProfile } from "./useUserProfile";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
-export type VoucherStatus = "issued" | "redeemed" | "settled" | "expired" | "revoked";
+export type VoucherStatus = "granted" | "issued" | "claimed" | "redeemed" | "settled" | "expired" | "revoked";
 
 export interface PositionVoucher {
   id: string;
@@ -18,6 +18,7 @@ export interface PositionVoucher {
   status: VoucherStatus;
   issuedAt: string;
   expiresAt: string;
+  claimedAt: string | null;
   redeemedAt: string | null;
   redeemedAirdropPositionId: string | null;
   redeemedEventId: string | null;
@@ -45,6 +46,7 @@ const mapRow = (row: any): PositionVoucher => ({
   status: row.status,
   issuedAt: row.issued_at,
   expiresAt: row.expires_at,
+  claimedAt: row.claimed_at ?? null,
   redeemedAt: row.redeemed_at,
   redeemedAirdropPositionId: row.redeemed_airdrop_position_id,
   redeemedEventId: row.redeemed_event_id,
@@ -113,9 +115,32 @@ export const usePositionVouchers = () => {
 
 
 
-  const issuedVouchers = vouchers.filter(
-    (v) => v.status === "issued" && new Date(v.expiresAt).getTime() > Date.now(),
+  const grantedVouchers = vouchers.filter(
+    (v) => v.status === "granted" && new Date(v.expiresAt).getTime() > Date.now(),
   );
+
+  const claimedVouchers = vouchers.filter(
+    (v) =>
+      (v.status === "claimed" || v.status === "issued") &&
+      new Date(v.expiresAt).getTime() > Date.now(),
+  );
+
+  // Backwards-compat alias used by older call sites.
+  const issuedVouchers = claimedVouchers;
+
+  const claim = async (voucherId: string): Promise<{ success: boolean; error?: string }> => {
+    const { data, error } = await supabase.functions.invoke("claim-position-voucher", {
+      body: { voucherId },
+    });
+    if (error || !data?.success) {
+      const msg = (data as any)?.error ?? error?.message ?? "Failed to claim voucher";
+      toast({ title: "Claim failed", description: msg, variant: "destructive" });
+      return { success: false, error: msg };
+    }
+    toast({ title: "Voucher claimed", description: "You have 7 days to redeem it." });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    return { success: true };
+  };
 
   const redeem = async (
     voucherId: string,
@@ -147,5 +172,5 @@ export const usePositionVouchers = () => {
     }
   };
 
-  return { vouchers, issuedVouchers, isLoading, redeem, isRedeeming };
+  return { vouchers, grantedVouchers, claimedVouchers, issuedVouchers, isLoading, claim, redeem, isRedeeming };
 };

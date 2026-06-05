@@ -6,7 +6,19 @@ const corsHeaders = {
     'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
-const VOLUME_REQUIREMENT = 50_000
+// Keep in sync with src/lib/voucherTiers.ts
+interface Tier { id: 1 | 2 | 3 | 4; volume: number; maxClaim: number | null }
+const TIERS: Tier[] = [
+  { id: 1, volume: 5_000, maxClaim: 25 },
+  { id: 2, volume: 15_000, maxClaim: 100 },
+  { id: 3, volume: 50_000, maxClaim: 500 },
+  { id: 4, volume: 150_000, maxClaim: null },
+]
+function tierFor(volume: number): Tier | null {
+  let current: Tier | null = null
+  for (const t of TIERS) if (volume >= t.volume) current = t
+  return current
+}
 
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : 'Internal server error')
 const json = (body: unknown, status = 200) =>
@@ -34,7 +46,6 @@ Deno.serve(async (req) => {
     const { data: { user }, error: userError } = await userClient.auth.getUser()
     if (userError || !user) return json({ error: 'Unauthorized' }, 401)
 
-    // 1) Pending pool
     const { data: pool } = await admin
       .from('voucher_earnings')
       .select('id, pending_amount, lifetime_credited')
@@ -42,11 +53,11 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     const pending = Number(pool?.pending_amount ?? 0)
+    const lifetimeCredited = Number(pool?.lifetime_credited ?? 0)
     if (!pool || pending <= 0) {
       return json({ error: 'No voucher earnings to claim', pending: 0 }, 400)
     }
 
-    // 2) Trading volume = sum of all filled trades.amount for the user
     const { data: trades, error: tErr } = await admin
       .from('trades')
       .select('amount')
@@ -59,26 +70,38 @@ Deno.serve(async (req) => {
       0,
     )
 
-    if (volume < VOLUME_REQUIREMENT) {
+    const tier = tierFor(volume)
+    if (!tier) {
+      return json(
+        { error: 'Trading volume below tier 1', pending, volume, requiredForT1: TIERS[0].volume },
+        403,
+      )
+    }
+
+    const cap = tier.maxClaim == null ? Number.POSITIVE_INFINITY : tier.maxClaim
+    const headroom = Math.max(0, cap - lifetimeCredited)
+    const claimAmount = Math.min(pending, headroom)
+    if (claimAmount <= 0) {
       return json(
         {
-          error: 'Trading volume requirement not met',
+          error: 'Current tier cap already claimed — reach the next tier to claim more',
           pending,
           volume,
-          required: VOLUME_REQUIREMENT,
+          tier: tier.id,
+          tierCap: tier.maxClaim,
+          lifetimeCredited,
         },
         403,
       )
     }
 
-    // 3) Credit available balance
     const { data: profile } = await admin
       .from('profiles')
       .select('balance')
       .eq('user_id', user.id)
       .maybeSingle()
 
-    const newBalance = Number(profile?.balance ?? 0) + pending
+    const newBalance = Number(profile?.balance ?? 0) + claimAmount
 
     const { error: upErr } = await admin
       .from('profiles')
@@ -86,13 +109,12 @@ Deno.serve(async (req) => {
       .eq('user_id', user.id)
     if (upErr) return json({ error: upErr.message }, 500)
 
-    // 4) Reset pool + ledger entry
     const nowIso = new Date().toISOString()
     await admin
       .from('voucher_earnings')
       .update({
-        pending_amount: 0,
-        lifetime_credited: Number(pool.lifetime_credited ?? 0) + pending,
+        pending_amount: Number((pending - claimAmount).toFixed(2)),
+        lifetime_credited: Number((lifetimeCredited + claimAmount).toFixed(2)),
         last_settled_at: nowIso,
       })
       .eq('id', pool.id)
@@ -100,11 +122,18 @@ Deno.serve(async (req) => {
     await admin.from('voucher_earnings_ledger').insert({
       user_id: user.id,
       type: 'claim',
-      amount: -pending,
-      description: 'Claimed voucher earnings to available balance',
+      amount: -claimAmount,
+      description: `Claimed voucher earnings (tier ${tier.id})`,
     })
 
-    return json({ success: true, claimed: pending, newBalance, volume })
+    return json({
+      success: true,
+      claimed: claimAmount,
+      newBalance,
+      volume,
+      tier: tier.id,
+      tierCap: tier.maxClaim,
+    })
   } catch (e) {
     console.error('claim-voucher-earnings error', e)
     return json({ error: errMsg(e) }, 500)

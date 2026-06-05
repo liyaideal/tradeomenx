@@ -51,7 +51,9 @@ Deno.serve(async (req) => {
       .maybeSingle()
     if (vErr) return json({ error: vErr.message }, 500)
     if (!voucher) return json({ error: 'Voucher not found' }, 404)
-    if (voucher.status !== 'issued') return json({ error: 'Voucher is not redeemable' }, 409)
+    if (voucher.status !== 'claimed' && voucher.status !== 'issued') {
+      return json({ error: 'Voucher must be claimed before redeeming' }, 409)
+    }
     if (new Date(voucher.expires_at).getTime() < Date.now()) {
       return json({ error: 'Voucher has expired' }, 409)
     }

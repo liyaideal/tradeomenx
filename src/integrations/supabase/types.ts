@@ -669,6 +669,7 @@ export type Database = {
       }
       position_vouchers: {
         Row: {
+          claimed_at: string | null
           code: string
           created_at: string
           entry_price_max: number
@@ -690,6 +691,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          claimed_at?: string | null
           code: string
           created_at?: string
           entry_price_max?: number
@@ -711,6 +713,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          claimed_at?: string | null
           code?: string
           created_at?: string
           entry_price_max?: number
