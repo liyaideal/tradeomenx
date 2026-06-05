@@ -1,7 +1,7 @@
 import { Coins, Wallet, TrendingUp, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVoucherEarnings } from "@/hooks/useVoucherEarnings";
-import { VOUCHER_TIERS, formatTierCap, type VoucherTier } from "@/lib/voucherTiers";
+import { VOUCHER_TIERS, formatTierCap, deriveVoucherTierState, type VoucherTier } from "@/lib/voucherTiers";
 import { cn } from "@/lib/utils";
 
 const fmt = (n: number) =>
@@ -27,7 +27,7 @@ export const VoucherEarningsCard = ({ data }: Props = {}) => {
   // Re-derive tier state from whichever data source is in use, so the playground
   // can drive every visual state.
   const tierState = data
-    ? require("@/lib/voucherTiers").deriveVoucherTierState(volume, pending, lifetimeCredited)
+    ? deriveVoucherTierState(volume, pending, lifetimeCredited)
     : live.tierState;
   const canClaim = data ? tierState.claimable > 0 : live.canClaim;
 
