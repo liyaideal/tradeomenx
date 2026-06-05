@@ -1,42 +1,112 @@
+## Goal
 
-## 目标
+Two changes to `/vouchers`:
 
-把 Vouchers 这套需求里所有 UI 模块 + 每个模块的全部状态，集中在 `/style-guide` 新建一个 **Vouchers** tab 的 playground 里，研发/QA 一处即可看清。不动业务代码，只新增 style-guide section。
+1. Vouchers must first be **claimed** before they can be redeemed. Once claimed, redemption window = **7 days**.
+2. **Pending earnings** → **tiered claim-to-wallet** unlocks based on cumulative filled trading volume (4 tiers).
 
-## 模块清单（来自实际代码）
+---
 
-| 模块 | 文件 | 状态枚举 |
-|---|---|---|
-| VoucherBanner | `components/vouchers/VoucherBanner.tsx` | 0 张可用 / 有 N 张可用 / 即将过期 |
-| VoucherCard | `components/vouchers/VoucherCard.tsx` | issued · 正常 / issued · 即将过期(<24h) / redeemed · position open / redeemed · position closed / settled / expired / revoked |
-| VoucherEarningsCard | `components/vouchers/VoucherEarningsCard.tsx` | pending 累积中（< 50k 名义额）/ 达标可 claim / claim 处理中 / 空池 |
-| EventPickerList (片段) | `components/vouchers/EventPickerList.tsx` | 含 eligible / locked-band / locked-time / locked-resolved 四种 option 行；binary vs multi-market 两种事件行 |
-| RedeemVoucherContent | `components/vouchers/RedeemVoucherContent.tsx` | 未选 / 已选 binary / 已选 multi-market · YES / 已选 multi-market · NO / 提交中 / 已有活动 voucher 持仓阻断 |
-| CloseVoucherContent | `components/positions/CloseVoucherContent.tsx` | 盈利 / 亏损 / 持有时间未到（disable）/ 提交中 |
-| Redeemed Voucher Row（Vouchers 页 Redeemed 区） | `pages/Vouchers.tsx` `RedeemedSection` | binary 别名（alias 在第二行）/ multi-market（market chip + YES/NO chip）/ 已结算 +pnl / 已结算 −pnl |
-| Position chip（持仓表里 voucher 来源标记） | `PositionCard.tsx` / `DesktopPositionsPanel.tsx` | "Voucher" 标 + 倒计时（>1d / <1h / 已超时待结算）|
+## 1) Voucher claim step (7-day redemption window)
 
-## /style-guide 改动
+### New status machine
 
-1. 新文件 `src/pages/StyleGuide/sections/VouchersSection.tsx`
-   - 顶部一段 §intro：face value / max profit / hold window / price band / voucher code 字段定义（直接引用 `docs/copy-dictionary.md` 措辞，不引入新 copy）
-   - 按上面 8 个模块各开一个 `SectionWrapper` 子卡，每个模块用横向 `PresetRail`（已有的 playground 状态切换 pattern，见 mem://design/playground-state-coverage）让研发点切状态
-   - 用静态 mock prop 渲染真实组件，**不发请求**：为每个组件做一个 `mockVoucher / mockPickedOption / mockEarnings` 工厂
-   - 连续型参数（hold window 剩余小时、price band 边距、earnings 累积进度）用 Slider + tick rail，实时派生状态读数
-2. 注册到 `sections/index.ts`
-3. `StyleGuide/index.tsx` `tabs` 数组里加 `{ id: "vouchers", label: "Vouchers", icon: "🎫" }`，并加 `<TabsContent value="vouchers">`
-4. mock 数据集中放 `sections/_vouchersMocks.ts`，供 Section 复用
+```
+granted → claimed → redeemed → settled
+       ↘ expired (granted not claimed in time)
+       ↘ expired (claimed not redeemed within 7 days)
+```
 
-## 不做
+- New voucher status: `granted` (default on issue). Existing `issued` becomes `claimed` (already-claimed legacy rows get backfilled to `claimed`).
+- `granted` voucher shows a **Claim voucher** button on the card. No countdown on face value yet — just "Expires in Nd" against the original `expires_at` (the long grant validity, unchanged).
+- On claim: edge function flips status to `claimed`, sets `claimed_at = now()`, and overrides `expires_at = claimed_at + 7 days`. From this point the existing 7-day countdown chip drives urgency. After 7 days without redeem → `expired`.
+- Redeem flow only enabled for `claimed` vouchers (current "Available" list = claimed & not yet redeemed).
 
-- 不改 Vouchers 业务页 (`pages/Vouchers.tsx`) 或任何 voucher 组件的真实行为
-- 不改 copy-dictionary、不新增字段名
-- 不新建数据库/edge function
-- 移动端只复用 `ViewportSwitcher`（已存在），不写专门的 mobile-only 变体
+### Sections on `/vouchers`
 
-## 验收
+- **To claim (N)** — `granted` vouchers. Card variant with `Claim voucher` CTA, grant-expiry chip.
+- **Available (N)** — `claimed` vouchers (today's "Available"). Existing card, 7-day countdown drives urgency band.
+- **Redeemed** / **Expired** — unchanged.
 
-- `/style-guide` 顶部 tab 多一项 Vouchers
-- 每个模块的全部状态在一屏内可切换浏览
-- 切换 Viewport 后移动/桌面变体都能正常渲染
-- 研发改组件时，对 playground 的所有状态都不破坏
+### DB / backend
+
+- Migration: add `claimed_at timestamptz` to `position_vouchers`; allow new enum value `granted`; backfill rows where `status='issued' AND redeemed_at IS NULL` → keep as `claimed` (treat all existing as already claimed so nothing in production breaks).
+- New edge function `claim-position-voucher` (POST `{ voucherId }`): validates ownership + `status='granted'` + not past grant expiry, sets `status='claimed'`, `claimed_at=now()`, `expires_at=claimed_at + interval '7 days'`. Idempotent.
+- Existing `redeem-position-voucher` updated to require `status='claimed'` instead of `issued`.
+
+### Frontend
+
+- `usePositionVouchers`: split into `grantedVouchers` + `claimedVouchers` (rename `issuedVouchers` → `claimedVouchers`, keep alias). Add `claim(voucherId)` calling the new edge function.
+- `VoucherCard`: new `state='granted'` variant with primary `Claim voucher` button + grant-expires chip. Existing claimed card unchanged besides label.
+- `Vouchers.tsx`: render new **To claim** carousel/list above **Available**; default selection picks first `claimed` voucher.
+- `/style-guide` Vouchers section: add Granted card + Granted carousel preset rail entries so all states are enumerated (per playground mandate).
+- Copy dictionary updates: `Granted`, `Claim voucher`, `Claim window: 7 days`, `Expires in <Xd>`. Lock before merging.
+
+---
+
+## 2) Tiered volume → tiered claimable amount
+
+Replace the single 50k gate with 4 cumulative volume tiers. Each tier unlocks a **maximum claimable amount** from the pending pool (cumulative cap, not per-tier batches).
+
+### Proposed tiers (USDC filled volume → max cumulative claim)
+
+
+| Tier | Volume reached | Max claimable to wallet |
+| ---- | -------------- | ----------------------- |
+| T1   | $1,000         | up to $5                |
+| T2   | $15,000        | up to $10               |
+| T3   | $50,000        | up to $20               |
+| T4   | $150,000       | unlimited (full pool)   |
+
+
+`claimableNow = min(pending, tierCap) − lifetimeCredited_withinTierWindow` — simpler: cap is on **lifetimeCredited + thisClaim** so a user with $40 already credited and at T1 can't claim again until they hit T2.
+
+Effective formula:
+
+```
+unlockedCap   = tierCap(volume)          // ∞ at T4
+claimable     = max(0, min(pending, unlockedCap − lifetimeCredited))
+```
+
+### UI changes (`VoucherEarningsCard`)
+
+- Replace single progress bar with a **segmented tier rail**: 4 segments, current tier highlighted, next tier label + delta volume to reach it.
+- Show **Claimable now**: `$X` (capped by current tier) above the button, and **Pending**: `$Y` headline unchanged.
+- Button label: `Claim $X to wallet`, disabled when `claimable === 0`. Tooltip / helper text explains why (need more volume / nothing pending).
+- Tier chips row below: `T1 $25 · T2 $100 · T3 $500 · T4 Unlimited` with current tier styled primary.
+
+### Backend
+
+- `useVoucherEarnings`: derive `currentTier`, `tierCap`, `nextTier`, `claimable`, `volumeToNextTier` from constants. No schema change needed (already track `pending_amount`, `lifetime_credited`, `volume`).
+- `claim-voucher-earnings` edge function: enforce server-side `claimAmount = min(pending, tierCap − lifetime_credited)`; reject if `<= 0`. Return the amount actually credited.
+- Constants centralised in `src/lib/voucherTiers.ts` so playground + hook + edge function reference same table (edge function duplicates the table as a TS constant).
+
+### Playground
+
+- `/style-guide` Vouchers section: add `VoucherEarningsCard` preset rail covering: `No pending / T1 partial / T1 capped / T2 unlocked / T3 unlocked / T4 unlimited` so every state is visible.
+
+---
+
+## Files touched (planned)
+
+- DB migration: add `claimed_at`, enum value `granted`, backfill.
+- `supabase/functions/claim-position-voucher/index.ts` (new).
+- `supabase/functions/redeem-position-voucher/index.ts` (status guard).
+- `supabase/functions/claim-voucher-earnings/index.ts` (tier cap).
+- `src/lib/voucherTiers.ts` (new — shared tier table & helpers).
+- `src/hooks/usePositionVouchers.ts` (granted vs claimed, `claim` action).
+- `src/hooks/useVoucherEarnings.ts` (tier derivation, claimable amount).
+- `src/components/vouchers/VoucherCard.tsx` (granted variant + CTA).
+- `src/components/vouchers/VoucherEarningsCard.tsx` (tier rail + dynamic button).
+- `src/pages/Vouchers.tsx` (To-claim section).
+- `src/pages/StyleGuide/sections/VouchersSection.tsx` (granted preset + earnings tier presets).
+- `docs/copy-dictionary.md` (Granted / Claim voucher / Tier labels).
+- Memory: update `mem://features/voucher-earnings-pool` with tier table; add reference to claim step.
+
+---
+
+## Open questions (please confirm)
+
+1. **Grant validity** before "To claim" expires — keep current `expires_at` (e.g. 30 days from issue), or shorter? Default I'll use **14 days**.
+2. **Tier numbers** above are my proposal — happy with them, or want different volume thresholds / caps?
+3. Should the claim button on a **granted** voucher live on the card itself (inline) or open a confirm dialog? Default: **inline button**, optimistic toast.
