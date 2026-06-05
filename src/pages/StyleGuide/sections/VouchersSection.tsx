@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Ticket, ChevronRight, Coins, Wallet, TrendingUp, Lock, Clock } from "lucide-react";
+import { Ticket, ChevronRight, Lock, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Slider } from "@/components/ui/slider";
 import { VoucherCard } from "@/components/vouchers/VoucherCard";
+import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 import { CloseVoucherContent } from "@/components/positions/CloseVoucherContent";
 import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 import { SectionWrapper, SubSection } from "../components";
+
 
 /* ---------------- mocks ---------------- */
 
@@ -119,26 +119,63 @@ const BannerDemo = () => {
 
 /* ---------------- 2. VoucherCard ---------------- */
 
+type CardState =
+  | "grantedFresh"
+  | "grantedClaiming"
+  | "claimedUnselected"
+  | "claimedSelected"
+  | "claimedUrgent";
+
 const VoucherCardDemo = () => {
-  const [state, setState] = useState<"unselected" | "selected" | "urgent">("unselected");
-  const voucher =
-    state === "urgent"
-      ? baseVoucher({ expiresAt: new Date(Date.now() + 6 * 3600 * 1000).toISOString() })
-      : baseVoucher();
+  const [state, setState] = useState<CardState>("grantedFresh");
+
+  const voucher: PositionVoucher = (() => {
+    switch (state) {
+      case "grantedFresh":
+      case "grantedClaiming":
+        return baseVoucher({
+          status: "granted",
+          claimedAt: null,
+          expiresAt: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
+        });
+      case "claimedUrgent":
+        return baseVoucher({
+          status: "claimed",
+          expiresAt: new Date(Date.now() + 6 * 3600 * 1000).toISOString(),
+        });
+      case "claimedSelected":
+      case "claimedUnselected":
+      default:
+        return baseVoucher({
+          status: "claimed",
+          expiresAt: new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString(),
+        });
+    }
+  })();
+
   return (
     <div className="space-y-3">
       <PresetRail
         value={state}
         onChange={setState}
         options={[
-          { id: "unselected", label: "Compact · unselected" },
-          { id: "selected", label: "Compact · selected" },
-          { id: "urgent", label: "Compact · expiring <24h" },
+          { id: "grantedFresh", label: "Granted · tap to claim" },
+          { id: "grantedClaiming", label: "Granted · claiming…" },
+          { id: "claimedUnselected", label: "Claimed · fresh (7d window)" },
+          { id: "claimedSelected", label: "Claimed · selected" },
+          { id: "claimedUrgent", label: "Claimed · expiring <24h" },
         ]}
       />
       <Frame>
         <div className="max-w-[280px]">
-          <VoucherCard voucher={voucher} onRedeem={() => {}} compact selected={state === "selected"} />
+          <VoucherCard
+            voucher={voucher}
+            onRedeem={() => {}}
+            onClaim={() => {}}
+            compact
+            selected={state === "claimedSelected"}
+            claiming={state === "grantedClaiming"}
+          />
         </div>
       </Frame>
     </div>
@@ -146,95 +183,41 @@ const VoucherCardDemo = () => {
 };
 
 
-/* ---------------- 3. Earnings card ---------------- */
+/* ---------------- 3. Earnings card (tier ladder) ---------------- */
+
+type TierState = "belowT1" | "t1" | "t2Partial" | "t3CapHit" | "t4Unlimited";
+
+const TIER_PRESETS: Record<TierState, { volume: number; pending: number; lifetimeCredited: number }> = {
+  belowT1:     { volume: 2_500,   pending: 18.40, lifetimeCredited: 0 },
+  t1:          { volume: 7_500,   pending: 42.00, lifetimeCredited: 0 },
+  t2Partial:   { volume: 22_000,  pending: 65.00, lifetimeCredited: 25 },
+  t3CapHit:    { volume: 60_000,  pending: 800.00, lifetimeCredited: 100 },
+  t4Unlimited: { volume: 180_000, pending: 1240.55, lifetimeCredited: 500 },
+};
 
 const EarningsDemo = () => {
-  const [state, setState] = useState<"empty" | "pending" | "ready" | "claiming">("pending");
-  const [volumePct, setVolumePct] = useState(35);
-  const required = 50000;
-  const volume = state === "ready" || state === "claiming" ? required : (volumePct / 100) * required;
-  const pending = state === "empty" ? 0 : 142.75;
-  const lifetimeCredited = state === "empty" ? 0 : 320;
-  const progressPct = Math.min(100, (volume / required) * 100);
-  const remaining = Math.max(0, required - volume);
-  const volumeMet = volume >= required;
-  const claiming = state === "claiming";
-  const canClaim = volumeMet && pending > 0 && !claiming;
-
-  const fmt = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
+  const [state, setState] = useState<TierState>("t2Partial");
+  const data = TIER_PRESETS[state];
   return (
     <div className="space-y-3">
       <PresetRail
         value={state}
         onChange={setState}
         options={[
-          { id: "empty", label: "Empty pool" },
-          { id: "pending", label: "Pending · below volume" },
-          { id: "ready", label: "Volume met · can claim" },
-          { id: "claiming", label: "Claim in flight" },
+          { id: "belowT1", label: "Below T1 · locked" },
+          { id: "t1", label: "T1 unlocked · $25 cap" },
+          { id: "t2Partial", label: "T2 · partial headroom" },
+          { id: "t3CapHit", label: "T3 · pending > cap" },
+          { id: "t4Unlimited", label: "T4 · unlimited" },
         ]}
       />
-      {state === "pending" && (
-        <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-muted-foreground">Volume progress</span>
-            <span className="font-mono">{Math.round(volumePct)}%</span>
-          </div>
-          <Slider value={[volumePct]} onValueChange={(v) => setVolumePct(v[0])} min={0} max={99} step={1} />
-        </div>
-      )}
       <Frame>
-        <section className="rounded-xl border border-border bg-gradient-to-br from-trading-green/5 via-card/40 to-card/40 p-4 md:p-5">
-          <div className="grid gap-4 md:gap-6 md:grid-cols-2 md:items-stretch">
-            <div className="min-w-0 flex flex-col">
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                <Coins className="w-3.5 h-3.5" />
-                Pending earnings
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-mono text-3xl md:text-5xl font-semibold text-trading-green leading-none">
-                  ${fmt(pending)}
-                </span>
-                <span className="text-xs text-muted-foreground">USDC</span>
-              </div>
-              <div className="mt-3 text-[11px] md:text-xs text-muted-foreground max-w-md">
-                Profits from voucher positions accrue here. Hit the trading volume target to claim them to your available balance.
-              </div>
-              {lifetimeCredited > 0 && (
-                <div className="mt-auto pt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <span className="uppercase tracking-wider">Lifetime claimed</span>
-                  <span className="font-mono text-foreground">${fmt(lifetimeCredited)}</span>
-                </div>
-              )}
-            </div>
-            <div className="rounded-lg border border-border bg-background/40 p-3 md:p-4 flex flex-col gap-3">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  Trading volume
-                </div>
-                <div className="font-mono text-xs text-foreground">
-                  ${fmt(volume)} <span className="text-muted-foreground">/ ${required.toLocaleString()}</span>
-                </div>
-              </div>
-              <Progress value={progressPct} className="h-1.5" />
-              <div className="text-[11px] text-muted-foreground">
-                {volumeMet
-                  ? "Volume requirement met. You can claim your pending earnings now."
-                  : `$${fmt(remaining)} more in filled-trade volume to unlock claim.`}
-              </div>
-              <Button disabled={!canClaim} className="w-full mt-auto" size="sm">
-                <Wallet className="w-4 h-4 mr-2" />
-                {claiming ? "Claiming…" : "Claim to wallet"}
-              </Button>
-            </div>
-          </div>
-        </section>
+        <VoucherEarningsCard data={data} />
       </Frame>
     </div>
   );
 };
+
 
 /* ---------------- 4. Event picker rows ---------------- */
 
@@ -595,24 +578,24 @@ export const VouchersSection = ({ isMobile: _isMobile }: VouchersSectionProps) =
     <SectionWrapper
       id="vouchers"
       title="Vouchers"
-      description="Position vouchers — issuance, redemption, close, earnings pool. Each module below enumerates every UI state via the preset rail. Copy is locked to docs/copy-dictionary.md (Face value · Max profit · Hold window · Voucher code · Expires in · Price band)."
+      description="Position vouchers — granted→claimed (7d) → redeemed → settled, tiered earnings claim. Each module enumerates every state via the preset rail. Copy locked to docs/copy-dictionary.md."
     >
       <div className="space-y-10">
         <SubSection title="1. VoucherBanner" description="Mobile/home banner pointing users at unredeemed vouchers.">
           <BannerDemo />
         </SubSection>
 
-        <SubSection title="2. VoucherCard" description="Available 列表里使用的 compact 选择器卡片（业务里没有 Full 变体）。">
-
+        <SubSection title="2. VoucherCard" description="Compact card variants across the granted/claimed lifecycle. Granted = `Tap to claim`; claimed = redeem within 7 days.">
           <VoucherCardDemo />
         </SubSection>
 
         <SubSection
           title="3. VoucherEarningsCard"
-          description="Pending earnings pool with 50,000 USDC volume gate. Closed voucher PnL flows here, never to trial_balance/balance."
+          description="Pending earnings pool with 4-tier volume ladder (T1 $5k→$25 · T2 $15k→$100 · T3 $50k→$500 · T4 $150k→unlimited). Claimable = min(pending, tier.cap − lifetimeCredited)."
         >
           <EarningsDemo />
         </SubSection>
+
 
         <SubSection
           title="4. EventPickerList — option rows"
