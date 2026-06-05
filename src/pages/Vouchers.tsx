@@ -14,8 +14,17 @@ import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 
 const Vouchers = () => {
   const isMobile = useIsMobile();
-  const { vouchers, issuedVouchers, isLoading } = usePositionVouchers();
+  const { vouchers, grantedVouchers, claimedVouchers, isLoading, claim } = usePositionVouchers();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [claimingId, setClaimingId] = useState<string | null>(null);
+
+  const handleClaim = async (voucherId: string) => {
+    setClaimingId(voucherId);
+    await claim(voucherId);
+    setClaimingId(null);
+  };
+
+  const issuedVouchers = claimedVouchers;
 
   // Default-select the first available voucher; keep selection valid as the list changes
   useEffect(() => {
