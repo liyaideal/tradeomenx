@@ -155,6 +155,30 @@ const Vouchers = () => {
             isMobile ? (
               // ===== Mobile: single column =====
               <div className="space-y-6">
+                {grantedVouchers.length > 0 && (
+                  <section className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <h2 className="text-sm font-medium text-foreground">
+                        To claim ({grantedVouchers.length})
+                      </h2>
+                    </div>
+                    <div className="-mr-4 pl-3 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 pt-2">
+                      {grantedVouchers.map((v) => (
+                        <div key={v.id} className="snap-start shrink-0 w-[280px]">
+                          <VoucherCard
+                            voucher={v}
+                            compact
+                            claiming={claimingId === v.id}
+                            onClaim={(vc) => handleClaim(vc.id)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">After you claim, you have 7 days to redeem.</p>
+                  </section>
+                )}
+
                 {issuedVouchers.length > 0 && (
                   <section className="space-y-3">
                     <div className="flex items-center gap-2">
@@ -174,7 +198,6 @@ const Vouchers = () => {
                           />
                         </div>
                       ))}
-
                     </div>
                   </section>
                 )}
@@ -188,6 +211,29 @@ const Vouchers = () => {
               // ===== Desktop: two-column =====
               <div className="grid grid-cols-12 gap-6 items-start">
                 <aside className="col-span-4 space-y-6">
+                  {grantedVouchers.length > 0 && (
+                    <section className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <h2 className="text-sm font-medium text-foreground">
+                          To claim ({grantedVouchers.length})
+                        </h2>
+                      </div>
+                      <div className="space-y-2">
+                        {grantedVouchers.map((v) => (
+                          <VoucherCard
+                            key={v.id}
+                            voucher={v}
+                            compact
+                            claiming={claimingId === v.id}
+                            onClaim={(vc) => handleClaim(vc.id)}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">After you claim, you have 7 days to redeem.</p>
+                    </section>
+                  )}
+
                   {issuedVouchers.length > 0 && (
                     <section className="space-y-3">
                       <div className="flex items-center gap-2">
