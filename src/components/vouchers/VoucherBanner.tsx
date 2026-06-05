@@ -1,10 +1,26 @@
 import { Link } from "react-router-dom";
-import { Ticket, ChevronRight } from "lucide-react";
+import { Ticket, ChevronRight, Gift } from "lucide-react";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
 
 export const VoucherBanner = () => {
-  const { issuedVouchers, isLoading } = usePositionVouchers();
-  if (isLoading || issuedVouchers.length === 0) return null;
+  const { grantedVouchers, claimedVouchers, isLoading } = usePositionVouchers();
+  if (isLoading) return null;
+
+  const grantedCount = grantedVouchers.length;
+  const claimedCount = claimedVouchers.length;
+  const total = grantedCount + claimedCount;
+  if (total === 0) return null;
+
+  // Prefer the granted CTA when any unclaimed vouchers exist — they expire first
+  // and require the explicit "Tap to claim" step.
+  const showGranted = grantedCount > 0;
+  const Icon = showGranted ? Gift : Ticket;
+  const headline = showGranted
+    ? `You have ${grantedCount} unclaimed voucher${grantedCount === 1 ? "" : "s"}`
+    : `You have ${claimedCount} voucher${claimedCount === 1 ? "" : "s"} ready to redeem`;
+  const subline = showGranted
+    ? "Tap to claim — then redeem within 7 days."
+    : "Redeem to open a free position on any eligible event.";
 
   return (
     <Link
@@ -13,15 +29,11 @@ export const VoucherBanner = () => {
     >
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-          <Ticket className="w-5 h-5 text-primary" />
+          <Icon className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <div className="text-sm font-medium text-foreground">
-            You have {issuedVouchers.length} unredeemed voucher{issuedVouchers.length === 1 ? "" : "s"}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Redeem to open a free position on any eligible event.
-          </div>
+          <div className="text-sm font-medium text-foreground">{headline}</div>
+          <div className="text-xs text-muted-foreground">{subline}</div>
         </div>
       </div>
       <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
