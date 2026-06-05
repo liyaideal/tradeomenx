@@ -1,4 +1,4 @@
-import { Ticket, Clock, Check } from "lucide-react";
+import { Ticket, Clock, Check, Gift } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
@@ -7,13 +7,16 @@ import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 
 interface VoucherCardProps {
   voucher: PositionVoucher;
-  onRedeem: (voucher: PositionVoucher) => void;
+  onRedeem?: (voucher: PositionVoucher) => void;
+  onClaim?: (voucher: PositionVoucher) => void;
   /** Compact: single clickable row used as a selector in the left rail */
   compact?: boolean;
   selected?: boolean;
+  claiming?: boolean;
 }
 
-export const VoucherCard = ({ voucher, onRedeem, compact, selected }: VoucherCardProps) => {
+export const VoucherCard = ({ voucher, onRedeem, onClaim, compact, selected, claiming }: VoucherCardProps) => {
+  const isGranted = voucher.status === "granted";
   const { timeLeft, urgent } = useCountdown(voucher.expiresAt);
   const cap = voucher.faceValue * voucher.redeemableCapPct;
 
