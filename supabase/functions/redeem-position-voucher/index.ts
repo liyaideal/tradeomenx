@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
         redeemed_side: body.side,
       })
       .eq('id', voucher.id)
-      .eq('status', 'issued')
+      .in('status', ['claimed', 'issued'])
       .select('id')
       .maybeSingle()
 
