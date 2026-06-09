@@ -363,35 +363,9 @@ const PickerDemo = () => {
 /* ---------------- 5. Redeem sticky bar ---------------- */
 
 const RedeemStickyDemo = () => {
-  const [state, setState] = useState<"empty" | "binary" | "multiYes" | "multiNo" | "submitting" | "blocked">("binary");
+  const [state, setState] = useState<"empty" | "binary" | "multiYes" | "multiNo" | "submitting">("binary");
 
-  if (state === "blocked") {
-    return (
-      <div className="space-y-3">
-        <PresetRail
-          value={state}
-          onChange={setState}
-          options={[
-            { id: "empty", label: "Nothing picked" },
-            { id: "binary", label: "Binary picked" },
-            { id: "multiYes", label: "Multi · Yes" },
-            { id: "multiNo", label: "Multi · No" },
-            { id: "submitting", label: "Submitting" },
-            { id: "blocked", label: "Active voucher exists" },
-          ]}
-        />
-        <Frame>
-          <div className="rounded-lg border border-trading-red/30 bg-trading-red/5 p-3 text-xs flex items-start gap-2">
-            <Lock className="w-4 h-4 text-trading-red mt-0.5" />
-            <div>
-              <div className="font-medium text-trading-red">You already have an active voucher position</div>
-              <div className="text-muted-foreground mt-0.5">Close it before redeeming another voucher.</div>
-            </div>
-          </div>
-        </Frame>
-      </div>
-    );
-  }
+
 
   const labels: Record<string, { display: string; color: string; hint: string }> = {
     binary: { display: "Magomed Ankalaev", color: "text-trading-red", hint: "Binary · alias" },
@@ -410,7 +384,6 @@ const RedeemStickyDemo = () => {
           { id: "multiYes", label: "Multi · Yes" },
           { id: "multiNo", label: "Multi · No" },
           { id: "submitting", label: "Submitting" },
-          { id: "blocked", label: "Active voucher exists" },
         ]}
       />
       <Frame>
