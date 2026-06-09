@@ -116,18 +116,20 @@ const StyleGuideIndex = () => {
       {/* Main Content with Tabs */}
       <main className={`${isMobile ? "px-4 py-4" : "px-8 py-6 max-w-7xl mx-auto"}`}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`mb-6 ${isMobile ? "w-full overflow-x-auto flex-nowrap" : ""}`}>
-            {tabs.map((tab) => (
-              <TabsTrigger 
-                key={tab.id} 
-                value={tab.id}
-                className={isMobile ? "flex-shrink-0" : ""}
-              >
-                <span className="mr-1.5">{tab.icon}</span>
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="mb-6 -mx-4 px-4 overflow-x-auto scrollbar-none">
+            <TabsList className="w-max flex-nowrap">
+              {tabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="shrink-0 whitespace-nowrap"
+                >
+                  <span className="mr-1.5">{tab.icon}</span>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
 
           {/* Search Results Info */}
           {searchQuery && (
