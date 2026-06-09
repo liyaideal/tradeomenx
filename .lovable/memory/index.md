@@ -122,3 +122,5 @@
 - [Demo accounts](mem://features/demo-accounts-fixed-identities) — Two persistent fixed demo accounts (matched/welcome) for QA login
 - [Home feed architecture](mem://features/home-feed-architecture) — DEPRECATED: priority-sorted mixed feed, no longer mounted on home (kept for reference)
 - [Home page purpose](mem://features/home-page-purpose) — Home v3: sportsbook layout with greeting, Tournaments rail, LIVE-switch Top Events, D-class HomeMatchCard
+
+- [World Cup 2026 portal](mem://features/world-cup-portal) — 主站右下角常驻悬浮 panel，2026-06-11~07-19 期间显示，跳转 OmenX Sports；× 24h TTL 隐藏
