@@ -19,6 +19,7 @@ import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
 import { HomeTopEvents } from "@/components/home/HomeTopEvents";
 import { MainnetLaunchCallout } from "@/components/home/MainnetLaunchCallout";
 import { PersonalSlot } from "@/components/home/PersonalSlot";
+import { WorldCupPanel } from "@/components/world-cup/WorldCupPanel";
 
 const MobileHome = () => {
   const [authOpen, setAuthOpen] = useState(false);
@@ -96,6 +97,10 @@ const MobileHome = () => {
       <BottomNav />
 
       
+      <BottomNav />
+
+      <WorldCupPanel />
+
       <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
       <AirdropHomepageModal />
     </div>

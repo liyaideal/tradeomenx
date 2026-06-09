@@ -25,6 +25,7 @@ import {
   DepositWithdrawSection,
   TransparencySection,
   VouchersSection,
+  WorldCupSection,
 } from "./sections";
 
 const StyleGuideIndex = () => {
@@ -52,6 +53,7 @@ const StyleGuideIndex = () => {
     { id: "identity", label: "Identity", icon: "👤" },
     { id: "transparency", label: "Transparency", icon: "🔗" },
     { id: "vouchers", label: "Vouchers", icon: "🎫" },
+    { id: "worldcup", label: "World Cup", icon: "🏆" },
   ];
 
   return (
@@ -185,6 +187,10 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="vouchers" className="mt-0">
             <VouchersSection isMobile={isMobile} />
+          </TabsContent>
+
+          <TabsContent value="worldcup" className="mt-0">
+            <WorldCupSection isMobile={isMobile} />
           </TabsContent>
         </Tabs>
       </main>
