@@ -1,73 +1,39 @@
-## Goal
+## World Cup 2026 floating portal
 
-给 voucher 系统加"每日限量发放"机制 + granted 卡的稀缺度视觉，制造紧迫感。Claimed/redeemed/settled/earnings 完全不动。
+A persistent floating panel that lives bottom-right during the World Cup window, linking to OmenX Sports. Single state — always expanded, no collapsed pill. Visual direction is the selected "Gold trophy rim" prototype: gold→green→blue gradient border, Bebas Neue title with gold gradient, big Anton score numbers, broadcast lower-third energy.
 
-## 1. Database — 每日发放池
+### What gets built
 
-新表 `voucher_daily_pools`（一行 = face_value × date）：
-- `face_value numeric` · `pool_date date` · `total_quota int` · `claimed_count int default 0`
-- 唯一键 `(face_value, pool_date)`
-- RLS：`authenticated` 只读今日所有行；写入只走 service_role
+**New files**
+- `src/lib/worldCup.ts` — constants: `WC2026_START = 2026-06-11T20:00:00-06:00` (Mexico vs South Africa kickoff), `WC2026_END = 2026-07-19T23:59:59-04:00`, `SPORTS_URL = "https://omenx-sports.lovable.app"`, helper `isWorldCupActive()`.
+- `src/components/world-cup/WorldCupPanel.tsx` — the floating panel, fixed `bottom-20 right-4` on mobile / `bottom-6 right-6` on desktop, `z-40`, mounts only when `isWorldCupActive()`. Dismissible via × → writes `wc2026-panel-dismissed` to localStorage with 24h TTL. Animation: `animate-fade-in` on mount.
+- `src/components/world-cup/WorldCupPanel.data.ts` — for now a hardcoded `featuredMatches` array (1 live + 2 upcoming) matching the prototype data. Designed to be swapped later for a fetch to OmenX Sports' public matches endpoint (no backend work this round).
+- `src/pages/StyleGuide/sections/WorldCupSection.tsx` — playground entry with PresetRail states: `live | pre-match | between-matches | dismissed-preview`, per the playground-state-coverage rule.
 
-种子配额（每日 UTC 00:00 由 cron 重置 / 补行）：
-- $10 → 1000 张
-- $25 → 500 张
-- $50 → 100 张
+**Modified files**
+- `src/pages/MobileHome.tsx` — mount `<WorldCupPanel />` once at page level (above `BottomNav`).
+- `src/pages/EventsPage.tsx` — same mount for desktop.
+- `src/pages/StyleGuide/sections/index.ts` — register the new section.
 
-改 `handle_new_user`：循环 [10, 25, 50]，每个 face value 调一个新 security definer fn `consume_daily_voucher_pool(face_value)`，原子 `UPDATE ... SET claimed_count = claimed_count + 1 WHERE claimed_count < total_quota RETURNING ...`。返回成功才插 `position_vouchers`，失败就跳过（**当天没发够 3 张就算了**，符合你的确认）。
+**Not in scope this round**
+- Sports station's public `/api/featured-matches` endpoint (data is hardcoded for launch; we can wire real data in a follow-up once the Sports project exposes it).
+- Campaigns Rail banner card (separate follow-up).
+- Bottom-nav / header product switcher (rejected earlier).
+- Post-World-Cup mode (panel auto-hides after `WC2026_END`; we'll redesign the permanent Sports entry later).
 
-新 RPC `get_voucher_pool_today()` 返回所有 face_value 的 `{faceValue, remaining, total, resetsAt}`，public 可读。
+### Visual spec (locked from prototype)
 
-新 edge function `reset-voucher-pools`（cron 每日 UTC 00:00 触发）：upsert 当天 3 行配额。
+- Outer wrapper: `w-[340px] rounded-2xl p-[2px] bg-gradient-to-br from-yellow-400 via-green-500 to-blue-600 shadow-[0_0_40px_rgba(34,197,94,0.25)]`
+- Inner: `bg-[#0c0c0e] rounded-[14px] border border-white/5`
+- Header: Bebas Neue 2xl, gold gradient text-clip, yellow dot with glow, × dismiss
+- Live hero row: red `LIVE` pulse chip, JetBrains Mono `72'`, Anton 4xl score `1 : 0`, Anton uppercase team names, flag color blocks (no emoji)
+- "Coming Up Next" divider
+- Two upcoming rows: flag color blocks + `ARG v CAN`, yellow odds `+142`, time chip
+- CTA: gold-gradient outer / dark inner that inverts to gold-on-black on hover, Bebas Neue `OPEN OMENX SPORTS` + arrow → `window.open(SPORTS_URL + "?ref=omenx-main&src=wc-panel", "_blank")`
 
-## 2. Frontend
+### Technical notes
 
-**新 hook** `src/hooks/useVoucherDailyPool.ts`：调 `get_voucher_pool_today` + Supabase Realtime 订阅 `voucher_daily_pools` 表，按 face_value 索引。`resetsAt = next UTC midnight`，每秒计时。
-
-**`VoucherCard.tsx` granted 分支**重写（claimed 分支零改动）：
-- Top zone：保留 face value + expiry chip，下方加稀缺行
-  - 文案：`{remaining} / {total} left today` + 右侧 `Resets in {Xh Ym}`
-  - 进度条 `h-1 rounded-full`：
-    - `>50%` → `bg-muted-foreground/60`，文案 `text-muted-foreground`
-    - `25%–50%` → `bg-foreground`，文案 `text-foreground`
-    - `<25%` → `bg-trading-red` + `animate-pulse`，文案 `text-trading-red`
-    - `=0` → 进度条换成单行 `Lock icon + "Sold out today · resets in {Xh Ym}"`，CTA disabled 灰
-- Bottom zone（方案 B frosted reveal）：
-  - 两列 `Voucher code` / `Max profit`，值套 `blur-sm select-none opacity-60`
-  - 居中浮一颗 primary pill：`Gift icon + Tap to claim`，`shadow-[0_0_24px_hsl(var(--primary)/0.4)]`
-  - 售罄时 pill 变 disabled `bg-muted text-muted-foreground` + `Sold out`
-
-**`VouchersSection.tsx`**：`grantedFresh` preset 拆成 5 个：
-- `grantedComfortable` (653/1000)
-- `grantedWarning` (340/1000)
-- `grantedUrgent` (87/1000, red pulse)
-- `grantedSoldOut` (0/1000)
-- `grantedClaiming` 保留
-
-Hook 在 style-guide 里用 mock data 注入。
-
-## 3. Copy & Memory
-
-- `docs/copy-dictionary.md`：新增 `Daily quota / Left today / Resets in / Sold out today`
-- `mem://features/voucher-daily-pool` 新建：池子机制、配额数、阈值色阶、reset 时间
-- `mem://design/voucher-granted-frosted-reveal` 新建：方案 B + 稀缺度的 granted 卡布局规则
-- `DESIGN.md` Components 段补 voucher granted spec
-- `mem://index.md` Core 加 1 行引用
-
-## Out of scope
-
-- Claimed/redeemed/settled/expired 卡片
-- VoucherEarningsCard / 4 档阶梯
-- Banner 不变
-- 池子配额数后续可改，本轮先硬编码种子值
-
-## Files
-
-- `supabase/migrations/<new>.sql` — 表 + grants + RLS + `consume_daily_voucher_pool` + `get_voucher_pool_today` + 改 `handle_new_user`
-- `supabase/functions/reset-voucher-pools/index.ts` + cron 配置
-- `src/hooks/useVoucherDailyPool.ts` (new)
-- `src/components/vouchers/VoucherCard.tsx` (只改 granted 分支)
-- `src/pages/StyleGuide/sections/VouchersSection.tsx` (扩 preset)
-- `docs/copy-dictionary.md`
-- `DESIGN.md`
-- `mem://features/voucher-daily-pool` · `mem://design/voucher-granted-frosted-reveal` · `mem://index.md`
+- Bebas Neue + Anton loaded via `<link>` in `index.html` (Google Fonts), or `@import` in `src/index.css`. Use the CSS import route so it's bundled once.
+- Mobile/desktop responsiveness: panel keeps its 340px width; on viewports < 360px wide, shrink to `w-[calc(100vw-2rem)]` to avoid edge overflow.
+- Dismiss state: `localStorage.getItem("wc2026-panel-dismissed")` parsed as ISO timestamp; show again after 24h.
+- Memory: save `mem://features/world-cup-portal` documenting the window dates, URL, ref param, and dismiss behavior so future sessions don't drift.
