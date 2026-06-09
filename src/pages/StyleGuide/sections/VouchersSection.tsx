@@ -384,7 +384,6 @@ const RedeemStickyDemo = () => {
           { id: "multiYes", label: "Multi · Yes" },
           { id: "multiNo", label: "Multi · No" },
           { id: "submitting", label: "Submitting" },
-          { id: "blocked", label: "Active voucher exists" },
         ]}
       />
       <Frame>
