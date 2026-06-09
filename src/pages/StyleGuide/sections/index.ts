@@ -10,3 +10,4 @@ export { UserIdentitySection } from "./UserIdentitySection";
 export { DepositWithdrawSection } from "./DepositWithdrawSection";
 export { TransparencySection } from "./TransparencySection";
 export { VouchersSection } from "./VouchersSection";
+export { WorldCupSection } from "./WorldCupSection";
