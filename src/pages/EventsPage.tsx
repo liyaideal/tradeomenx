@@ -26,7 +26,7 @@ import { MarketGridView } from "@/components/events/MarketGridView";
 import { HotShelf } from "@/components/events/HotShelf";
 import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
 import { MarketStatusTabs } from "@/components/events/MarketStatusTabs";
-import { WorldCupPanel } from "@/components/world-cup/WorldCupPanel";
+import { WorldCupPortal } from "@/components/world-cup/WorldCupPortal";
 
 // Persist view preference
 const getStoredView = (): ViewMode => {
@@ -371,7 +371,7 @@ const EventsPage = () => {
       
       {!isMobile && <AirdropHomepageModal />}
 
-      <WorldCupPanel />
+      <WorldCupPortal />
 
 
       {/* Auth modal for watchlist sign-in prompt */}
