@@ -184,9 +184,6 @@ export const WorldCupPanel = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="font-mono text-[10px] text-yellow-500 font-bold">
-                    {m.odds}
-                  </span>
                   <span className="font-mono text-[10px] text-zinc-400 bg-white/5 px-1.5 py-0.5 rounded">
                     {m.time}
                   </span>
