@@ -95,11 +95,6 @@ Deno.serve(async (req) => {
       )
     }
 
-
-
-
-
-
     // 3) Create the airdrop position immediately as active
     const faceValue = Number(voucher.face_value)
     const cap = faceValue * Number(voucher.redeemable_cap_pct)
