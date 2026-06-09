@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { WorldCupPanel } from "@/components/world-cup/WorldCupPanel";
+import { WorldCupTeaserPanel } from "@/components/world-cup/WorldCupTeaserPanel";
 import type { FeaturedMatch } from "@/components/world-cup/WorldCupPanel.data";
 
 interface Props {
   isMobile?: boolean;
 }
 
-type PresetKey = "live-plus-upcoming" | "pre-match" | "between-matches" | "single-live";
+type PresetKey =
+  | "teaser-days"
+  | "teaser-hours"
+  | "teaser-minutes"
+  | "live-plus-upcoming"
+  | "pre-match"
+  | "between-matches"
+  | "single-live";
 
 const PRESETS: Record<PresetKey, { label: string; matches: FeaturedMatch[] }> = {
   "live-plus-upcoming": {
