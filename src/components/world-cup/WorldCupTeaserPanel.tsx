@@ -114,13 +114,21 @@ export const WorldCupTeaserPanel = ({
         }
         .wc-flip-out { animation: wc-flip-out 220ms cubic-bezier(0.4,0,0.2,1) forwards; }
         .wc-flip-in { animation: wc-flip-in 220ms cubic-bezier(0.4,0,0.2,1) forwards; }
-        @keyframes wc-flag-wave {
-          0%, 100% { transform: skewY(-1.5deg) scaleX(1); }
-          50%      { transform: skewY(1.5deg) scaleX(1.03); }
+        @keyframes wc-shimmer {
+          0%   { transform: translateX(-150%); }
+          40%  { transform: translateX(250%); }
+          100% { transform: translateX(250%); }
         }
-        .wc-flag {
-          animation: wc-flag-wave 3.6s ease-in-out infinite;
-          transform-origin: left center;
+        .wc-shimmer-overlay {
+          position: absolute;
+          top: -50%;
+          left: 0;
+          width: 60%;
+          height: 200%;
+          background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+          mix-blend-mode: overlay;
+          pointer-events: none;
+          animation: wc-shimmer 3.5s ease-in-out infinite;
           will-change: transform;
         }
         @keyframes wc-trophy-glow {
@@ -233,16 +241,14 @@ export const WorldCupTeaserPanel = ({
             </div>
             <div className="flex items-center justify-between px-4 py-3 gap-2">
               <div className="flex flex-col items-center flex-1 min-w-0">
-                <svg
-                  viewBox="0 0 30 18"
-                  className="w-10 h-6 rounded-sm border border-white/20 mb-1 wc-flag"
-                  style={{ animationDelay: "0s" }}
-                  aria-hidden
-                >
-                  <rect x="0" y="0" width="10" height="18" fill="#006847" />
-                  <rect x="10" y="0" width="10" height="18" fill="#ffffff" />
-                  <rect x="20" y="0" width="10" height="18" fill="#ce1126" />
-                </svg>
+                <div className="relative w-10 h-6 rounded-sm border border-white/20 mb-1 overflow-hidden">
+                  <svg viewBox="0 0 30 18" className="w-full h-full block" aria-hidden>
+                    <rect x="0" y="0" width="10" height="18" fill="#006847" />
+                    <rect x="10" y="0" width="10" height="18" fill="#ffffff" />
+                    <rect x="20" y="0" width="10" height="18" fill="#ce1126" />
+                  </svg>
+                  <span className="wc-shimmer-overlay" style={{ animationDelay: "0s" }} />
+                </div>
                 <span
                   className="text-sm text-zinc-100 uppercase tracking-wide"
                   style={{ fontFamily: "'Anton', sans-serif" }}
@@ -259,15 +265,13 @@ export const WorldCupTeaserPanel = ({
               </span>
 
               <div className="flex flex-col items-center flex-1 min-w-0">
-                <svg
-                  viewBox="0 0 30 18"
-                  className="w-10 h-6 rounded-sm border border-white/20 mb-1 wc-flag"
-                  style={{ animationDelay: "0.8s" }}
-                  aria-hidden
-                >
-                  <rect x="0" y="0" width="30" height="9" fill="#007a4d" />
-                  <rect x="0" y="9" width="30" height="9" fill="#ffb612" />
-                </svg>
+                <div className="relative w-10 h-6 rounded-sm border border-white/20 mb-1 overflow-hidden">
+                  <svg viewBox="0 0 30 18" className="w-full h-full block" aria-hidden>
+                    <rect x="0" y="0" width="30" height="9" fill="#007a4d" />
+                    <rect x="0" y="9" width="30" height="9" fill="#ffb612" />
+                  </svg>
+                  <span className="wc-shimmer-overlay" style={{ animationDelay: "1.4s" }} />
+                </div>
                 <span
                   className="text-sm text-zinc-100 uppercase tracking-wide"
                   style={{ fontFamily: "'Anton', sans-serif" }}

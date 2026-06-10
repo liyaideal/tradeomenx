@@ -1,48 +1,26 @@
-## 目标
-让 `WorldCupTeaserPanel` 摆脱"AI 默认模版"感，加入世界杯专属视觉锤。**仅改这一个组件**，不动 Live 面板和 launcher。
+## 国旗动效改成 shimmer 高光扫光
 
-## 1. 大力神杯底图
+只改 `WorldCupTeaserPanel.tsx` 里两面国旗的动画方式，其他东西（奖杯底图、翻牌倒计时）不动。
 
-**素材**：用 imagegen 生成一张大力神杯剪影 PNG（透明背景，金色，正面 3/4 角度），存 `src/assets/trophy-silhouette.png`，通过 `lovable-assets` 上传成 CDN 资产（避免 binary 进 repo）。
+### 改动
+1. **删掉 `wc-flag-wave` 关键帧和 `.wc-flag` 类**（skewY + scaleX 那段）
+2. **国旗 SVG 外层包一层 `relative overflow-hidden`** 的 div，国旗本体改回完全静态（无 transform）
+3. **加一个绝对定位的高光叠层**：
+   - 宽度 60% 旗面，高度 200%（斜着扫所以要超出）
+   - 用 `background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)`
+   - `mix-blend-mode: overlay`
+   - `transform: translateX(-150%)` → 通过 keyframe 推到 `translateX(250%)`
+4. **新关键帧 `wc-shimmer`**：
+   - `0% → 60%`：高光从左 -150% 推到右 250%（约 1.4s 实际扫光时间）
+   - `60% → 100%`：高光停在右侧外面（约 2.1s 间歇）
+   - 总周期 3.5s，`ease-in-out`，`infinite`
+   - 两面国旗用不同 `animation-delay`（墨西哥 0s / 南非 1.4s）错峰，不同步扫
+5. **不抖、不变形、不破坏圆角**
 
-**集成**：在卡片内层（`bg-[#0c0c0e]` 那一层）多加一层绝对定位的奖杯图，参数：
-- `right: -20%; bottom: -15%`，旋转 -8°，缩放到约 380px
-- `opacity: 0.18`，`mix-blend-mode: screen`
-- 叠一层径向金光 `radial-gradient(circle at 75% 70%, rgba(250,204,21,0.25), transparent 55%)` 在奖杯后面
-- `pointer-events: none`，所有现有前景元素（倒计时、opening match、CTA）层级保持在上
+视觉效果：一束斜向白光每隔几秒从国旗左侧滑到右侧，像金属/丝绸反光，国旗本身完全静止。
 
-视觉效果：金色奖杯从右下背后透出，倒计时数字飘在奖杯前面，整张卡变成"奖杯本体 + 数据浮层"。
-
-## 2. 倒计时翻牌微动画
-
-改写 `Cell` 组件：
-- 监听 `value` 变化，旧值上滑淡出 / 新值从下滑入，180ms `cubic-bezier(0.4, 0, 0.2, 1)`
-- 用一个简单的 `useEffect + useState` 跟踪 `prevValue`，配合两个绝对定位的 span 做 enter/exit
-- 中间那条 `bg-black/60` 横线（翻牌轴）保留，强化机械翻牌质感
-- 不引入第三方动画库，纯 CSS keyframes 加在组件内 `<style>` 里
-
-避免每帧都跑动画（秒每秒变，分钟每分钟才变），只在值真的变化时触发。
-
-## 3. 国旗轻微飘动
-
-把现在两个静态 `<div>` 国旗换成 SVG（更可控）。给 SVG 加 CSS：
-```css
-@keyframes flag-wave { 0%,100% { transform: skewY(-1deg) scaleX(1); } 50% { transform: skewY(1deg) scaleX(1.02); } }
-animation: flag-wave 3.5s ease-in-out infinite;
-transform-origin: left center;
-```
-墨西哥旗和南非旗用不同的 `animation-delay`（0s / 0.7s）错峰，避免同步像机械摆动。
-
-## 4. Playground 同步
-
-`WorldCupSection.tsx` 的 teaser preset 区已经覆盖 4 个时间档（30d / 2d / 90m / 45s），不动；自动继承新视觉。Live 面板不动。
-
-## 不动的部分
-- Live 面板（`WorldCupPanel`）
-- `SportsLauncher`
-- 桌面/移动隔离规则（`hidden md:block`）
-- BottomNav
-
-## 风险点
-- 奖杯 PNG 不能抢戏：opacity 必须压到 0.15–0.20，否则倒计时数字读不清，需要在生成图后实际预览微调
-- 翻牌动画在 1Hz 刷新下可能略显躁动，如果你看了觉得太花可以只保留秒位翻牌
+### 不动的部分
+- 大力神杯底图（依然在）
+- 翻牌倒计时（依然在）
+- 国旗的 SVG 颜色/尺寸/边框/标签
+- Live 面板 / SportsLauncher / 任何其他文件
