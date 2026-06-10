@@ -114,13 +114,21 @@ export const WorldCupTeaserPanel = ({
         }
         .wc-flip-out { animation: wc-flip-out 220ms cubic-bezier(0.4,0,0.2,1) forwards; }
         .wc-flip-in { animation: wc-flip-in 220ms cubic-bezier(0.4,0,0.2,1) forwards; }
-        @keyframes wc-flag-wave {
-          0%, 100% { transform: skewY(-1.5deg) scaleX(1); }
-          50%      { transform: skewY(1.5deg) scaleX(1.03); }
+        @keyframes wc-shimmer {
+          0%   { transform: translateX(-150%); }
+          40%  { transform: translateX(250%); }
+          100% { transform: translateX(250%); }
         }
-        .wc-flag {
-          animation: wc-flag-wave 3.6s ease-in-out infinite;
-          transform-origin: left center;
+        .wc-shimmer-overlay {
+          position: absolute;
+          top: -50%;
+          left: 0;
+          width: 60%;
+          height: 200%;
+          background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+          mix-blend-mode: overlay;
+          pointer-events: none;
+          animation: wc-shimmer 3.5s ease-in-out infinite;
           will-change: transform;
         }
         @keyframes wc-trophy-glow {
