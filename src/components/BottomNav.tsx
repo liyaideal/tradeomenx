@@ -25,7 +25,7 @@ const SoccerBallIcon = ({ className }: { className?: string }) => (
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
-  { icon: Trophy, label: "Sports", path: "__sports__", disabled: false, featured: true, external: true },
+  { icon: User, label: "Sports", path: "__sports__", disabled: false, featured: true, external: true },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
 ];
 
