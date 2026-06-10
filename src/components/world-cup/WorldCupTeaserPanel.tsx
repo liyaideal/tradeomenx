@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, ArrowRight, Trophy, MapPin } from "lucide-react";
 import {
   SPORTS_LINK,
@@ -8,33 +8,62 @@ import {
   dismissPanel,
   getWorldCupPhase,
 } from "@/lib/worldCup";
+import trophyAsset from "@/assets/trophy-silhouette.png.asset.json";
 
 interface WorldCupTeaserPanelProps {
-  /** Override visibility check (for playground/demo) */
   forceShow?: boolean;
-  /** Disable dismiss persistence (for playground/demo) */
   ephemeral?: boolean;
-  /** Override countdown target (for playground/demo) */
   targetDate?: Date;
   className?: string;
 }
 
-const Cell = ({ value, label }: { value: number; label: string }) => (
-  <div className="flex flex-col items-center">
-    <div className="relative w-12 h-14 rounded-md bg-gradient-to-b from-zinc-900 to-black border border-yellow-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_2px_6px_rgba(0,0,0,0.6)] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-x-0 top-1/2 h-px bg-black/60" />
-      <span
-        className="text-3xl bg-gradient-to-b from-yellow-200 to-yellow-500 bg-clip-text text-transparent leading-none"
-        style={{ fontFamily: "'Anton', sans-serif" }}
-      >
-        {value.toString().padStart(2, "0")}
+/** Flip-card style countdown cell — animates only when value changes. */
+const Cell = ({ value, label }: { value: number; label: string }) => {
+  const [display, setDisplay] = useState(value);
+  const [prev, setPrev] = useState(value);
+  const [flipKey, setFlipKey] = useState(0);
+  const firstRender = useRef(true);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      setDisplay(value);
+      return;
+    }
+    if (value !== display) {
+      setPrev(display);
+      setDisplay(value);
+      setFlipKey((k) => k + 1);
+    }
+  }, [value, display]);
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative w-12 h-14 rounded-md bg-gradient-to-b from-zinc-900 to-black border border-yellow-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_2px_6px_rgba(0,0,0,0.6)] overflow-hidden">
+        <div className="absolute inset-x-0 top-1/2 h-px bg-black/60 z-10" />
+        {/* Outgoing digit slides up & fades */}
+        <span
+          key={`out-${flipKey}`}
+          className="absolute inset-0 flex items-center justify-center text-3xl leading-none bg-gradient-to-b from-yellow-200 to-yellow-500 bg-clip-text text-transparent wc-flip-out"
+          style={{ fontFamily: "'Anton', sans-serif" }}
+        >
+          {prev.toString().padStart(2, "0")}
+        </span>
+        {/* Incoming digit slides up from below */}
+        <span
+          key={`in-${flipKey}`}
+          className="absolute inset-0 flex items-center justify-center text-3xl leading-none bg-gradient-to-b from-yellow-200 to-yellow-500 bg-clip-text text-transparent wc-flip-in"
+          style={{ fontFamily: "'Anton', sans-serif" }}
+        >
+          {display.toString().padStart(2, "0")}
+        </span>
+      </div>
+      <span className="mt-1 text-[9px] font-bold tracking-[0.18em] text-zinc-500 uppercase">
+        {label}
       </span>
     </div>
-    <span className="mt-1 text-[9px] font-bold tracking-[0.18em] text-zinc-500 uppercase">
-      {label}
-    </span>
-  </div>
-);
+  );
+};
 
 export const WorldCupTeaserPanel = ({
   forceShow = false,
@@ -74,6 +103,33 @@ export const WorldCupTeaserPanel = ({
       }
       style={{ maxWidth: "calc(100vw - 2rem)" }}
     >
+      <style>{`
+        @keyframes wc-flip-out {
+          0% { transform: translateY(0); opacity: 1; }
+          100% { transform: translateY(-100%); opacity: 0; }
+        }
+        @keyframes wc-flip-in {
+          0% { transform: translateY(100%); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        .wc-flip-out { animation: wc-flip-out 220ms cubic-bezier(0.4,0,0.2,1) forwards; }
+        .wc-flip-in { animation: wc-flip-in 220ms cubic-bezier(0.4,0,0.2,1) forwards; }
+        @keyframes wc-flag-wave {
+          0%, 100% { transform: skewY(-1.5deg) scaleX(1); }
+          50%      { transform: skewY(1.5deg) scaleX(1.03); }
+        }
+        .wc-flag {
+          animation: wc-flag-wave 3.6s ease-in-out infinite;
+          transform-origin: left center;
+          will-change: transform;
+        }
+        @keyframes wc-trophy-glow {
+          0%, 100% { opacity: 0.22; }
+          50%      { opacity: 0.30; }
+        }
+        .wc-trophy { animation: wc-trophy-glow 5s ease-in-out infinite; }
+      `}</style>
+
       <div className="relative w-[340px] max-w-full rounded-2xl p-[2px] bg-gradient-to-br from-yellow-400 via-green-500 to-blue-600 shadow-[0_0_40px_rgba(250,204,21,0.25)]">
         <div className="relative bg-[#0c0c0e] rounded-[14px] overflow-hidden border border-white/5">
           {/* Stadium beam backdrop */}
@@ -84,6 +140,42 @@ export const WorldCupTeaserPanel = ({
               background:
                 "radial-gradient(120% 60% at 50% -20%, rgba(250,204,21,0.35), transparent 60%), radial-gradient(80% 60% at 50% 120%, rgba(34,197,94,0.25), transparent 60%)",
             }}
+          />
+
+          {/* Trophy glow halo (behind trophy) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute"
+            style={{
+              right: "-25%",
+              bottom: "-20%",
+              width: "70%",
+              height: "70%",
+              background:
+                "radial-gradient(circle at center, rgba(250,204,21,0.35), transparent 60%)",
+              filter: "blur(20px)",
+            }}
+          />
+
+          {/* Trophy silhouette */}
+          <img
+            src={trophyAsset.url}
+            alt=""
+            aria-hidden
+            width={420}
+            height={420}
+            loading="lazy"
+            className="wc-trophy pointer-events-none absolute select-none"
+            style={{
+              right: "-22%",
+              bottom: "-12%",
+              width: "75%",
+              maxWidth: "320px",
+              transform: "rotate(-6deg)",
+              mixBlendMode: "screen",
+              filter: "drop-shadow(0 0 18px rgba(250,204,21,0.35))",
+            }}
+            draggable={false}
           />
 
           {/* Header */}
@@ -130,7 +222,7 @@ export const WorldCupTeaserPanel = ({
           </div>
 
           {/* Opening match preview */}
-          <div className="relative mx-4 mb-4 rounded-lg border border-yellow-500/20 bg-gradient-to-br from-yellow-500/[0.04] to-transparent overflow-hidden">
+          <div className="relative mx-4 mb-4 rounded-lg border border-yellow-500/20 bg-gradient-to-br from-yellow-500/[0.04] to-transparent overflow-hidden backdrop-blur-[2px]">
             <div className="px-3 py-1.5 bg-white/5 border-b border-white/5 flex items-center justify-between">
               <span className="text-[9px] font-bold text-yellow-300/80 tracking-[0.2em] uppercase">
                 Opening Match
@@ -141,13 +233,16 @@ export const WorldCupTeaserPanel = ({
             </div>
             <div className="flex items-center justify-between px-4 py-3 gap-2">
               <div className="flex flex-col items-center flex-1 min-w-0">
-                <div
-                  className="w-10 h-6 border border-white/20 rounded-sm mb-1"
-                  style={{
-                    background:
-                      "linear-gradient(to bottom, #006847 33%, #ffffff 33% 66%, #ce1126 66%)",
-                  }}
-                />
+                <svg
+                  viewBox="0 0 30 18"
+                  className="w-10 h-6 rounded-sm border border-white/20 mb-1 wc-flag"
+                  style={{ animationDelay: "0s" }}
+                  aria-hidden
+                >
+                  <rect x="0" y="0" width="10" height="18" fill="#006847" />
+                  <rect x="10" y="0" width="10" height="18" fill="#ffffff" />
+                  <rect x="20" y="0" width="10" height="18" fill="#ce1126" />
+                </svg>
                 <span
                   className="text-sm text-zinc-100 uppercase tracking-wide"
                   style={{ fontFamily: "'Anton', sans-serif" }}
@@ -164,13 +259,15 @@ export const WorldCupTeaserPanel = ({
               </span>
 
               <div className="flex flex-col items-center flex-1 min-w-0">
-                <div
-                  className="w-10 h-6 border border-white/20 rounded-sm mb-1"
-                  style={{
-                    background:
-                      "linear-gradient(to bottom, #007a4d 50%, #ffb612 50%)",
-                  }}
-                />
+                <svg
+                  viewBox="0 0 30 18"
+                  className="w-10 h-6 rounded-sm border border-white/20 mb-1 wc-flag"
+                  style={{ animationDelay: "0.8s" }}
+                  aria-hidden
+                >
+                  <rect x="0" y="0" width="30" height="9" fill="#007a4d" />
+                  <rect x="0" y="9" width="30" height="9" fill="#ffb612" />
+                </svg>
                 <span
                   className="text-sm text-zinc-100 uppercase tracking-wide"
                   style={{ fontFamily: "'Anton', sans-serif" }}
