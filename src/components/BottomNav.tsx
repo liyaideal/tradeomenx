@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BarChart3, TrendingUp, Trophy, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Users, Lightbulb, Award } from "lucide-react";
+import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Users, Lightbulb, Award } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -7,13 +7,25 @@ import { toast } from "sonner";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { SPORTS_LINK, getWorldCupPhase } from "@/lib/worldCup";
+import { SPORTS_LINK } from "@/lib/worldCup";
+
+// Stylized soccer-ball emblem used for the central "Sports" entry.
+const SoccerBallIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M12 2L14.5 6.5L19.5 7L16 11L17 16L12 14L7 16L8 11L4.5 7L9.5 6.5L12 2Z" fill="currentColor" opacity="0.2" />
+    <path d="M12 7L10 10H14L12 7Z" fill="currentColor" />
+    <path d="M7 11L5 14L8 15L9 12L7 11Z" fill="currentColor" />
+    <path d="M17 11L19 14L16 15L15 12L17 11Z" fill="currentColor" />
+    <path d="M10 17H14L15 20H9L10 17Z" fill="currentColor" />
+  </svg>
+);
 
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
-  { icon: Trophy, label: "Sports", path: "__sports__", disabled: false, featured: true, external: true },
+  { icon: User, label: "Sports", path: "__sports__", disabled: false, featured: true, external: true },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
 ];
 
@@ -62,9 +74,6 @@ export const BottomNav = () => {
           const isFeatured = item.featured;
           
           if (isFeatured) {
-            const wcPhase = getWorldCupPhase();
-            const showLive = wcPhase === "live";
-            const showSoon = wcPhase === "teaser";
             return (
               <button
                 key={item.path}
@@ -72,25 +81,18 @@ export const BottomNav = () => {
                   triggerHaptic('medium');
                   window.open(SPORTS_LINK, "_blank", "noopener,noreferrer");
                 }}
-                className="relative flex flex-col items-center"
+                className="relative flex flex-col items-center gap-1 w-20 -mt-2"
+                aria-label="Open Sports"
               >
-                {/* Gold glow halo */}
-                <div className="absolute -top-2 w-14 h-14 rounded-full blur-xl bg-yellow-400/40" />
-
-                {/* Icon container - elevated */}
-                <div className="relative -mt-6 mb-1">
-                  <Trophy className="w-9 h-9 text-yellow-400 drop-shadow-[0_0_12px_rgba(250,204,21,0.7)]" />
-                  {showLive && (
-                    <span
-                      className="absolute -top-1 -right-1 px-1.5 py-px rounded-full text-[8px] font-bold tracking-wider uppercase bg-red-600 text-white animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.7)]"
-                    >
-                      LIVE
-                    </span>
-                  )}
+                <div className="animate-ball-bounce">
+                  <div className="relative w-10 h-10 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center drop-shadow-[0_0_8px_rgba(251,191,36,0.35)]">
+                    <div className="animate-ball-spin w-7 h-7 flex items-center justify-center text-background">
+                      <SoccerBallIcon className="w-full h-full" />
+                    </div>
+                    <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
+                  </div>
                 </div>
-
-                {/* Label */}
-                <span className="text-xs font-semibold uppercase tracking-wider text-yellow-400">
+                <span className="text-[10px] font-bold tracking-wide uppercase text-amber-500">
                   {item.label}
                 </span>
               </button>
