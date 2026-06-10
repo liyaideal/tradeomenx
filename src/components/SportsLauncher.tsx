@@ -28,13 +28,15 @@ const persistDismiss = () => {
   }
 };
 
+/**
+ * Desktop-only. Mobile Sports entry lives in BottomNav and is decoupled
+ * from this component — do NOT re-introduce a mobile collapsed variant here.
+ */
 export interface SportsLauncherProps {
   /** Force the launcher visible regardless of window/dismiss state (playground only). */
   forceShow?: boolean;
   /** Don't write to localStorage when dismissed (playground only). */
   ephemeral?: boolean;
-  /** Force the collapsed icon-only state (playground only). */
-  forceCollapsed?: boolean;
   /** Position override; defaults to bottom-left fixed. */
   className?: string;
 }
@@ -42,7 +44,6 @@ export interface SportsLauncherProps {
 export const SportsLauncher = ({
   forceShow = false,
   ephemeral = false,
-  forceCollapsed = false,
   className,
 }: SportsLauncherProps) => {
   const [visible, setVisible] = useState(false);
@@ -70,14 +71,10 @@ export const SportsLauncher = ({
     window.open(LAUNCHER_LINK, "_blank", "noopener,noreferrer");
   };
 
-  const collapsedClass = forceCollapsed
-    ? "min-w-0 w-12 h-12 px-0 justify-center"
-    : "min-w-[210px] h-14 px-3 max-[479px]:min-w-0 max-[479px]:w-12 max-[479px]:h-12 max-[479px]:px-0 max-[479px]:justify-center";
-
   return (
     <div
       className={cn(
-        "group z-40 animate-fade-in",
+        "group z-40 animate-fade-in hidden md:block",
         className ?? "fixed bottom-6 left-6",
       )}
     >
@@ -96,10 +93,7 @@ export const SportsLauncher = ({
         type="button"
         onClick={handleOpen}
         aria-label="Open OmenX Sports — World Cup live"
-        className={cn(
-          "flex items-center gap-3 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-[0_10px_30px_-10px_hsl(var(--background)/0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:border-trading-yellow/40 hover:shadow-[0_12px_36px_-8px_hsl(var(--trading-yellow)/0.25)] active:scale-[0.98]",
-          collapsedClass,
-        )}
+        className="flex items-center gap-3 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-[0_10px_30px_-10px_hsl(var(--background)/0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:border-trading-yellow/40 hover:shadow-[0_12px_36px_-8px_hsl(var(--trading-yellow)/0.25)] active:scale-[0.98] min-w-[210px] h-14 px-3"
       >
         {/* Soccer ball icon with LIVE pulse */}
         <span className="relative flex-shrink-0">
@@ -124,15 +118,8 @@ export const SportsLauncher = ({
           </span>
         </span>
 
-        {/* Text content (hidden when collapsed) */}
-        <span
-          className={cn(
-            "flex flex-col items-start leading-tight",
-            forceCollapsed
-              ? "hidden"
-              : "max-[479px]:hidden",
-          )}
-        >
+        {/* Text content */}
+        <span className="flex flex-col items-start leading-tight">
           <span className="text-[15px] font-bold tracking-tight text-foreground">
             OmenX Sports
           </span>
@@ -144,12 +131,7 @@ export const SportsLauncher = ({
         </span>
 
         {/* Arrow */}
-        <ChevronRight
-          className={cn(
-            "ml-auto w-5 h-5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground",
-            forceCollapsed ? "hidden" : "max-[479px]:hidden",
-          )}
-        />
+        <ChevronRight className="ml-auto w-5 h-5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
       </button>
     </div>
   );
