@@ -72,6 +72,9 @@ export const WorldCupSection = ({ isMobile }: Props) => {
           live scoreboard + upcoming odds. Auto-hides outside window or after
           dismiss (24h TTL).
         </p>
+        <p className="mt-2 text-xs text-trading-yellow/90 border border-trading-yellow/30 bg-trading-yellow/5 rounded-md px-3 py-2">
+          <strong>Desktop only.</strong> Teaser/Live 面板（右下悬浮）与 Sports launcher（左下 pill）均为桌面独占（≥md）。移动端 Sports 入口由 <code>BottomNav</code> 独立维护，不在此页演示。
+        </p>
       </div>
 
       {/* ===== TEASER ===== */}
@@ -151,74 +154,17 @@ export const WorldCupSection = ({ isMobile }: Props) => {
       {/* ===== SPORTS LAUNCHER ===== */}
       <section className="space-y-3">
         <h3 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
-          Sports launcher (floating, bottom-left)
+          Sports launcher (desktop only · floating, bottom-left)
         </h3>
         <p className="text-xs text-muted-foreground">
-          Persistent cross-product entry to OmenX Sports. Auto-shows during World Cup window,
+          Persistent cross-product entry to OmenX Sports on desktop (≥md). Auto-shows during World Cup window,
           dismissible (24h TTL via <code>sports-launcher-dismissed</code> localStorage key).
+          移动端不渲染此组件——Sports 入口在 BottomNav 内单独维护。
         </p>
 
         <SportsLauncherPlayground />
       </section>
-
-      <div className="text-xs text-muted-foreground space-y-1">
-        <p><strong>Window:</strong> 2026-06-11 20:00 UTC → 2026-07-20 04:00 UTC</p>
-        <p><strong>Link:</strong> https://omenx-sports.lovable.app?ref=omenx-main&amp;src=wc-panel</p>
-        <p><strong>Dismiss:</strong> ×按钮写入 localStorage, 24h 内不再出现</p>
-      </div>
-    </div>
-  );
-};
-
-type LauncherPreset = "default" | "hovered" | "collapsed" | "dismissed";
-
-const LAUNCHER_PRESETS: Record<LauncherPreset, { label: string; description: string }> = {
-  default: { label: "Default", description: "Resting state, bottom-left" },
-  hovered: { label: "Hover", description: "Lifted + amber glow + dismiss × visible" },
-  collapsed: { label: "Mobile collapsed (< 480px)", description: "Icon-only 48×48 circle" },
-  dismissed: { label: "Dismissed (hidden)", description: "Returns null until 24h elapses" },
-};
-
-const SportsLauncherPlayground = () => {
-  const [preset, setPreset] = useState<LauncherPreset>("default");
-
-  return (
-    <div className="space-y-3">
-      <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
-        {(Object.entries(LAUNCHER_PRESETS) as [LauncherPreset, (typeof LAUNCHER_PRESETS)[LauncherPreset]][]).map(
-          ([key, p]) => (
-            <button
-              key={key}
-              onClick={() => setPreset(key)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                preset === key
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-muted/30 border-border/60 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {p.label}
-            </button>
-          )
-        )}
-      </div>
-
-      <div className="relative w-full min-h-[240px] rounded-xl border border-border/50 bg-[#050505] overflow-hidden flex items-end p-6">
-        {preset === "dismissed" ? (
-          <p className="text-xs text-muted-foreground italic">
-            Launcher returns null when dismissed. Component unmounted.
-          </p>
-        ) : (
-          <SportsLauncher
-            key={preset}
-            forceShow
-            ephemeral
-            forceCollapsed={preset === "collapsed"}
-            className={
-              preset === "hovered"
-                ? "relative group is-hovered"
-                : "relative"
-            }
-          />
+...
         )}
       </div>
       <p className="text-[11px] text-muted-foreground">{LAUNCHER_PRESETS[preset].description}</p>
