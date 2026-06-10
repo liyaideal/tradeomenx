@@ -219,6 +219,14 @@ export const BottomNav = () => {
             }}
           />
           <MobileDrawerListItem
+            icon={Award}
+            label="Leaderboard"
+            onClick={() => {
+              setProfileSheetOpen(false);
+              navigate("/leaderboard");
+            }}
+          />
+          <MobileDrawerListItem
             icon={Gift}
             label="Rewards"
             onClick={() => {
