@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BarChart3, TrendingUp, Trophy, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Users, Lightbulb } from "lucide-react";
+import { Home, BarChart3, TrendingUp, Trophy, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Users, Lightbulb, Award } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -7,12 +7,13 @@ import { toast } from "sonner";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { SPORTS_LINK, getWorldCupPhase } from "@/lib/worldCup";
 
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
-  { icon: Trophy, label: "Ranks", path: "/leaderboard", disabled: false, featured: true },
+  { icon: Trophy, label: "Sports", path: "__sports__", disabled: false, featured: true, external: true },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
 ];
 
