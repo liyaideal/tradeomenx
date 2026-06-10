@@ -99,6 +99,7 @@ const App = () => (
               path="*"
               element={
                 <ResponsiveLayout>
+                  <SportsLauncher />
                   <Routes>
                     <Route path="/" element={<HomePage />} />
               <Route path="/trade" element={<TradingPage />} />
