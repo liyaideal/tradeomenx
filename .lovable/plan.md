@@ -1,32 +1,49 @@
-## 目标
+# Floating Sports launcher (V2 — Compact glass)
 
-把移动端底部 nav 中间的 Sports 入口从「金色 Trophy + LIVE 角标」改成 C 方案的「金色圆盘 + 旋转足球 + 上下浮动」动效徽章，链接保持 `https://omenx-sports.lovable.app`，去掉所有 LIVE/SOON 状态判断。
+Add a single floating "OmenX Sports" entry point. Header (including the MAINNET chip) stays exactly as it is today.
 
-## 改动范围
+## 1. New `SportsLauncher` component
 
-仅 `src/components/BottomNav.tsx`。`src/lib/worldCup.ts` 中 `SPORTS_URL` 已是目标地址，无需改动。
+**File:** `src/components/SportsLauncher.tsx` (new)
 
-## 具体修改
+Fixed `bottom-6 left-6`, `z-50`. Renders only when both are true:
+- `isWorldCupActive()` from existing `src/lib/worldCup.ts`
+- `localStorage["sports-launcher-dismissed"]` missing or older than 24h (same TTL pattern as `wc2026-panel-dismissed`)
 
-1. **移除 `getWorldCupPhase` 引用**：BottomNav 不再读取赛事阶段，删除 import。
-2. **新增内联 `SoccerBallIcon` 组件**：用 design direction C 里的 SVG path（圆 + 五边形 + 黑斑块），`fill="currentColor"`，方便用 text 颜色控制。
-3. **替换中间 featured 渲染分支**：
-   - 外层容器 `flex flex-col items-center gap-1 -mt-2 w-20`
-   - 浮动层：`animate-[ballBounce_2s_ease-in-out_infinite]`
-   - 金盘：`w-10 h-10 rounded-full bg-gradient-to-b from-amber-400 to-amber-600` + `drop-shadow-[0_0_8px_rgba(251,191,36,0.35)]` + 内圈 `border border-white/20`
-   - 内层旋转：`animate-[ballSpin_8s_linear_infinite] w-8 h-8 text-[hsl(var(--background))]`，里面放 `SoccerBallIcon`
-   - Label：`text-[10px] font-bold tracking-wide uppercase text-amber-500`，文字 `Sports`
-   - 点击：`window.open(SPORTS_LINK, "_blank", "noopener,noreferrer")` + 中等触感
-   - 不再渲染 LIVE / SOON 角标
-4. **注册关键帧动画**：在 `tailwind.config.ts` 的 `keyframes` 里加 `ballSpin`（0→360deg 旋转）和 `ballBounce`（translateY 0 → -4px → 0），并在 `animation` 里暴露 `ball-spin: ballSpin 8s linear infinite` 与 `ball-bounce: ballBounce 2s ease-in-out infinite`，组件直接用 `animate-ball-spin` / `animate-ball-bounce` 替代上面的 arbitrary value 写法（更整洁，并符合项目动画系统规范）。
-5. 不动桌面端、不动 Me 抽屉里的 Leaderboard、不动其他 nav item。
+Composition (locked to selected V2 prototype):
+- 56px tall pill, ~210px min-width, `rounded-2xl`, `bg-card/60 backdrop-blur-xl border border-border/50 shadow-2xl`
+- Left: 40px gold-gradient circle containing soccer-ball icon (use existing `src/assets/soccer-ball.png` asset), red LIVE pulse dot top-right
+- Middle: two-line label — `OmenX Sports` (15px bold) / `WORLD CUP · LIVE` (10px amber, font-mono, tracking-widest)
+- Right: chevron-right; translates `+1px` on hover
+- Hover: `-translate-y-0.5`, border brightens, subtle amber glow
+- Dismiss × at `-top-2 -right-2`, opacity 0 → 1 on group-hover, writes `Date.now()` to localStorage and unmounts
+- Click target (the pill itself): `window.open("https://omenx-sports.lovable.app?ref=omenx-main&src=launcher", "_blank", "noopener,noreferrer")`
 
-## 不会动的部分
+Mobile (< 480px): collapse to a 48×48 round icon-only button (text hidden) so it doesn't fight the BottomNav.
 
-- `src/lib/worldCup.ts`
-- `WorldCupPanel.tsx` / `WorldCupPortal.tsx` / 桌面 `EventsPage` 上的预告 panel
-- 其他页面/路由
+## 2. Mount points
 
-## 视觉参考
+- `src/pages/Index.tsx` / `src/pages/MobileHome.tsx`
+- `src/pages/EventsPage.tsx`
 
-用户已选 prototype C：金色渐变圆盘内放慢转足球，整体 2s 一次轻微上下浮动，无 LIVE 角标，label 全大写金色 "Sports"。
+Mounted page-level alongside `WorldCupPanel`. Auto-hides outside the World Cup window — no manual teardown needed after the tournament.
+
+## 3. Playground coverage (mandate)
+
+**File:** `src/pages/StyleGuide/sections/WorldCupSection.tsx` (add section)
+
+Add `SportsLauncher` PresetRail covering: default · hovered · mobile-collapsed · dismissed-hidden (with a "Reset dismissal" button so the demo state is restorable).
+
+## Explicitly NOT changed
+
+- MAINNET chip — stays as-is (user confirmed)
+- Header layout, nav, logo, equity, avatar
+- WorldCupPanel
+- Discord floating button
+
+## Tech notes
+
+- All tokens via design system (`bg-card`, `text-foreground`, `text-trading-yellow` for gold, `text-trading-red` for LIVE dot)
+- No hardcoded hex
+- Reuses `isWorldCupActive()` so visibility automatically ends after 2026-07-20
+- New memory after build: `mem://features/sports-launcher` describing dismiss key + visibility window + mount points
