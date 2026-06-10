@@ -74,10 +74,13 @@ export const BottomNav = () => {
                 aria-label="Open Sports"
               >
                 <div className="animate-ball-bounce">
-                  <div className="relative w-10 h-10 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center drop-shadow-[0_0_8px_rgba(251,191,36,0.35)]">
-                    <div className="animate-ball-spin w-7 h-7 flex items-center justify-center text-background">
-                      <SoccerBallIcon className="w-full h-full" />
-                    </div>
+                  <div className="relative w-10 h-10 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">
+                    <img
+                      src={soccerBallAsset.url}
+                      alt=""
+                      className="animate-ball-spin w-7 h-7 object-contain"
+                      draggable={false}
+                    />
                     <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
                   </div>
                 </div>
