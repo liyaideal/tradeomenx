@@ -353,6 +353,7 @@ export const WorldCupTeaserPanel = ({
           </div>
         </div>
       </div>
+    </div>
   );
 };
 
