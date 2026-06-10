@@ -348,7 +348,7 @@ export const WorldCupTeaserPanel = ({
           <div className="relative flex items-center justify-center gap-2 px-4 pb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-[#1D9E75] animate-pulse" />
             <span className="text-[10px] tracking-[0.18em] text-[#7FA088] uppercase">
-              Early access · Pre-match odds live now
+              PRE-MATCH ODDS LIVE NOW
             </span>
           </div>
         </div>
