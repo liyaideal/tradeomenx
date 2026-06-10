@@ -124,3 +124,4 @@
 - [Home page purpose](mem://features/home-page-purpose) — Home v3: sportsbook layout with greeting, Tournaments rail, LIVE-switch Top Events, D-class HomeMatchCard
 
 - [World Cup 2026 portal](mem://features/world-cup-portal) — 主站右下角常驻悬浮 panel，2026-06-11~07-19 期间显示，跳转 OmenX Sports；× 24h TTL 隐藏
+- [Sports launcher](mem://features/sports-launcher) — Floating bottom-left pill linking to OmenX Sports during World Cup window; header untouched
