@@ -62,35 +62,39 @@ export const BottomNav = () => {
           const isFeatured = item.featured;
           
           if (isFeatured) {
+            const wcPhase = getWorldCupPhase();
+            const showLive = wcPhase === "live";
+            const showSoon = wcPhase === "teaser";
             return (
               <button
                 key={item.path}
                 onClick={() => {
-                  if (!item.disabled) {
-                    triggerHaptic('medium');
-                    navigate(item.path, { replace: true });
-                  }
+                  triggerHaptic('medium');
+                  window.open(SPORTS_LINK, "_blank", "noopener,noreferrer");
                 }}
                 className="relative flex flex-col items-center"
               >
-                {/* Glow effect - only when active */}
-                {active && (
-                  <div className="absolute -top-2 w-14 h-14 rounded-full blur-xl bg-primary/40" />
-                )}
-                
+                {/* Gold glow halo */}
+                <div className="absolute -top-2 w-14 h-14 rounded-full blur-xl bg-yellow-400/40" />
+
                 {/* Icon container - elevated */}
                 <div className="relative -mt-6 mb-1">
-                  <Trophy className={`transition-all duration-300 ${
-                    active 
-                      ? "w-9 h-9 text-primary drop-shadow-[0_0_12px_hsl(var(--primary))]" 
-                      : "w-7 h-7 text-muted-foreground"
-                  }`} />
+                  <Trophy className="w-9 h-9 text-yellow-400 drop-shadow-[0_0_12px_rgba(250,204,21,0.7)]" />
+                  {(showLive || showSoon) && (
+                    <span
+                      className={`absolute -top-1 -right-1 px-1.5 py-px rounded-full text-[8px] font-bold tracking-wider uppercase ${
+                        showLive
+                          ? "bg-red-600 text-white animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.7)]"
+                          : "bg-yellow-400 text-black"
+                      }`}
+                    >
+                      {showLive ? "LIVE" : "SOON"}
+                    </span>
+                  )}
                 </div>
-                
+
                 {/* Label */}
-                <span className={`text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
-                  active ? "text-primary" : "text-muted-foreground"
-                }`}>
+                <span className="text-xs font-semibold uppercase tracking-wider text-yellow-400">
                   {item.label}
                 </span>
               </button>
