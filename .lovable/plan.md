@@ -1,26 +1,34 @@
-## 国旗动效改成 shimmer 高光扫光
+## 目标
+把 `WorldCupPanel.tsx`（Live/Tournament Window）改造成与 `WorldCupTeaserPanel` 一致的视觉体系，保留现有的数据结构（live + upcoming + CTA）和文案语义，不动 `WorldCupPanel.data.ts`。
 
-只改 `WorldCupTeaserPanel.tsx` 里两面国旗的动画方式，其他东西（奖杯底图、翻牌倒计时）不动。
+## 复用的设计元素（来自 teaser）
+1. **外壳**：`bg-[#0B1410]` + `border-[1.5px] border-[#2A3B2E]` + `rounded-2xl`，去掉当前那条彩色渐变描边
+2. **顶部三色 host stripe**：5px 红/绿/蓝（#C8102E / #007A33 / #0033A0），覆盖原 LIVE 时仍保留
+3. **舞台光晕**：两层 radial gradient 黄绿色背景层（opacity 0.3）
+4. **大力神杯剪影**：右上角小尺寸（≈42% 宽，max 180px），rotate(8deg)，opacity 0.55，mix-blend screen，配 halo
+5. **Header**：圆形金边奖杯图标（Trophy icon）+ "WORLD CUP 2026" (Bebas Neue, 黄渐变) + 副标题 "United · Mexico · Canada"；右侧 X 关闭按钮（#5F7A66 → white）
+6. **分割条**：`hairline — accent label — hairline`，金色 #C9A227 Bebas Neue 小标签，分别用作 "Live Now" 和 "Coming Up Next"
+7. **CTA**：纯金底 #E8C547，深色文字 (#3A2E08)，"OPEN OMENX SPORTS"（Bebas Neue, tracking-[0.2em]）+ 箭头
+8. **底部状态条**：绿色脉冲点 #1D9E75 + uppercase 小字 "Tournament in progress" 之类
 
-### 改动
-1. **删掉 `wc-flag-wave` 关键帧和 `.wc-flag` 类**（skewY + scaleX 那段）
-2. **国旗 SVG 外层包一层 `relative overflow-hidden`** 的 div，国旗本体改回完全静态（无 transform）
-3. **加一个绝对定位的高光叠层**：
-   - 宽度 60% 旗面，高度 200%（斜着扫所以要超出）
-   - 用 `background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)`
-   - `mix-blend-mode: overlay`
-   - `transform: translateX(-150%)` → 通过 keyframe 推到 `translateX(250%)`
-4. **新关键帧 `wc-shimmer`**：
-   - `0% → 60%`：高光从左 -150% 推到右 250%（约 1.4s 实际扫光时间）
-   - `60% → 100%`：高光停在右侧外面（约 2.1s 间歇）
-   - 总周期 3.5s，`ease-in-out`，`infinite`
-   - 两面国旗用不同 `animation-delay`（墨西哥 0s / 南非 1.4s）错峰，不同步扫
-5. **不抖、不变形、不破坏圆角**
+## Live 区块改造
+- LIVE 徽章保持红底白字 + pulse，但圆角和阴影对齐 teaser tone
+- 分钟数：金色 #C9A227 mono 字体（替换原 green-400）
+- 比分行：保留三栏，国旗用与 teaser 相同的「带白色边框 + 圆角 + 内部 overflow-hidden + shimmer 扫光 overlay」结构（复用 `wc-shimmer-overlay`），仍按 `live.homeFlag.primary` 渲染主色（或简单平铺主色，不展开多色 svg，避免改 data 文件）
+- 比分字体保留 Anton，颜色 white，冒号用 #C9A227
 
-视觉效果：一束斜向白光每隔几秒从国旗左侧滑到右侧，像金属/丝绸反光，国旗本身完全静止。
+## Coming Up Next 列表
+- 分隔条改成金色 hairline + label 样式
+- 行内：双国旗 chip（同上结构）+ 队名 mono → 改为 Anton 小号 white；时间 pill 保留 mono，背景换成 `bg-[#13231A] border border-[#2C4434] text-[#7FA088]`
+- hover 背景换成 `bg-white/[0.02]`，保留可点击
 
-### 不动的部分
-- 大力神杯底图（依然在）
-- 翻牌倒计时（依然在）
-- 国旗的 SVG 颜色/尺寸/边框/标签
-- Live 面板 / SportsLauncher / 任何其他文件
+## 文件改动
+- 只改 `src/components/world-cup/WorldCupPanel.tsx`
+- 复制 teaser 的 `<style>` 块（wc-shimmer / wc-trophy-glow 关键帧）和 trophy 资源 import (`trophyAsset`)
+- 不动 `WorldCupPanel.data.ts`、`WorldCupTeaserPanel.tsx`、`WorldCupPortal.tsx`
+
+## 验证
+- `/style-guide` 的 LIVE (TOURNAMENT WINDOW) 4 种 preset（Live + Upcoming / Pre-match no live / Between matches / Single live）逐个截图，确认：
+  - 三色 stripe + 奖杯剪影都不挡 CTA 与 LIVE 比分
+  - 没有 live 时上半区只剩 Coming Up Next，奖杯仍在右上
+  - 单场 live、无 upcoming 时也能正常居中
