@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { WorldCupPanel } from "@/components/world-cup/WorldCupPanel";
 import { WorldCupTeaserPanel } from "@/components/world-cup/WorldCupTeaserPanel";
+import { SportsLauncher } from "@/components/SportsLauncher";
 import type { FeaturedMatch } from "@/components/world-cup/WorldCupPanel.data";
 
 interface Props {
