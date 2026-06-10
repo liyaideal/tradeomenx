@@ -80,15 +80,11 @@ export const BottomNav = () => {
                 {/* Icon container - elevated */}
                 <div className="relative -mt-6 mb-1">
                   <Trophy className="w-9 h-9 text-yellow-400 drop-shadow-[0_0_12px_rgba(250,204,21,0.7)]" />
-                  {(showLive || showSoon) && (
+                  {showLive && (
                     <span
-                      className={`absolute -top-1 -right-1 px-1.5 py-px rounded-full text-[8px] font-bold tracking-wider uppercase ${
-                        showLive
-                          ? "bg-red-600 text-white animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.7)]"
-                          : "bg-yellow-400 text-black"
-                      }`}
+                      className="absolute -top-1 -right-1 px-1.5 py-px rounded-full text-[8px] font-bold tracking-wider uppercase bg-red-600 text-white animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.7)]"
                     >
-                      {showLive ? "LIVE" : "SOON"}
+                      LIVE
                     </span>
                   )}
                 </div>
