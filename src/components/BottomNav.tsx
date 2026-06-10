@@ -8,18 +8,7 @@ import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/componen
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { SPORTS_LINK } from "@/lib/worldCup";
-
-// Stylized soccer-ball emblem used for the central "Sports" entry.
-const SoccerBallIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M12 2L14.5 6.5L19.5 7L16 11L17 16L12 14L7 16L8 11L4.5 7L9.5 6.5L12 2Z" fill="currentColor" opacity="0.2" />
-    <path d="M12 7L10 10H14L12 7Z" fill="currentColor" />
-    <path d="M7 11L5 14L8 15L9 12L7 11Z" fill="currentColor" />
-    <path d="M17 11L19 14L16 15L15 12L17 11Z" fill="currentColor" />
-    <path d="M10 17H14L15 20H9L10 17Z" fill="currentColor" />
-  </svg>
-);
+import soccerBallAsset from "@/assets/soccer-ball.png.asset.json";
 
 
 const navItems = [
@@ -85,10 +74,13 @@ export const BottomNav = () => {
                 aria-label="Open Sports"
               >
                 <div className="animate-ball-bounce">
-                  <div className="relative w-10 h-10 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center drop-shadow-[0_0_8px_rgba(251,191,36,0.35)]">
-                    <div className="animate-ball-spin w-7 h-7 flex items-center justify-center text-background">
-                      <SoccerBallIcon className="w-full h-full" />
-                    </div>
+                  <div className="relative w-10 h-10 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">
+                    <img
+                      src={soccerBallAsset.url}
+                      alt=""
+                      className="animate-ball-spin w-7 h-7 object-contain"
+                      draggable={false}
+                    />
                     <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
                   </div>
                 </div>
