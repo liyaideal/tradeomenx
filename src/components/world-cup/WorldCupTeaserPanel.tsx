@@ -138,8 +138,15 @@ export const WorldCupTeaserPanel = ({
         .wc-trophy { animation: wc-trophy-glow 5s ease-in-out infinite; }
       `}</style>
 
-      <div className="relative w-[340px] max-w-full rounded-2xl p-[2px] bg-gradient-to-br from-yellow-400 via-green-500 to-blue-600 shadow-[0_0_40px_rgba(250,204,21,0.25)]">
-        <div className="relative bg-[#0c0c0e] rounded-[14px] overflow-hidden border border-white/5">
+      <div className="relative w-[340px] max-w-full rounded-2xl shadow-[0_0_40px_rgba(250,204,21,0.2)]">
+        <div className="relative bg-[#0B1410] rounded-2xl overflow-hidden border-[1.5px] border-[#2A3B2E]">
+          {/* Tri-color host stripe */}
+          <div aria-hidden className="flex h-[5px] relative z-10">
+            <div className="flex-1" style={{ background: "#C8102E" }} />
+            <div className="flex-1" style={{ background: "#007A33" }} />
+            <div className="flex-1" style={{ background: "#0033A0" }} />
+          </div>
+
           {/* Stadium beam backdrop */}
           <div
             aria-hidden
@@ -187,19 +194,26 @@ export const WorldCupTeaserPanel = ({
           />
 
           {/* Header */}
-          <div className="relative flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-black via-zinc-900 to-black">
-            <div className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-yellow-400 drop-shadow-[0_0_6px_rgba(250,204,21,0.7)]" />
-              <h2
-                className="text-2xl tracking-wider bg-gradient-to-b from-yellow-200 to-yellow-500 bg-clip-text text-transparent leading-none"
-                style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-              >
-                WORLD CUP 2026
-              </h2>
+          <div className="relative flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full bg-[#1A2B1F] border border-[#C9A227] flex items-center justify-center shrink-0">
+                <Trophy className="w-[18px] h-[18px] text-[#E8C547] drop-shadow-[0_0_6px_rgba(232,197,71,0.6)]" />
+              </div>
+              <div className="flex flex-col leading-tight">
+                <h2
+                  className="text-lg tracking-[0.12em] bg-gradient-to-b from-yellow-200 to-yellow-500 bg-clip-text text-transparent"
+                  style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+                >
+                  WORLD CUP 2026
+                </h2>
+                <span className="text-[10px] tracking-[0.2em] text-[#7FA088] uppercase">
+                  United · Mexico · Canada
+                </span>
+              </div>
             </div>
             <button
               onClick={handleDismiss}
-              className="text-zinc-500 hover:text-white transition-colors"
+              className="text-[#5F7A66] hover:text-white transition-colors"
               aria-label="Dismiss"
             >
               <X className="w-5 h-5" />
@@ -207,100 +221,135 @@ export const WorldCupTeaserPanel = ({
           </div>
 
           {/* COMING SOON ribbon */}
-          <div className="relative px-4 pt-4 pb-2 flex items-center justify-center gap-2">
-            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-yellow-500/40 to-yellow-500/40" />
+          <div className="relative px-4 pt-1 pb-2 flex items-center justify-center gap-2">
+            <span className="h-px flex-1 bg-[#243528]" />
             <span
-              className="px-2 py-0.5 rounded bg-yellow-400/10 border border-yellow-400/40 text-yellow-300 text-[10px] font-bold tracking-[0.25em] uppercase animate-pulse"
-              style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.25em" }}
+              className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#C9A227] animate-pulse"
+              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             >
               Kickoff In
             </span>
-            <span className="h-px flex-1 bg-gradient-to-l from-transparent via-yellow-500/40 to-yellow-500/40" />
+            <span className="h-px flex-1 bg-[#243528]" />
           </div>
 
           {/* Countdown */}
           <div className="relative px-4 pb-4 flex items-center justify-between gap-2">
             <Cell value={cd.days} label="Days" />
-            <span className="text-yellow-500/60 text-2xl font-black -mt-4">:</span>
+            <span className="text-[#C9A227] text-2xl font-black -mt-4">:</span>
             <Cell value={cd.hours} label="Hours" />
-            <span className="text-yellow-500/60 text-2xl font-black -mt-4">:</span>
+            <span className="text-[#C9A227] text-2xl font-black -mt-4">:</span>
             <Cell value={cd.minutes} label="Mins" />
-            <span className="text-yellow-500/60 text-2xl font-black -mt-4">:</span>
+            <span className="text-[#C9A227] text-2xl font-black -mt-4">:</span>
             <Cell value={cd.seconds} label="Secs" />
           </div>
 
-          {/* Opening match preview */}
-          <div className="relative mx-4 mb-4 rounded-lg border border-yellow-500/20 bg-gradient-to-br from-yellow-500/[0.04] to-transparent overflow-hidden backdrop-blur-[2px]">
-            <div className="px-3 py-1.5 bg-white/5 border-b border-white/5 flex items-center justify-between">
-              <span className="text-[9px] font-bold text-yellow-300/80 tracking-[0.2em] uppercase">
+          {/* Opening match preview — pitch styled */}
+          <div className="relative mx-4 mb-4 rounded-xl border border-[#2C4434] overflow-hidden">
+            <div className="px-3 py-1.5 bg-[#13231A] flex items-center justify-between">
+              <span
+                className="text-[10px] font-bold text-[#E8C547] tracking-[0.2em] uppercase"
+                style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+              >
                 Opening Match
               </span>
-              <span className="flex items-center gap-1 text-[9px] text-zinc-500 uppercase tracking-wider">
+              <span className="flex items-center gap-1 text-[10px] text-[#7FA088] uppercase tracking-wider">
                 <MapPin className="w-2.5 h-2.5" /> Estadio Azteca
               </span>
             </div>
-            <div className="flex items-center justify-between px-4 py-3 gap-2">
-              <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className="relative w-10 h-6 rounded-sm border border-white/20 mb-1 overflow-hidden">
-                  <svg viewBox="0 0 30 18" className="w-full h-full block" aria-hidden>
-                    <rect x="0" y="0" width="10" height="18" fill="#006847" />
-                    <rect x="10" y="0" width="10" height="18" fill="#ffffff" />
-                    <rect x="20" y="0" width="10" height="18" fill="#ce1126" />
-                  </svg>
-                  <span className="wc-shimmer-overlay" style={{ animationDelay: "0s" }} />
+            {/* Pitch surface */}
+            <div
+              className="relative px-4 py-4"
+              style={{
+                background:
+                  "repeating-linear-gradient(90deg,#15301F 0,#15301F 34px,#1A3A26 34px,#1A3A26 68px)",
+              }}
+            >
+              {/* Center line */}
+              <div
+                aria-hidden
+                className="absolute top-0 bottom-0"
+                style={{ left: "50%", width: "1.5px", background: "rgba(255,255,255,0.28)" }}
+              />
+              {/* Center circle */}
+              <div
+                aria-hidden
+                className="absolute rounded-full border-[1.5px]"
+                style={{
+                  left: "50%",
+                  top: "50%",
+                  width: 70,
+                  height: 70,
+                  transform: "translate(-50%,-50%)",
+                  borderColor: "rgba(255,255,255,0.28)",
+                }}
+              />
+              <div className="relative flex items-center justify-between gap-2">
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className="relative w-11 h-7 rounded-[3px] border border-white/20 mb-1.5 overflow-hidden">
+                    <svg viewBox="0 0 30 18" className="w-full h-full block" aria-hidden>
+                      <rect x="0" y="0" width="10" height="18" fill="#006847" />
+                      <rect x="10" y="0" width="10" height="18" fill="#ffffff" />
+                      <rect x="20" y="0" width="10" height="18" fill="#ce1126" />
+                    </svg>
+                    <span className="wc-shimmer-overlay" style={{ animationDelay: "0s" }} />
+                  </div>
+                  <span
+                    className="text-sm text-white uppercase tracking-wide"
+                    style={{ fontFamily: "'Anton', sans-serif" }}
+                  >
+                    Mexico
+                  </span>
                 </div>
+
                 <span
-                  className="text-sm text-zinc-100 uppercase tracking-wide"
+                  className="text-[#E8C547] text-base tracking-[0.2em] shrink-0"
                   style={{ fontFamily: "'Anton', sans-serif" }}
                 >
-                  Mexico
+                  VS
                 </span>
-              </div>
 
-              <span
-                className="text-zinc-500 text-lg shrink-0"
-                style={{ fontFamily: "'Anton', sans-serif" }}
-              >
-                VS
-              </span>
-
-              <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className="relative w-10 h-6 rounded-sm border border-white/20 mb-1 overflow-hidden">
-                  <svg viewBox="0 0 30 18" className="w-full h-full block" aria-hidden>
-                    <rect x="0" y="0" width="30" height="9" fill="#007a4d" />
-                    <rect x="0" y="9" width="30" height="9" fill="#ffb612" />
-                  </svg>
-                  <span className="wc-shimmer-overlay" style={{ animationDelay: "1.4s" }} />
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className="relative w-11 h-7 rounded-[3px] border border-white/20 mb-1.5 overflow-hidden">
+                    <svg viewBox="0 0 30 18" className="w-full h-full block" aria-hidden>
+                      <rect x="0" y="0" width="30" height="9" fill="#007a4d" />
+                      <rect x="0" y="9" width="30" height="9" fill="#ffb612" />
+                    </svg>
+                    <span className="wc-shimmer-overlay" style={{ animationDelay: "1.4s" }} />
+                  </div>
+                  <span
+                    className="text-sm text-white uppercase tracking-wide"
+                    style={{ fontFamily: "'Anton', sans-serif" }}
+                  >
+                    S. Africa
+                  </span>
                 </div>
-                <span
-                  className="text-sm text-zinc-100 uppercase tracking-wide"
-                  style={{ fontFamily: "'Anton', sans-serif" }}
-                >
-                  S. Africa
-                </span>
               </div>
             </div>
           </div>
 
           {/* CTA */}
-          <div className="relative px-4 pb-4">
+          <div className="relative px-4 pb-3">
             <button
               onClick={handleOpen}
-              className="w-full relative group/btn overflow-hidden rounded-lg p-[1px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-600 transition-transform active:scale-95 shadow-[0_10px_24px_-10px_rgba(250,204,21,0.6)]"
+              className="w-full rounded-xl py-3 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-[0_10px_24px_-10px_rgba(232,197,71,0.6)]"
+              style={{ background: "#E8C547" }}
             >
-              <div className="bg-[#0c0c0e] rounded-[7px] py-2.5 flex items-center justify-center gap-2 transition-colors group-hover/btn:bg-transparent">
-                <span
-                  className="text-lg tracking-widest bg-gradient-to-b from-yellow-200 to-yellow-500 bg-clip-text text-transparent group-hover/btn:from-black group-hover/btn:to-black"
-                  style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-                >
-                  ENTER THE ARENA
-                </span>
-                <ArrowRight className="w-4 h-4 text-yellow-400 group-hover/btn:text-black transition-colors" />
-              </div>
+              <span
+                className="text-lg tracking-[0.2em] text-[#3A2E08]"
+                style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+              >
+                ENTER THE ARENA
+              </span>
+              <ArrowRight className="w-4 h-4 text-[#3A2E08]" />
             </button>
-            <p className="mt-2 text-center text-[10px] text-zinc-500 tracking-wider uppercase">
+          </div>
+
+          {/* Live status footer */}
+          <div className="relative flex items-center justify-center gap-2 px-4 pb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#1D9E75] animate-pulse" />
+            <span className="text-[10px] tracking-[0.18em] text-[#7FA088] uppercase">
               Early access · Pre-match odds live now
-            </p>
+            </span>
           </div>
         </div>
       </div>
