@@ -7,7 +7,19 @@ import { toast } from "sonner";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { SPORTS_LINK, getWorldCupPhase } from "@/lib/worldCup";
+import { SPORTS_LINK } from "@/lib/worldCup";
+
+// Stylized soccer-ball emblem used for the central "Sports" entry.
+const SoccerBallIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M12 2L14.5 6.5L19.5 7L16 11L17 16L12 14L7 16L8 11L4.5 7L9.5 6.5L12 2Z" fill="currentColor" opacity="0.2" />
+    <path d="M12 7L10 10H14L12 7Z" fill="currentColor" />
+    <path d="M7 11L5 14L8 15L9 12L7 11Z" fill="currentColor" />
+    <path d="M17 11L19 14L16 15L15 12L17 11Z" fill="currentColor" />
+    <path d="M10 17H14L15 20H9L10 17Z" fill="currentColor" />
+  </svg>
+);
 
 
 const navItems = [
