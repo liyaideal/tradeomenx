@@ -157,15 +157,15 @@ export const WorldCupTeaserPanel = ({
             }}
           />
 
-          {/* Trophy glow halo (behind trophy) */}
+          {/* Trophy glow halo (behind trophy, top-right) */}
           <div
             aria-hidden
             className="pointer-events-none absolute"
             style={{
-              right: "-25%",
-              bottom: "-20%",
-              width: "70%",
-              height: "70%",
+              right: "-15%",
+              top: "-15%",
+              width: "55%",
+              height: "55%",
               background:
                 "radial-gradient(circle at center, rgba(250,204,21,0.35), transparent 60%)",
               filter: "blur(20px)",
@@ -182,16 +182,18 @@ export const WorldCupTeaserPanel = ({
             loading="lazy"
             className="wc-trophy pointer-events-none absolute select-none"
             style={{
-              right: "-22%",
-              bottom: "-12%",
-              width: "75%",
-              maxWidth: "320px",
-              transform: "rotate(-6deg)",
+              right: "-8%",
+              top: "-6%",
+              width: "42%",
+              maxWidth: "180px",
+              transform: "rotate(8deg)",
               mixBlendMode: "screen",
+              opacity: 0.55,
               filter: "drop-shadow(0 0 18px rgba(250,204,21,0.35))",
             }}
             draggable={false}
           />
+
 
           {/* Header */}
           <div className="relative flex items-center justify-between px-4 py-3">
