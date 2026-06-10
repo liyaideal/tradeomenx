@@ -241,16 +241,14 @@ export const WorldCupTeaserPanel = ({
             </div>
             <div className="flex items-center justify-between px-4 py-3 gap-2">
               <div className="flex flex-col items-center flex-1 min-w-0">
-                <svg
-                  viewBox="0 0 30 18"
-                  className="w-10 h-6 rounded-sm border border-white/20 mb-1 wc-flag"
-                  style={{ animationDelay: "0s" }}
-                  aria-hidden
-                >
-                  <rect x="0" y="0" width="10" height="18" fill="#006847" />
-                  <rect x="10" y="0" width="10" height="18" fill="#ffffff" />
-                  <rect x="20" y="0" width="10" height="18" fill="#ce1126" />
-                </svg>
+                <div className="relative w-10 h-6 rounded-sm border border-white/20 mb-1 overflow-hidden">
+                  <svg viewBox="0 0 30 18" className="w-full h-full block" aria-hidden>
+                    <rect x="0" y="0" width="10" height="18" fill="#006847" />
+                    <rect x="10" y="0" width="10" height="18" fill="#ffffff" />
+                    <rect x="20" y="0" width="10" height="18" fill="#ce1126" />
+                  </svg>
+                  <span className="wc-shimmer-overlay" style={{ animationDelay: "0s" }} />
+                </div>
                 <span
                   className="text-sm text-zinc-100 uppercase tracking-wide"
                   style={{ fontFamily: "'Anton', sans-serif" }}
