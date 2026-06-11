@@ -4,6 +4,7 @@ import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { calcLiqPrice } from "@/lib/tradingUtils";
 import { getBinaryOutcome } from "@/lib/eventUtils";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { usePositions, type UnifiedPosition } from "@/hooks/usePositions";
@@ -289,6 +290,17 @@ export const PositionCard = ({
             <span className="text-[10px] text-muted-foreground block">{TRADING_TERMS.MARGIN}</span>
             <span className="font-mono text-xs">{margin}</span>
           </div>
+        </div>
+
+        {/* Liquidation price — estimated, ignores funding/MM buffer */}
+        <div
+          className="flex items-center justify-between mb-2"
+          title="Estimated, ignores funding and MM buffer"
+        >
+          <span className="text-[10px] text-muted-foreground">{TRADING_TERMS.LIQ_PRICE}</span>
+          <span className="font-mono text-xs text-trading-red">
+            {calcLiqPrice(entryPrice, leverage, type)}
+          </span>
         </div>
 
         {/* TP/SL Row - Always visible (hidden for airdrop positions) */}

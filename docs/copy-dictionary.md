@@ -70,6 +70,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Notional** | `size × mark` |
 | **Leverage** | Position leverage multiplier |
 | **Margin** | Maintenance margin required |
+| **Liq. Price** | Estimated liquidation price. Formula: `entry × (1 ∓ 0.9/leverage)`, clamped to `[0, 1]`. Ignores funding drift and MM buffer — account-level threshold lives in `useRealtimeRiskMetrics`. Always rendered as `$0.xxxx` (4 decimals) or `--`. |
 | **PnL** | `(mark − entry) × size × side` (see `mem://technical/pnl-formula-canonical`) |
 | **Side** | `long` / `short`. Binary markets use `Yes` / `No`. Never `Buy` / `Sell` as a position side. |
 | **Available balance** | Free balance excluding trial bonus |

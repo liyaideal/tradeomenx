@@ -47,6 +47,7 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { calcLiqPrice } from "@/lib/tradingUtils";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
@@ -1306,7 +1307,7 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.sizeDisplay}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.entryPrice}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{displayMarkPrice}</td>
-                          <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right" title="Estimated, ignores funding and MM buffer">{calcLiqPrice(position.entryPrice, position.leverage, position.type)}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.margin}</td>
                           <td className="px-4 py-2 text-right">
                             <span className={`text-sm font-mono ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>{pnlStr}</span>
