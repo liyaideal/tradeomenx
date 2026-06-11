@@ -6,6 +6,7 @@ import { useFundingHistory } from "@/hooks/useFundingHistory";
 import { useOptionFundingRate } from "@/hooks/useOptionFundingRate";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { getBinaryOutcome } from "@/lib/eventUtils";
+import { calcLiqPrice } from "@/lib/tradingUtils";
 import {
   Tooltip,
   TooltipContent,
