@@ -209,6 +209,20 @@ export const PositionDetailContent = ({
             <span className="font-mono text-right">{position.entryPrice}</span>
             <span className="text-muted-foreground">Mark price</span>
             <span className="font-mono text-right">${mark.toFixed(4)}</span>
+            <span className="text-muted-foreground inline-flex items-center gap-1">
+              Liq. price
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="w-3 h-3 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-xs">
+                  Estimated liquidation price. Ignores funding drift and maintenance-margin buffer.
+                </TooltipContent>
+              </Tooltip>
+            </span>
+            <span className="font-mono text-right text-trading-red">
+              {calcLiqPrice(position.entryPriceNum, position.leverage, position.type)}
+            </span>
             <span className="text-muted-foreground">Size</span>
             <span className="font-mono text-right">{position.sizeDisplay}</span>
             <span className="text-muted-foreground">Margin</span>
