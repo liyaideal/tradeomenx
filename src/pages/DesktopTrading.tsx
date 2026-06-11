@@ -47,6 +47,7 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { calcLiqPrice } from "@/lib/tradingUtils";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useEvents } from "@/hooks/useEvents";
