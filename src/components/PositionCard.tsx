@@ -4,6 +4,7 @@ import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { calcLiqPrice } from "@/lib/tradingUtils";
 import { getBinaryOutcome } from "@/lib/eventUtils";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { usePositions, type UnifiedPosition } from "@/hooks/usePositions";
