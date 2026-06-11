@@ -291,6 +291,17 @@ export const PositionCard = ({
           </div>
         </div>
 
+        {/* Liquidation price — estimated, ignores funding/MM buffer */}
+        <div
+          className="flex items-center justify-between mb-2"
+          title="Estimated, ignores funding and MM buffer"
+        >
+          <span className="text-[10px] text-muted-foreground">{TRADING_TERMS.LIQ_PRICE}</span>
+          <span className="font-mono text-xs text-trading-red">
+            {calcLiqPrice(entryPrice, leverage, type)}
+          </span>
+        </div>
+
         {/* TP/SL Row - Always visible (hidden for airdrop positions) */}
         {!isAirdrop && (
         <div className="flex items-center justify-between py-2 mb-2 border-y border-border/30">
