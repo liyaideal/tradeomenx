@@ -65,7 +65,7 @@ export const usePositionVouchers = () => {
   const queryClient = useQueryClient();
   const [isRedeeming, setIsRedeeming] = useState(false);
 
-  const { data: vouchers = [], isLoading } = useQuery({
+  const { data: rawVouchers = [], isLoading } = useQuery({
     queryKey: [...QUERY_KEY, user?.id ?? "guest"],
     enabled: !!user,
     queryFn: async () => {
@@ -112,7 +112,66 @@ export const usePositionVouchers = () => {
       return mapped;
     },
   });
+  // Demo expired vouchers — visible to every user so the "expired" state is
+  // discoverable even before any real voucher exists. Two flavours:
+  //   1) granted → expired (never claimed)
+  //   2) claimed → expired (claimed but not redeemed within 7 days)
+  // These are read-only: ExpiredSection has no interactions, and their ids
+  // are never passed to claim/redeem edge functions.
+  const DAY = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const demoExpired: PositionVoucher[] = [
+    {
+      id: "demo-expired-unclaimed",
+      code: "DEMO-UNCLAIMED",
+      faceValue: 5,
+      redeemableCapPct: 5,
+      maxHoldingHours: 24,
+      entryPriceMin: 0.30,
+      entryPriceMax: 0.70,
+      minHoursToSettlement: 6,
+      status: "expired",
+      issuedAt: new Date(now - 14 * DAY).toISOString(),
+      expiresAt: new Date(now - 7 * DAY).toISOString(),
+      claimedAt: null,
+      redeemedAt: null,
+      redeemedAirdropPositionId: null,
+      redeemedEventId: null,
+      redeemedOptionId: null,
+      redeemedSide: null,
+      redeemedAirdropStatus: null,
+      redeemedEventName: null,
+      redeemedOutcomeLabel: null,
+      redeemedSettledPnl: null,
+      redeemedCloseReason: null,
+    },
+    {
+      id: "demo-expired-unredeemed",
+      code: "DEMO-UNREDEEMED",
+      faceValue: 15,
+      redeemableCapPct: 6.667,
+      maxHoldingHours: 24,
+      entryPriceMin: 0.30,
+      entryPriceMax: 0.70,
+      minHoursToSettlement: 6,
+      status: "expired",
+      issuedAt: new Date(now - 12 * DAY).toISOString(),
+      expiresAt: new Date(now - 2 * DAY).toISOString(),
+      claimedAt: new Date(now - 9 * DAY).toISOString(),
+      redeemedAt: null,
+      redeemedAirdropPositionId: null,
+      redeemedEventId: null,
+      redeemedOptionId: null,
+      redeemedSide: null,
+      redeemedAirdropStatus: null,
+      redeemedEventName: null,
+      redeemedOutcomeLabel: null,
+      redeemedSettledPnl: null,
+      redeemedCloseReason: null,
+    },
+  ];
 
+  const vouchers: PositionVoucher[] = [...rawVouchers, ...demoExpired];
 
 
   const grantedVouchers = vouchers.filter(
