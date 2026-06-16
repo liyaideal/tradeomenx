@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Ticket, ChevronRight, Lock, Clock } from "lucide-react";
+import {
+  Ticket,
+  ChevronRight,
+  Lock,
+  Clock,
+  Gift,
+  Loader2,
+  Wallet,
+  Coins,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VoucherCard } from "@/components/vouchers/VoucherCard";
@@ -74,39 +83,55 @@ const Frame = ({ children, label }: { children: React.ReactNode; label?: string 
 );
 
 /* ---------------- 1. Banner ---------------- */
+/* 1:1 mirror of src/components/vouchers/VoucherBanner.tsx — keep className /
+   copy / icon in lockstep. Source decides between "granted CTA" (Gift) and
+   "claimed CTA" (Ticket); the granted CTA wins whenever any granted voucher
+   exists, even if claimed vouchers also exist. */
+
+type BannerState = "hidden" | "grantedOnly" | "grantedAndClaimed" | "claimedOnly";
 
 const BannerDemo = () => {
-  const [state, setState] = useState<"hidden" | "some" | "urgent">("some");
-  const count = state === "urgent" ? 1 : 3;
+  const [state, setState] = useState<BannerState>("grantedOnly");
+
+  const grantedCount: number =
+    state === "grantedOnly" ? 2 : state === "grantedAndClaimed" ? 1 : 0;
+  const claimedCount: number =
+    state === "claimedOnly" ? 3 : state === "grantedAndClaimed" ? 2 : 0;
+  const showGranted = grantedCount > 0;
+  const Icon = showGranted ? Gift : Ticket;
+  const headline = showGranted
+    ? `You have ${grantedCount} unclaimed voucher${grantedCount === 1 ? "" : "s"}`
+    : `You have ${claimedCount} voucher${claimedCount === 1 ? "" : "s"} ready to redeem`;
+  const subline = showGranted
+    ? "Tap to claim — then redeem within 7 days."
+    : "Redeem to open a free position on any eligible event.";
+
   return (
     <div className="space-y-3">
       <PresetRail
         value={state}
         onChange={setState}
         options={[
-          { id: "hidden", label: "0 vouchers (hidden)" },
-          { id: "some", label: "3 available" },
-          { id: "urgent", label: "1 expiring soon" },
+          { id: "hidden", label: "Hidden (0 vouchers)" },
+          { id: "grantedOnly", label: "Granted only · Gift icon" },
+          { id: "grantedAndClaimed", label: "Granted + claimed · Gift wins" },
+          { id: "claimedOnly", label: "Claimed only · Ticket icon" },
         ]}
       />
       <Frame>
         {state === "hidden" ? (
-          <div className="text-xs text-muted-foreground italic">Banner is not rendered when user has no issued vouchers.</div>
+          <div className="text-xs text-muted-foreground italic">
+            Banner is not rendered when the user has zero granted and zero claimed vouchers.
+          </div>
         ) : (
           <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-4 py-3">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                <Ticket className="w-5 h-5 text-primary" />
+                <Icon className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <div className="text-sm font-medium text-foreground">
-                  You have {count} unredeemed voucher{count === 1 ? "" : "s"}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {state === "urgent"
-                    ? "Expires in <24h — redeem now or lose it."
-                    : "Redeem to open a free position on any eligible event."}
-                </div>
+                <div className="text-sm font-medium text-foreground">{headline}</div>
+                <div className="text-xs text-muted-foreground">{subline}</div>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -117,7 +142,51 @@ const BannerDemo = () => {
   );
 };
 
-/* ---------------- 2. VoucherCard ---------------- */
+/* ---------------- 2. Vouchers page — list-level states ---------------- */
+/* Mirrors src/pages/Vouchers.tsx loading / empty / populated branches. */
+
+const PageListLevelDemo = () => {
+  const [state, setState] = useState<"loading" | "empty" | "populated">("empty");
+  return (
+    <div className="space-y-3">
+      <PresetRail
+        value={state}
+        onChange={setState}
+        options={[
+          { id: "loading", label: "Loading" },
+          { id: "empty", label: "Empty — No vouchers yet" },
+          { id: "populated", label: "Populated (see sections 3–10)" },
+        ]}
+      />
+      <Frame>
+        {state === "loading" && (
+          <div className="rounded-xl border border-border bg-card/40 p-8 text-center text-sm text-muted-foreground">
+            Loading vouchers...
+          </div>
+        )}
+        {state === "empty" && (
+          <div className="rounded-xl border border-border bg-card/40 p-10 text-center">
+            <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
+              <Ticket className="w-6 h-6 text-muted-foreground" />
+            </div>
+            <div className="text-base font-medium text-foreground mb-1">No vouchers yet</div>
+            <div className="text-sm text-muted-foreground max-w-sm mx-auto">
+              When you receive a position voucher, it'll show up here ready to redeem.
+            </div>
+          </div>
+        )}
+        {state === "populated" && (
+          <div className="text-xs text-muted-foreground italic">
+            When vouchers exist the page renders the To-claim rail, Ready-to-redeem grid,
+            Redeemed list, and Expired list — see sections 3, 8, 9, 10.
+          </div>
+        )}
+      </Frame>
+    </div>
+  );
+};
+
+/* ---------------- 3. VoucherCard ---------------- */
 
 type CardState =
   | "grantedComfortable"
@@ -200,22 +269,60 @@ const VoucherCardDemo = () => {
           />
         </div>
       </Frame>
+      <p className="text-[11px] text-muted-foreground italic">
+        Expired voucher visuals live in section 10 — VoucherCard itself has no expired branch.
+      </p>
     </div>
   );
 };
 
 
-/* ---------------- 3. Earnings card (tier ladder) ---------------- */
+/* ---------------- 4. Earnings card (tier ladder) ---------------- */
 
-type TierState = "belowT1" | "t1" | "t2Partial" | "t3CapHit" | "t4Unlimited";
+type TierState =
+  | "belowT1"
+  | "t1"
+  | "t2Partial"
+  | "t3CapHit"
+  | "t4Unlimited"
+  | "nothingToClaim"
+  | "lifetimeAtCap";
 
 const TIER_PRESETS: Record<TierState, { volume: number; pending: number; lifetimeCredited: number }> = {
-  belowT1:     { volume: 2_500,   pending: 18.40, lifetimeCredited: 0 },
-  t1:          { volume: 7_500,   pending: 42.00, lifetimeCredited: 0 },
-  t2Partial:   { volume: 22_000,  pending: 65.00, lifetimeCredited: 25 },
-  t3CapHit:    { volume: 60_000,  pending: 800.00, lifetimeCredited: 100 },
-  t4Unlimited: { volume: 180_000, pending: 1240.55, lifetimeCredited: 500 },
+  belowT1:        { volume: 2_500,   pending: 18.40, lifetimeCredited: 0 },
+  t1:             { volume: 7_500,   pending: 42.00, lifetimeCredited: 0 },
+  t2Partial:      { volume: 22_000,  pending: 65.00, lifetimeCredited: 25 },
+  t3CapHit:       { volume: 60_000,  pending: 800.00, lifetimeCredited: 100 },
+  t4Unlimited:    { volume: 180_000, pending: 1240.55, lifetimeCredited: 500 },
+  nothingToClaim: { volume: 22_000,  pending: 0,    lifetimeCredited: 25 },
+  lifetimeAtCap:  { volume: 22_000,  pending: 40,   lifetimeCredited: 100 },
 };
+
+const EarningsButtonRow = ({
+  variant,
+  label,
+  amount,
+}: {
+  variant: "primary" | "muted";
+  label: string;
+  amount?: string;
+}) => (
+  <div className="flex items-center gap-3">
+    <div className="w-48 text-[11px] text-muted-foreground">{label}</div>
+    <Button
+      size="sm"
+      disabled={variant === "muted"}
+      className="min-w-[220px]"
+    >
+      {variant === "primary" ? (
+        <Wallet className="w-4 h-4 mr-2" />
+      ) : (
+        <Lock className="w-4 h-4 mr-2" />
+      )}
+      {amount ?? label}
+    </Button>
+  </div>
+);
 
 const EarningsDemo = () => {
   const [state, setState] = useState<TierState>("t2Partial");
@@ -231,17 +338,33 @@ const EarningsDemo = () => {
           { id: "t2Partial", label: "T2 · partial headroom" },
           { id: "t3CapHit", label: "T3 · pending > cap" },
           { id: "t4Unlimited", label: "T4 · unlimited" },
+          { id: "nothingToClaim", label: "T2 · pending=0 (Nothing to claim)" },
+          { id: "lifetimeAtCap", label: "T2 · lifetime at cap (Tier cap claimed)" },
         ]}
       />
       <Frame>
         <VoucherEarningsCard data={data} />
+      </Frame>
+
+      <Frame label="Claim button — full state ladder (for devs)">
+        <div className="space-y-2">
+          <EarningsButtonRow variant="primary" label="claimable > 0" amount="Claim $65.00 to wallet" />
+          <EarningsButtonRow variant="muted" label="claiming…" amount="Claiming…" />
+          <EarningsButtonRow variant="muted" label="pending ≤ 0" amount="Nothing to claim" />
+          <EarningsButtonRow variant="muted" label="lifetime at cap, pending > 0" amount="Tier cap claimed — reach next tier" />
+          <EarningsButtonRow variant="muted" label="no tier reached" amount="Trade more to unlock" />
+        </div>
+        <p className="mt-3 text-[11px] text-muted-foreground italic flex items-center gap-1.5">
+          <Loader2 className="w-3 h-3" />
+          Source: src/components/vouchers/VoucherEarningsCard.tsx · lines 107–123.
+        </p>
       </Frame>
     </div>
   );
 };
 
 
-/* ---------------- 4. Event picker rows ---------------- */
+/* ---------------- 5. Event picker rows ---------------- */
 
 const PickerOptionRow = ({
   label,
@@ -360,7 +483,7 @@ const PickerDemo = () => {
   );
 };
 
-/* ---------------- 5. Redeem sticky bar ---------------- */
+/* ---------------- 6. Redeem sticky bar ---------------- */
 
 const RedeemStickyDemo = () => {
   const [state, setState] = useState<"empty" | "binary" | "multiYes" | "multiNo" | "submitting">("binary");
@@ -405,31 +528,54 @@ const RedeemStickyDemo = () => {
   );
 };
 
-/* ---------------- 6. Close voucher confirm ---------------- */
+/* ---------------- 7. Close voucher confirm ---------------- */
+
+type CloseState =
+  | "longProfit"
+  | "longProfitCapped"
+  | "longLoss"
+  | "shortProfit"
+  | "shortLoss"
+  | "submitting";
+
+const CLOSE_PRESETS: Record<
+  CloseState,
+  { side: "long" | "short"; entry: number; mark: number; face: number; label: string }
+> = {
+  longProfit:       { side: "long",  entry: 0.42, mark: 0.62, face: 25, label: "Magomed Ankalaev" },
+  longProfitCapped: { side: "long",  entry: 0.20, mark: 0.95, face: 25, label: "Magomed Ankalaev" },
+  longLoss:         { side: "long",  entry: 0.42, mark: 0.18, face: 25, label: "Magomed Ankalaev" },
+  shortProfit:      { side: "short", entry: 0.70, mark: 0.20, face: 25, label: "Magomed Ankalaev" },
+  shortLoss:        { side: "short", entry: 0.30, mark: 0.85, face: 25, label: "Magomed Ankalaev" },
+  submitting:       { side: "long",  entry: 0.42, mark: 0.62, face: 25, label: "Magomed Ankalaev" },
+};
 
 const CloseDemo = () => {
-  const [state, setState] = useState<"profit" | "loss" | "submitting">("profit");
-  const markPrice = state === "loss" ? 0.18 : 0.62;
+  const [state, setState] = useState<CloseState>("longProfit");
+  const p = CLOSE_PRESETS[state];
   return (
     <div className="space-y-3">
       <PresetRail
         value={state}
         onChange={setState}
         options={[
-          { id: "profit", label: "In profit" },
-          { id: "loss", label: "In loss (credit floored)" },
+          { id: "longProfit", label: "Long · in profit" },
+          { id: "longProfitCapped", label: "Long · profit capped at Max profit" },
+          { id: "longLoss", label: "Long · in loss (credit floored)" },
+          { id: "shortProfit", label: "Short · in profit" },
+          { id: "shortLoss", label: "Short · in loss (credit floored)" },
           { id: "submitting", label: "Submitting" },
         ]}
       />
       <Frame>
         <div className="max-w-md">
           <CloseVoucherContent
-            optionLabel="Magomed Ankalaev"
-            side="long"
-            entryPrice={0.42}
-            markPrice={markPrice}
-            faceValue={25}
-            redeemableCap={25}
+            optionLabel={p.label}
+            side={p.side}
+            entryPrice={p.entry}
+            markPrice={p.mark}
+            faceValue={p.face}
+            redeemableCap={p.face}
             isClosing={state === "submitting"}
             onConfirm={() => {}}
             onCancel={() => {}}
@@ -440,18 +586,57 @@ const CloseDemo = () => {
   );
 };
 
-/* ---------------- 7. Redeemed voucher row ---------------- */
+/* ---------------- 8. Redeemed voucher row ---------------- */
+
+type RedeemedState =
+  | "binaryOpen"
+  | "multiOpen"
+  | "settledManualProfit"
+  | "settledEventResolved"
+  | "settledHoldExpiry"
+  | "settledFullLoss";
+
+const REDEEMED_REASON_LABEL: Record<string, string> = {
+  manual: "Closed manually",
+  event_settled: "Event settled",
+  expiry: "Hold window expired",
+};
 
 const RedeemedRowDemo = () => {
-  const [state, setState] = useState<"binaryOpen" | "multiOpen" | "settledProfit" | "settledLoss">("binaryOpen");
+  const [state, setState] = useState<RedeemedState>("binaryOpen");
   const isClosed = state.startsWith("settled");
-  const pnl = state === "settledProfit" ? 7.35 : state === "settledLoss" ? -12.5 : null;
+
+  const pnl =
+    state === "settledManualProfit" ? 7.35
+    : state === "settledEventResolved" ? 18.20
+    : state === "settledHoldExpiry" ? -4.10
+    : state === "settledFullLoss" ? 0
+    : null;
   const pnlColor =
-    pnl == null ? "text-muted-foreground" : pnl >= 0 ? "text-trading-green" : "text-trading-red";
+    pnl == null
+      ? "text-muted-foreground"
+      : pnl > 0
+        ? "text-trading-green"
+        : pnl < 0
+          ? "text-trading-red"
+          : "text-muted-foreground";
+
+  const reason =
+    state === "settledManualProfit" ? "manual"
+    : state === "settledEventResolved" ? "event_settled"
+    : state === "settledHoldExpiry" ? "expiry"
+    : state === "settledFullLoss" ? "event_settled"
+    : null;
 
   const isBinary = state === "binaryOpen";
-  const code = state === "binaryOpen" ? "50AAC401" : state === "multiOpen" ? "DC3CAC02" : "EE8ECA03";
-  const face = state === "binaryOpen" ? 10 : state === "multiOpen" ? 25 : 50;
+  const code =
+    state === "binaryOpen" ? "50AAC401"
+    : state === "multiOpen" ? "DC3CAC02"
+    : "EE8ECA03";
+  const face =
+    state === "binaryOpen" ? 10
+    : state === "multiOpen" ? 25
+    : 50;
   const eventName =
     state === "binaryOpen"
       ? "UFC 316 Headliner: Pereira vs Ankalaev?"
@@ -467,8 +652,10 @@ const RedeemedRowDemo = () => {
         options={[
           { id: "binaryOpen", label: "Binary · open · alias chip" },
           { id: "multiOpen", label: "Multi · open · market + YES/NO" },
-          { id: "settledProfit", label: "Settled +PnL" },
-          { id: "settledLoss", label: "Settled −PnL" },
+          { id: "settledManualProfit", label: "Settled · closed manually · +PnL" },
+          { id: "settledEventResolved", label: "Settled · event resolved · +PnL" },
+          { id: "settledHoldExpiry", label: "Settled · hold expired · −PnL" },
+          { id: "settledFullLoss", label: "Settled · event resolved · $0.00" },
         ]}
       />
       <Frame>
@@ -502,22 +689,26 @@ const RedeemedRowDemo = () => {
             </div>
             <div className="flex flex-col items-end gap-1 shrink-0">
               <span className={`text-[11px] ${isClosed ? "text-muted-foreground" : "text-primary"}`}>
-                {isClosed ? "Position closed" : "Position open"}
+                {isClosed ? REDEEMED_REASON_LABEL[reason!] ?? "Position closed" : "Position open"}
               </span>
               {isClosed && pnl != null && (
                 <span className={`font-mono text-sm ${pnlColor}`}>
-                  {pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}
+                  {pnl > 0 ? "+" : ""}${pnl.toFixed(2)}
                 </span>
               )}
             </div>
           </div>
         </div>
       </Frame>
+      <p className="text-[11px] text-muted-foreground italic">
+        Right-column status text comes from <code className="font-mono">redeemedCloseReason</code> on
+        the linked airdrop position: <code>manual</code> / <code>event_settled</code> / <code>expiry</code>.
+      </p>
     </div>
   );
 };
 
-/* ---------------- 8. Position chip (voucher source marker) ---------------- */
+/* ---------------- 9. Position chip (voucher source marker) ---------------- */
 
 const PositionChipDemo = () => {
   const [state, setState] = useState<"comfortable" | "warning" | "overdue">("comfortable");
@@ -562,6 +753,52 @@ const PositionChipDemo = () => {
   );
 };
 
+/* ---------------- 10. Expired voucher row ---------------- */
+/* Mirrors src/pages/Vouchers.tsx::ExpiredSection row.
+   Production currently shows a single "Expired" label regardless of source —
+   the source-specific subline below is demo-only so devs can see both shapes. */
+
+type ExpiredState = "expiredUnclaimed" | "expiredUnredeemed";
+
+const ExpiredRowDemo = () => {
+  const [state, setState] = useState<ExpiredState>("expiredUnclaimed");
+  const isUnclaimed = state === "expiredUnclaimed";
+  const code = isUnclaimed ? "AB12CD34" : "EF56GH78";
+  const face = isUnclaimed ? 10 : 25;
+  const sub = isUnclaimed ? "Never claimed" : "Never redeemed";
+
+  return (
+    <div className="space-y-3">
+      <PresetRail
+        value={state}
+        onChange={setState}
+        options={[
+          { id: "expiredUnclaimed", label: "Granted, never claimed → expired" },
+          { id: "expiredUnredeemed", label: "Claimed, never redeemed within 7d → expired" },
+        ]}
+      />
+      <Frame>
+        <div className="rounded-lg border border-border bg-muted/10 p-3 flex items-center justify-between gap-3 opacity-70 max-w-xl">
+          <div>
+            <span className="font-mono text-xs text-muted-foreground">{code}</span>
+            <span className="font-mono text-sm ml-2">${face.toFixed(2)}</span>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-[11px] text-muted-foreground">Expired</span>
+            <span className="text-[10px] text-muted-foreground/70 italic">{sub}</span>
+          </div>
+        </div>
+      </Frame>
+      <p className="text-[11px] text-muted-foreground italic flex items-center gap-1.5">
+        <Coins className="w-3 h-3" />
+        Production (Vouchers.tsx::ExpiredSection) does not yet split sources — currently every
+        expired row shows only "Expired". Subline shown here is for dev reference; to ship it,
+        update the production component in a follow-up.
+      </p>
+    </div>
+  );
+};
+
 /* ---------------- Section root ---------------- */
 
 interface VouchersSectionProps {
@@ -576,49 +813,72 @@ export const VouchersSection = ({ isMobile: _isMobile }: VouchersSectionProps) =
       description="Position vouchers — granted→claimed (7d) → redeemed → settled, tiered earnings claim. Each module enumerates every state via the preset rail. Copy locked to docs/copy-dictionary.md."
     >
       <div className="space-y-10">
-        <SubSection title="1. VoucherBanner" description="Mobile/home banner pointing users at unredeemed vouchers.">
+        <SubSection
+          title="1. VoucherBanner"
+          description="Home/Vouchers entry banner. Granted CTA (Gift icon) wins over claimed CTA (Ticket icon) whenever any granted voucher exists."
+        >
           <BannerDemo />
         </SubSection>
 
-        <SubSection title="2. VoucherCard" description="Compact card variants across the granted/claimed lifecycle. Granted = `Tap to claim`; claimed = redeem within 7 days.">
+        <SubSection
+          title="2. Vouchers page — list-level states"
+          description="Loading / empty / populated branches rendered by src/pages/Vouchers.tsx around the voucher lists."
+        >
+          <PageListLevelDemo />
+        </SubSection>
+
+        <SubSection
+          title="3. VoucherCard"
+          description="Compact card variants across the granted/claimed lifecycle. Granted = `Tap to claim`; claimed = redeem within 7 days. Expired visuals → section 10."
+        >
           <VoucherCardDemo />
         </SubSection>
 
         <SubSection
-          title="3. VoucherEarningsCard"
-          description="Pending earnings pool with 4-tier volume ladder (T1 $5k→$25 · T2 $15k→$100 · T3 $50k→$500 · T4 $150k→unlimited). Claimable = min(pending, tier.cap − lifetimeCredited)."
+          title="4. VoucherEarningsCard"
+          description="Pending earnings pool with 4-tier volume ladder (T1 $5k→$25 · T2 $15k→$100 · T3 $50k→$500 · T4 $150k→unlimited). Claimable = min(pending, tier.cap − lifetimeCredited). Button-state ladder shown below the card."
         >
           <EarningsDemo />
         </SubSection>
 
 
         <SubSection
-          title="4. EventPickerList — option rows"
+          title="5. EventPickerList — option rows"
           description="Eligibility check per option: price band, time-to-settlement, resolution. Binary events render Buy{alias}; multi-market render Yes/No."
         >
           <PickerDemo />
         </SubSection>
 
-        <SubSection title="5. Redeem confirm — sticky action bar" description="Bottom bar for the redemption flow.">
+        <SubSection title="6. Redeem confirm — sticky action bar" description="Bottom bar for the redemption flow.">
           <RedeemStickyDemo />
         </SubSection>
 
         <SubSection
-          title="6. CloseVoucherContent"
-          description="Confirm body shared by the close Dialog (desktop) and MobileDrawer. Credit floors at 0 and caps at Max profit."
+          title="7. CloseVoucherContent"
+          description="Confirm body shared by the close Dialog (desktop) and MobileDrawer. Credit floors at 0 and caps at Max profit; covers long/short × profit/loss/capped."
         >
           <CloseDemo />
         </SubSection>
 
         <SubSection
-          title="7. Redeemed voucher row (Vouchers page)"
-          description="Binary events surface the alias chip on its own line; multi-market events show market label + YES/NO chip inline."
+          title="8. Redeemed voucher row (Vouchers page)"
+          description="Binary events surface the alias chip on its own line; multi-market events show market label + YES/NO chip inline. Right column reflects redeemedCloseReason for settled rows."
         >
           <RedeemedRowDemo />
         </SubSection>
 
-        <SubSection title="8. Position chip — voucher source marker" description="Voucher badge + Hold window countdown rendered inside positions tables.">
+        <SubSection
+          title="9. Position chip — voucher source marker"
+          description="Voucher badge + Hold window countdown rendered inside positions tables."
+        >
           <PositionChipDemo />
+        </SubSection>
+
+        <SubSection
+          title="10. Expired voucher row (Vouchers page)"
+          description="ExpiredSection row from src/pages/Vouchers.tsx. Two sources surface here for dev reference: granted-never-claimed and claimed-never-redeemed."
+        >
+          <ExpiredRowDemo />
         </SubSection>
       </div>
     </SectionWrapper>
