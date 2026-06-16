@@ -123,7 +123,7 @@ export const usePositionVouchers = () => {
   const demoExpired: PositionVoucher[] = [
     {
       id: "demo-expired-unclaimed",
-      code: "DEMO-UNCLAIMED",
+      code: "VCH-7K2P9X",
       faceValue: 5,
       redeemableCapPct: 5,
       maxHoldingHours: 24,
@@ -147,7 +147,7 @@ export const usePositionVouchers = () => {
     },
     {
       id: "demo-expired-unredeemed",
-      code: "DEMO-UNREDEEMED",
+      code: "VCH-3M8Q4R",
       faceValue: 15,
       redeemableCapPct: 6.667,
       maxHoldingHours: 24,
