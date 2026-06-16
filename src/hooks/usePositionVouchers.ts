@@ -147,7 +147,7 @@ export const usePositionVouchers = () => {
     },
     {
       id: "demo-expired-unredeemed",
-      code: "DEMO-UNREDEEMED",
+      code: "VCH-3M8Q4R",
       faceValue: 15,
       redeemableCapPct: 6.667,
       maxHoldingHours: 24,
