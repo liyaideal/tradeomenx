@@ -65,7 +65,7 @@ export const usePositionVouchers = () => {
   const queryClient = useQueryClient();
   const [isRedeeming, setIsRedeeming] = useState(false);
 
-  const { data: vouchers = [], isLoading } = useQuery({
+  const { data: rawVouchers = [], isLoading } = useQuery({
     queryKey: [...QUERY_KEY, user?.id ?? "guest"],
     enabled: !!user,
     queryFn: async () => {
