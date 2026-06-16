@@ -366,20 +366,34 @@ const ExpiredSection = ({ items }: { items: ReturnType<typeof usePositionVoucher
   <section className="space-y-3">
     <h2 className="text-sm font-medium text-muted-foreground">Expired ({items.length})</h2>
     <div className="space-y-2">
-      {items.map((v) => (
-        <div
-          key={v.id}
-          className="rounded-lg border border-border bg-muted/10 p-3 flex items-center justify-between gap-3 opacity-70"
-        >
-          <div>
-            <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
-            <span className="font-mono text-sm ml-2">${v.faceValue.toFixed(2)}</span>
+      {items.map((v) => {
+        const reason =
+          v.claimedAt && !v.redeemedAt
+            ? "Claimed, not redeemed"
+            : !v.claimedAt
+              ? "Unclaimed"
+              : null;
+        return (
+          <div
+            key={v.id}
+            className="rounded-lg border border-border bg-muted/10 p-3 flex items-center justify-between gap-3 opacity-70"
+          >
+            <div>
+              <span className="font-mono text-xs text-muted-foreground">{v.code}</span>
+              <span className="font-mono text-sm ml-2">${v.faceValue.toFixed(2)}</span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-[11px] text-muted-foreground">Expired</span>
+              {reason && (
+                <span className="text-[10px] text-muted-foreground/70">{reason}</span>
+              )}
+            </div>
           </div>
-          <span className="text-[11px] text-muted-foreground">Expired</span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   </section>
 );
+
 
 export default Vouchers;
