@@ -36,6 +36,13 @@ Pressed buttons flatten: `border-b-[10px]` → 3 + `translate-y-[7px] translate-
 - `HedgeCTAButton` — push-button with 5 states (`connect` / `open-hedge` / `view-hedges` / `loading` / `ended`)
 - `HedgeRewardTierCard` — tier card with 3 states (`locked` / `unlocked` / `claimed`)
 
+## Hero composition (locked)
+
+- Asymmetric Split Poster: desktop two-column upper band — **65% copy / 35% graphic** — with a full-width black stats strip pinned to the bottom of the poster frame.
+- Right graphic column uses `bg-[#F3F2E7]` + radial-dot texture (`#0E0E0E` at ~20% opacity, 18px grid) so the target/football graphic never floats on dead space.
+- Below `lg` breakpoint: hide the graphic column entirely; copy + CTA stack and the stats strip stays 3-up.
+- Stats strip is a sibling of the upper band, NOT nested inside the copy column.
+
 ## Anti-patterns (do NOT)
 
 - Use these tokens in any product page outside `/hedge`
