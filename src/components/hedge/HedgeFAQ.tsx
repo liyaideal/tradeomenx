@@ -98,7 +98,7 @@ export const HedgeFAQ = () => {
             className="overflow-hidden border-2 border-[#0E0E0E] bg-white px-5"
           >
             <AccordionTrigger className="text-left font-display text-base uppercase tracking-tight text-[#0E0E0E] hover:no-underline md:text-lg">
-              Campaign rules
+              What are the campaign rules?
             </AccordionTrigger>
             <AccordionContent className="text-sm leading-relaxed text-[#0E0E0E]/80 md:text-base">
               <div className="space-y-5 pb-2">
