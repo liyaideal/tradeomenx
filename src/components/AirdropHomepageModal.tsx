@@ -166,7 +166,7 @@ const AirdropModalBody = ({
       </div>
 
       {/* Earnings cap notice */}
-      <p className="text-center text-[10px] text-muted-foreground/70">Max $100 earnings per account</p>
+      <p className="text-center text-[10px] text-muted-foreground/70">Max $500 earnings per account</p>
 
       {/* Actions */}
       <div className="flex gap-3">
