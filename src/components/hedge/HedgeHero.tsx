@@ -1,100 +1,139 @@
 import { HedgeCTAButton } from "./HedgeCTAButton";
-import hedgeHeroImage from "@/assets/hedge-hero.png";
+import { HedgePosterFrame } from "./HedgePosterFrame";
 
-// Mock live stats — operations can edit these constants directly.
+// Operations can edit these constants directly.
 const LIVE_STATS = {
   distributed: "$47,320",
   claimed: "1,284",
   remaining: "213",
 };
 
+/**
+ * Retro Football Poster hero. World Cup Hedge-to-Earn campaign.
+ * Copy is locked to OmenX_WorldCup_H2E_LandingCopy.md.
+ */
 export const HedgeHero = () => {
   return (
-    <section className="relative overflow-hidden border-b border-border/40">
-      {/* Background gradient glow */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" />
-      </div>
-
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-2 md:gap-16 md:px-6 md:py-12 lg:py-14 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] xl:py-16">
-        {/* Left: copy */}
-        <div className="flex min-w-0 flex-col justify-center">
-          <span className="mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary md:mb-4 md:text-xs">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            Hedge-to-Earn · Live Now
-          </span>
-
-          <h1 className="max-w-full text-3xl font-bold leading-[1.1] tracking-tight md:text-4xl lg:text-[2.5rem] lg:tracking-[-0.02em] xl:text-6xl">
-            <span className="xl:whitespace-nowrap">Holding a Polymarket bet?</span>
-            <br />
-            <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent lg:whitespace-nowrap">
-              Lock in profit — on us.
-            </span>
-          </h1>
-
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-lg">
-            We'll airdrop you a free counter-position worth up to{" "}
-            <span className="font-mono text-foreground">$10</span>. Win or lose
-            on Polymarket, you walk away with real USDC.
-          </p>
-
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row md:mt-8">
-            <HedgeCTAButton size="lg" />
+    <section className="relative bg-[#FDFCF0] py-8 md:py-12">
+      <div className="mx-auto max-w-7xl px-4 md:px-6">
+        <HedgePosterFrame shadow="red" innerClassName="p-6 md:p-10">
+          {/* Geometric backdrop accents */}
+          <div className="pointer-events-none absolute inset-0 z-0">
+            <div className="absolute right-0 top-0 h-full w-1/2 -skew-x-12 translate-x-1/4 bg-[#1D4ED8] opacity-[0.06]" />
+            <div className="absolute bottom-0 left-0 h-64 w-64 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#FACC15] opacity-20" />
           </div>
 
-          {/* Live stats bar — mobile: 3-col grid; desktop: inline flex */}
-          <div className="mt-5 grid grid-cols-3 divide-x divide-border/40 rounded-lg border border-border/40 bg-card/60 text-center md:mt-6 md:flex md:flex-wrap md:items-center md:gap-x-5 md:gap-y-2 md:divide-x-0 md:px-4 md:py-2.5 md:text-left">
-            <div className="flex flex-col items-center gap-0.5 px-2 py-2 md:flex-row md:items-center md:gap-1.5 md:p-0">
-              <div className="flex items-center gap-1.5">
-                <span className="hidden h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse md:inline-block" />
-                <span className="font-mono text-sm font-semibold text-foreground md:text-xs">
-                  {LIVE_STATS.distributed}
+          <div className="relative z-10 grid items-center gap-10 md:grid-cols-[1.15fr_1fr]">
+            {/* Left: copy */}
+            <div className="flex min-w-0 flex-col">
+              {/* Rotated red sticker */}
+              <span
+                className="mb-5 inline-flex w-fit -rotate-2 items-center gap-2 border-2 border-[#0E0E0E] bg-[#E11D48] px-4 py-1 font-display text-xs uppercase tracking-wider text-white md:text-sm"
+              >
+                Special Campaign · World Cup 2026
+              </span>
+
+              <h1 className="font-display text-4xl uppercase leading-[0.9] tracking-tight text-[#0E0E0E] md:text-6xl lg:text-7xl">
+                World Cup{" "}
+                <span className="text-[#1D4ED8]">Chaos?</span>
+                <br />
+                Hedge your Polymarket pick
+                <br />
+                on <span className="relative inline-block">
+                  OmenX
+                  <span className="absolute -bottom-1 left-0 h-2 w-full bg-[#FACC15]" />
                 </span>
+                {" "}— redeem up to <span className="text-[#E11D48]">500U</span>.
+              </h1>
+
+              <p className="mt-6 max-w-xl border-l-4 border-[#FACC15] pl-4 text-lg font-semibold leading-snug text-[#0E0E0E]/80 md:text-xl">
+                Connect your wallet, open a hedge that moves opposite your pick,
+                and redeem rewards if it closes in profit.
+                <sup className="ml-0.5 text-xs text-[#E11D48]">*</sup>
+              </p>
+
+              <p className="mt-2 text-[11px] italic text-[#0E0E0E]/60">
+                *Rewards not guaranteed — see campaign rules.
+              </p>
+
+              <div className="mt-7">
+                <HedgeCTAButton size="lg" />
               </div>
-              <span className="text-[10px] text-muted-foreground md:text-xs">distributed</span>
+
+              {/* Live stats strip — desktop inline */}
+              <div className="mt-8 hidden grid-cols-3 divide-x-2 divide-[#0E0E0E] border-2 border-[#0E0E0E] bg-[#0E0E0E] text-white md:grid">
+                <Stat value={LIVE_STATS.distributed} label="Distributed" tone="yellow" />
+                <Stat value={LIVE_STATS.claimed} label="Users claimed" tone="red" />
+                <Stat value={LIVE_STATS.remaining} label="Spots left today" tone="white" />
+              </div>
+
+              {/* Live stats — mobile 2x2-ish (3 wide stacked) */}
+              <div className="mt-6 grid grid-cols-3 border-2 border-[#0E0E0E] bg-[#0E0E0E] text-white md:hidden">
+                <Stat value={LIVE_STATS.distributed} label="Distributed" tone="yellow" compact />
+                <Stat value={LIVE_STATS.claimed} label="Claimed" tone="red" compact />
+                <Stat value={LIVE_STATS.remaining} label="Spots" tone="white" compact />
+              </div>
             </div>
-            <span className="hidden text-border md:inline">·</span>
-            <div className="flex flex-col items-center gap-0.5 px-2 py-2 md:flex-row md:items-center md:gap-1.5 md:p-0">
-              <span className="font-mono text-sm font-semibold text-foreground md:text-xs">
-                {LIVE_STATS.claimed}
-              </span>
-              <span className="text-[10px] text-muted-foreground md:text-xs">users claimed</span>
-            </div>
-            <span className="hidden text-border md:inline">·</span>
-            <div className="flex flex-col items-center gap-0.5 px-2 py-2 md:flex-row md:items-center md:gap-1.5 md:p-0">
-              <span className="font-mono text-sm font-semibold text-primary md:text-xs">
-                {LIVE_STATS.remaining}
-              </span>
-              <span className="text-[10px] text-muted-foreground md:text-xs">spots left today</span>
+
+            {/* Right: retro football graphic */}
+            <div className="relative hidden items-center justify-center md:flex">
+              <div className="relative">
+                <div
+                  className="flex h-72 w-72 items-center justify-center rounded-full border-[6px] border-[#0E0E0E] bg-white"
+                  style={{ boxShadow: "12px 12px 0 0 #FACC15" }}
+                >
+                  {/* hex/pentagon hint */}
+                  <div className="grid h-full w-full grid-cols-2 opacity-20">
+                    <div className="border-b-4 border-r-4 border-[#0E0E0E]" />
+                    <div className="border-b-4 border-[#0E0E0E]" />
+                    <div className="border-r-4 border-[#0E0E0E]" />
+                    <div />
+                  </div>
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    <span className="select-none font-display text-[8rem] leading-none text-[#0E0E0E]/10">
+                      26
+                    </span>
+                  </div>
+                  {/* diamond + star */}
+                  <div className="absolute h-20 w-20 rotate-45 border-4 border-[#0E0E0E] bg-[#E11D48]" />
+                  <div className="absolute -right-3 -top-3 h-10 w-10 border-4 border-[#0E0E0E] bg-[#FACC15]" />
+                </div>
+
+                {/* INSURED stamp */}
+                <div
+                  className="absolute -bottom-4 -left-6 -rotate-12 border-4 border-white bg-[#0E0E0E] px-4 py-2 font-display text-2xl italic text-[#FACC15]"
+                  style={{ boxShadow: "4px 4px 0 0 #E11D48" }}
+                >
+                  HEDGED
+                </div>
+              </div>
             </div>
           </div>
-
-        </div>
-
-        {/* Right: hero image — DESKTOP */}
-        <div className="relative hidden items-center justify-center md:flex">
-          <div
-            className="relative w-full max-w-md"
-            style={{ animation: "hedge-float 6s ease-in-out infinite" }}
-          >
-            <img
-              src={hedgeHeroImage}
-              alt="OmenX hedges your Polymarket position — like insurance"
-              className="h-auto w-full rounded-2xl"
-              loading="eager"
-            />
-          </div>
-        </div>
-
+        </HedgePosterFrame>
       </div>
-
-      {/* Float animation keyframes (scoped via global style) */}
-      <style>{`
-        @keyframes hedge-float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-      `}</style>
     </section>
+  );
+};
+
+const Stat = ({
+  value,
+  label,
+  tone,
+  compact = false,
+}: {
+  value: string;
+  label: string;
+  tone: "yellow" | "red" | "white";
+  compact?: boolean;
+}) => {
+  const color =
+    tone === "yellow" ? "text-[#FACC15]" : tone === "red" ? "text-[#E11D48]" : "text-white";
+  return (
+    <div className={compact ? "px-2 py-2.5 text-center" : "px-5 py-4"}>
+      <div className={`font-display ${compact ? "text-lg" : "text-2xl"} ${color}`}>{value}</div>
+      <div className={`mt-0.5 font-mono ${compact ? "text-[9px]" : "text-[10px]"} uppercase tracking-widest text-neutral-400`}>
+        {label}
+      </div>
+    </div>
   );
 };

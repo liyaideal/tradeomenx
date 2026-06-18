@@ -4,63 +4,51 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { HedgePosterFrame } from "./HedgePosterFrame";
 
 const FAQS = [
   {
-    q: "Is this really free? What's the catch?",
-    a: "Yes — really free. There's no deposit, no fee, no hidden lock-up. We're spending our own money on these airdrops because we want you to try OmenX risk-free. The only 'catch' is the eligibility rules: your Polymarket position must be ≥ $200, held 3+ days, and on a market we also list.",
+    q: "Is this free money?",
+    a: "No. A Trial Position Voucher is not cash and is not withdrawable. It's used to open a hedge position on OmenX. If that position closes in profit, you can redeem rewards under the campaign rules.",
   },
   {
-    q: "Do you control my Polymarket wallet?",
-    a: "No. The connection uses an EIP-712 signature, which proves you own the wallet without granting any permission to move funds. We can read your public on-chain positions — that's it. We literally cannot touch your money even if we wanted to.",
+    q: "What if my hedge loses?",
+    a: "Losses on the trial position won't be deducted from your main account balance.",
   },
   {
-    q: "When and how do I get the cash?",
-    a: "Once you connect your wallet, qualifying positions show up as airdrops in your portfolio. Click 'Activate' (within 72 hours) and the free hedge becomes a real position. When the OmenX market settles, your PnL is paid out in USDC on Base — withdraw to your wallet anytime.",
+    q: "Is the 500U reward guaranteed?",
+    a: "No. The max redeemable reward depends on your hedge position's performance, the entry price, and the campaign reward cap.",
   },
   {
-    q: "What if my Polymarket position wins?",
-    a: "Then you win on Polymarket and your free OmenX hedge expires worthless — but you didn't pay a cent for it, so net-net you're still up. We give you a free option, not a guaranteed double-up.",
-  },
-  {
-    q: "Why are you doing this?",
-    a: "Honestly: customer acquisition. Most prediction-market traders haven't heard of OmenX yet. Giving them a free hedge on positions they already hold is the cheapest way to get them through the door. If our product is good, they stay. If not, they leave with free money.",
-  },
-  {
-    q: "Are you regulated?",
-    a: "OmenX runs on Base and settles in USDC. Smart-contract trades are publicly verifiable on-chain. See our /transparency page for the live audit. Use of OmenX is subject to our Terms of Service — please confirm legality in your jurisdiction.",
+    q: "Why connect my Polymarket wallet?",
+    a: "So OmenX can read your on-chain World Cup exposure and match it with the right hedge. We only read positions — connecting does not move your funds.",
   },
 ];
 
 export const HedgeFAQ = () => {
   return (
-    <section className="border-b border-border/40 bg-card">
-      <div className="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-24">
-        <div className="mb-8 text-center md:mb-10">
-          <h2 className="text-2xl font-bold tracking-tight md:text-4xl">
-            Frequently asked
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground md:mt-3 md:text-base">
-            The questions everyone asks first.
+    <section className="bg-[#FDFCF0] py-12 md:py-20">
+      <div className="mx-auto max-w-3xl px-4 md:px-6">
+        <div className="mb-8 md:mb-10">
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#1D4ED8]">
+            FAQ
           </p>
+          <h2 className="mt-2 font-display text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
+            Quick answers.
+          </h2>
         </div>
 
-        <Accordion
-          type="single"
-          collapsible
-          defaultValue="faq-0"
-          className="space-y-3"
-        >
+        <Accordion type="single" collapsible defaultValue="faq-0" className="space-y-3">
           {FAQS.map((item, i) => (
             <AccordionItem
               key={i}
               value={`faq-${i}`}
-              className="overflow-hidden rounded-xl border border-border/40 bg-background/40 px-4 last:border-b md:px-5"
+              className="overflow-hidden border-2 border-[#0E0E0E] bg-white px-5"
             >
-              <AccordionTrigger className="text-left text-sm font-medium leading-snug hover:no-underline md:text-base md:leading-normal">
+              <AccordionTrigger className="text-left font-display text-base uppercase tracking-tight text-[#0E0E0E] hover:no-underline md:text-lg">
                 {item.q}
               </AccordionTrigger>
-              <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+              <AccordionContent className="text-sm leading-relaxed text-[#0E0E0E]/80 md:text-base">
                 {item.a}
               </AccordionContent>
             </AccordionItem>
