@@ -1,17 +1,4 @@
-import { HedgePosterFrame } from "./HedgePosterFrame";
-
-const OUTCOMES = [
-  {
-    head: "Your pick wins",
-    body: "You keep all your upside on Polymarket, exactly as before.",
-    accent: "blue" as const,
-  },
-  {
-    head: "Your pick misses",
-    body: "Your OmenX hedge position may close in profit — redeem rewards up to 500U under the campaign rules.",
-    accent: "red" as const,
-  },
-];
+import { HedgeOutcomeSplit } from "./HedgeOutcomeSplit";
 
 const STEPS = [
   {
@@ -53,25 +40,8 @@ export const HedgeHowItWorks = () => {
           </p>
         </div>
 
-        {/* Two outcome cards */}
-        <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-          {OUTCOMES.map((o) => (
-            <HedgePosterFrame key={o.head} shadow={o.accent} size="sm">
-              <div className="p-6 md:p-8">
-                <div
-                  className={`mb-4 inline-block border-2 border-[#0E0E0E] px-3 py-1 font-display text-xs uppercase tracking-wider text-white ${
-                    o.accent === "blue" ? "bg-[#1D4ED8]" : "bg-[#E11D48]"
-                  }`}
-                >
-                  {o.head}
-                </div>
-                <p className="text-lg leading-snug text-[#0E0E0E] md:text-xl">
-                  {o.body}
-                </p>
-              </div>
-            </HedgePosterFrame>
-          ))}
-        </div>
+        {/* Unified outcome comparison */}
+        <HedgeOutcomeSplit />
 
         {/* Reassurance */}
         <div className="mt-6 border-l-4 border-[#FACC15] bg-white/40 p-4 md:mt-8">

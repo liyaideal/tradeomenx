@@ -1,54 +1,61 @@
-## Goal
-将 `HedgeUpsetsStrip` 改成两层互补叙事的 infographic：**Ticker 讲"发生了什么"，Ledger 讲"后果有多严重"**。两者数据维度不重叠，整体保持报纸式静态论据，不带卡片感、不可点击。
 
-## 结构
+## 问题诊断
+
+参考你贴的截图，当前 `HedgeHowItWorks` 里 `Your pick wins / Your pick misses` 用两张独立的 `HedgePosterFrame` 卡片并排呈现。两个真实问题：
+
+1. **蓝色 offset shadow 看起来"断开"**  
+   `HedgePosterFrame` 用 `boxShadow: 12px 12px 0 0 #1D4ED8` 画偏移块。当 shadow 色 (`#1D4ED8`) 跟卡内蓝色 badge 完全同色时，眼睛会把 shadow 右上角 12px × 12px 的空白处理成"边框跟阴影中间裂了一道缝"。红卡因为 badge 是 `#E11D48`、shadow 跟卡内没有第二处大块红色，所以不会读出这种断裂。
+
+2. **两张卡片各管各，看不出对比关系**  
+   它们当前只是网格里 side-by-side，颜色不同 + 文案不同，但视觉上没有"同一件事 → 两种结局"的叙事钩子（没有共享标题、没有分隔线、没有对照符号、没有结构上的镜像）。
+
+---
+
+## 方案：把"两张卡" → "一张对照海报"
+
+新建组件 `HedgeOutcomeSplit`（替换 `HedgeHowItWorks` 里 OUTCOMES 那个 grid 块），布局如下：
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│  Eyebrow + H2（沿用现有文案）                                │
-├──────────────────────────────────────────────────────────────┤
-│ ░ TICKER —— 发生了什么（4 场 upset 比分速览） ░               │
-│  ✱ DRAW  SPAIN 0–0 CAPE VERDE   ✱ STOPPED  BRAZIL 1–1 …      │
-│  · 黑底 #0E0E0E / 黄字 #FACC15 mono / 40px 高 / 自动横滚      │
-├──────────────────────────────────────────────────────────────┤
-│ ░ LEDGER —— 后果有多严重（报纸式 stat 列表） ░                │
-│  ── LIQUIDATED ──────  $12.4M           ── on Polymarket     │
-│  ── POSITIONS WIPED ─  4,382            ── in 90 minutes     │
-│  ── ODDS COLLAPSE ───  Brazil 1.05 → 2.30 ── after 75'       │
-│  ── FAVORITE WIN % ──  61% → 28%        ── this tournament   │
-│  · 4 行，细黑分隔线，左红 mono 标签 / 中间 #1D4ED8 display    │
-│    大数字 / 右黑灰描述                                        │
-├──────────────────────────────────────────────────────────────┤
-│  收束句（沿用，黄底高亮 "This time, give your pick a hedge."）│
+│  TWO OUTCOMES, ONE HEDGE                                     │ ← 共享 eyebrow
+│                                                              │
+│  ┌──────────────────────┐  ╳  ┌──────────────────────┐       │
+│  │ [YOUR PICK WINS]     │     │ [YOUR PICK MISSES]   │       │
+│  │ blue stamp           │     │ red stamp            │       │
+│  │                      │     │                      │       │
+│  │ Polymarket upside    │     │ OmenX hedge          │       │
+│  │ stays 100% yours.    │     │ closes in profit →   │       │
+│  │                      │     │ redeem up to 500U.   │       │
+│  │ ── 加 metric chip ── │     │ ── 加 metric chip ── │       │
+│  │  Polymarket: KEEP    │     │  OmenX hedge: +PnL   │       │
+│  │  OmenX hedge: -      │     │  Reward cap: 500U    │       │
+│  └──────────────────────┘     └──────────────────────┘       │
+│         ▲ 同一个外框 + ink border + yellow offset shadow      │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-关键去卡片化：去掉 `HedgePosterFrame`（poster frame 是"可点击海报"语义）；ledger 行只用 `border-b border-[#0E0E0E]/15` 细分隔，没有圆角、没有背景块、没有 hover。
+关键改动：
 
-## 文件变更
+- **外层一个大 `HedgePosterFrame`**（`shadow="yellow"` 或 `"ink"`，避开蓝色），里面用 2 列等分的内部分栏，中间画一条 4px 黑色实线 + 一个 `╳`/`VS` 的圆形邮戳。两个分栏共享同一张纸 → 一眼就是"对比关系"。
+- **左右内部分栏不再各自加 offset shadow**，只保留 badge 色块 + 顶部细色条 (`border-t-4 border-[#1D4ED8]` 左 / `border-[#E11D48]` 右)，色彩仍然区分 win/miss，但不会再出现"黑框和蓝框分开"的视觉断裂。
+- **每栏底部加 2 行 metric chip**，强化对比维度：
+  - 左：`Polymarket P&L: KEEP 100%` / `OmenX hedge: closed`
+  - 右：`Polymarket P&L: − (your pick lost)` / `OmenX hedge: + PnL, redeem ≤ 500U`
+  这样两栏不仅颜色对照，文字结构也镜像，对比一目了然。
+- **顶部 eyebrow 改为 `TWO OUTCOMES · ONE HEDGE`**，明确"这是一组对比"。
+- 保留下方黄色 reassurance 条不动。
 
-1. **`src/components/hedge/HedgeUpsetsStrip.tsx`** — 重写
-   - 数据拆成两组常量：`UPSETS_TICKER`（4 场比分，仅 fav/score/under/tag）和 `LEDGER_STATS`（4 条后果，label/value/note）。值先用占位数字，文件顶部 `// Numbers pending business verification.`
-   - 内联两个子组件 `<UpsetsTicker />` 和 `<ConsequenceLedger />`，不新建文件
-   - Ticker：`bg-[#0E0E0E] h-10 overflow-hidden`，内部 `flex animate-[hedge-ticker_40s_linear_infinite]`，内容渲染两遍以实现无缝循环；每项 `font-mono text-xs uppercase tracking-[0.2em] text-[#FACC15]`，用 `✱` 分隔
-   - Ledger：桌面 `grid grid-cols-[160px_1fr_1fr]` 三列（标签 / 大数字 / 注释），4 行 `border-b border-[#0E0E0E]/15`，最后一行去边
-     - 标签：`font-mono text-[11px] uppercase tracking-widest text-[#E11D48]`，前缀 `──`
-     - 数字：`font-display text-3xl md:text-5xl text-[#1D4ED8]`
-     - 注释：`font-mono text-xs uppercase tracking-widest text-[#0E0E0E]/60`
-   - 移动端 ledger：每行内部改成 `flex flex-col`，标签在上、数字大字、注释紧随；ticker 保持全宽
-   - 保留 eyebrow + H2 + 收束黄底高亮 + verification 脚注（脚注文案改成 "Stats & match data pending business verification."）
+## 不动的部分
 
-2. **`src/index.css`** — 新增局部样式
-   - `@keyframes hedge-ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }`
-   - 仅 keyframes，不加工具类（直接用 Tailwind arbitrary `animate-[hedge-ticker_40s_linear_infinite]`）
+- `HedgePosterFrame` 组件本身不改（其它地方还在用，blue shadow 在 hero 等场景没问题，只在这里因为同色 badge 才读出断裂，所以从用法层规避而不是改组件）。
+- `HedgeHowItWorks` 的 `STEPS` 三步走那块完全不动。
+- 文案除了 eyebrow + 新增 metric chip 之外，主体两句保留原意。
 
-3. **`src/pages/CampaignStyleGuide/Playground.tsx`** — 给 Upsets 模块新增 playground entry "Upsets Infographic (Ticker + Ledger)"，沿用现有 `PresetRail` 桌面 1280 / 移动 390 两态；旧的 card-grid 预览删除
+## 涉及文件
 
-4. **`.lovable/memory/design/retro-poster-campaign-style.md`** — 在已有 "Evidence strip (locked)" 处更新：明确"两层叙事，Ticker = 事件，Ledger = 后果，数据维度不得重复，禁止套 HedgePosterFrame"
+- 新建 `src/components/hedge/HedgeOutcomeSplit.tsx`
+- 改 `src/components/hedge/HedgeHowItWorks.tsx`：移除 `OUTCOMES` 渲染段，替换为 `<HedgeOutcomeSplit />`
+- `/campaign/world-cup-polymarket-hedge` 自动跟随，无需路由改动
+- Style Guide playground（如果展示了 outcomes 卡）顺手加一个 section 展示新的 `HedgeOutcomeSplit`，保持 playground 状态覆盖规范
 
-## 不做的事
-
-- 不接真实数据 / 不接 `useActiveEvents`（本模块定位为叙事论据）
-- 不加 `onClick` / 不加 link / 不加 hover 态
-- 不改 Hero、不改下一模块、不改其它 hedge 组件
-- 不改文案语义（eyebrow、H2、收束句保持不变；只新增 ledger 4 条标签和占位数字）
+确认这个方向就开工。
