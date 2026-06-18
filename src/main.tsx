@@ -4,8 +4,10 @@ import "@fontsource/archivo-black/400.css";
 import App from "./App.tsx";
 import "./index.css";
 
+const helmetContext = {};
+
 createRoot(document.getElementById("root")!).render(
-  <HelmetProvider>
+  <HelmetProvider context={helmetContext}>
     <App />
   </HelmetProvider>
 );
