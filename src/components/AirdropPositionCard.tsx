@@ -173,9 +173,9 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
         </div>
       )}
 
-      {/* $100 cap notice for pending */}
+      {/* $500 cap notice for pending */}
       {isPending && (
-        <p className="text-[10px] text-muted-foreground/70 mb-2">Max $100 earnings per account</p>
+        <p className="text-[10px] text-muted-foreground/70 mb-2">Max $500 earnings per account</p>
       )}
 
       {/* Action */}
