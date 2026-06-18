@@ -13,7 +13,7 @@ import { Slider } from "@/components/ui/slider";
 import { MAINNET_REBATE_TIERS, FIRST_TRADE_VOLUME, getCurrentTier, getNextTier, getTierProgress } from "@/lib/mainnetLaunch";
 import { HedgeCTAButton, type HedgeCTAState } from "@/components/hedge/HedgeCTAButton";
 import { HedgePosterFrame, type PosterShadow } from "@/components/hedge/HedgePosterFrame";
-import { HedgeRewardTierCard, type TierState } from "@/components/hedge/HedgeRewardTiers";
+
 import { HedgeHero } from "@/components/hedge/HedgeHero";
 import { HedgeUpsetsStrip } from "@/components/hedge/HedgeUpsetsStrip";
 
@@ -573,29 +573,6 @@ const RetroFrameDemo = () => {
   );
 };
 
-const RETRO_TIER_PRESETS: ReadonlyArray<{ id: TierState; label: string }> = [
-  { id: "unlocked", label: "Unlocked" },
-  { id: "locked", label: "Locked" },
-  { id: "claimed", label: "Redeemed" },
-];
-
-const RetroTierDemo = () => {
-  const [state, setState] = useState<TierState>("unlocked");
-  return (
-    <div className="space-y-4">
-      <PresetRail presets={RETRO_TIER_PRESETS} activeId={state} onSelect={(id) => setState(id as TierState)} />
-      <div className="grid gap-6 rounded-sm bg-[#FDFCF0] p-8 md:grid-cols-3">
-        <HedgeRewardTierCard tier={{ id: "t1", label: "Tier 1", cap: "up to 100U" }} state={state} />
-        <HedgeRewardTierCard tier={{ id: "t2", label: "Tier 2", cap: "up to 250U" }} state={state} />
-        <HedgeRewardTierCard tier={{ id: "top", label: "Top tier", cap: "up to 500U" }} isTop state={state} />
-      </div>
-      <p className="text-xs text-muted-foreground">
-        Every tier carries a <code className="font-mono">*</code> footnote because{" "}
-        <strong>500U is never guaranteed</strong> — locked by Core rule.
-      </p>
-    </div>
-  );
-};
 
 const HERO_VIEWPORT_PRESETS: ReadonlyArray<{ id: string; label: string; width: number }> = [
   { id: "desktop", label: "Desktop · 1280px", width: 1280 },
@@ -894,20 +871,6 @@ export const CampaignPlayground = () => {
             <RetroCTADemo />
           </PlaygroundCard>
 
-          <PlaygroundCard
-            id="retro-tier"
-            title="Reward Tier Card"
-            description="Tier card with 3 visual states. `*not guaranteed` footnote is always present per Core rule."
-            whenToUse="Reward-ladder sections in the World Cup campaign."
-            whenNotTo="Single-tier rewards. Use a single PosterFrame instead."
-            propsHint={`<HedgeRewardTierCard
-  tier={{ id: "top", label: "Top tier", cap: "up to 500U" }}
-  isTop
-  state="unlocked" // "locked" | "unlocked" | "claimed"
-/>`}
-          >
-            <RetroTierDemo />
-          </PlaygroundCard>
 
           <PlaygroundCard
             id="retro-upsets"
