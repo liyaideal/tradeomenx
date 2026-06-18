@@ -20,7 +20,7 @@ export const banners: CampaignBannerConfig[] = [
     title: "Hedge your World Cup pick.",
     ctaLabel: "CLAIM YOUR HEDGE",
     qualifierChip: { text: "World Cup 2026", tone: "accent" },
-    heroMetric: { value: "$500U", label: "Redeem up to" },
+    heroMetric: { value: "$500", label: "Redeem up to" },
     theme: "poster",
   },
 ];
