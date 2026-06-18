@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { HedgePosterFrame } from "./HedgePosterFrame";
 
 const ELIGIBILITY = [
-  <>have a position size of at least <span className="font-display">20U</span>; and</>,
+  <>have a position size of at least <span className="font-display">20U</span></>,
   <>have been held for at least <span className="font-display">1 day</span>.</>,
 ];
 
