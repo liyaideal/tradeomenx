@@ -21,10 +21,10 @@ export const HedgeHero = () => {
           className="relative border-[4px] border-[#0E0E0E] bg-[#FDFCF0] md:border-[6px]"
           style={{ boxShadow: "12px 12px 0 0 #E11D48" }}
         >
-          {/* Upper band: copy (65%) + graphic (35%) */}
+          {/* Upper band: copy (55%) + graphic (45%) */}
           <div className="relative flex flex-col border-b-[4px] border-[#0E0E0E] md:border-b-[6px] lg:flex-row">
             {/* Left: copy column */}
-            <div className="relative z-10 flex min-w-0 flex-col gap-5 p-6 md:p-10 lg:w-[65%] lg:border-r-[6px] lg:border-[#0E0E0E]">
+            <div className="relative z-10 flex min-w-0 flex-col gap-5 p-6 md:p-10 lg:w-[55%]">
               {/* Rotated red sticker */}
               <span className="inline-flex w-fit -rotate-2 items-center gap-2 border-2 border-[#0E0E0E] bg-[#E11D48] px-4 py-1 font-display text-xs uppercase tracking-wider text-white shadow-[4px_4px_0_0_#0E0E0E] md:text-sm">
                 Special Campaign · World Cup 2026
@@ -53,34 +53,15 @@ export const HedgeHero = () => {
 
             {/* Right: retro football graphic */}
             <div
-              className="relative hidden items-center justify-center overflow-hidden bg-[#F3F2E7] p-8 lg:flex lg:w-[35%]"
+              className="relative hidden items-center justify-center overflow-hidden lg:flex lg:w-[45%]"
               aria-label="OMENX World Cup Hedge-to-Earn campaign — hedge your Polymarket prediction position"
             >
-              {/* dot texture */}
-              <div
-                className="pointer-events-none absolute inset-0 opacity-20"
-                style={{
-                  backgroundImage: "radial-gradient(#0E0E0E 1px, transparent 1px)",
-                  backgroundSize: "18px 18px",
-                }}
+              <img
+                src={heroPop.url}
+                alt="Soccer ball with red, yellow, and blue arrows — World Cup hedge motion"
+                className="relative z-10 mx-auto h-full w-full object-cover object-center"
+                loading="eager"
               />
-
-              <div className="relative w-full">
-                <img
-                  src={heroPop.url}
-                  alt="Soccer ball with red, yellow, and blue arrows — World Cup hedge motion"
-                  className="relative z-10 mx-auto h-auto w-full max-w-[420px] object-contain drop-shadow-[6px_6px_0_#0E0E0E]"
-                  loading="eager"
-                />
-
-                {/* HEDGED stamp */}
-                <div
-                  className="absolute -bottom-2 left-2 z-20 -rotate-12 border-4 border-white bg-[#0E0E0E] px-4 py-2 font-display text-2xl italic text-[#FACC15]"
-                  style={{ boxShadow: "4px 4px 0 0 #E11D48" }}
-                >
-                  HEDGED
-                </div>
-              </div>
             </div>
           </div>
 
