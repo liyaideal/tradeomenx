@@ -12,7 +12,6 @@ const LEDGER_STATS = [
   { label: "Value wiped", value: "$8.2M", note: "in losing Yes shares" },
   { label: "Holders underwater", value: "4,382", note: "wallets held the favorite" },
   { label: "Price crash", value: "$0.92 → $0.04", note: "Brazil Yes, in 90 minutes" },
-  { label: "Pre-match favorites beaten", value: "9 of 16", note: "Yes share > $0.70 at kickoff" },
 ] as const;
 
 
