@@ -1,9 +1,10 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { banners, type BannerThemeKey } from "@/components/campaign/banners";
+import { PosterBanner } from "@/components/campaign/PosterBanner";
 import { cn } from "@/lib/utils";
 
-const themeMap: Record<BannerThemeKey, {
+const themeMap: Record<Exclude<BannerThemeKey, "poster">, {
   surfaceMaskFrom: string;
   surfaceMaskVia: string;
   metric: string;
@@ -65,6 +66,16 @@ export const HomeCampaignRail = () => {
 
       <div className="-mr-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {banners.map((banner) => {
+          if (banner.theme === "poster") {
+            return (
+              <PosterBanner
+                key={banner.id}
+                banner={banner}
+                variant="rail"
+                onClick={() => navigateWithRef(banner.href)}
+              />
+            );
+          }
           const t = themeMap[banner.theme];
           const chipClass = banner.qualifierChip ? toneMap[banner.qualifierChip.tone] : "";
           return (

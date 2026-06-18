@@ -6,6 +6,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
 import { banners, type BannerThemeKey as ThemeKey } from "@/components/campaign/banners";
+import { PosterBanner } from "@/components/campaign/PosterBanner";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
@@ -18,7 +19,7 @@ const labelClassName = {
   neutral: "border-border/60 bg-background/35 text-muted-foreground",
 };
 
-const themeMap: Record<ThemeKey, {
+const themeMap: Record<Exclude<ThemeKey, "poster">, {
   border: string;
   surface: string;
   surfaceMaskFrom: string;
@@ -167,6 +168,17 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
       <Carousel setApi={setApi} opts={{ loop: true }} className="w-full max-w-full overflow-hidden">
         <CarouselContent className="-ml-0">
           {banners.map((banner) => {
+            if (banner.theme === "poster") {
+              return (
+                <CarouselItem key={banner.id} className="min-w-0 pl-0">
+                  <PosterBanner
+                    banner={banner}
+                    variant={isMobile ? "mobile" : "desktop"}
+                    onClick={() => navigateWithRef(banner.href)}
+                  />
+                </CarouselItem>
+              );
+            }
             const t = themeMap[banner.theme];
             const hasBgImage = !!banner.backgroundImage;
             return (
