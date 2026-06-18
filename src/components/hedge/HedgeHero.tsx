@@ -53,13 +53,13 @@ export const HedgeHero = () => {
 
             {/* Right: retro football graphic */}
             <div
-              className="relative hidden items-center justify-center overflow-hidden lg:flex lg:w-[45%]"
+              className="relative hidden items-center justify-center bg-[#FDFCF0] lg:flex lg:w-[45%]"
               aria-label="OMENX World Cup Hedge-to-Earn campaign — hedge your Polymarket prediction position"
             >
               <img
                 src={heroPop.url}
                 alt="Soccer ball with red, yellow, and blue arrows — World Cup hedge motion"
-                className="relative z-10 mx-auto h-full w-full object-cover object-center"
+                className="relative z-10 h-full w-full object-contain object-center"
                 loading="eager"
               />
             </div>
