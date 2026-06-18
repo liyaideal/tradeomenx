@@ -28,7 +28,7 @@ interface HedgeCTAButtonProps {
 
 const LABELS: Record<HedgeCTAState, string> = {
   connect: "CONNECT WALLET & CLAIM YOUR HEDGE",
-  "open-hedge": "Open Your Hedge",
+  "open-hedge": "CLAIM YOUR HEDGE",
   "view-hedges": "View My Hedges",
   loading: "Connecting…",
   ended: "Campaign Ended",

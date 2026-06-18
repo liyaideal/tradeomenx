@@ -37,7 +37,7 @@ export const HedgeHero = () => {
               </h1>
 
               <p className="max-w-xl border-l-4 border-[#FACC15] pl-4 text-lg font-semibold leading-snug text-[#0E0E0E]/80 md:text-xl">
-                Connect your Polymarket wallet, open a hedge that moves opposite your pick,
+                Connect your Polymarket wallet, claim a hedge that moves opposite your pick,
                 and redeem rewards if it closes in profit.
                 <sup className="ml-0.5 text-xs text-[#E11D48]">*</sup>
               </p>
