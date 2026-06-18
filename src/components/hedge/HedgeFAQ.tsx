@@ -28,7 +28,7 @@ const FAQS = [
 export const HedgeFAQ = () => {
   return (
     <section className="bg-[#FDFCF0] py-12 md:py-20">
-      <div className="mx-auto max-w-3xl px-4 md:px-6">
+      <div className="mx-auto max-w-5xl px-4 md:px-6">
         <div className="mb-8 md:mb-10">
           <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#1D4ED8]">
             FAQ

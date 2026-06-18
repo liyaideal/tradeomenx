@@ -7,7 +7,7 @@ import { HedgeHero } from "@/components/hedge/HedgeHero";
 import { HedgeUpsetsStrip } from "@/components/hedge/HedgeUpsetsStrip";
 import { HedgeHowItWorks } from "@/components/hedge/HedgeHowItWorks";
 import { HedgeKeyRules } from "@/components/hedge/HedgeKeyRules";
-import { HedgeRewardTiers } from "@/components/hedge/HedgeRewardTiers";
+
 import { HedgeFAQ } from "@/components/hedge/HedgeFAQ";
 import { HedgeFinalCTA } from "@/components/hedge/HedgeFinalCTA";
 import { HedgeMobileFloatingCTA } from "@/components/hedge/HedgeMobileFloatingCTA";
@@ -78,7 +78,7 @@ const HedgeLanding = () => {
         <HedgeUpsetsStrip />
         <HedgeHowItWorks />
         <HedgeKeyRules />
-        <HedgeRewardTiers />
+        
         <HedgeFAQ />
         <HedgeFinalCTA />
       </main>
