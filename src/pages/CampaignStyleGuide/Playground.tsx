@@ -690,6 +690,7 @@ export const CampaignPlayground = () => {
         <TabsList className="mb-4 bg-muted/40">
           <TabsTrigger value="data" className="font-mono text-[11px] uppercase tracking-[0.14em]">Data-driven</TabsTrigger>
           <TabsTrigger value="layout" className="font-mono text-[11px] uppercase tracking-[0.14em]">Layout primitives</TabsTrigger>
+          <TabsTrigger value="retro" className="font-mono text-[11px] uppercase tracking-[0.14em]">Retro Poster · WC H2E</TabsTrigger>
         </TabsList>
 
         <TabsContent value="data" className="mt-0 space-y-6">
