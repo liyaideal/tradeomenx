@@ -1,9 +1,10 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { banners, type BannerThemeKey } from "@/components/campaign/banners";
+import { PosterBanner } from "@/components/campaign/PosterBanner";
 import { cn } from "@/lib/utils";
 
-const themeMap: Record<BannerThemeKey, {
+const themeMap: Record<Exclude<BannerThemeKey, "poster">, {
   surfaceMaskFrom: string;
   surfaceMaskVia: string;
   metric: string;
