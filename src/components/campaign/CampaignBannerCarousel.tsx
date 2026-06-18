@@ -19,7 +19,7 @@ const labelClassName = {
   neutral: "border-border/60 bg-background/35 text-muted-foreground",
 };
 
-const themeMap: Record<ThemeKey, {
+const themeMap: Record<Exclude<ThemeKey, "poster">, {
   border: string;
   surface: string;
   surfaceMaskFrom: string;
