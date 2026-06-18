@@ -605,3 +605,12 @@
   color: hsl(var(--foreground));
   font-weight: 600;
 }
+
+@keyframes hedge-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

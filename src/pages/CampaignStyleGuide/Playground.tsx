@@ -15,6 +15,8 @@ import { HedgeCTAButton, type HedgeCTAState } from "@/components/hedge/HedgeCTAB
 import { HedgePosterFrame, type PosterShadow } from "@/components/hedge/HedgePosterFrame";
 import { HedgeRewardTierCard, type TierState } from "@/components/hedge/HedgeRewardTiers";
 import { HedgeHero } from "@/components/hedge/HedgeHero";
+import { HedgeUpsetsStrip } from "@/components/hedge/HedgeUpsetsStrip";
+
 
 const REUSED_IN: Record<string, string[]> = {
   countdown: ["Mainnet Launch"],
@@ -620,6 +622,32 @@ const RetroHeroDemo = () => {
   );
 };
 
+const UPSETS_VIEWPORT_PRESETS: ReadonlyArray<{ id: string; label: string; width: number }> = [
+  { id: "desktop", label: "Desktop · 1280px", width: 1280 },
+  { id: "mobile", label: "Mobile · 390px", width: 390 },
+];
+
+const RetroUpsetsDemo = () => {
+  const [viewportId, setViewportId] = useState("desktop");
+  const preset = UPSETS_VIEWPORT_PRESETS.find((p) => p.id === viewportId)!;
+  return (
+    <div className="space-y-4">
+      <PresetRail presets={UPSETS_VIEWPORT_PRESETS} activeId={viewportId} onSelect={setViewportId} />
+      <div className="overflow-x-auto rounded-sm border border-border/40 bg-[#FDFCF0]">
+        <div style={{ width: preset.width }} className="mx-auto">
+          <HedgeUpsetsStrip />
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Ticker = "what happened" (4 upset scores, auto-scroll). Ledger = "how bad"
+        (4 different consequence stats). Data dimensions must NOT overlap. No card frame,
+        no click target — this is editorial evidence, not an entry point.
+      </p>
+    </div>
+  );
+};
+
+
 const RETRO_PALETTE: ReadonlyArray<{ name: string; hex: string; use: string; fg: "dark" | "light" }> = [
   { name: "Paper", hex: "#FDFCF0", use: "Page + frame background", fg: "dark" },
   { name: "Ink", hex: "#0E0E0E", use: "Borders, body type, scoreboards", fg: "light" },
@@ -880,7 +908,19 @@ export const CampaignPlayground = () => {
           >
             <RetroTierDemo />
           </PlaygroundCard>
+
+          <PlaygroundCard
+            id="retro-upsets"
+            title="Upsets Infographic · Ticker + Ledger"
+            description="Two-layer narrative evidence strip. Ticker shows the upset scores (what happened); ledger shows separate consequence stats (how bad). Same data must never appear in both layers."
+            whenToUse="Right after the hero on cultural-moment campaigns where users need a visceral 'why hedge' argument before the funnel."
+            whenNotTo="As a market list or entry point. No `HedgePosterFrame`, no `onClick`, no link — if it's tappable, it's the wrong component."
+            propsHint={`<HedgeUpsetsStrip /> // UPSETS_TICKER + LEDGER_STATS are inline constants — pending business verification.`}
+          >
+            <RetroUpsetsDemo />
+          </PlaygroundCard>
         </TabsContent>
+
       </Tabs>
     </div>
   );

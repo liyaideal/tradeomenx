@@ -1,44 +1,54 @@
-## 目标
-将 `/hedge`（`/campaign/world-cup-polymarket-hedge`）的 Hero 重新分区，解决右侧图形区域太空、左侧标题文字换行过多问题，同时保留复古足球海报视觉。
+## Goal
+将 `HedgeUpsetsStrip` 改成两层互补叙事的 infographic：**Ticker 讲"发生了什么"，Ledger 讲"后果有多严重"**。两者数据维度不重叠，整体保持报纸式静态论据，不带卡片感、不可点击。
 
-## 方案
-采用已确认的 **Asymmetric Split Poster** 方向：
-- 左侧文案区占 65%，右侧图形区占 35%。
-- 在右侧加上浅色纹理背景，让图形不再“飘”在空白里。
-- 把 LIVE stats strip 从文案区底部抽出来，放到整个海报 frame 的底部，占满宽度。
-- 桌面端 headline 因可用宽度增加而减少 awkward 换行；移动端保持现有行为（隐藏图形，保证 CTA 可达）。
+## 结构
 
-## 实施步骤
+```text
+┌──────────────────────────────────────────────────────────────┐
+│  Eyebrow + H2（沿用现有文案）                                │
+├──────────────────────────────────────────────────────────────┤
+│ ░ TICKER —— 发生了什么（4 场 upset 比分速览） ░               │
+│  ✱ DRAW  SPAIN 0–0 CAPE VERDE   ✱ STOPPED  BRAZIL 1–1 …      │
+│  · 黑底 #0E0E0E / 黄字 #FACC15 mono / 40px 高 / 自动横滚      │
+├──────────────────────────────────────────────────────────────┤
+│ ░ LEDGER —— 后果有多严重（报纸式 stat 列表） ░                │
+│  ── LIQUIDATED ──────  $12.4M           ── on Polymarket     │
+│  ── POSITIONS WIPED ─  4,382            ── in 90 minutes     │
+│  ── ODDS COLLAPSE ───  Brazil 1.05 → 2.30 ── after 75'       │
+│  ── FAVORITE WIN % ──  61% → 28%        ── this tournament   │
+│  · 4 行，细黑分隔线，左红 mono 标签 / 中间 #1D4ED8 display    │
+│    大数字 / 右黑灰描述                                        │
+├──────────────────────────────────────────────────────────────┤
+│  收束句（沿用，黄底高亮 "This time, give your pick a hedge."）│
+└──────────────────────────────────────────────────────────────┘
+```
 
-1. **重构 `src/components/hedge/HedgeHero.tsx`**
-   - 保持 `HedgePosterFrame` 作为外层海报框。
-   - 内部改为上下两层：
-     - 上层：左右分栏（`lg:flex-row`，左侧 `lg:w-[65%]`，右侧 `lg:w-[35%]`，中间加 ink 竖线）。
-     - 下层：通栏 stats strip（黑底、三列、ink 分隔线）。
-   - 右侧栏给 `bg-[#F3F2E7]` 并加 subtle dot pattern，居中放置缩小后的足球靶心图形（圆、`26` 水印、菱形、黄色方块、`HEDGED` stamp）。
-   - 保留现有文案、H1 SEO 标题、`*not guaranteed` 脚注、CTA 组件和 alt text。
+关键去卡片化：去掉 `HedgePosterFrame`（poster frame 是"可点击海报"语义）；ledger 行只用 `border-b border-[#0E0E0E]/15` 细分隔，没有圆角、没有背景块、没有 hover。
 
-2. **图形尺寸调整**
-   - 将圆环从 `h-72 w-72` 缩小到 `h-56 w-56 md:h-64 md:w-64`，配合 35% 栏宽。
-   -  stamp、菱形、黄色方块等比微调，避免与文字区重叠或溢出。
+## 文件变更
 
-3. **移动端保持**
-   - 右侧图形在 `md` 以下继续隐藏（或按需要改为堆叠），确保 headline 与 CTA 不被压缩。
-   - 底部 stats strip 在移动端保持三列紧凑版。
+1. **`src/components/hedge/HedgeUpsetsStrip.tsx`** — 重写
+   - 数据拆成两组常量：`UPSETS_TICKER`（4 场比分，仅 fav/score/under/tag）和 `LEDGER_STATS`（4 条后果，label/value/note）。值先用占位数字，文件顶部 `// Numbers pending business verification.`
+   - 内联两个子组件 `<UpsetsTicker />` 和 `<ConsequenceLedger />`，不新建文件
+   - Ticker：`bg-[#0E0E0E] h-10 overflow-hidden`，内部 `flex animate-[hedge-ticker_40s_linear_infinite]`，内容渲染两遍以实现无缝循环；每项 `font-mono text-xs uppercase tracking-[0.2em] text-[#FACC15]`，用 `✱` 分隔
+   - Ledger：桌面 `grid grid-cols-[160px_1fr_1fr]` 三列（标签 / 大数字 / 注释），4 行 `border-b border-[#0E0E0E]/15`，最后一行去边
+     - 标签：`font-mono text-[11px] uppercase tracking-widest text-[#E11D48]`，前缀 `──`
+     - 数字：`font-display text-3xl md:text-5xl text-[#1D4ED8]`
+     - 注释：`font-mono text-xs uppercase tracking-widest text-[#0E0E0E]/60`
+   - 移动端 ledger：每行内部改成 `flex flex-col`，标签在上、数字大字、注释紧随；ticker 保持全宽
+   - 保留 eyebrow + H2 + 收束黄底高亮 + verification 脚注（脚注文案改成 "Stats & match data pending business verification."）
 
-4. **`/campaign-style-guide` Playground 补全**
-   - 在 Playground 新增 **Hero Layout** 区块，提供 PresetRail：
-     - `Desktop`：在 1440px 宽容器渲染，展示 65/35 分区。
-     - `Mobile`：在 375px 宽容器渲染，展示隐藏图形后的堆叠版。
-   - 保持现有 Retro Poster tab 其余内容不变。
+2. **`src/index.css`** — 新增局部样式
+   - `@keyframes hedge-ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }`
+   - 仅 keyframes，不加工具类（直接用 Tailwind arbitrary `animate-[hedge-ticker_40s_linear_infinite]`）
 
-5. **Memory / 规范同步**
-   - 更新 `.lovable/memory/design/retro-poster-campaign-style.md`，记录 Hero 构图规则：桌面 65/35 分栏、右侧 dotted texture 背景、底部通栏 stats strip。
+3. **`src/pages/CampaignStyleGuide/Playground.tsx`** — 给 Upsets 模块新增 playground entry "Upsets Infographic (Ticker + Ledger)"，沿用现有 `PresetRail` 桌面 1280 / 移动 390 两态；旧的 card-grid 预览删除
 
-6. **验证**
-   - 桌面预览截图确认无溢出、标题换行自然、右侧无大片死区。
-   - 移动预览截图确认 headline 不换行断裂、CTA 可点击、stats strip 不越界。
+4. **`.lovable/memory/design/retro-poster-campaign-style.md`** — 在已有 "Evidence strip (locked)" 处更新：明确"两层叙事，Ticker = 事件，Ledger = 后果，数据维度不得重复，禁止套 HedgePosterFrame"
 
-## 不变项
-- 继续使用页级复古海报硬编码色板（`#FDFCF0` / `#0E0E0E` / `#E11D48` / `#1D4ED8` / `#FACC15`），按项目约定不加入全局 `tailwind.config.ts` 或 `index.css`。
-- 不修改页面 section 顺序、不删除/新增其他 section、不改文案合同。
+## 不做的事
+
+- 不接真实数据 / 不接 `useActiveEvents`（本模块定位为叙事论据）
+- 不加 `onClick` / 不加 link / 不加 hover 态
+- 不改 Hero、不改下一模块、不改其它 hedge 组件
+- 不改文案语义（eyebrow、H2、收束句保持不变；只新增 ledger 4 条标签和占位数字）
