@@ -65,7 +65,7 @@ export const PosterBanner = ({ banner, variant = "desktop", onClick }: PosterBan
 
       {/* === Rail layout (compact 140x260) === */}
       {isRail ? (
-        <div className="relative z-10 flex h-full flex-col justify-between pt-2">
+        <div className="relative z-10 flex h-full flex-col justify-between pt-6">
           <h3 className="pt-4 text-[15px] font-black uppercase leading-[0.95] tracking-tight">
             {banner.title}
           </h3>
