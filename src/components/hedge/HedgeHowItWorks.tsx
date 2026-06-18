@@ -1,4 +1,5 @@
 import { HedgeOutcomeSplit } from "./HedgeOutcomeSplit";
+import { HedgeCTAButton } from "./HedgeCTAButton";
 
 const STEPS = [
   {
@@ -77,6 +78,9 @@ export const HedgeHowItWorks = () => {
                 </p>
               </div>
             ))}
+          </div>
+          <div className="mt-8 flex justify-center md:mt-10">
+            <HedgeCTAButton size="lg" />
           </div>
         </div>
       </div>
