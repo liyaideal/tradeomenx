@@ -27,7 +27,6 @@ const HedgeLanding = () => {
 
   useEffect(() => {
     document.title = seoData.title;
-    console.log("Setting document title:", document.title);
     
     const metaTags = [
       { name: "description", content: seoData.description },
@@ -53,7 +52,6 @@ const HedgeLanding = () => {
         document.head.appendChild(element);
       }
       element.setAttribute("content", tag.content);
-      console.log(`Setting meta tag ${selector} to:`, tag.content);
     });
 
     let canonical = document.querySelector('link[rel="canonical"]');
@@ -63,8 +61,7 @@ const HedgeLanding = () => {
       document.head.appendChild(canonical);
     }
     canonical.setAttribute("href", seoData.canonical);
-    console.log("Setting canonical link to:", seoData.canonical);
-  }, [seoData.title, seoData.description, seoData.ogTitle, seoData.ogDescription, seoData.keywords, seoData.canonical]);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFCF0] text-[#0E0E0E]">
