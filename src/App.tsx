@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MobileHome from "./pages/MobileHome";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
@@ -92,7 +92,8 @@ const App = () => (
           <AirdropNotificationToast />
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}
-            <Route path="/hedge" element={<HedgeLanding />} />
+            <Route path="/hedge" element={<Navigate to="/campaign/world-cup-polymarket-hedge" replace />} />
+            <Route path="/campaign/world-cup-polymarket-hedge" element={<HedgeLanding />} />
             <Route path="/mainnet-launch" element={<MainnetLaunch />} />
             <Route path="/campaign-style-guide" element={<CampaignStyleGuide />} />
             <Route

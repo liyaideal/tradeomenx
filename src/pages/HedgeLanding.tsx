@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo/SeoFooter";
@@ -16,23 +17,34 @@ const HedgeLanding = () => {
   const isMobile = useIsMobile();
   const heroRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    document.title =
-      "World Cup Hedge-to-Earn — Hedge your Polymarket pick, redeem up to 500U | OmenX";
-
-    const desc =
-      "World Cup chaos? Connect your wallet, open a hedge that moves opposite your Polymarket pick on OmenX, and redeem rewards up to 500U if it closes in profit. Not guaranteed — see campaign rules.";
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("name", "description");
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute("content", desc);
-  }, []);
+  const seoData = {
+    title: "Hedge Your Polymarket World Cup Pick | OMENX — Redeem up to 500U",
+    description: "World Cup upsets wiping out your Polymarket picks? Connect your wallet on OMENX, open a hedge, and redeem rewards up to 500U if it closes in profit. Not guaranteed.",
+    ogTitle: "World Cup chaos? Hedge your Polymarket pick on OMENX.",
+    ogDescription: "Open a hedge that moves opposite your pick — redeem up to 500U if it closes in profit. Not guaranteed, see campaign rules.",
+    keywords: "leveraged prediction market, Polymarket hedge, hedge Polymarket position, World Cup prediction trading, Polymarket alternative",
+    canonical: "https://omenx.lovable.app/campaign/world-cup-polymarket-hedge"
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFCF0] text-[#0E0E0E]">
+      <Helmet>
+        <title>{seoData.title}</title>
+        <meta name="description" content={seoData.description} />
+        <meta name="keywords" content={seoData.keywords} />
+        <link rel="canonical" href={seoData.canonical} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={seoData.ogTitle} />
+        <meta property="og:description" content={seoData.ogDescription} />
+        <meta property="og:url" content={seoData.canonical} />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoData.ogTitle} />
+        <meta name="twitter:description" content={seoData.ogDescription} />
+      </Helmet>
       {isMobile ? (
         <MobileHeader title="World Cup H2E" showLogo={false} showBack={true} />
       ) : (

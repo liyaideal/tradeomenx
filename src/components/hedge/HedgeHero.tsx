@@ -70,11 +70,12 @@ export const HedgeHero = () => {
             </div>
 
             {/* Right: retro football graphic */}
-            <div className="relative hidden items-center justify-center md:flex">
+            <div className="relative hidden items-center justify-center md:flex" aria-label="OMENX World Cup Hedge-to-Earn campaign — hedge your Polymarket prediction position">
               <div className="relative">
                 <div
                   className="flex h-72 w-72 items-center justify-center rounded-full border-[6px] border-[#0E0E0E] bg-white"
                   style={{ boxShadow: "12px 12px 0 0 #FACC15" }}
+                  title="OMENX World Cup Hedge-to-Earn campaign — hedge your Polymarket prediction position"
                 >
                   {/* hex/pentagon hint */}
                   <div className="grid h-full w-full grid-cols-2 opacity-20">
