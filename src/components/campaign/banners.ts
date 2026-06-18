@@ -1,3 +1,5 @@
+import bannerHedge from "@/assets/banner-hedge.jpg";
+
 export type BannerThemeKey = "gold" | "primary" | "green" | "violet" | "poster";
 
 export interface CampaignBannerConfig {
@@ -17,10 +19,11 @@ export const banners: CampaignBannerConfig[] = [
   {
     id: "hedge",
     href: "/hedge",
-    title: "Hedge your World Cup pick.",
-    ctaLabel: "Open your hedge",
-    qualifierChip: { text: "World Cup Special", tone: "accent" },
-    heroMetric: { value: "500", label: "Redeem up to" },
-    theme: "poster",
+    title: "Hedge your prediction trades. Free.",
+    ctaLabel: "Open Hedge",
+    qualifierChip: { text: "No deposit", tone: "success" },
+    heroMetric: { value: "$100", label: "Free hedge credit" },
+    theme: "primary",
+    backgroundImage: bannerHedge,
   },
 ];
