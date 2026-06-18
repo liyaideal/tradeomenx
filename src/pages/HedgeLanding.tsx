@@ -1,5 +1,4 @@
-import { useRef } from "react";
-import { Helmet } from "react-helmet-async";
+import { useRef, useEffect } from "react";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo/SeoFooter";
@@ -26,26 +25,51 @@ const HedgeLanding = () => {
     canonical: "https://omenx.lovable.app/campaign/world-cup-polymarket-hedge"
   };
 
+  useEffect(() => {
+    document.title = seoData.title;
+    
+    const metaTags = [
+      { name: "description", content: seoData.description },
+      { name: "keywords", content: seoData.keywords },
+      { property: "og:title", content: seoData.ogTitle },
+      { property: "og:description", content: seoData.ogDescription },
+      { property: "og:url", content: seoData.canonical },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: seoData.ogTitle },
+      { name: "twitter:description", content: seoData.ogDescription }
+    ];
+
+    metaTags.forEach(tag => {
+      const selector = tag.name 
+        ? `meta[name="${tag.name}"]` 
+        : `meta[property="${tag.property}"]`;
+      let element = document.querySelector(selector);
+      if (!element) {
+        element = document.createElement("meta");
+        if (tag.name) element.setAttribute("name", tag.name);
+        if (tag.property) element.setAttribute("property", tag.property);
+        document.head.appendChild(element);
+      }
+      element.setAttribute("content", tag.content);
+    });
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", seoData.canonical);
+
+    return () => {
+      // Cleanup if necessary, though for a campaign page it's usually fine to leave them 
+      // or they get overwritten by other pages
+    };
+  }, [seoData]);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFCF0] text-[#0E0E0E]">
-      <Helmet prioritizeSeoTags>
-        <title>{seoData.title}</title>
-        <meta name="description" content={seoData.description} />
-        <meta name="keywords" content={seoData.keywords} />
-        
-        {/* Open Graph */}
-        <meta property="og:title" content={seoData.ogTitle} />
-        <meta property="og:description" content={seoData.ogDescription} />
-        <meta property="og:url" content={seoData.canonical} />
-        <meta property="og:type" content="website" />
-        
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoData.ogTitle} />
-        <meta name="twitter:description" content={seoData.ogDescription} />
-
-        <link rel="canonical" href={seoData.canonical} />
-      </Helmet>
       {isMobile ? (
         <MobileHeader title="World Cup H2E" showLogo={false} showBack={true} />
       ) : (
