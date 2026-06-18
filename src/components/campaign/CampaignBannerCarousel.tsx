@@ -168,6 +168,17 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
       <Carousel setApi={setApi} opts={{ loop: true }} className="w-full max-w-full overflow-hidden">
         <CarouselContent className="-ml-0">
           {banners.map((banner) => {
+            if (banner.theme === "poster") {
+              return (
+                <CarouselItem key={banner.id} className="min-w-0 pl-0">
+                  <PosterBanner
+                    banner={banner}
+                    variant={isMobile ? "mobile" : "desktop"}
+                    onClick={() => navigateWithRef(banner.href)}
+                  />
+                </CarouselItem>
+              );
+            }
             const t = themeMap[banner.theme];
             const hasBgImage = !!banner.backgroundImage;
             return (
