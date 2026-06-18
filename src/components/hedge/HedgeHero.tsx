@@ -30,10 +30,9 @@ export const HedgeHero = () => {
               </span>
 
               <h1 className="font-display text-4xl uppercase leading-[0.9] tracking-tight text-[#0E0E0E] md:text-6xl lg:text-7xl">
-                World Cup{" "}
-                <span className="text-[#1D4ED8]">chaos?</span>{" "}
-                Hedge it — redeem up to{" "}
-                <span className="text-[#E11D48]">500U</span>.
+                WORLD CUP <span className="text-[#1D4ED8]">CHAOS?</span>{" "}&nbsp;
+                <br />
+                HEDGE IT — REDEEM UP TO <span className="text-[#E11D48]">500U</span>.
               </h1>
 
               <p className="max-w-xl border-l-4 border-[#FACC15] pl-4 text-lg font-semibold leading-snug text-[#0E0E0E]/80 md:text-xl">
