@@ -143,13 +143,29 @@ export const HedgeFAQ = () => {
                         <h4 className="text-sm font-semibold text-[#0E0E0E] md:text-base">
                           {sub.subtitle}
                         </h4>
-                        <ul className="mt-1.5 list-disc space-y-1 pl-5">
-                          {sub.items.map((item, j) => (
-                            <li key={j} className="text-sm leading-relaxed md:text-base">
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
+                        {sub.items && sub.items.length > 0 && (
+                          <ul className="mt-1.5 list-disc space-y-1 pl-5">
+                            {sub.items.map((item, j) => (
+                              <li key={j} className="text-sm leading-relaxed md:text-base">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        {sub.nested?.map((nest, m) => (
+                          <div key={m} className="mt-2.5">
+                            <h5 className="text-xs font-semibold uppercase tracking-wide text-[#0E0E0E]/70 md:text-sm">
+                              {nest.title}
+                            </h5>
+                            <ul className="mt-1.5 list-disc space-y-1 pl-5">
+                              {nest.items.map((item, j) => (
+                                <li key={j} className="text-sm leading-relaxed md:text-base">
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>
