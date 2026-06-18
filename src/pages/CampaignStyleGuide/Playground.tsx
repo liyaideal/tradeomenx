@@ -595,6 +595,31 @@ const RetroTierDemo = () => {
   );
 };
 
+const HERO_VIEWPORT_PRESETS: ReadonlyArray<{ id: string; label: string; width: number }> = [
+  { id: "desktop", label: "Desktop · 1280px", width: 1280 },
+  { id: "tablet", label: "Tablet · 900px", width: 900 },
+  { id: "mobile", label: "Mobile · 390px", width: 390 },
+];
+
+const RetroHeroDemo = () => {
+  const [viewportId, setViewportId] = useState("desktop");
+  const preset = HERO_VIEWPORT_PRESETS.find((p) => p.id === viewportId)!;
+  return (
+    <div className="space-y-4">
+      <PresetRail presets={HERO_VIEWPORT_PRESETS} activeId={viewportId} onSelect={setViewportId} />
+      <div className="overflow-x-auto rounded-sm border border-border/40 bg-[#FDFCF0]">
+        <div style={{ width: preset.width }} className="mx-auto">
+          <HedgeHero />
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Desktop &amp; tablet: 65% copy / 35% dotted graphic column, stats strip spans full width.
+        Mobile (&lt; lg): graphic column hides; copy + CTA + stats stack vertically.
+      </p>
+    </div>
+  );
+};
+
 const RETRO_PALETTE: ReadonlyArray<{ name: string; hex: string; use: string; fg: "dark" | "light" }> = [
   { name: "Paper", hex: "#FDFCF0", use: "Page + frame background", fg: "dark" },
   { name: "Ink", hex: "#0E0E0E", use: "Borders, body type, scoreboards", fg: "light" },
