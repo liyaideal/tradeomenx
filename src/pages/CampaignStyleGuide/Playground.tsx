@@ -28,6 +28,7 @@ const REUSED_IN: Record<string, string[]> = {
   "retro-frame": ["World Cup H2E"],
   "retro-tier": ["World Cup H2E"],
   "retro-tokens": ["World Cup H2E"],
+  "retro-hero": ["World Cup H2E"],
 };
 
 const PlaygroundCard = ({
