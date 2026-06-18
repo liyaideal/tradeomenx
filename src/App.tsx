@@ -37,7 +37,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import TransparencyPage from "./pages/TransparencyPage";
 import HedgeLanding from "./pages/HedgeLanding";
-import MainnetLaunch from "./pages/MainnetLaunch";
+
 import CampaignStyleGuide from "./pages/CampaignStyleGuide";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
@@ -94,7 +94,7 @@ const App = () => (
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}
             <Route path="/hedge" element={<Navigate to="/campaign/world-cup-polymarket-hedge" replace />} />
             <Route path="/campaign/world-cup-polymarket-hedge" element={<HedgeLanding />} />
-            <Route path="/mainnet-launch" element={<MainnetLaunch />} />
+            <Route path="/mainnet-launch" element={<Navigate to="/" replace />} />
             <Route path="/campaign-style-guide" element={<CampaignStyleGuide />} />
             <Route
               path="*"

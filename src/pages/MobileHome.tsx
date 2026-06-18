@@ -17,7 +17,7 @@ import { HomeGreeting } from "@/components/home/HomeGreeting";
 
 import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
 import { HomeTopEvents } from "@/components/home/HomeTopEvents";
-import { MainnetLaunchCallout } from "@/components/home/MainnetLaunchCallout";
+
 import { PersonalSlot } from "@/components/home/PersonalSlot";
 
 
@@ -87,10 +87,8 @@ const MobileHome = () => {
         <div className="mt-5">
           <HomeTopEvents
             title={isAuthed && !hasPosition ? "Pick your first prediction" : "Top Events"}
-            interlude={
-              !isAuthed ? <MainnetLaunchCallout /> : undefined
-            }
           />
+
         </div>
       </main>
 

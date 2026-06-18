@@ -1,4 +1,3 @@
-import bannerMainnet from "@/assets/banner-mainnet-launch.jpg";
 import bannerHedge from "@/assets/banner-hedge.jpg";
 
 export type BannerThemeKey = "gold" | "primary" | "green" | "violet";
@@ -17,17 +16,6 @@ export interface CampaignBannerConfig {
 }
 
 export const banners: CampaignBannerConfig[] = [
-  {
-    id: "mainnet-launch",
-    href: "/mainnet-launch",
-    title: "Trade once. Earn up to $200.",
-    ctaLabel: "Join Now",
-    qualifierChip: { text: "100% WIN RATE", tone: "accent" },
-    heroMetric: { value: "$5K", label: "Weekly pool" },
-    countdown: true,
-    theme: "gold",
-    backgroundImage: bannerMainnet,
-  },
   {
     id: "hedge",
     href: "/hedge",
