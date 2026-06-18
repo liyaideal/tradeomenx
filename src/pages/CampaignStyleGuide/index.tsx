@@ -9,6 +9,7 @@ import {
   GitBranch,
   LayoutTemplate,
   Network,
+  Newspaper,
   ShieldCheck,
   Sparkles,
   Trophy,
@@ -88,6 +89,17 @@ const archetypes = [
     avoid: "Cartoon gifts, fake 3D coins, coupon-card grids",
     accent: "text-trading-yellow border-trading-yellow/30 bg-trading-yellow/10",
     preview: "vault",
+  },
+  {
+    id: "retro-poster",
+    icon: Newspaper,
+    title: "Retro Poster",
+    fit: "World Cup / sports / seasonal hedge / cultural-moment campaign",
+    mood: "Retro print, decisive, human, anti-AI-template",
+    layout: "Poster frame with ink border + offset hard shadow, display type, stickers/stamps, dual-card outcomes, scoreboard-style stats strip",
+    avoid: "Web3 purple gradients, dark stacked cards, emoji, AI-rendered illustrations, glassmorphism",
+    accent: "text-[#E11D48] border-[#E11D48]/40 bg-[#E11D48]/10",
+    preview: "retroPoster",
   },
 ];
 
