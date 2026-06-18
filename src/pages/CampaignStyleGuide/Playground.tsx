@@ -820,6 +820,17 @@ export const CampaignPlayground = () => {
 
         <TabsContent value="retro" className="mt-0 space-y-6">
           <PlaygroundCard
+            id="retro-hero"
+            title="Hero Layout · Asymmetric Split Poster"
+            description="65% copy / 35% dotted graphic column inside the poster frame, with a full-width stats strip pinned to the bottom. Switch viewport presets to see how the right column collapses on mobile."
+            whenToUse="Any cultural-moment hero that needs a single decisive composition — headline + sticker + subhead + CTA + supporting graphic + stats."
+            whenNotTo="Pure text heroes or full-bleed photo heroes. Don't fork the split ratio per campaign — keep 65/35 to preserve rhythm."
+            propsHint={`<HedgeHero /> // copy + stats are inline constants; swap LIVE_STATS to update.`}
+          >
+            <RetroHeroDemo />
+          </PlaygroundCard>
+
+          <PlaygroundCard
             id="retro-tokens"
             title="Retro Poster · Tokens"
             description="Page-scoped palette, typography, and hard-shadow specs for the World Cup Hedge-to-Earn landing. These tokens are intentionally NOT in tailwind/index.css — they only live on /hedge and its playground."
