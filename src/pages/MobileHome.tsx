@@ -87,10 +87,8 @@ const MobileHome = () => {
         <div className="mt-5">
           <HomeTopEvents
             title={isAuthed && !hasPosition ? "Pick your first prediction" : "Top Events"}
-            interlude={
-              !isAuthed ? <MainnetLaunchCallout /> : undefined
-            }
           />
+
         </div>
       </main>
 
