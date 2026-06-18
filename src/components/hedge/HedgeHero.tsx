@@ -35,15 +35,9 @@ export const HedgeHero = () => {
 
               <h1 className="font-display text-4xl uppercase leading-[0.9] tracking-tight text-[#0E0E0E] md:text-6xl lg:text-7xl">
                 World Cup{" "}
-                <span className="text-[#1D4ED8]">Chaos?</span>
-                <br />
-                Hedge your Polymarket pick
-                <br />
-                on <span className="relative inline-block">
-                  OmenX
-                  <span className="absolute -bottom-1 left-0 h-2 w-full bg-[#FACC15]" />
-                </span>
-                {" "}— redeem up to <span className="text-[#E11D48]">500U</span>.
+                <span className="text-[#1D4ED8]">chaos?</span>{" "}
+                Hedge it — redeem up to{" "}
+                <span className="text-[#E11D48]">500U</span>.
               </h1>
 
               <p className="mt-6 max-w-xl border-l-4 border-[#FACC15] pl-4 text-lg font-semibold leading-snug text-[#0E0E0E]/80 md:text-xl">
