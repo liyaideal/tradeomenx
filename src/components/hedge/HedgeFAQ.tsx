@@ -43,12 +43,36 @@ const RULE_SECTIONS = [
     subSections: [
       {
         subtitle: "Airdrop position settlement rules",
-        items: [
-          "Settlement conditions: Event settlement (the corresponding Polymarket event has ended) or original position closure (if the system detects that the user has reduced the original Polymarket position by 80% or more, the profit will be calculated based on the market price at that time). After settlement, positive profit, if any, will be credited to the user's trading account balance.",
-          "Settlement amount rules: The total settlement profit from airdrop positions is subject to a per-account cap of 500U. Settlement rewards must meet the corresponding valid trading volume requirements before they can be unlocked in stages and used for trading or withdrawal.",
-          "Valid trading volume: Only trading volume with an actual fee rate of 0.04% or higher will be counted. Trading volume below this threshold will not count toward the unlocking progress.",
-          "The daily platform-wide limit for airdrop positions is 500 positions. Once the daily limit is reached, no additional airdrop positions will be issued that day.",
-          "The total prize pool for this airdrop position campaign is 150,000U. Once the prize pool limit is reached, the campaign will end early, and any unsettled or locked reward amounts will no longer be available for continued use.",
+        items: [],
+        nested: [
+          {
+            title: "Settlement conditions",
+            items: [
+              "Event settlement: The corresponding Polymarket event has ended.",
+              "Original position closure: If the system detects that the user has reduced the original Polymarket position by 80% or more, the profit will be calculated based on the market price at that time. After settlement, positive profit, if any, will be credited to the user's trading account balance.",
+            ],
+          },
+          {
+            title: "Settlement amount rules",
+            items: [
+              "The total settlement profit from airdrop positions is subject to a per-account cap of 500U.",
+              "Settlement rewards must meet the corresponding valid trading volume requirements before they can be unlocked in stages and used for trading or withdrawal.",
+            ],
+          },
+          {
+            title: "Valid trading volume",
+            items: [
+              "Only trading volume with an actual fee rate of 0.04% or higher will be counted.",
+              "Trading volume below this threshold will not count toward the unlocking progress.",
+            ],
+          },
+          {
+            title: "Airdrop position limits",
+            items: [
+              "The daily platform-wide limit for airdrop positions is 500 positions. Once the daily limit is reached, no additional airdrop positions will be issued that day.",
+              "The total prize pool for this airdrop position campaign is 150,000U. Once the prize pool limit is reached, the campaign will end early, and any unsettled or locked reward amounts will no longer be available for continued use.",
+            ],
+          },
         ],
       },
     ],
