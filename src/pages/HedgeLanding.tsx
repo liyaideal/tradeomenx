@@ -32,7 +32,6 @@ const HedgeLanding = () => {
         <title>{seoData.title}</title>
         <meta name="description" content={seoData.description} />
         <meta name="keywords" content={seoData.keywords} />
-        <link rel="canonical" href={seoData.canonical} />
         
         {/* Open Graph */}
         <meta property="og:title" content={seoData.ogTitle} />
@@ -44,6 +43,8 @@ const HedgeLanding = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={seoData.ogTitle} />
         <meta name="twitter:description" content={seoData.ogDescription} />
+
+        <link rel="canonical" href={seoData.canonical} />
       </Helmet>
       {isMobile ? (
         <MobileHeader title="World Cup H2E" showLogo={false} showBack={true} />
