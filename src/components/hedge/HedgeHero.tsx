@@ -18,7 +18,7 @@ export const HedgeHero = () => {
     <section className="relative bg-[#FDFCF0] py-8 md:py-12">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div
-          className="relative border-t-[4px] border-r-[4px] border-b-[4px] border-[#0E0E0E] bg-[#FDFCF0] md:border-t-[6px] md:border-r-[6px] md:border-b-[6px]"
+          className="relative border-[4px] border-[#0E0E0E] bg-[#FDFCF0] md:border-[6px]"
           style={{ boxShadow: "12px 12px 0 0 #E11D48" }}
         >
           {/* Upper band: copy (65%) + graphic (35%) */}
@@ -69,9 +69,17 @@ export const HedgeHero = () => {
                 <img
                   src={heroPop.url}
                   alt="Soccer ball with red, yellow, and blue arrows — World Cup hedge motion"
-                  className="relative z-10 mx-auto h-auto w-full max-w-[420px] object-contain"
+                  className="relative z-10 mx-auto h-auto w-full max-w-[420px] object-contain drop-shadow-[6px_6px_0_#0E0E0E]"
                   loading="eager"
                 />
+
+                {/* HEDGED stamp */}
+                <div
+                  className="absolute -bottom-2 left-2 z-20 -rotate-12 border-4 border-white bg-[#0E0E0E] px-4 py-2 font-display text-2xl italic text-[#FACC15]"
+                  style={{ boxShadow: "4px 4px 0 0 #E11D48" }}
+                >
+                  HEDGED
+                </div>
               </div>
             </div>
           </div>
