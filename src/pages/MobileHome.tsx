@@ -17,7 +17,7 @@ import { HomeGreeting } from "@/components/home/HomeGreeting";
 
 import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
 import { HomeTopEvents } from "@/components/home/HomeTopEvents";
-import { MainnetLaunchCallout } from "@/components/home/MainnetLaunchCallout";
+
 import { PersonalSlot } from "@/components/home/PersonalSlot";
 
 
