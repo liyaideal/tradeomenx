@@ -9,11 +9,12 @@ const UPSETS_TICKER = [
 ] as const;
 
 const LEDGER_STATS = [
-  { label: "Liquidated", value: "$12.4M", note: "on Polymarket" },
-  { label: "Positions wiped", value: "4,382", note: "in 90 minutes" },
-  { label: "Odds collapse", value: "1.05 → 2.30", note: "Brazil, after 75'" },
-  { label: "Favorite win %", value: "61% → 28%", note: "this tournament" },
+  { label: "Value wiped", value: "$8.2M", note: "in losing Yes shares" },
+  { label: "Holders underwater", value: "4,382", note: "wallets held the favorite" },
+  { label: "Price crash", value: "$0.92 → $0.04", note: "Brazil Yes, in 90 minutes" },
+  { label: "Favorites that failed", value: "9 of 16", note: "matches so far" },
 ] as const;
+
 
 const UpsetsTicker = () => {
   const items = [...UPSETS_TICKER, ...UPSETS_TICKER];
