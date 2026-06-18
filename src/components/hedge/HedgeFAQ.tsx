@@ -4,7 +4,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { HedgePosterFrame } from "./HedgePosterFrame";
 
 const FAQS = [
   {
@@ -22,6 +21,47 @@ const FAQS = [
   {
     q: "Why connect my Polymarket wallet?",
     a: "So OmenX can read your on-chain World Cup exposure and match it with the right hedge. We only read positions — connecting does not move your funds.",
+  },
+];
+
+const RULE_SECTIONS = [
+  {
+    title: "I. Eligibility",
+    items: [
+      "This campaign is open only to invited users in designated regions. Users from restricted regions are not eligible to participate.",
+    ],
+  },
+  {
+    title: "II. Reward Distribution Rules",
+    items: [
+      "Airdrop positions are simulated positions used only to track profit performance. They do not require or use any real user funds. Airdrop positions cannot be traded, closed, increased, or manually adjusted.",
+      "The direction of the airdrop position will be opposite to the user's original Polymarket position. For example, if a user holds a LONG position on Polymarket for BTC > $100K, the user will receive a corresponding SHORT airdrop position.",
+      "Each Polymarket event can only receive one airdrop position reward.",
+      "After a Polymarket account is successfully connected, the system will scan eligible positions every 15 minutes. Airdrop positions will only be issued after the scan confirms that all requirements are met. Please refer to the actual arrival time in your account.",
+      "Once an airdrop position is issued, users must claim it within 72 hours. Unclaimed airdrop positions will automatically expire.",
+    ],
+    subSections: [
+      {
+        subtitle: "Airdrop position settlement rules",
+        items: [
+          "Settlement conditions: Event settlement (the corresponding Polymarket event has ended) or original position closure (if the system detects that the user has reduced the original Polymarket position by 80% or more, the profit will be calculated based on the market price at that time). After settlement, positive profit, if any, will be credited to the user's trading account balance.",
+          "Settlement amount rules: The total settlement profit from airdrop positions is subject to a per-account cap of 500U. Settlement rewards must meet the corresponding valid trading volume requirements before they can be unlocked in stages and used for trading or withdrawal.",
+          "Valid trading volume: Only trading volume with an actual fee rate of 0.04% or higher will be counted. Trading volume below this threshold will not count toward the unlocking progress.",
+          "The daily platform-wide limit for airdrop positions is 500 positions. Once the daily limit is reached, no additional airdrop positions will be issued that day.",
+          "The total prize pool for this airdrop position campaign is 150,000U. Once the prize pool limit is reached, the campaign will end early, and any unsettled or locked reward amounts will no longer be available for continued use.",
+        ],
+      },
+    ],
+  },
+  {
+    title: "III. Risk Control and Disclaimer",
+    items: [
+      "Users identified by the platform's risk control system as engaging in abnormal activity will be disqualified from participating and receiving rewards.",
+      "If the platform determines that a user has engaged in cheating, abuse, or any other violation, OMENX reserves the right to cancel the user's campaign eligibility and reclaim any rewards already issued, without prior notice.",
+      "If users have any dispute regarding campaign rewards, they must contact customer support via Discord within 7 days after the campaign ends: https://discord.com/invite/qXssm2crf9. Any claim submitted after this period will be deemed as a voluntary waiver of the relevant rights.",
+      "OMENX reserves the right to adjust or amend these campaign rules without prior notice.",
+      "OMENX reserves the final right of interpretation for this campaign.",
+    ],
   },
 ];
 
@@ -53,6 +93,46 @@ export const HedgeFAQ = () => {
               </AccordionContent>
             </AccordionItem>
           ))}
+          <AccordionItem
+            value="faq-rules"
+            className="overflow-hidden border-2 border-[#0E0E0E] bg-white px-5"
+          >
+            <AccordionTrigger className="text-left font-display text-base uppercase tracking-tight text-[#0E0E0E] hover:no-underline md:text-lg">
+              Campaign rules
+            </AccordionTrigger>
+            <AccordionContent className="text-sm leading-relaxed text-[#0E0E0E]/80 md:text-base">
+              <div className="space-y-5 pb-2">
+                {RULE_SECTIONS.map((section, idx) => (
+                  <div key={idx}>
+                    <h3 className="font-display text-sm font-bold uppercase tracking-tight text-[#0E0E0E] md:text-base">
+                      {section.title}
+                    </h3>
+                    <ul className="mt-2 list-disc space-y-1.5 pl-5">
+                      {section.items.map((item, j) => (
+                        <li key={j} className="text-sm leading-relaxed md:text-base">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                    {section.subSections?.map((sub, k) => (
+                      <div key={k} className="mt-3 pl-2">
+                        <h4 className="text-sm font-semibold text-[#0E0E0E] md:text-base">
+                          {sub.subtitle}
+                        </h4>
+                        <ul className="mt-1.5 list-disc space-y-1 pl-5">
+                          {sub.items.map((item, j) => (
+                            <li key={j} className="text-sm leading-relaxed md:text-base">
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
       </div>
     </section>
