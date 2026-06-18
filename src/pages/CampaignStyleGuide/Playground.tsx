@@ -790,6 +790,59 @@ export const CampaignPlayground = () => {
             <SnapshotDemo />
           </PlaygroundCard>
         </TabsContent>
+
+        <TabsContent value="retro" className="mt-0 space-y-6">
+          <PlaygroundCard
+            id="retro-tokens"
+            title="Retro Poster · Tokens"
+            description="Page-scoped palette, typography, and hard-shadow specs for the World Cup Hedge-to-Earn landing. These tokens are intentionally NOT in tailwind/index.css — they only live on /hedge and its playground."
+            whenToUse="World Cup or any cultural-moment campaign that needs to escape the dark-app default."
+            whenNotTo="Anywhere else. Do not bleed paper/red/blue tokens into the product shell."
+          >
+            <RetroTokensDemo />
+          </PlaygroundCard>
+
+          <PlaygroundCard
+            id="retro-frame"
+            title="Poster Frame"
+            description="Reusable container: ink border + offset hard shadow + optional paper noise. Shadow color encodes section identity (red = urgency, blue = trust, yellow = reward)."
+            whenToUse="Hero, outcome cards, eligibility panel, reward tiers, final CTA, footer disclaimer."
+            whenNotTo="Don't nest frames more than one level deep. Don't combine with shadcn `Card` — replace it."
+            propsHint={`<HedgePosterFrame shadow="red" size="lg" noise>
+  {/* content */}
+</HedgePosterFrame>`}
+          >
+            <RetroFrameDemo />
+          </PlaygroundCard>
+
+          <PlaygroundCard
+            id="retro-cta"
+            title="Hedge CTA Button"
+            description="5 states wired through `stateOverride` in playground; production derives from auth + Polymarket account. Hard-shadow flattens on press."
+            whenToUse="Every primary CTA on /hedge. Floating mobile CTA reuses it with fullWidth."
+            whenNotTo="Anywhere outside the World Cup campaign — palette is page-scoped."
+            propsHint={`<HedgeCTAButton size="lg" />
+// playground only:
+<HedgeCTAButton stateOverride="loading" />`}
+          >
+            <RetroCTADemo />
+          </PlaygroundCard>
+
+          <PlaygroundCard
+            id="retro-tier"
+            title="Reward Tier Card"
+            description="Tier card with 3 visual states. `*not guaranteed` footnote is always present per Core rule."
+            whenToUse="Reward-ladder sections in the World Cup campaign."
+            whenNotTo="Single-tier rewards. Use a single PosterFrame instead."
+            propsHint={`<HedgeRewardTierCard
+  tier={{ id: "top", label: "Top tier", cap: "up to 500U" }}
+  isTop
+  state="unlocked" // "locked" | "unlocked" | "claimed"
+/>`}
+          >
+            <RetroTierDemo />
+          </PlaygroundCard>
+        </TabsContent>
       </Tabs>
     </div>
   );
