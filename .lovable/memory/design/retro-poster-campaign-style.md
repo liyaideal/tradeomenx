@@ -43,9 +43,20 @@ Pressed buttons flatten: `border-b-[10px]` → 3 + `translate-y-[7px] translate-
 - Below `lg` breakpoint: hide the graphic column entirely; copy + CTA stack and the stats strip stays 3-up.
 - Stats strip is a sibling of the upper band, NOT nested inside the copy column.
 
+## Evidence strip (locked) — `HedgeUpsetsStrip`
+
+- **Two-layer narrative, never duplicate data dimensions.**
+  - Ticker = "what happened" — 4 upset scores, auto-scrolling black bar, mono yellow on `#0E0E0E`, height 40px, `@keyframes hedge-ticker` (40s linear infinite, translateX 0 → -50%, content duplicated for seamless loop).
+  - Ledger = "how bad" — 4 newspaper-style rows of *different* metrics (liquidated $, positions wiped, odds collapse, favorite win %). Layout: `grid md:grid-cols-[200px_1fr_1fr]`, `border-b border-[#0E0E0E]/15`, red mono label / `#1D4ED8` display number / mono note.
+- **No `HedgePosterFrame` here** — frames signal "tappable poster"; this module is editorial evidence only. No `onClick`, no link, no hover state.
+- Mobile: ticker stays full-width, ledger collapses to single-column rows stacked label → number → note.
+
 ## Anti-patterns (do NOT)
 
 - Use these tokens in any product page outside `/hedge`
 - Replace with Web3 purple gradients, dark stacked cards, emoji, AI-rendered illustrations, glassmorphism
 - Skip the `*not guaranteed` footnote on any monetary figure
 - Add a state to any retro primitive without mirroring it in `/campaign-style-guide` → Retro Poster tab
+- Repeat the same data dimension across ticker + ledger in `HedgeUpsetsStrip` — they must be complementary (event vs. consequence)
+- Wrap `HedgeUpsetsStrip` rows in `HedgePosterFrame` or any clickable surface
+

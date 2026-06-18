@@ -1,12 +1,69 @@
-import { HedgePosterFrame } from "./HedgePosterFrame";
+// Two-layer infographic — ticker = "what happened", ledger = "how bad".
+// Numbers & match data pending business verification.
 
-// Hardcoded per copy doc. Business to verify before launch.
-const UPSETS = [
-  { fav: "Spain", score: "0 - 0", under: "Cape Verde", tag: "Draw" },
-  { fav: "Brazil", score: "1 - 1", under: "Morocco", tag: "Stopped" },
-  { fav: "Belgium", score: "1 - 1", under: "Egypt", tag: "Tied" },
-  { fav: "Netherlands", score: "2 - 2", under: "Japan", tag: "Held" },
+const UPSETS_TICKER = [
+  { fav: "Spain", score: "0–0", under: "Cape Verde", tag: "Draw" },
+  { fav: "Brazil", score: "1–1", under: "Morocco", tag: "Stopped" },
+  { fav: "Belgium", score: "1–1", under: "Egypt", tag: "Tied" },
+  { fav: "Netherlands", score: "2–2", under: "Japan", tag: "Held" },
 ] as const;
+
+const LEDGER_STATS = [
+  { label: "Liquidated", value: "$12.4M", note: "on Polymarket" },
+  { label: "Positions wiped", value: "4,382", note: "in 90 minutes" },
+  { label: "Odds collapse", value: "1.05 → 2.30", note: "Brazil, after 75'" },
+  { label: "Favorite win %", value: "61% → 28%", note: "this tournament" },
+] as const;
+
+const UpsetsTicker = () => {
+  const items = [...UPSETS_TICKER, ...UPSETS_TICKER];
+  return (
+    <div
+      className="relative h-10 overflow-hidden border-y-2 border-[#0E0E0E] bg-[#0E0E0E]"
+      role="marquee"
+      aria-label="Recent World Cup upsets"
+    >
+      <div className="flex h-full w-max animate-[hedge-ticker_40s_linear_infinite] items-center gap-10 pr-10">
+        {items.map((u, i) => (
+          <span
+            key={`${u.fav}-${i}`}
+            className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FACC15] whitespace-nowrap"
+          >
+            <span className="mr-3 text-[#FACC15]/70">✱</span>
+            <span className="mr-3">{u.tag}</span>
+            <span className="text-white/90">{u.fav}</span>
+            <span className="mx-2 text-[#FACC15]">{u.score}</span>
+            <span className="text-white/90">{u.under}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ConsequenceLedger = () => (
+  <div className="border-y-2 border-[#0E0E0E]">
+    {LEDGER_STATS.map((row, i) => (
+      <div
+        key={row.label}
+        className={`grid grid-cols-1 gap-1 py-4 md:grid-cols-[200px_1fr_1fr] md:items-baseline md:gap-6 md:py-5 ${
+          i < LEDGER_STATS.length - 1 ? "border-b border-[#0E0E0E]/15" : ""
+        }`}
+      >
+        <div className="font-mono text-[11px] font-bold uppercase tracking-[0.22em] text-[#E11D48]">
+          <span className="mr-2 text-[#E11D48]/60">──</span>
+          {row.label}
+        </div>
+        <div className="font-display text-3xl leading-none tracking-tight text-[#1D4ED8] md:text-5xl">
+          {row.value}
+        </div>
+        <div className="font-mono text-xs uppercase tracking-widest text-[#0E0E0E]/60 md:text-right">
+          {row.note}
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 export const HedgeUpsetsStrip = () => {
   return (
@@ -21,30 +78,9 @@ export const HedgeUpsetsStrip = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-          {UPSETS.map((u, i) => (
-            <HedgePosterFrame
-              key={u.fav}
-              shadow={i % 2 === 0 ? "blue" : "yellow"}
-              size="sm"
-            >
-              <div className="p-4 md:p-5">
-                <div className="font-mono text-[10px] uppercase tracking-widest text-[#0E0E0E]/60">
-                  {u.tag}
-                </div>
-                <div className="mt-2 font-display text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
-                  {u.fav}
-                </div>
-                <div className="mt-1 font-display text-4xl text-[#1D4ED8] md:text-5xl">
-                  {u.score}
-                </div>
-                <div className="mt-1 font-display text-lg uppercase tracking-tight text-[#0E0E0E]/80 md:text-xl">
-                  {u.under}
-                </div>
-              </div>
-            </HedgePosterFrame>
-          ))}
-        </div>
+        <UpsetsTicker />
+        <div className="h-6 md:h-8" />
+        <ConsequenceLedger />
 
         <p className="mt-8 max-w-2xl text-base font-semibold text-[#0E0E0E]/80 md:text-lg">
           One wrong call and your whole position can go to zero.{" "}
@@ -53,7 +89,7 @@ export const HedgeUpsetsStrip = () => {
           </span>
         </p>
         <p className="mt-2 text-[11px] italic text-[#0E0E0E]/50">
-          Match results pending business verification.
+          Stats &amp; match data pending business verification.
         </p>
       </div>
     </section>
