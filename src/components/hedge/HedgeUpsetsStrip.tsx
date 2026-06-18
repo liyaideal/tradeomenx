@@ -10,7 +10,7 @@ const UPSETS_TICKER = [
 
 const LEDGER_STATS = [
   { label: "Value wiped", value: "$8.2M", note: "in losing Yes shares" },
-  { label: "Holders underwater", value: "4,382", note: "wallets held the favorite" },
+  { label: "Holders underwater", value: "4,382", note: "wallets in losing Yes positions" },
   { label: "Price crash", value: "$0.92 → $0.04", note: "Brazil Yes, in 90 minutes" },
 ] as const;
 
