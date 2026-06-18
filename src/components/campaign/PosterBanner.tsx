@@ -42,12 +42,12 @@ export const PosterBanner = ({ banner, variant = "desktop", onClick }: PosterBan
       {banner.qualifierChip && (
         <span
           className={cn(
-            "absolute z-20 -rotate-2 whitespace-nowrap border-2 border-[#0E0E0E] bg-[#E11D48] font-black uppercase text-white",
+            "absolute z-20 -rotate-2 origin-top-left whitespace-nowrap border-2 border-[#0E0E0E] bg-[#E11D48] font-black uppercase text-white",
             isRail
-              ? "-top-1 left-3 px-2 py-0.5 text-[8px] tracking-[0.12em] shadow-[2px_2px_0_0_#0E0E0E]"
+              ? "top-0 left-3 px-2 py-0.5 text-[8px] tracking-[0.12em] shadow-[2px_2px_0_0_#0E0E0E]"
               : isMobile
-                ? "-top-1 left-4 px-3 py-1 text-[10px] tracking-[0.14em] shadow-[3px_3px_0_0_#0E0E0E]"
-                : "-top-1 left-6 px-4 py-1.5 text-[11px] tracking-[0.16em] shadow-[4px_4px_0_0_#0E0E0E]",
+                ? "top-0 left-4 px-3 py-1 text-[10px] tracking-[0.14em] shadow-[3px_3px_0_0_#0E0E0E]"
+                : "top-0 left-6 px-4 py-1.5 text-[11px] tracking-[0.16em] shadow-[4px_4px_0_0_#0E0E0E]",
           )}
         >
           {banner.qualifierChip.text}
