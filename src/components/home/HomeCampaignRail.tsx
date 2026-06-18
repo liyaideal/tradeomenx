@@ -66,6 +66,16 @@ export const HomeCampaignRail = () => {
 
       <div className="-mr-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {banners.map((banner) => {
+          if (banner.theme === "poster") {
+            return (
+              <PosterBanner
+                key={banner.id}
+                banner={banner}
+                variant="rail"
+                onClick={() => navigateWithRef(banner.href)}
+              />
+            );
+          }
           const t = themeMap[banner.theme];
           const chipClass = banner.qualifierChip ? toneMap[banner.qualifierChip.tone] : "";
           return (
