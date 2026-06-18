@@ -11,6 +11,9 @@ import { TrustBar } from "@/components/mainnet-launch/TrustBar";
 import { SectionShell, SectionTitle } from "@/components/mainnet-launch/SectionShell";
 import { Slider } from "@/components/ui/slider";
 import { MAINNET_REBATE_TIERS, FIRST_TRADE_VOLUME, getCurrentTier, getNextTier, getTierProgress } from "@/lib/mainnetLaunch";
+import { HedgeCTAButton, type HedgeCTAState } from "@/components/hedge/HedgeCTAButton";
+import { HedgePosterFrame, type PosterShadow } from "@/components/hedge/HedgePosterFrame";
+import { HedgeRewardTierCard, type TierState } from "@/components/hedge/HedgeRewardTiers";
 
 const REUSED_IN: Record<string, string[]> = {
   countdown: ["Mainnet Launch"],
@@ -20,6 +23,10 @@ const REUSED_IN: Record<string, string[]> = {
   floating: ["Mainnet Launch"],
   trust: ["Mainnet Launch"],
   shell: ["Mainnet Launch"],
+  "retro-cta": ["World Cup H2E"],
+  "retro-frame": ["World Cup H2E"],
+  "retro-tier": ["World Cup H2E"],
+  "retro-tokens": ["World Cup H2E"],
 };
 
 const PlaygroundCard = ({
