@@ -14,6 +14,7 @@ import { MAINNET_REBATE_TIERS, FIRST_TRADE_VOLUME, getCurrentTier, getNextTier, 
 import { HedgeCTAButton, type HedgeCTAState } from "@/components/hedge/HedgeCTAButton";
 import { HedgePosterFrame, type PosterShadow } from "@/components/hedge/HedgePosterFrame";
 import { HedgeRewardTierCard, type TierState } from "@/components/hedge/HedgeRewardTiers";
+import { HedgeHero } from "@/components/hedge/HedgeHero";
 
 const REUSED_IN: Record<string, string[]> = {
   countdown: ["Mainnet Launch"],
