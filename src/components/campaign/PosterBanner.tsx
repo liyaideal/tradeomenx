@@ -33,7 +33,7 @@ export const PosterBanner = ({ banner, variant = "desktop", onClick }: PosterBan
         "group relative block select-none bg-[#FDFCF0] text-left text-[#0E0E0E] transition-transform",
         "border-[#0E0E0E] hover:-translate-x-0.5 hover:-translate-y-0.5",
         isRail
-          ? "h-[140px] w-[260px] shrink-0 border-[3px] p-3 shadow-[5px_5px_0_0_#E11D48] hover:shadow-[7px_7px_0_0_#E11D48]"
+          ? "h-[140px] w-[260px] shrink-0 snap-start border-[3px] p-3 shadow-[5px_5px_0_0_#E11D48] hover:shadow-[7px_7px_0_0_#E11D48]"
           : isMobile
             ? "min-h-[200px] w-full border-[3px] p-5 shadow-[6px_6px_0_0_#E11D48] hover:shadow-[8px_8px_0_0_#E11D48]"
             : "min-h-[220px] w-full border-4 p-7 shadow-[10px_10px_0_0_#E11D48] hover:shadow-[14px_14px_0_0_#E11D48]",
