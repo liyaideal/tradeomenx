@@ -490,6 +490,192 @@ const SnapshotDemo = () => (
   </div>
 );
 
+// ─────────────────────────────────────────────────────────────────────
+// Retro Poster — World Cup H2E archetype
+// ─────────────────────────────────────────────────────────────────────
+
+const RETRO_CTA_PRESETS: ReadonlyArray<{ id: HedgeCTAState; label: string }> = [
+  { id: "connect", label: "Guest · Connect" },
+  { id: "open-hedge", label: "Auth'd · Open hedge" },
+  { id: "view-hedges", label: "Has hedges · View" },
+  { id: "loading", label: "Loading" },
+  { id: "ended", label: "Campaign ended" },
+];
+
+const RetroCTADemo = () => {
+  const [stateId, setStateId] = useState<HedgeCTAState>("connect");
+  return (
+    <div className="space-y-4">
+      <PresetRail presets={RETRO_CTA_PRESETS} activeId={stateId} onSelect={(id) => setStateId(id as HedgeCTAState)} />
+      <div className="grid gap-4 rounded-sm border-2 border-[#0E0E0E] bg-[#FDFCF0] p-6 md:grid-cols-2">
+        <div className="flex flex-col items-start gap-2">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#0E0E0E]/60">Desktop · inline</p>
+          <HedgeCTAButton stateOverride={stateId} />
+        </div>
+        <div className="flex flex-col items-stretch gap-2">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#0E0E0E]/60">Mobile · full-width</p>
+          <HedgeCTAButton stateOverride={stateId} fullWidth size="default" />
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Pressed state flattens the hard shadow ( <code className="font-mono">border-b-[10px]→3</code> + translate ). Hover the button to feel it.
+      </p>
+    </div>
+  );
+};
+
+const FRAME_SHADOW_PRESETS: ReadonlyArray<{ id: PosterShadow; label: string }> = [
+  { id: "red", label: "Red shadow" },
+  { id: "yellow", label: "Yellow shadow" },
+  { id: "blue", label: "Blue shadow" },
+  { id: "ink", label: "Ink shadow" },
+];
+
+const RetroFrameDemo = () => {
+  const [shadow, setShadow] = useState<PosterShadow>("red");
+  const [size, setSize] = useState<"lg" | "sm">("lg");
+  const [noise, setNoise] = useState(true);
+  return (
+    <div className="space-y-4">
+      <PresetRail presets={FRAME_SHADOW_PRESETS} activeId={shadow} onSelect={(id) => setShadow(id as PosterShadow)} />
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant={size === "lg" ? "default" : "outline"} onClick={() => setSize("lg")} className="font-mono text-[11px] uppercase tracking-[0.14em]">
+          Desktop · 8px border / 12px offset
+        </Button>
+        <Button size="sm" variant={size === "sm" ? "default" : "outline"} onClick={() => setSize("sm")} className="font-mono text-[11px] uppercase tracking-[0.14em]">
+          Mobile · 4px border / 6px offset
+        </Button>
+        <Button size="sm" variant={noise ? "default" : "outline"} onClick={() => setNoise((v) => !v)} className="font-mono text-[11px] uppercase tracking-[0.14em]">
+          Noise: {noise ? "ON" : "OFF"}
+        </Button>
+      </div>
+      <div className="rounded-sm bg-[#FDFCF0] p-10">
+        <HedgePosterFrame shadow={shadow} size={size} noise={noise}>
+          <div className="p-6">
+            <span className="-rotate-2 inline-block border-2 border-[#0E0E0E] bg-[#E11D48] px-3 py-1 font-display text-xs uppercase tracking-wider text-white">
+              Sample sticker
+            </span>
+            <div className="mt-3 font-display text-3xl uppercase leading-none text-[#0E0E0E]">
+              Poster <span className="text-[#1D4ED8]">frame</span>
+            </div>
+            <p className="mt-3 max-w-md text-sm text-[#0E0E0E]/80">
+              Reusable container for hero, rules, tiers, final CTA. Shadow color
+              encodes section identity (red = urgency, blue = trust, yellow = reward).
+            </p>
+          </div>
+        </HedgePosterFrame>
+      </div>
+    </div>
+  );
+};
+
+const RETRO_TIER_PRESETS: ReadonlyArray<{ id: TierState; label: string }> = [
+  { id: "unlocked", label: "Unlocked" },
+  { id: "locked", label: "Locked" },
+  { id: "claimed", label: "Redeemed" },
+];
+
+const RetroTierDemo = () => {
+  const [state, setState] = useState<TierState>("unlocked");
+  return (
+    <div className="space-y-4">
+      <PresetRail presets={RETRO_TIER_PRESETS} activeId={state} onSelect={(id) => setState(id as TierState)} />
+      <div className="grid gap-6 rounded-sm bg-[#FDFCF0] p-8 md:grid-cols-3">
+        <HedgeRewardTierCard tier={{ id: "t1", label: "Tier 1", cap: "up to 100U" }} state={state} />
+        <HedgeRewardTierCard tier={{ id: "t2", label: "Tier 2", cap: "up to 250U" }} state={state} />
+        <HedgeRewardTierCard tier={{ id: "top", label: "Top tier", cap: "up to 500U" }} isTop state={state} />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Every tier carries a <code className="font-mono">*</code> footnote because{" "}
+        <strong>500U is never guaranteed</strong> — locked by Core rule.
+      </p>
+    </div>
+  );
+};
+
+const RETRO_PALETTE: ReadonlyArray<{ name: string; hex: string; use: string; fg: "dark" | "light" }> = [
+  { name: "Paper", hex: "#FDFCF0", use: "Page + frame background", fg: "dark" },
+  { name: "Ink", hex: "#0E0E0E", use: "Borders, body type, scoreboards", fg: "light" },
+  { name: "Sticker red", hex: "#E11D48", use: "Urgency, primary stickers, top-tier accent", fg: "light" },
+  { name: "Field blue", hex: "#1D4ED8", use: "CTA fill, trust accents, headlines", fg: "light" },
+  { name: "Flag yellow", hex: "#FACC15", use: "Highlights, step badges, secondary shadow", fg: "dark" },
+];
+
+const RetroTokensDemo = () => (
+  <div className="space-y-6">
+    <div>
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Palette · page-scoped, not in tailwind tokens</p>
+      <div className="mt-2 grid gap-3 sm:grid-cols-2 md:grid-cols-5">
+        {RETRO_PALETTE.map((c) => (
+          <div
+            key={c.hex}
+            className="flex flex-col gap-2 rounded-sm border border-border/50 p-3"
+            style={{ background: c.hex, color: c.fg === "light" ? "#fff" : "#0E0E0E" }}
+          >
+            <span className="font-display text-base uppercase tracking-tight">{c.name}</span>
+            <span className="font-mono text-[10px] uppercase opacity-80">{c.hex}</span>
+            <span className="text-[11px] leading-snug opacity-80">{c.use}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Typography</p>
+      <div className="mt-2 space-y-3 rounded-sm border border-border/50 bg-[#FDFCF0] p-5 text-[#0E0E0E]">
+        <div>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">Display · Archivo Black</p>
+          <p className="font-display text-5xl uppercase leading-none">World Cup Chaos?</p>
+        </div>
+        <div>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">Body · Inter</p>
+          <p className="text-base">Connect your wallet, open a hedge that moves opposite your pick.</p>
+        </div>
+        <div>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">Mono caps · JetBrains Mono</p>
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em]">Spots left today · 213</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Hard-shadow & border spec</p>
+      <table className="mt-2 w-full border-collapse text-xs">
+        <thead>
+          <tr className="border-b border-border/50 text-left font-mono uppercase tracking-widest text-muted-foreground">
+            <th className="py-2 pr-3">Surface</th>
+            <th className="py-2 pr-3">Border</th>
+            <th className="py-2 pr-3">Shadow offset</th>
+            <th className="py-2">Shadow color rule</th>
+          </tr>
+        </thead>
+        <tbody className="font-mono">
+          <tr className="border-b border-border/30">
+            <td className="py-2 pr-3">Hero / FinalCTA (desktop)</td>
+            <td className="py-2 pr-3">8px ink</td>
+            <td className="py-2 pr-3">12px / 12px</td>
+            <td className="py-2">red</td>
+          </tr>
+          <tr className="border-b border-border/30">
+            <td className="py-2 pr-3">Outcome / Tier cards (desktop)</td>
+            <td className="py-2 pr-3">8px ink</td>
+            <td className="py-2 pr-3">12px / 12px</td>
+            <td className="py-2">blue or yellow (alternate)</td>
+          </tr>
+          <tr>
+            <td className="py-2 pr-3">All frames (mobile)</td>
+            <td className="py-2 pr-3">4px ink</td>
+            <td className="py-2 pr-3">6px / 6px</td>
+            <td className="py-2">same as desktop counterpart</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+
+
 export const CampaignPlayground = () => {
   return (
     <div className="space-y-6">
