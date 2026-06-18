@@ -14,6 +14,7 @@ import { MAINNET_REBATE_TIERS, FIRST_TRADE_VOLUME, getCurrentTier, getNextTier, 
 import { HedgeCTAButton, type HedgeCTAState } from "@/components/hedge/HedgeCTAButton";
 import { HedgePosterFrame, type PosterShadow } from "@/components/hedge/HedgePosterFrame";
 import { HedgeRewardTierCard, type TierState } from "@/components/hedge/HedgeRewardTiers";
+import { HedgeHero } from "@/components/hedge/HedgeHero";
 
 const REUSED_IN: Record<string, string[]> = {
   countdown: ["Mainnet Launch"],
@@ -27,6 +28,7 @@ const REUSED_IN: Record<string, string[]> = {
   "retro-frame": ["World Cup H2E"],
   "retro-tier": ["World Cup H2E"],
   "retro-tokens": ["World Cup H2E"],
+  "retro-hero": ["World Cup H2E"],
 };
 
 const PlaygroundCard = ({
@@ -593,6 +595,31 @@ const RetroTierDemo = () => {
   );
 };
 
+const HERO_VIEWPORT_PRESETS: ReadonlyArray<{ id: string; label: string; width: number }> = [
+  { id: "desktop", label: "Desktop · 1280px", width: 1280 },
+  { id: "tablet", label: "Tablet · 900px", width: 900 },
+  { id: "mobile", label: "Mobile · 390px", width: 390 },
+];
+
+const RetroHeroDemo = () => {
+  const [viewportId, setViewportId] = useState("desktop");
+  const preset = HERO_VIEWPORT_PRESETS.find((p) => p.id === viewportId)!;
+  return (
+    <div className="space-y-4">
+      <PresetRail presets={HERO_VIEWPORT_PRESETS} activeId={viewportId} onSelect={setViewportId} />
+      <div className="overflow-x-auto rounded-sm border border-border/40 bg-[#FDFCF0]">
+        <div style={{ width: preset.width }} className="mx-auto">
+          <HedgeHero />
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Desktop &amp; tablet: 65% copy / 35% dotted graphic column, stats strip spans full width.
+        Mobile (&lt; lg): graphic column hides; copy + CTA + stats stack vertically.
+      </p>
+    </div>
+  );
+};
+
 const RETRO_PALETTE: ReadonlyArray<{ name: string; hex: string; use: string; fg: "dark" | "light" }> = [
   { name: "Paper", hex: "#FDFCF0", use: "Page + frame background", fg: "dark" },
   { name: "Ink", hex: "#0E0E0E", use: "Borders, body type, scoreboards", fg: "light" },
@@ -792,6 +819,17 @@ export const CampaignPlayground = () => {
         </TabsContent>
 
         <TabsContent value="retro" className="mt-0 space-y-6">
+          <PlaygroundCard
+            id="retro-hero"
+            title="Hero Layout · Asymmetric Split Poster"
+            description="65% copy / 35% dotted graphic column inside the poster frame, with a full-width stats strip pinned to the bottom. Switch viewport presets to see how the right column collapses on mobile."
+            whenToUse="Any cultural-moment hero that needs a single decisive composition — headline + sticker + subhead + CTA + supporting graphic + stats."
+            whenNotTo="Pure text heroes or full-bleed photo heroes. Don't fork the split ratio per campaign — keep 65/35 to preserve rhythm."
+            propsHint={`<HedgeHero /> // copy + stats are inline constants; swap LIVE_STATS to update.`}
+          >
+            <RetroHeroDemo />
+          </PlaygroundCard>
+
           <PlaygroundCard
             id="retro-tokens"
             title="Retro Poster · Tokens"
