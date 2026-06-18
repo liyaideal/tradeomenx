@@ -7,8 +7,8 @@ interface Props {
 }
 
 /**
- * Mobile-only floating CTA bar that slides in from the bottom
- * once the Hero CTA leaves the viewport.
+ * Mobile-only floating CTA bar — slides in once the hero leaves the viewport.
+ * Styled to match the retro poster theme (ink border + paper background).
  */
 export const HedgeMobileFloatingCTA = ({ triggerRef }: Props) => {
   const isMobile = useIsMobile();
@@ -21,7 +21,7 @@ export const HedgeMobileFloatingCTA = ({ triggerRef }: Props) => {
 
     const observer = new IntersectionObserver(
       ([entry]) => setVisible(!entry.isIntersecting),
-      { threshold: 0 }
+      { threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -31,10 +31,10 @@ export const HedgeMobileFloatingCTA = ({ triggerRef }: Props) => {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-4 pt-2.5 backdrop-blur-md transition-transform duration-300 shadow-[0_-4px_12px_hsl(var(--background)/0.6)] ${
+      className={`fixed inset-x-0 bottom-0 z-40 border-t-4 border-[#0E0E0E] bg-[#FDFCF0] px-4 pt-3 transition-transform duration-300 ${
         visible ? "translate-y-0" : "translate-y-full"
       }`}
-      style={{ paddingBottom: "max(0.625rem, env(safe-area-inset-bottom))" }}
+      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
     >
       <HedgeCTAButton fullWidth />
     </div>

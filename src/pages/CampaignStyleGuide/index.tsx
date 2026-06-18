@@ -9,6 +9,7 @@ import {
   GitBranch,
   LayoutTemplate,
   Network,
+  Newspaper,
   ShieldCheck,
   Sparkles,
   Trophy,
@@ -89,6 +90,17 @@ const archetypes = [
     accent: "text-trading-yellow border-trading-yellow/30 bg-trading-yellow/10",
     preview: "vault",
   },
+  {
+    id: "retro-poster",
+    icon: Newspaper,
+    title: "Retro Poster",
+    fit: "World Cup / sports / seasonal hedge / cultural-moment campaign",
+    mood: "Retro print, decisive, human, anti-AI-template",
+    layout: "Poster frame with ink border + offset hard shadow, display type, stickers/stamps, dual-card outcomes, scoreboard-style stats strip",
+    avoid: "Web3 purple gradients, dark stacked cards, emoji, AI-rendered illustrations, glassmorphism",
+    accent: "text-[#E11D48] border-[#E11D48]/40 bg-[#E11D48]/10",
+    preview: "retroPoster",
+  },
 ];
 
 const componentRules = [
@@ -157,6 +169,37 @@ const PreviewCanvas = ({ type }: { type: string }) => {
       </div>
     );
   }
+
+  if (type === "retroPoster") {
+    return (
+      <div
+        className="relative border-[4px] border-[#0E0E0E] bg-[#FDFCF0] p-4 text-[#0E0E0E]"
+        style={{ boxShadow: "8px 8px 0 0 #E11D48" }}
+      >
+        <span
+          className="inline-block -rotate-2 border-2 border-[#0E0E0E] bg-[#E11D48] px-2 py-0.5 font-display text-[10px] uppercase tracking-wider text-white"
+          style={{ fontFamily: '"Archivo Black", Impact, sans-serif' }}
+        >
+          World Cup 2026
+        </span>
+        <div
+          className="mt-2 font-display text-2xl uppercase leading-none"
+          style={{ fontFamily: '"Archivo Black", Impact, sans-serif' }}
+        >
+          Hedge your <span className="text-[#1D4ED8]">pick</span>
+        </div>
+        <div className="mt-3 inline-block border-2 border-[#0E0E0E] bg-[#1D4ED8] px-3 py-1 font-display text-[10px] uppercase tracking-wider text-white">
+          Open Your Hedge →
+        </div>
+        <div className="mt-3 flex gap-2 border-t-2 border-[#0E0E0E] pt-2 font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">
+          <span><span className="font-display text-[#E11D48]">$47K</span> dist</span>
+          <span><span className="font-display">1,284</span> claimed</span>
+          <span><span className="font-display text-[#1D4ED8]">213</span> left</span>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-4">

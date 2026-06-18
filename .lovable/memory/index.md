@@ -125,3 +125,5 @@
 
 - [World Cup 2026 portal](mem://features/world-cup-portal) — 主站右下角常驻悬浮 panel，2026-06-11~07-19 期间显示，跳转 OmenX Sports；× 24h TTL 隐藏
 - [Sports launcher](mem://features/sports-launcher) — Floating bottom-left pill linking to OmenX Sports during World Cup window; header untouched
+- [Retro Poster campaign style](mem://design/retro-poster-campaign-style) — /hedge 世界杯主题专用色板/字体/硬边硬阴影/三大 primitive，禁止外溢到产品其他页
+- [H2E landing architecture (Retro Poster)](mem://marketing/hedge-landing-architecture) — /hedge 新版 7 段结构 + 删除清单 + 文案契约（取代旧的 9 段版本）

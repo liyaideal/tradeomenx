@@ -4,27 +4,24 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HedgeHero } from "@/components/hedge/HedgeHero";
-import { HedgeRecentActivity } from "@/components/hedge/HedgeRecentActivity";
+import { HedgeUpsetsStrip } from "@/components/hedge/HedgeUpsetsStrip";
 import { HedgeHowItWorks } from "@/components/hedge/HedgeHowItWorks";
-import { HedgeLiveExample } from "@/components/hedge/HedgeLiveExample";
-import { HedgeFoundersNote } from "@/components/hedge/HedgeFoundersNote";
 import { HedgeKeyRules } from "@/components/hedge/HedgeKeyRules";
-import { HedgeSocialProof } from "@/components/hedge/HedgeSocialProof";
+import { HedgeRewardTiers } from "@/components/hedge/HedgeRewardTiers";
 import { HedgeFAQ } from "@/components/hedge/HedgeFAQ";
 import { HedgeFinalCTA } from "@/components/hedge/HedgeFinalCTA";
 import { HedgeMobileFloatingCTA } from "@/components/hedge/HedgeMobileFloatingCTA";
 
 const HedgeLanding = () => {
   const isMobile = useIsMobile();
-  // We watch the entire Hero section so the floating CTA only appears
-  // once the user has fully scrolled past the primary CTA above the fold.
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = "Hedge-to-Earn — Free hedge on your Polymarket positions | OmenX";
+    document.title =
+      "World Cup Hedge-to-Earn — Hedge your Polymarket pick, redeem up to 500U | OmenX";
 
     const desc =
-      "Connect your Polymarket wallet and OmenX will airdrop you a free counter-position hedge. $0 cost, read-only access, up to $100 in free trading credit.";
+      "World Cup chaos? Connect your wallet, open a hedge that moves opposite your Polymarket pick on OmenX, and redeem rewards up to 500U if it closes in profit. Not guaranteed — see campaign rules.";
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -35,23 +32,21 @@ const HedgeLanding = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-[#FDFCF0] text-[#0E0E0E]">
       {isMobile ? (
-        <MobileHeader title="Hedge-to-Earn" showLogo={false} showBack={true} />
+        <MobileHeader title="World Cup H2E" showLogo={false} showBack={true} />
       ) : (
         <EventsDesktopHeader />
       )}
 
-      <main className="flex-1 md:pb-0 pb-0">
-        <HedgeRecentActivity />
+      <main className="flex-1">
         <div ref={heroRef}>
           <HedgeHero />
         </div>
+        <HedgeUpsetsStrip />
         <HedgeHowItWorks />
-        <HedgeLiveExample />
-        <HedgeFoundersNote />
         <HedgeKeyRules />
-        <HedgeSocialProof />
+        <HedgeRewardTiers />
         <HedgeFAQ />
         <HedgeFinalCTA />
       </main>

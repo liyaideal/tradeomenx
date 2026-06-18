@@ -1,92 +1,114 @@
-import { Fragment } from "react";
-import { ArrowRight } from "lucide-react";
+import { HedgePosterFrame } from "./HedgePosterFrame";
+
+const OUTCOMES = [
+  {
+    head: "Your pick wins",
+    body: "You keep all your upside on Polymarket, exactly as before.",
+    accent: "blue" as const,
+  },
+  {
+    head: "Your pick misses",
+    body: "Your OmenX hedge position may close in profit — redeem rewards up to 500U under the campaign rules.",
+    accent: "red" as const,
+  },
+];
 
 const STEPS = [
   {
-    title: "Connect Polymarket",
-    body: "Link your wallet — read-only. We never touch your funds.",
-    note: "Takes ~30 seconds",
+    n: "01",
+    title: "Connect",
+    body: "Link your Polymarket wallet so we can read your on-chain World Cup positions.",
   },
   {
-    title: "We scan your positions",
-    body: "Find qualifying positions ($200+, held 3+ days, matching market on OmenX).",
-    note: "Fully automatic",
+    n: "02",
+    title: "Open your hedge",
+    body: "Use your Trial Position Voucher to open a hedge position on OmenX, opposite to your pick.",
   },
   {
-    title: "Claim your free hedge",
-    body: "Up to $10 per position credited as a free counter-trade. Settle to real cash.",
-    note: "Up to $100 lifetime",
+    n: "03",
+    title: "Redeem",
+    body: "If your hedge closes in profit, redeem rewards up to 500U under the campaign rules.",
   },
 ];
 
 export const HedgeHowItWorks = () => {
   return (
-    <section className="border-b border-border/40 bg-muted/20">
-      <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-24">
-        <div className="mb-8 text-center md:mb-12">
-          <h2 className="text-2xl font-bold tracking-tight md:text-4xl">How it works</h2>
-          <p className="mt-2 text-sm text-muted-foreground md:mt-3 md:text-base">
-            Three steps. No deposit. No catch.
+    <section className="bg-[#FDFCF0] py-12 md:py-20">
+      <div className="mx-auto max-w-7xl px-4 md:px-6">
+        {/* Title */}
+        <div className="mb-8 md:mb-12">
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#1D4ED8]">
+            How it works
+          </p>
+          <h2 className="mt-2 font-display text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
+            A hedge for every pick.
+          </h2>
+          <p className="mt-4 max-w-2xl text-base text-[#0E0E0E]/80 md:text-lg">
+            OmenX is running a{" "}
+            <span className="font-display uppercase">World Cup Hedge-to-Earn Campaign</span>.
+            Connect your Polymarket wallet and we'll give you a{" "}
+            <span className="font-display uppercase">Trial Position Voucher</span> to open
+            a hedge position on OmenX — a position that moves the opposite way
+            to your Polymarket pick.
           </p>
         </div>
 
-        {/* DESKTOP: horizontal connected steps */}
-        <div className="mx-auto hidden max-w-5xl items-start gap-4 md:grid md:grid-cols-[1fr_auto_1fr_auto_1fr]">
-          {STEPS.map((step, i) => (
-            <Fragment key={step.title}>
-              <div className="relative">
-                <div className="mb-3 font-mono text-5xl font-bold leading-none text-primary/30 md:text-6xl">
-                  0{i + 1}
+        {/* Two outcome cards */}
+        <div className="grid gap-6 md:grid-cols-2 md:gap-8">
+          {OUTCOMES.map((o) => (
+            <HedgePosterFrame key={o.head} shadow={o.accent} size="sm">
+              <div className="p-6 md:p-8">
+                <div
+                  className={`mb-4 inline-block border-2 border-[#0E0E0E] px-3 py-1 font-display text-xs uppercase tracking-wider text-white ${
+                    o.accent === "blue" ? "bg-[#1D4ED8]" : "bg-[#E11D48]"
+                  }`}
+                >
+                  {o.head}
                 </div>
-                <h3 className="mb-2 text-lg font-semibold md:text-xl">
-                  {step.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {step.body}
-                </p>
-                <p className="mt-3 text-xs font-mono uppercase tracking-wider text-primary">
-                  {step.note}
+                <p className="text-lg leading-snug text-[#0E0E0E] md:text-xl">
+                  {o.body}
                 </p>
               </div>
-
-              {i < STEPS.length - 1 && (
-                <div className="flex items-center justify-center pt-8">
-                  <div className="flex items-center">
-                    <span className="block h-px w-12 bg-border" />
-                    <ArrowRight className="h-4 w-4 -ml-1 text-muted-foreground" />
-                  </div>
-                </div>
-              )}
-            </Fragment>
+            </HedgePosterFrame>
           ))}
         </div>
 
-        {/* MOBILE: compact vertical timeline with numbered badges + connecting line */}
-        <ol className="relative mx-auto max-w-md md:hidden">
-          {/* Vertical line */}
-          <span
-            aria-hidden
-            className="absolute left-[17px] top-2 bottom-2 w-px bg-border"
-          />
-          {STEPS.map((step, i) => (
-            <li key={step.title} className="relative flex gap-4 pb-6 last:pb-0">
-              <div className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 font-mono text-sm font-semibold text-primary">
-                {i + 1}
-              </div>
-              <div className="flex-1 pt-1">
-                <h3 className="text-base font-semibold leading-tight">
-                  {step.title}
-                </h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {step.body}
+        {/* Reassurance */}
+        <div className="mt-6 border-l-4 border-[#FACC15] bg-white/40 p-4 md:mt-8">
+          <p className="text-sm font-semibold text-[#0E0E0E] md:text-base">
+            Losses on the trial position won't be deducted from your main
+            account balance.
+          </p>
+          <p className="mt-1 text-xs italic text-[#0E0E0E]/60">
+            *Not guaranteed. Rewards depend on your hedge position's performance
+            and the campaign reward cap.
+          </p>
+        </div>
+
+        {/* 3 steps */}
+        <div className="mt-12 md:mt-16">
+          <h3 className="font-display text-2xl uppercase tracking-tight text-[#0E0E0E] md:text-3xl">
+            Hedge in 3 steps.
+          </h3>
+          <div className="mt-6 grid gap-6 md:mt-8 md:grid-cols-3 md:gap-8">
+            {STEPS.map((s) => (
+              <div key={s.n} className="relative">
+                <div
+                  className="inline-block -rotate-3 border-4 border-[#0E0E0E] bg-[#FACC15] px-4 py-1 font-display text-3xl text-[#0E0E0E] md:text-4xl"
+                  style={{ boxShadow: "4px 4px 0 0 #0E0E0E" }}
+                >
+                  {s.n}
+                </div>
+                <h4 className="mt-4 font-display text-xl uppercase tracking-tight text-[#0E0E0E] md:text-2xl">
+                  {s.title}
+                </h4>
+                <p className="mt-2 text-sm leading-relaxed text-[#0E0E0E]/75 md:text-base">
+                  {s.body}
                 </p>
-                <p className="mt-1.5 text-[11px] font-mono uppercase tracking-wider text-primary">
-                  {step.note}
-                </p>
               </div>
-            </li>
-          ))}
-        </ol>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
