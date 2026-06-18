@@ -6,6 +6,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import { Countdown } from "@/components/mainnet-launch/Countdown";
 import { cn } from "@/lib/utils";
 import { banners, type BannerThemeKey as ThemeKey } from "@/components/campaign/banners";
+import { PosterBanner } from "@/components/campaign/PosterBanner";
 
 interface CampaignBannerCarouselProps {
   variant?: "desktop" | "mobile";
