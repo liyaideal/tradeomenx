@@ -1,4 +1,5 @@
 import { HedgeCTAButton } from "./HedgeCTAButton";
+import heroPop from "@/assets/hedge-hero-pop.png.asset.json";
 
 // Operations can edit these constants directly.
 const LIVE_STATS = {
@@ -64,30 +65,17 @@ export const HedgeHero = () => {
                 }}
               />
 
-              <div className="relative">
-                <div
-                  className="relative flex h-60 w-60 items-center justify-center rounded-full border-[6px] border-[#0E0E0E] bg-white xl:h-72 xl:w-72"
-                  style={{ boxShadow: "10px 10px 0 0 #FACC15" }}
-                  title="OMENX World Cup Hedge-to-Earn campaign — hedge your Polymarket prediction position"
-                >
-                  {/* crosshair */}
-                  <div className="pointer-events-none absolute inset-4 rounded-full border-2 border-[#0E0E0E]/15">
-                    <div className="absolute left-0 right-0 top-1/2 h-[2px] -translate-y-1/2 bg-[#0E0E0E]/15" />
-                    <div className="absolute bottom-0 left-1/2 top-0 w-[2px] -translate-x-1/2 bg-[#0E0E0E]/15" />
-                  </div>
-                  {/* 26 watermark */}
-                  <span className="pointer-events-none absolute select-none font-display text-[7rem] leading-none text-[#0E0E0E]/10 xl:text-[8rem]">
-                    26
-                  </span>
-                  {/* center diamond */}
-                  <div className="absolute h-20 w-20 rotate-45 border-[6px] border-[#0E0E0E] bg-[#E11D48]" />
-                  {/* yellow accent square */}
-                  <div className="absolute -right-3 -top-3 h-10 w-10 border-4 border-[#0E0E0E] bg-[#FACC15]" />
-                </div>
+              <div className="relative w-full">
+                <img
+                  src={heroPop.url}
+                  alt="Soccer ball with red, yellow, and blue arrows — World Cup hedge motion"
+                  className="relative z-10 mx-auto h-auto w-full max-w-[420px] object-contain drop-shadow-[6px_6px_0_#0E0E0E]"
+                  loading="eager"
+                />
 
                 {/* HEDGED stamp */}
                 <div
-                  className="absolute -bottom-4 -left-6 -rotate-12 border-4 border-white bg-[#0E0E0E] px-4 py-2 font-display text-2xl italic text-[#FACC15]"
+                  className="absolute -bottom-2 left-2 z-20 -rotate-12 border-4 border-white bg-[#0E0E0E] px-4 py-2 font-display text-2xl italic text-[#FACC15]"
                   style={{ boxShadow: "4px 4px 0 0 #E11D48" }}
                 >
                   HEDGED
