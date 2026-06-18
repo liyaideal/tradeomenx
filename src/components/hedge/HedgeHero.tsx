@@ -1,4 +1,5 @@
 import { HedgeCTAButton } from "./HedgeCTAButton";
+import heroPop from "@/assets/hedge-hero-pop.png.asset.json";
 
 // Operations can edit these constants directly.
 const LIVE_STATS = {
