@@ -83,7 +83,9 @@ const HedgeLanding = () => {
         <HedgeFinalCTA />
       </main>
 
-      <SeoFooter />
+      <div className="bg-background text-foreground">
+        <SeoFooter />
+      </div>
       <HedgeMobileFloatingCTA triggerRef={heroRef} />
     </div>
   );
