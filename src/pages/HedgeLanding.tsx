@@ -28,7 +28,7 @@ const HedgeLanding = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFCF0] text-[#0E0E0E]">
-      <Helmet>
+      <Helmet prioritizeSeoTags>
         <title>{seoData.title}</title>
         <meta name="description" content={seoData.description} />
         <meta name="keywords" content={seoData.keywords} />
