@@ -66,7 +66,7 @@ export const PosterBanner = ({ banner, variant = "desktop", onClick }: PosterBan
       {/* === Rail layout (compact 140x260) === */}
       {isRail ? (
         <div className="relative z-10 flex h-full flex-col justify-between pt-2">
-          <h3 className="text-[15px] font-black uppercase leading-[0.95] tracking-tight">
+          <h3 className="pt-4 text-[15px] font-black uppercase leading-[0.95] tracking-tight">
             {banner.title}
           </h3>
           <div className="flex items-end justify-between">
@@ -90,7 +90,7 @@ export const PosterBanner = ({ banner, variant = "desktop", onClick }: PosterBan
           )}
         >
           {/* Left: headline + metric */}
-          <div className={cn("flex flex-col gap-4", isMobile ? "pt-4" : "flex-1")}>
+          <div className={cn("flex flex-col gap-4", isMobile ? "pt-8" : "flex-1")}>
             <h3
               className={cn(
                 "font-black uppercase leading-[0.95] tracking-tight",
