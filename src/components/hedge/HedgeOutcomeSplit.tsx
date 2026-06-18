@@ -11,7 +11,7 @@ interface OutcomeColProps {
 const OutcomeCol = ({ accent, stamp, headline, body, metrics }: OutcomeColProps) => {
   const accentColor = accent === "blue" ? "#1D4ED8" : "#E11D48";
   return (
-    <div className="relative flex flex-col p-6 md:p-8">
+    <div className="relative flex h-full flex-col p-6 md:p-8">
       {/* Top color bar */}
       <div
         className="absolute left-0 right-0 top-0 h-1.5"
@@ -23,12 +23,14 @@ const OutcomeCol = ({ accent, stamp, headline, body, metrics }: OutcomeColProps)
       >
         {stamp}
       </div>
-      <h3 className="font-display text-xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-2xl">
-        {headline}
-      </h3>
-      <p className="mt-3 text-sm leading-snug text-[#0E0E0E]/80 md:text-base">
-        {body}
-      </p>
+      <div className="flex flex-1 flex-col">
+        <h3 className="font-display text-xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-2xl">
+          {headline}
+        </h3>
+        <p className="mt-3 text-sm leading-snug text-[#0E0E0E]/80 md:text-base">
+          {body}
+        </p>
+      </div>
 
       {/* Metric chips */}
       <dl className="mt-6 space-y-2 border-t-2 border-dashed border-[#0E0E0E]/30 pt-4">
