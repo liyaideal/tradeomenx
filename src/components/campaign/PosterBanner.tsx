@@ -90,7 +90,7 @@ export const PosterBanner = ({ banner, variant = "desktop", onClick }: PosterBan
           )}
         >
           {/* Left: headline + metric */}
-          <div className={cn("flex flex-col gap-4", !isMobile && "flex-1")}>
+          <div className={cn("flex flex-col gap-4", isMobile ? "pt-4" : "flex-1")}>
             <h3
               className={cn(
                 "font-black uppercase leading-[0.95] tracking-tight",
