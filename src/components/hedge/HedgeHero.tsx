@@ -60,6 +60,10 @@ export const HedgeHero = () => {
                 src={heroPop.url}
                 alt="Soccer ball with red, yellow, and blue arrows — World Cup hedge motion"
                 className="relative z-10 h-full w-full object-contain object-center"
+                style={{
+                  filter:
+                    "drop-shadow(0 0 0.5px #FDFCF0) drop-shadow(0 0 0.5px #FDFCF0) drop-shadow(0 1px 2px rgba(14,14,14,0.08))",
+                }}
                 loading="eager"
               />
             </div>

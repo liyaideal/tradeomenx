@@ -1,30 +1,14 @@
+# Plan: CSS Filter Softening for Hedge Hero Image
+
 ## Objective
-Update all H2E (Hedge-to-Earn) campaign rule references from old values to new values as specified by the user.
+Apply a very subtle CSS filter to the transparent hero PNG in `HedgeHero.tsx` to smooth its rough/jagged edges and make it look more professional.
 
-## Rule Changes
-| Rule | Old | New |
-|------|-----|-----|
-| Single-account max reward | 100U | 500U |
-| Eligibility: position size | ≥ 200 USDT | ≥ 20 U |
-| Eligibility: hold time | ≥ 3 days | ≥ 1 day |
-| Matching event remaining time | ≥ 72 hours | ≥ 24 hours |
+## Implementation
+1. **File to change:** `src/components/hedge/HedgeHero.tsx`
+2. **Target element:** The `<img>` at lines 59–64 (World Cup graphic)
+3. **Change:** Add a subtle `filter` style using a very slight `drop-shadow` (e.g. `filter: drop-shadow(0 0 3px rgba(253,252,240,0.8))`) that blends with the `#FDFCF0` background, softening the anti-aliasing edges without creating a visible halo.
+4. **Alternative if drop-shadow doesn't blend well:** Use a tiny `blur` (e.g. `filter: blur(0.3px)`) on a duplicated wrapper image, or a wrapper `box-shadow` inset trick. Will test the visually cleanest option.
+5. **Verify:** Screenshot the campaign page hero to confirm edges look smoother and the image remains fully visible without cropping.
 
-## Files to Update
-
-1. **`src/components/settings/ConnectedAccountsCard.tsx`** (lines 441-447)
-   - Change "≥ $200" → "≥ $20"
-   - Change "3 days" → "1 day"
-   - Change "≥ 72 hours" → "≥ 24 hours"
-   - Change "$100 lifetime earnings" → "$500 lifetime earnings"
-
-2. **`src/hooks/useH2eRewardsSummary.ts`** (line 6)
-   - Change `const H2E_EARNINGS_CAP = 100` → `const H2E_EARNINGS_CAP = 500`
-
-3. **`src/components/AirdropPositionCard.tsx`** (line 178)
-   - Change "Max $100 earnings per account" → "Max $500 earnings per account"
-
-4. **`src/components/AirdropHomepageModal.tsx`** (line 169)
-   - Change "Max $100 earnings per account" → "Max $500 earnings per account"
-
-## Verification
-- Run TypeScript compilation (`npx tsc --noEmit`) to confirm no type errors after changes.
+## Scope
+Frontend-only. No logic or data changes.
