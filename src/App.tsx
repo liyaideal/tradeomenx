@@ -37,7 +37,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import TransparencyPage from "./pages/TransparencyPage";
 import HedgeLanding from "./pages/HedgeLanding";
-import MainnetLaunch from "./pages/MainnetLaunch";
+
 import CampaignStyleGuide from "./pages/CampaignStyleGuide";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
