@@ -1,44 +1,110 @@
-## Context
 
-The mainnet-launch banner has already been removed. The hedge banner is now the only item in both:
-- **Desktop**: `CampaignBannerCarousel` on `/events` (full-width ~220px tall card)
-- **Mobile**: `HomeCampaignRail` on mobile home (260×140 snap card)
+## 背景
 
-The hedge landing page (`/campaign/world-cup-polymarket-hedge`) already has a bold **retro poster aesthetic**: cream `#FDFCF0`, thick black border, red hard offset shadow, rotated sticker chips, bold display uppercase type. The user wants the carousel banner redesigned to match this energy.
+`src/components/deposit/BuyWithFiat.tsx` 当前 Fiat 充值表单存在两个不符合 Banxa 实际计费模型的展示问题：
 
-## Scope
+1. 底部只写死 `Min. $10`，而 Banxa 的最小/最大限额会按 **法币 × 支付方式** 动态变化（例如美区 Card $20–$5,000，Bank $50–$25,000，EU Bank $10–$10,000 等）。用户极易因金额不在区间被打回。
+2. 手续费按支付方式硬编码固定百分比（Card/Apple 2.5%、Bank 1.0%），并且支付方式行常驻显示 "2.5% fee" 字样。实际上手续费需要 Banxa 实时计算（含链上 gas + Banxa 手续费），既不固定也不是百分比，应在输入金额后展示具体数值。
 
-Redesign the hedge campaign banner card (both desktop carousel and mobile rail) with **one** of the 3 directions below. The content stays fixed:
-- Headline: "Hedge your prediction trades. Free."
-- Metric: "$100 Free hedge credit"
-- CTA: "Open Hedge"
-- Chip: "NO DEPOSIT"
+## 改动方案（仅前端展示，无业务逻辑改动）
 
-## Three Design Directions
+### 1. 数据结构
 
-### Direction A: Retro Poster (matching HedgeHero)
-Cream `#FDFCF0` surface, thick black border `border-[#0E0E0E]`, hard red offset shadow `box-shadow: 8px 8px 0 0 #E11D48` (desktop) / `6px 6px` (mobile). Rotated red sticker chip at top-left. Bold uppercase display headline with a single blue `#1D4ED8` accent word. Yellow left-border `#FACC15` on the metric sub-line. Black CTA button with cream text, arrow nudges right on hover.
+在 `BuyWithFiat.tsx` 顶部新增按 `currency × method` 的限额表（mock，结构匹配未来 Banxa quote 接口）：
 
-**Feel**: Bold, playful, poster-like. High contrast, immediately grabs attention. Makes the banner feel like a collectible trading card.
+```ts
+const LIMITS: Record<string, Record<string, { min: number; max: number }>> = {
+  USD: { card: { min: 20, max: 5000 }, bank: { min: 50, max: 25000 }, apple: { min: 20, max: 2000 } },
+  EUR: { card: { min: 15, max: 4500 }, bank: { min: 10, max: 10000 }, apple: { min: 15, max: 1800 } },
+  GBP: { card: { min: 15, max: 4000 }, bank: { min: 10, max: 9000 },  apple: { min: 15, max: 1500 } },
+  AUD: { card: { min: 30, max: 7500 }, bank: { min: 80, max: 30000 }, apple: { min: 30, max: 3000 } },
+};
+```
 
-### Direction B: Dark Neon Glass
-Deep translucent dark surface (`bg-background/80` with `backdrop-blur-md`), thin neon accent border that glows on hover (cyan `#22d3ee` or violet `#a78bfa`). Subtle dot-grid texture at low opacity. The metric "$100" gets a large neon glow treatment. CTA is a filled neon pill button. Right side has a geometric shield/insurance icon pattern.
+派生：`const { min, max } = LIMITS[currency][paymentMethod];`
 
-**Feel**: Premium, modern, Web3-native. Sophisticated and futuristic. Blends into the dark app while standing out through neon glow.
+将 `PAYMENT_METHODS` 项里的 `fee: '2.5%'` 字段移除（不再常驻显示百分比）。
 
-### Direction C: Editorial Swiss
-Pure light surface (`bg-card` or off-white) on the dark page. Ultra-thin 1px border. Generous negative space. Headline is whispered (small, uppercase, wide tracking) while "$100" is the single massive typographic moment. Everything else is restrained. A single thin horizontal rule separates chip from headline.
+### 2. 输入区限额提示
 
-**Feel**: Magazine-quality, confident through restraint. The contrast between the dark page and the light card is the statement. Appeals to users who appreciate precision and minimalism.
+在 "You pay" label 旁右侧追加一行小字，随 currency / paymentMethod 实时更新：
 
-## Implementation (after direction is chosen)
+```
+You pay                     Min {min} / Max {max.toLocaleString()} {currency}
+```
 
-1. **Update `banners.ts`**: Adjust the hedge entry (title, theme key, drop or keep background image).
-2. **Extend `themeMap` in `CampaignBannerCarousel.tsx`**: Add a new theme entry for the chosen direction, or branch on `banner.id === "hedge"` for a dedicated layout.
-3. **Update `HomeCampaignRail.tsx`**: Mirror the same visual treatment in the 260×140 mobile card (simplified due to space constraints: drop sticker cluster, keep colors/border/shadow).
-4. **Build + verify**: Check desktop `/events` and mobile home, confirm no layout shift, clickable area still routes correctly.
+校验态：
+- `parsedAmount > 0 && parsedAmount < min` → 输入框 ring 改 `border-destructive`，下方一行 `text-destructive text-xs`：`Minimum is {min} {currency} for {method.label}`。
+- `parsedAmount > max` → 同上文案改为 `Maximum is {max.toLocaleString()} {currency} for {method.label}`。
+- Continue 按钮 disabled 条件改为 `parsedAmount < min || parsedAmount > max`。
 
-## Out of Scope
-- No new copy changes beyond what's listed.
-- No changes to HedgeHero or the hedge landing page.
-- No changes to carousel mechanics (dots, auto-scroll, snap behavior).
+### 3. 支付方式行：移除固定 % 文案
+
+`PAYMENT_METHODS.map` 渲染时删掉右侧 `{method.fee} fee`，改成展示该方式的 `Min–Max` 区间小字（仍是动态值），帮助用户在选择前就知道范围：
+
+```
+Credit / Debit Card               $20 – $5,000     ✓
+```
+
+### 4. Fee breakdown：动态数值 + 输入前占位
+
+把原本 "Processing fee = parsedAmount × feePercent" 的硬编码替换为分项展示，且只在输入金额后才有数值；未输入金额时显示占位提示。
+
+未输入金额 (`parsedAmount <= 0`)：
+
+```
+Fees                                  Enter amount to see fees
+```
+
+单行 muted 文案，提示用户费用需先输入金额由 Banxa 实时报价。
+
+已输入合法金额：拆三行（mock 数值，后续替换为 Banxa quote 返回）：
+
+```
+Banxa processing fee        $ {banxaFee.toFixed(2)} {currency}
+Network fee (Base)          $ {networkFee.toFixed(2)} {currency}
+─────────────────────────────────────────
+Total fees                  $ {totalFee.toFixed(2)} {currency}
+Exchange rate               1 USDC = {rate} {currency}
+```
+
+mock 计算（仅前端占位，便于联调时一行替换为接口字段）：
+
+```ts
+const banxaFee = paymentMethod === 'bank'
+  ? Math.max(1.5, parsedAmount * 0.009)
+  : Math.max(2.5, parsedAmount * 0.022);
+const networkFee = 0.35; // Base gas 占位
+const totalFee = banxaFee + networkFee;
+const usdcReceive = (parsedAmount - totalFee) / selectedCurrency.rate;
+```
+
+> 注释中写明：`// TODO: replace with Banxa quote endpoint (fees + min/max are dynamic per region & method)`。
+
+### 5. 底部页脚
+
+把 `Powered by Banxa • Min. $10` 改成：
+
+```
+Powered by Banxa • Limits and fees vary by region and payment method
+```
+
+去掉误导性的固定 $10。
+
+### 6. Checkout step 同步
+
+`step === 'checkout'` 的 Order summary 内 `Fee` 行同样使用 `totalFee` 而非旧 `fee`，保持口径一致。
+
+## 技术细节
+
+- 改动文件：仅 `src/components/deposit/BuyWithFiat.tsx`。
+- 不动 hooks、edge function、Supabase。
+- 类型：限额表用上面定义的 `Record<string, Record<string, {min,max}>>`，访问加 `LIMITS[currency]?.[paymentMethod] ?? { min: 10, max: 10000 }` fallback 防止后续新增币种崩溃。
+- 移动端 / 桌面端样式沿用现有 `cn(isMobile ? ... : ...)` 节奏，限额提示 `text-xs text-muted-foreground`，错误态 `text-destructive`。
+- 不引入新依赖。
+
+## 未在本轮改动
+
+- 真正的 Banxa quote API 接入（min/max、fee 实时拉取）。
+- 链上 gas 实时查询。
+- Style guide / Playground 状态枚举（如需要后续单独补 `/style-guide` Fiat deposit 段，对应 mem `new-feature-playground-mandate`）。
