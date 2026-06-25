@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, CreditCard, Building2, Smartphone, Loader2, Check, X, Clock, Shield, RotateCcw } from 'lucide-react';
+import { CreditCard, Building2, Smartphone, Loader2, Check, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -21,10 +21,19 @@ const FIAT_CURRENCIES = [
 ];
 
 const PAYMENT_METHODS = [
-  { id: 'card', label: 'Credit / Debit Card', icon: CreditCard, fee: '2.5%' },
-  { id: 'bank', label: 'Bank Transfer', icon: Building2, fee: '1.0%' },
-  { id: 'apple', label: 'Apple Pay', icon: Smartphone, fee: '2.5%' },
+  { id: 'card', label: 'Credit / Debit Card', icon: CreditCard },
+  { id: 'bank', label: 'Bank Transfer', icon: Building2 },
+  { id: 'apple', label: 'Apple Pay', icon: Smartphone },
 ];
+
+// TODO: replace with Banxa quote endpoint (min/max are dynamic per region & method)
+const LIMITS: Record<string, Record<string, { min: number; max: number }>> = {
+  USD: { card: { min: 20, max: 5000 }, bank: { min: 50, max: 25000 }, apple: { min: 20, max: 2000 } },
+  EUR: { card: { min: 15, max: 4500 }, bank: { min: 10, max: 10000 }, apple: { min: 15, max: 1800 } },
+  GBP: { card: { min: 15, max: 4000 }, bank: { min: 10, max: 9000 },  apple: { min: 15, max: 1500 } },
+  AUD: { card: { min: 30, max: 7500 }, bank: { min: 80, max: 30000 }, apple: { min: 30, max: 3000 } },
+};
+const DEFAULT_LIMIT = { min: 10, max: 10000 };
 
 type Step = 'form' | 'checkout' | 'tracking' | 'result';
 
@@ -39,9 +48,25 @@ export const BuyWithFiat = () => {
   const selectedCurrency = FIAT_CURRENCIES.find(c => c.code === currency)!;
   const selectedPayment = PAYMENT_METHODS.find(p => p.id === paymentMethod)!;
   const parsedAmount = parseFloat(amount) || 0;
-  const feePercent = paymentMethod === 'bank' ? 0.01 : 0.025;
-  const fee = parsedAmount * feePercent;
-  const usdcReceive = (parsedAmount - fee) / selectedCurrency.rate;
+  const { min, max } = LIMITS[currency]?.[paymentMethod] ?? DEFAULT_LIMIT;
+
+  // TODO: replace with Banxa quote endpoint (fees are dynamic, include on-chain gas + Banxa fee)
+  const banxaFee = parsedAmount > 0
+    ? (paymentMethod === 'bank'
+        ? Math.max(1.5, parsedAmount * 0.009)
+        : Math.max(2.5, parsedAmount * 0.022))
+    : 0;
+  const networkFee = parsedAmount > 0 ? 0.35 : 0;
+  const totalFee = banxaFee + networkFee;
+  const usdcReceive = parsedAmount > 0
+    ? Math.max(0, (parsedAmount - totalFee) / selectedCurrency.rate)
+    : 0;
+
+  const belowMin = parsedAmount > 0 && parsedAmount < min;
+  const aboveMax = parsedAmount > max;
+  const amountInvalid = belowMin || aboveMax;
+
+  const formatLimit = (n: number) => n.toLocaleString();
 
   const handleProceed = () => {
     setStep('checkout');
@@ -50,7 +75,6 @@ export const BuyWithFiat = () => {
   const handleCompletePayment = () => {
     setStep('tracking');
     setTrackingStage(0);
-    // Mock 4-stage progress
     setTimeout(() => setTrackingStage(1), 1500);
     setTimeout(() => setTrackingStage(2), 3500);
     setTimeout(() => setTrackingStage(3), 5500);
@@ -68,8 +92,13 @@ export const BuyWithFiat = () => {
     return (
       <div className={cn("space-y-5", isMobile ? "px-4 py-5" : "p-5")}>
         {/* Currency & Amount */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium text-muted-foreground">You pay</label>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-muted-foreground">You pay</label>
+            <span className="text-xs text-muted-foreground font-mono">
+              Min {formatLimit(min)} / Max {formatLimit(max)} {currency}
+            </span>
+          </div>
           <div className="flex gap-2">
             <Select value={currency} onValueChange={setCurrency}>
               <SelectTrigger className="w-28 h-12">
@@ -88,9 +117,22 @@ export const BuyWithFiat = () => {
               placeholder="100.00"
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              className="flex-1 h-12 text-2xl font-mono"
+              className={cn(
+                "flex-1 h-12 text-2xl font-mono",
+                amountInvalid && "border-destructive focus-visible:ring-destructive"
+              )}
             />
           </div>
+          {belowMin && (
+            <p className="text-xs text-destructive">
+              Minimum is {formatLimit(min)} {currency} for {selectedPayment.label}
+            </p>
+          )}
+          {aboveMax && (
+            <p className="text-xs text-destructive">
+              Maximum is {formatLimit(max)} {currency} for {selectedPayment.label}
+            </p>
+          )}
         </div>
 
         {/* You receive */}
@@ -110,6 +152,7 @@ export const BuyWithFiat = () => {
           <div className="space-y-2">
             {PAYMENT_METHODS.map(method => {
               const Icon = method.icon;
+              const range = LIMITS[currency]?.[method.id] ?? DEFAULT_LIMIT;
               return (
                 <button
                   key={method.id}
@@ -123,7 +166,9 @@ export const BuyWithFiat = () => {
                 >
                   <Icon className={cn("w-5 h-5", paymentMethod === method.id ? "text-primary" : "text-muted-foreground")} />
                   <span className="flex-1 text-sm font-medium">{method.label}</span>
-                  <span className="text-xs text-muted-foreground">{method.fee} fee</span>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {formatLimit(range.min)} – {formatLimit(range.max)} {currency}
+                  </span>
                   {paymentMethod === method.id && <Check className="w-4 h-4 text-primary" />}
                 </button>
               );
@@ -132,29 +177,45 @@ export const BuyWithFiat = () => {
         </div>
 
         {/* Fee breakdown */}
-        {parsedAmount > 0 && (
-          <div className="p-3 rounded-lg bg-muted/30 space-y-2 text-xs">
+        <div className="p-3 rounded-lg bg-muted/30 space-y-2 text-xs">
+          {parsedAmount <= 0 ? (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Processing fee</span>
-              <span className="font-mono">{selectedCurrency.flag} {fee.toFixed(2)} {currency}</span>
+              <span className="text-muted-foreground">Fees</span>
+              <span className="text-muted-foreground italic">Enter amount to see fees</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Exchange rate</span>
-              <span className="font-mono">1 USDC = {selectedCurrency.rate.toFixed(2)} {currency}</span>
-            </div>
-          </div>
-        )}
+          ) : (
+            <>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Banxa processing fee</span>
+                <span className="font-mono">{banxaFee.toFixed(2)} {currency}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Network fee (Base)</span>
+                <span className="font-mono">{networkFee.toFixed(2)} {currency}</span>
+              </div>
+              <div className="h-px bg-border/40 my-1" />
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total fees</span>
+                <span className="font-mono font-medium">{totalFee.toFixed(2)} {currency}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Exchange rate</span>
+                <span className="font-mono">1 USDC = {selectedCurrency.rate.toFixed(2)} {currency}</span>
+              </div>
+            </>
+          )}
+        </div>
 
         <Button
           onClick={handleProceed}
-          disabled={parsedAmount < 10}
+          disabled={parsedAmount <= 0 || amountInvalid}
           className={cn("w-full bg-primary hover:bg-primary-hover", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
         >
           Continue to Payment
         </Button>
 
         <p className="text-[10px] text-center text-muted-foreground">
-          Powered by <span className="font-semibold">Banxa</span> • Min. $10
+          Powered by <span className="font-semibold">Banxa</span> • Limits and fees vary by region and payment method
         </p>
       </div>
     );
@@ -177,8 +238,8 @@ export const BuyWithFiat = () => {
             <span className="font-mono font-medium">{selectedCurrency.flag} {parsedAmount.toFixed(2)} {currency}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Fee</span>
-            <span className="font-mono">{fee.toFixed(2)} {currency}</span>
+            <span className="text-muted-foreground">Total fees</span>
+            <span className="font-mono">{totalFee.toFixed(2)} {currency}</span>
           </div>
           <hr className="border-border/30" />
           <div className="flex justify-between text-sm">
