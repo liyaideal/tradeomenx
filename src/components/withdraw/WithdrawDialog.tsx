@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { X, HelpCircle } from 'lucide-react';
 import {
   Dialog,
@@ -6,9 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletWithdraw } from './WalletWithdraw';
-import { SellToFiat } from './SellToFiat';
 
 interface WithdrawDialogProps {
   open: boolean;
@@ -16,12 +13,7 @@ interface WithdrawDialogProps {
 }
 
 export const WithdrawDialog = ({ open, onOpenChange }: WithdrawDialogProps) => {
-  const [activeTab, setActiveTab] = useState('wallet');
-
-  const handleClose = () => {
-    setActiveTab('wallet');
-    onOpenChange(false);
-  };
+  const handleClose = () => onOpenChange(false);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -46,23 +38,9 @@ export const WithdrawDialog = ({ open, onOpenChange }: WithdrawDialogProps) => {
           </div>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
-          <div className="px-4 pt-3 flex-shrink-0">
-            <TabsList className="w-full grid grid-cols-2 h-9">
-              <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
-              <TabsTrigger value="fiat" className="text-xs">Fiat</TabsTrigger>
-            </TabsList>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto">
-            <TabsContent value="wallet" className="mt-0">
-              <WalletWithdraw onDone={handleClose} />
-            </TabsContent>
-            <TabsContent value="fiat" className="mt-0">
-              <SellToFiat />
-            </TabsContent>
-          </div>
-        </Tabs>
+        <div className="flex-1 overflow-y-auto">
+          <WalletWithdraw onDone={handleClose} />
+        </div>
       </DialogContent>
     </Dialog>
   );

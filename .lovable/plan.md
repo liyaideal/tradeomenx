@@ -1,16 +1,18 @@
-## 调整 BuyWithFiat 的两处展示
+## 移除 Withdraw 的 Fiat 通道
 
-### 1. Payment method 卡片简化
-- 去掉每张卡片右侧的 `20 - 5,000 USD` 范围文案。
-- 选中态保留紫色边框 + 右侧 `Check` 图标；未选中卡片只保留图标 + 名称。
-- 限额信息已在 `You pay` 标签右侧（`Min 20 / Max 5,000 USD`）和超限红字里完整表达，无需在方法卡上重复。
+Banxa 支持国家有限，Withdraw 仅保留 Address（链上）通道。
 
-### 2. 底部说明加 Banxa 规则链接
-- 当前底部文案：`Powered by Banxa • Limits and fees vary by region and payment method`
-- 改为：`Powered by Banxa • Limits and fees vary by region and payment method.` 后追加 `View Banxa limits` 链接
-- 链接：`https://support.banxa.com/en/support/solutions/articles/44002625875-transaction-limits-for-individuals`
-- 样式：`text-muted-foreground` 默认，hover 转 `text-foreground`，`underline-offset-2 hover:underline`，`target="_blank" rel="noopener noreferrer"`。
+### 改动
+1. **`src/components/withdraw/WithdrawDialog.tsx`**
+   - 删除 Fiat Tab 与 `SellToFiat` 引入，去掉 Tabs 容器，直接渲染 `<WalletWithdraw onDone={handleClose} />`。
+   - 移除 `activeTab` state 与相关 reset 逻辑。
+2. **`src/pages/Withdraw.tsx`**
+   - 同上：移除 Tabs / Fiat Tab / `SellToFiat`，main 内直接渲染 `<WalletWithdraw />`。
+   - 移除 `activeTab` state。
+3. **`src/components/withdraw/SellToFiat.tsx`** — 删除文件（不再被引用）。
+4. **`src/components/withdraw/index.ts`** — 移除 `SellToFiat` 导出。
 
-### 不变
-- `You pay` 上方的 Min/Max 提示、超限红字校验、动态手续费拆解、currency/method 切换逻辑全部保留。
-- 只改 `src/components/deposit/BuyWithFiat.tsx`，不动 hooks / edge functions / Supabase。
+### 不动
+- Deposit 的 Fiat（`BuyWithFiat`）保持不变 —— 入金渠道仍可用 Banxa。
+- TransactionHistory 中 `fiat_sell` 标签保留，历史记录仍可显示。
+- `WalletWithdraw` 内部逻辑、地址簿、手续费展示全部保留。

@@ -1,17 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, X, HelpCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { BottomNav } from '@/components/BottomNav';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletWithdraw } from '@/components/withdraw/WalletWithdraw';
-import { SellToFiat } from '@/components/withdraw/SellToFiat';
 
 export default function Withdraw() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState('wallet');
-  
+
   useEffect(() => {
     if (isMobile !== undefined && isMobile === false) {
       navigate('/wallet', { replace: true });
@@ -42,23 +39,9 @@ export default function Withdraw() {
         </div>
       </header>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">
-        <div className="px-4 pt-3 bg-background">
-          <TabsList className="w-full grid grid-cols-2 h-10">
-            <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
-            <TabsTrigger value="fiat" className="text-xs">Fiat</TabsTrigger>
-          </TabsList>
-        </div>
-        
-        <main className="flex-1 overflow-auto pb-24">
-          <TabsContent value="wallet" className="mt-0">
-            <WalletWithdraw />
-          </TabsContent>
-          <TabsContent value="fiat" className="mt-0">
-            <SellToFiat />
-          </TabsContent>
-        </main>
-      </Tabs>
+      <main className="flex-1 overflow-auto pb-24">
+        <WalletWithdraw />
+      </main>
 
       <BottomNav />
     </div>
