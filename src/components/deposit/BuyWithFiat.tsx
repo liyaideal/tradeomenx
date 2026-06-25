@@ -152,7 +152,6 @@ export const BuyWithFiat = () => {
           <div className="space-y-2">
             {PAYMENT_METHODS.map(method => {
               const Icon = method.icon;
-              const range = LIMITS[currency]?.[method.id] ?? DEFAULT_LIMIT;
               return (
                 <button
                   key={method.id}
@@ -166,13 +165,11 @@ export const BuyWithFiat = () => {
                 >
                   <Icon className={cn("w-5 h-5", paymentMethod === method.id ? "text-primary" : "text-muted-foreground")} />
                   <span className="flex-1 text-sm font-medium">{method.label}</span>
-                  <span className="text-xs text-muted-foreground font-mono">
-                    {formatLimit(range.min)} – {formatLimit(range.max)} {currency}
-                  </span>
                   {paymentMethod === method.id && <Check className="w-4 h-4 text-primary" />}
                 </button>
               );
             })}
+
           </div>
         </div>
 
