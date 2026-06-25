@@ -212,8 +212,17 @@ export const BuyWithFiat = () => {
         </Button>
 
         <p className="text-[10px] text-center text-muted-foreground">
-          Powered by <span className="font-semibold">Banxa</span> • Limits and fees vary by region and payment method
+          Powered by <span className="font-semibold">Banxa</span> • Limits and fees vary by region and payment method.{' '}
+          <a
+            href="https://support.banxa.com/en/support/solutions/articles/44002625875-transaction-limits-for-individuals"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+          >
+            View Banxa limits
+          </a>
         </p>
+
       </div>
     );
   }
