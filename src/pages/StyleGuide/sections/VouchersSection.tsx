@@ -301,6 +301,24 @@ const TIER_PRESETS: Record<
   lifetimeAtCap:  { volume: 2_500,    pending: 4,     lifetimeCredited: 10, depositTotal: 25 },
 };
 
+const EarningsButtonRow = ({
+  variant,
+  label,
+  amount,
+}: {
+  variant: "primary" | "muted";
+  label: string;
+  amount?: string;
+}) => (
+  <div className="flex items-center gap-3">
+    <div className="w-48 text-[11px] text-muted-foreground">{label}</div>
+    <Button size="sm" disabled={variant === "muted"} className="min-w-[220px]">
+      {variant === "primary" ? <Wallet className="w-4 h-4 mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
+      {amount ?? label}
+    </Button>
+  </div>
+);
+
 const EarningsDemo = () => {
   const [state, setState] = useState<TierState>("t2Volume");
   const data = TIER_PRESETS[state];
