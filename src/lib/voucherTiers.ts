@@ -4,54 +4,88 @@
 //   - claim-voucher-earnings edge function (server-side copy must stay in sync)
 //   - StyleGuide / Vouchers playground
 
+export type VoucherTierUnlock =
+  | { kind: "none" }
+  | { kind: "deposit"; amount: number }
+  | { kind: "volume"; amount: number };
+
 export interface VoucherTier {
-  id: 1 | 2 | 3 | 4;
+  id: 0 | 1 | 2 | 3 | 4;
   label: string;
-  /** Cumulative filled-trade volume (USDC) required to unlock this tier. */
-  volume: number;
-  /** Max cumulative USDC that may have been claimed-to-wallet at this tier. `null` = unlimited. */
-  maxClaim: number | null;
+  /** Cumulative claimable cap (USDC) once this tier is unlocked. */
+  maxClaim: number;
+  /** Condition required to unlock this tier. */
+  unlock: VoucherTierUnlock;
+  /** Short label for the unlock condition, used in tier rail. */
+  unlockShort: string;
 }
 
 export const VOUCHER_TIERS: VoucherTier[] = [
-  { id: 1, label: "T1", volume: 5_000, maxClaim: 25 },
-  { id: 2, label: "T2", volume: 15_000, maxClaim: 100 },
-  { id: 3, label: "T3", volume: 50_000, maxClaim: 500 },
-  { id: 4, label: "T4", volume: 150_000, maxClaim: null },
+  { id: 0, label: "T0", maxClaim: 2,  unlock: { kind: "none" },                  unlockShort: "No req." },
+  { id: 1, label: "T1", maxClaim: 5,  unlock: { kind: "deposit", amount: 10 },   unlockShort: "$10 deposit" },
+  { id: 2, label: "T2", maxClaim: 10, unlock: { kind: "volume",  amount: 1_000 },   unlockShort: "$1K vol" },
+  { id: 3, label: "T3", maxClaim: 20, unlock: { kind: "volume",  amount: 10_000 },  unlockShort: "$10K vol" },
+  { id: 4, label: "T4", maxClaim: 50, unlock: { kind: "volume",  amount: 50_000 },  unlockShort: "$50K vol" },
 ];
 
 export interface VoucherTierState {
-  current: VoucherTier | null; // null = below T1
-  next: VoucherTier | null;    // null = at T4
-  volumeToNext: number;        // 0 once at T4
-  unlockedCap: number;         // Infinity at T4
-  claimable: number;           // amount user can claim right now
-  lifetimeAtCap: boolean;      // already claimed up to the cap of current tier
+  current: VoucherTier | null; // null only if tier list is empty
+  next: VoucherTier | null;    // null = at top tier
+  unlockedCap: number;
+  claimable: number;
+  lifetimeAtCap: boolean;
+  /** Progress info toward `next` tier (null if at top). */
+  nextProgress: {
+    kind: VoucherTierUnlock["kind"];
+    remaining: number; // amount still needed
+  } | null;
 }
+
+const meetsUnlock = (
+  unlock: VoucherTierUnlock,
+  depositTotal: number,
+  volume: number,
+): boolean => {
+  switch (unlock.kind) {
+    case "none":    return true;
+    case "deposit": return depositTotal >= unlock.amount;
+    case "volume":  return volume >= unlock.amount;
+  }
+};
 
 export function deriveVoucherTierState(
   volume: number,
   pending: number,
   lifetimeCredited: number,
+  depositTotal: number = 0,
 ): VoucherTierState {
   let current: VoucherTier | null = null;
-  let next: VoucherTier | null = VOUCHER_TIERS[0];
+  let next: VoucherTier | null = null;
   for (const t of VOUCHER_TIERS) {
-    if (volume >= t.volume) {
+    if (meetsUnlock(t.unlock, depositTotal, volume)) {
       current = t;
-      const idx = VOUCHER_TIERS.indexOf(t);
-      next = VOUCHER_TIERS[idx + 1] ?? null;
+    } else if (!next) {
+      next = t;
     }
   }
-  const unlockedCap = current?.maxClaim == null
-    ? (current ? Number.POSITIVE_INFINITY : 0)
-    : current.maxClaim;
+  const unlockedCap = current?.maxClaim ?? 0;
   const headroom = Math.max(0, unlockedCap - lifetimeCredited);
   const claimable = Math.max(0, Math.min(pending, headroom));
-  const volumeToNext = next ? Math.max(0, next.volume - volume) : 0;
-  const lifetimeAtCap = !!current && Number.isFinite(unlockedCap) && lifetimeCredited >= unlockedCap;
-  return { current, next, volumeToNext, unlockedCap, claimable, lifetimeAtCap };
+  const lifetimeAtCap = !!current && lifetimeCredited >= unlockedCap;
+
+  let nextProgress: VoucherTierState["nextProgress"] = null;
+  if (next) {
+    const u = next.unlock;
+    if (u.kind === "deposit") {
+      nextProgress = { kind: "deposit", remaining: Math.max(0, u.amount - depositTotal) };
+    } else if (u.kind === "volume") {
+      nextProgress = { kind: "volume", remaining: Math.max(0, u.amount - volume) };
+    } else {
+      nextProgress = { kind: "none", remaining: 0 };
+    }
+  }
+
+  return { current, next, unlockedCap, claimable, lifetimeAtCap, nextProgress };
 }
 
-export const formatTierCap = (t: VoucherTier) =>
-  t.maxClaim == null ? "Unlimited" : `$${t.maxClaim.toLocaleString()}`;
+export const formatTierCap = (t: VoucherTier) => `$${t.maxClaim.toLocaleString()}`;
