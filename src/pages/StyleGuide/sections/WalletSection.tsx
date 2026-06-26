@@ -17,7 +17,19 @@ import {
 } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
+import {
+  MaintenanceNoticeBannerView,
+  MAINTENANCE_NOTICE_DEMO_SETS,
+} from "@/components/wallet/MaintenanceNoticeBanner";
 import { cn } from "@/lib/utils";
+
+type MaintenancePreset = "single" | "multiple" | "withNote" | "empty";
+const MAINTENANCE_PRESETS: { id: MaintenancePreset; label: string }[] = [
+  { id: "single", label: "Single network" },
+  { id: "multiple", label: "Multiple networks" },
+  { id: "withNote", label: "With note" },
+  { id: "empty", label: "Empty (hidden)" },
+];
 
 interface WalletSectionProps {
   isMobile: boolean;
@@ -94,6 +106,8 @@ const H2E_FULL_VOLUME_UNLOCK = H2E_UNLOCK_TIERS[H2E_UNLOCK_TIERS.length - 1].vol
 export const WalletSection = ({ isMobile }: WalletSectionProps) => {
   const [demoConfirmations, setDemoConfirmations] = useState(8);
   const [mockVolume, setMockVolume] = useState(12500);
+  const [maintenancePreset, setMaintenancePreset] = useState<MaintenancePreset>("single");
+  const maintenanceNotices = MAINTENANCE_NOTICE_DEMO_SETS[maintenancePreset];
   const currentTier = [...H2E_UNLOCK_TIERS].reverse().find((tier) => mockVolume >= tier.volume);
   const nextTier = H2E_UNLOCK_TIERS.find((tier) => mockVolume < tier.volume) ?? null;
   const unlockedPercent = currentTier?.percent ?? 0;
