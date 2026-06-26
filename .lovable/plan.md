@@ -1,53 +1,55 @@
-# Cobo 维护提示 v2
+## 目标
+1. 把 AuthDialog/AuthSheet 弹窗里的 "Demo accounts" 区块（Matched user A / Welcome gift user B）从生产 UI 中移除。
+2. 把它挪到 `/style-guide` 的 UserIdentitySection，作为 QA/demo 状态预览。
+3. 新增一条永久 memory 规则：**禁止在产品页面新增 demo 入口**，多状态演示一律放 style-guide。
 
-## 回应澄清
-1. **恢复通知**：不做。恢复后维护期间链上交易会正常入账，无需在 UI 上单独告知用户"已恢复"。Ops 只需把对应 notice 从配置里删除/标过期即可，横幅自然消失。
-2. **Style Guide 主导**：`MAINTENANCE_NOTICES` 常量默认**空数组**，`/wallet` 顶部平时不显示任何横幅。研发改样式时去 `/style-guide` 看 demo，不是去 `/wallet` 凭一条示例数据调样式。
+## 改动
 
-## 新增文件
+### 1. `src/components/auth/AuthContent.tsx`
+- 删除第 447–473 行的 Demo accounts 区块（dashed border + 两个按钮）。
+- 删除 `handleDemoAccountLogin` 函数（178–199 行）以及只为它服务的 import（如 `supabase` 若没其他用途则保留，因为 AuthContent 其他地方还会用）。
+- AuthDialog / AuthSheet 文件本身不动。
 
-### 1. `src/config/maintenanceNotices.ts`
-```ts
-export interface MaintenanceNotice {
-  id: string;          // e.g. 'base-eth-2026-06-26'
-  network: string;     // 展示用，例如 'BASE_ETH'
-  startAt: string;     // ISO，例 '2026-06-25T17:00:00Z' (= UTC+8 01:00)
-  endAt?: string;      // 可选；缺省视为持续中，由 ops 手动移除
-  note?: string;       // 可选补充说明
-}
-// 默认为空。ops 按 Cobo 通知临时追加一条；恢复后删除该条即可。
-export const MAINTENANCE_NOTICES: MaintenanceNotice[] = [];
+### 2. 新建 `src/components/auth/DemoAccountsBlock.tsx`
+- 抽出独立组件，封装 UI（dashed 容器 + 两列 outline 按钮）+ `ensure-demo-user` edge function 调用 + toast 反馈 + loading 状态。
+- 视觉与原弹窗内一致。
+- 不在 AuthContent 内引用 —— 仅供 style-guide 使用。
+
+### 3. `src/pages/StyleGuide/sections/UserIdentitySection.tsx`
+- 新增 `SubSection` "Demo accounts (QA only)"：
+  - 描述：用于预览不同用户首次登录后看到的空投弹窗状态（matched 用户 vs welcome gift 用户）。
+  - 渲染 `<DemoAccountsBlock />`。
+  - 注明：生产 Auth 弹窗已下线该入口，研发如需复用直接引用此组件。
+
+### 4. Memory 更新
+
+**4a. 新增** `mem://workflow/no-demo-entries-in-product`
+```
+---
+name: 产品页禁止新增 demo 入口
+description: 多状态/多用户类型演示一律放 /style-guide，禁止在产品页面塞 demo 按钮或入口
+type: constraint
+---
+任何功能只要有"按不同用户/不同状态展示不同 UI"的演示需求，必须放进 /style-guide
+对应 section，**严禁**在产品页面（首页、弹窗、Header、Settings 等）新增 demo 账号
+切换、状态切换按钮、scenario chips 等入口。
+
+Why: 生产 UI 中混入 demo 入口会污染真实用户体验、被截图传播、产生信任问题。
+
+How to apply:
+- 看到"展示一下不同状态"类需求 → 默认在 /style-guide 加 SubSection
+- 已有的 demo 入口若混在产品页，下次涉及该模块时一并迁出
+- 与已有 new-feature-playground-mandate 配套使用
 ```
 
-### 2. `src/hooks/useMaintenanceNotices.ts`
-读取常量，按 `Date.now()` 过滤 active。返回 `{ active: MaintenanceNotice[] }`。注释 `// TODO: swap to remote source` 预留接口。
+**4b. 更新** `mem://index.md` Core 段，追加一行：
+```
+- **Demo 入口隔离:** 多状态/多角色的演示一律放 /style-guide，禁止在产品页面新增 demo 切换入口。详见 no-demo-entries-in-product。
+```
 
-### 3. `src/components/wallet/MaintenanceNoticeBanner.tsx`
-- shadcn `Alert`，warning 风格（`border-warning/40 bg-warning/10 text-warning-foreground`；若 token 不存在则用 amber/destructive 语义 token，绝不写死颜色）。
-- `AlertTriangle` 图标 + 标题 `Network maintenance` + 描述：
-  > `{network} deposits & withdrawals are temporarily suspended by our custody provider. Funds sent during this window may be delayed.`
-- 可选 `note` 作为第二行 `text-xs text-muted-foreground`。
-- 多条纵向堆叠 `space-y-2`。
-- 无 active 通知返回 `null`。
-- 额外导出 `MaintenanceNoticeBannerDemo`：内部 mock 一条 `BASE_ETH` notice 渲染同一个视觉组件，**仅供 style-guide 使用**，不读常量。
+**4c. 更新** `mem://features/demo-accounts-fixed-identities`：注明入口已从 Auth 弹窗下线，仅保留在 `/style-guide` UserIdentity section。
 
-## 接入点
-
-### `src/pages/Wallet.tsx`
-顶部（页面标题下、内容前）渲染 `<MaintenanceNoticeBanner />`。默认空数组 → 不显示。
-
-### `/style-guide` — Wallet section
-在 `src/pages/StyleGuide/sections/WalletSection.tsx` 新增子节 **Maintenance Notice**：
-- 用 PresetRail 切换状态：`Single network` / `Multiple networks` / `With note` / `Empty (hidden)`。
-- 每种状态调用 `MaintenanceNoticeBannerDemo` 传入对应 mock 数组，确保穷尽所有视觉态（符合 playground-state-coverage 与 new-feature-playground-mandate 规则）。
-- Empty 态显式渲染一行 `text-xs text-muted-foreground` 占位说明"No active notices → banner hidden"，避免空白看起来像 bug。
-
-## 不动的地方
-- Deposit / Withdraw 页面、按钮、tabs、cobo 调用逻辑全部不动。
-- 不区分 deposit-only / withdraw-only，文案统一 "deposits & withdrawals temporarily suspended"。
-- 不做"已恢复"提示，不引入新数据库表。
-
-## 验收
-- 默认进入 `/wallet`：无横幅。
-- 在 `MAINTENANCE_NOTICES` 临时塞一条进行中通知 → `/wallet` 顶部出现警示横幅；删除该条 → 横幅消失。
-- `/style-guide` Wallet section 下能看到 Single / Multiple / With note / Empty 四种状态切换。
+## 不改动
+- `supabase/functions/ensure-demo-user` 不动。
+- `useAirdropPositions.ts` 的 `pickMockByEmail` 不动 —— 两个 demo 账户登录行为保持完全一致。
+- AuthDialog / AuthSheet 容器不动。
