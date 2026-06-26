@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { RefreshCw, Copy, Check, User, Palette } from "lucide-react";
+import { RefreshCw, Copy, Check, User, Palette, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import sillyname from "sillyname";
 import { SectionWrapper, SubSection } from "../components";
+import { DemoAccountsBlock } from "@/components/auth/DemoAccountsBlock";
 import { 
   AVATAR_SEEDS, 
   AVATAR_BACKGROUNDS, 
@@ -292,6 +293,33 @@ const randomAvatar = getRandomAvatarUrl();`}</code>
                 ))}
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </SubSection>
+
+      {/* Demo accounts (QA only) */}
+      <SubSection
+        title="Demo accounts (QA only)"
+        description="预览不同用户首次登录后看到的空投弹窗状态。生产 Auth 弹窗已下线该入口，研发如需复用直接引用 DemoAccountsBlock。"
+      >
+        <Card className="border-border/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              <CardTitle className="text-base">Fixed identities</CardTitle>
+            </div>
+            <CardDescription className="text-sm">
+              Matched user (A) → 4 matched cards · Welcome gift user (B) → 1 welcome_gift card。
+              通过 <code className="text-xs bg-muted px-1.5 py-0.5 rounded">ensure-demo-user</code> edge function 幂等创建账户后登录。
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="max-w-md">
+              <DemoAccountsBlock />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              组件路径：<code className="text-xs bg-muted px-1.5 py-0.5 rounded">@/components/auth/DemoAccountsBlock</code>
+            </p>
           </CardContent>
         </Card>
       </SubSection>
