@@ -7,16 +7,26 @@ const corsHeaders = {
 }
 
 // Keep in sync with src/lib/voucherTiers.ts
-interface Tier { id: 1 | 2 | 3 | 4; volume: number; maxClaim: number | null }
+type Unlock =
+  | { kind: 'none' }
+  | { kind: 'deposit'; amount: number }
+  | { kind: 'volume'; amount: number }
+interface Tier { id: 0 | 1 | 2 | 3 | 4; maxClaim: number; unlock: Unlock }
 const TIERS: Tier[] = [
-  { id: 1, volume: 5_000, maxClaim: 25 },
-  { id: 2, volume: 15_000, maxClaim: 100 },
-  { id: 3, volume: 50_000, maxClaim: 500 },
-  { id: 4, volume: 150_000, maxClaim: null },
+  { id: 0, maxClaim: 2,  unlock: { kind: 'none' } },
+  { id: 1, maxClaim: 5,  unlock: { kind: 'deposit', amount: 10 } },
+  { id: 2, maxClaim: 10, unlock: { kind: 'volume',  amount: 1_000 } },
+  { id: 3, maxClaim: 20, unlock: { kind: 'volume',  amount: 10_000 } },
+  { id: 4, maxClaim: 50, unlock: { kind: 'volume',  amount: 50_000 } },
 ]
-function tierFor(volume: number): Tier | null {
+function meets(u: Unlock, deposit: number, volume: number): boolean {
+  if (u.kind === 'none') return true
+  if (u.kind === 'deposit') return deposit >= u.amount
+  return volume >= u.amount
+}
+function tierFor(deposit: number, volume: number): Tier | null {
   let current: Tier | null = null
-  for (const t of TIERS) if (volume >= t.volume) current = t
+  for (const t of TIERS) if (meets(t.unlock, deposit, volume)) current = t
   return current
 }
 
@@ -58,27 +68,28 @@ Deno.serve(async (req) => {
       return json({ error: 'No voucher earnings to claim', pending: 0 }, 400)
     }
 
-    const { data: trades, error: tErr } = await admin
-      .from('trades')
-      .select('amount')
-      .eq('user_id', user.id)
-      .eq('status', 'Filled')
+    const [{ data: trades, error: tErr }, { data: deposits, error: dErr }] = await Promise.all([
+      admin.from('trades').select('amount').eq('user_id', user.id).eq('status', 'Filled'),
+      admin.from('transactions').select('amount').eq('user_id', user.id).eq('type', 'deposit').eq('status', 'completed'),
+    ])
     if (tErr) return json({ error: tErr.message }, 500)
+    if (dErr) return json({ error: dErr.message }, 500)
 
     const volume = (trades ?? []).reduce(
       (sum, row) => sum + Number((row as { amount: number | string }).amount ?? 0),
       0,
     )
+    const depositTotal = (deposits ?? []).reduce(
+      (sum, row) => sum + Number((row as { amount: number | string }).amount ?? 0),
+      0,
+    )
 
-    const tier = tierFor(volume)
+    const tier = tierFor(depositTotal, volume)
     if (!tier) {
-      return json(
-        { error: 'Trading volume below tier 1', pending, volume, requiredForT1: TIERS[0].volume },
-        403,
-      )
+      return json({ error: 'No tier unlocked', pending, volume, depositTotal }, 403)
     }
 
-    const cap = tier.maxClaim == null ? Number.POSITIVE_INFINITY : tier.maxClaim
+    const cap = tier.maxClaim
     const headroom = Math.max(0, cap - lifetimeCredited)
     const claimAmount = Math.min(pending, headroom)
     if (claimAmount <= 0) {
@@ -87,6 +98,7 @@ Deno.serve(async (req) => {
           error: 'Current tier cap already claimed — reach the next tier to claim more',
           pending,
           volume,
+          depositTotal,
           tier: tier.id,
           tierCap: tier.maxClaim,
           lifetimeCredited,
@@ -131,6 +143,7 @@ Deno.serve(async (req) => {
       claimed: claimAmount,
       newBalance,
       volume,
+      depositTotal,
       tier: tier.id,
       tierCap: tier.maxClaim,
     })

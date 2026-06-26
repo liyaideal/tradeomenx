@@ -13,6 +13,7 @@ interface Props {
     pending: number;
     lifetimeCredited: number;
     volume: number;
+    depositTotal?: number;
   };
 }
 
@@ -21,17 +22,30 @@ export const VoucherEarningsCard = ({ data }: Props = {}) => {
   const pending = data?.pending ?? live.pending;
   const lifetimeCredited = data?.lifetimeCredited ?? live.lifetimeCredited;
   const volume = data?.volume ?? live.volume;
+  const depositTotal = data?.depositTotal ?? live.depositTotal;
   const loading = data ? false : live.loading;
   const claiming = live.claiming;
 
   // Re-derive tier state from whichever data source is in use, so the playground
   // can drive every visual state.
   const tierState = data
-    ? deriveVoucherTierState(volume, pending, lifetimeCredited)
+    ? deriveVoucherTierState(volume, pending, lifetimeCredited, depositTotal)
     : live.tierState;
   const canClaim = data ? tierState.claimable > 0 : live.canClaim;
 
-  const { current, next, volumeToNext, claimable, lifetimeAtCap } = tierState;
+  const { current, next, claimable, lifetimeAtCap, nextProgress } = tierState;
+
+  const nextHelper = (() => {
+    if (!next || !nextProgress) return null;
+    const capText = formatTierCap(next);
+    if (nextProgress.kind === "deposit") {
+      return `Deposit $${fmt(nextProgress.remaining)} more to reach ${next.label} (up to ${capText} claimable).`;
+    }
+    if (nextProgress.kind === "volume") {
+      return `Trade $${fmt(nextProgress.remaining)} more to reach ${next.label} (up to ${capText} claimable).`;
+    }
+    return null;
+  })();
 
   return (
     <section className="rounded-xl border border-border bg-gradient-to-br from-trading-green/5 via-card/40 to-card/40 p-4 md:p-5">
@@ -49,7 +63,7 @@ export const VoucherEarningsCard = ({ data }: Props = {}) => {
             <span className="text-xs text-muted-foreground">USDC</span>
           </div>
           <div className="mt-3 text-[11px] md:text-xs text-muted-foreground max-w-md">
-            Profits from voucher positions accrue here. Hit higher trading-volume tiers to unlock more claimable to your available balance.
+            Profits from voucher positions accrue here. Deposit and trade more to unlock higher claim caps to your available balance.
           </div>
           {lifetimeCredited > 0 && (
             <div className="mt-auto pt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -64,11 +78,12 @@ export const VoucherEarningsCard = ({ data }: Props = {}) => {
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
               <TrendingUp className="w-3.5 h-3.5" />
-              Volume tier
+              Unlock tier
             </div>
-            <div className="font-mono text-xs text-foreground">
-              ${fmt(volume)}{" "}
-              <span className="text-muted-foreground">filled volume</span>
+            <div className="font-mono text-[11px] text-foreground flex items-center gap-2">
+              <span>${fmt(depositTotal)} <span className="text-muted-foreground">dep.</span></span>
+              <span className="text-border">·</span>
+              <span>${fmt(volume)} <span className="text-muted-foreground">vol.</span></span>
             </div>
           </div>
 
@@ -90,17 +105,14 @@ export const VoucherEarningsCard = ({ data }: Props = {}) => {
 
           {/* Helper line */}
           <div className="text-[11px] text-muted-foreground min-h-[16px]">
-            {!current && (
-              <>Trade ${fmt(VOUCHER_TIERS[0].volume - volume)} more to reach T1 (up to ${VOUCHER_TIERS[0].maxClaim} claimable).</>
-            )}
-            {current && next && (
+            {current && next && nextHelper && (
               <>
                 Tier <span className="text-foreground">{current.label}</span> unlocked — up to{" "}
-                <span className="text-foreground">{formatTierCap(current)}</span>. Trade ${fmt(volumeToNext)} more to reach {next.label} ({formatTierCap(next)}).
+                <span className="text-foreground">{formatTierCap(current)}</span>. {nextHelper}
               </>
             )}
             {current && !next && (
-              <>Tier <span className="text-foreground">{current.label}</span> unlocked — unlimited claims.</>
+              <>Tier <span className="text-foreground">{current.label}</span> unlocked — up to {formatTierCap(current)} claimable (max tier).</>
             )}
           </div>
 
@@ -119,7 +131,7 @@ export const VoucherEarningsCard = ({ data }: Props = {}) => {
                   ? "Tier cap claimed — reach next tier"
                   : pending <= 0
                     ? "Nothing to claim"
-                    : "Trade more to unlock"}
+                    : "Unlock next tier to claim more"}
           </Button>
         </div>
       </div>
@@ -138,7 +150,7 @@ const TierSegment = ({
 }) => (
   <div
     className={cn(
-      "flex-1 rounded-md border px-2 py-1.5 flex flex-col items-center gap-0.5 transition-colors",
+      "flex-1 rounded-md border px-1.5 py-1.5 flex flex-col items-center gap-0.5 transition-colors min-w-0",
       reached
         ? isCurrent
           ? "border-primary/60 bg-primary/15"
@@ -156,11 +168,14 @@ const TierSegment = ({
     </span>
     <span
       className={cn(
-        "font-mono text-[11px]",
+        "font-mono text-[11px] leading-tight",
         reached ? "text-foreground" : "text-muted-foreground",
       )}
     >
       {formatTierCap(tier)}
+    </span>
+    <span className="text-[9px] text-muted-foreground leading-tight text-center truncate w-full">
+      {tier.unlockShort}
     </span>
   </div>
 );
