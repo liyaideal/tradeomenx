@@ -115,6 +115,52 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
 
   return (
     <div className="space-y-12">
+      {/* Maintenance Notice */}
+      <SectionWrapper
+        id="maintenance-notice"
+        title="Maintenance Notice"
+        platform="shared"
+        description="Custody provider (Cobo) maintenance banner shown at the top of /wallet. Switch presets to preview every state."
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">States</CardTitle>
+            <CardDescription>
+              Notices read from <code className="font-mono text-[11px]">src/config/maintenanceNotices.ts</code>. Empty array hides the banner entirely.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {MAINTENANCE_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => setMaintenancePreset(preset.id)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs transition-colors",
+                    maintenancePreset === preset.id
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-muted/20 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="rounded-lg border border-border/50 bg-background p-4">
+              {maintenanceNotices.length > 0 ? (
+                <MaintenanceNoticeBannerView notices={maintenanceNotices} />
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  No active notices → banner hidden. /wallet renders nothing in this slot.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
       {/* H2E Unlock Playground */}
       <SectionWrapper
         id="h2e-unlock-playground"
