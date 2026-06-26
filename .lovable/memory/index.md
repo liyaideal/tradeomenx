@@ -15,6 +15,7 @@
 - **Campaign Landing:** Use `CAMPAIGN_DESIGN.md` + `/campaign-style-guide`; keep separate from product DESIGN.md.
 - **Home Feed:** Priority-sorted stream. 3 tiers (personal/opportunity/browse), max 1 tier-1 visible, 2nd+ same-kind → compact. Logic in `useHomeFeed`.
 - **Delivery Docs:** 所有交付说明同时写到 `docs/changelog/YYYY-MM-DD-{slug}.md`，不能只放 `/mnt/documents/`。每次发布交付文档**必须在同一轮**完成三件事：(1) 写入 `docs/changelog/*.md`；(2) 在 `docs/changelog/INDEX.md` 表格**顶部**插入一行（日期 + 标题链接 + 一句话摘要 ≤80 字，摘要直接引用文档顶部 quote block 的关键信息）；(3) 在 `docs/changelog/STATUS.md` **顶部**追加一节，所有需求条目初始状态 ⬜。修订旧文档（vN）时 INDEX 旧行的备注列标注"已被 vN 取代"。研发以 `docs/` 为唯一需求来源。
+- **Demo 入口隔离:** 多状态/多角色的演示一律放 `/style-guide`，禁止在产品页面新增 demo 切换入口。详见 no-demo-entries-in-product。
 
 ## Memories
 - [Voucher daily pool](mem://features/voucher-daily-pool) — Daily UTC-reset quota for voucher granting; powers the scarcity bar on granted cards
@@ -127,3 +128,4 @@
 - [Sports launcher](mem://features/sports-launcher) — Floating bottom-left pill linking to OmenX Sports during World Cup window; header untouched
 - [Retro Poster campaign style](mem://design/retro-poster-campaign-style) — /hedge 世界杯主题专用色板/字体/硬边硬阴影/三大 primitive，禁止外溢到产品其他页
 - [H2E landing architecture (Retro Poster)](mem://marketing/hedge-landing-architecture) — /hedge 新版 7 段结构 + 删除清单 + 文案契约（取代旧的 9 段版本）
+- [No demo entries in product](mem://workflow/no-demo-entries-in-product) — 多状态/多角色 demo 一律放 /style-guide，产品页禁止 demo 入口
