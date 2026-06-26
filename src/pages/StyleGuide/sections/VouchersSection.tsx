@@ -280,52 +280,29 @@ const VoucherCardDemo = () => {
 /* ---------------- 4. Earnings card (tier ladder) ---------------- */
 
 type TierState =
-  | "belowT1"
-  | "t1"
-  | "t2Partial"
-  | "t3CapHit"
-  | "t4Unlimited"
+  | "t0Default"
+  | "t1Deposit"
+  | "t2Volume"
+  | "t3Volume"
+  | "t4Max"
   | "nothingToClaim"
   | "lifetimeAtCap";
 
-const TIER_PRESETS: Record<TierState, { volume: number; pending: number; lifetimeCredited: number }> = {
-  belowT1:        { volume: 2_500,   pending: 18.40, lifetimeCredited: 0 },
-  t1:             { volume: 7_500,   pending: 42.00, lifetimeCredited: 0 },
-  t2Partial:      { volume: 22_000,  pending: 65.00, lifetimeCredited: 25 },
-  t3CapHit:       { volume: 60_000,  pending: 800.00, lifetimeCredited: 100 },
-  t4Unlimited:    { volume: 180_000, pending: 1240.55, lifetimeCredited: 500 },
-  nothingToClaim: { volume: 22_000,  pending: 0,    lifetimeCredited: 25 },
-  lifetimeAtCap:  { volume: 22_000,  pending: 40,   lifetimeCredited: 100 },
+const TIER_PRESETS: Record<
+  TierState,
+  { volume: number; pending: number; lifetimeCredited: number; depositTotal: number }
+> = {
+  t0Default:      { volume: 0,        pending: 1.40,  lifetimeCredited: 0,  depositTotal: 0 },
+  t1Deposit:      { volume: 150,      pending: 4.20,  lifetimeCredited: 2,  depositTotal: 25 },
+  t2Volume:       { volume: 2_500,    pending: 8.00,  lifetimeCredited: 5,  depositTotal: 25 },
+  t3Volume:       { volume: 22_000,   pending: 15.00, lifetimeCredited: 10, depositTotal: 25 },
+  t4Max:          { volume: 80_000,   pending: 60.00, lifetimeCredited: 20, depositTotal: 25 },
+  nothingToClaim: { volume: 2_500,    pending: 0,     lifetimeCredited: 5,  depositTotal: 25 },
+  lifetimeAtCap:  { volume: 2_500,    pending: 4,     lifetimeCredited: 10, depositTotal: 25 },
 };
 
-const EarningsButtonRow = ({
-  variant,
-  label,
-  amount,
-}: {
-  variant: "primary" | "muted";
-  label: string;
-  amount?: string;
-}) => (
-  <div className="flex items-center gap-3">
-    <div className="w-48 text-[11px] text-muted-foreground">{label}</div>
-    <Button
-      size="sm"
-      disabled={variant === "muted"}
-      className="min-w-[220px]"
-    >
-      {variant === "primary" ? (
-        <Wallet className="w-4 h-4 mr-2" />
-      ) : (
-        <Lock className="w-4 h-4 mr-2" />
-      )}
-      {amount ?? label}
-    </Button>
-  </div>
-);
-
 const EarningsDemo = () => {
-  const [state, setState] = useState<TierState>("t2Partial");
+  const [state, setState] = useState<TierState>("t2Volume");
   const data = TIER_PRESETS[state];
   return (
     <div className="space-y-3">
@@ -333,13 +310,13 @@ const EarningsDemo = () => {
         value={state}
         onChange={setState}
         options={[
-          { id: "belowT1", label: "Below T1 · locked" },
-          { id: "t1", label: "T1 unlocked · $25 cap" },
-          { id: "t2Partial", label: "T2 · partial headroom" },
-          { id: "t3CapHit", label: "T3 · pending > cap" },
-          { id: "t4Unlimited", label: "T4 · unlimited" },
+          { id: "t0Default", label: "T0 · no req. · $2 cap" },
+          { id: "t1Deposit", label: "T1 · $10 deposit · $5 cap" },
+          { id: "t2Volume", label: "T2 · $1K vol · $10 cap" },
+          { id: "t3Volume", label: "T3 · $10K vol · $20 cap" },
+          { id: "t4Max", label: "T4 · $50K vol · $50 cap (max)" },
           { id: "nothingToClaim", label: "T2 · pending=0 (Nothing to claim)" },
-          { id: "lifetimeAtCap", label: "T2 · lifetime at cap (Tier cap claimed)" },
+          { id: "lifetimeAtCap", label: "T2 · lifetime at cap" },
         ]}
       />
       <Frame>
@@ -348,15 +325,15 @@ const EarningsDemo = () => {
 
       <Frame label="Claim button — full state ladder (for devs)">
         <div className="space-y-2">
-          <EarningsButtonRow variant="primary" label="claimable > 0" amount="Claim $65.00 to wallet" />
+          <EarningsButtonRow variant="primary" label="claimable > 0" amount="Claim $8.00 to wallet" />
           <EarningsButtonRow variant="muted" label="claiming…" amount="Claiming…" />
           <EarningsButtonRow variant="muted" label="pending ≤ 0" amount="Nothing to claim" />
           <EarningsButtonRow variant="muted" label="lifetime at cap, pending > 0" amount="Tier cap claimed — reach next tier" />
-          <EarningsButtonRow variant="muted" label="no tier reached" amount="Trade more to unlock" />
+          <EarningsButtonRow variant="muted" label="no tier unlocked" amount="Unlock next tier to claim more" />
         </div>
         <p className="mt-3 text-[11px] text-muted-foreground italic flex items-center gap-1.5">
           <Loader2 className="w-3 h-3" />
-          Source: src/components/vouchers/VoucherEarningsCard.tsx · lines 107–123.
+          Source: src/components/vouchers/VoucherEarningsCard.tsx · Claim button state ladder.
         </p>
       </Frame>
     </div>
