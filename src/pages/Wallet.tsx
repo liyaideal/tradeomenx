@@ -48,6 +48,7 @@ import {
 import { AddAddressDialog } from "@/components/wallet/AddAddressDialog";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
+import { MaintenanceNoticeBanner } from "@/components/wallet/MaintenanceNoticeBanner";
 import {
   Tooltip,
   TooltipContent,
@@ -636,6 +637,8 @@ export default function Wallet() {
             <p className="text-muted-foreground">Manage your funds and saved addresses</p>
           </div>
 
+          <MaintenanceNoticeBanner className="mb-6" />
+
           <div className="grid grid-cols-12 gap-6">
             {/* Left Column */}
             <div className="col-span-4 space-y-6">
@@ -889,7 +892,7 @@ export default function Wallet() {
 
       <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
       <div className="px-4 py-5 space-y-4">
-        
+        <MaintenanceNoticeBanner />
         <BalanceCard />
         <H2eRewardsCard />
         <PendingConfirmations className="rounded-2xl border border-border/50 bg-card p-4" />

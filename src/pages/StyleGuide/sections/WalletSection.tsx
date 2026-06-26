@@ -17,7 +17,19 @@ import {
 } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
+import {
+  MaintenanceNoticeBannerView,
+  MAINTENANCE_NOTICE_DEMO_SETS,
+} from "@/components/wallet/MaintenanceNoticeBanner";
 import { cn } from "@/lib/utils";
+
+type MaintenancePreset = "single" | "multiple" | "withNote" | "empty";
+const MAINTENANCE_PRESETS: { id: MaintenancePreset; label: string }[] = [
+  { id: "single", label: "Single network" },
+  { id: "multiple", label: "Multiple networks" },
+  { id: "withNote", label: "With note" },
+  { id: "empty", label: "Empty (hidden)" },
+];
 
 interface WalletSectionProps {
   isMobile: boolean;
@@ -94,6 +106,8 @@ const H2E_FULL_VOLUME_UNLOCK = H2E_UNLOCK_TIERS[H2E_UNLOCK_TIERS.length - 1].vol
 export const WalletSection = ({ isMobile }: WalletSectionProps) => {
   const [demoConfirmations, setDemoConfirmations] = useState(8);
   const [mockVolume, setMockVolume] = useState(12500);
+  const [maintenancePreset, setMaintenancePreset] = useState<MaintenancePreset>("single");
+  const maintenanceNotices = MAINTENANCE_NOTICE_DEMO_SETS[maintenancePreset];
   const currentTier = [...H2E_UNLOCK_TIERS].reverse().find((tier) => mockVolume >= tier.volume);
   const nextTier = H2E_UNLOCK_TIERS.find((tier) => mockVolume < tier.volume) ?? null;
   const unlockedPercent = currentTier?.percent ?? 0;
@@ -101,6 +115,52 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
 
   return (
     <div className="space-y-12">
+      {/* Maintenance Notice */}
+      <SectionWrapper
+        id="maintenance-notice"
+        title="Maintenance Notice"
+        platform="shared"
+        description="Custody provider (Cobo) maintenance banner shown at the top of /wallet. Switch presets to preview every state."
+      >
+        <Card className="trading-card">
+          <CardHeader>
+            <CardTitle className="text-lg">States</CardTitle>
+            <CardDescription>
+              Notices read from <code className="font-mono text-[11px]">src/config/maintenanceNotices.ts</code>. Empty array hides the banner entirely.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {MAINTENANCE_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => setMaintenancePreset(preset.id)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs transition-colors",
+                    maintenancePreset === preset.id
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-muted/20 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="rounded-lg border border-border/50 bg-background p-4">
+              {maintenanceNotices.length > 0 ? (
+                <MaintenanceNoticeBannerView notices={maintenanceNotices} />
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  No active notices → banner hidden. /wallet renders nothing in this slot.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </SectionWrapper>
+
       {/* H2E Unlock Playground */}
       <SectionWrapper
         id="h2e-unlock-playground"
