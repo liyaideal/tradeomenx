@@ -19,6 +19,7 @@
 
 ## Memories
 - [Voucher daily pool](mem://features/voucher-daily-pool) — Daily UTC-reset quota for voucher granting; powers the scarcity bar on granted cards
+- [Voucher earnings unlock tiers](mem://features/voucher-earnings-pool) — 5-tier claim-to-wallet ladder (T0 free $2 → T1 $10 deposit $5 → T2/T3/T4 volume $10/$20/$50)
 - [Voucher granted frosted reveal](mem://design/voucher-granted-frosted-reveal) — Granted card layout: scarcity bar on top, frosted-blur code+max-profit with centered Tap to claim pill
 - [Mainnet activation system](mem://features/activation-system) — User activation funnel, state machine, checklist, Wallet hub, MAINNET badge
 - [Chart adaptive timeframes](mem://features/chart-adaptive-timeframes) — Rules for default candlestick timeframe based on time until settlement

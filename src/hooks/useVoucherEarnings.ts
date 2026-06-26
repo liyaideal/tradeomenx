@@ -8,6 +8,7 @@ interface VoucherEarningsState {
   pending: number;
   lifetimeCredited: number;
   volume: number;
+  depositTotal: number;
   loading: boolean;
   claiming: boolean;
 }
@@ -18,18 +19,19 @@ export function useVoucherEarnings() {
     pending: 0,
     lifetimeCredited: 0,
     volume: 0,
+    depositTotal: 0,
     loading: true,
     claiming: false,
   });
 
   const refresh = useCallback(async () => {
     if (!user) {
-      setState((s) => ({ ...s, pending: 0, lifetimeCredited: 0, volume: 0, loading: false }));
+      setState((s) => ({ ...s, pending: 0, lifetimeCredited: 0, volume: 0, depositTotal: 0, loading: false }));
       return;
     }
     setState((s) => ({ ...s, loading: true }));
 
-    const [{ data: pool }, { data: trades }] = await Promise.all([
+    const [{ data: pool }, { data: trades }, { data: deposits }] = await Promise.all([
       supabase
         .from("voucher_earnings")
         .select("pending_amount, lifetime_credited")
@@ -40,9 +42,19 @@ export function useVoucherEarnings() {
         .select("amount")
         .eq("user_id", user.id)
         .eq("status", "Filled"),
+      supabase
+        .from("transactions")
+        .select("amount")
+        .eq("user_id", user.id)
+        .eq("type", "deposit")
+        .eq("status", "completed"),
     ]);
 
     const volume = (trades ?? []).reduce(
+      (sum, row) => sum + Number((row as { amount: number | string }).amount ?? 0),
+      0,
+    );
+    const depositTotal = (deposits ?? []).reduce(
       (sum, row) => sum + Number((row as { amount: number | string }).amount ?? 0),
       0,
     );
@@ -51,6 +63,7 @@ export function useVoucherEarnings() {
       pending: Number(pool?.pending_amount ?? 0),
       lifetimeCredited: Number(pool?.lifetime_credited ?? 0),
       volume,
+      depositTotal,
       loading: false,
       claiming: false,
     });
@@ -74,6 +87,11 @@ export function useVoucherEarnings() {
         { event: "*", schema: "public", table: "trades", filter: `user_id=eq.${user.id}` },
         () => refresh(),
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "transactions", filter: `user_id=eq.${user.id}` },
+        () => refresh(),
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -81,8 +99,8 @@ export function useVoucherEarnings() {
   }, [user, refresh]);
 
   const tierState = useMemo(
-    () => deriveVoucherTierState(state.volume, state.pending, state.lifetimeCredited),
-    [state.volume, state.pending, state.lifetimeCredited],
+    () => deriveVoucherTierState(state.volume, state.pending, state.lifetimeCredited, state.depositTotal),
+    [state.volume, state.pending, state.lifetimeCredited, state.depositTotal],
   );
 
   const canClaim = tierState.claimable > 0 && !state.claiming;
@@ -109,6 +127,7 @@ export function useVoucherEarnings() {
     pending: state.pending,
     lifetimeCredited: state.lifetimeCredited,
     volume: state.volume,
+    depositTotal: state.depositTotal,
     tiers: VOUCHER_TIERS,
     tierState,
     canClaim,

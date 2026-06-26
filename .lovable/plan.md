@@ -1,55 +1,52 @@
-## 目标
-1. 把 AuthDialog/AuthSheet 弹窗里的 "Demo accounts" 区块（Matched user A / Welcome gift user B）从生产 UI 中移除。
-2. 把它挪到 `/style-guide` 的 UserIdentitySection，作为 QA/demo 状态预览。
-3. 新增一条永久 memory 规则：**禁止在产品页面新增 demo 入口**，多状态演示一律放 style-guide。
+## 调整 Voucher 解锁阶梯为 5 阶
 
-## 改动
+### 新规则
 
-### 1. `src/components/auth/AuthContent.tsx`
-- 删除第 447–473 行的 Demo accounts 区块（dashed border + 两个按钮）。
-- 删除 `handleDemoAccountLogin` 函数（178–199 行）以及只为它服务的 import（如 `supabase` 若没其他用途则保留，因为 AuthContent 其他地方还会用）。
-- AuthDialog / AuthSheet 文件本身不动。
+| 阶 | 解冻条件 | 累计可解冻 |
+|---|---|---|
+| T0 | 无门槛（默认） | $2 |
+| T1 | 链上充值 ≥ $10 | $5 |
+| T2 | 完成 $1,000 交易量 | $10 |
+| T3 | 完成 $10,000 交易量 | $20 |
+| T4 | 完成 $50,000 交易量 | $50 |
 
-### 2. 新建 `src/components/auth/DemoAccountsBlock.tsx`
-- 抽出独立组件，封装 UI（dashed 容器 + 两列 outline 按钮）+ `ensure-demo-user` edge function 调用 + toast 反馈 + loading 状态。
-- 视觉与原弹窗内一致。
-- 不在 AuthContent 内引用 —— 仅供 style-guide 使用。
+与旧版的关键差异：
+- 阶数 4 → 5
+- 新增"链上充值"作为非交易量解锁条件（T1）
+- 上限大幅下调（旧 T4 Unlimited → 新 T4 $50），不再有 Unlimited 档
+- 默认就有 $2 可解冻（T0 无门槛）
 
-### 3. `src/pages/StyleGuide/sections/UserIdentitySection.tsx`
-- 新增 `SubSection` "Demo accounts (QA only)"：
-  - 描述：用于预览不同用户首次登录后看到的空投弹窗状态（matched 用户 vs welcome gift 用户）。
-  - 渲染 `<DemoAccountsBlock />`。
-  - 注明：生产 Auth 弹窗已下线该入口，研发如需复用直接引用此组件。
+### 落地范围
 
-### 4. Memory 更新
+**1. `src/lib/voucherTiers.ts`（核心）**
+- `VoucherTier` 增加 `unlock` 字段：`{ kind: "none" } | { kind: "deposit"; amount: number } | { kind: "volume"; amount: number }`
+- `VOUCHER_TIERS` 改为 5 条，按上表填值；`maxClaim` 全部为有限值（移除 `null`/Unlimited 处理）
+- `deriveVoucherTierState` 入参增加 `depositTotal`：按条件依次判定 current/next
+- `formatTierCap` 移除 Unlimited 分支
 
-**4a. 新增** `mem://workflow/no-demo-entries-in-product`
-```
----
-name: 产品页禁止新增 demo 入口
-description: 多状态/多用户类型演示一律放 /style-guide，禁止在产品页面塞 demo 按钮或入口
-type: constraint
----
-任何功能只要有"按不同用户/不同状态展示不同 UI"的演示需求，必须放进 /style-guide
-对应 section，**严禁**在产品页面（首页、弹窗、Header、Settings 等）新增 demo 账号
-切换、状态切换按钮、scenario chips 等入口。
+**2. `src/hooks/useVoucherEarnings.ts`**
+- 查询用户链上充值累计（`transactions` 表，type=`deposit` 且 status=`completed`，按 user_id 求和），传入 `deriveVoucherTierState`
+- realtime 频道增加 transactions 订阅刷新
 
-Why: 生产 UI 中混入 demo 入口会污染真实用户体验、被截图传播、产生信任问题。
+**3. `src/components/vouchers/VoucherEarningsCard.tsx`**
+- TierSegment 渲染 5 段；副标题展示解锁条件简写（"No req." / "$10 deposit" / "$1K vol" / "$10K vol" / "$50K vol"）
+- helper 文案按当前缺口动态生成：
+  - 缺充值：`Deposit $X more to reach T1 (up to $5 claimable).`
+  - 缺交易量：保持现有 `Trade $X more to reach Tn ...`
+  - T4：`Tier T4 unlocked — up to $50.`（删去 Unlimited 文案）
+- 移除 lifetimeAtCap 处的 Unlimited 假设
 
-How to apply:
-- 看到"展示一下不同状态"类需求 → 默认在 /style-guide 加 SubSection
-- 已有的 demo 入口若混在产品页，下次涉及该模块时一并迁出
-- 与已有 new-feature-playground-mandate 配套使用
-```
+**4. `supabase/functions/claim-voucher-earnings/index.ts`**
+- 同步 5 阶配置 + 充值条件；服务端读取用户充值累计与交易量后用同样规则计算 `headroom`
+- 上限改为有限值，删除 `null` 分支
 
-**4b. 更新** `mem://index.md` Core 段，追加一行：
-```
-- **Demo 入口隔离:** 多状态/多角色的演示一律放 /style-guide，禁止在产品页面新增 demo 切换入口。详见 no-demo-entries-in-product。
-```
+**5. `src/pages/StyleGuide/sections/VouchersSection.tsx`（playground）**
+- Slider/PresetRail 增加"链上充值累计"维度（presets：$0 / $10 / $25），与"交易量"组合穷举每一档
+- 状态读数同步展示 current tier、解锁条件、claimable
 
-**4c. 更新** `mem://features/demo-accounts-fixed-identities`：注明入口已从 Auth 弹窗下线，仅保留在 `/style-guide` UserIdentity section。
+**6. memory**
+- 更新 `mem://features/voucher-earnings-pool.md` 与 `mem://index.md` Core 中的 Voucher Earnings 行：5 档、新阈值、新增充值条件、移除 Unlimited
 
-## 不改动
-- `supabase/functions/ensure-demo-user` 不动。
-- `useAirdropPositions.ts` 的 `pickMockByEmail` 不动 —— 两个 demo 账户登录行为保持完全一致。
-- AuthDialog / AuthSheet 容器不动。
+### 不在范围
+- 不改 voucher 发放/Hold window/7 天 redeem 流程
+- 不改 `voucher_earnings` 表结构（只读 + 复用 `transactions` 求和）
