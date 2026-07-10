@@ -14,6 +14,8 @@ import {
   MessageCircle,
   ExternalLink,
   Check,
+  Ticket,
+
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -168,8 +170,13 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Users className="mr-2 h-4 w-4 text-primary" />
                     Referral
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/vouchers")}>
+                    <Ticket className="mr-2 h-4 w-4 text-primary" />
+                    Position Vouchers
+                  </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
+
 
                   {/* Preferences */}
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
