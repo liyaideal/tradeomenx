@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Users, Lightbulb, Award } from "lucide-react";
+import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Users, Lightbulb, Award, Ticket } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -233,6 +233,14 @@ export const BottomNav = () => {
             }}
           />
           <MobileDrawerListItem
+            icon={Ticket}
+            label="Position Vouchers"
+            onClick={() => {
+              setProfileSheetOpen(false);
+              navigate("/vouchers");
+            }}
+          />
+          <MobileDrawerListItem
             icon={Settings}
             label="Settings"
             onClick={() => {
@@ -240,6 +248,7 @@ export const BottomNav = () => {
               navigate("/settings");
             }}
           />
+
           <MobileDrawerListItem
             icon={HelpCircle}
             label="Help & Support"
