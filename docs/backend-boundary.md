@@ -1,0 +1,116 @@
+# 后端参考边界说明（Backend Reference Boundary）
+
+> **本仓库的 Supabase 是演示引擎（Demo Engine），不是正式后端。**
+> 它的职责是让前端蓝图端到端可跑（下单 → 持仓 → 流水 → 奖励处处可见），不是给研发照抄的实现。
+> 本文档逐表、逐函数标注研发的参考边界。评审需求时先查本表，再看代码。
+
+## 分类定义
+
+| 标记 | 类别 | 含义 |
+|---|---|---|
+| 🟢 A | 业务规则 | 规则本身就是需求：数值、状态机、门槛、流程可直接照抄 |
+| 🟡 B | 规则在此、实现自选 | 业务语义是需求，但存储结构 / 触发方式 / 技术实现由正式架构决定 |
+| 🔴 C | 仅演示 | 为让原型可跑而存在，正式版另有方案，**禁止参考实现** |
+
+## 通用红线（先读这个）
+
+1. 所有模拟数据不进正式系统：价格模拟、假链上确认、demo 用户、新用户回填的演示成交
+2. 底层 `side: long/short` 与展示层 Yes/No 的映射**只存在于前端渲染层**（见 `docs/changelog/2026-05-25-yes-no-terminology.md`），正式后端沿用 long/short 底层语义
+3. Guest 的 localStorage 持久化是演示便利，正式版无此逻辑
+4. 本仓库**没有 orders 表**（挂单在前端 store），正式系统必须有真实订单账本——这是原型缺口，不是设计
+5. 出入金正式方案 = Cobo 托管 + Banxa（仅充值）+ Socket，本仓库相关表/函数全部是模拟
+6. 新增演示专用 Edge Function 一律 `sim-` 前缀；存量不改名，以本文档标注为准
+
+## 数据表（35）
+
+### 交易域
+
+| 表 | 类别 | 说明 |
+|---|---|---|
+| events | 🟡 | event → options 层级、结算时间等语义是需求；正式事件源自参考指数 + 运营后台 |
+| event_options | 🟡 | `option_id` 作为价格追踪主键的语义照抄；数据由引擎产生 |
+| event_mappings | 🟡 | 与 Polymarket/Kalshi 外部市场映射的概念是需求，映射维护方式自选 |
+| event_relations | 🟡 | 相关事件推荐语义 |
+| positions | 🟡 | 字段语义（entry/leverage/tp/sl/liq、cross-zero 禁令）是需求；持仓账本由交易引擎生成 |
+| trades | 🟡 | 成交记录粒度与状态语义是需求；由撮合引擎产生 |
+| price_history | 🔴 | 由 update-prices 模拟生成；正式行情来自引擎与指数 |
+| position_funding_ledger | 🟡 | 每结算期一行、window/settlementTs 字段粒度是审计需求；计算在引擎 |
+
+### 资产域
+
+| 表 | 类别 | 说明 |
+|---|---|---|
+| wallets | 🟡 | 双余额模型（Available + Trial Bonus 先耗，Total Equity = 两者之和）是需求；账本实现在引擎 |
+| transactions | 🟡 | 类型/状态生命周期 + "写入必须服务端收敛"是需求（见 SEC1/SEC2）；表结构自选 |
+| deposit_addresses | 🔴 | 正式充值地址由 Cobo 分配 |
+| recovery_requests | 🟢 | v2 规则照抄：3 态状态机（submitted/completed/rejected）+ 固定 10% 费率；`quoted_at/accepted_at` 是 v1 遗留字段，不实现 |
+
+### 增长域
+
+| 表 | 类别 | 说明 |
+|---|---|---|
+| position_vouchers | 🟢 | 仓位券完整生命周期照抄 |
+| voucher_daily_pools | 🟢 | 每日 UTC 池配额（$10×1000 / $25×500 / $50×100）是运营规则；正式版应做成可配置，不要学本仓库硬编码在 DB 函数里 |
+| voucher_earnings | 🟢 | 券收益 pending 池 |
+| voucher_earnings_ledger | 🟢 | 5 阶解冻账本（T0 $2 → T4 $50，配置见 `src/lib/voucherTiers.ts`，服务端必须复用同一配置） |
+| points_accounts / points_ledger | 🟢 | 积分账户与流水，全部走服务端处理 |
+| points_config | 🟢 | 积分规则配置 |
+| points_redemptions | 🟢 | 兑换记录；当前"暂停兑换返回 403"也是需求（等 Beta→Mainnet 换算比例） |
+| tasks / user_tasks | 🟢 | 任务前置依赖 + 完成流程；奖励永不自动发放，必须手动 Claim |
+| treasure_drops | 🟢 | 宝箱概率与频控 |
+| referral_codes / referrals | 🟢 | 6 位字母数字推荐码规则 |
+
+### H2E 域
+
+| 表 | 类别 | 说明 |
+|---|---|---|
+| airdrop_positions | 🟢 | 空投仓状态机 + 自动结算规则 + $100 账户收益上限 |
+| h2e_fund | 🟢 | 活动预算池 |
+| budget_limits | 🟢 | 反滥用限额 |
+| asset_verifications | 🟡 | EIP-712 验签概念照抄；验签服务实现自选 |
+| connected_accounts | 🟡 | 外部账户（Polymarket）绑定语义 |
+
+### 账户与其他
+
+| 表 | 类别 | 说明 |
+|---|---|---|
+| profiles | 🟡 | `totp_enabled` / `withdraw_2fa_mode` 是需求；其余演示字段忽略 |
+| user_security | 🟢 | TOTP 秘钥独立表、客户端零可见的隔离设计照抄（见 SEC3） |
+| user_roles | 🟡 | RBAC 概念 |
+| user_watchlist | 🟡 | 自选收藏；guest localStorage 部分不实现 |
+| trade_verifications | 🔴 | 透明度审计快照是模拟的"链上数据"；审计产品形态是需求，但正式数据源为真实链上合约 |
+
+## Edge Functions（16）
+
+| 函数 | 类别 | 说明 |
+|---|---|---|
+| claim-position-voucher | 🟢 | 券领取规则 |
+| redeem-position-voucher | 🟢 | 券核销开仓规则 |
+| claim-voucher-earnings | 🟢 | 5 阶解冻校验（必须与前端 voucherTiers 同配置） |
+| close-trial-position | 🟢 | 券仓平仓盈利只进 pending，不直接进钱包 |
+| claim-task | 🟢 | 任务奖励，达标 ≠ 发放 |
+| claim-treasure | 🟢 | 宝箱发放 |
+| redeem-points | 🟢 | 积分兑换（含当前 403 暂停逻辑） |
+| record-transaction | 🟡 | "资金流水写入收敛到服务端、客户端直插被 RLS 拒绝"的原则照抄；实现自选 |
+| totp-manage | 🟡 | 秘钥全程服务端处理的原则照抄 |
+| verify-wallet-signature | 🟡 | EIP-712 验签概念 |
+| accrue-funding | 🟡 | 结算周期与费率语义是需求；计算发生在引擎 |
+| update-prices | 🔴 | 价格模拟引擎 |
+| simulate-confirmations | 🔴 | 假链上确认 |
+| generate-deposit-address | 🔴 | 正式走 Cobo |
+| get-deposit-address | 🔴 | 正式走 Cobo |
+| ensure-demo-user | 🔴 | demo 账号供 QA/style-guide 使用 |
+
+## 治理规则（即日生效）
+
+1. **状态走库，内容走 mock**：需要跨模块流转的状态（下单/持仓/流水/券/积分）必须落 Supabase；纯展示内容（行情形态、联赛资料、社区帖子）永远 mock。
+2. **单一演示引擎**：本仓库的 Supabase 是全部前端蓝图（主站 / Sports / 未来 Pro / Lite）唯一的后端，其他前端项目不得自建数据库。
+3. **Schema 只在本项目变更**：其他前端项目只能调用现成的 RPC / Edge Function。
+4. **sim- 前缀**：新增演示专用函数一律 `sim-` 前缀命名。
+5. **本文档 append-only**：新表 / 新函数上线的同一轮，必须在本文档补一行标注；产品线扩张（现货、Pro/Lite 分面）时新增 `product_line` / `surface` 维度也在此登记。
+
+## 未来扩张预告（研发知悉）
+
+- 平台将拆分 **Pro / 小白（Lite）** 两个版本：同一引擎，不同前端 surface
+- 产品线将从合约扩展到**现货**：events/positions 层将增加 `product_line` 维度
+- Sports 子站将接入本演示引擎（替换其纯 mock 状态）
