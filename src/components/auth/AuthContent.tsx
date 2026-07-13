@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import type { AuthStep } from "@/hooks/useAuth";
 import sillyname from "sillyname";
+import { GoogleAccountChooser } from "./GoogleAccountChooser";
 
 interface AuthContentProps {
   step: AuthStep;
