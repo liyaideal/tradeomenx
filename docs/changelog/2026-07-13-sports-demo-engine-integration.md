@@ -7,7 +7,7 @@
 | 能力 | 走本仓库的哪部分 | 说明 |
 |---|---|---|
 | Auth | 与主站共享，走 `ensure-demo-user` | 支持 demo 账号 matched / welcome，session 由 Sports 端自己持有 |
-| 余额 | 读 `profiles.balance_available` + `profiles.trial_bonus` | 双余额只读，扣款走下单流程 |
+| 余额 | 读 `profiles.balance` + `profiles.trial_balance` | 双余额只读，扣款走下单流程 |
 | 行情 | 读 `events` + `event_options` | Realtime 订阅 `event_options` + 60s 轮询兜底 |
 | 下单 | 直插 `trades` + `positions` | 市价单，`leverage=1`、`fee=0`、`side='long'`；Trial Bonus 先扣 |
 | 持仓 | 读 `positions`（Sports 端自渲染） | 与主站 `/portfolio` 同表 |
@@ -27,10 +27,10 @@ Option 结构：
 
 | option_id | 归属 event | 初始价格 |
 |---|---|---|
-| `wc26-semi-fra-esp-yes` | France vs Spain | ~0.54 |
-| `wc26-semi-fra-esp-no`  | France vs Spain | ~0.46 |
-| `wc26-semi-arg-eng-yes` | Argentina vs England | ~0.58 |
-| `wc26-semi-arg-eng-no`  | Argentina vs England | ~0.42 |
+| `wc26-semi-fra-esp-yes` | France vs Spain | 0.52 |
+| `wc26-semi-fra-esp-no`  | France vs Spain | 0.48 |
+| `wc26-semi-arg-eng-yes` | Argentina vs England | 0.57 |
+| `wc26-semi-arg-eng-no`  | Argentina vs England | 0.43 |
 
 价格由 `update-prices` 演示模拟器接管，无需人工维护。
 
