@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import sillyname from "sillyname";
 import { SectionWrapper, SubSection } from "../components";
 import { DemoAccountsBlock } from "@/components/auth/DemoAccountsBlock";
+import { GoogleAccountChooser } from "@/components/auth/GoogleAccountChooser";
 import { 
   AVATAR_SEEDS, 
   AVATAR_BACKGROUNDS, 
