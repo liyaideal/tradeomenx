@@ -19,6 +19,17 @@
 
 ---
 
+## 2026-07-13 — Google 账号选择器仿真（固定身份自然入口）
+
+源文档：[2026-07-13-google-account-chooser.md](./2026-07-13-google-account-chooser.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/demo-accounts-fixed-identities`
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| GAC1 | 研发知悉：`signInAnonymously` + Google 账号选择器仿真均为 🔴 仅演示，产品面禁止出现 demo / test 字样 | `docs/backend-boundary.md` §一般红线 · `docs/changelog/2026-07-13-google-account-chooser.md` §红线 | ⬜ | 全站登录弹窗与选择器 UI 无 demo/test 文字；固定账号仅以 Alex Carter / Mia Reyes 呈现 | |
+| GAC2 | 正式版 OAuth 落地时账号选择器行为对齐：真 Google Identity Services 选中账号后本质等价于「老用户直接进站，不重复 onboarding」 | `docs/changelog/2026-07-13-google-account-chooser.md` §正式版对齐 | ⬜ | 真 OAuth 版对已注册用户跳过 createWallet / completeProfile 两步；新账号仍走完整 3 步 | |
+
+---
+
 ## 2026-07-13 — OmenX Sports 接入演示引擎
 
 源文档：[2026-07-13-sports-demo-engine-integration.md](./2026-07-13-sports-demo-engine-integration.md) · 长效文档：[backend-boundary.md](../backend-boundary.md)
