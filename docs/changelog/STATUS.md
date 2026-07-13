@@ -19,6 +19,17 @@
 
 ---
 
+## 2026-07-13 — OmenX Sports 接入演示引擎
+
+源文档：[2026-07-13-sports-demo-engine-integration.md](./2026-07-13-sports-demo-engine-integration.md) · 长效文档：[backend-boundary.md](../backend-boundary.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| SDE1 | 研发知悉跨站数据流：demo 账号（matched / welcome）在 Sports 端产生的 trades / positions 会出现在主站 `/portfolio` 与余额中，为预期行为 | `docs/changelog/2026-07-13-sports-demo-engine-integration.md` §3 | ⬜ | 主站 `/portfolio` 能看到 Sports 端下的两场 WC26 半决赛持仓；余额一致 | |
+| SDE2 | 正式架构评审时按 "单一引擎多 surface" 模式对齐 Sports 接入方案（未来 Pro / Lite 遵循同一原则；schema 变更仅在本仓库） | `docs/backend-boundary.md` §未来扩张预告 | ⬜ | 评审文档明确 surface / product_line 维度归属 | |
+
+---
+
 ## 2026-07-13 — 后端参考边界说明
 
 源文档：[2026-07-13-backend-boundary.md](./2026-07-13-backend-boundary.md) · 长效文档：[backend-boundary.md](../backend-boundary.md)
