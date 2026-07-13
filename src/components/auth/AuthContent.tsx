@@ -336,7 +336,7 @@ export const AuthContent = ({
             <>
               <p className="text-sm text-muted-foreground">Quick sign-in with Google</p>
               <Button
-                onClick={() => handleDemoLogin("google")}
+                onClick={() => setGoogleChooserOpen(true)}
                 disabled={isLoading}
                 className="w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"
               >
