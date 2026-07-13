@@ -19,6 +19,17 @@
 
 ---
 
+## 2026-07-13 — 后端参考边界说明
+
+源文档：[2026-07-13-backend-boundary.md](./2026-07-13-backend-boundary.md) · 长效文档：[backend-boundary.md](../backend-boundary.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| BB1 | 研发通读《后端参考边界说明》，并在需求评审中引用其分类（🟢/🟡/🔴） | `docs/backend-boundary.md` | ⬜ | 评审记录中出现引用；红线条款进入 checklist | |
+| BB2 | 后端评审按红线检查：不得照抄 🔴 类实现（价格模拟 / 假确认 / 演示地址 / demo 用户等） | `docs/backend-boundary.md` §通用红线 + §Edge Functions | ⬜ | 评审 PR 描述包含"边界自检"段，逐条对照红线 | |
+
+---
+
 ## 2026-05-25 — Single-market binary 收敛（第三轮）
 
 源文档：[2026-05-25-single-market-binary-round3.md](./2026-05-25-single-market-binary-round3.md)

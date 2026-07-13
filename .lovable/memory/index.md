@@ -16,6 +16,10 @@
 - **Home Feed:** Priority-sorted stream. 3 tiers (personal/opportunity/browse), max 1 tier-1 visible, 2nd+ same-kind → compact. Logic in `useHomeFeed`.
 - **Delivery Docs:** 所有交付说明同时写到 `docs/changelog/YYYY-MM-DD-{slug}.md`，不能只放 `/mnt/documents/`。每次发布交付文档**必须在同一轮**完成三件事：(1) 写入 `docs/changelog/*.md`；(2) 在 `docs/changelog/INDEX.md` 表格**顶部**插入一行（日期 + 标题链接 + 一句话摘要 ≤80 字，摘要直接引用文档顶部 quote block 的关键信息）；(3) 在 `docs/changelog/STATUS.md` **顶部**追加一节，所有需求条目初始状态 ⬜。修订旧文档（vN）时 INDEX 旧行的备注列标注"已被 vN 取代"。研发以 `docs/` 为唯一需求来源。
 - **Demo 入口隔离:** 多状态/多角色的演示一律放 `/style-guide`，禁止在产品页面新增 demo 切换入口。详见 no-demo-entries-in-product。
+- **演示引擎定位:** 本仓库 Supabase 是**演示引擎**不是正式后端，逐表逐函数的参考边界见 `docs/backend-boundary.md`（append-only：新表 / 新 Edge Function 上线同一轮必须在该文档补一行标注 🟢/🟡/🔴）。
+- **状态走库，内容走 mock:** 跨模块流转的**状态**（下单 / 持仓 / 流水 / 券 / 积分）必须落 Supabase；纯展示**内容**（行情形态、联赛资料、社区帖子等）永远 mock，禁止入库。
+- **单一演示引擎:** 本项目的 Supabase 是所有 OmenX 前端蓝图项目（主站 / Sports / 未来 Pro / Lite）**唯一**后端；schema 变更只允许发生在本项目，其他前端只能调用现成 RPC / Edge Function。
+- **sim- 前缀:** 新增演示专用 Edge Function 一律用 `sim-` 前缀命名；存量函数不改名，以 `docs/backend-boundary.md` 标注为准。
 
 ## Memories
 - [Voucher daily pool](mem://features/voucher-daily-pool) — Daily UTC-reset quota for voucher granting; powers the scarcity bar on granted cards
