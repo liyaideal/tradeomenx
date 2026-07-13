@@ -301,6 +301,40 @@ const randomAvatar = getRandomAvatarUrl();`}</code>
         </Card>
       </SubSection>
 
+      {/* Google Account Chooser playground */}
+      <SubSection
+        title="Google account chooser"
+        description="登录弹窗里 Sign in with Google 触发的账号选择器。此处为 preview 模式：点固定账号只 toast，不真登录。"
+      >
+        <Card className="border-border/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              <CardTitle className="text-base">GoogleAccountChooser</CardTitle>
+            </div>
+            <CardDescription className="text-sm">
+              固定账号 Alex Carter → matched · Mia Reyes → welcome · Use another account → 走匿名新号流程。
+              桌面 Dialog / 移动 bottom sheet 自动切换。
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button onClick={() => setChooserOpen(true)}>
+              Open chooser (preview)
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              组件路径：<code className="text-xs bg-muted px-1.5 py-0.5 rounded">@/components/auth/GoogleAccountChooser</code>
+            </p>
+            <GoogleAccountChooser
+              open={chooserOpen}
+              onOpenChange={setChooserOpen}
+              onFixedAccountSignedIn={() => setChooserOpen(false)}
+              onUseAnotherAccount={() => setChooserOpen(false)}
+              previewOnly
+            />
+          </CardContent>
+        </Card>
+      </SubSection>
+
       {/* Demo accounts (QA only) */}
       <SubSection
         title="Demo accounts (QA only)"
