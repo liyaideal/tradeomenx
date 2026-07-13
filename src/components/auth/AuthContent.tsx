@@ -52,6 +52,7 @@ export const AuthContent = ({
   const [referralCode, setReferralCode] = useState("");
   const [showReferralInput, setShowReferralInput] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [googleChooserOpen, setGoogleChooserOpen] = useState(false);
 
   // Check for referral code in URL on mount
   useEffect(() => {
