@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import type { AuthStep } from "@/hooks/useAuth";
 import sillyname from "sillyname";
+import { GoogleAccountChooser } from "./GoogleAccountChooser";
 
 interface AuthContentProps {
   step: AuthStep;
@@ -51,6 +52,7 @@ export const AuthContent = ({
   const [referralCode, setReferralCode] = useState("");
   const [showReferralInput, setShowReferralInput] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [googleChooserOpen, setGoogleChooserOpen] = useState(false);
 
   // Check for referral code in URL on mount
   useEffect(() => {
@@ -334,7 +336,7 @@ export const AuthContent = ({
             <>
               <p className="text-sm text-muted-foreground">Quick sign-in with Google</p>
               <Button
-                onClick={() => handleDemoLogin("google")}
+                onClick={() => setGoogleChooserOpen(true)}
                 disabled={isLoading}
                 className="w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"
               >
@@ -427,6 +429,20 @@ export const AuthContent = ({
           {" "}and{" "}
           <span className="text-primary hover:underline cursor-pointer">Privacy Policy</span>
         </p>
+
+        {/* Google account chooser (fixed identities + "use another account") */}
+        <GoogleAccountChooser
+          open={googleChooserOpen}
+          onOpenChange={setGoogleChooserOpen}
+          onFixedAccountSignedIn={() => {
+            // Fixed-identity users are existing users — skip onboarding entirely.
+            onSuccess?.();
+          }}
+          onUseAnotherAccount={() => {
+            // Falls through to the existing anonymous "new account" flow.
+            handleDemoLogin("google");
+          }}
+        />
       </div>
     );
   }
