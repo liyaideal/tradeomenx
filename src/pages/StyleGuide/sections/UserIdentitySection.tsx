@@ -33,6 +33,9 @@ export const UserIdentitySection = ({ isMobile }: UserIdentitySectionProps) => {
   const [randomAvatarUrl, setRandomAvatarUrl] = useState(getRandomAvatarUrl);
   const [copiedAvatarUrl, setCopiedAvatarUrl] = useState(false);
 
+  // Google account chooser playground state (preview-only, no real sign-in)
+  const [chooserOpen, setChooserOpen] = useState(false);
+
   const handleGenerateUsername = () => {
     const raw = sillyname();
     setGeneratedUsername(raw.replace(/ /g, '_'));
