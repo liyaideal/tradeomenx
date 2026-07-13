@@ -429,6 +429,20 @@ export const AuthContent = ({
           {" "}and{" "}
           <span className="text-primary hover:underline cursor-pointer">Privacy Policy</span>
         </p>
+
+        {/* Google account chooser (fixed identities + "use another account") */}
+        <GoogleAccountChooser
+          open={googleChooserOpen}
+          onOpenChange={setGoogleChooserOpen}
+          onFixedAccountSignedIn={() => {
+            // Fixed-identity users are existing users — skip onboarding entirely.
+            onSuccess?.();
+          }}
+          onUseAnotherAccount={() => {
+            // Falls through to the existing anonymous "new account" flow.
+            handleDemoLogin("google");
+          }}
+        />
       </div>
     );
   }
