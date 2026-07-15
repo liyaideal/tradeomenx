@@ -436,6 +436,52 @@ export default function SpotTrading() {
     }
   }, [yesLive, noLive, spotOrders, user, yesOpt, addBalance, refetchPositions, refetchOrders]);
 
+  // ---- Closing-soon hint (display only, does NOT block orders). ----
+  // Threshold = PRE_FREEZE_MINUTES_BEFORE_CLOSE (15 min). Ticks with countdown.
+  const closingSoon = useMemo(() => isInPreFreezeWindow(endDate), [endDate, countdown]);
+
+  // ---- DEMO-STATE: freeze auto-cancel ----
+  // 冻结撤单由前端模拟，正式版由撮合引擎批量执行。
+  // When the event enters FROZEN (either lifecycle_status or countdown reaches
+  // close − FREEZE_MINUTES_BEFORE_CLOSE), cancel all of this user's Pending
+  // spot orders on this event and refund reserved cash. Tagged in `frozenCancelledIds`
+  // so the Orders row renders "Cancelled · market frozen".
+  const [frozenCancelledIds, setFrozenCancelledIds] = useState<Set<string>>(new Set());
+  const isFrozenByTime = useMemo(() => {
+    if (!endDate) return false;
+    const ms = endDate.getTime() - Date.now();
+    return ms <= FREEZE_MINUTES_BEFORE_CLOSE * 60_000;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endDate, countdown]);
+  const shouldFreeze = lifecycle === "FROZEN" || isFrozenByTime;
+  const freezingIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!user || !shouldFreeze || spotOrders.length === 0) return;
+    for (const o of spotOrders) {
+      if (!o.id || o.status !== "Pending") continue;
+      if (freezingIdsRef.current.has(o.id)) continue;
+      freezingIdsRef.current.add(o.id);
+      (async () => {
+        try {
+          const res = await cancelSpotLimitOrder(user.id, o.id!);
+          if (res.refund > 0) await addBalance(res.refund);
+          setFrozenCancelledIds((prev) => {
+            const next = new Set(prev);
+            next.add(o.id!);
+            return next;
+          });
+        } catch {
+          // ignore; next tick will retry
+          freezingIdsRef.current.delete(o.id!);
+        } finally {
+          refetchOrders();
+        }
+      })();
+    }
+  }, [shouldFreeze, spotOrders, user, addBalance, refetchOrders]);
+
+
+
 
   // ---- Render guards ----
   if (loading) {
