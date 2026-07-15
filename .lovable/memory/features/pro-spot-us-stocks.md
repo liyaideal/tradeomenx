@@ -33,16 +33,17 @@ type: feature
 
 订单簿标题右侧渲染 `lp_quote_mode` 徽标：`NORMAL`（默认，muted）/ `CONSERVATIVE`（黄）/ `HEDGE_ONLY`（primary）/ `CANCEL_ONLY`（红），tooltip 一句话解释。`DesktopOrderBook` 接受可选 `quoteMode` prop；spot 默认传 `NORMAL`，合约页不传即不渲染。
 
-## 4 个时刻表常量（PLACEHOLDER: pending confirmation）
+## 4 个时刻表常量
 
-在 `src/lib/usStockSessions.ts`，每个都带 `// PLACEHOLDER: pending confirmation` 注释：
+在 `src/lib/usStockSessions.ts`：
 
-1. `PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15`（展示层"Closing soon"窗口，非 lifecycle）
-2. `FREEZE_MINUTES_BEFORE_CLOSE = 5`（15:55 ET）
-3. `OPEN_COOLDOWN` = 09:30–09:35 ET
-4. `SETTLEMENT_CREDIT_BY_ET = "16:30"` ET — 下单区与 Event Info 都要展示"Settles & credits by ~16:30 ET"
+1. `PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15` ⚠️ PLACEHOLDER — 仅驱动 UI "Closing soon" 徽标（黄色 chip 挂在倒计时旁），**不禁单**
+2. `FREEZE_MINUTES_BEFORE_CLOSE = 5`（15:55 ET） ✅ **CONFIRMED per PRD §4.1** — TRADING 全程至 close−5min，此时进入 FROZEN；改动必须先改 PRD
+3. `OPEN_COOLDOWN` = 09:30–09:35 ET ⚠️ PLACEHOLDER
+4. `SETTLEMENT_CREDIT_BY_ET = "16:30"` ET ⚠️ PLACEHOLDER — 下单区与 Event Info 都要展示 "Settles & credits by ~16:30 ET"
 
 倒计时同时展示 ET + 北京时间（`formatDualTimezone`）。
+
 
 ## 盘口模拟参数（LP PRD §6.1）
 
