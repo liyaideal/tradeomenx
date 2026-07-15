@@ -82,7 +82,9 @@ const SpotTrading = () => {
       if (!alive) return;
       if (e) {
         setEvent({ ...e, options: opts || [] });
-        const first = (opts || [])[0];
+        const list = opts || [];
+        const first =
+          list.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || list[0];
         if (first) {
           setSelectedOptionId(first.id);
           setPrice(String(Number(first.price).toFixed(2)));
