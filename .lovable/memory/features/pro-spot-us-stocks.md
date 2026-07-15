@@ -1,7 +1,8 @@
 ---
 name: Pro / Spot US stocks pilot
-description: Multi-product-line engine — first Spot pilot (US stock daily up/down). 3 seed events, no-leverage semantics, 11-state PRD lifecycle, LP quote-mode badge, 4 placeholder timing constants
+description: Multi-product-line engine — first Spot pilot (US stock daily up/down). 3 seed events, no-leverage semantics, 11-state PRD lifecycle, LP quote-mode badge, 4 placeholder timing constants, front-end simulated limit-order Pending flow + session-aware LP book
 type: feature
+
 ---
 
 # Pro 现货（Spot）产品线 — 美股当日涨跌试点
