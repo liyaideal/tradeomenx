@@ -491,9 +491,11 @@ export default function Portfolio() {
                               </Badge>
                             );
                           })()}
-                          <span className="text-xs text-muted-foreground">
-                            {position.leverage}
-                          </span>
+                          {position.productLine === "spot" ? (
+                            <Badge variant="outline" className="text-[10px]">SPOT</Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">{position.leverage}</span>
+                          )}
                         </div>
                         <div
                           className={`flex items-center gap-1 text-xs font-semibold ${
@@ -660,9 +662,11 @@ export default function Portfolio() {
                                   </Badge>
                                 );
                               })()}
-                              <span className="text-xs text-muted-foreground">
-                                {position.leverage}
-                              </span>
+                              {position.productLine === "spot" ? (
+                                <Badge variant="outline" className="text-[10px]">SPOT</Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">{position.leverage}</span>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell className="font-mono text-sm">
