@@ -7,7 +7,7 @@ import {
 } from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { SectionWrapper } from "../components/SectionWrapper";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Star, Info } from "lucide-react";
 
 
 interface Props { isMobile: boolean }
