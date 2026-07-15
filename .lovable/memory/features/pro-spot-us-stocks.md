@@ -1,7 +1,8 @@
 ---
 name: Pro / Spot US stocks pilot
-description: Multi-product-line engine — first Spot pilot (US stock daily up/down). 3 seed events, no-leverage semantics, 11-state PRD lifecycle, LP quote-mode badge, 4 placeholder timing constants
+description: Multi-product-line engine — first Spot pilot (US stock daily up/down). 3 seed events, no-leverage semantics, 11-state PRD lifecycle, LP quote-mode badge, 4 placeholder timing constants, front-end simulated limit-order Pending flow + session-aware LP book
 type: feature
+
 ---
 
 # Pro 现货（Spot）产品线 — 美股当日涨跌试点
@@ -79,3 +80,25 @@ Event Info 的 Rules 区必须读 `events.rules` 字段（按换行切分为 bul
 - Market 单 = marketable limit + 滑点上限（10 / 25 / 50 / 100 bps）
 
 DESIGN.md §14 已把"交易页禁止渲染全站导航 header"和"spot=合约终端减法"固化为 Don't。
+
+## 限价挂单演示态（v1.1）
+
+`src/services/tradingService.ts` 三个新函数：`placeSpotLimitOrder` / `cancelSpotLimitOrder` / `fillSpotLimitOrder`（均 DEMO-STATE）。
+
+- 可成交判定：Buy 限价 ≥ 模拟盘最优 ask → 即时；否则落 Pending，前端 `deductBalance(notional)` 预扣。Sell 用最优 bid 判定。
+- Pending 落 `trades.status='Pending' + product_line='spot'`；触价成交（`SpotTrading` 内 useEffect 订阅 yesLive/noLive）走 `fillSpotLimitOrder`；Cancel 走 `cancelSpotLimitOrder` 全额退回 Buy 的预扣。
+- **数据链路修复**：`SupabaseOrder` / `UnifiedOrder` 补 `product_line` 字段；SpotTrading 的 `spotOrders` 由 `(o as any).product_line` 改为 `o.productLine`。
+- 红线：正式版由撮合引擎替换。
+
+## Session 感知盘口（v1.1，LP PRD §4.2/§6.1）
+
+`usStockSessions.ts` 新增 `SessionType` / `SESSION_PROFILES` / `getCurrentSession()`：
+
+| Session | ET | Levels | Spread × | Size × | Quote mode |
+|---|---|---|---|---|---|
+| REGULAR | 09:30–15:45 | 8..12 | 1.0 | 1.0 | NORMAL |
+| EXTENDED_AFTER_HOURS | 15:45–20:00 | 3..7 | 2.0 | 0.4 | CONSERVATIVE |
+| OVERNIGHT | 20:00–04:00 | 3 | 3.0 | 0.25 | CONSERVATIVE |
+| PRE_MARKET | 04:00–09:30 | 3..7 | 2.0 | 0.4 | CONSERVATIVE |
+
+SpotTrading 每分钟重算 profile；`buildBook(mid, seed, profile)` 用 profile 的 spread/size/depth；`DesktopOrderBook.quoteMode` 由 `sessionProfile.quoteMode` 驱动。窗口沿用原 4 个 PLACEHOLDER 常量待 PM 确认。

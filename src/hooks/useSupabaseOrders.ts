@@ -23,7 +23,9 @@ export interface SupabaseOrder {
   sl_mode: string | null;
   created_at: string;
   updated_at: string;
+  product_line?: string | null;
 }
+
 
 export const useSupabaseOrders = () => {
   const { user } = useAuth();

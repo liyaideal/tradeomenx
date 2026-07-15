@@ -6,7 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
-| 2026-07-15 | [Pro 现货产品线上线：美股当日涨跌试点](./2026-07-15-pro-spot-us-stocks.md) | 平台扩为多产品线引擎：events / trades / positions 加 `product_line` 维度；新增 `/events` Futures\|Spot 一级切换 + `/spot` 现货交易页（无杠杆/无 TP/SL/无资金费/无强平价，Sell 校验持有）；种子 3 个美股日涨跌事件（NVDA/TSLA/AAPL），状态机 5 态 + 4 个时刻表常量占位待确认；Portfolio 按 product_line 条件渲染 SPOT 徽标 |
+| 2026-07-15 | [Pro 现货产品线上线：美股当日涨跌试点](./2026-07-15-pro-spot-us-stocks.md) | 平台扩为多产品线引擎：events / trades / positions 加 `product_line` 维度；新增 `/events` Futures\|Spot 一级切换 + `/spot` 现货交易页（无杠杆/无 TP/SL/无资金费/无强平价，Sell 校验持有）；种子 3 个美股日涨跌事件（NVDA/TSLA/AAPL），11 态 lifecycle + 4 个时刻表常量占位待确认；Portfolio 按 product_line 条件渲染 SPOT 徽标；**v1.1 增补**：限价挂单 Pending/Cancel/触价成交前端模拟（`placeSpotLimitOrder`/`cancelSpotLimitOrder`/`fillSpotLimitOrder`）+ Session 感知盘口（REGULAR/EXTENDED_AFTER_HOURS/OVERNIGHT/PRE_MARKET，profile 驱动 depth/spread/size + LP quote-mode 徽标） |
 | 2026-07-13 | [Google 账号选择器仿真（固定身份自然入口）](./2026-07-13-google-account-chooser.md) | 登录 Sign in with Google 由 1.2s 假 OAuth 升级为 Google 风格 `Choose an account` 选择器；两行固定账号 Alex Carter (matched) / Mia Reyes (welcome) 走 `ensure-demo-user`+`signInWithPassword` 直接登录并跳过 onboarding，第 3 行 `Use another account` 保持原匿名 3 步流程；UI 无 demo 字样；红线：仿真 OAuth 与匿名 auth 均为 🔴 仅演示，正式版需替换为真 OAuth/OTP |
 | 2026-07-13 | [OmenX Sports 接入演示引擎](./2026-07-13-sports-demo-engine-integration.md) | Sports 子站作为首个外部 surface 接入本仓库 Supabase：共享 auth / profiles 双余额 / events 行情 / trades+positions 下单；新种 2 场 WC26 半决赛（France-Spain、Argentina-England），未做任何 schema 变更 |
 | 2026-07-13 | [后端参考边界说明](./2026-07-13-backend-boundary.md) | 本仓库 Supabase 定位为演示引擎，发布《后端参考边界说明》，35 表 + 16 Edge Functions 逐个标注 🟢规则照抄 / 🟡规则在此实现自选 / 🔴仅演示，附 5 条治理规则 |

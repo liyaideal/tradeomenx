@@ -618,3 +618,188 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
   };
 };
 
+// -----------------------------------------------------------------
+// SPOT limit-order simulation (Pending → touch fill → Filled/Cancelled).
+// DEMO-STATE: In production the matching engine owns this lifecycle;
+// here the front end places Pending trade rows and monitors the mark
+// price via the Realtime prices context to simulate fills.
+// -----------------------------------------------------------------
+
+/** Place a Pending spot limit order. Cash for BUY orders is reserved by
+ *  the caller (via `useUserProfile.deductBalance`); shares for SELL orders
+ *  are checked at place time and re-checked at fill time. */
+export const placeSpotLimitOrder = async (userId: string, data: SpotTradeData) => {
+  const parsed = SpotTradeSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error(`Validation failed: ${parsed.error.errors.map((e) => e.message).join(", ")}`);
+  }
+  const v = parsed.data;
+  const notional = v.price * v.quantity;
+
+  if (v.side === "sell") {
+    const { data: existing } = await supabase
+      .from("positions")
+      .select("size")
+      .eq("user_id", userId)
+      .eq("option_id", v.optionId)
+      .eq("product_line", "spot")
+      .eq("side", "long")
+      .eq("status", "Open")
+      .maybeSingle();
+    if (!existing || Number(existing.size) < v.quantity - 0.000001) {
+      throw new Error("Not enough spot shares to sell. Short selling is not supported.");
+    }
+  }
+
+  const { data: trade, error } = await supabase
+    .from("trades")
+    .insert({
+      user_id: userId,
+      event_name: v.eventName,
+      option_label: v.optionLabel,
+      side: v.side,
+      order_type: "Limit",
+      price: v.price,
+      amount: notional,
+      quantity: v.quantity,
+      leverage: 1,
+      margin: notional,
+      fee: 0,
+      status: "Pending",
+      product_line: "spot",
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return { trade, reservedAmount: v.side === "buy" ? notional : 0 };
+};
+
+/** Cancel a Pending spot limit order. Returns the amount to refund
+ *  to the wallet (BUY: reserved notional; SELL: 0 — shares were never
+ *  moved). No-op if the order is not Pending. */
+export const cancelSpotLimitOrder = async (userId: string, tradeId: string) => {
+  const { data: trade } = await supabase
+    .from("trades")
+    .select("*")
+    .eq("id", tradeId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!trade || trade.status !== "Pending") return { refund: 0 };
+  await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
+  return { refund: trade.side === "buy" ? Number(trade.amount) : 0 };
+};
+
+/** Fill a previously Pending spot limit order. For BUY orders the cash
+ *  was already reserved at place time, so `balanceDelta = 0`; for SELL
+ *  the wallet receives `price × qty` proceeds. Creates or merges the
+ *  spot long position. If the SELL can no longer be honoured (shares
+ *  moved), the order is auto-cancelled and `balanceDelta = 0`.
+ *
+ *  DEMO-STATE: Called from the front end when the mark price touches
+ *  the limit. Production replaces this with an actual matching engine. */
+export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
+  const { data: trade, error } = await supabase
+    .from("trades")
+    .select("*")
+    .eq("id", tradeId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!trade || trade.status !== "Pending") return { balanceDelta: 0, intent: "noop" as const };
+
+  const q = Number(trade.quantity);
+  const price = Number(trade.price);
+
+  // Find matching open spot long on the same option.
+  const { data: existing } = await supabase
+    .from("positions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("event_name", trade.event_name)
+    .eq("option_label", trade.option_label)
+    .eq("product_line", "spot")
+    .eq("side", "long")
+    .eq("status", "Open")
+    .maybeSingle();
+
+  if (trade.side === "buy") {
+    if (existing) {
+      const oldSize = Number(existing.size);
+      const oldEntry = Number(existing.entry_price);
+      const newSize = oldSize + q;
+      const weightedEntry = (oldSize * oldEntry + q * price) / newSize;
+      await supabase
+        .from("positions")
+        .update({
+          size: newSize,
+          margin: Number(existing.margin) + Number(trade.amount),
+          entry_price: weightedEntry,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", existing.id);
+    } else {
+      await supabase.from("positions").insert({
+        user_id: userId,
+        trade_id: trade.id,
+        event_name: trade.event_name,
+        option_label: trade.option_label,
+        side: "long",
+        entry_price: price,
+        mark_price: price,
+        size: q,
+        margin: Number(trade.amount),
+        leverage: 1,
+        pnl: 0,
+        pnl_percent: 0,
+        status: "Open",
+        product_line: "spot",
+      });
+    }
+    await supabase
+      .from("trades")
+      .update({ status: "Filled", closed_at: new Date().toISOString() })
+      .eq("id", trade.id);
+    return { balanceDelta: 0, intent: (existing ? "add" : "open") as "add" | "open" };
+  }
+
+  // SELL fill
+  if (!existing || Number(existing.size) < q - 0.000001) {
+    await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
+    return { balanceDelta: 0, intent: "noop" as const };
+  }
+  const existingSize = Number(existing.size);
+  const existingMargin = Number(existing.margin);
+  const entryPrice = Number(existing.entry_price);
+  const closeQty = Math.min(q, existingSize);
+  const marginReleased = existingSize > 0 ? (existingMargin * closeQty) / existingSize : 0;
+  const realizedPnl = (price - entryPrice) * closeQty;
+  const remaining = existingSize - closeQty;
+  const isClose = remaining <= 0.000001;
+  await supabase
+    .from("positions")
+    .update(
+      isClose
+        ? {
+            status: "Closed",
+            mark_price: price,
+            pnl: (Number(existing.pnl) || 0) + realizedPnl,
+            closed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        : {
+            size: remaining,
+            margin: existingMargin - marginReleased,
+            mark_price: price,
+            pnl: (Number(existing.pnl) || 0) + realizedPnl,
+            updated_at: new Date().toISOString(),
+          },
+    )
+    .eq("id", existing.id);
+  await supabase
+    .from("trades")
+    .update({ status: "Filled", closed_at: new Date().toISOString() })
+    .eq("id", trade.id);
+  return { balanceDelta: price * closeQty, intent: (isClose ? "close" : "reduce") as "close" | "reduce" };
+};
+
+

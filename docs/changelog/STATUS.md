@@ -28,6 +28,9 @@
 | SPOT1 | 现货下单/持仓语义：Buy=多头 long、Sell=减仓/平仓（禁空）；leverage=1、fee=0、product_line='spot'；Trial 优先扣 | `src/services/tradingService.ts` `executeSpotTrade` · `docs/changelog/2026-07-15-pro-spot-us-stocks.md` §2 | ⬜ | 3 个种子事件均可 Buy Yes / Buy No；未持仓时 Sell 报错；持有 100 sh 时 Sell 120 sh 报错；balance 变化优先扣 trial_balance | |
 | SPOT2 | 状态机与时刻表：5 态徽标 + 4 个占位常量（PRE_FREEZE 15m / FREEZE 5m / OPEN_COOLDOWN 09:30–09:35 / SETTLEMENT ≤16:30，均 ET）；非 TRADING/EXTENDED_TRADING 禁下单 | `src/lib/usStockSessions.ts`（4 个 PLACEHOLDER 注释） · SpotTrading 页头 | ⬜ | 4 个时刻表常量待 PM 确认后去 PLACEHOLDER 注释；lifecycle_status 手动改为 PRE_FREEZE/FROZEN 时下单按钮禁用 | 4 值为占位，需 PM 确认 |
 | SPOT3 | Portfolio 按 product_line 条件渲染：spot 行显示 SPOT 徽标，隐藏杠杆/Liq./Funding | `src/pages/Portfolio.tsx` · `src/hooks/usePositions.ts` | ⬜ | 现货持仓行 SPOT 徽标可见；杠杆/Liq. 相关列在该行不显示或显示为 "—" | 本轮做了 SPOT 徽标最小落地；杠杆列条件隐藏留研发深化 |
+| SPOT4 | 限价挂单演示态：非可成交限价单落 Pending（Buy 预扣、Sell 校验持有）；Cancel 走 `cancelSpotLimitOrder` 全额退回；触价由前端订阅 mark price 调 `fillSpotLimitOrder`；`trades.status` 走 Pending→Filled/Cancelled | `src/services/tradingService.ts`（`placeSpotLimitOrder` / `cancelSpotLimitOrder` / `fillSpotLimitOrder`） · `src/pages/SpotTrading.tsx`（touch-fill useEffect） | ⬜ | Buy 限价低于最优 ask → Pending 行出现且余额减；Cancel → 余额恢复；把 limit 调到 mark 之上 → Pending 秒变 Filled 并建仓；同名合约事件的挂单不进现货列表 | 🔴 前端模拟，正式版由撮合引擎替换 |
+| SPOT5 | Session 感知盘口：`getCurrentSession()` 按 ET 时间派生 REGULAR / EXTENDED_AFTER_HOURS / OVERNIGHT / PRE_MARKET，profile 联动 buildBook 深度/spread/size 及 LP quote-mode 徽标 | `src/lib/usStockSessions.ts` · `src/pages/SpotTrading.tsx` · `/style-guide` Spot 新 section | ⬜ | 4 个 session 的盘口档数与徽标符合表格；tooltip 描述当前时段；正式版实现时需与 LP 引擎实际报价窗口对齐 | 4 个窗口沿用原 PLACEHOLDER，与 PRD 4 常量一起确认 |
+
 
 ---
 

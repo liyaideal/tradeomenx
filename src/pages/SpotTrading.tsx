@@ -29,18 +29,27 @@ import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
-import { executeSpotTrade } from "@/services/tradingService";
+import {
+  executeSpotTrade,
+  placeSpotLimitOrder,
+  cancelSpotLimitOrder,
+  fillSpotLimitOrder,
+} from "@/services/tradingService";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
   getLifecycleBadge,
   isOrderingBlocked,
   getBlockedReason,
   formatDualTimezone,
+  getCurrentSession,
+  LP_QUOTE_MODE_BADGE,
   SETTLEMENT_CREDIT_BY_ET,
+  type SessionProfile,
 } from "@/lib/usStockSessions";
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
+
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 
@@ -59,24 +68,28 @@ const FIRST_LEVEL_SIZE = 200;
 const SIZE_DECAY = 0.82;
 const JITTER_PCT = 0.15;
 
-const buildBook = (mid: number, seed: number) => {
+const buildBook = (mid: number, seed: number, profile: SessionProfile) => {
   const rand = (i: number) => {
     const x = Math.sin(seed * 13.37 + i * 7.11) * 10000;
     return x - Math.floor(x); // 0..1
   };
-  // 8..12 levels, deterministic per seed
-  const levels = 8 + Math.floor(rand(0) * 5);
+  const range = Math.max(1, profile.levelsMax - profile.levelsMin + 1);
+  const levels = profile.levelsMin + Math.floor(rand(0) * range);
   const clampedMid = Math.min(0.98, Math.max(0.02, mid || 0.5));
+
+  const minHalfSpread = MIN_HALF_SPREAD * profile.spreadMult;
+  const levelStep = LEVEL_STEP * profile.spreadMult;
+  const firstSize = FIRST_LEVEL_SIZE * profile.sizeMult;
 
   const asks: { price: string; amount: string; total: string }[] = [];
   const bids: { price: string; amount: string; total: string }[] = [];
   let cumA = 0;
   let cumB = 0;
   for (let i = 0; i < levels; i++) {
-    const offset = MIN_HALF_SPREAD + LEVEL_STEP * i;
+    const offset = minHalfSpread + levelStep * i;
     const ap = Math.min(0.99, Math.max(0.01, clampedMid + offset));
     const bp = Math.min(0.99, Math.max(0.01, clampedMid - offset));
-    const base = FIRST_LEVEL_SIZE * Math.pow(SIZE_DECAY, i);
+    const base = firstSize * Math.pow(SIZE_DECAY, i);
     const jitterA = 1 + (rand(i * 2 + 1) - 0.5) * 2 * JITTER_PCT;
     const jitterB = 1 + (rand(i * 2 + 2) - 0.5) * 2 * JITTER_PCT;
     const aAmt = Math.max(1, Math.round(base * jitterA));
@@ -88,6 +101,7 @@ const buildBook = (mid: number, seed: number) => {
   }
   return { asks, bids };
 };
+
 
 // Human 24h volume mock — deterministic from event id, so it stays stable while
 // the price ticks around. DEMO-STATE.
@@ -250,21 +264,33 @@ export default function SpotTrading() {
   const payoutIfRight = side === "buy" ? qty : 0; // $1 per winning share
   const fee = cost * SPOT_FEE_RATE;
 
-  // Order book (mock)
+  // Session profile drives book depth / spread / size / quote-mode badge.
+  // Recompute every minute so the terminal follows the wall clock.
+  const [sessionTick, setSessionTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setSessionTick((n) => n + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  const sessionProfile = useMemo(() => getCurrentSession(), [sessionTick]);
+
+  // Order book (mock, session-aware)
   const book = useMemo(
-    () => buildBook(outcomePrice || 0.5, (selectedOption?.id || "").length),
-    [outcomePrice, selectedOption?.id],
+    () => buildBook(outcomePrice || 0.5, (selectedOption?.id || "").length, sessionProfile),
+    [outcomePrice, selectedOption?.id, sessionProfile],
   );
+
+  const bestAsk = parseFloat(book.asks[0]?.price ?? "1") || 1;
+  const bestBid = parseFloat(book.bids[0]?.price ?? "0") || 0;
 
   // ---- Positions / orders (spot-scoped) ----
   const { positions, refetch: refetchPositions } = usePositions();
-  const { orders, cancelOrder, isCancelling } = useOrders();
+  const { orders, cancelOrder, refetch: refetchOrders, isCancelling } = useOrders();
   const spotPositions = useMemo(
     () => positions.filter((p) => p.productLine === "spot" && p.event === event?.name),
     [positions, event?.name],
   );
   const spotOrders = useMemo(
-    () => orders.filter((o) => (o as any).product_line === "spot" && o.event === event?.name),
+    () => orders.filter((o) => o.productLine === "spot" && o.event === event?.name),
     [orders, event?.name],
   );
 
@@ -273,6 +299,7 @@ export default function SpotTrading() {
     const p = spotPositions.find((pp) => pp.optionId === selectedOption.id);
     return p ? p.sizeNum : 0;
   }, [spotPositions, selectedOption]);
+
 
   // ---- Watchlist ----
   const { isWatched, toggle: toggleWatch } = useWatchlist();
@@ -292,6 +319,13 @@ export default function SpotTrading() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOptionId]);
 
+  // ---- Marketability (DEMO-STATE) ----
+  // Buy limit ≥ best ask → immediate fill. Buy limit < best ask → Pending.
+  // Sell limit ≤ best bid → immediate fill. Sell limit > best bid → Pending.
+  const isLimitMarketable =
+    side === "buy" ? effectivePrice >= bestAsk : effectivePrice <= bestBid;
+  const willBePending = orderType === "Limit" && !isLimitMarketable;
+
   // ---- Submit ----
   const handleSubmit = async () => {
     if (!user) {
@@ -299,7 +333,7 @@ export default function SpotTrading() {
       return;
     }
     if (!selectedOption) return;
-    if (blocked) return toast.error("Market is frozen — no new orders.");
+    if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (amt <= 0 || effectivePrice <= 0 || effectivePrice >= 1)
       return toast.error("Enter a valid price and amount.");
     if (side === "sell" && qty > heldQty + 1e-6)
@@ -308,26 +342,98 @@ export default function SpotTrading() {
 
     setSubmitting(true);
     try {
-      const res = await executeSpotTrade(user.id, {
-        eventName: event!.name,
-        optionLabel: selectedOption.label,
-        optionId: selectedOption.id,
-        side,
-        price: effectivePrice,
-        quantity: qty,
-      });
-      if (res.balanceDelta < 0) await deductBalance(-res.balanceDelta);
-      else if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
-      toast.success(side === "buy" ? "Spot buy filled" : "Spot sell filled");
+      if (willBePending) {
+        // Place Pending limit order — cash reserved (buy) up front.
+        await placeSpotLimitOrder(user.id, {
+          eventName: event!.name,
+          optionLabel: selectedOption.label,
+          optionId: selectedOption.id,
+          side,
+          price: effectivePrice,
+          quantity: qty,
+        });
+        if (side === "buy") await deductBalance(effectivePrice * qty);
+        toast.success(
+          side === "buy"
+            ? `Limit buy placed · $${(effectivePrice * qty).toFixed(2)} reserved`
+            : "Limit sell placed",
+        );
+      } else {
+        const res = await executeSpotTrade(user.id, {
+          eventName: event!.name,
+          optionLabel: selectedOption.label,
+          optionId: selectedOption.id,
+          side,
+          price: effectivePrice,
+          quantity: qty,
+        });
+        if (res.balanceDelta < 0) await deductBalance(-res.balanceDelta);
+        else if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+        toast.success(side === "buy" ? "Spot buy filled" : "Spot sell filled");
+      }
       setAmount("");
       setSliderValue([0]);
       refetchPositions();
+      refetchOrders();
     } catch (err: any) {
       toast.error(err?.message || "Trade failed");
     } finally {
       setSubmitting(false);
     }
   };
+
+  // ---- Cancel spot pending order (refund reserved cash for buy). ----
+  const handleCancelSpotOrder = async (o: (typeof spotOrders)[number]) => {
+    if (!user || !o.id) return;
+    try {
+      const res = await cancelSpotLimitOrder(user.id, o.id);
+      if (res.refund > 0) await addBalance(res.refund);
+      toast.success(res.refund > 0 ? `Order cancelled · $${res.refund.toFixed(2)} refunded` : "Order cancelled");
+      refetchOrders();
+    } catch (err: any) {
+      // Fall back to plain cancel if service call fails for any reason
+      await cancelOrder(o.id);
+      toast.error(err?.message || "Cancel failed");
+    }
+  };
+
+  // ---- DEMO-STATE: touch fill ----
+  // 触价成交由前端模拟，正式版由撮合引擎完成。
+  // When the mark price crosses a Pending limit, fill the order.
+  const fillingIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!user || spotOrders.length === 0) return;
+    for (const o of spotOrders) {
+      if (!o.id || o.status !== "Pending" || o.orderType !== "Limit") continue;
+      if (fillingIdsRef.current.has(o.id)) continue;
+      const limit = parseFloat(String(o.price).replace(/[$,]/g, "")) || 0;
+      const mark = yesOpt && o.option === yesOpt.label ? yesLive : noLive;
+      const touched =
+        o.type === "buy" ? mark <= limit + 1e-9 : mark >= limit - 1e-9;
+      if (!touched) continue;
+      fillingIdsRef.current.add(o.id);
+      (async () => {
+        try {
+          const res = await fillSpotLimitOrder(user.id, o.id!);
+          if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+          if (res.intent !== "noop") {
+            toast.success(
+              o.type === "buy"
+                ? "Limit buy filled at your price"
+                : `Limit sell filled · $${res.balanceDelta.toFixed(2)} to wallet`,
+            );
+          }
+          refetchPositions();
+          refetchOrders();
+        } catch {
+          // swallow — realtime tick will retry via a fresh id set on refetch
+        } finally {
+          fillingIdsRef.current.delete(o.id!);
+        }
+      })();
+    }
+  }, [yesLive, noLive, spotOrders, user, yesOpt, addBalance, refetchPositions, refetchOrders]);
+
 
   // ---- Render guards ----
   if (loading) {
@@ -563,6 +669,13 @@ export default function SpotTrading() {
         <div className="text-[10px] text-muted-foreground">
           Settles & credits by ~{SETTLEMENT_CREDIT_BY_ET} ET
         </div>
+        {willBePending && (
+          <div className="text-[10px] text-trading-yellow">
+            {side === "buy"
+              ? `Limit below best ask $${bestAsk.toFixed(2)} — order will rest as Pending until touched. $${(effectivePrice * qty || 0).toFixed(2)} reserved.`
+              : `Limit above best bid $${bestBid.toFixed(2)} — order will rest as Pending until touched.`}
+          </div>
+        )}
 
         {/* CTA — semantic outcome color, never primary */}
         <button
@@ -581,13 +694,16 @@ export default function SpotTrading() {
             blockedReason || "Market unavailable"
           ) : (
             <>
-              {side === "buy" ? "Buy" : "Sell"} {outcomeLabel}
-              {side === "buy" && qty > 0 && (
+              {willBePending
+                ? `Place limit ${side} ${outcomeLabel}`
+                : `${side === "buy" ? "Buy" : "Sell"} ${outcomeLabel}`}
+              {side === "buy" && qty > 0 && !willBePending && (
                 <span className="opacity-80"> · To win ${payoutIfRight.toFixed(0)} →</span>
               )}
             </>
           )}
         </button>
+
       </div>
     </div>
   );
@@ -720,43 +836,57 @@ export default function SpotTrading() {
 
   const OrdersTable = (
     <div className="text-xs">
-      <div className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.8fr_0.9fr_0.6fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
+      <div className="grid grid-cols-[1.5fr_0.6fr_0.6fr_0.6fr_0.7fr_0.8fr_0.7fr_0.5fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
         <span>Market</span>
         <span>Side</span>
         <span>Type</span>
-        <span className="text-right">Price</span>
-        <span className="text-right">Amount</span>
+        <span className="text-right">Limit</span>
+        <span className="text-right">Qty (sh)</span>
+        <span className="text-right">Reserved</span>
         <span className="text-right">Status</span>
         <span />
       </div>
       {spotOrders.length === 0 ? (
         <div className="px-4 py-8 text-center text-muted-foreground">No open spot orders.</div>
       ) : (
-        spotOrders.map((o, i) => (
-          <div
-            key={o.id ?? i}
-            className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.8fr_0.9fr_0.6fr] gap-2 px-4 py-2 items-center border-b border-border/20 hover:bg-muted/20"
-          >
-            <span className="truncate">{o.event}</span>
-            <span className={cn("uppercase", o.type === "buy" ? "text-trading-green" : "text-trading-red")}>
-              {o.type}
-            </span>
-            <span>{o.orderType}</span>
-            <span className="text-right font-mono">{o.price}</span>
-            <span className="text-right font-mono">{o.amount}</span>
-            <span className="text-right text-muted-foreground">{o.status}</span>
-            <button
-              disabled={isCancelling}
-              onClick={() => cancelOrder(o.id ?? i)}
-              className="text-[10px] text-trading-red hover:underline text-right"
+        spotOrders.map((o, i) => {
+          const reserved = o.type === "buy" ? o.total : "—";
+          const isPending = o.status === "Pending";
+          return (
+            <div
+              key={o.id ?? i}
+              className="grid grid-cols-[1.5fr_0.6fr_0.6fr_0.6fr_0.7fr_0.8fr_0.7fr_0.5fr] gap-2 px-4 py-2 items-center border-b border-border/20 hover:bg-muted/20"
             >
-              Cancel
-            </button>
-          </div>
-        ))
+              <span className="truncate">{o.event}</span>
+              <span className={cn("uppercase", o.type === "buy" ? "text-trading-green" : "text-trading-red")}>
+                {o.type}
+              </span>
+              <span>{o.orderType}</span>
+              <span className="text-right font-mono">{o.price}</span>
+              <span className="text-right font-mono">{o.amount}</span>
+              <span className="text-right font-mono text-muted-foreground">{reserved}</span>
+              <span
+                className={cn(
+                  "text-right",
+                  isPending ? "text-trading-yellow" : "text-muted-foreground",
+                )}
+              >
+                {o.status}
+              </span>
+              <button
+                disabled={isCancelling || !isPending}
+                onClick={() => handleCancelSpotOrder(o)}
+                className="text-[10px] text-trading-red hover:underline text-right disabled:opacity-40 disabled:no-underline"
+              >
+                Cancel
+              </button>
+            </div>
+          );
+        })
       )}
     </div>
   );
+
 
   const BottomTabs = (
     <div className="border-t border-border/30">
@@ -1010,7 +1140,7 @@ export default function SpotTrading() {
                 isPositive={indicativePct >= 0}
                 side={side}
                 variant="spot"
-                quoteMode="NORMAL"
+                quoteMode={sessionProfile.quoteMode}
                 onPriceClick={(price) => {
                   setLimitPrice(price);
                   setOrderType("Limit");

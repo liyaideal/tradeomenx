@@ -1,8 +1,14 @@
 import { Badge } from "@/components/ui/badge";
-import { LIFECYCLE_BADGE, LP_QUOTE_MODE_BADGE } from "@/lib/usStockSessions";
+import {
+  LIFECYCLE_BADGE,
+  LP_QUOTE_MODE_BADGE,
+  SESSION_PROFILES,
+  type SessionProfile,
+} from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { ArrowLeft, Star } from "lucide-react";
+
 
 interface Props { isMobile: boolean }
 
@@ -120,6 +126,61 @@ export const SpotSection = ({ isMobile }: Props) => {
         </div>
       </SectionWrapper>
 
+      {/* Session-aware order-book profiles */}
+      <SectionWrapper
+        id="spot-session-profiles"
+        title="Session-aware LP profiles"
+        description="getCurrentSession() picks the profile from wall-clock ET. Depth/spread/size + quote-mode badge follow the session (LP PRD §4.2/§6.1). DEMO-STATE."
+      >
+        <div className="grid gap-3 md:grid-cols-2">
+          {Object.values(SESSION_PROFILES).map((p) => (
+            <SessionProfileCard key={p.session} profile={p} />
+          ))}
+        </div>
+      </SectionWrapper>
+
+      {/* Pending limit orders (Cancel / Reserved) */}
+      <SectionWrapper
+        id="spot-pending-orders"
+        title="Current Orders — Pending / Cancel"
+        description="Buy limit < best ask → Pending (cash reserved). Sell limit > best bid → Pending. Cancel refunds reserved cash for buys. Touch-fill is front-end simulated; DEMO-STATE."
+      >
+        <div className="rounded-lg border border-border/50 overflow-hidden text-xs">
+          <div className="grid grid-cols-[1.5fr_0.6fr_0.6fr_0.7fr_0.8fr_0.7fr_0.7fr_0.5fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 bg-muted/30">
+            <span>Market</span>
+            <span>Side</span>
+            <span>Type</span>
+            <span className="text-right">Limit</span>
+            <span className="text-right">Qty (sh)</span>
+            <span className="text-right">Reserved</span>
+            <span className="text-right">Status</span>
+            <span />
+          </div>
+          {SAMPLE_ORDERS.map((o, i) => (
+            <div
+              key={i}
+              className="grid grid-cols-[1.5fr_0.6fr_0.6fr_0.7fr_0.8fr_0.7fr_0.7fr_0.5fr] gap-2 px-4 py-2 items-center border-b border-border/20"
+            >
+              <span className="truncate">{o.market}</span>
+              <span className={`uppercase ${o.side === "buy" ? "text-trading-green" : "text-trading-red"}`}>{o.side}</span>
+              <span>{o.type}</span>
+              <span className="text-right font-mono">{o.limit}</span>
+              <span className="text-right font-mono">{o.qty}</span>
+              <span className="text-right font-mono text-muted-foreground">{o.reserved}</span>
+              <span className={`text-right ${o.status === "Pending" ? "text-trading-yellow" : "text-muted-foreground"}`}>
+                {o.status}
+              </span>
+              <button
+                disabled={o.status !== "Pending"}
+                className="text-[10px] text-trading-red hover:underline text-right disabled:opacity-40 disabled:no-underline"
+              >
+                Cancel
+              </button>
+            </div>
+          ))}
+        </div>
+      </SectionWrapper>
+
       {/* Removed fields — anti-pattern reference */}
       <SectionWrapper
         id="spot-removed-fields"
@@ -139,6 +200,48 @@ export const SpotSection = ({ isMobile }: Props) => {
     </div>
   );
 };
+
+const SAMPLE_ORDERS = [
+  { market: "TSLA · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.42", qty: "500", reserved: "$210.00", status: "Pending" },
+  { market: "NVDA · Not Up (Jul 15)", side: "sell", type: "Limit", limit: "$0.61", qty: "300", reserved: "—", status: "Pending" },
+  { market: "AAPL · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.55", qty: "200", reserved: "$110.00", status: "Filled" },
+];
+
+const SessionProfileCard = ({ profile }: { profile: SessionProfile }) => {
+  const badge = LP_QUOTE_MODE_BADGE[profile.quoteMode];
+  return (
+    <div className="rounded-lg border border-border/50 p-3 bg-background space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="font-semibold text-sm">{profile.label}</span>
+        <span
+          className={`px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wide rounded border ${badge.className}`}
+          title={badge.tooltip}
+        >
+          {badge.label}
+        </span>
+      </div>
+      <div className="text-[11px] text-muted-foreground">{profile.tooltip}</div>
+      <div className="grid grid-cols-3 gap-2 text-[11px] font-mono">
+        <div>
+          <div className="text-muted-foreground text-[10px]">Levels</div>
+          <div>
+            {profile.levelsMin}
+            {profile.levelsMin === profile.levelsMax ? "" : `–${profile.levelsMax}`}
+          </div>
+        </div>
+        <div>
+          <div className="text-muted-foreground text-[10px]">Spread ×</div>
+          <div>{profile.spreadMult}</div>
+        </div>
+        <div>
+          <div className="text-muted-foreground text-[10px]">Size ×</div>
+          <div>{profile.sizeMult}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const Stat = ({ label, value, valueClass, hint }: { label: string; value: string; valueClass?: string; hint?: string }) => (
   <div className="text-xs">

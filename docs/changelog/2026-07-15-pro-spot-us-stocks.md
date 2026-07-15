@@ -88,3 +88,48 @@
 - 新字段全部 🟡：语义（多产品线、状态机、结算基准价）是需求；`text[] + text` 的 schema 与 DB 硬编码的 lifecycle 值都是演示便利，正式版应有专门的产品线/状态表
 - `category_boost_configs` 🟢：Boost 板块开关是运营规则，必须做成后台可配置
 - 现货下单不入 orders 表（本仓库没有真实订单账本，见 backend-boundary 红线 §4）
+
+---
+
+## v1.1 增补（2026-07-15 同日发布）
+
+两处增强，代码级已落地；仍是纯前端演示，正式版由撮合引擎替换。
+
+### 11. 限价挂单演示态（前端模拟撮合）
+
+- **可成交判定**：Buy 限价 ≥ 模拟盘口最优 ask → 即时成交（走 `executeSpotTrade`）；Buy 限价 < ask → `placeSpotLimitOrder` 落 Pending，前端立刻 `deductBalance(notional)` 预扣。Sell 同理，用最优 bid 判定；Sell Pending 不动持仓 shares，成交时二次校验。
+- **Current Orders tab**：新增 Reserved 列（Buy 显示预扣金额，Sell 显示 —）；Cancel 按钮走 `cancelSpotLimitOrder` → status=Cancelled，Buy 的话 `addBalance` 退回预扣。
+- **触价成交**：`SpotTrading.tsx` 内 `useEffect` 订阅 mark price（yesLive/noLive by option label），当 Buy Pending 的 mark ≤ limit 或 Sell Pending 的 mark ≥ limit 时，调用 `fillSpotLimitOrder` 建/加/平仓。所有相关代码带 `// DEMO-STATE: 触价成交由前端模拟，正式版由撮合引擎完成` 注释。
+- **落库契约**：Pending 行 `status='Pending'` / `product_line='spot'`；Filled 时 `status='Filled' + closed_at`；Cancelled 时 `status='Cancelled'`。均为 `trades` 表合法枚举。
+- **数据链路修复**：`useSupabaseOrders.SupabaseOrder` 与 `useOrders.UnifiedOrder` 补 `product_line` 字段，SpotTrading 的 `spotOrders` 过滤器由 `(o as any).product_line` 改为类型安全的 `o.productLine`。之前该字段永远读不到，导致 spot Pending 不显示。
+
+### 12. Session 感知盘口（LP PRD §4.2/§6.1）
+
+`src/lib/usStockSessions.ts` 新增：
+
+- `SessionType = 'REGULAR' | 'EXTENDED_AFTER_HOURS' | 'OVERNIGHT' | 'PRE_MARKET'`
+- `SESSION_PROFILES`：每个 session 定义 `levelsMin/levelsMax` / `spreadMult` / `sizeMult` / `quoteMode` / `tooltip`
+- `getCurrentSession(now?)`：按 America/New_York 当前分钟数派生
+
+时间轴（占位，与原 4 个 PLACEHOLDER 常量对齐）：
+
+| Session | ET 窗口 | Levels | Spread × | Size × | Quote mode |
+|---|---|---|---|---|---|
+| REGULAR | 09:30–15:45 | 8..12 | 1.0 | 1.0 | NORMAL |
+| EXTENDED_AFTER_HOURS | 15:45–20:00 | 3..7 | 2.0 | 0.4 | CONSERVATIVE |
+| OVERNIGHT | 20:00–04:00 | 3 | 3.0 | 0.25 | CONSERVATIVE |
+| PRE_MARKET | 04:00–09:30 | 3..7 | 2.0 | 0.4 | CONSERVATIVE |
+
+SpotTrading 每分钟 `sessionTick` 重算 profile，`buildBook(mid, seed, profile)` 使用 profile 的 spread/size/depth；`DesktopOrderBook.quoteMode` 由 `sessionProfile.quoteMode` 驱动，tooltip 自动切换文案。
+
+### 13. Style Guide 更新
+
+`/style-guide` Spot section 新增：
+
+- **Session-aware LP profiles**：4 张卡片，展示每个 session 的 levels / spread × / size × / 徽标（NORMAL 或 CONSERVATIVE）
+- **Current Orders — Pending / Cancel**：Pending / Filled 两种行样式，Reserved 列，Cancel 按钮的可用/禁用态
+
+### 14. 红线（引 backend-boundary）
+
+- 🔴 现货挂单/撤单/触价成交均为前端模拟；生产环境需替换为撮合引擎（订单簿、成交回报、状态机推进都在服务端），前端只订阅事件流。
+- 🟡 Session profile 常量沿用原 4 个 `PLACEHOLDER: pending confirmation`，PM 确认后与时刻表一次性 unlock。
