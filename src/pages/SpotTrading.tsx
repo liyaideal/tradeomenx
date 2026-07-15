@@ -209,8 +209,9 @@ export default function SpotTrading() {
   const tz = endDate ? formatDualTimezone(endDate) : null;
 
   const lifecycle = event?.lifecycle_status || "TRADING";
-  const badge = LIFECYCLE_BADGE[lifecycle] || LIFECYCLE_BADGE.TRADING;
+  const badge = getLifecycleBadge(lifecycle);
   const blocked = isOrderingBlocked(lifecycle);
+  const blockedReason = getBlockedReason(lifecycle);
 
   const basePrice = event?.base_price != null ? Number(event.base_price) : null;
   const indicative = useIndicativeLast(basePrice, event?.id || "");
