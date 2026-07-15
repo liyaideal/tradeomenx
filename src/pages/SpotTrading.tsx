@@ -972,6 +972,7 @@ export default function SpotTrading() {
         <InfoCell label="Settles vs" value={`Prior close · flat close = ${noLabel}`} />
         <InfoCell label="Resolution source" value={event.source_name || "databento"} />
         <InfoCell label="Symbol" value={`${ticker} · Nasdaq`} />
+        <InfoCell label="Volume" value={mock24hVolume(event.id)} />
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="font-semibold text-foreground text-sm">Rules</div>
