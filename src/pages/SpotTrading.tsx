@@ -48,7 +48,7 @@ import {
   getLifecycleBadge,
   isOrderingBlocked,
   getBlockedReason,
-  formatDualTimezone,
+  // formatDualTimezone removed — header no longer renders Beijing time.
   formatEtTime,
   formatBeijingTime,
   getCurrentSession,
