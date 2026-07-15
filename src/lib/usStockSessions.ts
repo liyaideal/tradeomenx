@@ -298,3 +298,25 @@ export const getCurrentSession = (now: Date = new Date()): SessionProfile => {
   if (mins >= AH_END || mins < PM_START) return SESSION_PROFILES.OVERNIGHT;
   return SESSION_PROFILES.PRE_MARKET;
 };
+
+// -----------------------------------------------------------------
+// DEMO-STATE: 自动态显示由前端时钟推导，正式版由后端状态机驱动。
+// -----------------------------------------------------------------
+// Manual states (SUSPENDED / REVIEW / FROZEN / SETTLING / SETTLED / CANCELED
+// / CREATED) are authoritative and pass through unchanged. When the DB
+// lifecycle is TRADING or EXTENDED_TRADING we derive the display value
+// from the ET wall clock so the badge and the LP session profile stay
+// in lock-step (before 09:30 ET → EXTENDED_TRADING; 09:30 ET to
+// freeze_time → TRADING). Consumers should use this for badge rendering
+// while keeping the raw `lifecycle_status` for governance code.
+const AUTO_STATES = new Set(["TRADING", "EXTENDED_TRADING"]);
+export const getDisplayLifecycle = (
+  dbLifecycle: string | null | undefined,
+  now: Date = new Date(),
+): string => {
+  if (!dbLifecycle) return "TRADING";
+  if (!AUTO_STATES.has(dbLifecycle)) return dbLifecycle;
+  const mins = etMinutesOfDay(now);
+  const REG_START = 9 * 60 + 30;
+  return mins < REG_START ? "EXTENDED_TRADING" : "TRADING";
+};
