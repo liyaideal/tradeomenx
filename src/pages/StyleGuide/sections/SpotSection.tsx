@@ -250,6 +250,10 @@ export const SpotSection = ({ isMobile }: Props) => {
           <div>❌ Liq. price / Margin req.</div>
           <div>❌ BTCUSDT / USDT Perpetual defaults from `DesktopHeader`</div>
           <div>❌ Site-wide nav header (`EventsDesktopHeader`, `MobileHeader` w/ Logo)</div>
+          <div>❌ Second time row under the countdown ("Settles at HH:MM ET · credits by ...")</div>
+          <div>❌ Yes Price stat in the header (duplicates the Trade panel + chart)</div>
+          <div>❌ Non-English characters anywhere in the header (中文/北京 chip, Beijing timezone label)</div>
+          <div>❌ "24h Volume" — event lifecycle is intraday, drop the "24h" prefix, just "Volume"</div>
         </div>
       </SectionWrapper>
     </div>
