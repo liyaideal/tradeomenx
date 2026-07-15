@@ -921,7 +921,9 @@ export default function SpotTrading() {
                   isPending ? "text-trading-yellow" : "text-muted-foreground",
                 )}
               >
-                {o.status}
+                {o.id && frozenCancelledIds.has(o.id)
+                  ? "Cancelled · market frozen"
+                  : o.status}
               </span>
               <button
                 disabled={isCancelling || !isPending}
