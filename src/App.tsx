@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MobileHome from "./pages/MobileHome";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
+import SpotTrading from "./pages/SpotTrading";
 import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide/index";
