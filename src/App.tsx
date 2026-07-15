@@ -105,6 +105,7 @@ const App = () => (
                     <Route path="/" element={<HomePage />} />
               <Route path="/trade" element={<TradingPage />} />
               <Route path="/trade/order" element={<TradeOrderPage />} />
+              <Route path="/spot" element={<SpotTrading />} />
               <Route path="/order-preview" element={<OrderPreview />} />
               <Route path="/events" element={<EventsPage />} />
               <Route path="/resolved" element={<ResolvedPage />} />
