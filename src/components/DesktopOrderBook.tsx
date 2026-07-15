@@ -163,9 +163,11 @@ export const DesktopOrderBook = ({
   onPriceClick,
   side = "buy",
   variant = "futures",
+  quoteMode,
 }: DesktopOrderBookProps) => {
   const midTooltip = MID_TOOLTIP_COPY[variant];
   const headers = COLUMN_HEADERS[variant];
+  const quoteModeBadge = quoteMode ? LP_QUOTE_MODE_BADGE[quoteMode] : null;
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
   const bookSide = side;
