@@ -242,7 +242,7 @@ export default function SpotTrading() {
     [positions, event?.name],
   );
   const spotOrders = useMemo(
-    () => orders.filter((o) => (o as any).product_line === "spot" || o.event === event?.name),
+    () => orders.filter((o) => (o as any).product_line === "spot" && o.event === event?.name),
     [orders, event?.name],
   );
 
