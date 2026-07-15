@@ -630,12 +630,22 @@ export default function SpotTrading() {
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="font-semibold text-foreground text-sm">Rules</div>
-        <ul className="list-disc pl-4 space-y-1">
-          <li>Settles vs the official prior close reported by databento.</li>
-          <li>Flat close counts as {noLabel}.</li>
-          <li>Winning share pays $1; losing shares expire worthless.</li>
-          <li>If the underlying trades halted or the print is disputed by the exchange, the market cancels and all orders refund at entry.</li>
-        </ul>
+        {event.rules ? (
+          <ul className="list-disc pl-4 space-y-1">
+            {event.rules
+              .split(/\r?\n/)
+              .map((l) => l.trim())
+              .filter(Boolean)
+              .map((line, i) => (
+                <li key={i}>{line}</li>
+              ))}
+          </ul>
+        ) : (
+          <p className="italic">Rules not yet published for this market.</p>
+        )}
+      </div>
+      <div className="text-xs text-muted-foreground">
+        Settles &amp; credits by ~{SETTLEMENT_CREDIT_BY_ET} ET.
       </div>
     </div>
   );
