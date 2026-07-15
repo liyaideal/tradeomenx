@@ -312,6 +312,22 @@ export const DesktopOrderBook = ({
             Recent Trades
           </button>
         </div>
+        {quoteModeBadge && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className={`ml-auto px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wide rounded border cursor-help ${quoteModeBadge.className}`}
+                >
+                  {quoteModeBadge.label}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[220px] p-2">
+                <p className="text-xs">{quoteModeBadge.tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
 
       {activeTab === "orderbook" ? (
