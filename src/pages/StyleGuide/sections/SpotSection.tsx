@@ -1,158 +1,129 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { LIFECYCLE_BADGE } from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { SectionWrapper } from "../components/SectionWrapper";
+import { ArrowLeft, Star } from "lucide-react";
 
 interface Props { isMobile: boolean }
 
-
+/**
+ * Style-guide gallery for /spot. Mirrors the terminal skeleton so any
+ * regression (site nav creeping back, wrong CTA color, perp fields leaking
+ * in) is visible here first.
+ */
 export const SpotSection = ({ isMobile }: Props) => {
-  const buildBook = (mid: number, seed: number) => {
-    const halfSpread = 0.02;
-    const asks: { price: number; size: number }[] = [];
-    const bids: { price: number; size: number }[] = [];
-    let askSize = 200, bidSize = 200;
-    for (let i = 0; i < 6; i++) {
-      asks.push({ price: mid + halfSpread + i * 0.01, size: Math.round(askSize) });
-      bids.push({ price: mid - halfSpread - i * 0.01, size: Math.round(bidSize) });
-      askSize *= 0.82; bidSize *= 0.82;
-    }
-    return { bids, asks };
-  };
-  const book = buildBook(0.58, 42);
-
   return (
     <div className="space-y-8">
-      {/* Spot stats header */}
+      {/* Terminal chrome — the whole point: NO site nav on trading pages */}
+      <SectionWrapper
+        id="spot-terminal-chrome"
+        title="Spot terminal chrome"
+        description="Back + event name + red-pulse countdown + right stats (24h Vol · Prior Close · Last · Yes Price) + watchlist star. NO site navigation header. NO Index/Funding/OI/Perpetual."
+      >
+        <div className="rounded-lg border border-border/50 overflow-hidden bg-background">
+          <header className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
+            <button className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono text-[11px] font-semibold">TSL</div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold truncate">Will TSLA close higher today? (Jul 15)</span>
+                  <Badge variant="outline" className="text-[10px]">SPOT</Badge>
+                  <Badge variant="outline" className={`text-[10px] border ${LIFECYCLE_BADGE.TRADING.className}`}>Trading</Badge>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+                  <span>Closes in</span>
+                  <span className="text-trading-red font-mono font-medium">02:14:33</span>
+                  <span>·</span>
+                  <span className="font-mono">Jul 15, 16:00 ET</span>
+                  <span>·</span>
+                  <span className="font-mono">Jul 16, 04:00 北京</span>
+                </div>
+              </div>
+            </div>
+            <div className="ml-auto flex items-center gap-6 text-xs">
+              <Stat label="24h Volume" value="$1.82M" />
+              <Stat label="Prior Close" value="$268.30" />
+              <Stat label="Last (indicative)" value="$270.14" valueClass="text-trading-green" hint="+0.69%" />
+              <Stat label="Yes Price" value="$0.44" />
+            </div>
+            <Star className="w-5 h-5 text-trading-yellow fill-trading-yellow ml-2" />
+          </header>
+        </div>
+      </SectionWrapper>
+
+      {/* Spot stats header (mobile / embedded variant) */}
       <SectionWrapper
         id="spot-stats-header"
-        title="Spot stats header"
-        description="Ticker · Prior Close · Last (indicative) · Yes Price · Session. NO Index/Funding/OI/Perpetual."
+        title="SpotStatsHeader — 3 lifecycle states"
+        description="Standalone header used when embedding spot metadata outside the terminal (fallback / mobile)."
       >
         <div className="space-y-3">
-          <SpotStatsHeader
-            eventId="us-tsla-updown-20260715"
-            eventName="Will TSLA close higher today? (Jul 15)"
-            basePrice={268.30}
-            yesPrice={0.44}
-            lifecycle="TRADING"
-          />
-          <SpotStatsHeader
-            eventId="us-nvda-updown-20260715"
-            eventName="Will NVDA close higher today? (Jul 15)"
-            basePrice={182.45}
-            yesPrice={0.57}
-            lifecycle="PRE_FREEZE"
-          />
-          <SpotStatsHeader
-            eventId="us-aapl-updown-20260715"
-            eventName="Will AAPL close higher today? (Jul 15)"
-            basePrice={231.10}
-            yesPrice={0.54}
-            lifecycle="FROZEN"
-          />
+          <SpotStatsHeader eventId="us-tsla-updown-20260715" eventName="Will TSLA close higher today?" basePrice={268.30} yesPrice={0.44} lifecycle="TRADING" />
+          <SpotStatsHeader eventId="us-nvda-updown-20260715" eventName="Will NVDA close higher today?" basePrice={182.45} yesPrice={0.57} lifecycle="PRE_FREEZE" />
+          <SpotStatsHeader eventId="us-aapl-updown-20260715" eventName="Will AAPL close higher today?" basePrice={231.10} yesPrice={0.54} lifecycle="FROZEN" />
         </div>
       </SectionWrapper>
 
-      {/* Lifecycle badges */}
-
-      <SectionWrapper id="spot-lifecycle" title="Spot lifecycle badges" description="Every US-stock daily up/down state">
+      <SectionWrapper id="spot-lifecycle" title="Lifecycle badges" description="Every US-stock daily up/down state">
         <div className="flex flex-wrap gap-2">
           {Object.entries(LIFECYCLE_BADGE).map(([k, v]) => (
-            <Badge key={k} variant="outline" className={`text-[10px] border ${v.className}`}>
-              {v.label}
-            </Badge>
+            <Badge key={k} variant="outline" className={`text-[10px] border ${v.className}`}>{v.label}</Badge>
           ))}
         </div>
       </SectionWrapper>
 
-      {/* Order book preview */}
-      <SectionWrapper id="spot-book" title="Mock LP order book" description="10-level book, LP quote mode chip 'NORMAL'">
-        <div className="rounded-lg border border-border/60 bg-muted/20 p-3 max-w-md space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Order Book</h3>
-            <Badge variant="outline" className="text-[10px] text-muted-foreground border-muted-foreground/30">NORMAL</Badge>
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-            <div className="space-y-0.5">
-              <div className="flex justify-between text-[10px] uppercase text-muted-foreground pb-1 border-b border-border/40"><span>Bid</span><span>Size</span></div>
-              {book.bids.map((l, i) => (
-                <div key={i} className="flex justify-between">
-                  <span className="text-trading-green">{l.price.toFixed(2)}</span>
-                  <span className="text-muted-foreground">{l.size}</span>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-0.5">
-              <div className="flex justify-between text-[10px] uppercase text-muted-foreground pb-1 border-b border-border/40"><span>Ask</span><span>Size</span></div>
-              {book.asks.map((l, i) => (
-                <div key={i} className="flex justify-between">
-                  <span className="text-trading-red">{l.price.toFixed(2)}</span>
-                  <span className="text-muted-foreground">{l.size}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* CTA colour semantics — regression pin */}
+      <SectionWrapper
+        id="spot-cta"
+        title="Trade CTA — semantic colour only"
+        description="Buy Up → trading-green. Buy Not Up → trading-red. NEVER primary/purple. Text follows selected outcome + Buy/Sell."
+      >
+        <div className="grid gap-3 md:grid-cols-4">
+          <button className="h-11 rounded-lg font-semibold text-sm bg-trading-green hover:bg-trading-green/90 text-trading-green-foreground">
+            Buy Up · To win $126 →
+          </button>
+          <button className="h-11 rounded-lg font-semibold text-sm bg-trading-red hover:bg-trading-red/90 text-foreground">
+            Buy Not Up · To win $180 →
+          </button>
+          <button className="h-11 rounded-lg font-semibold text-sm bg-trading-green hover:bg-trading-green/90 text-trading-green-foreground">
+            Sell Up
+          </button>
+          <button className="h-11 rounded-lg font-semibold text-sm bg-trading-red hover:bg-trading-red/90 text-foreground">
+            Sell Not Up
+          </button>
         </div>
       </SectionWrapper>
 
-      {/* Trade form buy + sell */}
-      <SectionWrapper id="spot-form" title="Spot trade form — Buy & Sell" description="No leverage / TP / SL / funding / liq. inputs">
-        <div className="grid gap-4 md:grid-cols-2">
-          {(["buy", "sell"] as const).map((side) => (
-            <div key={side} className="rounded-lg border border-border/60 bg-card p-4 space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                <button className="py-2 rounded-md text-sm font-semibold border bg-trading-green/15 text-trading-green border-trading-green/40">
-                  Up <div className="text-[11px] font-mono opacity-70">$0.58</div>
-                </button>
-                <button className="py-2 rounded-md text-sm font-semibold border text-muted-foreground border-border">
-                  Not Up <div className="text-[11px] font-mono opacity-70">$0.42</div>
-                </button>
-              </div>
-              <div className="inline-flex w-full items-center gap-1 rounded-md border border-border/60 bg-muted/30 p-1">
-                <button className={`flex-1 py-1.5 rounded text-sm font-medium capitalize ${side === "buy" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"}`}>Buy</button>
-                <button className={`flex-1 py-1.5 rounded text-sm font-medium capitalize ${side === "sell" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"}`}>Sell</button>
-              </div>
-              <div className="space-y-1"><label className="text-xs text-muted-foreground">Limit price ($)</label><Input defaultValue="0.58" /></div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">
-                  {side === "buy" ? "Amount ($)" : "Amount ($) — held: 200 shares"}
-                </label>
-                <Input defaultValue="58" />
-              </div>
-              <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
-                <div className="flex justify-between"><span className="text-muted-foreground">Cost</span><span>$58.00</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Max loss</span><span>${side === "buy" ? "58.00" : "0.00"}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Payout if right</span><span>$100.00 <span className="text-muted-foreground">(100 × $1)</span></span></div>
-              </div>
-              <Button className="w-full h-11" variant={side === "buy" ? "default" : "destructive"}>
-                {side === "buy" ? "Buy Up" : "Sell Up"}
-              </Button>
-            </div>
-          ))}
-        </div>
-      </SectionWrapper>
-
-      {/* SPOT position row */}
-      <SectionWrapper id="spot-row" title="SPOT position row" description="Leverage / Liq. / Funding hidden; SPOT badge shown">
-        <div className="rounded-lg border border-border/60 bg-card p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px]">SPOT</Badge>
-              <span className="text-xs text-muted-foreground">—</span>
-            </div>
-            <div className="text-xs font-semibold text-trading-green">+$12.00 (+20.7%)</div>
-          </div>
-          <h3 className="font-medium text-sm">NVDA · Up on Jul 15?</h3>
-          <div className="grid grid-cols-3 gap-2 mt-3 text-xs font-mono">
-            <div><div className="text-muted-foreground">Entry</div><div>$0.58</div></div>
-            <div><div className="text-muted-foreground">Mark</div><div>$0.70</div></div>
-            <div><div className="text-muted-foreground">Size</div><div>100 sh</div></div>
-          </div>
+      {/* Removed fields — anti-pattern reference */}
+      <SectionWrapper
+        id="spot-removed-fields"
+        title="Removed on spot (anti-pattern reference)"
+        description="Fields that MUST NOT appear anywhere on /spot. Kept here so regressions are obvious."
+      >
+        <div className="rounded-lg border border-trading-red/30 bg-trading-red/5 p-4 text-xs font-mono space-y-1 text-muted-foreground">
+          <div>❌ Margin Mode / Cross</div>
+          <div>❌ Leverage slider + multiplier chips</div>
+          <div>❌ TP / SL block</div>
+          <div>❌ Funding Rate / Next Funding / Open Interest / Index Price</div>
+          <div>❌ Liq. price / Margin req.</div>
+          <div>❌ BTCUSDT / USDT Perpetual defaults from `DesktopHeader`</div>
+          <div>❌ Site-wide nav header (`EventsDesktopHeader`, `MobileHeader` w/ Logo)</div>
         </div>
       </SectionWrapper>
     </div>
   );
 };
+
+const Stat = ({ label, value, valueClass, hint }: { label: string; value: string; valueClass?: string; hint?: string }) => (
+  <div className="text-xs">
+    <div className="text-muted-foreground">{label}</div>
+    <div className={`font-mono font-medium ${valueClass ?? ""}`}>
+      {value}
+      {hint && <span className={`ml-1 text-[10px] ${valueClass ?? ""}`}>{hint}</span>}
+    </div>
+  </div>
+);
