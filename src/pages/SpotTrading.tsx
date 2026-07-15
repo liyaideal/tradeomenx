@@ -29,18 +29,27 @@ import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
-import { executeSpotTrade } from "@/services/tradingService";
+import {
+  executeSpotTrade,
+  placeSpotLimitOrder,
+  cancelSpotLimitOrder,
+  fillSpotLimitOrder,
+} from "@/services/tradingService";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
   getLifecycleBadge,
   isOrderingBlocked,
   getBlockedReason,
   formatDualTimezone,
+  getCurrentSession,
+  LP_QUOTE_MODE_BADGE,
   SETTLEMENT_CREDIT_BY_ET,
+  type SessionProfile,
 } from "@/lib/usStockSessions";
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
+
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 
