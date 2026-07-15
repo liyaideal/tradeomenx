@@ -348,6 +348,30 @@ export default function SpotTrading() {
   const bestAsk = parseFloat(book.asks[0]?.price ?? "1") || 1;
   const bestBid = parseFloat(book.bids[0]?.price ?? "0") || 0;
 
+  // Effective price the user is transacting at.
+  //   - Limit: user input
+  //   - Market: best executable price + slippage cap. Buy pays worst of
+  //     bestAsk × (1 + slippageBps/1e4); Sell receives worst of
+  //     bestBid × (1 − slippageBps/1e4). This keeps cost / max-win / qty
+  //     estimates aligned with what the book can actually fill.
+  const slip = slippageBps / 10_000;
+  const marketFillPrice =
+    side === "buy"
+      ? Math.min(0.9999, bestAsk * (1 + slip))
+      : Math.max(0.0001, bestBid * (1 - slip));
+  const effectivePrice = orderType === "Limit"
+    ? Math.min(0.9999, Math.max(0.0001, parseFloat(limitPrice) || outcomePrice))
+    : marketFillPrice;
+
+  const amt = parseFloat(amount) || 0;
+  const qty = effectivePrice > 0 ? amt / effectivePrice : 0;
+  const cost = effectivePrice * qty;
+  const maxLoss = side === "buy" ? cost : 0;
+  // 技术对接 §10.1: Max win for buy = qty × $1 − cost; for sell = proceeds (already realized).
+  const maxWin = side === "buy" ? Math.max(0, qty - cost) : cost;
+  const fee = cost * SPOT_FEE_RATE;
+
+
   // ---- Positions / orders (spot-scoped) ----
   const { positions, refetch: refetchPositions } = usePositions();
   const { orders, cancelOrder, refetch: refetchOrders, isCancelling } = useOrders();
