@@ -286,26 +286,36 @@ export default function SpotTrading() {
   const outcomePrice = isYesSelected ? yesLive : noLive;
 
   const endDate = event?.end_date ? new Date(event.end_date) : null;
-  const countdown = useCountdown(endDate);
-  const tz = endDate ? formatDualTimezone(endDate) : null;
-
-  const lifecycle = event?.lifecycle_status || "TRADING";
-  const badge = getLifecycleBadge(lifecycle);
-  const blocked = isOrderingBlocked(lifecycle);
-  const blockedReason = getBlockedReason(lifecycle);
-
-  const basePrice = event?.base_price != null ? Number(event.base_price) : null;
-  const indicative = useIndicativeLast(basePrice, event?.id || "");
-  const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
 
   // 技术对接 §4.1/§12.2 — timing driven by events fields, not hardcoded times.
   const freezeAt = (event as any)?.freeze_time ? new Date((event as any).freeze_time) : null;
   const settleAt = (event as any)?.expected_settlement_time
     ? new Date((event as any).expected_settlement_time)
     : null;
+  // Main countdown targets freeze_time (trading window ends there) instead of
+  // end_date; the "settles by …" caption below carries the settlement info.
+  const countdownTarget = freezeAt ?? endDate;
+  const countdown = useCountdown(countdownTarget);
+  const tz = endDate ? formatDualTimezone(endDate) : null;
+
+  // DEMO-STATE: 自动态显示由前端时钟推导，正式版由后端状态机驱动。
+  // Raw DB value (`dbLifecycle`) still drives ordering/blocking; the display
+  // value is derived from ET wall clock for auto states so the badge tracks
+  // the same session boundary as the LP quote-mode chip.
+  const dbLifecycle = event?.lifecycle_status || "TRADING";
+  const lifecycle = getDisplayLifecycle(dbLifecycle);
+  const badge = getLifecycleBadge(lifecycle);
+  const blocked = isOrderingBlocked(dbLifecycle);
+  const blockedReason = getBlockedReason(dbLifecycle);
+
+  const basePrice = event?.base_price != null ? Number(event.base_price) : null;
+  const indicative = useIndicativeLast(basePrice, event?.id || "");
+  const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
+
   const settleLabel = settleAt
     ? `${formatEtTime(settleAt)} ET / ${formatBeijingTime(settleAt)} 北京`
     : null;
+  const settleEtOnly = settleAt ? `${formatEtTime(settleAt)} ET` : null;
   const freezeLabel = freezeAt ? `${formatEtTime(freezeAt)} ET` : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`;
 
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "";
