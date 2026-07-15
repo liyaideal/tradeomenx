@@ -31,7 +31,24 @@ interface DesktopOrderBookProps {
   isPositive?: boolean;
   onPriceClick?: (price: string) => void;
   side?: "buy" | "sell";
+  /**
+   * 'futures' (default) preserves the perpetual-contract wording used by /trade.
+   * 'spot' swaps the copy for outcome-share semantics used by /spot — no
+   * index price / funding / liquidation references leak into the spot terminal.
+   */
+  variant?: "futures" | "spot";
 }
+
+const MID_TOOLTIP_COPY = {
+  futures:
+    "Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.",
+  spot: "Mid price of the outcome share order book. Shares settle at $1 (win) or $0 (lose).",
+} as const;
+
+const COLUMN_HEADERS = {
+  futures: { price: "Price(USDT)", qty: "Qty(BTC)", total: "Total(BTC)" },
+  spot: { price: "Price(USD)", qty: "Qty(sh)", total: "Total(sh)" },
+} as const;
 
 // Generate mock recent trades
 const generateMockTrades = (basePrice: number): RecentTrade[] => {
@@ -138,8 +155,11 @@ export const DesktopOrderBook = ({
   priceChange = "88,132.18",
   isPositive: initialIsPositive = false,
   onPriceClick,
-  side = "buy"
+  side = "buy",
+  variant = "futures",
 }: DesktopOrderBookProps) => {
+  const midTooltip = MID_TOOLTIP_COPY[variant];
+  const headers = COLUMN_HEADERS[variant];
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
   const bookSide = side;
@@ -356,9 +376,9 @@ export const DesktopOrderBook = ({
 
           {/* Column Headers */}
           <div className="grid grid-cols-3 text-xs text-muted-foreground px-3 py-1">
-            <span>Price(USDT)</span>
-            <span className="text-right">Qty(BTC)</span>
-            <span className="text-right">Total(BTC)</span>
+            <span>{headers.price}</span>
+            <span className="text-right">{headers.qty}</span>
+            <span className="text-right">{headers.total}</span>
           </div>
 
           {viewMode === "both" && (
@@ -402,8 +422,10 @@ export const DesktopOrderBook = ({
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
-                        <p className="text-sm">Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.</p>
-                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        <p className="text-sm">{midTooltip}</p>
+                        {variant === "futures" && (
+                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -478,8 +500,10 @@ export const DesktopOrderBook = ({
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
-                        <p className="text-sm">Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.</p>
-                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        <p className="text-sm">{midTooltip}</p>
+                        {variant === "futures" && (
+                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -529,8 +553,10 @@ export const DesktopOrderBook = ({
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
-                        <p className="text-sm">Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.</p>
-                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        <p className="text-sm">{midTooltip}</p>
+                        {variant === "futures" && (
+                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -561,7 +587,7 @@ export const DesktopOrderBook = ({
         <>
           {/* Recent Trades Column Headers */}
           <div className="grid grid-cols-3 text-xs text-muted-foreground px-3 py-2">
-            <span>Price(USDT)</span>
+            <span>{headers.price}</span>
             <span className="text-right">Amount</span>
             <span className="text-right">Time</span>
           </div>
