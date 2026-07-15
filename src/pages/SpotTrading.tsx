@@ -1076,6 +1076,11 @@ export default function SpotTrading() {
           <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
           <span>Closes in</span>
           <span className="text-trading-red font-mono font-medium">{countdown}</span>
+          {closingSoon && lifecycle === "TRADING" && (
+            <span className="px-1 rounded bg-trading-yellow/15 text-trading-yellow text-[10px]">
+              Closing soon
+            </span>
+          )}
         </div>
       </div>
       <button onClick={() => toggleWatch(event.id)} className="p-1.5 flex-shrink-0">
