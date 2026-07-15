@@ -42,8 +42,10 @@ import {
   getBlockedReason,
   formatDualTimezone,
   getCurrentSession,
+  isInPreFreezeWindow,
   LP_QUOTE_MODE_BADGE,
   SETTLEMENT_CREDIT_BY_ET,
+  FREEZE_MINUTES_BEFORE_CLOSE,
   type SessionProfile,
 } from "@/lib/usStockSessions";
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
