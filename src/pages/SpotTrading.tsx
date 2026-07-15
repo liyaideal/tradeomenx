@@ -1188,7 +1188,7 @@ export default function SpotTrading() {
               {badge.label}
             </Badge>
           </div>
-          <div className="flex flex-col gap-0.5 mt-0.5">
+          <div className="mt-0.5">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <span className={cn(
                 "w-1.5 h-1.5 rounded-full",
@@ -1203,6 +1203,12 @@ export default function SpotTrading() {
                 countdown.urgency === "yellow" && "text-trading-yellow",
                 countdown.urgency === "muted" && "text-foreground",
               )}>{countdown.text}</span>
+              {freezeEtOnly && (
+                <>
+                  <span>·</span>
+                  <span className="font-mono">until {freezeEtOnly} ET</span>
+                </>
+              )}
               {closingSoon && lifecycle === "TRADING" && (
                 <span
                   className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
@@ -1211,39 +1217,50 @@ export default function SpotTrading() {
                   Closing soon
                 </span>
               )}
-              {tz && (
-                <>
-                  <span>·</span>
-                  <span className="font-mono">{tz.et}</span>
-                  <span>·</span>
-                  <span className="font-mono">{tz.bj}</span>
-                </>
-              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="p-0.5 text-muted-foreground hover:text-foreground"
+                    aria-label="Schedule details"
+                  >
+                    <Info className="w-3 h-3" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="start" className="text-xs max-w-[280px]">
+                  <div className="space-y-1">
+                    <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
+                    <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"} ET</div>
+                    <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} ET (settlement price)</div>
+                    <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
+                    {localFreezeLabel && (
+                      <div><span className="text-muted-foreground">Your time:</span> {localFreezeLabel}</div>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
             </div>
-            {settleEtOnly && (
-              <div className="text-[10px] text-muted-foreground">
-                Settles at {settleEtOnly} close · credits by ~{settleEtOnly}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Right stats — spot-specific. NO index / funding / OI. */}
+      {/* Right stats — spot-specific. NO index / funding / OI / Yes price. */}
       <div className="ml-auto flex items-center gap-6 text-xs">
         <StatItem label="Volume" value={mock24hVolume(event.id)} />
         <StatItem
-          label="Prior Close"
+          label={`Base (${priorCloseDateLabel} close)`}
           value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
         />
         <StatItem
-          label="Last (indicative)"
+          label={ticker || "Last"}
           value={indicative != null ? `$${indicative.toFixed(2)}` : "—"}
           valueClass={indicativePct >= 0 ? "text-trading-green" : "text-trading-red"}
-          hint={indicative != null ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%` : undefined}
+          hint={indicative != null
+            ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%${sessionTag ? ` · ${sessionTag}` : ""}`
+            : undefined}
         />
-        <StatItem label="Yes Price" value={`$${yesLive.toFixed(2)}`} />
       </div>
+
 
       <button
         onClick={() => toggleWatch(event.id)}
