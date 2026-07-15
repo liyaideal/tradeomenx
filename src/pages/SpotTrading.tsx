@@ -575,7 +575,7 @@ export default function SpotTrading() {
           {submitting ? (
             <Loader2 className="h-4 w-4 animate-spin mx-auto" />
           ) : blocked ? (
-            "Market frozen"
+            blockedReason || "Market unavailable"
           ) : (
             <>
               {side === "buy" ? "Buy" : "Sell"} {outcomeLabel}
