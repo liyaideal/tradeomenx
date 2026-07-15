@@ -21,6 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -47,7 +48,7 @@ import {
   getLifecycleBadge,
   isOrderingBlocked,
   getBlockedReason,
-  formatDualTimezone,
+  // formatDualTimezone removed — header no longer renders Beijing time.
   formatEtTime,
   formatBeijingTime,
   getCurrentSession,
@@ -296,7 +297,8 @@ export default function SpotTrading() {
   // end_date; the "settles by …" caption below carries the settlement info.
   const countdownTarget = freezeAt ?? endDate;
   const countdown = useCountdown(countdownTarget);
-  const tz = endDate ? formatDualTimezone(endDate) : null;
+  // Note: dual-timezone (ET/Beijing) chips removed from the header per DESIGN.md §7.
+  // Local-time (browser-detected) hint now lives inside the schedule ⓘ tooltip only.
 
   // DEMO-STATE: 自动态显示由前端时钟推导，正式版由后端状态机驱动。
   // Raw DB value (`dbLifecycle`) still drives ordering/blocking; the display
@@ -316,9 +318,59 @@ export default function SpotTrading() {
     ? `${formatEtTime(settleAt)} ET / ${formatBeijingTime(settleAt)} 北京`
     : null;
   const settleEtOnly = settleAt ? `${formatEtTime(settleAt)} ET` : null;
+  const freezeEtOnly = freezeAt ? formatEtTime(freezeAt) : null;
+  const closeEtOnly = endDate ? formatEtTime(endDate) : null;
   const freezeLabel = freezeAt ? `${formatEtTime(freezeAt)} ET` : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`;
 
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "";
+
+  // Prior-close reference date shown beside `Base`. Walks back one calendar day
+  // from end_date in America/New_York and skips weekends so we land on the
+  // trading session that actually produced base_price.
+  const priorCloseDateLabel = useMemo(() => {
+    if (!endDate) return "prior";
+    const dowFmt = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short" });
+    let d = new Date(endDate.getTime() - 24 * 3600 * 1000);
+    for (let i = 0; i < 4; i += 1) {
+      const w = dowFmt.format(d);
+      if (w !== "Sat" && w !== "Sun") break;
+      d = new Date(d.getTime() - 24 * 3600 * 1000);
+    }
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      month: "short",
+      day: "numeric",
+    }).format(d);
+  }, [endDate]);
+
+  // Local-time hint for the schedule tooltip. Browser-detected zone, English label only.
+  const localFreezeLabel = useMemo(() => {
+    if (!freezeAt) return null;
+    const offsetMin = -new Date().getTimezoneOffset();
+    const sign = offsetMin >= 0 ? "+" : "-";
+    const abs = Math.abs(offsetMin);
+    const hh = Math.floor(abs / 60);
+    const mm = abs % 60;
+    const gmt = `GMT${sign}${hh}${mm ? `:${String(mm).padStart(2, "0")}` : ""}`;
+    const s = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(freezeAt);
+    return `trading ends ${s} (${gmt})`;
+  }, [freezeAt]);
+
+  // pre-mkt / after-hrs tag beside the live indicative price. Recomputes on the
+  // countdown tick so it flips sessions live.
+  const sessionTag = useMemo(() => {
+    const s = getCurrentSession();
+    if (s.session === "PRE_MARKET") return "pre-mkt";
+    if (s.session === "EXTENDED_AFTER_HOURS" || s.session === "OVERNIGHT") return "after-hrs";
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown.text]);
   // Tick 0.01 validation (技术对接 §10.1). Applies to Limit price input.
   const tickInvalid = useMemo(() => {
     if (orderType !== "Limit") return false;
@@ -921,6 +973,7 @@ export default function SpotTrading() {
         <InfoCell label="Settles vs" value={`Prior close · flat close = ${noLabel}`} />
         <InfoCell label="Resolution source" value={event.source_name || "databento"} />
         <InfoCell label="Symbol" value={`${ticker} · Nasdaq`} />
+        <InfoCell label="Volume" value={mock24hVolume(event.id)} />
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="font-semibold text-foreground text-sm">Rules</div>
@@ -1138,7 +1191,7 @@ export default function SpotTrading() {
               {badge.label}
             </Badge>
           </div>
-          <div className="flex flex-col gap-0.5 mt-0.5">
+          <div className="mt-0.5">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <span className={cn(
                 "w-1.5 h-1.5 rounded-full",
@@ -1153,6 +1206,12 @@ export default function SpotTrading() {
                 countdown.urgency === "yellow" && "text-trading-yellow",
                 countdown.urgency === "muted" && "text-foreground",
               )}>{countdown.text}</span>
+              {freezeEtOnly && (
+                <>
+                  <span>·</span>
+                  <span className="font-mono">until {freezeEtOnly} ET</span>
+                </>
+              )}
               {closingSoon && lifecycle === "TRADING" && (
                 <span
                   className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
@@ -1161,39 +1220,50 @@ export default function SpotTrading() {
                   Closing soon
                 </span>
               )}
-              {tz && (
-                <>
-                  <span>·</span>
-                  <span className="font-mono">{tz.et}</span>
-                  <span>·</span>
-                  <span className="font-mono">{tz.bj}</span>
-                </>
-              )}
+              <TooltipProvider><Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="p-0.5 text-muted-foreground hover:text-foreground"
+                    aria-label="Schedule details"
+                  >
+                    <Info className="w-3 h-3" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="start" className="text-xs max-w-[280px]">
+                  <div className="space-y-1">
+                    <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
+                    <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"} ET</div>
+                    <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} ET (settlement price)</div>
+                    <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
+                    {localFreezeLabel && (
+                      <div><span className="text-muted-foreground">Your time:</span> {localFreezeLabel}</div>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip></TooltipProvider>
             </div>
-            {settleEtOnly && (
-              <div className="text-[10px] text-muted-foreground">
-                Settles at {settleEtOnly} close · credits by ~{settleEtOnly}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Right stats — spot-specific. NO index / funding / OI. */}
+      {/* Right stats — spot-specific. NO index / funding / OI / Yes price. */}
       <div className="ml-auto flex items-center gap-6 text-xs">
         <StatItem label="Volume" value={mock24hVolume(event.id)} />
         <StatItem
-          label="Prior Close"
+          label={`Base (${priorCloseDateLabel} close)`}
           value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
         />
         <StatItem
-          label="Last (indicative)"
+          label={ticker || "Last"}
           value={indicative != null ? `$${indicative.toFixed(2)}` : "—"}
           valueClass={indicativePct >= 0 ? "text-trading-green" : "text-trading-red"}
-          hint={indicative != null ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%` : undefined}
+          hint={indicative != null
+            ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%${sessionTag ? ` · ${sessionTag}` : ""}`
+            : undefined}
         />
-        <StatItem label="Yes Price" value={`$${yesLive.toFixed(2)}`} />
       </div>
+
 
       <button
         onClick={() => toggleWatch(event.id)}
@@ -1242,17 +1312,40 @@ export default function SpotTrading() {
             countdown.urgency === "yellow" && "text-trading-yellow",
             countdown.urgency === "muted" && "text-foreground",
           )}>{countdown.text}</span>
+          {freezeEtOnly && (
+            <>
+              <span>·</span>
+              <span className="font-mono">{freezeEtOnly} ET</span>
+            </>
+          )}
           {closingSoon && lifecycle === "TRADING" && (
             <span className="px-1 rounded bg-trading-yellow/15 text-trading-yellow text-[10px]">
               Closing soon
             </span>
           )}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="p-0.5 text-muted-foreground"
+                aria-label="Schedule details"
+              >
+                <Info className="w-3 h-3" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="bottom" align="start" className="text-[11px] max-w-[280px] p-2">
+              <div className="space-y-1">
+                <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
+                <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"} ET</div>
+                <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} ET (settlement price)</div>
+                <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
+                {localFreezeLabel && (
+                  <div><span className="text-muted-foreground">Your time:</span> {localFreezeLabel}</div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
-        {settleEtOnly && (
-          <div className="text-[10px] text-muted-foreground mt-0.5">
-            Settles at {settleEtOnly} · credits by ~{settleEtOnly}
-          </div>
-        )}
       </div>
       <button onClick={() => toggleWatch(event.id)} className="p-1.5 flex-shrink-0">
         <Star
@@ -1273,21 +1366,22 @@ export default function SpotTrading() {
       <div className="min-h-screen bg-background flex flex-col">
         {MobileChrome}
 
-        {/* Compact stats strip */}
-        <div className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-border/30 text-[11px]">
-          <StatItem label="Volume" value={mock24hVolume(event.id)} compact />
+        {/* Compact stats strip — Base + live indicative. Volume moves to Event Info. */}
+        <div className="grid grid-cols-2 gap-2 px-3 py-2 border-b border-border/30 text-[11px]">
           <StatItem
-            label="Prior Close"
+            label={`Base (${priorCloseDateLabel} close)`}
             value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
             compact
           />
           <StatItem
-            label="Last"
+            label={ticker || "Last"}
             value={indicative != null ? `$${indicative.toFixed(2)}` : "—"}
             valueClass={indicativePct >= 0 ? "text-trading-green" : "text-trading-red"}
+            hint={indicative != null
+              ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%${sessionTag ? ` · ${sessionTag}` : ""}`
+              : undefined}
             compact
           />
-          <StatItem label="Yes" value={`$${yesLive.toFixed(2)}`} compact />
         </div>
 
         {/* Chart / Event Info tabs */}

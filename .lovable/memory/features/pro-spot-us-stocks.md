@@ -135,3 +135,13 @@ SpotTrading 每分钟重算 profile；`buildBook(mid, seed, profile)` 用 profil
 - Event Info 规则区自动追加行 "All open orders are automatically cancelled and refunded at freeze (5 min before close)."（数据库有 rules 时才拼接）。
 - 红线：仅撤销当前会话内可见 Pending 挂单，refund 直接进 `addBalance`；正式版由撮合/结算服务在 `freeze_time` 批量撤销并按会计口径退款，前端只订阅事件流。
 
+
+## 头部信息架构（v1.3，LOCKED — DESIGN.md §7）
+
+**桌面**：`SpotTrading.tsx` DesktopChrome 单行时间栏 = `● Trading ends in {countdown} · until {HH:MM} ET` + 尾部 ⓘ Tooltip；不再渲染 `formatDualTimezone` 的 ET/北京 chip，不再渲染第二行 "Settles at HH:MM ET · credits by …"。ⓘ tooltip 内容固定 5 行 英文：Opens（after prior close）/ Trading ends / Official close / Credits by / Your time（`Intl.DateTimeFormat` + `getTimezoneOffset` 派生 `GMT±X`，纯英文）。
+
+**右区统计**：三位收敛 —— `Volume` / `Base ({priorDate} close)` / `{TICKER} $x.xx ±% [· pre-mkt|after-hrs]`。Yes Price 从头部下线（交易面板 + 图表已覆盖）。`priorCloseDateLabel` 由 `end_date` 在 ET 时区回推 1 天并跳过周末；`sessionTag` 由 `getCurrentSession()` 派生。
+
+**移动端**：`grid-cols-2` = Base + {TICKER}；Volume 移入 Event Info（`InfoCell label="Volume"`）；ⓘ 用 `Popover`（tap 弹出）替代 hover Tooltip。
+
+**禁止**（DESIGN.md §7 Don't）：header 出现第二条时间行、Yes 价、非英文字符（中文/北京 chip）、`24h Volume` 前缀；本地时区不得直接展示，只能进 ⓘ tooltip 且自动检测。
