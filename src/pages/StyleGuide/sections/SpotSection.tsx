@@ -2,9 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LIFECYCLE_BADGE } from "@/lib/usStockSessions";
+import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { SectionWrapper } from "../components/SectionWrapper";
 
 interface Props { isMobile: boolean }
+
 
 export const SpotSection = ({ isMobile }: Props) => {
   const buildBook = (mid: number, seed: number) => {
