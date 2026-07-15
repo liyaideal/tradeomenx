@@ -560,6 +560,9 @@ export default function SpotTrading() {
           <Info className="h-3 w-3" />
           Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
         </div>
+        <div className="text-[10px] text-muted-foreground">
+          Settles & credits by ~{SETTLEMENT_CREDIT_BY_ET} ET
+        </div>
 
         {/* CTA — semantic outcome color, never primary */}
         <button
