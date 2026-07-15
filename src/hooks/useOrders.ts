@@ -21,7 +21,9 @@ export interface UnifiedOrder {
   total: string;
   time: string;
   status: "Pending" | "Partial Filled" | "Filled" | "Cancelled";
+  productLine?: string | null;
 }
+
 
 // Convert Supabase order to unified format
 const convertSupabaseOrder = (order: SupabaseOrder): UnifiedOrder => {
