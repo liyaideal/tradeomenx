@@ -319,21 +319,6 @@ export default function SpotTrading() {
   const freezeLabel = freezeAt ? `${formatEtTime(freezeAt)} ET` : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`;
 
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "";
-
-
-  // Effective price the user is transacting at.
-  const effectivePrice = orderType === "Limit"
-    ? Math.min(0.9999, Math.max(0.0001, parseFloat(limitPrice) || outcomePrice))
-    : outcomePrice; // Market → mark; slippageBps only affects the "worst" quote shown
-
-  const amt = parseFloat(amount) || 0;
-  const qty = effectivePrice > 0 ? amt / effectivePrice : 0;
-  const cost = effectivePrice * qty;
-  const maxLoss = side === "buy" ? cost : 0;
-  // 技术对接 §10.1: Max win for buy = qty × $1 − cost; for sell = proceeds (already realized).
-  const maxWin = side === "buy" ? Math.max(0, qty - cost) : cost;
-  const fee = cost * SPOT_FEE_RATE;
-
   // Tick 0.01 validation (技术对接 §10.1). Applies to Limit price input.
   const tickInvalid = useMemo(() => {
     if (orderType !== "Limit") return false;
@@ -342,6 +327,7 @@ export default function SpotTrading() {
     const cents = Math.round(raw * 100);
     return Math.abs(raw * 100 - cents) > 1e-6;
   }, [limitPrice, orderType]);
+
 
 
   // Session profile drives book depth / spread / size / quote-mode badge.
