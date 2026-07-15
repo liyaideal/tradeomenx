@@ -669,6 +669,13 @@ export default function SpotTrading() {
         <div className="text-[10px] text-muted-foreground">
           Settles & credits by ~{SETTLEMENT_CREDIT_BY_ET} ET
         </div>
+        {willBePending && (
+          <div className="text-[10px] text-trading-yellow">
+            {side === "buy"
+              ? `Limit below best ask $${bestAsk.toFixed(2)} — order will rest as Pending until touched. $${(effectivePrice * qty || 0).toFixed(2)} reserved.`
+              : `Limit above best bid $${bestBid.toFixed(2)} — order will rest as Pending until touched.`}
+          </div>
+        )}
 
         {/* CTA — semantic outcome color, never primary */}
         <button
@@ -687,13 +694,16 @@ export default function SpotTrading() {
             blockedReason || "Market unavailable"
           ) : (
             <>
-              {side === "buy" ? "Buy" : "Sell"} {outcomeLabel}
-              {side === "buy" && qty > 0 && (
+              {willBePending
+                ? `Place limit ${side} ${outcomeLabel}`
+                : `${side === "buy" ? "Buy" : "Sell"} ${outcomeLabel}`}
+              {side === "buy" && qty > 0 && !willBePending && (
                 <span className="opacity-80"> · To win ${payoutIfRight.toFixed(0)} →</span>
               )}
             </>
           )}
         </button>
+
       </div>
     </div>
   );
