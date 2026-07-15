@@ -995,9 +995,9 @@ export default function SpotTrading() {
         )}
       </div>
 
-      {settleLabel && (
+      {settleEtOnly && (
         <div className="text-xs text-muted-foreground">
-          Settles &amp; credits by ~{settleLabel}.
+          Settles &amp; credits by ~{settleEtOnly}.
         </div>
       )}
     </div>
