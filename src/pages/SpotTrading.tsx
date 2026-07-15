@@ -391,15 +391,20 @@ const SpotTrading = () => {
             </div>
 
             <Button
-              className="w-full h-11"
+              className={cn(
+                "w-full h-11 text-white",
+                isYesSelected
+                  ? "bg-trading-green hover:bg-trading-green/90"
+                  : "bg-trading-red hover:bg-trading-red/90",
+              )}
               disabled={submitting || blocked || amt <= 0}
               onClick={handleSubmit}
-              variant={side === "buy" ? "default" : "destructive"}
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> :
                 blocked ? "Market frozen" :
-                `${side === "buy" ? "Buy" : "Sell"} ${selectedOption?.label.endsWith("-yes") ? yesLabel : noLabel}`}
+                `${side === "buy" ? "Buy" : "Sell"} ${outcomeLabel}`}
             </Button>
+
           </div>
         </div>
       </main>
