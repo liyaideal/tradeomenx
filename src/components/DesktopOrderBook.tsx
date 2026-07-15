@@ -525,26 +525,36 @@ export const DesktopOrderBook = ({
               {/* Current Price */}
               <div className="px-3 py-2 border-t border-border/30">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold font-mono text-trading-green">
-                    ↑ {displayPrice}
-                  </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {displayPrice}
+                        <span className="text-lg font-bold font-mono text-trading-green cursor-help">
+                          ↑ {displayPrice}
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
                         <p className="text-sm">{midTooltip}</p>
-                        {variant === "futures" && (
-                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                        )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  {variant !== "spot" && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                            <Flag className="w-3 h-3" /> {displayPrice}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[280px] p-3">
+                          <p className="text-sm">{midTooltip}</p>
+                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
               </div>
+
             </>
           )}
 
