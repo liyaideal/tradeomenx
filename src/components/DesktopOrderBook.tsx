@@ -31,7 +31,24 @@ interface DesktopOrderBookProps {
   isPositive?: boolean;
   onPriceClick?: (price: string) => void;
   side?: "buy" | "sell";
+  /**
+   * 'futures' (default) preserves the perpetual-contract wording used by /trade.
+   * 'spot' swaps the copy for outcome-share semantics used by /spot — no
+   * index price / funding / liquidation references leak into the spot terminal.
+   */
+  variant?: "futures" | "spot";
 }
+
+const MID_TOOLTIP_COPY = {
+  futures:
+    "Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.",
+  spot: "Mid price of the outcome share order book. Shares settle at $1 (win) or $0 (lose).",
+} as const;
+
+const COLUMN_HEADERS = {
+  futures: { price: "Price(USDT)", qty: "Qty(BTC)", total: "Total(BTC)" },
+  spot: { price: "Price(USD)", qty: "Qty(sh)", total: "Total(sh)" },
+} as const;
 
 // Generate mock recent trades
 const generateMockTrades = (basePrice: number): RecentTrade[] => {
