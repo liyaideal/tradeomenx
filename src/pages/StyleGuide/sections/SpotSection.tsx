@@ -24,7 +24,7 @@ export const SpotSection = ({ isMobile }: Props) => {
   return (
     <div className="space-y-8">
       {/* Lifecycle badges */}
-      <SectionWrapper title="Spot lifecycle badges" description="Every US-stock daily up/down state">
+      <SectionWrapper id="spot-lifecycle" title="Spot lifecycle badges" description="Every US-stock daily up/down state">
         <div className="flex flex-wrap gap-2">
           {Object.entries(LIFECYCLE_BADGE).map(([k, v]) => (
             <Badge key={k} variant="outline" className={`text-[10px] border ${v.className}`}>
@@ -35,7 +35,7 @@ export const SpotSection = ({ isMobile }: Props) => {
       </SectionWrapper>
 
       {/* Order book preview */}
-      <SectionWrapper title="Mock LP order book" description="10-level book, LP quote mode chip 'NORMAL'">
+      <SectionWrapper id="spot-book" title="Mock LP order book" description="10-level book, LP quote mode chip 'NORMAL'">
         <div className="rounded-lg border border-border/60 bg-muted/20 p-3 max-w-md space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold">Order Book</h3>
@@ -65,7 +65,7 @@ export const SpotSection = ({ isMobile }: Props) => {
       </SectionWrapper>
 
       {/* Trade form buy + sell */}
-      <SectionWrapper title="Spot trade form — Buy & Sell" description="No leverage / TP / SL / funding / liq. inputs">
+      <SectionWrapper id="spot-form" title="Spot trade form — Buy & Sell" description="No leverage / TP / SL / funding / liq. inputs">
         <div className="grid gap-4 md:grid-cols-2">
           {(["buy", "sell"] as const).map((side) => (
             <div key={side} className="rounded-lg border border-border/60 bg-card p-4 space-y-3">
@@ -102,7 +102,7 @@ export const SpotSection = ({ isMobile }: Props) => {
       </SectionWrapper>
 
       {/* SPOT position row */}
-      <SectionWrapper title="SPOT position row" description="Leverage / Liq. / Funding hidden; SPOT badge shown">
+      <SectionWrapper id="spot-row" title="SPOT position row" description="Leverage / Liq. / Funding hidden; SPOT badge shown">
         <div className="rounded-lg border border-border/60 bg-card p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
