@@ -264,21 +264,33 @@ export default function SpotTrading() {
   const payoutIfRight = side === "buy" ? qty : 0; // $1 per winning share
   const fee = cost * SPOT_FEE_RATE;
 
-  // Order book (mock)
+  // Session profile drives book depth / spread / size / quote-mode badge.
+  // Recompute every minute so the terminal follows the wall clock.
+  const [sessionTick, setSessionTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setSessionTick((n) => n + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  const sessionProfile = useMemo(() => getCurrentSession(), [sessionTick]);
+
+  // Order book (mock, session-aware)
   const book = useMemo(
-    () => buildBook(outcomePrice || 0.5, (selectedOption?.id || "").length),
-    [outcomePrice, selectedOption?.id],
+    () => buildBook(outcomePrice || 0.5, (selectedOption?.id || "").length, sessionProfile),
+    [outcomePrice, selectedOption?.id, sessionProfile],
   );
+
+  const bestAsk = parseFloat(book.asks[0]?.price ?? "1") || 1;
+  const bestBid = parseFloat(book.bids[0]?.price ?? "0") || 0;
 
   // ---- Positions / orders (spot-scoped) ----
   const { positions, refetch: refetchPositions } = usePositions();
-  const { orders, cancelOrder, isCancelling } = useOrders();
+  const { orders, cancelOrder, refetch: refetchOrders, isCancelling } = useOrders();
   const spotPositions = useMemo(
     () => positions.filter((p) => p.productLine === "spot" && p.event === event?.name),
     [positions, event?.name],
   );
   const spotOrders = useMemo(
-    () => orders.filter((o) => (o as any).product_line === "spot" && o.event === event?.name),
+    () => orders.filter((o) => o.productLine === "spot" && o.event === event?.name),
     [orders, event?.name],
   );
 
@@ -287,6 +299,7 @@ export default function SpotTrading() {
     const p = spotPositions.find((pp) => pp.optionId === selectedOption.id);
     return p ? p.sizeNum : 0;
   }, [spotPositions, selectedOption]);
+
 
   // ---- Watchlist ----
   const { isWatched, toggle: toggleWatch } = useWatchlist();
