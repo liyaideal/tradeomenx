@@ -1364,21 +1364,22 @@ export default function SpotTrading() {
       <div className="min-h-screen bg-background flex flex-col">
         {MobileChrome}
 
-        {/* Compact stats strip */}
-        <div className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-border/30 text-[11px]">
-          <StatItem label="Volume" value={mock24hVolume(event.id)} compact />
+        {/* Compact stats strip — Base + live indicative. Volume moves to Event Info. */}
+        <div className="grid grid-cols-2 gap-2 px-3 py-2 border-b border-border/30 text-[11px]">
           <StatItem
-            label="Prior Close"
+            label={`Base (${priorCloseDateLabel} close)`}
             value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
             compact
           />
           <StatItem
-            label="Last"
+            label={ticker || "Last"}
             value={indicative != null ? `$${indicative.toFixed(2)}` : "—"}
             valueClass={indicativePct >= 0 ? "text-trading-green" : "text-trading-red"}
+            hint={indicative != null
+              ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%${sessionTag ? ` · ${sessionTag}` : ""}`
+              : undefined}
             compact
           />
-          <StatItem label="Yes" value={`$${yesLive.toFixed(2)}`} compact />
         </div>
 
         {/* Chart / Event Info tabs */}
