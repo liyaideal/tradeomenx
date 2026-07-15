@@ -1243,7 +1243,7 @@ export default function SpotTrading() {
 
         {/* Compact stats strip */}
         <div className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-border/30 text-[11px]">
-          <StatItem label="24h Vol" value={mock24hVolume(event.id)} compact />
+          <StatItem label="Volume" value={mock24hVolume(event.id)} compact />
           <StatItem
             label="Prior Close"
             value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
