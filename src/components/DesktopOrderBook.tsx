@@ -172,7 +172,7 @@ export const DesktopOrderBook = ({
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
   const bookSide = side;
-  const [priceStep, setPriceStep] = useState("0.0001");
+  const [priceStep, setPriceStep] = useState(variant === "spot" ? "0.01" : "0.0001");
   const [showStepDropdown, setShowStepDropdown] = useState(false);
   const [asks, setAsks] = useState<OrderBookEntry[]>(initialAsks);
   const [bids, setBids] = useState<OrderBookEntry[]>(initialBids);
@@ -183,7 +183,8 @@ export const DesktopOrderBook = ({
   );
   const [buyRatio, setBuyRatio] = useState(40);
   
-  const priceStepOptions = ["0.0001", "0.001", "0.01", "0.1", "1"];
+  const priceStepOptions =
+    variant === "spot" ? ["0.01", "0.02", "0.05"] : ["0.0001", "0.001", "0.01", "0.1", "1"];
 
   // Transform price by side: sell side shows 1 - price (asymmetric pricing)
   const transformPrice = useCallback((price: string): string => {
@@ -436,26 +437,36 @@ export const DesktopOrderBook = ({
               {/* Current Price */}
               <div className="px-3 py-2 border-y border-border/30">
                 <div className="flex items-center gap-2">
-                  <span className={`text-lg font-bold font-mono ${isPositive ? 'text-trading-green' : 'text-trading-red'}`}>
-                    {isPositive ? '↑' : '↓'} {displayPrice}
-                  </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {displayPrice}
+                        <span className={`text-lg font-bold font-mono cursor-help ${isPositive ? 'text-trading-green' : 'text-trading-red'}`}>
+                          {isPositive ? '↑' : '↓'} {displayPrice}
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
                         <p className="text-sm">{midTooltip}</p>
-                        {variant === "futures" && (
-                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                        )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  {variant !== "spot" && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                            <Flag className="w-3 h-3" /> {displayPrice}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[280px] p-3">
+                          <p className="text-sm">{midTooltip}</p>
+                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
               </div>
+
 
               {/* Bids (Buy orders) */}
               <div className="flex-1 overflow-y-auto scrollbar-hide">
@@ -514,26 +525,36 @@ export const DesktopOrderBook = ({
               {/* Current Price */}
               <div className="px-3 py-2 border-t border-border/30">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold font-mono text-trading-green">
-                    ↑ {displayPrice}
-                  </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {displayPrice}
+                        <span className="text-lg font-bold font-mono text-trading-green cursor-help">
+                          ↑ {displayPrice}
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
                         <p className="text-sm">{midTooltip}</p>
-                        {variant === "futures" && (
-                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                        )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  {variant !== "spot" && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                            <Flag className="w-3 h-3" /> {displayPrice}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[280px] p-3">
+                          <p className="text-sm">{midTooltip}</p>
+                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
               </div>
+
             </>
           )}
 
@@ -567,24 +588,33 @@ export const DesktopOrderBook = ({
               {/* Current Price */}
               <div className="px-3 py-2 border-t border-border/30">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold font-mono text-trading-red">
-                    ↓ {displayPrice}
-                  </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {displayPrice}
+                        <span className="text-lg font-bold font-mono text-trading-red cursor-help">
+                          ↓ {displayPrice}
                         </span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
                         <p className="text-sm">{midTooltip}</p>
-                        {variant === "futures" && (
-                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                        )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  {variant !== "spot" && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                            <Flag className="w-3 h-3" /> {displayPrice}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[280px] p-3">
+                          <p className="text-sm">{midTooltip}</p>
+                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
               </div>
             </>

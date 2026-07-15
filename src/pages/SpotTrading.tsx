@@ -13,7 +13,14 @@ import {
   Loader2,
   Info,
   ChevronDown,
+  HelpCircle,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -46,6 +53,7 @@ import {
   getCurrentSession,
   isInPreFreezeWindow,
   isPastFreeze,
+  getDisplayLifecycle,
   LP_QUOTE_MODE_BADGE,
   FREEZE_MINUTES_BEFORE_CLOSE,
   type SessionProfile,
@@ -82,8 +90,12 @@ const buildBook = (mid: number, seed: number, profile: SessionProfile) => {
   const levels = profile.levelsMin + Math.floor(rand(0) * range);
   const clampedMid = Math.min(0.98, Math.max(0.02, mid || 0.5));
 
-  const minHalfSpread = MIN_HALF_SPREAD * profile.spreadMult;
-  const levelStep = LEVEL_STEP * profile.spreadMult;
+  // All price levels must be $0.01 tick multiples. Work in integer cents so
+  // jitter can never produce sub-tick prices (e.g. 0.3499). Session profile's
+  // spreadMult still drives how far apart levels are, but only in whole ticks.
+  const midCents = Math.round(clampedMid * 100);
+  const halfSpreadTicks = Math.max(1, Math.round(MIN_HALF_SPREAD * 100 * profile.spreadMult));
+  const stepTicks = Math.max(1, Math.round(LEVEL_STEP * 100 * profile.spreadMult));
   const firstSize = FIRST_LEVEL_SIZE * profile.sizeMult;
 
   const asks: { price: string; amount: string; total: string }[] = [];
@@ -91,18 +103,34 @@ const buildBook = (mid: number, seed: number, profile: SessionProfile) => {
   let cumA = 0;
   let cumB = 0;
   for (let i = 0; i < levels; i++) {
-    const offset = minHalfSpread + levelStep * i;
-    const ap = Math.min(0.99, Math.max(0.01, clampedMid + offset));
-    const bp = Math.min(0.99, Math.max(0.01, clampedMid - offset));
+    // ±1 tick jitter, applied AFTER snapping so monotonicity is preserved.
+    const jitterA = Math.floor(rand(i * 3 + 5) * 3) - 1; // -1, 0, +1
+    const jitterB = Math.floor(rand(i * 3 + 6) * 3) - 1;
+    const askCents = Math.min(99, Math.max(1, midCents + halfSpreadTicks + stepTicks * i + Math.max(0, jitterA)));
+    const bidCents = Math.min(99, Math.max(1, midCents - halfSpreadTicks - stepTicks * i - Math.max(0, jitterB)));
+    const ap = askCents / 100;
+    const bp = bidCents / 100;
     const base = firstSize * Math.pow(SIZE_DECAY, i);
-    const jitterA = 1 + (rand(i * 2 + 1) - 0.5) * 2 * JITTER_PCT;
-    const jitterB = 1 + (rand(i * 2 + 2) - 0.5) * 2 * JITTER_PCT;
-    const aAmt = Math.max(1, Math.round(base * jitterA));
-    const bAmt = Math.max(1, Math.round(base * jitterB));
+    const sizeJitterA = 1 + (rand(i * 2 + 1) - 0.5) * 2 * JITTER_PCT;
+    const sizeJitterB = 1 + (rand(i * 2 + 2) - 0.5) * 2 * JITTER_PCT;
+    const aAmt = Math.max(1, Math.round(base * sizeJitterA));
+    const bAmt = Math.max(1, Math.round(base * sizeJitterB));
     cumA += aAmt;
     cumB += bAmt;
     asks.push({ price: ap.toFixed(2), amount: aAmt.toLocaleString(), total: cumA.toLocaleString() });
     bids.push({ price: bp.toFixed(2), amount: bAmt.toLocaleString(), total: cumB.toLocaleString() });
+  }
+  // Enforce strict monotonicity after jitter: dedupe by adjusting subsequent
+  // levels by +/-1 tick as needed. Deterministic given the seed.
+  for (let i = 1; i < asks.length; i++) {
+    const prev = Math.round(parseFloat(asks[i - 1].price) * 100);
+    const cur = Math.round(parseFloat(asks[i].price) * 100);
+    if (cur <= prev) asks[i].price = (Math.min(99, prev + 1) / 100).toFixed(2);
+  }
+  for (let i = 1; i < bids.length; i++) {
+    const prev = Math.round(parseFloat(bids[i - 1].price) * 100);
+    const cur = Math.round(parseFloat(bids[i].price) * 100);
+    if (cur >= prev) bids[i].price = (Math.max(1, prev - 1) / 100).toFixed(2);
   }
   return { asks, bids };
 };
@@ -121,23 +149,38 @@ const mock24hVolume = (eventId: string) => {
 const SPOT_FEE_RATE = 0;
 
 // ---- Countdown ----
-const useCountdown = (endTime: Date | null) => {
-  const [txt, setTxt] = useState("");
+// Returns HH:MM:SS text plus a color bucket based on remaining time:
+//   > 1h        → muted (calm)
+//   1h .. 15m   → yellow (warm-up)
+//   ≤ 15m       → red   (urgent, pulses per-second)
+type CountdownUrgency = "muted" | "yellow" | "red";
+const useCountdown = (endTime: Date | null): { text: string; urgency: CountdownUrgency; diffMs: number } => {
+  const [state, setState] = useState<{ text: string; urgency: CountdownUrgency; diffMs: number }>({
+    text: "",
+    urgency: "muted",
+    diffMs: Infinity,
+  });
   useEffect(() => {
     if (!endTime) return;
     const tick = () => {
       const diff = endTime.getTime() - Date.now();
-      if (diff <= 0) return setTxt("00:00:00");
+      if (diff <= 0) {
+        setState({ text: "00:00:00", urgency: "red", diffMs: 0 });
+        return;
+      }
       const h = Math.floor(diff / 3_600_000);
       const m = Math.floor((diff % 3_600_000) / 60_000);
       const s = Math.floor((diff % 60_000) / 1_000);
-      setTxt(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+      const text = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      const urgency: CountdownUrgency =
+        diff <= 15 * 60_000 ? "red" : diff <= 60 * 60_000 ? "yellow" : "muted";
+      setState({ text, urgency, diffMs: diff });
     };
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
   }, [endTime]);
-  return txt;
+  return state;
 };
 
 // ---- Indicative last price (mock walk around base_price) ----
@@ -243,44 +286,39 @@ export default function SpotTrading() {
   const outcomePrice = isYesSelected ? yesLive : noLive;
 
   const endDate = event?.end_date ? new Date(event.end_date) : null;
-  const countdown = useCountdown(endDate);
-  const tz = endDate ? formatDualTimezone(endDate) : null;
-
-  const lifecycle = event?.lifecycle_status || "TRADING";
-  const badge = getLifecycleBadge(lifecycle);
-  const blocked = isOrderingBlocked(lifecycle);
-  const blockedReason = getBlockedReason(lifecycle);
-
-  const basePrice = event?.base_price != null ? Number(event.base_price) : null;
-  const indicative = useIndicativeLast(basePrice, event?.id || "");
-  const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
 
   // 技术对接 §4.1/§12.2 — timing driven by events fields, not hardcoded times.
   const freezeAt = (event as any)?.freeze_time ? new Date((event as any).freeze_time) : null;
   const settleAt = (event as any)?.expected_settlement_time
     ? new Date((event as any).expected_settlement_time)
     : null;
+  // Main countdown targets freeze_time (trading window ends there) instead of
+  // end_date; the "settles by …" caption below carries the settlement info.
+  const countdownTarget = freezeAt ?? endDate;
+  const countdown = useCountdown(countdownTarget);
+  const tz = endDate ? formatDualTimezone(endDate) : null;
+
+  // DEMO-STATE: 自动态显示由前端时钟推导，正式版由后端状态机驱动。
+  // Raw DB value (`dbLifecycle`) still drives ordering/blocking; the display
+  // value is derived from ET wall clock for auto states so the badge tracks
+  // the same session boundary as the LP quote-mode chip.
+  const dbLifecycle = event?.lifecycle_status || "TRADING";
+  const lifecycle = getDisplayLifecycle(dbLifecycle);
+  const badge = getLifecycleBadge(lifecycle);
+  const blocked = isOrderingBlocked(dbLifecycle);
+  const blockedReason = getBlockedReason(dbLifecycle);
+
+  const basePrice = event?.base_price != null ? Number(event.base_price) : null;
+  const indicative = useIndicativeLast(basePrice, event?.id || "");
+  const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
+
   const settleLabel = settleAt
     ? `${formatEtTime(settleAt)} ET / ${formatBeijingTime(settleAt)} 北京`
     : null;
+  const settleEtOnly = settleAt ? `${formatEtTime(settleAt)} ET` : null;
   const freezeLabel = freezeAt ? `${formatEtTime(freezeAt)} ET` : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`;
 
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "";
-
-
-  // Effective price the user is transacting at.
-  const effectivePrice = orderType === "Limit"
-    ? Math.min(0.9999, Math.max(0.0001, parseFloat(limitPrice) || outcomePrice))
-    : outcomePrice; // Market → mark; slippageBps only affects the "worst" quote shown
-
-  const amt = parseFloat(amount) || 0;
-  const qty = effectivePrice > 0 ? amt / effectivePrice : 0;
-  const cost = effectivePrice * qty;
-  const maxLoss = side === "buy" ? cost : 0;
-  // 技术对接 §10.1: Max win for buy = qty × $1 − cost; for sell = proceeds (already realized).
-  const maxWin = side === "buy" ? Math.max(0, qty - cost) : cost;
-  const fee = cost * SPOT_FEE_RATE;
-
   // Tick 0.01 validation (技术对接 §10.1). Applies to Limit price input.
   const tickInvalid = useMemo(() => {
     if (orderType !== "Limit") return false;
@@ -289,6 +327,7 @@ export default function SpotTrading() {
     const cents = Math.round(raw * 100);
     return Math.abs(raw * 100 - cents) > 1e-6;
   }, [limitPrice, orderType]);
+
 
 
   // Session profile drives book depth / spread / size / quote-mode badge.
@@ -308,6 +347,30 @@ export default function SpotTrading() {
 
   const bestAsk = parseFloat(book.asks[0]?.price ?? "1") || 1;
   const bestBid = parseFloat(book.bids[0]?.price ?? "0") || 0;
+
+  // Effective price the user is transacting at.
+  //   - Limit: user input
+  //   - Market: best executable price + slippage cap. Buy pays worst of
+  //     bestAsk × (1 + slippageBps/1e4); Sell receives worst of
+  //     bestBid × (1 − slippageBps/1e4). This keeps cost / max-win / qty
+  //     estimates aligned with what the book can actually fill.
+  const slip = slippageBps / 10_000;
+  const marketFillPrice =
+    side === "buy"
+      ? Math.min(0.9999, bestAsk * (1 + slip))
+      : Math.max(0.0001, bestBid * (1 - slip));
+  const effectivePrice = orderType === "Limit"
+    ? Math.min(0.9999, Math.max(0.0001, parseFloat(limitPrice) || outcomePrice))
+    : marketFillPrice;
+
+  const amt = parseFloat(amount) || 0;
+  const qty = effectivePrice > 0 ? amt / effectivePrice : 0;
+  const cost = effectivePrice * qty;
+  const maxLoss = side === "buy" ? cost : 0;
+  // 技术对接 §10.1: Max win for buy = qty × $1 − cost; for sell = proceeds (already realized).
+  const maxWin = side === "buy" ? Math.max(0, qty - cost) : cost;
+  const fee = cost * SPOT_FEE_RATE;
+
 
   // ---- Positions / orders (spot-scoped) ----
   const { positions, refetch: refetchPositions } = usePositions();
@@ -734,22 +797,44 @@ export default function SpotTrading() {
         {/* Fee summary — spot: Cost / Max win / Max loss / Fee. NO liq. / margin. */}
         <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
           <Row label="Cost">${cost.toFixed(2)}</Row>
-          <Row label="Max win">
-            <span>
-              ${maxWin.toFixed(2)}{" "}
-              <span className="text-muted-foreground">
-                ({qty.toFixed(0)} × $1 {side === "buy" ? "− cost" : ""})
-              </span>
+          {orderType === "Market" && (
+            <div className="flex justify-end text-[10px] text-muted-foreground -mt-1">
+              Est. fill @ {(side === "buy" ? bestAsk : bestBid).toFixed(2)}
+            </div>
+          )}
+          <Row label={
+            <span className="inline-flex items-center gap-1">
+              Max win
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[220px] p-2">
+                    <p className="text-xs">
+                      {side === "buy"
+                        ? "qty × $1 − cost. Winning shares pay $1 at settlement."
+                        : "Sell proceeds, credited on fill."}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </span>
+          }>
+            ${maxWin.toFixed(2)}
           </Row>
           <Row label="Max loss">${maxLoss.toFixed(2)}</Row>
           <Row label="Fee">${fee.toFixed(2)}</Row>
         </div>
 
-        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-          <Info className="h-3 w-3" />
-          Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
-        </div>
+        {/* Balance breakdown: only shown when trial bonus is non-zero — otherwise
+            the "Available (USDC)" line above already carries the whole number. */}
+        {trialBalance > 0 && (
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+            <Info className="h-3 w-3" />
+            Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
+          </div>
+        )}
         {settleLabel && (
           <div className="text-[10px] text-muted-foreground">
             Settles &amp; credits by ~{settleLabel}
@@ -1039,8 +1124,11 @@ export default function SpotTrading() {
       </button>
 
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono text-[11px] font-semibold flex-shrink-0">
-          {ticker.slice(0, 3)}
+        <div className={cn(
+          "flex h-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono font-semibold flex-shrink-0 px-2",
+          ticker.length <= 3 ? "text-[11px] w-9" : ticker.length <= 4 ? "text-[10px] min-w-9" : "text-[9px] min-w-9",
+        )}>
+          {ticker}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -1050,25 +1138,42 @@ export default function SpotTrading() {
               {badge.label}
             </Badge>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-            <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-            <span>Closes in</span>
-            <span className="text-trading-red font-mono font-medium">{countdown}</span>
-            {closingSoon && lifecycle === "TRADING" && (
-              <span
-                className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
-                title="Trading remains open until 5 minutes before close."
-              >
-                Closing soon
-              </span>
-            )}
-            {tz && (
-              <>
-                <span>·</span>
-                <span className="font-mono">{tz.et}</span>
-                <span>·</span>
-                <span className="font-mono">{tz.bj}</span>
-              </>
+          <div className="flex flex-col gap-0.5 mt-0.5">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className={cn(
+                "w-1.5 h-1.5 rounded-full",
+                countdown.urgency === "red" && "bg-trading-red animate-pulse",
+                countdown.urgency === "yellow" && "bg-trading-yellow",
+                countdown.urgency === "muted" && "bg-muted-foreground",
+              )} />
+              <span>Trading ends in</span>
+              <span className={cn(
+                "font-mono font-medium",
+                countdown.urgency === "red" && "text-trading-red animate-pulse",
+                countdown.urgency === "yellow" && "text-trading-yellow",
+                countdown.urgency === "muted" && "text-foreground",
+              )}>{countdown.text}</span>
+              {closingSoon && lifecycle === "TRADING" && (
+                <span
+                  className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
+                  title="Trading remains open until 5 minutes before close."
+                >
+                  Closing soon
+                </span>
+              )}
+              {tz && (
+                <>
+                  <span>·</span>
+                  <span className="font-mono">{tz.et}</span>
+                  <span>·</span>
+                  <span className="font-mono">{tz.bj}</span>
+                </>
+              )}
+            </div>
+            {settleEtOnly && (
+              <div className="text-[10px] text-muted-foreground">
+                Settles at {settleEtOnly} close · credits by ~{settleEtOnly}
+              </div>
             )}
           </div>
         </div>
@@ -1076,7 +1181,7 @@ export default function SpotTrading() {
 
       {/* Right stats — spot-specific. NO index / funding / OI. */}
       <div className="ml-auto flex items-center gap-6 text-xs">
-        <StatItem label="24h Volume" value={mock24hVolume(event.id)} />
+        <StatItem label="Volume" value={mock24hVolume(event.id)} />
         <StatItem
           label="Prior Close"
           value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
@@ -1124,15 +1229,30 @@ export default function SpotTrading() {
           <Badge variant="outline" className="text-[9px]">SPOT</Badge>
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-          <span>Closes in</span>
-          <span className="text-trading-red font-mono font-medium">{countdown}</span>
+          <span className={cn(
+            "w-1.5 h-1.5 rounded-full",
+            countdown.urgency === "red" && "bg-trading-red animate-pulse",
+            countdown.urgency === "yellow" && "bg-trading-yellow",
+            countdown.urgency === "muted" && "bg-muted-foreground",
+          )} />
+          <span>Trading ends in</span>
+          <span className={cn(
+            "font-mono font-medium",
+            countdown.urgency === "red" && "text-trading-red animate-pulse",
+            countdown.urgency === "yellow" && "text-trading-yellow",
+            countdown.urgency === "muted" && "text-foreground",
+          )}>{countdown.text}</span>
           {closingSoon && lifecycle === "TRADING" && (
             <span className="px-1 rounded bg-trading-yellow/15 text-trading-yellow text-[10px]">
               Closing soon
             </span>
           )}
         </div>
+        {settleEtOnly && (
+          <div className="text-[10px] text-muted-foreground mt-0.5">
+            Settles at {settleEtOnly} · credits by ~{settleEtOnly}
+          </div>
+        )}
       </div>
       <button onClick={() => toggleWatch(event.id)} className="p-1.5 flex-shrink-0">
         <Star
@@ -1155,7 +1275,7 @@ export default function SpotTrading() {
 
         {/* Compact stats strip */}
         <div className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-border/30 text-[11px]">
-          <StatItem label="24h Vol" value={mock24hVolume(event.id)} compact />
+          <StatItem label="Volume" value={mock24hVolume(event.id)} compact />
           <StatItem
             label="Prior Close"
             value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
@@ -1283,7 +1403,7 @@ export default function SpotTrading() {
 // -----------------------------------------------------------------
 // Small helpers
 // -----------------------------------------------------------------
-const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
+const Row = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <div className="flex justify-between">
     <span className="text-muted-foreground">{label}</span>
     <span>{children}</span>

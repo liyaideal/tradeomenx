@@ -140,6 +140,43 @@ export const SpotSection = ({ isMobile }: Props) => {
         </div>
       </SectionWrapper>
 
+      {/* Countdown urgency + price-step precision groups */}
+      <SectionWrapper
+        id="spot-countdown-precision"
+        title="Countdown urgency + price-step precision"
+        description="Terminal countdown targets events.freeze_time (trading window ends there). Three urgency tiers (>1h muted / ≤1h yellow / ≤15m red + per-second pulse). Spot order book uses $0.01 tick with precision groups 0.01 / 0.02 / 0.05 — never the futures 0.0001 group."
+      >
+        <div className="grid gap-3 md:grid-cols-3 text-xs">
+          <div className="rounded-lg border border-border/50 p-3 space-y-1">
+            <div className="text-muted-foreground text-[10px] uppercase tracking-wide">Muted &gt; 1h</div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
+              <span className="text-foreground font-mono">05:42:11</span>
+            </div>
+          </div>
+          <div className="rounded-lg border border-border/50 p-3 space-y-1">
+            <div className="text-muted-foreground text-[10px] uppercase tracking-wide">Yellow ≤ 1h</div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-trading-yellow" />
+              <span className="text-trading-yellow font-mono">00:37:22</span>
+            </div>
+          </div>
+          <div className="rounded-lg border border-border/50 p-3 space-y-1">
+            <div className="text-muted-foreground text-[10px] uppercase tracking-wide">Red ≤ 15m (pulse)</div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-trading-red animate-pulse" />
+              <span className="text-trading-red font-mono animate-pulse">00:04:09</span>
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 flex items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Precision groups:</span>
+          {["0.01", "0.02", "0.05"].map((s) => (
+            <span key={s} className="px-2 py-0.5 rounded bg-muted font-mono text-[11px]">{s}</span>
+          ))}
+        </div>
+      </SectionWrapper>
+
       {/* Net-position auto-reduce (SIGNED_YES_SHARE) */}
       <SectionWrapper
         id="spot-net-position"
