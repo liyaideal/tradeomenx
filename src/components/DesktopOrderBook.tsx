@@ -37,6 +37,12 @@ interface DesktopOrderBookProps {
    * index price / funding / liquidation references leak into the spot terminal.
    */
   variant?: "futures" | "spot";
+  /**
+   * Optional LP quote-mode badge shown in the order-book header. Values mirror
+   * the `lp_quote_mode` enum: NORMAL / CONSERVATIVE / HEDGE_ONLY / CANCEL_ONLY.
+   * When omitted, no badge renders.
+   */
+  quoteMode?: "NORMAL" | "CONSERVATIVE" | "HEDGE_ONLY" | "CANCEL_ONLY";
 }
 
 const MID_TOOLTIP_COPY = {
