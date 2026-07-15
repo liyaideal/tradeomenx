@@ -316,9 +316,59 @@ export default function SpotTrading() {
     ? `${formatEtTime(settleAt)} ET / ${formatBeijingTime(settleAt)} 北京`
     : null;
   const settleEtOnly = settleAt ? `${formatEtTime(settleAt)} ET` : null;
+  const freezeEtOnly = freezeAt ? formatEtTime(freezeAt) : null;
+  const closeEtOnly = endDate ? formatEtTime(endDate) : null;
   const freezeLabel = freezeAt ? `${formatEtTime(freezeAt)} ET` : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`;
 
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "";
+
+  // Prior-close reference date shown beside `Base`. Walks back one calendar day
+  // from end_date in America/New_York and skips weekends so we land on the
+  // trading session that actually produced base_price.
+  const priorCloseDateLabel = useMemo(() => {
+    if (!endDate) return "prior";
+    const dowFmt = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short" });
+    let d = new Date(endDate.getTime() - 24 * 3600 * 1000);
+    for (let i = 0; i < 4; i += 1) {
+      const w = dowFmt.format(d);
+      if (w !== "Sat" && w !== "Sun") break;
+      d = new Date(d.getTime() - 24 * 3600 * 1000);
+    }
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      month: "short",
+      day: "numeric",
+    }).format(d);
+  }, [endDate]);
+
+  // Local-time hint for the schedule tooltip. Browser-detected zone, English label only.
+  const localFreezeLabel = useMemo(() => {
+    if (!freezeAt) return null;
+    const offsetMin = -new Date().getTimezoneOffset();
+    const sign = offsetMin >= 0 ? "+" : "-";
+    const abs = Math.abs(offsetMin);
+    const hh = Math.floor(abs / 60);
+    const mm = abs % 60;
+    const gmt = `GMT${sign}${hh}${mm ? `:${String(mm).padStart(2, "0")}` : ""}`;
+    const s = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(freezeAt);
+    return `trading ends ${s} (${gmt})`;
+  }, [freezeAt]);
+
+  // pre-mkt / after-hrs tag beside the live indicative price. Recomputes on the
+  // countdown tick so it flips sessions live.
+  const sessionTag = useMemo(() => {
+    const s = getCurrentSession();
+    if (s.session === "PRE_MARKET") return "pre-mkt";
+    if (s.session === "EXTENDED_AFTER_HOURS" || s.session === "OVERNIGHT") return "after-hrs";
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown.text]);
   // Tick 0.01 validation (技术对接 §10.1). Applies to Limit price input.
   const tickInvalid = useMemo(() => {
     if (orderType !== "Limit") return false;
