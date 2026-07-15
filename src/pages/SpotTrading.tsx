@@ -218,13 +218,7 @@ const SpotTrading = () => {
   return (
     <div className={cn("min-h-screen bg-background", isMobile && "pb-24")}>
       {isMobile ? (
-        <MobileHeader
-          leftContent={
-            <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-          }
-        />
+        <MobileHeader showBack backTo="/events?pl=spot" title="Spot" />
       ) : (
         <DesktopHeader />
       )}
