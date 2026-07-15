@@ -64,6 +64,11 @@ const EventsPage = () => {
   const markets = useMarketListData(dbEvents);
   const { isWatched, toggle: toggleWatch } = useWatchlist();
 
+  // Product line switch (Futures | Spot). Default Futures.
+  const [productLine, setProductLine] = useState<"futures" | "spot">(
+    () => (searchParams.get("pl") === "spot" ? "spot" : "futures")
+  );
+
   // Tab from URL
   const [activeTab, setActiveTab] = useState<string>(
     () => searchParams.get("tab") || "all"
