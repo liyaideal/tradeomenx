@@ -1092,8 +1092,11 @@ export default function SpotTrading() {
       </button>
 
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono text-[11px] font-semibold flex-shrink-0">
-          {ticker.slice(0, 3)}
+        <div className={cn(
+          "flex h-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono font-semibold flex-shrink-0 px-2",
+          ticker.length <= 3 ? "text-[11px] w-9" : ticker.length <= 4 ? "text-[10px] min-w-9" : "text-[9px] min-w-9",
+        )}>
+          {ticker}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -1103,25 +1106,42 @@ export default function SpotTrading() {
               {badge.label}
             </Badge>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-            <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-            <span>Closes in</span>
-            <span className="text-trading-red font-mono font-medium">{countdown}</span>
-            {closingSoon && lifecycle === "TRADING" && (
-              <span
-                className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
-                title="Trading remains open until 5 minutes before close."
-              >
-                Closing soon
-              </span>
-            )}
-            {tz && (
-              <>
-                <span>·</span>
-                <span className="font-mono">{tz.et}</span>
-                <span>·</span>
-                <span className="font-mono">{tz.bj}</span>
-              </>
+          <div className="flex flex-col gap-0.5 mt-0.5">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className={cn(
+                "w-1.5 h-1.5 rounded-full",
+                countdown.urgency === "red" && "bg-trading-red animate-pulse",
+                countdown.urgency === "yellow" && "bg-trading-yellow",
+                countdown.urgency === "muted" && "bg-muted-foreground",
+              )} />
+              <span>Trading ends in</span>
+              <span className={cn(
+                "font-mono font-medium",
+                countdown.urgency === "red" && "text-trading-red animate-pulse",
+                countdown.urgency === "yellow" && "text-trading-yellow",
+                countdown.urgency === "muted" && "text-foreground",
+              )}>{countdown.text}</span>
+              {closingSoon && lifecycle === "TRADING" && (
+                <span
+                  className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
+                  title="Trading remains open until 5 minutes before close."
+                >
+                  Closing soon
+                </span>
+              )}
+              {tz && (
+                <>
+                  <span>·</span>
+                  <span className="font-mono">{tz.et}</span>
+                  <span>·</span>
+                  <span className="font-mono">{tz.bj}</span>
+                </>
+              )}
+            </div>
+            {settleEtOnly && (
+              <div className="text-[10px] text-muted-foreground">
+                Settles at {settleEtOnly} close · credits by ~{settleEtOnly}
+              </div>
             )}
           </div>
         </div>
@@ -1129,7 +1149,7 @@ export default function SpotTrading() {
 
       {/* Right stats — spot-specific. NO index / funding / OI. */}
       <div className="ml-auto flex items-center gap-6 text-xs">
-        <StatItem label="24h Volume" value={mock24hVolume(event.id)} />
+        <StatItem label="Volume" value={mock24hVolume(event.id)} />
         <StatItem
           label="Prior Close"
           value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
