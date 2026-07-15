@@ -886,9 +886,9 @@ export default function SpotTrading() {
             Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
           </div>
         )}
-        {settleLabel && (
+        {settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">
-            Settles &amp; credits by ~{settleLabel}
+            Settles &amp; credits by ~{settleEtOnly}
           </div>
         )}
         {tickInvalid && orderType === "Limit" && (
