@@ -974,6 +974,7 @@ export default function SpotTrading() {
                 priceChange={outcomePrice.toFixed(4)}
                 isPositive={indicativePct >= 0}
                 side={side}
+                variant="spot"
                 onPriceClick={(price) => {
                   setLimitPrice(price);
                   setOrderType("Limit");
