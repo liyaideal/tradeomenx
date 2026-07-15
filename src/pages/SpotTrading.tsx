@@ -1219,7 +1219,7 @@ export default function SpotTrading() {
                   Closing soon
                 </span>
               )}
-              <Tooltip>
+              <TooltipProvider><Tooltip>
                 <TooltipTrigger asChild>
                   <button
                     type="button"
