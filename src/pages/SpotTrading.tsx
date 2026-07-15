@@ -762,14 +762,13 @@ export default function SpotTrading() {
   // -----------------------------------------------------------------
   const DesktopChrome = (
     <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
-      {showBack && (
-        <button
-          onClick={() => navigate(-1)}
-          className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted flex-shrink-0"
-        >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
-        </button>
-      )}
+      <button
+        onClick={() => (showBack ? navigate(-1) : navigate("/events?pl=spot"))}
+        className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted flex-shrink-0"
+        aria-label="Back"
+      >
+        <ArrowLeft className="w-5 h-5 text-foreground" />
+      </button>
 
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono text-[11px] font-semibold flex-shrink-0">
