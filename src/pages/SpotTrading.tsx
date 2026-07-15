@@ -1140,7 +1140,7 @@ export default function SpotTrading() {
                 isPositive={indicativePct >= 0}
                 side={side}
                 variant="spot"
-                quoteMode="NORMAL"
+                quoteMode={sessionProfile.quoteMode}
                 onPriceClick={(price) => {
                   setLimitPrice(price);
                   setOrderType("Limit");
