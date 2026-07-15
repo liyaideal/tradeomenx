@@ -98,15 +98,14 @@ const EventsPage = () => {
   // Reset page when filters/tab change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, filters, chgTimeframe]);
+  }, [activeTab, filters, chgTimeframe, productLine]);
 
-  // Sync tab → URL
+  // Sync tab & product line → URL
   useEffect(() => {
-    const current = searchParams.get("tab") || "all";
-    if (current !== activeTab) {
-      setSearchParams({ tab: activeTab }, { replace: true });
-    }
-  }, [activeTab]);
+    const nextParams: Record<string, string> = { tab: activeTab };
+    if (productLine !== "futures") nextParams.pl = productLine;
+    setSearchParams(nextParams, { replace: true });
+  }, [activeTab, productLine]);
 
   // Persist view
   useEffect(() => {
@@ -120,7 +119,13 @@ const EventsPage = () => {
 
   // Filter & sort markets
   const filteredMarkets = useMemo(() => {
-    let result = [...markets];
+    // Product-line filter first: futures shows anything containing 'futures',
+    // spot shows anything containing 'spot'.
+    let result = markets.filter((m) =>
+      productLine === "spot"
+        ? m.productLines?.includes("spot")
+        : m.productLines?.includes("futures")
+    );
 
     // Tab-level filtering (category tabs)
     if (activeTab === "watchlist") {
