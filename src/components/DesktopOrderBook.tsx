@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LP_QUOTE_MODE_BADGE } from "@/lib/usStockSessions";
 
 interface OrderBookEntry {
   price: string;
@@ -37,6 +38,12 @@ interface DesktopOrderBookProps {
    * index price / funding / liquidation references leak into the spot terminal.
    */
   variant?: "futures" | "spot";
+  /**
+   * Optional LP quote-mode badge shown in the order-book header. Values mirror
+   * the `lp_quote_mode` enum: NORMAL / CONSERVATIVE / HEDGE_ONLY / CANCEL_ONLY.
+   * When omitted, no badge renders.
+   */
+  quoteMode?: "NORMAL" | "CONSERVATIVE" | "HEDGE_ONLY" | "CANCEL_ONLY";
 }
 
 const MID_TOOLTIP_COPY = {
@@ -157,9 +164,11 @@ export const DesktopOrderBook = ({
   onPriceClick,
   side = "buy",
   variant = "futures",
+  quoteMode,
 }: DesktopOrderBookProps) => {
   const midTooltip = MID_TOOLTIP_COPY[variant];
   const headers = COLUMN_HEADERS[variant];
+  const quoteModeBadge = quoteMode ? LP_QUOTE_MODE_BADGE[quoteMode] : null;
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
   const bookSide = side;
@@ -303,6 +312,22 @@ export const DesktopOrderBook = ({
             Recent Trades
           </button>
         </div>
+        {quoteModeBadge && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className={`ml-auto px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wide rounded border cursor-help ${quoteModeBadge.className}`}
+                >
+                  {quoteModeBadge.label}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[220px] p-2">
+                <p className="text-xs">{quoteModeBadge.tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
 
       {activeTab === "orderbook" ? (

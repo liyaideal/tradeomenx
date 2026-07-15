@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { LIFECYCLE_BADGE } from "@/lib/usStockSessions";
+import { getLifecycleBadge } from "@/lib/usStockSessions";
 
 /**
  * SPOT products only — US-stock daily up/down.
@@ -52,7 +52,7 @@ export const SpotStatsHeader = ({
 }: SpotStatsHeaderProps) => {
   const ticker = useMemo(() => deriveTickerFromEvent(eventId, eventName), [eventId, eventName]);
   const company = STOCK_NAME[ticker] ?? ticker;
-  const badge = LIFECYCLE_BADGE[lifecycle ?? "TRADING"] ?? LIFECYCLE_BADGE.TRADING;
+  const badge = getLifecycleBadge(lifecycle);
 
   // Indicative last price — small pseudo-random walk around base_price.
   // DEMO-STATE: this is a purely front-end visual jitter, not a real quote.

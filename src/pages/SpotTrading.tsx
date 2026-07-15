@@ -32,9 +32,11 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { executeSpotTrade } from "@/services/tradingService";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
-  LIFECYCLE_BADGE,
+  getLifecycleBadge,
   isOrderingBlocked,
+  getBlockedReason,
   formatDualTimezone,
+  SETTLEMENT_CREDIT_BY_ET,
 } from "@/lib/usStockSessions";
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import { cn } from "@/lib/utils";
@@ -43,27 +45,46 @@ import type { Tables } from "@/integrations/supabase/types";
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 
 // -----------------------------------------------------------------
-// Mock LP order book — 12 levels per side. Front-end only (DEMO-STATE).
-// Prices are transformed to the current side by DesktopOrderBook.
+// Mock LP order book — LP PRD §6.1 parameters.
+//   min_half_spread            = 0.02
+//   quote_level_spread_step    = 0.01
+//   levels per side            = 8..12 (default 10)
+//   first-level size           ≈ 200 shares, ×0.82 decay per level, ±15% jitter
+//   price clamped to (0.01, 0.99); strict bid < mid < ask monotonicity
+// Front-end only (DEMO-STATE). Prices transformed to current side by DesktopOrderBook.
 // -----------------------------------------------------------------
+const MIN_HALF_SPREAD = 0.02;
+const LEVEL_STEP = 0.01;
+const FIRST_LEVEL_SIZE = 200;
+const SIZE_DECAY = 0.82;
+const JITTER_PCT = 0.15;
+
 const buildBook = (mid: number, seed: number) => {
   const rand = (i: number) => {
-    const x = Math.sin(seed + i) * 10000;
-    return x - Math.floor(x);
+    const x = Math.sin(seed * 13.37 + i * 7.11) * 10000;
+    return x - Math.floor(x); // 0..1
   };
+  // 8..12 levels, deterministic per seed
+  const levels = 8 + Math.floor(rand(0) * 5);
+  const clampedMid = Math.min(0.98, Math.max(0.02, mid || 0.5));
+
   const asks: { price: string; amount: string; total: string }[] = [];
   const bids: { price: string; amount: string; total: string }[] = [];
   let cumA = 0;
   let cumB = 0;
-  for (let i = 0; i < 12; i++) {
-    const ap = Math.min(0.9999, Math.max(0.0001, mid + 0.0005 * (i + 1))).toFixed(4);
-    const bp = Math.min(0.9999, Math.max(0.0001, mid - 0.0005 * (i + 1))).toFixed(4);
-    const aAmt = Math.floor(500 + rand(i + 1) * 45_000);
-    const bAmt = Math.floor(500 + rand(i + 21) * 45_000);
+  for (let i = 0; i < levels; i++) {
+    const offset = MIN_HALF_SPREAD + LEVEL_STEP * i;
+    const ap = Math.min(0.99, Math.max(0.01, clampedMid + offset));
+    const bp = Math.min(0.99, Math.max(0.01, clampedMid - offset));
+    const base = FIRST_LEVEL_SIZE * Math.pow(SIZE_DECAY, i);
+    const jitterA = 1 + (rand(i * 2 + 1) - 0.5) * 2 * JITTER_PCT;
+    const jitterB = 1 + (rand(i * 2 + 2) - 0.5) * 2 * JITTER_PCT;
+    const aAmt = Math.max(1, Math.round(base * jitterA));
+    const bAmt = Math.max(1, Math.round(base * jitterB));
     cumA += aAmt;
     cumB += bAmt;
-    asks.push({ price: ap, amount: aAmt.toLocaleString(), total: cumA.toLocaleString() });
-    bids.push({ price: bp, amount: bAmt.toLocaleString(), total: cumB.toLocaleString() });
+    asks.push({ price: ap.toFixed(2), amount: aAmt.toLocaleString(), total: cumA.toLocaleString() });
+    bids.push({ price: bp.toFixed(2), amount: bAmt.toLocaleString(), total: cumB.toLocaleString() });
   }
   return { asks, bids };
 };
@@ -207,8 +228,9 @@ export default function SpotTrading() {
   const tz = endDate ? formatDualTimezone(endDate) : null;
 
   const lifecycle = event?.lifecycle_status || "TRADING";
-  const badge = LIFECYCLE_BADGE[lifecycle] || LIFECYCLE_BADGE.TRADING;
+  const badge = getLifecycleBadge(lifecycle);
   const blocked = isOrderingBlocked(lifecycle);
+  const blockedReason = getBlockedReason(lifecycle);
 
   const basePrice = event?.base_price != null ? Number(event.base_price) : null;
   const indicative = useIndicativeLast(basePrice, event?.id || "");
@@ -538,6 +560,9 @@ export default function SpotTrading() {
           <Info className="h-3 w-3" />
           Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
         </div>
+        <div className="text-[10px] text-muted-foreground">
+          Settles & credits by ~{SETTLEMENT_CREDIT_BY_ET} ET
+        </div>
 
         {/* CTA — semantic outcome color, never primary */}
         <button
@@ -553,7 +578,7 @@ export default function SpotTrading() {
           {submitting ? (
             <Loader2 className="h-4 w-4 animate-spin mx-auto" />
           ) : blocked ? (
-            "Market frozen"
+            blockedReason || "Market unavailable"
           ) : (
             <>
               {side === "buy" ? "Buy" : "Sell"} {outcomeLabel}
@@ -605,12 +630,22 @@ export default function SpotTrading() {
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="font-semibold text-foreground text-sm">Rules</div>
-        <ul className="list-disc pl-4 space-y-1">
-          <li>Settles vs the official prior close reported by databento.</li>
-          <li>Flat close counts as {noLabel}.</li>
-          <li>Winning share pays $1; losing shares expire worthless.</li>
-          <li>If the underlying trades halted or the print is disputed by the exchange, the market cancels and all orders refund at entry.</li>
-        </ul>
+        {event.rules ? (
+          <ul className="list-disc pl-4 space-y-1">
+            {event.rules
+              .split(/\r?\n/)
+              .map((l) => l.trim())
+              .filter(Boolean)
+              .map((line, i) => (
+                <li key={i}>{line}</li>
+              ))}
+          </ul>
+        ) : (
+          <p className="italic">Rules not yet published for this market.</p>
+        )}
+      </div>
+      <div className="text-xs text-muted-foreground">
+        Settles &amp; credits by ~{SETTLEMENT_CREDIT_BY_ET} ET.
       </div>
     </div>
   );
@@ -975,6 +1010,7 @@ export default function SpotTrading() {
                 isPositive={indicativePct >= 0}
                 side={side}
                 variant="spot"
+                quoteMode="NORMAL"
                 onPriceClick={(price) => {
                   setLimitPrice(price);
                   setOrderType("Limit");
