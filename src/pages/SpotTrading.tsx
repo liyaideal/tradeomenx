@@ -32,9 +32,11 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { executeSpotTrade } from "@/services/tradingService";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
-  LIFECYCLE_BADGE,
+  getLifecycleBadge,
   isOrderingBlocked,
+  getBlockedReason,
   formatDualTimezone,
+  SETTLEMENT_CREDIT_BY_ET,
 } from "@/lib/usStockSessions";
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import { cn } from "@/lib/utils";
