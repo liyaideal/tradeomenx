@@ -56,8 +56,10 @@ const convertSupabaseOrder = (order: SupabaseOrder): UnifiedOrder => {
     total: `$${order.amount.toFixed(2)}`,
     time: timeAgo,
     status: order.status as "Pending" | "Partial Filled" | "Filled" | "Cancelled",
+    productLine: order.product_line ?? "futures",
   };
 };
+
 
 // Convert local order to unified format
 const convertLocalOrder = (order: Order): UnifiedOrder => ({
