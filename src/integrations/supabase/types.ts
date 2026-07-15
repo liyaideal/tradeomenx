@@ -203,6 +203,27 @@ export type Database = {
         }
         Relationships: []
       }
+      category_boost_configs: {
+        Row: {
+          category: string
+          enabled: boolean
+          max_leverage: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          enabled?: boolean
+          max_leverage?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          enabled?: boolean
+          max_leverage?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       connected_accounts: {
         Row: {
           created_at: string
@@ -396,16 +417,20 @@ export type Database = {
       }
       events: {
         Row: {
+          base_price: number | null
           category: string
           created_at: string
           description: string | null
           end_date: string | null
+          event_subtype: string | null
           external_links: Json | null
           icon: string
           id: string
           is_resolved: boolean
+          lifecycle_status: string | null
           name: string
           price_label: string | null
+          product_lines: string[]
           rules: string | null
           settled_at: string | null
           settlement_description: string | null
@@ -418,16 +443,20 @@ export type Database = {
           winning_option_id: string | null
         }
         Insert: {
+          base_price?: number | null
           category?: string
           created_at?: string
           description?: string | null
           end_date?: string | null
+          event_subtype?: string | null
           external_links?: Json | null
           icon?: string
           id: string
           is_resolved?: boolean
+          lifecycle_status?: string | null
           name: string
           price_label?: string | null
+          product_lines?: string[]
           rules?: string | null
           settled_at?: string | null
           settlement_description?: string | null
@@ -440,16 +469,20 @@ export type Database = {
           winning_option_id?: string | null
         }
         Update: {
+          base_price?: number | null
           category?: string
           created_at?: string
           description?: string | null
           end_date?: string | null
+          event_subtype?: string | null
           external_links?: Json | null
           icon?: string
           id?: string
           is_resolved?: boolean
+          lifecycle_status?: string | null
           name?: string
           price_label?: string | null
+          product_lines?: string[]
           rules?: string | null
           settled_at?: string | null
           settlement_description?: string | null
@@ -760,6 +793,7 @@ export type Database = {
           option_label: string
           pnl: number | null
           pnl_percent: number | null
+          product_line: string
           side: string
           size: number
           sl_mode: string | null
@@ -786,6 +820,7 @@ export type Database = {
           option_label: string
           pnl?: number | null
           pnl_percent?: number | null
+          product_line?: string
           side: string
           size: number
           sl_mode?: string | null
@@ -812,6 +847,7 @@ export type Database = {
           option_label?: string
           pnl?: number | null
           pnl_percent?: number | null
+          product_line?: string
           side?: string
           size?: number
           sl_mode?: string | null
@@ -875,6 +911,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          preferred_surface: string
           totp_enabled: boolean
           trial_balance: number | null
           updated_at: string
@@ -889,6 +926,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          preferred_surface?: string
           totp_enabled?: boolean
           trial_balance?: number | null
           updated_at?: string
@@ -903,6 +941,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          preferred_surface?: string
           totp_enabled?: boolean
           trial_balance?: number | null
           updated_at?: string
@@ -1158,6 +1197,7 @@ export type Database = {
           order_type: string
           pnl: number | null
           price: number
+          product_line: string
           quantity: number
           side: string
           sl_mode: string | null
@@ -1182,6 +1222,7 @@ export type Database = {
           order_type: string
           pnl?: number | null
           price: number
+          product_line?: string
           quantity: number
           side: string
           sl_mode?: string | null
@@ -1206,6 +1247,7 @@ export type Database = {
           order_type?: string
           pnl?: number | null
           price?: number
+          product_line?: string
           quantity?: number
           side?: string
           sl_mode?: string | null
