@@ -1,18 +1,34 @@
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+// ============================================================
+// /spot — Pro Spot trading terminal (US-stock daily up/down).
+// Structural rule: this page IS a terminal like /trade, with the
+// futures-only surfaces stripped out. It MUST NOT render the
+// site-wide navigation header (see DESIGN.md §7 anti-patterns).
+// ============================================================
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams, useNavigate, useNavigationType } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Info } from "lucide-react";
+import {
+  ArrowLeft,
+  Star,
+  Loader2,
+  Info,
+  ChevronDown,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { usePositions } from "@/hooks/usePositions";
+import { useOrders } from "@/hooks/useOrders";
+import { useWatchlist } from "@/hooks/useWatchlist";
+import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
+import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { MobileHeader } from "@/components/MobileHeader";
-import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { SpotStatsHeader } from "@/components/SpotStatsHeader";
-import { BottomNav } from "@/components/BottomNav";
+import { CandlestickChart } from "@/components/CandlestickChart";
+import { DesktopOrderBook } from "@/components/DesktopOrderBook";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { executeSpotTrade } from "@/services/tradingService";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
@@ -20,157 +36,253 @@ import {
   isOrderingBlocked,
   formatDualTimezone,
 } from "@/lib/usStockSessions";
+import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 
-// -------- Mocked order book (front-end only, per LP PRD sketch) --------
-interface BookLevel { price: number; size: number; }
-const buildBook = (mid: number, seed: number): { bids: BookLevel[]; asks: BookLevel[] } => {
+// -----------------------------------------------------------------
+// Mock LP order book — 12 levels per side. Front-end only (DEMO-STATE).
+// Prices are transformed to the current side by DesktopOrderBook.
+// -----------------------------------------------------------------
+const buildBook = (mid: number, seed: number) => {
   const rand = (i: number) => {
     const x = Math.sin(seed + i) * 10000;
     return x - Math.floor(x);
   };
-  const halfSpread = 0.02;
-  const asks: BookLevel[] = [];
-  const bids: BookLevel[] = [];
-  let askSize = 200 * (0.9 + rand(1) * 0.2);
-  let bidSize = 200 * (0.9 + rand(2) * 0.2);
-  for (let i = 0; i < 10; i++) {
-    const p = Math.min(0.99, Math.max(0.01, mid + halfSpread + i * 0.01));
-    asks.push({ price: p, size: Math.round(askSize) });
-    askSize *= 0.82;
+  const asks: { price: string; amount: string; total: string }[] = [];
+  const bids: { price: string; amount: string; total: string }[] = [];
+  let cumA = 0;
+  let cumB = 0;
+  for (let i = 0; i < 12; i++) {
+    const ap = Math.min(0.9999, Math.max(0.0001, mid + 0.0005 * (i + 1))).toFixed(4);
+    const bp = Math.min(0.9999, Math.max(0.0001, mid - 0.0005 * (i + 1))).toFixed(4);
+    const aAmt = Math.floor(500 + rand(i + 1) * 45_000);
+    const bAmt = Math.floor(500 + rand(i + 21) * 45_000);
+    cumA += aAmt;
+    cumB += bAmt;
+    asks.push({ price: ap, amount: aAmt.toLocaleString(), total: cumA.toLocaleString() });
+    bids.push({ price: bp, amount: bAmt.toLocaleString(), total: cumB.toLocaleString() });
   }
-  for (let i = 0; i < 10; i++) {
-    const p = Math.min(0.99, Math.max(0.01, mid - halfSpread - i * 0.01));
-    bids.push({ price: p, size: Math.round(bidSize) });
-    bidSize *= 0.82;
-  }
-  return { bids, asks };
+  return { asks, bids };
 };
 
-const SpotTrading = () => {
+// Human 24h volume mock — deterministic from event id, so it stays stable while
+// the price ticks around. DEMO-STATE.
+const mock24hVolume = (eventId: string) => {
+  const h = eventId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const dollars = 800_000 + (h % 4_000_000);
+  return dollars >= 1_000_000 ? `$${(dollars / 1_000_000).toFixed(2)}M` : `$${(dollars / 1000).toFixed(0)}K`;
+};
+
+// Fee = 0 for spot (see tradingService §SPOT). Explicit constant keeps the
+// summary line honest.
+const SPOT_FEE_RATE = 0;
+
+// ---- Countdown ----
+const useCountdown = (endTime: Date | null) => {
+  const [txt, setTxt] = useState("");
+  useEffect(() => {
+    if (!endTime) return;
+    const tick = () => {
+      const diff = endTime.getTime() - Date.now();
+      if (diff <= 0) return setTxt("00:00:00");
+      const h = Math.floor(diff / 3_600_000);
+      const m = Math.floor((diff % 3_600_000) / 60_000);
+      const s = Math.floor((diff % 60_000) / 1_000);
+      setTxt(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+    };
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [endTime]);
+  return txt;
+};
+
+// ---- Indicative last price (mock walk around base_price) ----
+const useIndicativeLast = (basePrice: number | null, seedKey: string) => {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 2500);
+    return () => clearInterval(t);
+  }, []);
+  return useMemo(() => {
+    if (!basePrice) return null;
+    // Deterministic-ish drift ±0.8% for the demo tape.
+    const seed = seedKey.length % 7;
+    const drift = Math.sin(tick / 3 + seed) * 0.008;
+    return basePrice * (1 + drift);
+  }, [basePrice, tick, seedKey]);
+};
+
+export default function SpotTrading() {
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || "";
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const {
-    balance,
-    trialBalance,
-    totalBalance,
-    deductBalance,
-    addBalance,
-  } = useUserProfile();
+  const { balance, trialBalance, totalBalance, deductBalance, addBalance } = useUserProfile();
 
+  // ---- Data ----
   const [event, setEvent] = useState<EventRow | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
-  const [side, setSide] = useState<"buy" | "sell">("buy");
-  const [amount, setAmount] = useState("");
-  const [price, setPrice] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [heldQty, setHeldQty] = useState(0);
+  const [notFound, setNotFound] = useState(false);
 
+  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+  const [orderType, setOrderType] = useState<"Limit" | "Market">("Market");
+  const [limitPrice, setLimitPrice] = useState("");
+  const [slippageBps, setSlippageBps] = useState(50); // Market = marketable limit + slippage cap
+  const [amount, setAmount] = useState("");
+  const [sliderValue, setSliderValue] = useState([0]);
+  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const [chartTab, setChartTab] = useState<"Chart" | "Event Info">("Chart");
+  const [bottomTab, setBottomTab] = useState<"Positions" | "Orders">("Positions");
+  const [submitting, setSubmitting] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  const pricesCtx = useRealtimePricesOptional();
+
+  // Fetch the event
   useEffect(() => {
+    if (!eventId) {
+      setNotFound(true);
+      setLoading(false);
+      return;
+    }
     let alive = true;
     (async () => {
       setLoading(true);
-      const { data: e } = await supabase.from("events").select("*").eq("id", eventId).maybeSingle();
-      const { data: opts } = await supabase.from("event_options").select("*").eq("event_id", eventId);
+      const [{ data: e }, { data: opts }] = await Promise.all([
+        supabase.from("events").select("*").eq("id", eventId).maybeSingle(),
+        supabase.from("event_options").select("*").eq("event_id", eventId),
+      ]);
       if (!alive) return;
-      if (e) {
+      if (!e) {
+        setNotFound(true);
+      } else {
         setEvent({ ...e, options: opts || [] });
         const list = opts || [];
-        const first =
-          list.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || list[0];
-        if (first) {
-          setSelectedOptionId(first.id);
-          setPrice(String(Number(first.price).toFixed(2)));
+        const yes = list.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || list[0];
+        if (yes) {
+          setSelectedOptionId(yes.id);
+          setLimitPrice(Number(yes.price).toFixed(4));
         }
       }
       setLoading(false);
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [eventId]);
 
-  // Load user's spot holding for this option
-  useEffect(() => {
-    if (!user || !selectedOptionId) { setHeldQty(0); return; }
-    (async () => {
-      const { data } = await supabase
-        .from("positions")
-        .select("size")
-        .eq("user_id", user.id)
-        .eq("option_id", selectedOptionId)
-        .eq("product_line", "spot")
-        .eq("side", "long")
-        .eq("status", "Open")
-        .maybeSingle();
-      setHeldQty(data ? Number(data.size) : 0);
-    })();
-  }, [user, selectedOptionId, submitting]);
-
+  // ---- Derived ----
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
-  const selectedOption = event?.options.find((o) => o.id === selectedOptionId) || null;
+  const yesLabel = sideLabels?.yes || "Up";
+  const noLabel = sideLabels?.no || "Not Up";
 
-  // Refresh price when option changes
-  useEffect(() => {
-    if (selectedOption) setPrice(String(Number(selectedOption.price).toFixed(2)));
-  }, [selectedOptionId]);
+  const yesOpt = useMemo(
+    () => event?.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event?.options[0],
+    [event],
+  );
+  const noOpt = useMemo(
+    () =>
+      event?.options.find((o) => /(^|[-_ ])no$/i.test(o.label)) ||
+      event?.options.find((o) => o.id !== yesOpt?.id) ||
+      event?.options[1],
+    [event, yesOpt],
+  );
+
+  const yesLive = yesOpt ? pricesCtx?.getPrice(yesOpt.id) ?? Number(yesOpt.price) : 0;
+  const noLive = noOpt ? pricesCtx?.getPrice(noOpt.id) ?? Number(noOpt.price) : 0;
+
+  const isYesSelected = selectedOptionId === yesOpt?.id;
+  const selectedOption = isYesSelected ? yesOpt : noOpt;
+  const outcomeLabel = isYesSelected ? yesLabel : noLabel;
+  const outcomePrice = isYesSelected ? yesLive : noLive;
+
+  const endDate = event?.end_date ? new Date(event.end_date) : null;
+  const countdown = useCountdown(endDate);
+  const tz = endDate ? formatDualTimezone(endDate) : null;
 
   const lifecycle = event?.lifecycle_status || "TRADING";
   const badge = LIFECYCLE_BADGE[lifecycle] || LIFECYCLE_BADGE.TRADING;
   const blocked = isOrderingBlocked(lifecycle);
 
-  const p = parseFloat(price) || 0;
+  const basePrice = event?.base_price != null ? Number(event.base_price) : null;
+  const indicative = useIndicativeLast(basePrice, event?.id || "");
+  const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
+
+  const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "";
+
+  // Effective price the user is transacting at.
+  const effectivePrice = orderType === "Limit"
+    ? Math.min(0.9999, Math.max(0.0001, parseFloat(limitPrice) || outcomePrice))
+    : outcomePrice; // Market → mark; slippageBps only affects the "worst" quote shown
+
   const amt = parseFloat(amount) || 0;
-  const qty = p > 0 ? amt / p : 0;
-  const maxLoss = side === "buy" ? amt : 0;
-  const payoutIfRight = side === "buy" ? qty : 0;
+  const qty = effectivePrice > 0 ? amt / effectivePrice : 0;
+  const cost = effectivePrice * qty;
+  const maxLoss = side === "buy" ? cost : 0;
+  const payoutIfRight = side === "buy" ? qty : 0; // $1 per winning share
+  const fee = cost * SPOT_FEE_RATE;
 
-  const seed = useMemo(
-    () => (selectedOption?.id || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0),
-    [selectedOption?.id]
-  );
+  // Order book (mock)
   const book = useMemo(
-    () => buildBook(selectedOption ? Number(selectedOption.price) : 0.5, seed),
-    [selectedOption, seed]
+    () => buildBook(outcomePrice || 0.5, (selectedOption?.id || "").length),
+    [outcomePrice, selectedOption?.id],
   );
 
-  const endDate = event?.end_date ? new Date(event.end_date) : null;
-  const tz = endDate ? formatDualTimezone(endDate) : null;
+  // ---- Positions / orders (spot-scoped) ----
+  const { positions, refetch: refetchPositions } = usePositions();
+  const { orders, cancelOrder, isCancelling } = useOrders();
+  const spotPositions = useMemo(
+    () => positions.filter((p) => p.productLine === "spot" && p.event === event?.name),
+    [positions, event?.name],
+  );
+  const spotOrders = useMemo(
+    () => orders.filter((o) => (o as any).product_line === "spot" || o.event === event?.name),
+    [orders, event?.name],
+  );
 
-  // Countdown
-  const [now, setNow] = useState(Date.now());
+  const heldQty = useMemo(() => {
+    if (!selectedOption) return 0;
+    const p = spotPositions.find((pp) => pp.optionId === selectedOption.id);
+    return p ? p.sizeNum : 0;
+  }, [spotPositions, selectedOption]);
+
+  // ---- Watchlist ----
+  const { isWatched, toggle: toggleWatch } = useWatchlist();
+
+  // ---- Slider ↔ amount ----
+  const available = totalBalance;
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  const countdown = useMemo(() => {
-    if (!endDate) return "";
-    const diff = endDate.getTime() - now;
-    if (diff <= 0) return "Settled";
-    const h = Math.floor(diff / 3_600_000);
-    const m = Math.floor((diff % 3_600_000) / 60_000);
-    const s = Math.floor((diff % 60_000) / 1_000);
-    return `${h}h ${m}m ${s}s`;
-  }, [endDate, now]);
+    // Keep slider in sync when user types amount manually
+    const pct = available > 0 ? Math.min(100, (amt / available) * 100) : 0;
+    if (Math.abs(pct - sliderValue[0]) > 0.5) setSliderValue([pct]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [amount, available]);
 
+  // Reset limit price when outcome changes
+  useEffect(() => {
+    if (outcomePrice) setLimitPrice(outcomePrice.toFixed(4));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedOptionId]);
+
+  // ---- Submit ----
   const handleSubmit = async () => {
-    if (!user) { toast.error("Please sign in first."); return; }
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
     if (!selectedOption) return;
-    if (blocked) { toast.error("Market is frozen — no new orders."); return; }
-    if (amt <= 0 || p <= 0 || p >= 1) { toast.error("Enter a valid price and amount."); return; }
-    if (side === "sell" && qty > heldQty + 0.000001) {
-      toast.error("Short selling is not supported. Reduce quantity.");
-      return;
-    }
-    if (side === "buy" && amt > totalBalance) {
-      toast.error("Insufficient balance.");
-      return;
-    }
+    if (blocked) return toast.error("Market is frozen — no new orders.");
+    if (amt <= 0 || effectivePrice <= 0 || effectivePrice >= 1)
+      return toast.error("Enter a valid price and amount.");
+    if (side === "sell" && qty > heldQty + 1e-6)
+      return toast.error("Short selling is not supported. Reduce quantity.");
+    if (side === "buy" && amt > totalBalance) return toast.error("Insufficient balance.");
 
     setSubmitting(true);
     try {
@@ -179,16 +291,15 @@ const SpotTrading = () => {
         optionLabel: selectedOption.label,
         optionId: selectedOption.id,
         side,
-        price: p,
+        price: effectivePrice,
         quantity: qty,
       });
-      if (res.balanceDelta < 0) {
-        await deductBalance(-res.balanceDelta);
-      } else if (res.balanceDelta > 0) {
-        await addBalance(res.balanceDelta);
-      }
+      if (res.balanceDelta < 0) await deductBalance(-res.balanceDelta);
+      else if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
       toast.success(side === "buy" ? "Spot buy filled" : "Spot sell filled");
       setAmount("");
+      setSliderValue([0]);
+      refetchPositions();
     } catch (err: any) {
       toast.error(err?.message || "Trade failed");
     } finally {
@@ -196,224 +307,727 @@ const SpotTrading = () => {
     }
   };
 
+  // ---- Render guards ----
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
+  if (notFound || !event) return <ExpiredEventFallback eventId={eventId} />;
 
-  if (!event) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3">
-        <p className="text-muted-foreground">Event not found.</p>
-        <Button onClick={() => navigate("/events?pl=spot")}>Back to Spot markets</Button>
+  const showBack = navigationType === "PUSH";
+
+  // -----------------------------------------------------------------
+  // Reusable atoms
+  // -----------------------------------------------------------------
+  const YesNoToggle = (
+    <div className="grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg">
+      <button
+        onClick={() => {
+          setSide("buy");
+          if (yesOpt) setSelectedOptionId(yesOpt.id);
+        }}
+        className="relative flex flex-col rounded-md overflow-hidden transition-all"
+      >
+        <div
+          className={cn(
+            "flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight",
+            isYesSelected
+              ? "bg-trading-green text-trading-green-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80",
+          )}
+        >
+          {yesLabel}
+        </div>
+        <div
+          className={cn(
+            "h-[22px] flex items-center justify-center text-[11px] font-mono border-t",
+            isYesSelected
+              ? "bg-trading-green/85 text-trading-green-foreground border-black/20"
+              : "bg-muted-foreground/15 text-foreground/80 border-border/40",
+          )}
+        >
+          {yesLive.toFixed(4)}
+        </div>
+      </button>
+      <button
+        onClick={() => {
+          setSide("buy");
+          if (noOpt) setSelectedOptionId(noOpt.id);
+        }}
+        className="relative flex flex-col rounded-md overflow-hidden transition-all"
+      >
+        <div
+          className={cn(
+            "flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight",
+            !isYesSelected
+              ? "bg-trading-red text-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80",
+          )}
+        >
+          {noLabel}
+        </div>
+        <div
+          className={cn(
+            "h-[22px] flex items-center justify-center text-[11px] font-mono border-t",
+            !isYesSelected
+              ? "bg-trading-red/85 text-foreground border-black/20"
+              : "bg-muted-foreground/15 text-foreground/80 border-border/40",
+          )}
+        >
+          {noLive.toFixed(4)}
+        </div>
+      </button>
+    </div>
+  );
+
+  const TradePanel = (
+    <div className="flex flex-col bg-background rounded-lg border border-border/50">
+      <div className="flex items-center px-4 py-2 border-b border-border/30">
+        <span className="text-sm font-medium">Trade</span>
+        <Badge variant="outline" className="ml-2 text-[10px]">SPOT</Badge>
       </div>
-    );
-  }
+      <div className="px-4 py-3 space-y-3">
+        {YesNoToggle}
 
-  const yesLabel = sideLabels?.yes || "Yes";
-  const noLabel = sideLabels?.no || "No";
-  const yesOpt =
-    event.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event.options[0];
-  const noOpt =
-    event.options.find((o) => /(^|[-_ ])no$/i.test(o.label)) ||
-    event.options.find((o) => o.id !== yesOpt?.id) ||
-    event.options[1];
+        {/* Buy / Sell */}
+        <div className="inline-flex w-full items-center gap-1 rounded-md border border-border/60 bg-muted/30 p-1">
+          {(["buy", "sell"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setSide(s)}
+              className={cn(
+                "flex-1 py-1.5 rounded text-xs font-medium capitalize transition",
+                side === s
+                  ? s === "buy"
+                    ? "bg-trading-green/20 text-trading-green"
+                    : "bg-trading-red/20 text-trading-red"
+                  : "text-muted-foreground",
+              )}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
 
-  const isYesSelected = selectedOptionId === yesOpt?.id;
-  const outcomeLabel = isYesSelected ? yesLabel : noLabel;
+        {/* Available */}
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">Available (USDC)</span>
+          <span className="font-mono">{available.toFixed(2)}</span>
+        </div>
 
-  return (
-    <div className={cn("min-h-screen bg-background", isMobile && "pb-24")}>
-      {isMobile ? (
-        <MobileHeader showBack backTo="/events?pl=spot" title="Spot" />
+        {/* Order type tabs */}
+        <div className="flex border-b border-border/30">
+          {(["Limit", "Market"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setOrderType(t)}
+              className={cn(
+                "px-2 py-1.5 text-xs font-medium transition-all",
+                orderType === t
+                  ? "text-foreground border-b-2 border-trading-purple"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {/* Price / slippage */}
+        {orderType === "Limit" ? (
+          <div className="space-y-1">
+            <span className="text-xs text-muted-foreground">Price</span>
+            <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+              <input
+                type="text"
+                value={limitPrice}
+                onChange={(e) => setLimitPrice(e.target.value)}
+                className="flex-1 bg-transparent outline-none font-mono text-sm"
+                placeholder="0.0000"
+                inputMode="decimal"
+              />
+              <span className="text-muted-foreground text-xs">USD</span>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Max slippage</span>
+              <span className="text-xs font-mono">{(slippageBps / 100).toFixed(2)}%</span>
+            </div>
+            <div className="flex gap-1.5">
+              {[10, 25, 50, 100].map((bps) => (
+                <button
+                  key={bps}
+                  onClick={() => setSlippageBps(bps)}
+                  className={cn(
+                    "flex-1 py-1 text-[11px] rounded transition-colors",
+                    slippageBps === bps
+                      ? "bg-trading-purple text-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {(bps / 100).toFixed(2)}%
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground pt-0.5">
+              Market = marketable limit @ mark ± slippage cap
+            </p>
+          </div>
+        )}
+
+        {/* Amount */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Amount</span>
+            {side === "sell" && (
+              <span className="text-[10px] text-muted-foreground font-mono">
+                held: {heldQty.toFixed(0)} sh
+              </span>
+            )}
+          </div>
+          <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+            <input
+              type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="flex-1 bg-transparent outline-none font-mono text-sm"
+              placeholder="0.00"
+              inputMode="decimal"
+            />
+            <span className="text-muted-foreground text-xs font-medium">USDC</span>
+          </div>
+        </div>
+
+        {/* Slider */}
+        <div className="space-y-1">
+          <Slider
+            value={sliderValue}
+            onValueChange={(val) => {
+              setSliderValue(val);
+              setAmount(((available * val[0]) / 100).toFixed(2));
+            }}
+            max={100}
+            step={1}
+          />
+          <div className="flex justify-between text-[10px] text-muted-foreground">
+            {["0%", "25%", "50%", "75%", "100%"].map((l) => (
+              <span key={l}>{l}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Fee summary — spot: Cost / Max loss / Payout / Fee. NO liq. / margin. */}
+        <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
+          <Row label="Cost">${cost.toFixed(2)}</Row>
+          <Row label="Max loss">${maxLoss.toFixed(2)}</Row>
+          <Row label="Payout if right">
+            <span>
+              ${payoutIfRight.toFixed(2)}{" "}
+              <span className="text-muted-foreground">({qty.toFixed(0)} × $1)</span>
+            </span>
+          </Row>
+          <Row label="Fee">${fee.toFixed(2)}</Row>
+        </div>
+
+        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+          <Info className="h-3 w-3" />
+          Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
+        </div>
+
+        {/* CTA — semantic outcome color, never primary */}
+        <button
+          disabled={submitting || blocked || amt <= 0}
+          onClick={handleSubmit}
+          className={cn(
+            "w-full h-11 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed",
+            isYesSelected
+              ? "bg-trading-green hover:bg-trading-green/90 text-trading-green-foreground"
+              : "bg-trading-red hover:bg-trading-red/90 text-foreground",
+          )}
+        >
+          {submitting ? (
+            <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+          ) : blocked ? (
+            "Market frozen"
+          ) : (
+            <>
+              {side === "buy" ? "Buy" : "Sell"} {outcomeLabel}
+              {side === "buy" && qty > 0 && (
+                <span className="opacity-80"> · To win ${payoutIfRight.toFixed(0)} →</span>
+              )}
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
+  const AccountPanel = (
+    <div className="flex flex-col bg-background rounded-lg border border-border/50">
+      <div className="flex items-center px-4 py-2 border-b border-border/30">
+        <span className="text-sm font-medium">Account</span>
+      </div>
+      <div className="px-4 py-3 space-y-2 text-xs">
+        <Row label="Equity">
+          <span className="font-mono text-foreground">${totalBalance.toFixed(2)}</span>
+        </Row>
+        <Row label="Available (USDC)">
+          <span className="font-mono">${balance.toFixed(2)}</span>
+        </Row>
+        <Row label="Trial bonus">
+          <span className="font-mono text-primary">${trialBalance.toFixed(2)}</span>
+        </Row>
+        <Row label="Open spot positions">
+          <span className="font-mono">{spotPositions.length}</span>
+        </Row>
+      </div>
+    </div>
+  );
+
+  const EventInfoPanel = (
+    <div className="p-6 overflow-auto text-sm space-y-4">
+      <div>
+        <h3 className="font-semibold mb-1">{event.name}</h3>
+        <p className="text-xs text-muted-foreground">
+          {event.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement."}
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+        <InfoCell label="Prior official close" value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"} />
+        <InfoCell label="Settles vs" value={`Prior close · flat close = ${noLabel}`} />
+        <InfoCell label="Resolution source" value={event.source_name || "databento"} />
+        <InfoCell label="Symbol" value={`${ticker} · Nasdaq`} />
+      </div>
+      <div className="space-y-1 text-xs text-muted-foreground">
+        <div className="font-semibold text-foreground text-sm">Rules</div>
+        <ul className="list-disc pl-4 space-y-1">
+          <li>Settles vs the official prior close reported by databento.</li>
+          <li>Flat close counts as {noLabel}.</li>
+          <li>Winning share pays $1; losing shares expire worthless.</li>
+          <li>If the underlying trades halted or the print is disputed by the exchange, the market cancels and all orders refund at entry.</li>
+        </ul>
+      </div>
+    </div>
+  );
+
+  // -----------------------------------------------------------------
+  // Positions / Orders table — no leverage / no liq. / no funding
+  // -----------------------------------------------------------------
+  const PositionsTable = (
+    <div className="text-xs">
+      <div className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.6fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
+        <span>Market</span>
+        <span>Outcome</span>
+        <span className="text-right">Entry</span>
+        <span className="text-right">Mark</span>
+        <span className="text-right">Size (sh)</span>
+        <span className="text-right">PnL</span>
+        <span />
+      </div>
+      {spotPositions.length === 0 ? (
+        <div className="px-4 py-8 text-center text-muted-foreground">No open spot positions.</div>
       ) : (
-        <EventsDesktopHeader />
+        spotPositions.map((p) => {
+          const isYes = /(^|[-_ ])yes$/i.test(p.option);
+          const outcomeText = isYes ? yesLabel : noLabel;
+          return (
+            <div
+              key={p.id}
+              className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.6fr] gap-2 px-4 py-2 items-center border-b border-border/20 hover:bg-muted/20"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <Badge variant="outline" className="text-[9px]">SPOT</Badge>
+                <span className="truncate">{p.event}</span>
+              </div>
+              <span
+                className={cn(
+                  "px-1.5 py-0.5 rounded text-[10px] font-medium w-fit",
+                  isYes
+                    ? "bg-trading-green/20 text-trading-green"
+                    : "bg-trading-red/20 text-trading-red",
+                )}
+              >
+                {outcomeText}
+              </span>
+              <span className="text-right font-mono">{p.entryPrice}</span>
+              <span className="text-right font-mono">{p.markPrice}</span>
+              <span className="text-right font-mono">{p.sizeDisplay}</span>
+              <span
+                className={cn(
+                  "text-right font-mono",
+                  p.pnl.startsWith("+") ? "text-trading-green" : "text-trading-red",
+                )}
+              >
+                {p.pnl}
+              </span>
+              <button
+                onClick={() => {
+                  if (yesOpt && p.optionId === yesOpt.id) setSelectedOptionId(yesOpt.id);
+                  else if (noOpt && p.optionId === noOpt.id) setSelectedOptionId(noOpt.id);
+                  setSide("sell");
+                  setAmount(((p.sizeNum * (parseFloat(p.markPrice.replace(/[$,]/g, "")) || 0))).toFixed(2));
+                }}
+                className="text-[10px] text-primary hover:underline text-right"
+              >
+                Close
+              </button>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+
+  const OrdersTable = (
+    <div className="text-xs">
+      <div className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.8fr_0.9fr_0.6fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
+        <span>Market</span>
+        <span>Side</span>
+        <span>Type</span>
+        <span className="text-right">Price</span>
+        <span className="text-right">Amount</span>
+        <span className="text-right">Status</span>
+        <span />
+      </div>
+      {spotOrders.length === 0 ? (
+        <div className="px-4 py-8 text-center text-muted-foreground">No open spot orders.</div>
+      ) : (
+        spotOrders.map((o, i) => (
+          <div
+            key={o.id ?? i}
+            className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.8fr_0.9fr_0.6fr] gap-2 px-4 py-2 items-center border-b border-border/20 hover:bg-muted/20"
+          >
+            <span className="truncate">{o.event}</span>
+            <span className={cn("uppercase", o.type === "buy" ? "text-trading-green" : "text-trading-red")}>
+              {o.type}
+            </span>
+            <span>{o.orderType}</span>
+            <span className="text-right font-mono">{o.price}</span>
+            <span className="text-right font-mono">{o.amount}</span>
+            <span className="text-right text-muted-foreground">{o.status}</span>
+            <button
+              disabled={isCancelling}
+              onClick={() => cancelOrder(o.id ?? i)}
+              className="text-[10px] text-trading-red hover:underline text-right"
+            >
+              Cancel
+            </button>
+          </div>
+        ))
+      )}
+    </div>
+  );
+
+  const BottomTabs = (
+    <div className="border-t border-border/30">
+      <div className="flex items-center gap-1 px-4 border-b border-border/30">
+        {(["Positions", "Orders"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setBottomTab(t)}
+            className={cn(
+              "px-4 py-2 text-sm font-medium transition-all",
+              bottomTab === t
+                ? "text-trading-purple border-b-2 border-trading-purple"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {t}
+            <span className="ml-1 text-muted-foreground">
+              ({t === "Positions" ? spotPositions.length : spotOrders.length})
+            </span>
+          </button>
+        ))}
+      </div>
+      <AuthGateOverlay
+        title="Sign in to view spot positions"
+        description="Log in or create an account to view your open positions and orders."
+      >
+        <div className="max-h-[360px] overflow-y-auto">
+          {bottomTab === "Positions" ? PositionsTable : OrdersTable}
+        </div>
+      </AuthGateOverlay>
+    </div>
+  );
+
+  // -----------------------------------------------------------------
+  // Terminal header — desktop
+  // NO site-wide navigation. This chrome is deliberately borrowed
+  // from DesktopTrading so /spot feels like a trading terminal.
+  // -----------------------------------------------------------------
+  const DesktopChrome = (
+    <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
+      {showBack && (
+        <button
+          onClick={() => navigate(-1)}
+          className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted flex-shrink-0"
+        >
+          <ArrowLeft className="w-5 h-5 text-foreground" />
+        </button>
       )}
 
-      <SpotStatsHeader
-        eventId={event.id}
-        eventName={event.name}
-        basePrice={event.base_price != null ? Number(event.base_price) : null}
-        yesPrice={yesOpt ? Number(yesOpt.price) : null}
-        lifecycle={lifecycle}
-      />
-
-
-      <main className={cn("mx-auto w-full space-y-4", isMobile ? "px-4 py-4" : "max-w-5xl px-8 py-8")}>
-        {/* Header */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono text-[11px] font-semibold flex-shrink-0">
+          {ticker.slice(0, 3)}
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-foreground truncate">{event.name}</span>
             <Badge variant="outline" className="text-[10px]">SPOT</Badge>
             <Badge variant="outline" className={cn("text-[10px] border", badge.className)}>
               {badge.label}
             </Badge>
           </div>
-          <h1 className={cn("font-bold text-foreground", isMobile ? "text-xl" : "text-2xl")}>
-            {event.name}
-          </h1>
-          {event.base_price != null && (
-            <p className="text-xs text-muted-foreground">
-              Settles vs prior official close ${Number(event.base_price).toFixed(2)} · flat close = {noLabel}
-            </p>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+            <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+            <span>Closes in</span>
+            <span className="text-trading-red font-mono font-medium">{countdown}</span>
+            {tz && (
+              <>
+                <span>·</span>
+                <span className="font-mono">{tz.et}</span>
+                <span>·</span>
+                <span className="font-mono">{tz.bj}</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right stats — spot-specific. NO index / funding / OI. */}
+      <div className="ml-auto flex items-center gap-6 text-xs">
+        <StatItem label="24h Volume" value={mock24hVolume(event.id)} />
+        <StatItem
+          label="Prior Close"
+          value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
+        />
+        <StatItem
+          label="Last (indicative)"
+          value={indicative != null ? `$${indicative.toFixed(2)}` : "—"}
+          valueClass={indicativePct >= 0 ? "text-trading-green" : "text-trading-red"}
+          hint={indicative != null ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%` : undefined}
+        />
+        <StatItem label="Yes Price" value={`$${yesLive.toFixed(2)}`} />
+      </div>
+
+      <button
+        onClick={() => toggleWatch(event.id)}
+        className="p-2 rounded-md hover:bg-muted/50 transition-colors flex-shrink-0"
+        aria-label="Toggle watchlist"
+      >
+        <Star
+          className={cn(
+            "w-5 h-5 transition-colors",
+            isWatched(event.id)
+              ? "text-trading-yellow fill-trading-yellow"
+              : "text-muted-foreground hover:text-trading-yellow",
           )}
-          {tz && (
-            <div className="text-xs text-muted-foreground font-mono flex items-center gap-3 flex-wrap">
-              <span>Closes in <span className="text-foreground">{countdown}</span></span>
-              <span>·</span>
-              <span>{tz.et}</span>
-              <span>·</span>
-              <span>{tz.bj}</span>
-            </div>
+        />
+      </button>
+    </header>
+  );
+
+  // -----------------------------------------------------------------
+  // Mobile terminal chrome — MobileHeader style, no site nav, no bottom nav.
+  // -----------------------------------------------------------------
+  const MobileChrome = (
+    <header className="flex items-center gap-3 px-3 py-2 border-b border-border/30 bg-background">
+      <button
+        onClick={() => (showBack ? navigate(-1) : navigate("/events?pl=spot"))}
+        className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center flex-shrink-0"
+      >
+        <ArrowLeft className="w-5 h-5 text-foreground" />
+      </button>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <span className="font-semibold text-sm truncate">{event.name}</span>
+          <Badge variant="outline" className="text-[9px]">SPOT</Badge>
+        </div>
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+          <span>Closes in</span>
+          <span className="text-trading-red font-mono font-medium">{countdown}</span>
+        </div>
+      </div>
+      <button onClick={() => toggleWatch(event.id)} className="p-1.5 flex-shrink-0">
+        <Star
+          className={cn(
+            "w-5 h-5",
+            isWatched(event.id) ? "text-trading-yellow fill-trading-yellow" : "text-muted-foreground",
           )}
+        />
+      </button>
+    </header>
+  );
+
+  // -----------------------------------------------------------------
+  // Layouts
+  // -----------------------------------------------------------------
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        {MobileChrome}
+
+        {/* Compact stats strip */}
+        <div className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-border/30 text-[11px]">
+          <StatItem label="24h Vol" value={mock24hVolume(event.id)} compact />
+          <StatItem
+            label="Prior Close"
+            value={basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
+            compact
+          />
+          <StatItem
+            label="Last"
+            value={indicative != null ? `$${indicative.toFixed(2)}` : "—"}
+            valueClass={indicativePct >= 0 ? "text-trading-green" : "text-trading-red"}
+            compact
+          />
+          <StatItem label="Yes" value={`$${yesLive.toFixed(2)}`} compact />
         </div>
 
-        <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-[1fr_360px]")}>
-          {/* Order book */}
-          <div className="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Order Book</h3>
-              <Badge variant="outline" className="text-[10px] text-muted-foreground border-muted-foreground/30" title="LP quote mode">
-                NORMAL
-              </Badge>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-              <div className="space-y-0.5">
-                <div className="flex justify-between text-[10px] uppercase text-muted-foreground pb-1 border-b border-border/40">
-                  <span>Bid</span><span>Size</span>
-                </div>
-                {book.bids.slice(0, 8).map((l, i) => (
-                  <div key={i} className="flex justify-between">
-                    <span className="text-trading-green">{l.price.toFixed(2)}</span>
-                    <span className="text-muted-foreground">{l.size}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-0.5">
-                <div className="flex justify-between text-[10px] uppercase text-muted-foreground pb-1 border-b border-border/40">
-                  <span>Ask</span><span>Size</span>
-                </div>
-                {book.asks.slice(0, 8).map((l, i) => (
-                  <div key={i} className="flex justify-between">
-                    <span className="text-trading-red">{l.price.toFixed(2)}</span>
-                    <span className="text-muted-foreground">{l.size}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Trade panel */}
-          <div className="rounded-lg border border-border/60 bg-card p-4 space-y-3">
-            {/* Outcome switch */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => yesOpt && setSelectedOptionId(yesOpt.id)}
-                className={cn(
-                  "py-2 rounded-md text-sm font-semibold border transition",
-                  selectedOptionId === yesOpt?.id
-                    ? "bg-trading-green/15 text-trading-green border-trading-green/40"
-                    : "border-border text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {yesLabel}
-                {yesOpt && (
-                  <div className="text-[11px] font-mono opacity-70">${Number(yesOpt.price).toFixed(2)}</div>
-                )}
-              </button>
-              <button
-                onClick={() => noOpt && setSelectedOptionId(noOpt.id)}
-                className={cn(
-                  "py-2 rounded-md text-sm font-semibold border transition",
-                  selectedOptionId === noOpt?.id
-                    ? "bg-trading-red/15 text-trading-red border-trading-red/40"
-                    : "border-border text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {noLabel}
-                {noOpt && (
-                  <div className="text-[11px] font-mono opacity-70">${Number(noOpt.price).toFixed(2)}</div>
-                )}
-              </button>
-            </div>
-
-            {/* Buy / Sell tabs */}
-            <div className="inline-flex w-full items-center gap-1 rounded-md border border-border/60 bg-muted/30 p-1">
-              {(["buy", "sell"] as const).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSide(s)}
-                  className={cn(
-                    "flex-1 py-1.5 rounded text-sm font-medium capitalize transition",
-                    side === s
-                      ? (s === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red")
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-
-            {/* Price / Amount */}
-            <div className="space-y-2">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Limit price ($)</label>
-                <Input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">
-                  {side === "buy" ? "Amount ($)" : `Amount ($) — held: ${heldQty.toFixed(0)} shares`}
-                </label>
-                <Input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" />
-              </div>
-            </div>
-
-            {/* Summary */}
-            <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Cost</span>
-                <span>${(p * qty).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Max loss</span>
-                <span>${maxLoss.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Payout if right</span>
-                <span>${payoutIfRight.toFixed(2)} <span className="text-muted-foreground">({qty.toFixed(0)} × $1)</span></span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-              <Info className="h-3 w-3" />
-              Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
-            </div>
-
-            <Button
+        {/* Chart / Event Info tabs */}
+        <div className="flex items-center gap-4 px-3 py-1.5 border-b border-border/30">
+          {(["Chart", "Event Info"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setChartTab(t)}
               className={cn(
-                "w-full h-11 text-white",
-                isYesSelected
-                  ? "bg-trading-green hover:bg-trading-green/90"
-                  : "bg-trading-red hover:bg-trading-red/90",
+                "text-xs font-medium py-1 transition-colors",
+                chartTab === t ? "text-foreground border-b-2 border-trading-purple" : "text-muted-foreground",
               )}
-              disabled={submitting || blocked || amt <= 0}
-              onClick={handleSubmit}
             >
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> :
-                blocked ? "Market frozen" :
-                `${side === "buy" ? "Buy" : "Sell"} ${outcomeLabel}`}
-            </Button>
-
-          </div>
+              {t}
+            </button>
+          ))}
         </div>
-      </main>
 
-      {isMobile && <BottomNav />}
+        {chartTab === "Chart" ? (
+          <div className="h-[280px] border-b border-border/30">
+            <CandlestickChart remainingDays={1} basePrice={outcomePrice || 0.5} side={side} />
+          </div>
+        ) : (
+          <div className="border-b border-border/30">{EventInfoPanel}</div>
+        )}
+
+        <div className="p-3">{TradePanel}</div>
+
+        {BottomTabs}
+      </div>
+    );
+  }
+
+  // ---- Desktop ----
+  return (
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      {DesktopChrome}
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left: Chart + Bottom Positions/Orders */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+          <div className="flex items-stretch min-h-[600px] gap-1 p-1">
+            {/* Chart + Event Info */}
+            <div className="flex-1 flex flex-col min-w-0 bg-background rounded border border-border/30">
+              <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
+                {(["Chart", "Event Info"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setChartTab(t)}
+                    className={cn(
+                      "text-sm font-medium transition-all",
+                      chartTab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {t}
+                  </button>
+                ))}
+                <div className="ml-auto text-xs text-muted-foreground">
+                  Prior Close ${basePrice?.toFixed(2) ?? "—"} · flat close = {noLabel}
+                </div>
+              </div>
+              {chartTab === "Chart" ? (
+                <>
+                  <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
+                    <span className="text-2xl font-bold font-mono">{outcomePrice.toFixed(4)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {outcomeLabel} · mark
+                    </span>
+                  </div>
+                  <div className="flex-1 min-h-0">
+                    <CandlestickChart remainingDays={1} basePrice={outcomePrice || 0.5} side={side} />
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 overflow-auto">{EventInfoPanel}</div>
+              )}
+            </div>
+
+            {/* Order Book (reuse DesktopOrderBook, LP-quoted mock data) */}
+            <div className="w-[280px] flex-shrink-0 flex flex-col bg-background rounded border border-border/30 overflow-hidden">
+              <DesktopOrderBook
+                asks={book.asks}
+                bids={book.bids}
+                currentPrice={outcomePrice.toFixed(4)}
+                priceChange={outcomePrice.toFixed(4)}
+                isPositive={indicativePct >= 0}
+                side={side}
+                onPriceClick={(price) => {
+                  setLimitPrice(price);
+                  setOrderType("Limit");
+                }}
+              />
+            </div>
+          </div>
+
+          {BottomTabs}
+        </div>
+
+        {/* Right: Trade + Account */}
+        <div className="w-[280px] flex-shrink-0 flex flex-col gap-2 m-1 overflow-y-auto">
+          {TradePanel}
+          {AccountPanel}
+        </div>
+      </div>
+
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} defaultTab="signup" />
     </div>
   );
-};
+}
 
-export default SpotTrading;
+// -----------------------------------------------------------------
+// Small helpers
+// -----------------------------------------------------------------
+const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="flex justify-between">
+    <span className="text-muted-foreground">{label}</span>
+    <span>{children}</span>
+  </div>
+);
+
+const InfoCell = ({ label, value }: { label: string; value: string }) => (
+  <div className="rounded border border-border/40 bg-muted/20 p-2">
+    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+    <div className="mt-0.5 text-foreground">{value}</div>
+  </div>
+);
+
+interface StatItemProps {
+  label: string;
+  value: string;
+  valueClass?: string;
+  hint?: string;
+  compact?: boolean;
+}
+const StatItem = ({ label, value, valueClass, hint, compact }: StatItemProps) => (
+  <div className={compact ? "" : "text-xs"}>
+    <div className={cn("text-muted-foreground", compact && "text-[10px]")}>{label}</div>
+    <div className={cn("font-mono font-medium", compact ? "text-xs" : "", valueClass)}>
+      {value}
+      {hint && <span className={cn("ml-1 text-[10px]", valueClass)}>{hint}</span>}
+    </div>
+  </div>
+);

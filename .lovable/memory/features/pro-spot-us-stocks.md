@@ -47,10 +47,18 @@ type: feature
 
 - `/events` 顶部 `Futures | Spot` 一级切换（默认 Futures），URL 参数 `?pl=spot`
 - Spot 卡片路由到 `/spot?event=xxx`（不进 `/trade`）
-- Style Guide 新增 Spot section（lifecycle 徽标 / 模拟订单簿 / Buy+Sell 表单 / SPOT 持仓行）
+- Style Guide 新增 Spot section（lifecycle 徽标 / 模拟订单簿 / Buy+Sell 表单 / SPOT 持仓行 / SpotStatsHeader 三态）
 
-## 边界（引 backend-boundary）
+## /spot 页面骨架（2026-07-15 v2）
 
-- 新 schema 字段均为 🟡：语义是需求，`text[]+text` 硬编码状态机是演示便利
-- `category_boost_configs` 🟢：Boost 板块开关必须做成后台可配置
-- 现货不入 orders 表（本仓库无真实订单账本，见红线 §4）
+**定位原则**：/spot 是交易终端，不是简化落地页。以 `DesktopTrading` / `MobileTradingLayout` 为基底做**减法**。
+
+- **终端 chrome**：不渲染全站导航 header（`EventsDesktopHeader` / `MobileHeader` w/ Logo 全部禁用）；顶部只有 back + 事件名 + 红色脉冲倒计时（ET + 北京） + 右侧 stat 群 + 收藏星标
+- **保留**（与合约一致，尽量复用组件）：CandlestickChart、DesktopOrderBook（精度分组 / 深度色条 / Recent Trades / Y/N 比例条）、Chart|Event Info tabs、Yes/No 双层切换器、Limit/Market tabs、Amount + 0–100% Slider、Available 余额行、底部 Positions|Orders tabs（filter product_line='spot'）、右下 Account 面板
+- **删除**（合约专属）：Margin Mode、Leverage、TP/SL、Funding / Next Funding / OI / Index Price、强平价、Margin req.；费用明细区改 `Cost / Max loss / Payout if right / Fee`
+- **CTA**：`Buy Up · To win $X →` 格式；Up→`trading-green`，Not Up→`trading-red`；**禁止 primary/紫色**
+- **右侧 stats**：`24h Volume` · `Prior Close $X` · `Last (indicative) $X ±X.XX%` · `Yes Price $X`（DEMO-STATE 前端漂移）
+- Market 单 = marketable limit + 滑点上限（10 / 25 / 50 / 100 bps）
+
+DESIGN.md §14 已把"交易页禁止渲染全站导航 header"和"spot=合约终端减法"固化为 Don't。
+

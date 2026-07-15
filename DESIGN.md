@@ -864,6 +864,9 @@ interface HomeEquityHeroProps {
 - Use emoji or generic icons for chain/token logos
 - Stretch, add effects to, or modify the OMENX logo
 - Place white logo on light backgrounds without `invert`
+- **Render the site-wide navigation header (`EventsDesktopHeader` / `MobileHeader` w/ Logo) on any trading page.** All trading terminals — perp (`/trade`) and spot (`/spot`) — share the full-screen terminal chrome: back arrow + event title + red-pulse countdown + right-side stat cluster + watchlist star. A trading page rendered inside the standard app shell is a regression; fix it, don't ship it.
+- **Build a spot page as a "simplified" generic layout.** `/spot` = `/trade` minus the perp-only surfaces. Removed on spot: Margin Mode, Leverage, TP/SL, Funding Rate, Next Funding, Open Interest, Index Price, Liq. price, Margin req. Everything else (chart, order book, recent trades, Y/N ratio, positions/orders tabs, Account panel) is reused. Never re-implement a spot page from a bare `<main>` template.
+
 
 ---
 
