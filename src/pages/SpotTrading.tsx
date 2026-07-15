@@ -53,6 +53,7 @@ import {
   getCurrentSession,
   isInPreFreezeWindow,
   isPastFreeze,
+  getDisplayLifecycle,
   LP_QUOTE_MODE_BADGE,
   FREEZE_MINUTES_BEFORE_CLOSE,
   type SessionProfile,
