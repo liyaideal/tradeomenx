@@ -68,10 +68,32 @@ export const SpotSection = ({ isMobile }: Props) => {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper id="spot-lifecycle" title="Lifecycle badges" description="Every US-stock daily up/down state">
+      <SectionWrapper
+        id="spot-lifecycle"
+        title="Lifecycle badges (11 states)"
+        description="Full events.lifecycle_status enum per PRD: CREATED → EXTENDED_TRADING → OPEN_COOLDOWN → TRADING → CLOSE_MODE → FROZEN → SETTLING → SETTLED plus SUSPENDED / REVIEW / CANCELED. PRE_FREEZE is NOT a lifecycle state — it's a display-layer session hint only."
+      >
         <div className="flex flex-wrap gap-2">
           {Object.entries(LIFECYCLE_BADGE).map(([k, v]) => (
             <Badge key={k} variant="outline" className={`text-[10px] border ${v.className}`}>{v.label}</Badge>
+          ))}
+        </div>
+      </SectionWrapper>
+
+      <SectionWrapper
+        id="spot-quote-mode"
+        title="LP quote-mode badge"
+        description="Rendered in the order-book header. Enum mirrors lp_quote_mode. Default on demo is NORMAL."
+      >
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(LP_QUOTE_MODE_BADGE).map(([k, v]) => (
+            <span
+              key={k}
+              className={`px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wide rounded border ${v.className}`}
+              title={v.tooltip}
+            >
+              {v.label}
+            </span>
           ))}
         </div>
       </SectionWrapper>
