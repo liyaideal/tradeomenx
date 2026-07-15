@@ -172,7 +172,7 @@ export const DesktopOrderBook = ({
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
   const bookSide = side;
-  const [priceStep, setPriceStep] = useState("0.0001");
+  const [priceStep, setPriceStep] = useState(variant === "spot" ? "0.01" : "0.0001");
   const [showStepDropdown, setShowStepDropdown] = useState(false);
   const [asks, setAsks] = useState<OrderBookEntry[]>(initialAsks);
   const [bids, setBids] = useState<OrderBookEntry[]>(initialBids);
@@ -183,7 +183,8 @@ export const DesktopOrderBook = ({
   );
   const [buyRatio, setBuyRatio] = useState(40);
   
-  const priceStepOptions = ["0.0001", "0.001", "0.01", "0.1", "1"];
+  const priceStepOptions =
+    variant === "spot" ? ["0.01", "0.02", "0.05"] : ["0.0001", "0.001", "0.01", "0.1", "1"];
 
   // Transform price by side: sell side shows 1 - price (asymmetric pricing)
   const transformPrice = useCallback((price: string): string => {
