@@ -797,22 +797,44 @@ export default function SpotTrading() {
         {/* Fee summary — spot: Cost / Max win / Max loss / Fee. NO liq. / margin. */}
         <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
           <Row label="Cost">${cost.toFixed(2)}</Row>
-          <Row label="Max win">
-            <span>
-              ${maxWin.toFixed(2)}{" "}
-              <span className="text-muted-foreground">
-                ({qty.toFixed(0)} × $1 {side === "buy" ? "− cost" : ""})
-              </span>
+          {orderType === "Market" && (
+            <div className="flex justify-end text-[10px] text-muted-foreground -mt-1">
+              Est. fill @ {(side === "buy" ? bestAsk : bestBid).toFixed(2)}
+            </div>
+          )}
+          <Row label={
+            <span className="inline-flex items-center gap-1">
+              Max win
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[220px] p-2">
+                    <p className="text-xs">
+                      {side === "buy"
+                        ? "qty × $1 − cost. Winning shares pay $1 at settlement."
+                        : "Sell proceeds, credited on fill."}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </span>
+          }>
+            ${maxWin.toFixed(2)}
           </Row>
           <Row label="Max loss">${maxLoss.toFixed(2)}</Row>
           <Row label="Fee">${fee.toFixed(2)}</Row>
         </div>
 
-        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-          <Info className="h-3 w-3" />
-          Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
-        </div>
+        {/* Balance breakdown: only shown when trial bonus is non-zero — otherwise
+            the "Available (USDC)" line above already carries the whole number. */}
+        {trialBalance > 0 && (
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+            <Info className="h-3 w-3" />
+            Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
+          </div>
+        )}
         {settleLabel && (
           <div className="text-[10px] text-muted-foreground">
             Settles &amp; credits by ~{settleLabel}
