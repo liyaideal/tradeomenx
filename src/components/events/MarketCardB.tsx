@@ -58,7 +58,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           ? undefined
           : { background: "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)" }
       }
-      onClick={() => navigate(`/trade?event=${market.eventId}`)}
+      onClick={() => navigate(market.productLines?.includes("spot") ? `/spot?event=${market.eventId}` : `/trade?event=${market.eventId}`)}
     >
       {/* Category background image */}
       {!noBackground && cardBg && (
