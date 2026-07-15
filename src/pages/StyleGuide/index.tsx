@@ -26,6 +26,7 @@ import {
   TransparencySection,
   VouchersSection,
   WorldCupSection,
+  SpotSection,
 } from "./sections";
 
 const StyleGuideIndex = () => {
