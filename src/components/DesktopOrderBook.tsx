@@ -155,8 +155,11 @@ export const DesktopOrderBook = ({
   priceChange = "88,132.18",
   isPositive: initialIsPositive = false,
   onPriceClick,
-  side = "buy"
+  side = "buy",
+  variant = "futures",
 }: DesktopOrderBookProps) => {
+  const midTooltip = MID_TOOLTIP_COPY[variant];
+  const headers = COLUMN_HEADERS[variant];
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
   const bookSide = side;
