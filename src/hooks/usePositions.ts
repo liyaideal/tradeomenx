@@ -45,6 +45,8 @@ export interface UnifiedPosition {
   marginNum: number;
   leverageNum: number;
   createdAt: string;
+  /** Product line — 'futures' (default) or 'spot'. Spot positions hide leverage/liq/funding. */
+  productLine: "futures" | "spot";
   // Original source for mutations
   _source: "supabase" | "local" | "airdrop";
   _supabaseId?: string;
