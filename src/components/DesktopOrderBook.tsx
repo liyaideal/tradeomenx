@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LP_QUOTE_MODE_BADGE } from "@/lib/usStockSessions";
 
 interface OrderBookEntry {
   price: string;
