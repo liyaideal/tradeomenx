@@ -133,3 +133,27 @@ SpotTrading 每分钟 `sessionTick` 重算 profile，`buildBook(mid, seed, profi
 
 - 🔴 现货挂单/撤单/触价成交均为前端模拟；生产环境需替换为撮合引擎（订单簿、成交回报、状态机推进都在服务端），前端只订阅事件流。
 - 🟡 Session profile 常量沿用原 4 个 `PLACEHOLDER: pending confirmation`，PM 确认后与时刻表一次性 unlock。
+
+---
+
+## v1.2 增补（2026-07-15 同日 — 时刻表口径确认）
+
+PM 依据 PRD §4.1 原表确认 freeze_time = close−5min（其余三个 PLACEHOLDER 保持占位）。本轮同步落地"冻结时自动撤销所有未成交订单"行为。
+
+### 15. 时刻表口径
+
+- `FREEZE_MINUTES_BEFORE_CLOSE = 5` 转正为 CONFIRMED（`usStockSessions.ts` 注释同步更新）：TRADING = 09:30 → close−5min；到 close−5min 或 `lifecycle_status='FROZEN'` 即进入 FROZEN。
+- `PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15` 仍为占位；含义收敛为"仅驱动 UI 'Closing soon' 徽标，不禁单"。终端顶部倒计时旁在剩余 ≤15 min 时显示黄色 `Closing soon` chip；下单允许集不变（EXTENDED_TRADING / OPEN_COOLDOWN / TRADING）。
+- 其余 `OPEN_COOLDOWN` / `SETTLEMENT_CREDIT_BY_ET` 两个占位保持不动，等待 PM 后续确认。
+
+### 16. FROZEN 自动撤单退款（前端模拟）
+
+- `SpotTrading.tsx` 新增 `shouldFreeze = lifecycle==='FROZEN' || countdown ≤ 5min` 检测。触发后，遍历当前用户在该事件下的全部 `status='Pending'` 现货挂单，依次调用 `cancelSpotLimitOrder` + `addBalance(refund)`，并把 id 记入 `frozenCancelledIds` 集合。
+- Orders 列表对这些 id 渲染 `"Cancelled · market frozen"` 而非普通 `Cancelled`，便于用户区分主动撤单与被冻结撤销。
+- 代码带 `// DEMO-STATE: 冻结撤单由前端模拟，正式版由撮合引擎批量执行` 注释。
+- Event Info 规则区自动追加一行 `"All open orders are automatically cancelled and refunded at freeze (5 min before close)."`，与后端行为保持契约。
+
+### 17. 红线
+
+- 🔴 冻结撤单为前端模拟：仅撤销当前浏览会话内可见的 Pending 挂单，且 refund 走 `addBalance` 直接进钱包；生产环境需由撮合/结算服务在 `freeze_time` 到达时批量撤销并按会计口径退款，前端只订阅事件流。
+- 🟢 `FREEZE_MINUTES_BEFORE_CLOSE = 5` 已成为 PRD 硬性口径，任何调整必须先改 PRD §4.1 再改代码。
