@@ -425,3 +425,196 @@ export const updateUserBalance = async (userId: string, newBalance: number) => {
   if (error) throw error;
   return true;
 };
+
+// ============================================================
+// SPOT product line (Pro / US stock daily up/down)
+// ------------------------------------------------------------
+// Spot rules (differ from futures):
+// - leverage = 1, fee = 0
+// - Buy → long position on the chosen outcome; entry price = clicked price
+// - Sell → reduces / closes an existing long spot position on the same option;
+//   short-selling is prohibited (validated below)
+// - Winning share pays $1 at settlement; max loss = price × qty
+// - Never renders TP/SL/funding/liq. — enforced at UI layer
+// ============================================================
+
+const SpotTradeSchema = z.object({
+  eventName: z.string().min(1).max(200),
+  optionLabel: z.string().min(1).max(200),
+  optionId: z.string().uuid("optionId is required for spot trades"),
+  side: z.enum(["buy", "sell"]),
+  price: z.number().positive().max(1),
+  quantity: z.number().positive().max(10_000_000),
+});
+
+export interface SpotTradeData {
+  eventName: string;
+  optionLabel: string;
+  optionId: string;
+  side: "buy" | "sell";
+  price: number;
+  quantity: number;
+}
+
+export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
+  const parsed = SpotTradeSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error(`Validation failed: ${parsed.error.errors.map((e) => e.message).join(", ")}`);
+  }
+  const v = parsed.data;
+  const notional = v.price * v.quantity;
+
+  // Look for an existing open spot long on the same option
+  const { data: existing, error: findError } = await supabase
+    .from("positions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("option_id", v.optionId)
+    .eq("product_line", "spot")
+    .eq("side", "long")
+    .eq("status", "Open")
+    .maybeSingle();
+  if (findError) throw findError;
+
+  if (v.side === "sell") {
+    // Sell = reduce/close an existing long. No shorting allowed.
+    if (!existing || Number(existing.size) < v.quantity - 0.000001) {
+      throw new Error("Not enough spot shares to sell. Short selling is not supported.");
+    }
+
+    // Record the sell trade
+    const { data: trade, error: tradeError } = await supabase
+      .from("trades")
+      .insert({
+        user_id: userId,
+        event_name: v.eventName,
+        option_label: v.optionLabel,
+        side: "sell",
+        order_type: "Limit",
+        price: v.price,
+        amount: notional,
+        quantity: v.quantity,
+        leverage: 1,
+        margin: notional,
+        fee: 0,
+        status: "Filled",
+        product_line: "spot",
+      })
+      .select()
+      .single();
+    if (tradeError) throw tradeError;
+
+    const existingSize = Number(existing.size);
+    const existingMargin = Number(existing.margin);
+    const entryPrice = Number(existing.entry_price);
+    const closeQty = Math.min(v.quantity, existingSize);
+    const marginReleased = existingSize > 0 ? (existingMargin * closeQty) / existingSize : 0;
+    const realizedPnl = (v.price - entryPrice) * closeQty;
+    const remainingSize = existingSize - closeQty;
+    const remainingMargin = existingMargin - marginReleased;
+    const isClose = remainingSize <= 0.000001;
+
+    const { data: updatedPosition } = await supabase
+      .from("positions")
+      .update(isClose ? {
+        status: "Closed",
+        mark_price: v.price,
+        pnl: (Number(existing.pnl) || 0) + realizedPnl,
+        closed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } : {
+        size: remainingSize,
+        margin: remainingMargin,
+        mark_price: v.price,
+        pnl: (Number(existing.pnl) || 0) + realizedPnl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .select()
+      .single();
+
+    // Spot proceeds = price × qty (this is what returns to the wallet)
+    const proceeds = v.price * closeQty;
+    return {
+      trade,
+      position: updatedPosition,
+      intent: (isClose ? "close" : "reduce") as "close" | "reduce",
+      balanceDelta: proceeds,
+    };
+  }
+
+  // BUY
+  const { data: trade, error: tradeError } = await supabase
+    .from("trades")
+    .insert({
+      user_id: userId,
+      event_name: v.eventName,
+      option_label: v.optionLabel,
+      side: "buy",
+      order_type: "Limit",
+      price: v.price,
+      amount: notional,
+      quantity: v.quantity,
+      leverage: 1,
+      margin: notional,
+      fee: 0,
+      status: "Filled",
+      product_line: "spot",
+    })
+    .select()
+    .single();
+  if (tradeError) throw tradeError;
+
+  let position;
+  if (existing) {
+    const oldSize = Number(existing.size);
+    const oldEntry = Number(existing.entry_price);
+    const newSize = oldSize + v.quantity;
+    const newMargin = Number(existing.margin) + notional;
+    const weightedEntry = (oldSize * oldEntry + v.quantity * v.price) / newSize;
+    const { data: updated } = await supabase
+      .from("positions")
+      .update({
+        size: newSize,
+        margin: newMargin,
+        entry_price: weightedEntry,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .select()
+      .single();
+    position = updated;
+  } else {
+    const { data: created, error: posError } = await supabase
+      .from("positions")
+      .insert({
+        user_id: userId,
+        trade_id: trade.id,
+        event_name: v.eventName,
+        option_label: v.optionLabel,
+        option_id: v.optionId,
+        side: "long",
+        entry_price: v.price,
+        mark_price: v.price,
+        size: v.quantity,
+        margin: notional,
+        leverage: 1,
+        pnl: 0,
+        pnl_percent: 0,
+        status: "Open",
+        product_line: "spot",
+      })
+      .select()
+      .single();
+    if (posError) throw posError;
+    position = created;
+  }
+
+  return {
+    trade,
+    position,
+    intent: (existing ? "add" : "open") as "add" | "open",
+    balanceDelta: -notional,
+  };
+};
+
