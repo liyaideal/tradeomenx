@@ -101,6 +101,16 @@
 | get-deposit-address | 🔴 | 正式走 Cobo |
 | ensure-demo-user | 🔴 | demo 账号供 QA/style-guide 使用 |
 
+## 2026-07-15 Pro / Spot 产品线扩容（append-only 补录）
+
+| 表 / 字段 | 类别 | 说明 |
+|---|---|---|
+| `events.product_lines` / `event_subtype` / `lifecycle_status` / `base_price` | 🟡 | 产品线模型（futures/spot 共存）、事件子类型、状态机、结算基准价语义是需求；存储字段与状态机实现由正式架构决定 |
+| `trades.product_line` | 🟡 | 同上；成交按产品线区分是需求 |
+| `positions.product_line` | 🟡 | 同上；持仓按产品线区分是需求 |
+| `profiles.preferred_surface` | 🟡 | Pro/Lite 表面选择是需求，具体持久化位置自选 |
+| `category_boost_configs` | 🟢 | Boost 板块开关是运营规则，须做成可后台配置（本轮硬编码在 DB 属演示便利） |
+
 ## 治理规则（即日生效）
 
 1. **状态走库，内容走 mock**：需要跨模块流转的状态（下单/持仓/流水/券/积分）必须落 Supabase；纯展示内容（行情形态、联赛资料、社区帖子）永远 mock。
