@@ -90,8 +90,12 @@ const buildBook = (mid: number, seed: number, profile: SessionProfile) => {
   const levels = profile.levelsMin + Math.floor(rand(0) * range);
   const clampedMid = Math.min(0.98, Math.max(0.02, mid || 0.5));
 
-  const minHalfSpread = MIN_HALF_SPREAD * profile.spreadMult;
-  const levelStep = LEVEL_STEP * profile.spreadMult;
+  // All price levels must be $0.01 tick multiples. Work in integer cents so
+  // jitter can never produce sub-tick prices (e.g. 0.3499). Session profile's
+  // spreadMult still drives how far apart levels are, but only in whole ticks.
+  const midCents = Math.round(clampedMid * 100);
+  const halfSpreadTicks = Math.max(1, Math.round(MIN_HALF_SPREAD * 100 * profile.spreadMult));
+  const stepTicks = Math.max(1, Math.round(LEVEL_STEP * 100 * profile.spreadMult));
   const firstSize = FIRST_LEVEL_SIZE * profile.sizeMult;
 
   const asks: { price: string; amount: string; total: string }[] = [];
@@ -99,18 +103,34 @@ const buildBook = (mid: number, seed: number, profile: SessionProfile) => {
   let cumA = 0;
   let cumB = 0;
   for (let i = 0; i < levels; i++) {
-    const offset = minHalfSpread + levelStep * i;
-    const ap = Math.min(0.99, Math.max(0.01, clampedMid + offset));
-    const bp = Math.min(0.99, Math.max(0.01, clampedMid - offset));
+    // ±1 tick jitter, applied AFTER snapping so monotonicity is preserved.
+    const jitterA = Math.floor(rand(i * 3 + 5) * 3) - 1; // -1, 0, +1
+    const jitterB = Math.floor(rand(i * 3 + 6) * 3) - 1;
+    const askCents = Math.min(99, Math.max(1, midCents + halfSpreadTicks + stepTicks * i + Math.max(0, jitterA)));
+    const bidCents = Math.min(99, Math.max(1, midCents - halfSpreadTicks - stepTicks * i - Math.max(0, jitterB)));
+    const ap = askCents / 100;
+    const bp = bidCents / 100;
     const base = firstSize * Math.pow(SIZE_DECAY, i);
-    const jitterA = 1 + (rand(i * 2 + 1) - 0.5) * 2 * JITTER_PCT;
-    const jitterB = 1 + (rand(i * 2 + 2) - 0.5) * 2 * JITTER_PCT;
-    const aAmt = Math.max(1, Math.round(base * jitterA));
-    const bAmt = Math.max(1, Math.round(base * jitterB));
+    const sizeJitterA = 1 + (rand(i * 2 + 1) - 0.5) * 2 * JITTER_PCT;
+    const sizeJitterB = 1 + (rand(i * 2 + 2) - 0.5) * 2 * JITTER_PCT;
+    const aAmt = Math.max(1, Math.round(base * sizeJitterA));
+    const bAmt = Math.max(1, Math.round(base * sizeJitterB));
     cumA += aAmt;
     cumB += bAmt;
     asks.push({ price: ap.toFixed(2), amount: aAmt.toLocaleString(), total: cumA.toLocaleString() });
     bids.push({ price: bp.toFixed(2), amount: bAmt.toLocaleString(), total: cumB.toLocaleString() });
+  }
+  // Enforce strict monotonicity after jitter: dedupe by adjusting subsequent
+  // levels by +/-1 tick as needed. Deterministic given the seed.
+  for (let i = 1; i < asks.length; i++) {
+    const prev = Math.round(parseFloat(asks[i - 1].price) * 100);
+    const cur = Math.round(parseFloat(asks[i].price) * 100);
+    if (cur <= prev) asks[i].price = (Math.min(99, prev + 1) / 100).toFixed(2);
+  }
+  for (let i = 1; i < bids.length; i++) {
+    const prev = Math.round(parseFloat(bids[i - 1].price) * 100);
+    const cur = Math.round(parseFloat(bids[i].price) * 100);
+    if (cur >= prev) bids[i].price = (Math.max(1, prev - 1) / 100).toFixed(2);
   }
   return { asks, bids };
 };
