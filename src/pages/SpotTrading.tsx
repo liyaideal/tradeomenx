@@ -297,7 +297,7 @@ export default function SpotTrading() {
   // end_date; the "settles by …" caption below carries the settlement info.
   const countdownTarget = freezeAt ?? endDate;
   const countdown = useCountdown(countdownTarget);
-  // Note: dual-timezone (ET/Beijing) chips removed from the header per DESIGN.md §7.
+  // Note: dual-timezone (ET/Beijing) chips removed from the header per DESIGN.md §14.
   // Local-time (browser-detected) hint now lives inside the schedule ⓘ tooltip only.
 
   // DEMO-STATE: 自动态显示由前端时钟推导，正式版由后端状态机驱动。
@@ -314,9 +314,8 @@ export default function SpotTrading() {
   const indicative = useIndicativeLast(basePrice, event?.id || "");
   const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
 
-  const settleLabel = settleAt
-    ? `${formatEtTime(settleAt)} ET / ${formatBeijingTime(settleAt)} 北京`
-    : null;
+  // Settlement caption is ET-only per DESIGN.md §14 (no 北京/Beijing in user-visible copy);
+  // the browser-local time is surfaced only in the header schedule ⓘ tooltip.
   const settleEtOnly = settleAt ? `${formatEtTime(settleAt)} ET` : null;
   const freezeEtOnly = freezeAt ? formatEtTime(freezeAt) : null;
   const closeEtOnly = endDate ? formatEtTime(endDate) : null;
