@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { LIFECYCLE_BADGE } from "@/lib/usStockSessions";
+import { LIFECYCLE_BADGE, LP_QUOTE_MODE_BADGE } from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { ArrowLeft, Star } from "lucide-react";
