@@ -2,7 +2,7 @@
 // /spot — Pro Spot trading terminal (US-stock daily up/down).
 // Structural rule: this page IS a terminal like /trade, with the
 // futures-only surfaces stripped out. It MUST NOT render the
-// site-wide navigation header (see DESIGN.md §7 anti-patterns).
+// site-wide navigation header (see DESIGN.md §14 anti-patterns).
 // ============================================================
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate, useNavigationType } from "react-router-dom";
@@ -48,9 +48,9 @@ import {
   getLifecycleBadge,
   isOrderingBlocked,
   getBlockedReason,
-  // formatDualTimezone removed — header no longer renders Beijing time.
+  // formatDualTimezone / formatBeijingTime removed — header + settlement
+  // captions now render ET only; local time lives in the schedule ⓘ tooltip.
   formatEtTime,
-  formatBeijingTime,
   getCurrentSession,
   isInPreFreezeWindow,
   isPastFreeze,
@@ -297,7 +297,7 @@ export default function SpotTrading() {
   // end_date; the "settles by …" caption below carries the settlement info.
   const countdownTarget = freezeAt ?? endDate;
   const countdown = useCountdown(countdownTarget);
-  // Note: dual-timezone (ET/Beijing) chips removed from the header per DESIGN.md §7.
+  // Note: dual-timezone (ET/Beijing) chips removed from the header per DESIGN.md §14.
   // Local-time (browser-detected) hint now lives inside the schedule ⓘ tooltip only.
 
   // DEMO-STATE: 自动态显示由前端时钟推导，正式版由后端状态机驱动。
@@ -314,9 +314,8 @@ export default function SpotTrading() {
   const indicative = useIndicativeLast(basePrice, event?.id || "");
   const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
 
-  const settleLabel = settleAt
-    ? `${formatEtTime(settleAt)} ET / ${formatBeijingTime(settleAt)} 北京`
-    : null;
+  // Settlement caption is ET-only per DESIGN.md §14 (no 北京/Beijing in user-visible copy);
+  // the browser-local time is surfaced only in the header schedule ⓘ tooltip.
   const settleEtOnly = settleAt ? `${formatEtTime(settleAt)} ET` : null;
   const freezeEtOnly = freezeAt ? formatEtTime(freezeAt) : null;
   const closeEtOnly = endDate ? formatEtTime(endDate) : null;
@@ -887,9 +886,9 @@ export default function SpotTrading() {
             Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
           </div>
         )}
-        {settleLabel && (
+        {settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">
-            Settles &amp; credits by ~{settleLabel}
+            Settles &amp; credits by ~{settleEtOnly}
           </div>
         )}
         {tickInvalid && orderType === "Limit" && (
@@ -996,9 +995,9 @@ export default function SpotTrading() {
         )}
       </div>
 
-      {settleLabel && (
+      {settleEtOnly && (
         <div className="text-xs text-muted-foreground">
-          Settles &amp; credits by ~{settleLabel}.
+          Settles &amp; credits by ~{settleEtOnly}.
         </div>
       )}
     </div>

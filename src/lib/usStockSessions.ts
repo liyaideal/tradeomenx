@@ -147,19 +147,6 @@ export const LP_QUOTE_MODE_BADGE: Record<
 };
 
 /** Format a Date as ET (America/New_York) and Beijing (Asia/Shanghai). */
-export const formatDualTimezone = (date: Date): { et: string; bj: string } => {
-  const fmt = (tz: string) =>
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: tz,
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(date);
-  return { et: `${fmt("America/New_York")} ET`, bj: `${fmt("Asia/Shanghai")} 北京` };
-};
-
 /** Short HH:mm ET label for a Date (e.g. "16:15"). */
 export const formatEtTime = (date: Date): string =>
   new Intl.DateTimeFormat("en-US", {
@@ -169,14 +156,10 @@ export const formatEtTime = (date: Date): string =>
     hour12: false,
   }).format(date);
 
-/** Short HH:mm Beijing label for a Date (e.g. "04:15"). */
-export const formatBeijingTime = (date: Date): string =>
-  new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Shanghai",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
+// Note: formatDualTimezone / formatBeijingTime removed per DESIGN.md §14 —
+// user-visible copy must not contain 北京/Beijing. Local time is shown only
+// via the browser-detected schedule ⓘ tooltip in the /spot terminal header.
+
 
 /**
  * Display-only helper: within PRE_FREEZE_MINUTES_BEFORE_CLOSE minutes of the
