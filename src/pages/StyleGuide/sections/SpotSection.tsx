@@ -24,7 +24,7 @@ export const SpotSection = ({ isMobile }: Props) => {
       <SectionWrapper
         id="spot-terminal-chrome"
         title="Spot terminal chrome"
-        description="Back + event name + red-pulse countdown + right stats (24h Vol · Prior Close · Last · Yes Price) + watchlist star. NO site navigation header. NO Index/Funding/OI/Perpetual."
+        description="LOCKED per DESIGN.md §7: Left = identity + status badges + single countdown row (Trading ends in X · until HH:MM ET · ⓘ schedule). Right = Volume · Base ({priorDate} close) · {TICKER} price %. NO second time row, NO Yes-price stat, NO 中文 characters in the header — local time only inside the ⓘ tooltip and auto-detected."
       >
         <div className="rounded-lg border border-border/50 overflow-hidden bg-background">
           <header className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
@@ -32,29 +32,27 @@ export const SpotSection = ({ isMobile }: Props) => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono text-[11px] font-semibold">TSL</div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono text-[11px] font-semibold">AAP</div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold truncate">Will TSLA close higher today? (Jul 15)</span>
+                  <span className="font-semibold truncate">Will AAPL close higher today? (Jul 15)</span>
                   <Badge variant="outline" className="text-[10px]">SPOT</Badge>
                   <Badge variant="outline" className={`text-[10px] border ${LIFECYCLE_BADGE.TRADING.className}`}>Trading</Badge>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-                  <span>Closes in</span>
-                  <span className="text-trading-red font-mono font-medium">02:14:33</span>
+                  <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full" />
+                  <span>Trading ends in</span>
+                  <span className="font-mono font-medium text-foreground">09:23:56</span>
                   <span>·</span>
-                  <span className="font-mono">Jul 15, 16:00 ET</span>
-                  <span>·</span>
-                  <span className="font-mono">Jul 16, 04:00 北京</span>
+                  <span className="font-mono">until 15:55 ET</span>
+                  <Info className="w-3 h-3 opacity-70" />
                 </div>
               </div>
             </div>
             <div className="ml-auto flex items-center gap-6 text-xs">
-              <Stat label="24h Volume" value="$1.82M" />
-              <Stat label="Prior Close" value="$268.30" />
-              <Stat label="Last (indicative)" value="$270.14" valueClass="text-trading-green" hint="+0.69%" />
-              <Stat label="Yes Price" value="$0.44" />
+              <Stat label="Volume" value="$802K" />
+              <Stat label="Base (Jul 14 close)" value="$231.10" />
+              <Stat label="AAPL" value="$231.08" valueClass="text-trading-red" hint="−0.01% · after-hrs" />
             </div>
             <Star className="w-5 h-5 text-trading-yellow fill-trading-yellow ml-2" />
           </header>
