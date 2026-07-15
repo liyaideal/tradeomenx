@@ -323,11 +323,36 @@ const EventsPage = () => {
           </div>
         </div>
 
+        {/* Product line switch: Futures | Spot */}
+        <div className="space-y-1.5">
+          <div className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-muted/30 p-1">
+            {(["futures", "spot"] as const).map((pl) => (
+              <button
+                key={pl}
+                onClick={() => { setProductLine(pl); setActiveTab("all"); }}
+                className={`px-3.5 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
+                  productLine === pl
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {pl}
+              </button>
+            ))}
+          </div>
+          {productLine === "spot" && (
+            <p className="text-xs text-muted-foreground">
+              Spot = buy outcome shares ($0–1). Winning shares pay $1. Max loss is what you pay.
+            </p>
+          )}
+        </div>
+
         {/* Tabs + Timeframe picker */}
         <div className="flex items-center justify-between gap-3">
-          <EventTabs active={activeTab} onChange={setActiveTab} categories={[...new Set(markets.map((m) => m.category))]} />
+          <EventTabs active={activeTab} onChange={setActiveTab} categories={[...new Set(markets.filter((m) => productLine === "spot" ? m.productLines?.includes("spot") : m.productLines?.includes("futures")).map((m) => m.category))]} />
           {!isMobile && <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} />}
         </div>
+
 
         {/* Desktop Filters */}
         {!isMobile && (
