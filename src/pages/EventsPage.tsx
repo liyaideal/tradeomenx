@@ -64,6 +64,11 @@ const EventsPage = () => {
   const markets = useMarketListData(dbEvents);
   const { isWatched, toggle: toggleWatch } = useWatchlist();
 
+  // Product line switch (Futures | Spot). Default Futures.
+  const [productLine, setProductLine] = useState<"futures" | "spot">(
+    () => (searchParams.get("pl") === "spot" ? "spot" : "futures")
+  );
+
   // Tab from URL
   const [activeTab, setActiveTab] = useState<string>(
     () => searchParams.get("tab") || "all"
@@ -93,15 +98,14 @@ const EventsPage = () => {
   // Reset page when filters/tab change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, filters, chgTimeframe]);
+  }, [activeTab, filters, chgTimeframe, productLine]);
 
-  // Sync tab → URL
+  // Sync tab & product line → URL
   useEffect(() => {
-    const current = searchParams.get("tab") || "all";
-    if (current !== activeTab) {
-      setSearchParams({ tab: activeTab }, { replace: true });
-    }
-  }, [activeTab]);
+    const nextParams: Record<string, string> = { tab: activeTab };
+    if (productLine !== "futures") nextParams.pl = productLine;
+    setSearchParams(nextParams, { replace: true });
+  }, [activeTab, productLine]);
 
   // Persist view
   useEffect(() => {
@@ -115,7 +119,13 @@ const EventsPage = () => {
 
   // Filter & sort markets
   const filteredMarkets = useMemo(() => {
-    let result = [...markets];
+    // Product-line filter first: futures shows anything containing 'futures',
+    // spot shows anything containing 'spot'.
+    let result = markets.filter((m) =>
+      productLine === "spot"
+        ? m.productLines?.includes("spot")
+        : m.productLines?.includes("futures")
+    );
 
     // Tab-level filtering (category tabs)
     if (activeTab === "watchlist") {
@@ -162,7 +172,7 @@ const EventsPage = () => {
     });
 
     return result;
-  }, [markets, activeTab, filters, isWatched, chgTimeframe]);
+  }, [markets, activeTab, filters, isWatched, chgTimeframe, productLine]);
 
   // Visible markets (cumulative load more)
   const visibleMarkets = useMemo(() => {
@@ -313,11 +323,36 @@ const EventsPage = () => {
           </div>
         </div>
 
+        {/* Product line switch: Futures | Spot */}
+        <div className="space-y-1.5">
+          <div className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-muted/30 p-1">
+            {(["futures", "spot"] as const).map((pl) => (
+              <button
+                key={pl}
+                onClick={() => { setProductLine(pl); setActiveTab("all"); }}
+                className={`px-3.5 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
+                  productLine === pl
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {pl}
+              </button>
+            ))}
+          </div>
+          {productLine === "spot" && (
+            <p className="text-xs text-muted-foreground">
+              Spot = buy outcome shares ($0–1). Winning shares pay $1. Max loss is what you pay.
+            </p>
+          )}
+        </div>
+
         {/* Tabs + Timeframe picker */}
         <div className="flex items-center justify-between gap-3">
-          <EventTabs active={activeTab} onChange={setActiveTab} categories={[...new Set(markets.map((m) => m.category))]} />
+          <EventTabs active={activeTab} onChange={setActiveTab} categories={[...new Set(markets.filter((m) => productLine === "spot" ? m.productLines?.includes("spot") : m.productLines?.includes("futures")).map((m) => m.category))]} />
           {!isMobile && <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} />}
         </div>
+
 
         {/* Desktop Filters */}
         {!isMobile && (

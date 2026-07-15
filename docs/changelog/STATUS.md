@@ -19,6 +19,18 @@
 
 ---
 
+## 2026-07-15 — Pro 现货产品线上线：美股当日涨跌试点
+
+源文档：[2026-07-15-pro-spot-us-stocks.md](./2026-07-15-pro-spot-us-stocks.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/pro-spot-us-stocks`
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| SPOT1 | 现货下单/持仓语义：Buy=多头 long、Sell=减仓/平仓（禁空）；leverage=1、fee=0、product_line='spot'；Trial 优先扣 | `src/services/tradingService.ts` `executeSpotTrade` · `docs/changelog/2026-07-15-pro-spot-us-stocks.md` §2 | ⬜ | 3 个种子事件均可 Buy Yes / Buy No；未持仓时 Sell 报错；持有 100 sh 时 Sell 120 sh 报错；balance 变化优先扣 trial_balance | |
+| SPOT2 | 状态机与时刻表：5 态徽标 + 4 个占位常量（PRE_FREEZE 15m / FREEZE 5m / OPEN_COOLDOWN 09:30–09:35 / SETTLEMENT ≤16:30，均 ET）；非 TRADING/EXTENDED_TRADING 禁下单 | `src/lib/usStockSessions.ts`（4 个 PLACEHOLDER 注释） · SpotTrading 页头 | ⬜ | 4 个时刻表常量待 PM 确认后去 PLACEHOLDER 注释；lifecycle_status 手动改为 PRE_FREEZE/FROZEN 时下单按钮禁用 | 4 值为占位，需 PM 确认 |
+| SPOT3 | Portfolio 按 product_line 条件渲染：spot 行显示 SPOT 徽标，隐藏杠杆/Liq./Funding | `src/pages/Portfolio.tsx` · `src/hooks/usePositions.ts` | ⬜ | 现货持仓行 SPOT 徽标可见；杠杆/Liq. 相关列在该行不显示或显示为 "—" | 本轮做了 SPOT 徽标最小落地；杠杆列条件隐藏留研发深化 |
+
+---
+
 ## 2026-07-13 — Google 账号选择器仿真（固定身份自然入口）
 
 源文档：[2026-07-13-google-account-chooser.md](./2026-07-13-google-account-chooser.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/demo-accounts-fixed-identities`

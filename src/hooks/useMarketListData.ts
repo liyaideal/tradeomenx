@@ -32,6 +32,12 @@ export interface EventRow {
   category: string;
   categoryLabel: string;
 
+  // Product line extensions (Pro / Spot)
+  productLines: string[];
+  eventSubtype: string | null;
+  lifecycleStatus: string | null;
+  basePrice: number | null;
+
   // Event-level aggregated metrics
   change1h: number;
   change4h: number;
@@ -144,6 +150,10 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         eventIcon: event.icon,
         category: event.category,
         categoryLabel: catInfo.label,
+        productLines: event.product_lines && event.product_lines.length > 0 ? event.product_lines : ["futures"],
+        eventSubtype: event.event_subtype ?? null,
+        lifecycleStatus: event.lifecycle_status ?? null,
+        basePrice: event.base_price != null ? Number(event.base_price) : null,
         change1h: maxVolChild?.change1h || 0,
         change4h: maxVolChild?.change4h || 0,
         change24h: maxVolChild?.change24h || 0,
