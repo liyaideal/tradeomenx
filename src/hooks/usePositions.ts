@@ -87,6 +87,7 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
     marginNum,
     leverageNum: Number(pos.leverage) || 1,
     createdAt: pos.created_at,
+    productLine: ((pos as any).product_line === "spot" ? "spot" : "futures"),
     _source: "supabase",
     _supabaseId: pos.id,
   };
@@ -126,6 +127,7 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
     marginNum,
     leverageNum: levNum,
     createdAt: new Date().toISOString(),
+    productLine: "futures",
     _source: "local",
   };
 };
@@ -173,6 +175,7 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     marginNum: airdrop.airdropValue,
     leverageNum: lev,
     createdAt: airdrop.createdAt ?? new Date().toISOString(),
+    productLine: "futures",
     _source: "airdrop",
   };
 };
