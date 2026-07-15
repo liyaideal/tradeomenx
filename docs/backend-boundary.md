@@ -106,10 +106,12 @@
 | 表 / 字段 | 类别 | 说明 |
 |---|---|---|
 | `events.product_lines` / `event_subtype` / `lifecycle_status` / `base_price` | 🟡 | 产品线模型（futures/spot 共存）、事件子类型、状态机、结算基准价语义是需求；存储字段与状态机实现由正式架构决定 |
+| `events.freeze_time` / `events.expected_settlement_time` | 🟡 | 时间字段语义是需求（技术对接 v1.0 §4.1/§12.2）：freeze_time 到达时冻结新单 + 批量撤销未成交挂单；expected_settlement_time 用于结算入账提示。值由后端按交易所日历作业写入，前端只消费字段；禁止在前端硬编码 16:00 / 16:30 假设——提前收盘日字段值会与常量不一致 |
 | `trades.product_line` | 🟡 | 同上；成交按产品线区分是需求 |
-| `positions.product_line` | 🟡 | 同上；持仓按产品线区分是需求 |
+| `positions.product_line` | 🟡 | 同上；持仓按产品线区分是需求。现货采用 SIGNED_YES_SHARE 单净仓（技术对接 §7），同一事件 Up/Not Up 至多一边有仓位；反向买入自动冲减 |
 | `profiles.preferred_surface` | 🟡 | Pro/Lite 表面选择是需求，具体持久化位置自选 |
 | `category_boost_configs` | 🟢 | Boost 板块开关是运营规则，须做成可后台配置（本轮硬编码在 DB 属演示便利） |
+
 
 ## 治理规则（即日生效）
 

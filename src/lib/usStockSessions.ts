@@ -1,38 +1,32 @@
 /**
- * US stock daily up/down event — session timing constants + lifecycle map.
+ * US-stock daily up/down event — lifecycle + LP session profiles.
  *
- * PRD alignment (v2026-07-15): the event `lifecycle_status` enum is
- *   CREATED → EXTENDED_TRADING → OPEN_COOLDOWN → TRADING → CLOSE_MODE
- *     → FROZEN → SETTLING → SETTLED
- * plus branches SUSPENDED / REVIEW / CANCELED.
+ * 状态机口径以《美股当日涨跌现货事件 PRD 技术对接 v1.0》§2 为准（9 态，
+ * 取代此前事件 PRD 的 11 态）：
+ *   CREATED / EXTENDED_TRADING / TRADING / FROZEN / SETTLING / SETTLED
+ *   + SUSPENDED / REVIEW / CANCELED
+ * 已删除 OPEN_COOLDOWN 与 CLOSE_MODE（技术对接 QA-16：开盘直接进 TRADING，
+ * 开盘保护由 quote profile 内部实现，不设独立状态）。
  *
- * PRE_FREEZE is a LP-quote session concept (a display-layer window
- * before close), NOT an event lifecycle state — do not use it as an
- * `events.lifecycle_status` value.
- *
- * The four timing constants below are still PLACEHOLDER: pending confirmation.
+ * 时间字段（freeze_time / expected_settlement_time）由后端按交易所日历
+ * 写入 `events` 表，前端只消费字段；下方两个 fallback 常量仅在字段缺失
+ * 时兜底渲染，禁止用于硬编码 16:00 / 16:30 假设——提前收盘日字段值会
+ * 与常量不一致。
  */
 
-// Minutes before the 16:00 ET official close when the display should
-// hint "closing soon" (LP quote mode may switch to CONSERVATIVE/WIDE).
-// NOTE: presentation-layer only — not a lifecycle_status.
-export const PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15; // PLACEHOLDER: pending confirmation
+// -----------------------------------------------------------------
+// Fallback constants (used only when events.freeze_time is missing)
+// -----------------------------------------------------------------
 
-// Minutes before 16:00 ET when new orders are hard-frozen.
-// freeze_time = close − FREEZE_MINUTES_BEFORE_CLOSE  → 15:55 ET.
-// CONFIRMED per PRD §4.1: TRADING = 09:30 → close−5min; FROZEN at close−5min.
+// CONFIRMED per 技术对接 v1.0 §4: freeze_time = close − 5min → 15:55 ET.
+// Prefer `events.freeze_time` on the row; this is a last-resort fallback.
 export const FREEZE_MINUTES_BEFORE_CLOSE = 5;
 
+// "Closing soon" display-only window (yellow chip beside countdown). Not a
+// lifecycle state. Does NOT block orders.
+export const PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15;
 
-// Open cooldown window (ET) at 09:30–09:35 when trading is disabled
-// while opening auction prints settle.
-export const OPEN_COOLDOWN_START_ET = "09:30"; // PLACEHOLDER: pending confirmation
-export const OPEN_COOLDOWN_END_ET = "09:35"; // PLACEHOLDER: pending confirmation
-
-// Latest time (ET) by which settlement credit must be posted to user wallets.
-export const SETTLEMENT_CREDIT_BY_ET = "16:30"; // PLACEHOLDER: pending confirmation
-
-/** Full lifecycle_status → badge label + class. Unknown → gray "Unknown". */
+/** 9-state lifecycle badge map (技术对接 §2). Unknown → gray "Unknown". */
 export const LIFECYCLE_BADGE: Record<
   string,
   { label: string; className: string }
@@ -45,17 +39,9 @@ export const LIFECYCLE_BADGE: Record<
     label: "Extended",
     className: "bg-primary/15 text-primary border-primary/40",
   },
-  OPEN_COOLDOWN: {
-    label: "Open Cooldown",
-    className: "bg-trading-yellow/15 text-trading-yellow border-trading-yellow/40",
-  },
   TRADING: {
     label: "Trading",
     className: "bg-trading-green/15 text-trading-green border-trading-green/40",
-  },
-  CLOSE_MODE: {
-    label: "Closing",
-    className: "bg-trading-yellow/15 text-trading-yellow border-trading-yellow/40",
   },
   FROZEN: {
     label: "Frozen",
@@ -92,16 +78,20 @@ export const UNKNOWN_LIFECYCLE_BADGE = {
 export const getLifecycleBadge = (lifecycle: string | null | undefined) =>
   (lifecycle && LIFECYCLE_BADGE[lifecycle]) || UNKNOWN_LIFECYCLE_BADGE;
 
-/** States where new orders are allowed. Everything else is blocked. */
-const ORDERABLE_STATES = new Set([
-  "TRADING",
-  "EXTENDED_TRADING",
-  "OPEN_COOLDOWN",
-]);
+/** States where new orders are allowed. Everything else is blocked.
+ *  技术对接 §2: 仅 TRADING / EXTENDED_TRADING 允许下单。 */
+const ORDERABLE_STATES = new Set(["TRADING", "EXTENDED_TRADING"]);
 
 /** Returns true if the event lifecycle disallows new orders. */
 export const isOrderingBlocked = (lifecycle: string | null | undefined): boolean =>
   !lifecycle || !ORDERABLE_STATES.has(lifecycle);
+
+/** SUSPENDED allows cancels on existing Pending orders (cancel-only mode). */
+export const isCancelAllowedInLifecycle = (
+  lifecycle: string | null | undefined,
+): boolean => lifecycle === "SUSPENDED" || !ORDERABLE_STATES.has(lifecycle) === false || true;
+// Cancel is always allowed on a user-submitted Pending order; the helper
+// above is kept for symmetry / future tightening.
 
 /** Short reason string for a disabled CTA. Empty string when orderable. */
 export const getBlockedReason = (lifecycle: string | null | undefined): string => {
@@ -109,10 +99,7 @@ export const getBlockedReason = (lifecycle: string | null | undefined): string =
   switch (lifecycle) {
     case "TRADING":
     case "EXTENDED_TRADING":
-    case "OPEN_COOLDOWN":
       return "";
-    case "CLOSE_MODE":
-      return "Closing — no new orders";
     case "FROZEN":
       return "Market frozen";
     case "SETTLING":
@@ -120,7 +107,7 @@ export const getBlockedReason = (lifecycle: string | null | undefined): string =
     case "SETTLED":
       return "Settled";
     case "SUSPENDED":
-      return "Market suspended";
+      return "Suspended · cancel only";
     case "REVIEW":
       return "Under review";
     case "CANCELED":
@@ -173,27 +160,59 @@ export const formatDualTimezone = (date: Date): { et: string; bj: string } => {
   return { et: `${fmt("America/New_York")} ET`, bj: `${fmt("Asia/Shanghai")} 北京` };
 };
 
+/** Short HH:mm ET label for a Date (e.g. "16:15"). */
+export const formatEtTime = (date: Date): string =>
+  new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+
+/** Short HH:mm Beijing label for a Date (e.g. "04:15"). */
+export const formatBeijingTime = (date: Date): string =>
+  new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Shanghai",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+
 /**
- * Presentation-layer helper: is the event within the PRE_FREEZE_MINUTES_BEFORE_CLOSE
- * window before its end? Used for "Closing soon" hints — does NOT change
- * `lifecycle_status`.
+ * Display-only helper: within PRE_FREEZE_MINUTES_BEFORE_CLOSE minutes of the
+ * event's freeze time? Prefer passing `freezeAt` from `events.freeze_time`;
+ * `endDate` is only accepted as a fallback (falls back to close − 5min).
  */
-export const isInPreFreezeWindow = (endDate: Date | null | undefined): boolean => {
-  if (!endDate) return false;
-  const ms = endDate.getTime() - Date.now();
+export const isInPreFreezeWindow = (
+  freezeAt: Date | null | undefined,
+  endDate?: Date | null,
+): boolean => {
+  const anchor = freezeAt ?? (endDate
+    ? new Date(endDate.getTime() - FREEZE_MINUTES_BEFORE_CLOSE * 60_000)
+    : null);
+  if (!anchor) return false;
+  const ms = anchor.getTime() - Date.now();
   return ms > 0 && ms <= PRE_FREEZE_MINUTES_BEFORE_CLOSE * 60_000;
+};
+
+/**
+ * True if the event should be treated as frozen from a timing standpoint —
+ * i.e. we've reached (or passed) `events.freeze_time`. Falls back to
+ * `endDate − FREEZE_MINUTES_BEFORE_CLOSE` when the field is missing.
+ */
+export const isPastFreeze = (
+  freezeAt: Date | null | undefined,
+  endDate?: Date | null,
+): boolean => {
+  const anchor = freezeAt ?? (endDate
+    ? new Date(endDate.getTime() - FREEZE_MINUTES_BEFORE_CLOSE * 60_000)
+    : null);
+  if (!anchor) return false;
+  return anchor.getTime() <= Date.now();
 };
 
 // -----------------------------------------------------------------
 // Session-aware LP profile (LP PRD §4.2 / §6.1).
-// Drives buildBook depth/spread/size and the quote-mode badge on
-// the /spot terminal.
-//   REGULAR              09:30–15:45 ET  → NORMAL       — 8..12 levels, spread ×1, size ×1
-//   EXTENDED_AFTER_HOURS 15:45–20:00 ET  → CONSERVATIVE — 3..7 levels,  spread ×2, size ×0.4
-//   OVERNIGHT            20:00–04:00 ET  → CONSERVATIVE — 3 levels,     spread ×3, size ×0.25
-//   PRE_MARKET           04:00–09:30 ET  → CONSERVATIVE — 3..7 levels,  spread ×2, size ×0.4
-// PLACEHOLDER: pending confirmation — cutoffs mirror the four session
-// timing constants above; adjust in one place if PM confirms.
 // -----------------------------------------------------------------
 export type SessionType =
   | "REGULAR"
@@ -271,7 +290,7 @@ const etMinutesOfDay = (d: Date = new Date()): number => {
 export const getCurrentSession = (now: Date = new Date()): SessionProfile => {
   const mins = etMinutesOfDay(now);
   const REG_START = 9 * 60 + 30; // 09:30
-  const REG_END = 15 * 60 + 45; // 15:45 — matches CLOSE_MODE hand-off
+  const REG_END = 15 * 60 + 45; // 15:45
   const AH_END = 20 * 60; // 20:00
   const PM_START = 4 * 60; // 04:00
   if (mins >= REG_START && mins < REG_END) return SESSION_PROFILES.REGULAR;
@@ -279,4 +298,3 @@ export const getCurrentSession = (now: Date = new Date()): SessionProfile => {
   if (mins >= AH_END || mins < PM_START) return SESSION_PROFILES.OVERNIGHT;
   return SESSION_PROFILES.PRE_MARKET;
 };
-

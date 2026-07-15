@@ -41,13 +41,16 @@ import {
   isOrderingBlocked,
   getBlockedReason,
   formatDualTimezone,
+  formatEtTime,
+  formatBeijingTime,
   getCurrentSession,
   isInPreFreezeWindow,
+  isPastFreeze,
   LP_QUOTE_MODE_BADGE,
-  SETTLEMENT_CREDIT_BY_ET,
   FREEZE_MINUTES_BEFORE_CLOSE,
   type SessionProfile,
 } from "@/lib/usStockSessions";
+
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
@@ -252,7 +255,18 @@ export default function SpotTrading() {
   const indicative = useIndicativeLast(basePrice, event?.id || "");
   const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
 
+  // 技术对接 §4.1/§12.2 — timing driven by events fields, not hardcoded times.
+  const freezeAt = (event as any)?.freeze_time ? new Date((event as any).freeze_time) : null;
+  const settleAt = (event as any)?.expected_settlement_time
+    ? new Date((event as any).expected_settlement_time)
+    : null;
+  const settleLabel = settleAt
+    ? `${formatEtTime(settleAt)} ET / ${formatBeijingTime(settleAt)} 北京`
+    : null;
+  const freezeLabel = freezeAt ? `${formatEtTime(freezeAt)} ET` : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`;
+
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "";
+
 
   // Effective price the user is transacting at.
   const effectivePrice = orderType === "Limit"
@@ -263,8 +277,19 @@ export default function SpotTrading() {
   const qty = effectivePrice > 0 ? amt / effectivePrice : 0;
   const cost = effectivePrice * qty;
   const maxLoss = side === "buy" ? cost : 0;
-  const payoutIfRight = side === "buy" ? qty : 0; // $1 per winning share
+  // 技术对接 §10.1: Max win for buy = qty × $1 − cost; for sell = proceeds (already realized).
+  const maxWin = side === "buy" ? Math.max(0, qty - cost) : cost;
   const fee = cost * SPOT_FEE_RATE;
+
+  // Tick 0.01 validation (技术对接 §10.1). Applies to Limit price input.
+  const tickInvalid = useMemo(() => {
+    if (orderType !== "Limit") return false;
+    const raw = parseFloat(limitPrice);
+    if (!isFinite(raw)) return false;
+    const cents = Math.round(raw * 100);
+    return Math.abs(raw * 100 - cents) > 1e-6;
+  }, [limitPrice, orderType]);
+
 
   // Session profile drives book depth / spread / size / quote-mode badge.
   // Recompute every minute so the terminal follows the wall clock.
@@ -338,8 +363,11 @@ export default function SpotTrading() {
     if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (amt <= 0 || effectivePrice <= 0 || effectivePrice >= 1)
       return toast.error("Enter a valid price and amount.");
+    if (orderType === "Limit" && tickInvalid)
+      return toast.error("Limit price must be a multiple of $0.01.");
+    // 技术对接 §7: 净仓方向校验 — sell 只在持有同侧净仓时允许。
     if (side === "sell" && qty > heldQty + 1e-6)
-      return toast.error("Short selling is not supported. Reduce quantity.");
+      return toast.error("You don't hold enough of this outcome to sell. Buy the opposite side to reduce instead.");
     if (side === "buy" && amt > totalBalance) return toast.error("Insufficient balance.");
 
     setSubmitting(true);
@@ -371,8 +399,16 @@ export default function SpotTrading() {
         });
         if (res.balanceDelta < 0) await deductBalance(-res.balanceDelta);
         else if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
-        toast.success(side === "buy" ? "Spot buy filled" : "Spot sell filled");
+        if (side === "sell") {
+          toast.success("Spot sell filled", {
+            description:
+              "Proceeds settle to balance (demo). Production: held as event pending cash until settlement.",
+          });
+        } else {
+          toast.success("Spot buy filled");
+        }
       }
+
       setAmount("");
       setSliderValue([0]);
       refetchPositions();
@@ -437,23 +473,21 @@ export default function SpotTrading() {
   }, [yesLive, noLive, spotOrders, user, yesOpt, addBalance, refetchPositions, refetchOrders]);
 
   // ---- Closing-soon hint (display only, does NOT block orders). ----
-  // Threshold = PRE_FREEZE_MINUTES_BEFORE_CLOSE (15 min). Ticks with countdown.
-  const closingSoon = useMemo(() => isInPreFreezeWindow(endDate), [endDate, countdown]);
+  // Prefer events.freeze_time; fall back to close − 5min via helper.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const closingSoon = useMemo(() => isInPreFreezeWindow(freezeAt, endDate), [freezeAt, endDate, countdown]);
 
   // ---- DEMO-STATE: freeze auto-cancel ----
   // 冻结撤单由前端模拟，正式版由撮合引擎批量执行。
-  // When the event enters FROZEN (either lifecycle_status or countdown reaches
-  // close − FREEZE_MINUTES_BEFORE_CLOSE), cancel all of this user's Pending
-  // spot orders on this event and refund reserved cash. Tagged in `frozenCancelledIds`
+  // When the event enters FROZEN (either lifecycle_status or we've reached
+  // events.freeze_time), cancel all of this user's Pending spot orders on
+  // this event and refund reserved cash. Tagged in `frozenCancelledIds`
   // so the Orders row renders "Cancelled · market frozen".
   const [frozenCancelledIds, setFrozenCancelledIds] = useState<Set<string>>(new Set());
-  const isFrozenByTime = useMemo(() => {
-    if (!endDate) return false;
-    const ms = endDate.getTime() - Date.now();
-    return ms <= FREEZE_MINUTES_BEFORE_CLOSE * 60_000;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [endDate, countdown]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const isFrozenByTime = useMemo(() => isPastFreeze(freezeAt, endDate), [freezeAt, endDate, countdown]);
   const shouldFreeze = lifecycle === "FROZEN" || isFrozenByTime;
+
   const freezingIdsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!user || !shouldFreeze || spotOrders.length === 0) return;
@@ -697,16 +731,18 @@ export default function SpotTrading() {
           </div>
         </div>
 
-        {/* Fee summary — spot: Cost / Max loss / Payout / Fee. NO liq. / margin. */}
+        {/* Fee summary — spot: Cost / Max win / Max loss / Fee. NO liq. / margin. */}
         <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
           <Row label="Cost">${cost.toFixed(2)}</Row>
-          <Row label="Max loss">${maxLoss.toFixed(2)}</Row>
-          <Row label="Payout if right">
+          <Row label="Max win">
             <span>
-              ${payoutIfRight.toFixed(2)}{" "}
-              <span className="text-muted-foreground">({qty.toFixed(0)} × $1)</span>
+              ${maxWin.toFixed(2)}{" "}
+              <span className="text-muted-foreground">
+                ({qty.toFixed(0)} × $1 {side === "buy" ? "− cost" : ""})
+              </span>
             </span>
           </Row>
+          <Row label="Max loss">${maxLoss.toFixed(2)}</Row>
           <Row label="Fee">${fee.toFixed(2)}</Row>
         </div>
 
@@ -714,10 +750,17 @@ export default function SpotTrading() {
           <Info className="h-3 w-3" />
           Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
         </div>
-        <div className="text-[10px] text-muted-foreground">
-          Settles & credits by ~{SETTLEMENT_CREDIT_BY_ET} ET
-        </div>
-        {willBePending && (
+        {settleLabel && (
+          <div className="text-[10px] text-muted-foreground">
+            Settles &amp; credits by ~{settleLabel}
+          </div>
+        )}
+        {tickInvalid && orderType === "Limit" && (
+          <div className="text-[10px] text-trading-red">
+            Price must be a multiple of $0.01 (tick).
+          </div>
+        )}
+        {willBePending && !tickInvalid && (
           <div className="text-[10px] text-trading-yellow">
             {side === "buy"
               ? `Limit below best ask $${bestAsk.toFixed(2)} — order will rest as Pending until touched. $${(effectivePrice * qty || 0).toFixed(2)} reserved.`
@@ -725,9 +768,10 @@ export default function SpotTrading() {
           </div>
         )}
 
+
         {/* CTA — semantic outcome color, never primary */}
         <button
-          disabled={submitting || blocked || amt <= 0}
+          disabled={submitting || blocked || amt <= 0 || tickInvalid}
           onClick={handleSubmit}
           className={cn(
             "w-full h-11 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed",
@@ -746,8 +790,9 @@ export default function SpotTrading() {
                 ? `Place limit ${side} ${outcomeLabel}`
                 : `${side === "buy" ? "Buy" : "Sell"} ${outcomeLabel}`}
               {side === "buy" && qty > 0 && !willBePending && (
-                <span className="opacity-80"> · To win ${payoutIfRight.toFixed(0)} →</span>
+                <span className="opacity-80"> · Max win ${maxWin.toFixed(0)} →</span>
               )}
+
             </>
           )}
         </button>
@@ -803,18 +848,24 @@ export default function SpotTrading() {
               .map((line, i) => (
                 <li key={i}>{line}</li>
               ))}
-            <li>All open orders are automatically cancelled and refunded at freeze (5 min before close).</li>
+            <li>
+              All open orders are automatically cancelled and refunded at freeze
+              {" "}({freezeLabel}).
+            </li>
           </ul>
         ) : (
           <p className="italic">Rules not yet published for this market.</p>
         )}
       </div>
 
-      <div className="text-xs text-muted-foreground">
-        Settles &amp; credits by ~{SETTLEMENT_CREDIT_BY_ET} ET.
-      </div>
+      {settleLabel && (
+        <div className="text-xs text-muted-foreground">
+          Settles &amp; credits by ~{settleLabel}.
+        </div>
+      )}
     </div>
   );
+
 
   // -----------------------------------------------------------------
   // Positions / Orders table — no leverage / no liq. / no funding

@@ -1,9 +1,10 @@
 ---
 name: Pro / Spot US stocks pilot
-description: Multi-product-line engine — first Spot pilot (US stock daily up/down). 3 seed events, no-leverage semantics, 11-state PRD lifecycle, LP quote-mode badge, 4 placeholder timing constants, front-end simulated limit-order Pending flow + session-aware LP book
+description: Multi-product-line engine — first Spot pilot (US stock daily up/down). 9-state event_status per 技术对接 v1.0, freeze_time / expected_settlement_time data-driven, SIGNED_YES_SHARE net position, tick 0.01 validation, event_pending_cash simplified for demo, LP session profiles, front-end limit-order Pending flow
 type: feature
 
 ---
+
 
 # Pro 现货（Spot）产品线 — 美股当日涨跌试点
 
@@ -19,30 +20,52 @@ type: feature
 - Buy = 建/加 long；Sell = 减/平已持有 long；**禁止空头**（前端 + `executeSpotTrade` 双校验）
 - Trial Bonus 优先扣（复用 `useUserProfile.deductBalance` 口径）
 
-## 事件状态机（11 态，对齐 PRD）
+## 事件状态机（9 态，对齐技术对接 v1.0 §2）
 
-`events.lifecycle_status` 枚举：
-`CREATED → EXTENDED_TRADING → OPEN_COOLDOWN → TRADING → CLOSE_MODE → FROZEN → SETTLING → SETTLED`，分支 `SUSPENDED / REVIEW / CANCELED`。
+`events.event_status` 枚举：
+`CREATED / EXTENDED_TRADING / TRADING / FROZEN / SETTLING / SETTLED`，分支 `SUSPENDED / REVIEW / CANCELED`。
 
-- **允许下单**只有 `TRADING` / `EXTENDED_TRADING` / `OPEN_COOLDOWN`；其余（含未知）一律禁单。停牌只允许撤单。
-- **PRE_FREEZE 不是事件状态**，它是 LP 报价的 session 概念（收盘前 15min 展示层提示"Closing soon"），不要写进 `lifecycle_status`。
-- 未知状态徽标 fallback 为灰色 `Unknown` + 禁单，绝不 fallback 成 `Trading`。
-- 帮助函数：`getLifecycleBadge(status)` / `isOrderingBlocked(status)` / `getBlockedReason(status)`，禁单文案："Market suspended" / "Under review" / "Closing — no new orders" / "Market frozen" / "Settling" / "Settled" / "Canceled" / "Not yet open" / "Market unavailable"（未知）。
+- **已删除** OPEN_COOLDOWN、CLOSE_MODE（QA-16：开盘直接进 TRADING，开盘保护由 quote profile 内部实现，不设独立状态）
+- **允许下单**只有 `TRADING` / `EXTENDED_TRADING`；其余（含未知）一律禁单
+- `CREATED` = 可预览不可交易，文案 "Not yet open"
+- `SUSPENDED` = cancel-only：CTA 禁用文案 `Suspended · cancel only`，但 Current Orders 里 Pending 单保留 Cancel 按钮
+- 未知状态徽标 fallback 为灰色 `Unknown` + 禁单，绝不 fallback 成 `Trading`
+- 帮助函数：`getLifecycleBadge` / `isOrderingBlocked` / `getBlockedReason`
 
 ## LP 报价模式徽标
 
-订单簿标题右侧渲染 `lp_quote_mode` 徽标：`NORMAL`（默认，muted）/ `CONSERVATIVE`（黄）/ `HEDGE_ONLY`（primary）/ `CANCEL_ONLY`（红），tooltip 一句话解释。`DesktopOrderBook` 接受可选 `quoteMode` prop；spot 默认传 `NORMAL`，合约页不传即不渲染。
+订单簿标题右侧渲染 `lp_quote_mode` 徽标：`NORMAL` / `CONSERVATIVE` / `HEDGE_ONLY` / `CANCEL_ONLY`，tooltip 一句话解释。
 
-## 4 个时刻表常量
+## 时间字段数据驱动（技术对接 §4.1 / §12.2）
 
-在 `src/lib/usStockSessions.ts`：
+- `events.freeze_time` 与 `events.expected_settlement_time` **由后端按交易所日历写入**；前端只消费字段
+- `isPastFreeze(freezeAt, endDate)` 驱动冻结判定 + 自动撤单；`isInPreFreezeWindow(freezeAt, endDate)` 驱动 "Closing soon" 15 min 黄色 chip（display-only，不禁单）
+- Event Info 与下单区显示 `expected_settlement_time` 双时区（ET / 北京），例 "Settles & credits by ~16:15 ET / 04:15 北京"
+- `usStockSessions.ts` 保留 `FREEZE_MINUTES_BEFORE_CLOSE = 5` 与 `PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15` 仅作 **fallback**（字段缺失时兜底），已删除 `OPEN_COOLDOWN_*` / `SETTLEMENT_CREDIT_BY_ET`
+- 提前收盘日以后端字段值为准，禁止硬编码 16:00 / 16:30
 
-1. `PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15` ⚠️ PLACEHOLDER — 仅驱动 UI "Closing soon" 徽标（黄色 chip 挂在倒计时旁），**不禁单**
-2. `FREEZE_MINUTES_BEFORE_CLOSE = 5`（15:55 ET） ✅ **CONFIRMED per PRD §4.1** — TRADING 全程至 close−5min，此时进入 FROZEN；改动必须先改 PRD
-3. `OPEN_COOLDOWN` = 09:30–09:35 ET ⚠️ PLACEHOLDER
-4. `SETTLEMENT_CREDIT_BY_ET = "16:30"` ET ⚠️ PLACEHOLDER — 下单区与 Event Info 都要展示 "Settles & credits by ~16:30 ET"
+## 净仓模型（SIGNED_YES_SHARE，技术对接 §7 / §8）
 
-倒计时同时展示 ET + 北京时间（`formatDualTimezone`）。
+现货（`product_line='spot'`）采用**单净仓**（one-way net position），与合约的双向持仓不同：
+
+- 同事件 Up / Not Up 至多一边有仓位
+- 反向买入 x 份对面：`x ≤ q` → 冲减对面到 `q − x`（按 `1 − buyPrice` 结算实现盈亏并释放 margin）；`x > q` → 先平掉对面 q 份，再用剩余 `x − q` 开新仓 @ `buyPrice`
+- Sell 只在持有同侧净仓时允许；持对面 → 报错 "Buy back to reduce, don't sell"
+- 实现工具：`tradingService.ts` `fetchSpotSides` / `reduceOppositeLeg` / `openOrMergeSameSide`，被 `executeSpotTrade` 与 `fillSpotLimitOrder` BUY 分支共享
+- 合约（futures）双向持仓逻辑完全不动
+
+## 卖出回款（demo 简化）
+
+- 蓝图卖出直接回余额；toast 明示 `"Proceeds settle to balance (demo). Production: held as event pending cash until settlement."`
+- 代码带 `// DEMO-STATE: event_pending_cash 简化`
+- 正式版按 §7.2 应入 `event_pending_cash`，事件终态前不可提现
+
+## 下单面板补充（技术对接 §10.1）
+
+- 明细区行序：Cost / **Max win** / Max loss / Fee。Max win Buy = `qty − cost`；CTA 副标 `Max win $X`
+- Limit price 按 tick **0.01** 校验，非法时红字提示 + CTA 禁用
+
+
 
 
 ## 盘口模拟参数（LP PRD §6.1）

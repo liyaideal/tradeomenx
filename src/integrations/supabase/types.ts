@@ -423,7 +423,9 @@ export type Database = {
           description: string | null
           end_date: string | null
           event_subtype: string | null
+          expected_settlement_time: string | null
           external_links: Json | null
+          freeze_time: string | null
           icon: string
           id: string
           is_resolved: boolean
@@ -449,7 +451,9 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           event_subtype?: string | null
+          expected_settlement_time?: string | null
           external_links?: Json | null
+          freeze_time?: string | null
           icon?: string
           id: string
           is_resolved?: boolean
@@ -475,7 +479,9 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           event_subtype?: string | null
+          expected_settlement_time?: string | null
           external_links?: Json | null
+          freeze_time?: string | null
           icon?: string
           id?: string
           is_resolved?: boolean

@@ -69,15 +69,16 @@ export const SpotSection = ({ isMobile }: Props) => {
       >
         <div className="space-y-3">
           <SpotStatsHeader eventId="us-tsla-updown-20260715" eventName="Will TSLA close higher today?" basePrice={268.30} yesPrice={0.44} lifecycle="TRADING" />
-          <SpotStatsHeader eventId="us-nvda-updown-20260715" eventName="Will NVDA close higher today?" basePrice={182.45} yesPrice={0.57} lifecycle="CLOSE_MODE" />
+          <SpotStatsHeader eventId="us-nvda-updown-20260715" eventName="Will NVDA close higher today?" basePrice={182.45} yesPrice={0.57} lifecycle="SUSPENDED" />
           <SpotStatsHeader eventId="us-aapl-updown-20260715" eventName="Will AAPL close higher today?" basePrice={231.10} yesPrice={0.54} lifecycle="FROZEN" />
         </div>
       </SectionWrapper>
 
       <SectionWrapper
         id="spot-lifecycle"
-        title="Lifecycle badges (11 states)"
-        description="Full events.lifecycle_status enum per PRD: CREATED → EXTENDED_TRADING → OPEN_COOLDOWN → TRADING → CLOSE_MODE → FROZEN → SETTLING → SETTLED plus SUSPENDED / REVIEW / CANCELED. PRE_FREEZE is NOT a lifecycle state — it's a display-layer session hint only."
+        title="Lifecycle badges (9 states)"
+        description="events.event_status enum per 技术对接 v1.0 §2: CREATED / EXTENDED_TRADING / TRADING / FROZEN / SETTLING / SETTLED + SUSPENDED / REVIEW / CANCELED. OPEN_COOLDOWN and CLOSE_MODE were removed (QA-16: open protection lives in the LP quote profile). Only TRADING / EXTENDED_TRADING accept new orders; SUSPENDED is cancel-only."
+
       >
         <div className="flex flex-wrap gap-2">
           {Object.entries(LIFECYCLE_BADGE).map(([k, v]) => (
@@ -138,6 +139,25 @@ export const SpotSection = ({ isMobile }: Props) => {
           ))}
         </div>
       </SectionWrapper>
+
+      {/* Net-position auto-reduce (SIGNED_YES_SHARE) */}
+      <SectionWrapper
+        id="spot-net-position"
+        title="Net position (SIGNED_YES_SHARE) — auto reduce"
+        description="技术对接 §7: one-way net position per event. Buying the opposite outcome reduces the existing leg first (settled at implied 1 − price), then any surplus opens the new side. Only one leg exists per event at a time."
+      >
+        <div className="grid gap-3 md:grid-cols-3 text-xs">
+          <NetPosStep n={1} title="Start" body="Hold +10 sh Up @ $0.42" tone="green" />
+          <NetPosStep n={2} title="Buy 6 Not Up @ $0.55" body="Reduces Up by 6 sh at implied $0.45. Realized PnL = (0.45 − 0.42) × 6 = +$0.18." tone="yellow" />
+          <NetPosStep n={3} title="Result" body="Net +4 sh Up · no Not Up leg." tone="green" />
+        </div>
+        <div className="mt-3 grid gap-3 md:grid-cols-3 text-xs">
+          <NetPosStep n={1} title="Start" body="Hold +10 sh Up @ $0.42" tone="green" />
+          <NetPosStep n={2} title="Buy 15 Not Up @ $0.55" body="Closes Up fully (+$0.30 realized), opens +5 sh Not Up @ $0.55." tone="yellow" />
+          <NetPosStep n={3} title="Result" body="Net +5 sh Not Up · no Up leg." tone="red" />
+        </div>
+      </SectionWrapper>
+
 
       {/* Pending limit orders (Cancel / Reserved) */}
       <SectionWrapper
@@ -241,6 +261,33 @@ const SessionProfileCard = ({ profile }: { profile: SessionProfile }) => {
     </div>
   );
 };
+
+const NetPosStep = ({
+  n,
+  title,
+  body,
+  tone,
+}: {
+  n: number;
+  title: string;
+  body: string;
+  tone: "green" | "red" | "yellow";
+}) => {
+  const toneClass =
+    tone === "green"
+      ? "border-trading-green/40 bg-trading-green/5"
+      : tone === "red"
+        ? "border-trading-red/40 bg-trading-red/5"
+        : "border-trading-yellow/40 bg-trading-yellow/5";
+  return (
+    <div className={`rounded-lg border p-3 ${toneClass}`}>
+      <div className="text-[10px] text-muted-foreground font-mono">STEP {n}</div>
+      <div className="mt-1 font-semibold text-sm">{title}</div>
+      <div className="mt-1 text-[11px] text-muted-foreground">{body}</div>
+    </div>
+  );
+};
+
 
 
 const Stat = ({ label, value, valueClass, hint }: { label: string; value: string; valueClass?: string; hint?: string }) => (
