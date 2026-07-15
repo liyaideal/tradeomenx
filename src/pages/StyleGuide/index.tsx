@@ -196,6 +196,10 @@ const StyleGuideIndex = () => {
           <TabsContent value="worldcup" className="mt-0">
             <WorldCupSection isMobile={isMobile} />
           </TabsContent>
+
+          <TabsContent value="spot" className="mt-0">
+            <SpotSection isMobile={isMobile} />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
