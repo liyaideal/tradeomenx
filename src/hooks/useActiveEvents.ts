@@ -29,6 +29,11 @@ export interface DatabaseEvent {
   settled_at: string | null;
   created_at: string;
   updated_at: string;
+  // Pro / Spot product line extensions (2026-07-15)
+  product_lines: string[] | null;
+  event_subtype: string | null;
+  lifecycle_status: string | null;
+  base_price: number | null;
 }
 
 export interface DatabaseEventOption {
