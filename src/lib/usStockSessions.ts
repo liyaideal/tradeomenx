@@ -181,3 +181,100 @@ export const isInPreFreezeWindow = (endDate: Date | null | undefined): boolean =
   const ms = endDate.getTime() - Date.now();
   return ms > 0 && ms <= PRE_FREEZE_MINUTES_BEFORE_CLOSE * 60_000;
 };
+
+// -----------------------------------------------------------------
+// Session-aware LP profile (LP PRD §4.2 / §6.1).
+// Drives buildBook depth/spread/size and the quote-mode badge on
+// the /spot terminal.
+//   REGULAR              09:30–15:45 ET  → NORMAL       — 8..12 levels, spread ×1, size ×1
+//   EXTENDED_AFTER_HOURS 15:45–20:00 ET  → CONSERVATIVE — 3..7 levels,  spread ×2, size ×0.4
+//   OVERNIGHT            20:00–04:00 ET  → CONSERVATIVE — 3 levels,     spread ×3, size ×0.25
+//   PRE_MARKET           04:00–09:30 ET  → CONSERVATIVE — 3..7 levels,  spread ×2, size ×0.4
+// PLACEHOLDER: pending confirmation — cutoffs mirror the four session
+// timing constants above; adjust in one place if PM confirms.
+// -----------------------------------------------------------------
+export type SessionType =
+  | "REGULAR"
+  | "EXTENDED_AFTER_HOURS"
+  | "OVERNIGHT"
+  | "PRE_MARKET";
+
+export interface SessionProfile {
+  session: SessionType;
+  label: string;
+  quoteMode: "NORMAL" | "CONSERVATIVE" | "HEDGE_ONLY" | "CANCEL_ONLY";
+  levelsMin: number;
+  levelsMax: number;
+  spreadMult: number;
+  sizeMult: number;
+  tooltip: string;
+}
+
+export const SESSION_PROFILES: Record<SessionType, SessionProfile> = {
+  REGULAR: {
+    session: "REGULAR",
+    label: "Regular trading",
+    quoteMode: "NORMAL",
+    levelsMin: 8,
+    levelsMax: 12,
+    spreadMult: 1,
+    sizeMult: 1,
+    tooltip: "Regular US session (09:30–15:45 ET) — normal LP quoting.",
+  },
+  EXTENDED_AFTER_HOURS: {
+    session: "EXTENDED_AFTER_HOURS",
+    label: "After hours",
+    quoteMode: "CONSERVATIVE",
+    levelsMin: 3,
+    levelsMax: 7,
+    spreadMult: 2,
+    sizeMult: 0.4,
+    tooltip: "After-hours session — LP widens spreads and reduces size.",
+  },
+  OVERNIGHT: {
+    session: "OVERNIGHT",
+    label: "Overnight",
+    quoteMode: "CONSERVATIVE",
+    levelsMin: 3,
+    levelsMax: 3,
+    spreadMult: 3,
+    sizeMult: 0.25,
+    tooltip: "Overnight session (20:00–04:00 ET) — minimal depth, wide spreads.",
+  },
+  PRE_MARKET: {
+    session: "PRE_MARKET",
+    label: "Pre-market",
+    quoteMode: "CONSERVATIVE",
+    levelsMin: 3,
+    levelsMax: 7,
+    spreadMult: 2,
+    sizeMult: 0.4,
+    tooltip: "Pre-market session (04:00–09:30 ET) — LP widens spreads and reduces size.",
+  },
+};
+
+const etMinutesOfDay = (d: Date = new Date()): number => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const h = parseInt(parts.find((p) => p.type === "hour")?.value || "0", 10) % 24;
+  const m = parseInt(parts.find((p) => p.type === "minute")?.value || "0", 10);
+  return h * 60 + m;
+};
+
+/** Derive the current LP session profile from the wall clock (America/New_York). */
+export const getCurrentSession = (now: Date = new Date()): SessionProfile => {
+  const mins = etMinutesOfDay(now);
+  const REG_START = 9 * 60 + 30; // 09:30
+  const REG_END = 15 * 60 + 45; // 15:45 — matches CLOSE_MODE hand-off
+  const AH_END = 20 * 60; // 20:00
+  const PM_START = 4 * 60; // 04:00
+  if (mins >= REG_START && mins < REG_END) return SESSION_PROFILES.REGULAR;
+  if (mins >= REG_END && mins < AH_END) return SESSION_PROFILES.EXTENDED_AFTER_HOURS;
+  if (mins >= AH_END || mins < PM_START) return SESSION_PROFILES.OVERNIGHT;
+  return SESSION_PROFILES.PRE_MARKET;
+};
+
