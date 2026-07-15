@@ -213,16 +213,32 @@ const SpotTrading = () => {
 
   const yesLabel = sideLabels?.yes || "Yes";
   const noLabel = sideLabels?.no || "No";
-  const yesOpt = event.options.find((o) => o.label.endsWith("-yes")) || event.options[0];
-  const noOpt = event.options.find((o) => o.label.endsWith("-no")) || event.options[1];
+  const yesOpt =
+    event.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event.options[0];
+  const noOpt =
+    event.options.find((o) => /(^|[-_ ])no$/i.test(o.label)) ||
+    event.options.find((o) => o.id !== yesOpt?.id) ||
+    event.options[1];
+
+  const isYesSelected = selectedOptionId === yesOpt?.id;
+  const outcomeLabel = isYesSelected ? yesLabel : noLabel;
 
   return (
     <div className={cn("min-h-screen bg-background", isMobile && "pb-24")}>
       {isMobile ? (
         <MobileHeader showBack backTo="/events?pl=spot" title="Spot" />
       ) : (
-        <DesktopHeader />
+        <EventsDesktopHeader />
       )}
+
+      <SpotStatsHeader
+        eventId={event.id}
+        eventName={event.name}
+        basePrice={event.base_price != null ? Number(event.base_price) : null}
+        yesPrice={yesOpt ? Number(yesOpt.price) : null}
+        lifecycle={lifecycle}
+      />
+
 
       <main className={cn("mx-auto w-full space-y-4", isMobile ? "px-4 py-4" : "max-w-5xl px-8 py-8")}>
         {/* Header */}
