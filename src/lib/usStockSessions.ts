@@ -20,7 +20,9 @@ export const PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15; // PLACEHOLDER: pending confi
 
 // Minutes before 16:00 ET when new orders are hard-frozen.
 // freeze_time = close − FREEZE_MINUTES_BEFORE_CLOSE  → 15:55 ET.
-export const FREEZE_MINUTES_BEFORE_CLOSE = 5; // PLACEHOLDER: pending confirmation
+// CONFIRMED per PRD §4.1: TRADING = 09:30 → close−5min; FROZEN at close−5min.
+export const FREEZE_MINUTES_BEFORE_CLOSE = 5;
+
 
 // Open cooldown window (ET) at 09:30–09:35 when trading is disabled
 // while opening auction prints settle.
