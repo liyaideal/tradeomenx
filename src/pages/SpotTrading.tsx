@@ -1240,7 +1240,7 @@ export default function SpotTrading() {
                     )}
                   </div>
                 </TooltipContent>
-              </Tooltip>
+              </Tooltip></TooltipProvider>
             </div>
           </div>
         </div>
