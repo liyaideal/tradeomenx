@@ -297,7 +297,8 @@ export default function SpotTrading() {
   // end_date; the "settles by …" caption below carries the settlement info.
   const countdownTarget = freezeAt ?? endDate;
   const countdown = useCountdown(countdownTarget);
-  const tz = endDate ? formatDualTimezone(endDate) : null;
+  // Note: dual-timezone (ET/Beijing) chips removed from the header per DESIGN.md §7.
+  // Local-time (browser-detected) hint now lives inside the schedule ⓘ tooltip only.
 
   // DEMO-STATE: 自动态显示由前端时钟推导，正式版由后端状态机驱动。
   // Raw DB value (`dbLifecycle`) still drives ordering/blocking; the display
