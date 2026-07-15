@@ -48,9 +48,9 @@ import {
   getLifecycleBadge,
   isOrderingBlocked,
   getBlockedReason,
-  // formatDualTimezone removed — header no longer renders Beijing time.
+  // formatDualTimezone / formatBeijingTime removed — header + settlement
+  // captions now render ET only; local time lives in the schedule ⓘ tooltip.
   formatEtTime,
-  formatBeijingTime,
   getCurrentSession,
   isInPreFreezeWindow,
   isPastFreeze,
