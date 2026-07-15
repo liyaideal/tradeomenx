@@ -242,7 +242,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                   onToggleExpand={() => toggleExpand(row.id)}
                   isWatched={isWatched(row.eventId)}
                   onToggleWatch={(e) => onToggleWatch(row.eventId, e)}
-                  onClick={() => navigate(`/trade?event=${row.eventId}`)}
+                  onClick={() => navigate(row.productLines?.includes("spot") ? `/spot?event=${row.eventId}` : `/trade?event=${row.eventId}`)}
                   chgTimeframe={chgTimeframe}
                 />
                 {isExp && (
@@ -274,7 +274,7 @@ export const MarketListView = ({ markets, isWatched, onToggleWatch, chgTimeframe
                       <ChildRowContent
                         key={child.id}
                         child={child}
-                        onClick={() => navigate(`/trade?event=${row.eventId}`)}
+                        onClick={() => navigate(row.productLines?.includes("spot") ? `/spot?event=${row.eventId}` : `/trade?event=${row.eventId}`)}
                         chgTimeframe={chgTimeframe}
                       />
                     ))}
