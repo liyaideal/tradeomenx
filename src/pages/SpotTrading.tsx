@@ -1197,15 +1197,30 @@ export default function SpotTrading() {
           <Badge variant="outline" className="text-[9px]">SPOT</Badge>
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-          <span>Closes in</span>
-          <span className="text-trading-red font-mono font-medium">{countdown}</span>
+          <span className={cn(
+            "w-1.5 h-1.5 rounded-full",
+            countdown.urgency === "red" && "bg-trading-red animate-pulse",
+            countdown.urgency === "yellow" && "bg-trading-yellow",
+            countdown.urgency === "muted" && "bg-muted-foreground",
+          )} />
+          <span>Trading ends in</span>
+          <span className={cn(
+            "font-mono font-medium",
+            countdown.urgency === "red" && "text-trading-red animate-pulse",
+            countdown.urgency === "yellow" && "text-trading-yellow",
+            countdown.urgency === "muted" && "text-foreground",
+          )}>{countdown.text}</span>
           {closingSoon && lifecycle === "TRADING" && (
             <span className="px-1 rounded bg-trading-yellow/15 text-trading-yellow text-[10px]">
               Closing soon
             </span>
           )}
         </div>
+        {settleEtOnly && (
+          <div className="text-[10px] text-muted-foreground mt-0.5">
+            Settles at {settleEtOnly} · credits by ~{settleEtOnly}
+          </div>
+        )}
       </div>
       <button onClick={() => toggleWatch(event.id)} className="p-1.5 flex-shrink-0">
         <Star
