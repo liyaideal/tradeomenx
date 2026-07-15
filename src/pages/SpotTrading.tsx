@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MobileHeader } from "@/components/MobileHeader";
-import { DesktopHeader } from "@/components/DesktopHeader";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { executeSpotTrade } from "@/services/tradingService";
 import { parseSideLabels } from "@/lib/eventUtils";
@@ -81,7 +82,9 @@ const SpotTrading = () => {
       if (!alive) return;
       if (e) {
         setEvent({ ...e, options: opts || [] });
-        const first = (opts || [])[0];
+        const list = opts || [];
+        const first =
+          list.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || list[0];
         if (first) {
           setSelectedOptionId(first.id);
           setPrice(String(Number(first.price).toFixed(2)));
@@ -212,16 +215,32 @@ const SpotTrading = () => {
 
   const yesLabel = sideLabels?.yes || "Yes";
   const noLabel = sideLabels?.no || "No";
-  const yesOpt = event.options.find((o) => o.label.endsWith("-yes")) || event.options[0];
-  const noOpt = event.options.find((o) => o.label.endsWith("-no")) || event.options[1];
+  const yesOpt =
+    event.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event.options[0];
+  const noOpt =
+    event.options.find((o) => /(^|[-_ ])no$/i.test(o.label)) ||
+    event.options.find((o) => o.id !== yesOpt?.id) ||
+    event.options[1];
+
+  const isYesSelected = selectedOptionId === yesOpt?.id;
+  const outcomeLabel = isYesSelected ? yesLabel : noLabel;
 
   return (
     <div className={cn("min-h-screen bg-background", isMobile && "pb-24")}>
       {isMobile ? (
         <MobileHeader showBack backTo="/events?pl=spot" title="Spot" />
       ) : (
-        <DesktopHeader />
+        <EventsDesktopHeader />
       )}
+
+      <SpotStatsHeader
+        eventId={event.id}
+        eventName={event.name}
+        basePrice={event.base_price != null ? Number(event.base_price) : null}
+        yesPrice={yesOpt ? Number(yesOpt.price) : null}
+        lifecycle={lifecycle}
+      />
+
 
       <main className={cn("mx-auto w-full space-y-4", isMobile ? "px-4 py-4" : "max-w-5xl px-8 py-8")}>
         {/* Header */}
@@ -374,15 +393,20 @@ const SpotTrading = () => {
             </div>
 
             <Button
-              className="w-full h-11"
+              className={cn(
+                "w-full h-11 text-white",
+                isYesSelected
+                  ? "bg-trading-green hover:bg-trading-green/90"
+                  : "bg-trading-red hover:bg-trading-red/90",
+              )}
               disabled={submitting || blocked || amt <= 0}
               onClick={handleSubmit}
-              variant={side === "buy" ? "default" : "destructive"}
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> :
                 blocked ? "Market frozen" :
-                `${side === "buy" ? "Buy" : "Sell"} ${selectedOption?.label.endsWith("-yes") ? yesLabel : noLabel}`}
+                `${side === "buy" ? "Buy" : "Sell"} ${outcomeLabel}`}
             </Button>
+
           </div>
         </div>
       </main>

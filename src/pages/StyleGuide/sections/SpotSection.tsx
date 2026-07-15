@@ -2,9 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LIFECYCLE_BADGE } from "@/lib/usStockSessions";
+import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { SectionWrapper } from "../components/SectionWrapper";
 
 interface Props { isMobile: boolean }
+
 
 export const SpotSection = ({ isMobile }: Props) => {
   const buildBook = (mid: number, seed: number) => {
@@ -23,7 +25,39 @@ export const SpotSection = ({ isMobile }: Props) => {
 
   return (
     <div className="space-y-8">
+      {/* Spot stats header */}
+      <SectionWrapper
+        id="spot-stats-header"
+        title="Spot stats header"
+        description="Ticker · Prior Close · Last (indicative) · Yes Price · Session. NO Index/Funding/OI/Perpetual."
+      >
+        <div className="space-y-3">
+          <SpotStatsHeader
+            eventId="us-tsla-updown-20260715"
+            eventName="Will TSLA close higher today? (Jul 15)"
+            basePrice={268.30}
+            yesPrice={0.44}
+            lifecycle="TRADING"
+          />
+          <SpotStatsHeader
+            eventId="us-nvda-updown-20260715"
+            eventName="Will NVDA close higher today? (Jul 15)"
+            basePrice={182.45}
+            yesPrice={0.57}
+            lifecycle="PRE_FREEZE"
+          />
+          <SpotStatsHeader
+            eventId="us-aapl-updown-20260715"
+            eventName="Will AAPL close higher today? (Jul 15)"
+            basePrice={231.10}
+            yesPrice={0.54}
+            lifecycle="FROZEN"
+          />
+        </div>
+      </SectionWrapper>
+
       {/* Lifecycle badges */}
+
       <SectionWrapper id="spot-lifecycle" title="Spot lifecycle badges" description="Every US-stock daily up/down state">
         <div className="flex flex-wrap gap-2">
           {Object.entries(LIFECYCLE_BADGE).map(([k, v]) => (
