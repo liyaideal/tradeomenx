@@ -68,24 +68,28 @@ const FIRST_LEVEL_SIZE = 200;
 const SIZE_DECAY = 0.82;
 const JITTER_PCT = 0.15;
 
-const buildBook = (mid: number, seed: number) => {
+const buildBook = (mid: number, seed: number, profile: SessionProfile) => {
   const rand = (i: number) => {
     const x = Math.sin(seed * 13.37 + i * 7.11) * 10000;
     return x - Math.floor(x); // 0..1
   };
-  // 8..12 levels, deterministic per seed
-  const levels = 8 + Math.floor(rand(0) * 5);
+  const range = Math.max(1, profile.levelsMax - profile.levelsMin + 1);
+  const levels = profile.levelsMin + Math.floor(rand(0) * range);
   const clampedMid = Math.min(0.98, Math.max(0.02, mid || 0.5));
+
+  const minHalfSpread = MIN_HALF_SPREAD * profile.spreadMult;
+  const levelStep = LEVEL_STEP * profile.spreadMult;
+  const firstSize = FIRST_LEVEL_SIZE * profile.sizeMult;
 
   const asks: { price: string; amount: string; total: string }[] = [];
   const bids: { price: string; amount: string; total: string }[] = [];
   let cumA = 0;
   let cumB = 0;
   for (let i = 0; i < levels; i++) {
-    const offset = MIN_HALF_SPREAD + LEVEL_STEP * i;
+    const offset = minHalfSpread + levelStep * i;
     const ap = Math.min(0.99, Math.max(0.01, clampedMid + offset));
     const bp = Math.min(0.99, Math.max(0.01, clampedMid - offset));
-    const base = FIRST_LEVEL_SIZE * Math.pow(SIZE_DECAY, i);
+    const base = firstSize * Math.pow(SIZE_DECAY, i);
     const jitterA = 1 + (rand(i * 2 + 1) - 0.5) * 2 * JITTER_PCT;
     const jitterB = 1 + (rand(i * 2 + 2) - 0.5) * 2 * JITTER_PCT;
     const aAmt = Math.max(1, Math.round(base * jitterA));
@@ -97,6 +101,7 @@ const buildBook = (mid: number, seed: number) => {
   }
   return { asks, bids };
 };
+
 
 // Human 24h volume mock — deterministic from event id, so it stays stable while
 // the price ticks around. DEMO-STATE.
