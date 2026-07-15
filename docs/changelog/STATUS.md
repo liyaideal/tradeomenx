@@ -19,6 +19,18 @@
 
 ---
 
+## 2026-07-15 — /spot 与技术对接 v1.0 对齐
+
+源文档：[2026-07-15-spot-tech-alignment.md](./2026-07-15-spot-tech-alignment.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/pro-spot-us-stocks`
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| SPA1 | 现货净仓（SIGNED_YES_SHARE）：反向买入自动冲减对面，超出部分开新仓；sell 只在持有同侧净仓时允许 | `src/services/tradingService.ts` `reduceOppositeLeg` / `executeSpotTrade` / `fillSpotLimitOrder`（BUY 路径） · 文档 §3 | ⬜ | 持 +10 Up 时买 6 Not Up → 净 +4 Up 且不再有 Not Up 行；买 15 Not Up → 净 +5 Not Up 且不再有 Up 行；仅持 Up 时 sell Not Up 报错 | 冲减用 `1 − buyPrice` 作对面 mark 的 demo 简化 |
+| SPA2 | 时间字段消费：`events.freeze_time` 驱动冻结判定与 "Closing soon"；`events.expected_settlement_time` 驱动结算行；16:30 占位删除 | `src/lib/usStockSessions.ts`（`isPastFreeze` / `isInPreFreezeWindow`） · `src/pages/SpotTrading.tsx` | ⬜ | Event Info 和下单区结算行显示实际字段值（16:15 ET / 04:15 北京）；改事件 freeze_time 到未来 10 分钟，Pending 到时自动撤销 | 提前收盘日字段值来自后端交易所日历 |
+| SPA3 | 状态机 9 态：删 OPEN_COOLDOWN / CLOSE_MODE；允许下单仅 TRADING / EXTENDED_TRADING；SUSPENDED = cancel-only（Pending 保留 Cancel） | `src/lib/usStockSessions.ts`（LIFECYCLE_BADGE / ORDERABLE_STATES / getBlockedReason） · `/style-guide` Spot 段 | ⬜ | 手动改 lifecycle=SUSPENDED，CTA 文案 "Suspended · cancel only" 且禁用，但 Orders 里 Pending 仍可 Cancel；CREATED 文案 "Not yet open" | |
+
+
+
 ## 2026-07-15 — Pro 现货产品线上线：美股当日涨跌试点
 
 源文档：[2026-07-15-pro-spot-us-stocks.md](./2026-07-15-pro-spot-us-stocks.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/pro-spot-us-stocks`

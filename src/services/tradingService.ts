@@ -456,6 +456,120 @@ export interface SpotTradeData {
   quantity: number;
 }
 
+// 技术对接 §7: SIGNED_YES_SHARE net position, one-way mode.
+// 同一事件下 Up / Not Up 至多一边有仓位；反向买入自动冲减对面仓位，
+// 再用剩余数量开新仓。fetchSpotSides 在写入前后读同一事件的两侧持仓。
+const fetchSpotSides = async (userId: string, eventName: string, optionId: string) => {
+  const { data, error } = await supabase
+    .from("positions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("event_name", eventName)
+    .eq("product_line", "spot")
+    .eq("side", "long")
+    .eq("status", "Open");
+  if (error) throw error;
+  const same = (data || []).find((p) => p.option_id === optionId) || null;
+  const opposite = (data || []).find((p) => p.option_id !== optionId) || null;
+  return { same, opposite };
+};
+
+// Reduce/close an opposite spot leg at the implied opposite mark (1 - price)
+// for binary pair. Returns realized cash back to the buyer (margin released +
+// realized PnL on the leg).
+const reduceOppositeLeg = async (opposite: any, buyPrice: number, qty: number) => {
+  const oppSize = Number(opposite.size);
+  const oppMargin = Number(opposite.margin);
+  const oppEntry = Number(opposite.entry_price);
+  const impliedOppMark = Math.min(0.99, Math.max(0.01, 1 - buyPrice));
+  const closeQty = Math.min(qty, oppSize);
+  const marginReleased = oppSize > 0 ? (oppMargin * closeQty) / oppSize : 0;
+  const realizedPnl = (impliedOppMark - oppEntry) * closeQty;
+  const remainingSize = oppSize - closeQty;
+  const isClose = remainingSize <= 0.000001;
+  await supabase
+    .from("positions")
+    .update(
+      isClose
+        ? {
+            status: "Closed",
+            mark_price: impliedOppMark,
+            pnl: (Number(opposite.pnl) || 0) + realizedPnl,
+            closed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        : {
+            size: remainingSize,
+            margin: oppMargin - marginReleased,
+            mark_price: impliedOppMark,
+            pnl: (Number(opposite.pnl) || 0) + realizedPnl,
+            updated_at: new Date().toISOString(),
+          },
+    )
+    .eq("id", opposite.id);
+  return {
+    closedQty: closeQty,
+    marginReleased,
+    realizedPnl,
+    remainingSize,
+    fullyClosed: isClose,
+  };
+};
+
+// Open or merge a same-side spot long (weighted avg entry).
+const openOrMergeSameSide = async (
+  userId: string,
+  same: any | null,
+  data: SpotTradeData,
+  qty: number,
+  tradeId: string,
+) => {
+  const notional = data.price * qty;
+  if (same) {
+    const oldSize = Number(same.size);
+    const oldEntry = Number(same.entry_price);
+    const newSize = oldSize + qty;
+    const newMargin = Number(same.margin) + notional;
+    const weightedEntry = (oldSize * oldEntry + qty * data.price) / newSize;
+    const { data: updated } = await supabase
+      .from("positions")
+      .update({
+        size: newSize,
+        margin: newMargin,
+        entry_price: weightedEntry,
+        mark_price: data.price,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", same.id)
+      .select()
+      .single();
+    return { position: updated, intent: "add" as const };
+  }
+  const { data: created, error: posError } = await supabase
+    .from("positions")
+    .insert({
+      user_id: userId,
+      trade_id: tradeId,
+      event_name: data.eventName,
+      option_label: data.optionLabel,
+      option_id: data.optionId,
+      side: "long",
+      entry_price: data.price,
+      mark_price: data.price,
+      size: qty,
+      margin: notional,
+      leverage: 1,
+      pnl: 0,
+      pnl_percent: 0,
+      status: "Open",
+      product_line: "spot",
+    })
+    .select()
+    .single();
+  if (posError) throw posError;
+  return { position: created, intent: "open" as const };
+};
+
 export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
   const parsed = SpotTradeSchema.safeParse(data);
   if (!parsed.success) {
@@ -464,25 +578,18 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
   const v = parsed.data;
   const notional = v.price * v.quantity;
 
-  // Look for an existing open spot long on the same option
-  const { data: existing, error: findError } = await supabase
-    .from("positions")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("option_id", v.optionId)
-    .eq("product_line", "spot")
-    .eq("side", "long")
-    .eq("status", "Open")
-    .maybeSingle();
-  if (findError) throw findError;
+  const { same, opposite } = await fetchSpotSides(userId, v.eventName, v.optionId);
 
+  // -------- SELL: net-position check — only sellable if same-side net exists --------
   if (v.side === "sell") {
-    // Sell = reduce/close an existing long. No shorting allowed.
-    if (!existing || Number(existing.size) < v.quantity - 0.000001) {
+    // 技术对接 §7: 净仓方向校验。反向净仓存在时禁止 sell（应改为 buy 冲减）。
+    if (opposite && !same) {
+      throw new Error("You hold the opposite outcome. Buy back to reduce, don't sell.");
+    }
+    if (!same || Number(same.size) < v.quantity - 0.000001) {
       throw new Error("Not enough spot shares to sell. Short selling is not supported.");
     }
 
-    // Record the sell trade
     const { data: trade, error: tradeError } = await supabase
       .from("trades")
       .insert({
@@ -504,36 +611,40 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
       .single();
     if (tradeError) throw tradeError;
 
-    const existingSize = Number(existing.size);
-    const existingMargin = Number(existing.margin);
-    const entryPrice = Number(existing.entry_price);
+    const existingSize = Number(same.size);
+    const existingMargin = Number(same.margin);
+    const entryPrice = Number(same.entry_price);
     const closeQty = Math.min(v.quantity, existingSize);
     const marginReleased = existingSize > 0 ? (existingMargin * closeQty) / existingSize : 0;
     const realizedPnl = (v.price - entryPrice) * closeQty;
     const remainingSize = existingSize - closeQty;
-    const remainingMargin = existingMargin - marginReleased;
     const isClose = remainingSize <= 0.000001;
 
     const { data: updatedPosition } = await supabase
       .from("positions")
-      .update(isClose ? {
-        status: "Closed",
-        mark_price: v.price,
-        pnl: (Number(existing.pnl) || 0) + realizedPnl,
-        closed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      } : {
-        size: remainingSize,
-        margin: remainingMargin,
-        mark_price: v.price,
-        pnl: (Number(existing.pnl) || 0) + realizedPnl,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", existing.id)
+      .update(
+        isClose
+          ? {
+              status: "Closed",
+              mark_price: v.price,
+              pnl: (Number(same.pnl) || 0) + realizedPnl,
+              closed_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }
+          : {
+              size: remainingSize,
+              margin: existingMargin - marginReleased,
+              mark_price: v.price,
+              pnl: (Number(same.pnl) || 0) + realizedPnl,
+              updated_at: new Date().toISOString(),
+            },
+      )
+      .eq("id", same.id)
       .select()
       .single();
 
-    // Spot proceeds = price × qty (this is what returns to the wallet)
+    // DEMO-STATE: event_pending_cash 简化 — 卖出回款直接进钱包；
+    // 正式版按 §7.2 应入 event_pending_cash，事件终态前不可提现。
     const proceeds = v.price * closeQty;
     return {
       trade,
@@ -543,7 +654,7 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
     };
   }
 
-  // BUY
+  // -------- BUY: net-position auto-reduce, then open remainder --------
   const { data: trade, error: tradeError } = await supabase
     .from("trades")
     .insert({
@@ -565,58 +676,38 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
     .single();
   if (tradeError) throw tradeError;
 
-  let position;
-  if (existing) {
-    const oldSize = Number(existing.size);
-    const oldEntry = Number(existing.entry_price);
-    const newSize = oldSize + v.quantity;
-    const newMargin = Number(existing.margin) + notional;
-    const weightedEntry = (oldSize * oldEntry + v.quantity * v.price) / newSize;
-    const { data: updated } = await supabase
-      .from("positions")
-      .update({
-        size: newSize,
-        margin: newMargin,
-        entry_price: weightedEntry,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", existing.id)
-      .select()
-      .single();
-    position = updated;
-  } else {
-    const { data: created, error: posError } = await supabase
-      .from("positions")
-      .insert({
-        user_id: userId,
-        trade_id: trade.id,
-        event_name: v.eventName,
-        option_label: v.optionLabel,
-        option_id: v.optionId,
-        side: "long",
-        entry_price: v.price,
-        mark_price: v.price,
-        size: v.quantity,
-        margin: notional,
-        leverage: 1,
-        pnl: 0,
-        pnl_percent: 0,
-        status: "Open",
-        product_line: "spot",
-      })
-      .select()
-      .single();
-    if (posError) throw posError;
-    position = created;
+  let releasedFromOpposite = 0;
+  let remainingQty = v.quantity;
+  let intent: "open" | "add" | "reduce" | "close" = same ? "add" : "open";
+
+  if (opposite) {
+    const r = await reduceOppositeLeg(opposite, v.price, v.quantity);
+    releasedFromOpposite = r.marginReleased + r.realizedPnl;
+    remainingQty = v.quantity - r.closedQty;
+    intent = r.fullyClosed && remainingQty > 0 ? "open" : "reduce";
   }
+
+  let position = opposite ?? null;
+  if (remainingQty > 0.000001) {
+    const opened = await openOrMergeSameSide(userId, same, v as SpotTradeData, remainingQty, trade.id);
+    position = opened.position;
+    intent = opposite ? "reduce" : opened.intent;
+  }
+
+  const spentOnNewSide = Math.max(0, remainingQty) * v.price;
+  // Net cash impact: full notional debited up front, opposite refund credited back.
+  const balanceDelta = -notional + releasedFromOpposite + (v.quantity - remainingQty) * v.price;
+  // Re-derive by intent = -spentOnNewSide + releasedFromOpposite (equivalent, kept explicit for review):
+  void balanceDelta;
 
   return {
     trade,
     position,
-    intent: (existing ? "add" : "open") as "add" | "open",
-    balanceDelta: -notional,
+    intent,
+    balanceDelta: -spentOnNewSide + releasedFromOpposite,
   };
 };
+
 
 // -----------------------------------------------------------------
 // SPOT limit-order simulation (Pending → touch fill → Filled/Cancelled).
@@ -710,57 +801,82 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
   const q = Number(trade.quantity);
   const price = Number(trade.price);
 
-  // Find matching open spot long on the same option.
-  const { data: existing } = await supabase
+  // 技术对接 §7: net position — consider BOTH sides of the event, not just
+  // the option being traded.
+  const { data: allSides } = await supabase
     .from("positions")
     .select("*")
     .eq("user_id", userId)
     .eq("event_name", trade.event_name)
-    .eq("option_label", trade.option_label)
     .eq("product_line", "spot")
     .eq("side", "long")
-    .eq("status", "Open")
-    .maybeSingle();
+    .eq("status", "Open");
+  const same = (allSides || []).find((p) => p.option_label === trade.option_label) || null;
+  const opposite = (allSides || []).find((p) => p.option_label !== trade.option_label) || null;
 
   if (trade.side === "buy") {
-    if (existing) {
-      const oldSize = Number(existing.size);
-      const oldEntry = Number(existing.entry_price);
-      const newSize = oldSize + q;
-      const weightedEntry = (oldSize * oldEntry + q * price) / newSize;
-      await supabase
-        .from("positions")
-        .update({
-          size: newSize,
-          margin: Number(existing.margin) + Number(trade.amount),
-          entry_price: weightedEntry,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", existing.id);
-    } else {
-      await supabase.from("positions").insert({
-        user_id: userId,
-        trade_id: trade.id,
-        event_name: trade.event_name,
-        option_label: trade.option_label,
-        side: "long",
-        entry_price: price,
-        mark_price: price,
-        size: q,
-        margin: Number(trade.amount),
-        leverage: 1,
-        pnl: 0,
-        pnl_percent: 0,
-        status: "Open",
-        product_line: "spot",
-      });
+    // Buy → first reduce any opposite leg (net position), then open/merge same side.
+    let releasedFromOpposite = 0;
+    let remainingQty = q;
+    if (opposite) {
+      const r = await reduceOppositeLeg(opposite, price, q);
+      releasedFromOpposite = r.marginReleased + r.realizedPnl;
+      remainingQty = q - r.closedQty;
+    }
+    if (remainingQty > 0.000001) {
+      const remainingNotional = remainingQty * price;
+      if (same) {
+        const oldSize = Number(same.size);
+        const oldEntry = Number(same.entry_price);
+        const newSize = oldSize + remainingQty;
+        const weightedEntry = (oldSize * oldEntry + remainingQty * price) / newSize;
+        await supabase
+          .from("positions")
+          .update({
+            size: newSize,
+            margin: Number(same.margin) + remainingNotional,
+            entry_price: weightedEntry,
+            mark_price: price,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", same.id);
+      } else {
+        await supabase.from("positions").insert({
+          user_id: userId,
+          trade_id: trade.id,
+          event_name: trade.event_name,
+          option_label: trade.option_label,
+          side: "long",
+          entry_price: price,
+          mark_price: price,
+          size: remainingQty,
+          margin: remainingNotional,
+          leverage: 1,
+          pnl: 0,
+          pnl_percent: 0,
+          status: "Open",
+          product_line: "spot",
+        });
+      }
     }
     await supabase
       .from("trades")
       .update({ status: "Filled", closed_at: new Date().toISOString() })
       .eq("id", trade.id);
-    return { balanceDelta: 0, intent: (existing ? "add" : "open") as "add" | "open" };
+    // Reserved cash was `q × price`. Actual new-side spend = remainingQty × price;
+    // refund the rest (fully-reduced portion) plus the released cash from opposite.
+    const reservedRefund = (q - remainingQty) * price + releasedFromOpposite;
+    return {
+      balanceDelta: reservedRefund,
+      intent: (opposite && remainingQty <= 0.000001 ? "reduce" : same || opposite ? "add" : "open") as
+        | "add"
+        | "open"
+        | "reduce",
+    };
   }
+
+  const existing = same; // sell uses only same-side
+
 
   // SELL fill
   if (!existing || Number(existing.size) < q - 0.000001) {
