@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { LIFECYCLE_BADGE } from "@/lib/usStockSessions";
+import { getLifecycleBadge } from "@/lib/usStockSessions";
 
 /**
  * SPOT products only — US-stock daily up/down.
