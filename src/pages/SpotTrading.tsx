@@ -149,23 +149,38 @@ const mock24hVolume = (eventId: string) => {
 const SPOT_FEE_RATE = 0;
 
 // ---- Countdown ----
-const useCountdown = (endTime: Date | null) => {
-  const [txt, setTxt] = useState("");
+// Returns HH:MM:SS text plus a color bucket based on remaining time:
+//   > 1h        → muted (calm)
+//   1h .. 15m   → yellow (warm-up)
+//   ≤ 15m       → red   (urgent, pulses per-second)
+type CountdownUrgency = "muted" | "yellow" | "red";
+const useCountdown = (endTime: Date | null): { text: string; urgency: CountdownUrgency; diffMs: number } => {
+  const [state, setState] = useState<{ text: string; urgency: CountdownUrgency; diffMs: number }>({
+    text: "",
+    urgency: "muted",
+    diffMs: Infinity,
+  });
   useEffect(() => {
     if (!endTime) return;
     const tick = () => {
       const diff = endTime.getTime() - Date.now();
-      if (diff <= 0) return setTxt("00:00:00");
+      if (diff <= 0) {
+        setState({ text: "00:00:00", urgency: "red", diffMs: 0 });
+        return;
+      }
       const h = Math.floor(diff / 3_600_000);
       const m = Math.floor((diff % 3_600_000) / 60_000);
       const s = Math.floor((diff % 60_000) / 1_000);
-      setTxt(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+      const text = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      const urgency: CountdownUrgency =
+        diff <= 15 * 60_000 ? "red" : diff <= 60 * 60_000 ? "yellow" : "muted";
+      setState({ text, urgency, diffMs: diff });
     };
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
   }, [endTime]);
-  return txt;
+  return state;
 };
 
 // ---- Indicative last price (mock walk around base_price) ----
