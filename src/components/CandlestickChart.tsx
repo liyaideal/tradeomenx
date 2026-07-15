@@ -98,7 +98,23 @@ const generateMockCandles = (timeframe: Timeframe, basePrice: number = 0.12, cou
     });
     price = close;
   }
-  
+
+  // Anchor the tape to the live mark: shift every candle so the last close
+  // equals `basePrice`. Preserves random-walk shape without leaving the
+  // chart price disconnected from the terminal's current price.
+  if (candles.length > 0) {
+    const lastClose = candles[candles.length - 1].close;
+    const shift = basePrice - lastClose;
+    if (Math.abs(shift) > 1e-9) {
+      for (const c of candles) {
+        c.open += shift;
+        c.close += shift;
+        c.high += shift;
+        c.low += shift;
+      }
+    }
+  }
+
   return candles;
 };
 
