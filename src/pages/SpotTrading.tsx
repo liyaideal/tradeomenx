@@ -803,11 +803,13 @@ export default function SpotTrading() {
               .map((line, i) => (
                 <li key={i}>{line}</li>
               ))}
+            <li>All open orders are automatically cancelled and refunded at freeze (5 min before close).</li>
           </ul>
         ) : (
           <p className="italic">Rules not yet published for this market.</p>
         )}
       </div>
+
       <div className="text-xs text-muted-foreground">
         Settles &amp; credits by ~{SETTLEMENT_CREDIT_BY_ET} ET.
       </div>
