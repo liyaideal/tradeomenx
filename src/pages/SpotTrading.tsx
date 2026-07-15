@@ -319,6 +319,13 @@ export default function SpotTrading() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOptionId]);
 
+  // ---- Marketability (DEMO-STATE) ----
+  // Buy limit ≥ best ask → immediate fill. Buy limit < best ask → Pending.
+  // Sell limit ≤ best bid → immediate fill. Sell limit > best bid → Pending.
+  const isLimitMarketable =
+    side === "buy" ? effectivePrice >= bestAsk : effectivePrice <= bestBid;
+  const willBePending = orderType === "Limit" && !isLimitMarketable;
+
   // ---- Submit ----
   const handleSubmit = async () => {
     if (!user) {
@@ -326,7 +333,7 @@ export default function SpotTrading() {
       return;
     }
     if (!selectedOption) return;
-    if (blocked) return toast.error("Market is frozen — no new orders.");
+    if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (amt <= 0 || effectivePrice <= 0 || effectivePrice >= 1)
       return toast.error("Enter a valid price and amount.");
     if (side === "sell" && qty > heldQty + 1e-6)
@@ -335,26 +342,98 @@ export default function SpotTrading() {
 
     setSubmitting(true);
     try {
-      const res = await executeSpotTrade(user.id, {
-        eventName: event!.name,
-        optionLabel: selectedOption.label,
-        optionId: selectedOption.id,
-        side,
-        price: effectivePrice,
-        quantity: qty,
-      });
-      if (res.balanceDelta < 0) await deductBalance(-res.balanceDelta);
-      else if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
-      toast.success(side === "buy" ? "Spot buy filled" : "Spot sell filled");
+      if (willBePending) {
+        // Place Pending limit order — cash reserved (buy) up front.
+        await placeSpotLimitOrder(user.id, {
+          eventName: event!.name,
+          optionLabel: selectedOption.label,
+          optionId: selectedOption.id,
+          side,
+          price: effectivePrice,
+          quantity: qty,
+        });
+        if (side === "buy") await deductBalance(effectivePrice * qty);
+        toast.success(
+          side === "buy"
+            ? `Limit buy placed · $${(effectivePrice * qty).toFixed(2)} reserved`
+            : "Limit sell placed",
+        );
+      } else {
+        const res = await executeSpotTrade(user.id, {
+          eventName: event!.name,
+          optionLabel: selectedOption.label,
+          optionId: selectedOption.id,
+          side,
+          price: effectivePrice,
+          quantity: qty,
+        });
+        if (res.balanceDelta < 0) await deductBalance(-res.balanceDelta);
+        else if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+        toast.success(side === "buy" ? "Spot buy filled" : "Spot sell filled");
+      }
       setAmount("");
       setSliderValue([0]);
       refetchPositions();
+      refetchOrders();
     } catch (err: any) {
       toast.error(err?.message || "Trade failed");
     } finally {
       setSubmitting(false);
     }
   };
+
+  // ---- Cancel spot pending order (refund reserved cash for buy). ----
+  const handleCancelSpotOrder = async (o: (typeof spotOrders)[number]) => {
+    if (!user || !o.id) return;
+    try {
+      const res = await cancelSpotLimitOrder(user.id, o.id);
+      if (res.refund > 0) await addBalance(res.refund);
+      toast.success(res.refund > 0 ? `Order cancelled · $${res.refund.toFixed(2)} refunded` : "Order cancelled");
+      refetchOrders();
+    } catch (err: any) {
+      // Fall back to plain cancel if service call fails for any reason
+      await cancelOrder(o.id);
+      toast.error(err?.message || "Cancel failed");
+    }
+  };
+
+  // ---- DEMO-STATE: touch fill ----
+  // 触价成交由前端模拟，正式版由撮合引擎完成。
+  // When the mark price crosses a Pending limit, fill the order.
+  const fillingIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!user || spotOrders.length === 0) return;
+    for (const o of spotOrders) {
+      if (!o.id || o.status !== "Pending" || o.orderType !== "Limit") continue;
+      if (fillingIdsRef.current.has(o.id)) continue;
+      const limit = parseFloat(String(o.price).replace(/[$,]/g, "")) || 0;
+      const mark = yesOpt && o.option === yesOpt.label ? yesLive : noLive;
+      const touched =
+        o.type === "buy" ? mark <= limit + 1e-9 : mark >= limit - 1e-9;
+      if (!touched) continue;
+      fillingIdsRef.current.add(o.id);
+      (async () => {
+        try {
+          const res = await fillSpotLimitOrder(user.id, o.id!);
+          if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+          if (res.intent !== "noop") {
+            toast.success(
+              o.type === "buy"
+                ? "Limit buy filled at your price"
+                : `Limit sell filled · $${res.balanceDelta.toFixed(2)} to wallet`,
+            );
+          }
+          refetchPositions();
+          refetchOrders();
+        } catch {
+          // swallow — realtime tick will retry via a fresh id set on refetch
+        } finally {
+          fillingIdsRef.current.delete(o.id!);
+        }
+      })();
+    }
+  }, [yesLive, noLive, spotOrders, user, yesOpt, addBalance, refetchPositions, refetchOrders]);
+
 
   // ---- Render guards ----
   if (loading) {
