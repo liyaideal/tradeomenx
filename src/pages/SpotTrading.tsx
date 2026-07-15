@@ -836,43 +836,57 @@ export default function SpotTrading() {
 
   const OrdersTable = (
     <div className="text-xs">
-      <div className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.8fr_0.9fr_0.6fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
+      <div className="grid grid-cols-[1.5fr_0.6fr_0.6fr_0.6fr_0.7fr_0.8fr_0.7fr_0.5fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
         <span>Market</span>
         <span>Side</span>
         <span>Type</span>
-        <span className="text-right">Price</span>
-        <span className="text-right">Amount</span>
+        <span className="text-right">Limit</span>
+        <span className="text-right">Qty (sh)</span>
+        <span className="text-right">Reserved</span>
         <span className="text-right">Status</span>
         <span />
       </div>
       {spotOrders.length === 0 ? (
         <div className="px-4 py-8 text-center text-muted-foreground">No open spot orders.</div>
       ) : (
-        spotOrders.map((o, i) => (
-          <div
-            key={o.id ?? i}
-            className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.8fr_0.9fr_0.6fr] gap-2 px-4 py-2 items-center border-b border-border/20 hover:bg-muted/20"
-          >
-            <span className="truncate">{o.event}</span>
-            <span className={cn("uppercase", o.type === "buy" ? "text-trading-green" : "text-trading-red")}>
-              {o.type}
-            </span>
-            <span>{o.orderType}</span>
-            <span className="text-right font-mono">{o.price}</span>
-            <span className="text-right font-mono">{o.amount}</span>
-            <span className="text-right text-muted-foreground">{o.status}</span>
-            <button
-              disabled={isCancelling}
-              onClick={() => cancelOrder(o.id ?? i)}
-              className="text-[10px] text-trading-red hover:underline text-right"
+        spotOrders.map((o, i) => {
+          const reserved = o.type === "buy" ? o.total : "—";
+          const isPending = o.status === "Pending";
+          return (
+            <div
+              key={o.id ?? i}
+              className="grid grid-cols-[1.5fr_0.6fr_0.6fr_0.6fr_0.7fr_0.8fr_0.7fr_0.5fr] gap-2 px-4 py-2 items-center border-b border-border/20 hover:bg-muted/20"
             >
-              Cancel
-            </button>
-          </div>
-        ))
+              <span className="truncate">{o.event}</span>
+              <span className={cn("uppercase", o.type === "buy" ? "text-trading-green" : "text-trading-red")}>
+                {o.type}
+              </span>
+              <span>{o.orderType}</span>
+              <span className="text-right font-mono">{o.price}</span>
+              <span className="text-right font-mono">{o.amount}</span>
+              <span className="text-right font-mono text-muted-foreground">{reserved}</span>
+              <span
+                className={cn(
+                  "text-right",
+                  isPending ? "text-trading-yellow" : "text-muted-foreground",
+                )}
+              >
+                {o.status}
+              </span>
+              <button
+                disabled={isCancelling || !isPending}
+                onClick={() => handleCancelSpotOrder(o)}
+                className="text-[10px] text-trading-red hover:underline text-right disabled:opacity-40 disabled:no-underline"
+              >
+                Cancel
+              </button>
+            </div>
+          );
+        })
       )}
     </div>
   );
+
 
   const BottomTabs = (
     <div className="border-t border-border/30">
