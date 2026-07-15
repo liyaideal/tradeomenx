@@ -1003,6 +1003,14 @@ export default function SpotTrading() {
             <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
             <span>Closes in</span>
             <span className="text-trading-red font-mono font-medium">{countdown}</span>
+            {closingSoon && lifecycle === "TRADING" && (
+              <span
+                className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
+                title="Trading remains open until 5 minutes before close."
+              >
+                Closing soon
+              </span>
+            )}
             {tz && (
               <>
                 <span>·</span>
