@@ -2,7 +2,7 @@
 // /spot — Pro Spot trading terminal (US-stock daily up/down).
 // Structural rule: this page IS a terminal like /trade, with the
 // futures-only surfaces stripped out. It MUST NOT render the
-// site-wide navigation header (see DESIGN.md §7 anti-patterns).
+// site-wide navigation header (see DESIGN.md §14 anti-patterns).
 // ============================================================
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate, useNavigationType } from "react-router-dom";
