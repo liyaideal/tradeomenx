@@ -36,8 +36,8 @@
 
 | 常量 | 值 | 状态 |
 |---|---|---|
-| `PRE_FREEZE_MINUTES_BEFORE_CLOSE` | 15 min | ⚠️ 占位待确认 |
-| `FREEZE_MINUTES_BEFORE_CLOSE` | 5 min（15:55 ET） | ⚠️ 占位待确认 |
+| `PRE_FREEZE_MINUTES_BEFORE_CLOSE` | 15 min | ⚠️ 占位待确认（仅驱动 "Closing soon" 提示，不禁单） |
+| `FREEZE_MINUTES_BEFORE_CLOSE` | 5 min（15:55 ET） | ✅ CONFIRMED per PRD §4.1 — TRADING 全程至 close−5min，此时进入 FROZEN |
 | `OPEN_COOLDOWN` | 09:30–09:35 ET | ⚠️ 占位待确认 |
 | `SETTLEMENT_CREDIT_BY_ET` | ≤ 16:30 ET | ⚠️ 占位待确认 |
 
