@@ -134,3 +134,4 @@
 - [Retro Poster campaign style](mem://design/retro-poster-campaign-style) — /hedge 世界杯主题专用色板/字体/硬边硬阴影/三大 primitive，禁止外溢到产品其他页
 - [H2E landing architecture (Retro Poster)](mem://marketing/hedge-landing-architecture) — /hedge 新版 7 段结构 + 删除清单 + 文案契约（取代旧的 9 段版本）
 - [No demo entries in product](mem://workflow/no-demo-entries-in-product) — 多状态/多角色 demo 一律放 /style-guide，产品页禁止 demo 入口
+- [Pro / Spot US stocks pilot](mem://features/pro-spot-us-stocks) — 2026-07-15 上线现货产品线；events/trades/positions 加 product_line 维度；3 个美股当日涨跌种子事件；5 态 lifecycle + 4 个时刻表常量待确认；`/spot?event=` 独立页
