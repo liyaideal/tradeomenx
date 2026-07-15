@@ -1310,17 +1310,40 @@ export default function SpotTrading() {
             countdown.urgency === "yellow" && "text-trading-yellow",
             countdown.urgency === "muted" && "text-foreground",
           )}>{countdown.text}</span>
+          {freezeEtOnly && (
+            <>
+              <span>·</span>
+              <span className="font-mono">{freezeEtOnly} ET</span>
+            </>
+          )}
           {closingSoon && lifecycle === "TRADING" && (
             <span className="px-1 rounded bg-trading-yellow/15 text-trading-yellow text-[10px]">
               Closing soon
             </span>
           )}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="p-0.5 text-muted-foreground"
+                aria-label="Schedule details"
+              >
+                <Info className="w-3 h-3" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="bottom" align="start" className="text-[11px] max-w-[280px] p-2">
+              <div className="space-y-1">
+                <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
+                <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"} ET</div>
+                <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} ET (settlement price)</div>
+                <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
+                {localFreezeLabel && (
+                  <div><span className="text-muted-foreground">Your time:</span> {localFreezeLabel}</div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
-        {settleEtOnly && (
-          <div className="text-[10px] text-muted-foreground mt-0.5">
-            Settles at {settleEtOnly} · credits by ~{settleEtOnly}
-          </div>
-        )}
       </div>
       <button onClick={() => toggleWatch(event.id)} className="p-1.5 flex-shrink-0">
         <Star
