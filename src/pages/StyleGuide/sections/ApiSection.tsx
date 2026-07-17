@@ -185,7 +185,22 @@ export const ApiSection = ({ isMobile }: Props) => {
         </div>
       </SubSection>
 
-      <SubSection title="One-time secret reveal">
+      <SubSection title="2FA verification step (before secret is generated)">
+        <div className="space-y-3 max-w-lg">
+          <div className="rounded-lg border border-border/40 bg-muted/30 p-3 flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+            <div className="text-xs text-muted-foreground">
+              Enter the 6-digit code from your authenticator app to finalize key creation.
+              <span className="block text-[10px] text-muted-foreground/70 mt-1">Demo: use 111111</span>
+            </div>
+          </div>
+          <div className="rounded-md border border-input bg-background px-3 py-2 font-mono tracking-[0.4em] text-center text-lg">
+            123456
+          </div>
+        </div>
+      </SubSection>
+
+      <SubSection title="One-time secret reveal (after 2FA)">
         <div className="space-y-3 max-w-lg">
           <div className="rounded-lg border border-amber-400/30 bg-amber-400/5 p-3 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
