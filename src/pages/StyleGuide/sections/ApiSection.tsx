@@ -123,10 +123,10 @@ const KeyRow = ({
 export const ApiSection = ({ isMobile }: Props) => {
   return (
     <SectionWrapper
+      id="api-management"
       title="API Management"
       description="Programmatic access surface: tier gating, scope enumeration, one-time secret reveal."
-      icon={<KeyRound className="w-5 h-5" />}
-    >
+    ><div className="space-y-8">
       <SubSection title="Tier eligibility cards — every state">
         <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
           <TierPlaygroundCard
