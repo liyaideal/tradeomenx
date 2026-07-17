@@ -206,6 +206,7 @@ export const ApiSection = ({ isMobile }: Props) => {
           </div>
         </div>
       </SubSection>
+      </div>
     </SectionWrapper>
   );
 };
