@@ -73,7 +73,7 @@ const ApiManagement = () => {
         {!isMobile && <EventsDesktopHeader />}
         {isMobile && <MobileHeader title="API Management" showLogo={false} />}
         <div className="max-w-3xl mx-auto p-6">
-          <LoginPrompt message="Sign in to manage API keys" />
+          <LoginPrompt />
         </div>
         {isMobile && <BottomNav />}
       </div>
