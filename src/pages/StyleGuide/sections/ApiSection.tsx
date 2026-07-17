@@ -134,9 +134,47 @@ export const ApiSection = ({ isMobile }: Props) => {
     <SectionWrapper
       id="api-management"
       title="API Management"
-      description="Programmatic access surface: tier gating, scope enumeration, one-time secret reveal."
+      description="Two-layer surface: /developers portal (marketing/entry) → /settings/api configuration (§4 skeleton)."
     ><div className="space-y-8">
-      <SubSection title="Tier eligibility cards — every state">
+      <SubSection title="Portal hero (/developers) — capabilities row">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            { icon: LineChart, title: "Market Data", body: "Real-time order book, trades, mark & funding.", tag: "REST · WS" },
+            { icon: Zap, title: "Trading", body: "Place, cancel, and stage conditional orders.", tag: "Idempotent" },
+            { icon: Bot, title: "Agent-Ready", body: "Typed schemas, preview→submit safety.", tag: "Agent-safe" },
+          ].map((c) => (
+            <div key={c.title} className="trading-card p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <c.icon className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{c.tag}</span>
+              </div>
+              <div>
+                <div className="text-sm font-semibold">{c.title}</div>
+                <div className="text-xs text-muted-foreground mt-1 leading-relaxed">{c.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </SubSection>
+
+      <SubSection title="Config-page empty state (compact card, not full-height void)">
+        <div className="trading-card p-4 md:p-6">
+          <div className="max-w-sm mx-auto rounded-xl border border-dashed border-border/60 bg-muted/10 p-6 text-center">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 mx-auto flex items-center justify-center mb-3">
+              <KeyRound className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-sm font-semibold">No API keys yet</div>
+            <div className="text-xs text-muted-foreground mt-1 mb-4 leading-relaxed">
+              Create your first key to start streaming data or placing orders programmatically.
+            </div>
+            <Button size="sm" className="gap-1.5"><Plus className="w-4 h-4" /> Create key</Button>
+          </div>
+        </div>
+      </SubSection>
+
+
         <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
           <TierPlaygroundCard
             title="Read-only"
