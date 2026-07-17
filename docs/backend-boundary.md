@@ -112,6 +112,14 @@
 | `profiles.preferred_surface` | 🟡 | Pro/Lite 表面选择是需求，具体持久化位置自选 |
 | `category_boost_configs` | 🟢 | Boost 板块开关是运营规则，须做成可后台配置（本轮硬编码在 DB 属演示便利） |
 
+## 2026-07-15 Open API v1 用户侧管理页（append-only 补录）
+
+| 表 / 字段 | 类别 | 说明 |
+|---|---|---|
+| `api_keys`（label / key_prefix / tier / scopes[] / ip_whitelist[] / status / last_used_at / revoked_at） | 🟡 | 三层准入门槛（Read-only / Trading / Pro-MM，参见《创建 api 条件》）与 7 项 scope 语义（FD-API-04：`read_public` / `read_private` / `trade_order` / `trade_cancel` / `trade_conditional` / `ws_public` / `ws_private`）是需求；本表结构可参照。**红线**：本项目前端生成 `omx_live_<48hex>` 假 secret 并只落 `key_prefix`，仅演示；正式版 secret 必须由后端 HMAC/JWT 签发 + 哈希存储 + 永不回读，鉴权中间件负责 IP whitelist / scope 校验 / 2FA 二次验证 |
+
+
+
 
 ## 治理规则（即日生效）
 
