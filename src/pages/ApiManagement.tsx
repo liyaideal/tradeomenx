@@ -551,7 +551,40 @@ const CreateKeyDialog = ({
           </div>
         )}
 
-        {step === 3 && newSecret && (
+        {step === 3 && (
+          <div className="space-y-3">
+            <div className="rounded-lg border border-border/40 bg-muted/30 p-3 flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <div className="text-xs text-muted-foreground">
+                Enter the 6-digit code from your authenticator app to finalize key creation.
+                <span className="block text-[10px] text-muted-foreground/70 mt-1">{DEMO_OTP_HINT}</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="otp-input" className="text-sm">2FA code</Label>
+              <Input
+                id="otp-input"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                placeholder="123456"
+                value={otp}
+                onChange={(e) => {
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
+                  setOtpError(null);
+                }}
+                className="font-mono tracking-[0.4em] text-center text-lg"
+              />
+              {otpError && (
+                <div className="text-[11px] text-destructive flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" /> {otpError}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {step === 4 && newSecret && (
           <div className="space-y-3">
             <div className="rounded-lg border border-amber-400/30 bg-amber-400/5 p-3 flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
@@ -591,12 +624,18 @@ const CreateKeyDialog = ({
           {step === 2 && (
             <>
               <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-              <Button disabled={!canNext2 || createKey.isPending} onClick={handleCreate}>
-                {createKey.isPending ? "Creating…" : "Create key"}
-              </Button>
+              <Button disabled={!canNext2} onClick={() => setStep(3)}>Next</Button>
             </>
           )}
           {step === 3 && (
+            <>
+              <Button variant="outline" onClick={() => setStep(2)} disabled={createKey.isPending}>Back</Button>
+              <Button disabled={!canSubmit3 || createKey.isPending} onClick={handleVerifyAndCreate}>
+                {createKey.isPending ? "Creating…" : "Verify & create"}
+              </Button>
+            </>
+          )}
+          {step === 4 && (
             <Button className="w-full" onClick={() => handleClose(false)}>Done</Button>
           )}
         </DialogFooter>
