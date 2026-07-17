@@ -1,4 +1,4 @@
-import { Check, X, AlertTriangle, Copy, ShieldCheck, Mail } from "lucide-react";
+import { Check, X, AlertTriangle, Copy, ShieldCheck, Mail, KeyRound, LineChart, Zap, Bot, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionWrapper, SubSection } from "../components";
