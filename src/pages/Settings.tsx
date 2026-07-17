@@ -563,6 +563,21 @@ const Settings = () => {
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
+
+          {/* API Management entry */}
+          <button
+            onClick={() => navigate("/settings/api")}
+            className="trading-card p-6 w-full text-left flex items-center gap-4 hover:border-primary/30 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Key className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold">API Management</h3>
+              <p className="text-sm text-muted-foreground">Create and manage API keys for programmatic trading</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
       </div>
 
