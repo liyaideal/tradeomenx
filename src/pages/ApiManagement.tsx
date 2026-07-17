@@ -10,6 +10,8 @@ import {
   Mail,
   ChevronRight,
   ShieldCheck,
+  ArrowLeft,
+  KeyRound,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
