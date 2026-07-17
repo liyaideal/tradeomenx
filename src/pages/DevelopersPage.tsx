@@ -93,11 +93,11 @@ const DevelopersPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {isMobile ? (
-        <MobileHeader title="Developers" showLogo={false} showBack={true} />
+        <MobileHeader title="Open API" showLogo={false} showBack={true} />
       ) : (
         <EventsDesktopHeader />
       )}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-5 md:px-8 py-8 md:py-14">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-5 md:px-8 py-8 md:py-14">
         <div className="space-y-14 md:space-y-20">
         {/* Hero */}
         <section className="relative">
@@ -106,7 +106,7 @@ const DevelopersPage = () => {
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-mono text-[10px]">
               v1
             </Badge>
-            <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Open API</span>
+            <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">OmenX Open API · v1</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-[1.05]">
             Programmatic access to
