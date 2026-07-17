@@ -241,6 +241,14 @@ export const BottomNav = () => {
             }}
           />
           <MobileDrawerListItem
+            icon={KeyRound}
+            label="API"
+            onClick={() => {
+              setProfileSheetOpen(false);
+              navigate("/settings/api");
+            }}
+          />
+          <MobileDrawerListItem
             icon={Settings}
             label="Settings"
             onClick={() => {
