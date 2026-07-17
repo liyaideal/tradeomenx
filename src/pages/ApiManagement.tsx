@@ -40,6 +40,7 @@ import {
   type ApiTier,
   type TierEligibility,
 } from "@/hooks/useApiKeys";
+import { verifyDemoOtp, DEMO_OTP_HINT } from "@/lib/demoOtp";
 import { formatDistanceToNow } from "date-fns";
 
 const TIER_ORDER: ApiTier[] = ["read_only", "trading", "pro_mm"];
