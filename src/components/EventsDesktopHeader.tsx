@@ -175,6 +175,10 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Ticket className="mr-2 h-4 w-4 text-primary" />
                     Position Vouchers
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/settings/api")}>
+                    <KeyRound className="mr-2 h-4 w-4 text-primary" />
+                    API
+                  </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
