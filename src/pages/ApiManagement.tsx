@@ -40,6 +40,7 @@ import {
   type ApiTier,
   type TierEligibility,
 } from "@/hooks/useApiKeys";
+import { verifyDemoOtp, DEMO_OTP_HINT } from "@/lib/demoOtp";
 import { formatDistanceToNow } from "date-fns";
 
 const TIER_ORDER: ApiTier[] = ["read_only", "trading", "pro_mm"];
@@ -346,19 +347,23 @@ const CreateKeyDialog = ({
   tiers: TierEligibility[];
   createKey: ReturnType<typeof useApiKeys>["createKey"];
 }) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [label, setLabel] = useState("");
   const [tier, setTier] = useState<ApiTier>("read_only");
-  const [scopes, setScopes] = useState<ApiScope[]>(["read_public", "read_private"]);
+  const [scopes, setScopes] = useState<ApiScope[]>(["read_public"]);
   const [ipRaw, setIpRaw] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const reset = () => {
     setStep(1);
     setLabel("");
     setTier("read_only");
-    setScopes(["read_public", "read_private"]);
+    setScopes(["read_public"]);
     setIpRaw("");
+    setOtp("");
+    setOtpError(null);
     setCopied(false);
   };
 
@@ -383,13 +388,19 @@ const CreateKeyDialog = ({
   const canNext2 =
     scopes.length > 0 &&
     (!requiresIp || (ipList.length > 0 && ipInvalid.length === 0));
+  const canSubmit3 = /^\d{6}$/.test(otp.trim());
 
   const handleClose = (o: boolean) => {
     onOpenChange(o);
     if (!o) setTimeout(reset, 200);
   };
 
-  const handleCreate = async () => {
+  const handleVerifyAndCreate = async () => {
+    if (!verifyDemoOtp(otp)) {
+      setOtpError("Invalid code. Try again.");
+      return;
+    }
+    setOtpError(null);
     try {
       const res = await createKey.mutateAsync({
         label: label.trim(),
@@ -398,7 +409,7 @@ const CreateKeyDialog = ({
         ip_whitelist: ipList,
       });
       onCreated(res.secret);
-      setStep(3);
+      setStep(4);
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to create key");
     }
@@ -409,12 +420,13 @@ const CreateKeyDialog = ({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {step === 3 ? "API key created" : `Create API key — Step ${step} of 2`}
+            {step === 4 ? "API key created" : `Create API key — Step ${step} of 3`}
           </DialogTitle>
           <DialogDescription>
             {step === 1 && "Choose a label and tier for this key."}
             {step === 2 && "Select scopes and configure IP whitelist."}
-            {step === 3 && "Copy the secret now — it will not be shown again."}
+            {step === 3 && "Verify with your 2FA code to generate the key."}
+            {step === 4 && "Copy the secret now — it will not be shown again."}
           </DialogDescription>
         </DialogHeader>
 
@@ -539,7 +551,40 @@ const CreateKeyDialog = ({
           </div>
         )}
 
-        {step === 3 && newSecret && (
+        {step === 3 && (
+          <div className="space-y-3">
+            <div className="rounded-lg border border-border/40 bg-muted/30 p-3 flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <div className="text-xs text-muted-foreground">
+                Enter the 6-digit code from your authenticator app to finalize key creation.
+                <span className="block text-[10px] text-muted-foreground/70 mt-1">{DEMO_OTP_HINT}</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="otp-input" className="text-sm">2FA code</Label>
+              <Input
+                id="otp-input"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                placeholder="123456"
+                value={otp}
+                onChange={(e) => {
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
+                  setOtpError(null);
+                }}
+                className="font-mono tracking-[0.4em] text-center text-lg"
+              />
+              {otpError && (
+                <div className="text-[11px] text-destructive flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" /> {otpError}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {step === 4 && newSecret && (
           <div className="space-y-3">
             <div className="rounded-lg border border-amber-400/30 bg-amber-400/5 p-3 flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
@@ -579,12 +624,18 @@ const CreateKeyDialog = ({
           {step === 2 && (
             <>
               <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-              <Button disabled={!canNext2 || createKey.isPending} onClick={handleCreate}>
-                {createKey.isPending ? "Creating…" : "Create key"}
-              </Button>
+              <Button disabled={!canNext2} onClick={() => setStep(3)}>Next</Button>
             </>
           )}
           {step === 3 && (
+            <>
+              <Button variant="outline" onClick={() => setStep(2)} disabled={createKey.isPending}>Back</Button>
+              <Button disabled={!canSubmit3 || createKey.isPending} onClick={handleVerifyAndCreate}>
+                {createKey.isPending ? "Creating…" : "Verify & create"}
+              </Button>
+            </>
+          )}
+          {step === 4 && (
             <Button className="w-full" onClick={() => handleClose(false)}>Done</Button>
           )}
         </DialogFooter>
