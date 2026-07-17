@@ -37,6 +37,7 @@ import DevelopersPage from "./pages/DevelopersPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import TransparencyPage from "./pages/TransparencyPage";
+import ApiManagement from "./pages/ApiManagement";
 import HedgeLanding from "./pages/HedgeLanding";
 
 import CampaignStyleGuide from "./pages/CampaignStyleGuide";
@@ -125,6 +126,7 @@ const App = () => (
               <Route path="/vouchers" element={<Vouchers />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/settings/transparency" element={<TransparencyPage />} />
+              <Route path="/settings/api" element={<ApiManagement />} />
               <Route path="/style-guide" element={<StyleGuide />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/glossary" element={<GlossaryPage />} />
