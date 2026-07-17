@@ -87,11 +87,18 @@ const resources = [
 
 const DevelopersPage = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const comingSoon = () => toast.info("Full documentation launching soon.");
 
   return (
-    <SeoPageLayout title="OmenX Open API">
-      <div className="not-prose space-y-14 md:space-y-20 -mt-2">
+    <div className="min-h-screen bg-background flex flex-col">
+      {isMobile ? (
+        <MobileHeader title="Developers" showLogo={false} showBack={true} />
+      ) : (
+        <EventsDesktopHeader />
+      )}
+      <main className="flex-1 w-full max-w-6xl mx-auto px-5 md:px-8 py-8 md:py-14">
+        <div className="space-y-14 md:space-y-20">
         {/* Hero */}
         <section className="relative">
           <div className="absolute -left-4 top-1 bottom-1 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
