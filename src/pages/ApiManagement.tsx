@@ -175,17 +175,12 @@ const ApiManagement = () => {
       ) : (
         <>
           <EventsDesktopHeader />
-          <main className="max-w-5xl mx-auto w-full px-6 py-8">
-            <button
-              onClick={() => navigate("/settings")}
-              className="text-xs text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1"
-            >
-              ← Back to Settings
-            </button>
+          <main className="max-w-7xl mx-auto w-full px-8 py-10">
             {content}
           </main>
         </>
       )}
+
 
       <CreateKeyDialog
         open={createOpen}
