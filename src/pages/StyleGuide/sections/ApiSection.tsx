@@ -1,4 +1,4 @@
-import { Check, X, AlertTriangle, Copy, ShieldCheck, Mail } from "lucide-react";
+import { Check, X, AlertTriangle, Copy, ShieldCheck, Mail, KeyRound, LineChart, Zap, Bot, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionWrapper, SubSection } from "../components";
@@ -42,8 +42,17 @@ const TierPlaygroundCard = ({
         Requirements not met
       </Badge>
     );
+  const cardCls =
+    state === "available"
+      ? "border-primary/40 bg-gradient-to-br from-primary/[0.06] via-card to-card shadow-[0_0_0_1px_hsl(var(--primary)/0.15),0_20px_40px_-20px_hsl(var(--primary)/0.35)]"
+      : state === "manual"
+      ? "border-amber-400/25 bg-gradient-to-br from-amber-400/[0.04] via-card to-card"
+      : "border-border/40 bg-card/60";
   return (
-    <div className="trading-card p-4 flex flex-col gap-3">
+    <div className={`relative p-4 flex flex-col gap-3 h-full rounded-xl border ${cardCls}`}>
+      {state === "available" && (
+        <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+      )}
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="text-sm font-semibold">{title}</div>
@@ -51,13 +60,13 @@ const TierPlaygroundCard = ({
         </div>
         {badge}
       </div>
-      <ul className="space-y-1.5">
+      <ul className="space-y-1.5 flex-1">
         {reqs.map((r, i) => (
           <li key={i} className="flex items-start gap-2 text-xs">
             {r.met ? (
-              <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
+              <Check className="w-3.5 h-3.5 text-trading-green mt-0.5 shrink-0" />
             ) : (
-              <X className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+              <X className="w-3.5 h-3.5 text-muted-foreground/60 mt-0.5 shrink-0" />
             )}
             <span className={r.met ? "text-foreground" : "text-muted-foreground"}>
               {r.label}
@@ -69,7 +78,7 @@ const TierPlaygroundCard = ({
         ))}
       </ul>
       {state === "manual" && (
-        <Button variant="outline" size="sm" className="w-full gap-1.5">
+        <Button variant="outline" size="sm" className="w-full gap-1.5 mt-auto">
           <Mail className="w-3.5 h-3.5" /> Contact us
         </Button>
       )}
@@ -125,10 +134,48 @@ export const ApiSection = ({ isMobile }: Props) => {
     <SectionWrapper
       id="api-management"
       title="API Management"
-      description="Programmatic access surface: tier gating, scope enumeration, one-time secret reveal."
+      description="Two-layer surface: /developers portal (marketing/entry) → /settings/api configuration (§4 skeleton)."
     ><div className="space-y-8">
+      <SubSection title="Portal hero (/developers) — capabilities row">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            { icon: LineChart, title: "Market Data", body: "Real-time order book, trades, mark & funding.", tag: "REST · WS" },
+            { icon: Zap, title: "Trading", body: "Place, cancel, and stage conditional orders.", tag: "Idempotent" },
+            { icon: Bot, title: "Agent-Ready", body: "Typed schemas, preview→submit safety.", tag: "Agent-safe" },
+          ].map((c) => (
+            <div key={c.title} className="trading-card p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <c.icon className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{c.tag}</span>
+              </div>
+              <div>
+                <div className="text-sm font-semibold">{c.title}</div>
+                <div className="text-xs text-muted-foreground mt-1 leading-relaxed">{c.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </SubSection>
+
+      <SubSection title="Config-page empty state (compact card, not full-height void)">
+        <div className="trading-card p-4 md:p-6">
+          <div className="max-w-sm mx-auto rounded-xl border border-dashed border-border/60 bg-muted/10 p-6 text-center">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 mx-auto flex items-center justify-center mb-3">
+              <KeyRound className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-sm font-semibold">No API keys yet</div>
+            <div className="text-xs text-muted-foreground mt-1 mb-4 leading-relaxed">
+              Create your first key to start streaming data or placing orders programmatically.
+            </div>
+            <Button size="sm" className="gap-1.5"><Plus className="w-4 h-4" /> Create key</Button>
+          </div>
+        </div>
+      </SubSection>
+
       <SubSection title="Tier eligibility cards — every state">
-        <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
+        <div className={`grid gap-3 items-stretch ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
           <TierPlaygroundCard
             title="Read-only"
             desc="Public market data, private account & order history"

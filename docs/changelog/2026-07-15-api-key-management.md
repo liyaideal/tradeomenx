@@ -1,8 +1,13 @@
-# Open API v1 — 用户侧 Key 自助管理页
+# Open API v1 — 门户页 + 用户侧 Key 自助管理页
 
-> 面向做市商 / 工作室 / agent 交易者的 Open API v1 用户端入口上线。新页 `/settings/api`：三层准入 checklist（Read-only / Trading / Pro-MM）+ Key 列表 + 创建向导（label → scope → IP whitelist → 2FA → 一次性 secret）+ Revoke。三层准入对齐《创建 api 条件》，scope 枚举对齐 FD-API-04。
+> Open API v1 上线两层入口，对标 Binance / Bybit developer 站结构：
+> - **`/developers`（门户页，本轮重做）**：Hero + 能力三卡（Market Data / Trading / Agent-Ready）+ 三层权限概览 + Quickstart 代码块 + Reference 资源卡 + Footer CTA，SeoFooter 收尾
+> - **`/settings/api`（配置页，本轮视觉重做）**：§4 桌面页面骨架（紫色左竖线 + `text-3xl` 标题 + `max-w-7xl`），顶部 `← API Overview` 面包屑回门户；三层 tier 卡等高、已满足层用 `border-primary/40` + primary gradient tint 强调；空态收敛成 `max-w-sm` 虚线卡（不再占满整个下半屏）；创建向导 4 步（label → scope+IP → 2FA → 一次性 secret）
 >
 > **DEMO-STATE**：key/secret 由前端 `omx_live_<48hex>` 仿真生成、`api_keys` 只落 `key_prefix`；正式版 secret 由后端 HMAC/JWT 签发 + 哈希存储 + IP/2FA 校验在鉴权中间件执行。本轮不改 schema，仅读写既有 `api_keys` 表。
+>
+> **两层结构 LOCKED**：DESIGN.md §7 新增「API Surface — Two-Layer Structure」小节；禁止合并为单页；门户 Hero CTA 必须包含 `Manage API Keys` + `Read the Docs`；配置页顶部必带面包屑回门户。
+
 
 ## 1. 页面 `/settings/api`
 
