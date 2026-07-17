@@ -420,12 +420,13 @@ const CreateKeyDialog = ({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {step === 3 ? "API key created" : `Create API key — Step ${step} of 2`}
+            {step === 4 ? "API key created" : `Create API key — Step ${step} of 3`}
           </DialogTitle>
           <DialogDescription>
             {step === 1 && "Choose a label and tier for this key."}
             {step === 2 && "Select scopes and configure IP whitelist."}
-            {step === 3 && "Copy the secret now — it will not be shown again."}
+            {step === 3 && "Verify with your 2FA code to generate the key."}
+            {step === 4 && "Copy the secret now — it will not be shown again."}
           </DialogDescription>
         </DialogHeader>
 
