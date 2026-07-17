@@ -57,6 +57,7 @@ const StyleGuideIndex = () => {
     { id: "vouchers", label: "Vouchers", icon: "🎫" },
     { id: "worldcup", label: "World Cup", icon: "🏆" },
     { id: "spot", label: "Spot", icon: "📈" },
+    { id: "api", label: "API", icon: "🔑" },
   ];
 
   return (
