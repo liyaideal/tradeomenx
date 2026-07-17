@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star, Shield, LogOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star, Shield, LogOut, Key } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -394,6 +394,21 @@ const Settings = () => {
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
+
+          {/* API Management entry */}
+          <button
+            onClick={() => navigate("/settings/api")}
+            className="trading-card p-4 w-full text-left flex items-center gap-3 hover:border-primary/30 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Key className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-sm">API Management</h3>
+              <p className="text-xs text-muted-foreground">Create and manage API keys for programmatic trading</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
         </div>
 
         <BottomNav />
@@ -545,6 +560,21 @@ const Settings = () => {
             <div className="flex-1">
               <h3 className="font-semibold">Transparency Audit</h3>
               <p className="text-sm text-muted-foreground">Verify your assets, trades, and liquidations against on-chain data</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
+
+          {/* API Management entry */}
+          <button
+            onClick={() => navigate("/settings/api")}
+            className="trading-card p-6 w-full text-left flex items-center gap-4 hover:border-primary/30 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Key className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold">API Management</h3>
+              <p className="text-sm text-muted-foreground">Create and manage API keys for programmatic trading</p>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
