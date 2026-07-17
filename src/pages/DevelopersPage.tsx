@@ -260,8 +260,10 @@ const DevelopersPage = () => {
             </Button>
           </div>
         </section>
-      </div>
-    </SeoPageLayout>
+        </div>
+      </main>
+      <SeoFooter />
+    </div>
   );
 };
 
