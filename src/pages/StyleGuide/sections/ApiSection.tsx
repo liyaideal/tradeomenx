@@ -174,8 +174,8 @@ export const ApiSection = ({ isMobile }: Props) => {
         </div>
       </SubSection>
 
-
-        <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
+      <SubSection title="Tier eligibility cards — every state">
+        <div className={`grid gap-3 items-stretch ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
           <TierPlaygroundCard
             title="Read-only"
             desc="Public market data, private account & order history"
