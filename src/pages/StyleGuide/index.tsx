@@ -27,6 +27,7 @@ import {
   VouchersSection,
   WorldCupSection,
   SpotSection,
+  ApiSection,
 } from "./sections";
 
 const StyleGuideIndex = () => {
