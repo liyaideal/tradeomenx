@@ -347,19 +347,23 @@ const CreateKeyDialog = ({
   tiers: TierEligibility[];
   createKey: ReturnType<typeof useApiKeys>["createKey"];
 }) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [label, setLabel] = useState("");
   const [tier, setTier] = useState<ApiTier>("read_only");
-  const [scopes, setScopes] = useState<ApiScope[]>(["read_public", "read_private"]);
+  const [scopes, setScopes] = useState<ApiScope[]>(["read_public"]);
   const [ipRaw, setIpRaw] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const reset = () => {
     setStep(1);
     setLabel("");
     setTier("read_only");
-    setScopes(["read_public", "read_private"]);
+    setScopes(["read_public"]);
     setIpRaw("");
+    setOtp("");
+    setOtpError(null);
     setCopied(false);
   };
 
@@ -384,13 +388,19 @@ const CreateKeyDialog = ({
   const canNext2 =
     scopes.length > 0 &&
     (!requiresIp || (ipList.length > 0 && ipInvalid.length === 0));
+  const canSubmit3 = /^\d{6}$/.test(otp.trim());
 
   const handleClose = (o: boolean) => {
     onOpenChange(o);
     if (!o) setTimeout(reset, 200);
   };
 
-  const handleCreate = async () => {
+  const handleVerifyAndCreate = async () => {
+    if (!verifyDemoOtp(otp)) {
+      setOtpError("Invalid code. Try again.");
+      return;
+    }
+    setOtpError(null);
     try {
       const res = await createKey.mutateAsync({
         label: label.trim(),
@@ -399,7 +409,7 @@ const CreateKeyDialog = ({
         ip_whitelist: ipList,
       });
       onCreated(res.secret);
-      setStep(3);
+      setStep(4);
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to create key");
     }
