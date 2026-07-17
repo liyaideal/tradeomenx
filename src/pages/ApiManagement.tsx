@@ -84,25 +84,45 @@ const ApiManagement = () => {
   }
 
   const content = (
-    <div className="space-y-6">
-      {/* Intro */}
-      <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <Key className="w-6 h-6 text-primary" />
+    <div className="space-y-8">
+      {/* Breadcrumb */}
+      <button
+        onClick={() => navigate("/developers")}
+        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors group"
+      >
+        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+        API Overview
+      </button>
+
+      {/* Page title — §4 pattern */}
+      <div className="relative">
+        <div className="absolute -left-4 top-1 bottom-1 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
+        <div className="flex items-center gap-2 mb-2">
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-mono text-[10px]">
+            v1
+          </Badge>
+          <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">API Management</span>
         </div>
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight">API Management</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create and manage API keys for programmatic access to OmenX Open API v1.
-          </p>
-        </div>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Keys & access</h1>
+        <p className="text-muted-foreground text-xs md:text-sm mt-1.5 max-w-2xl">
+          Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain
+          text.
+        </p>
       </div>
 
       {/* Tier cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {tiers.map((t) => (
-          <TierCard key={t.tier} tier={t} />
-        ))}
+      <div>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="text-sm font-semibold text-foreground">Access tiers</h2>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+            Auto-evaluated from account state
+          </span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
+          {tiers.map((t) => (
+            <TierCard key={t.tier} tier={t} />
+          ))}
+        </div>
       </div>
 
       {/* Keys section */}
@@ -111,24 +131,26 @@ const ApiManagement = () => {
           <div>
             <h2 className="font-semibold text-base">Your API keys</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {keys.length} key{keys.length === 1 ? "" : "s"} · secrets are shown once at creation
+              {keys.length} key{keys.length === 1 ? "" : "s"} · secrets shown once at creation
             </p>
           </div>
-          <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5">
-            <Plus className="w-4 h-4" /> Create key
-          </Button>
+          {keys.length > 0 && (
+            <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5">
+              <Plus className="w-4 h-4" /> Create key
+            </Button>
+          )}
         </div>
 
         {isLoading ? (
-          <div className="py-12 text-center text-sm text-muted-foreground">Loading…</div>
+          <div className="py-8 text-center text-sm text-muted-foreground">Loading…</div>
         ) : keys.length === 0 ? (
-          <div className="py-12 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-muted/40 mx-auto flex items-center justify-center mb-3">
-              <Key className="w-6 h-6 text-muted-foreground" />
+          <div className="max-w-sm mx-auto rounded-xl border border-dashed border-border/60 bg-muted/10 p-6 text-center">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 mx-auto flex items-center justify-center mb-3">
+              <KeyRound className="w-5 h-5 text-primary" />
             </div>
-            <div className="text-sm font-medium">No API keys yet</div>
-            <div className="text-xs text-muted-foreground mt-1 mb-4">
-              Create your first key to start using OmenX Open API.
+            <div className="text-sm font-semibold text-foreground">No API keys yet</div>
+            <div className="text-xs text-muted-foreground mt-1 mb-4 leading-relaxed">
+              Create your first key to start streaming data or placing orders programmatically.
             </div>
             <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5">
               <Plus className="w-4 h-4" /> Create key
@@ -140,6 +162,7 @@ const ApiManagement = () => {
       </div>
     </div>
   );
+
 
   return (
     <div className="min-h-screen bg-background">
