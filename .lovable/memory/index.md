@@ -135,3 +135,4 @@
 - [H2E landing architecture (Retro Poster)](mem://marketing/hedge-landing-architecture) — /hedge 新版 7 段结构 + 删除清单 + 文案契约（取代旧的 9 段版本）
 - [No demo entries in product](mem://workflow/no-demo-entries-in-product) — 多状态/多角色 demo 一律放 /style-guide，产品页禁止 demo 入口
 - [Pro / Spot US stocks pilot](mem://features/pro-spot-us-stocks) — 2026-07-15 上线现货产品线；events/trades/positions 加 product_line 维度；3 个美股当日涨跌种子事件；5 态 lifecycle + 4 个时刻表常量待确认；`/spot?event=` 独立页
+- [API key management](mem://features/api-key-management) — /settings/api 三层准入（Read-only/Trading/Pro-MM）+ 7 项 scope（FD-API-04）+ trade_*/ws_private 强制 IP whitelist + 一次性 secret；key/secret 前端仿真 DEMO-STATE
