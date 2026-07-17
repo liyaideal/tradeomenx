@@ -116,6 +116,48 @@ export type Database = {
           },
         ]
       }
+      api_keys: {
+        Row: {
+          created_at: string
+          id: string
+          ip_whitelist: string[]
+          key_prefix: string
+          label: string
+          last_used_at: string | null
+          revoked_at: string | null
+          scopes: string[]
+          status: string
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_whitelist?: string[]
+          key_prefix: string
+          label: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          scopes?: string[]
+          status?: string
+          tier?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_whitelist?: string[]
+          key_prefix?: string
+          label?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          scopes?: string[]
+          status?: string
+          tier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       asset_verifications: {
         Row: {
           balance: number
