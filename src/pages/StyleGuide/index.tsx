@@ -202,6 +202,10 @@ const StyleGuideIndex = () => {
           <TabsContent value="spot" className="mt-0">
             <SpotSection isMobile={isMobile} />
           </TabsContent>
+
+          <TabsContent value="api" className="mt-0">
+            <ApiSection isMobile={isMobile} />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
