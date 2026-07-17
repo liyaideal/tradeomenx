@@ -27,6 +27,7 @@ import {
   VouchersSection,
   WorldCupSection,
   SpotSection,
+  ApiSection,
 } from "./sections";
 
 const StyleGuideIndex = () => {
@@ -56,6 +57,7 @@ const StyleGuideIndex = () => {
     { id: "vouchers", label: "Vouchers", icon: "🎫" },
     { id: "worldcup", label: "World Cup", icon: "🏆" },
     { id: "spot", label: "Spot", icon: "📈" },
+    { id: "api", label: "API", icon: "🔑" },
   ];
 
   return (
@@ -199,6 +201,10 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="spot" className="mt-0">
             <SpotSection isMobile={isMobile} />
+          </TabsContent>
+
+          <TabsContent value="api" className="mt-0">
+            <ApiSection isMobile={isMobile} />
           </TabsContent>
         </Tabs>
       </main>

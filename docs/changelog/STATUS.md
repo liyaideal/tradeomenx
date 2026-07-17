@@ -19,6 +19,18 @@
 
 ---
 
+## 2026-07-15 — Open API v1 用户侧 Key 管理页
+
+源文档：[2026-07-15-api-key-management.md](./2026-07-15-api-key-management.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/api-key-management`
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| API1 | 三层准入 checklist 判定：Read-only（email + 2FA）/ Trading（+ 入金 + 余额 ≥ 100 + 成交）/ Pro-MM（30d 量 ≥ 50k 或 equity ≥ 10k，Manual） | `src/hooks/useApiKeys.ts` `useTierEligibility` · `src/pages/ApiManagement.tsx` TierCard | ⬜ | demo 账号三层卡状态：Read-only Available、Trading Available、Pro-MM Manual approval；关闭 2FA 后 Read-only 变 Requirements not met | |
+| API2 | 创建向导 3 步 + scope 门禁：未达标 Tier 禁用；scope 默认 read_public+read_private；secret 一次性展示后关闭不再可见 | `src/pages/ApiManagement.tsx` `CreateKeyDialog` · `src/hooks/useApiKeys.ts` `createKey` | ⬜ | 只满足 Read-only 时 Trading Tier 卡片禁用并列缺项；创建成功后新行只显示 `omx_live_xxxx••••xxxx` prefix | key/secret 前端 `crypto.getRandomValues` 仿真，DEMO-STATE |
+| API3 | IP whitelist 强制：勾选任一 `trade_*` 或 `ws_private` scope 时 IP whitelist 必填，否则 Create 按钮禁用 | `src/pages/ApiManagement.tsx` `requiresIp` + `canNext2` · `useApiKeys.ts` `ALL_SCOPES.requiresIp` | ⬜ | 勾 `trade_order` 且 IP 输入为空 → Create 按钮 disabled；填入 `203.0.113.10` 后可提交；非法 IP 显示红字 Invalid | |
+
+---
+
 ## 2026-07-15 — /spot 与技术对接 v1.0 对齐
 
 源文档：[2026-07-15-spot-tech-alignment.md](./2026-07-15-spot-tech-alignment.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/pro-spot-us-stocks`
