@@ -474,6 +474,25 @@ import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 
 ---
 
+### API Surface — Two-Layer Structure (LOCKED)
+
+Open API v1 采用行业标准的两层结构，禁止合并为单页：
+
+| 层 | Path | 定位 | 骨架 |
+|----|------|------|------|
+| 1. 门户 | `/developers` | 介绍 + 入口（对标 Binance /binance-api、Bybit developer 页） | Marketing (`EventsDesktopHeader` / `MobileHeader` + `SeoFooter`)，Hero + 能力三卡 + 三层权限概览 + Quickstart 代码块 + Reference 资源卡 + Footer CTA |
+| 2. 配置 | `/settings/api` | Key 自助管理 | §4 桌面页面骨架（紫色左竖线 + `text-3xl font-bold` 标题 + `max-w-7xl mx-auto px-8 py-10`），顶部必带 `← API Overview` 面包屑回门户 |
+
+**LOCKED**：
+- 门户 Hero CTA 必须包含主 `Manage API Keys → /settings/api` + 次 `Read the Docs`
+- 配置页三层 tier 卡等高（`items-stretch` + `h-full` + `flex-1`），已满足层用 `border-primary/40` + gradient tint 强调
+- 配置页空态**收敛**成 `max-w-sm mx-auto` 虚线卡（图标 + 一句副文 + Create 按钮），**禁止**占满整个下半屏
+- 两层文案统一保密红线：不提对冲 / 做市成本 / 内部撮合结构，只讲交易者视角
+
+---
+
+
+
 
 ## 8. Wallet & Transaction Patterns
 
