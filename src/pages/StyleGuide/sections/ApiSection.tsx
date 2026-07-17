@@ -42,8 +42,17 @@ const TierPlaygroundCard = ({
         Requirements not met
       </Badge>
     );
+  const cardCls =
+    state === "available"
+      ? "border-primary/40 bg-gradient-to-br from-primary/[0.06] via-card to-card shadow-[0_0_0_1px_hsl(var(--primary)/0.15),0_20px_40px_-20px_hsl(var(--primary)/0.35)]"
+      : state === "manual"
+      ? "border-amber-400/25 bg-gradient-to-br from-amber-400/[0.04] via-card to-card"
+      : "border-border/40 bg-card/60";
   return (
-    <div className="trading-card p-4 flex flex-col gap-3">
+    <div className={`relative p-4 flex flex-col gap-3 h-full rounded-xl border ${cardCls}`}>
+      {state === "available" && (
+        <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+      )}
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="text-sm font-semibold">{title}</div>
@@ -51,13 +60,13 @@ const TierPlaygroundCard = ({
         </div>
         {badge}
       </div>
-      <ul className="space-y-1.5">
+      <ul className="space-y-1.5 flex-1">
         {reqs.map((r, i) => (
           <li key={i} className="flex items-start gap-2 text-xs">
             {r.met ? (
-              <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
+              <Check className="w-3.5 h-3.5 text-trading-green mt-0.5 shrink-0" />
             ) : (
-              <X className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+              <X className="w-3.5 h-3.5 text-muted-foreground/60 mt-0.5 shrink-0" />
             )}
             <span className={r.met ? "text-foreground" : "text-muted-foreground"}>
               {r.label}
@@ -69,7 +78,7 @@ const TierPlaygroundCard = ({
         ))}
       </ul>
       {state === "manual" && (
-        <Button variant="outline" size="sm" className="w-full gap-1.5">
+        <Button variant="outline" size="sm" className="w-full gap-1.5 mt-auto">
           <Mail className="w-3.5 h-3.5" /> Contact us
         </Button>
       )}
