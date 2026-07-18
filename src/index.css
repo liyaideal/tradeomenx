@@ -614,3 +614,23 @@
     transform: translateX(-50%);
   }
 }
+
+/* Global reduced-motion fallback: kill decorative animations, keep transitions */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-out,
+  .animate-scale-in,
+  .animate-scale-out,
+  .animate-slide-in-right,
+  .animate-slide-out-right,
+  .animate-enter,
+  .animate-exit,
+  .animate-pulse,
+  .pulse,
+  [class*="animate-["] {
+    animation: none !important;
+  }
+  .web3-card::before {
+    animation: none !important;
+  }
+}
