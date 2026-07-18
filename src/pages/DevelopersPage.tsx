@@ -253,7 +253,7 @@ const DevelopersPage = () => {
 
         <div className="w-full max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 space-y-20 lg:space-y-24">
           {/* CAPABILITIES — Bento */}
-          <section className="animate-fade-in">
+          <section className="animate-fade-in" style={{ animationDelay: "0ms" }}>
             <div className="mb-6 flex items-baseline justify-between">
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground">Built for automation</h2>
@@ -351,7 +351,7 @@ const DevelopersPage = () => {
           </section>
 
           {/* TIERS — Stepped */}
-          <section className="animate-fade-in">
+          <section className="animate-fade-in" style={{ animationDelay: "75ms" }}>
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Access tiers</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
@@ -494,7 +494,7 @@ const DevelopersPage = () => {
           </section>
 
           {/* QUICKSTART */}
-          <section className="animate-fade-in">
+          <section className="animate-fade-in" style={{ animationDelay: "150ms" }}>
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Quickstart</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
@@ -541,7 +541,7 @@ const DevelopersPage = () => {
           </section>
 
           {/* RESOURCES */}
-          <section className="animate-fade-in">
+          <section className="animate-fade-in" style={{ animationDelay: "225ms" }}>
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Reference</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
@@ -575,7 +575,7 @@ const DevelopersPage = () => {
           </section>
 
           {/* CTA BAND */}
-          <section className="animate-fade-in">
+          <section className="animate-fade-in" style={{ animationDelay: "300ms" }}>
             <div
               className={cn(
                 "relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-card to-card p-6 md:p-10"
