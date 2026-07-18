@@ -26,11 +26,11 @@ export const HedgeHero = () => {
             {/* Left: copy column */}
             <div className="relative z-10 flex min-w-0 flex-col gap-5 p-6 md:p-10 lg:w-[55%]">
               {/* Rotated red sticker */}
-              <span className="inline-flex w-fit -rotate-2 items-center gap-2 border-2 border-[#0E0E0E] bg-[#E11D48] px-4 py-1 font-display text-xs uppercase tracking-wider text-white shadow-[4px_4px_0_0_#0E0E0E] md:text-sm">
+              <span className="inline-flex w-fit -rotate-2 items-center gap-2 border-2 border-[#0E0E0E] bg-[#E11D48] px-4 py-1 font-poster text-xs uppercase tracking-wider text-white shadow-[4px_4px_0_0_#0E0E0E] md:text-sm">
                 Special Campaign · World Cup 2026
               </span>
 
-              <h1 className="font-display text-4xl uppercase leading-[0.9] tracking-tight text-[#0E0E0E] md:text-6xl lg:text-7xl">
+              <h1 className="font-poster text-4xl uppercase leading-[0.9] tracking-tight text-[#0E0E0E] md:text-6xl lg:text-7xl">
                 WORLD CUP <span className="text-[#1D4ED8]">CHAOS?</span>{" "}&nbsp;
                 <br />
                 HEDGE IT — REDEEM UP TO <span className="text-[#E11D48]">500U</span>.
@@ -94,7 +94,7 @@ const Stat = ({
     tone === "yellow" ? "text-[#FACC15]" : tone === "red" ? "text-[#E11D48]" : "text-white";
   return (
     <div className="px-3 py-4 text-center md:px-6 md:py-5 md:text-left">
-      <div className={`font-display text-xl md:text-3xl ${color}`}>{value}</div>
+      <div className={`font-poster text-xl md:text-3xl ${color}`}>{value}</div>
       <div className="mt-0.5 font-mono text-[9px] uppercase tracking-widest text-neutral-400 md:text-[10px]">
         {label}
       </div>

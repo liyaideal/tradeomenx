@@ -18,13 +18,13 @@ const OutcomeCol = ({ accent, stamp, headline, body, metrics }: OutcomeColProps)
         style={{ background: accentColor }}
       />
       <div
-        className="mb-4 inline-block self-start border-2 border-[#0E0E0E] px-3 py-1 font-display text-xs uppercase tracking-wider text-white"
+        className="mb-4 inline-block self-start border-2 border-[#0E0E0E] px-3 py-1 font-poster text-xs uppercase tracking-wider text-white"
         style={{ background: accentColor }}
       >
         {stamp}
       </div>
       <div className="flex flex-1 flex-col">
-        <h3 className="font-display text-xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-2xl">
+        <h3 className="font-poster text-xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-2xl">
           {headline}
         </h3>
         <p className="mt-3 text-sm leading-snug text-[#0E0E0E]/80 md:text-base">
@@ -77,7 +77,7 @@ export const HedgeOutcomeSplit = () => {
           {/* VS stamp at center */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-[#0E0E0E] bg-[#FACC15] font-display text-sm uppercase tracking-tight text-[#0E0E0E] md:h-14 md:w-14 md:text-base"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-[#0E0E0E] bg-[#FACC15] font-poster text-sm uppercase tracking-tight text-[#0E0E0E] md:h-14 md:w-14 md:text-base"
             style={{ boxShadow: "3px 3px 0 0 #0E0E0E" }}
           >
             VS

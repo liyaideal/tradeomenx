@@ -14,11 +14,11 @@ export const HedgeFinalCTA = () => {
               <div className="absolute -bottom-10 -left-10 h-48 w-48 -rotate-12 bg-[#FACC15]" />
             </div>
 
-            <span className="relative z-10 mb-4 inline-block -rotate-2 border-2 border-[#0E0E0E] bg-[#E11D48] px-3 py-1 font-display text-xs uppercase tracking-wider text-white">
+            <span className="relative z-10 mb-4 inline-block -rotate-2 border-2 border-[#0E0E0E] bg-[#E11D48] px-3 py-1 font-poster text-xs uppercase tracking-wider text-white">
               Open Now
             </span>
 
-            <h2 className="relative z-10 mx-auto max-w-3xl font-display text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
+            <h2 className="relative z-10 mx-auto max-w-3xl font-poster text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
               Give your pick a hedge —{" "}
               <span className="text-[#1D4ED8]">redeem up to 500U</span>.
             </h2>

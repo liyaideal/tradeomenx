@@ -54,7 +54,7 @@ const ConsequenceLedger = () => (
           <span className="mr-2 text-[#E11D48]/60">──</span>
           {row.label}
         </div>
-        <div className="font-display text-3xl leading-none tracking-tight text-[#1D4ED8] md:text-5xl">
+        <div className="font-poster text-3xl leading-none tracking-tight text-[#1D4ED8] md:text-5xl">
           {row.value}
         </div>
         <div className="font-mono text-xs uppercase tracking-widest text-[#0E0E0E]/60 md:text-right">
@@ -73,7 +73,7 @@ export const HedgeUpsetsStrip = () => {
           <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#E11D48]">
             This World Cup is an upset machine
           </p>
-          <h2 className="mt-2 max-w-3xl font-display text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
+          <h2 className="mt-2 max-w-3xl font-poster text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
             Every upset wipes out another wave of Polymarket positions.
           </h2>
         </div>
@@ -84,7 +84,7 @@ export const HedgeUpsetsStrip = () => {
 
         <p className="mt-8 max-w-2xl text-base font-semibold text-[#0E0E0E]/80 md:text-lg">
           One wrong call and your whole position can go to zero.{" "}
-          <span className="bg-[#FACC15] px-1 font-display uppercase">
+          <span className="bg-[#FACC15] px-1 font-poster uppercase">
             This time, give your pick a hedge.
           </span>
         </p>

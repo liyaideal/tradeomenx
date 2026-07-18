@@ -109,7 +109,7 @@ export const HedgeCTAButton = forwardRef<HTMLButtonElement, HedgeCTAButtonProps>
           disabled={isDisabled}
           className={cn(
             // base: blue ink-border push-button
-            "group relative inline-flex items-center justify-center gap-3 font-display uppercase tracking-tight text-white",
+            "group relative inline-flex items-center justify-center gap-3 font-poster uppercase tracking-tight text-white",
             "border-[3px] border-[#0E0E0E] border-b-[10px] border-r-[10px]",
             "bg-[#1D4ED8] hover:bg-[#1E40AF]",
             "transition-all duration-100",
