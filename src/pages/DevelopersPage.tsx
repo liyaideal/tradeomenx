@@ -573,7 +573,8 @@ const DevelopersPage = () => {
           </section>
 
           {/* QUICKSTART */}
-          <section className="animate-fade-in" style={{ animationDelay: "150ms" }}>
+          <section className="mt-28 lg:mt-32 animate-fade-in" style={{ animationDelay: "150ms" }}>
+            <SectionNumber n="03" />
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Quickstart</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
