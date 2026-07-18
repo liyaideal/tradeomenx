@@ -215,7 +215,7 @@ const DevelopersPage = () => {
   const comingSoon = () => toast.info("Full documentation launching soon.");
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-safe">
       {isMobile ? (
         <MobileHeader title="Open API" showLogo={false} showBack={true} />
       ) : (
