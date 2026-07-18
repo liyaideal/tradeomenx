@@ -16,7 +16,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
-        display: ['"Archivo Black"', 'Impact', 'system-ui', 'sans-serif'],
+        // display: Space Grotesk — marketing surfaces only (dev portal, landing).
+        // Never use in product pages, trading terminal, or data-dense UI.
+        display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
