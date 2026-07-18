@@ -226,7 +226,7 @@ const DevelopersPage = () => {
         {/* HERO */}
         <section className="relative overflow-hidden border-b border-border/40">
           <div className={cn("absolute inset-0 opacity-40", dotBg)} />
-          <div className="absolute -top-24 -right-24 w-[520px] h-[520px] rounded-full bg-primary/[0.06] blur-[120px] pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-[320px] h-[320px] md:w-[520px] md:h-[520px] rounded-full bg-primary/[0.06] blur-[60px] md:blur-[120px] pointer-events-none" />
 
           <div className="relative w-full max-w-7xl mx-auto md:border-x border-border/40 px-5 md:px-8 pt-10 md:pt-20 pb-14 md:pb-24">
             <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center">
@@ -243,24 +243,24 @@ const DevelopersPage = () => {
                     OMENX OPEN API
                   </span>
                 </div>
-                <h1 className="font-display font-bold text-4xl lg:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
+                <h1 className="font-display font-bold text-3xl md:text-4xl lg:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
                   Trade outcome markets from code.
                 </h1>
                 <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed">
                   Every surface of the exchange — order book, orders, positions, settlement — over REST
                   and WebSocket. One schema. Signed requests. Orders preview before they commit.
                 </p>
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2">
+                <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3">
+                  <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 w-full sm:w-auto h-12 sm:h-11">
                     <KeyRound className="w-4 h-4" /> Manage API Keys
                   </Button>
-                  <Button size="lg" variant="outline" onClick={comingSoon} className="gap-2">
+                  <Button size="lg" variant="outline" onClick={comingSoon} className="gap-2 w-full sm:w-auto h-12 sm:h-11">
                     <BookOpen className="w-4 h-4" /> Read the Docs
                   </Button>
                 </div>
 
-                {/* Stat bar */}
-                <div className="mt-10 relative pl-4 pt-6 border-t border-border/40">
+                {/* Stat bar — desktop only (mobile version rendered below terminal/book) */}
+                <div className="mt-10 relative pl-4 pt-6 border-t border-border/40 hidden lg:block">
                   <div className="absolute left-0 top-6 bottom-0 w-px bg-trading-purple/40" />
                   <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
                     {HERO_STATS.map((s, i) => (
@@ -291,7 +291,7 @@ const DevelopersPage = () => {
                   <ApiTerminal
                     tabs={heroTabs}
                     caption="POST /v1/orders/preview · 200 OK"
-                    className="relative z-10"
+                    className="relative z-10 -mx-2 md:mx-0"
                     showCursor={false}
                   />
                   <div className="hidden md:flex absolute -top-3 -right-3 z-20 rotate-2 items-center gap-1.5 rounded-md border border-border bg-card/90 backdrop-blur px-2 py-1 shadow-lg">
@@ -305,6 +305,28 @@ const DevelopersPage = () => {
                   <MiniOrderBook className="hidden lg:block absolute -bottom-6 -right-6 z-30 rotate-1" />
                   <div className="lg:hidden mt-6 flex justify-center">
                     <MiniOrderBook />
+                  </div>
+                </div>
+
+                {/* Stat bar — mobile only, 2×2 grid, purple left rail */}
+                <div className="lg:hidden mt-8 relative pl-4 pt-6 border-t border-border/40">
+                  <div className="absolute left-0 top-6 bottom-0 w-px bg-trading-purple/40" />
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                    {HERO_STATS.map((s) => (
+                      <div key={s.label} className="flex flex-col">
+                        <div className="font-mono text-lg font-bold text-foreground leading-none">
+                          {s.value}
+                        </div>
+                        <div className="mt-1.5 flex gap-[2px] h-[2px]">
+                          <span className="w-3 bg-primary/60" />
+                          <span className="w-1.5 bg-primary/30" />
+                          <span className="w-1 bg-primary/20" />
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1.5">
+                          {s.label}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
