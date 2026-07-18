@@ -173,6 +173,13 @@ const resources = [
 const dotBg =
   "bg-[radial-gradient(circle_at_1px_1px,hsl(var(--muted-foreground)/0.15)_1px,transparent_0)] [background-size:22px_22px]";
 
+const SectionNumber = ({ n }: { n: string }) => (
+  <div className="flex items-center gap-2 mb-3 text-[10px] font-mono tracking-[0.2em] text-muted-foreground/60">
+    <span>{n}</span>
+    <span className="w-2 h-px bg-muted-foreground/40" />
+  </div>
+);
+
 const DevelopersPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
