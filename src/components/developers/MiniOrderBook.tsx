@@ -11,14 +11,18 @@ interface Row {
 const ASKS: Row[] = [
   { price: "0.5183", size: "1,240", depth: 0.42 },
   { price: "0.5142", size: "2,180", depth: 0.68, flash: true },
-  { price: "0.5108", size: "3,415", depth: 0.92 },
+  { price: "0.5108", size: "3,415", depth: 0.92, flash: true },
 ];
 
 const BIDS: Row[] = [
   { price: "0.4972", size: "2,860", depth: 0.84, flash: true },
-  { price: "0.4941", size: "1,905", depth: 0.58 },
+  { price: "0.4941", size: "1,905", depth: 0.58, flash: true },
   { price: "0.4918", size: "1,140", depth: 0.36 },
 ];
+
+// Stagger periodic flashes across the flashing rows to fake a live tape.
+const FLASH_DELAYS_MS = [0, 900, 1800, 2700];
+const FLASH_PERIOD_MS = 3600;
 
 export const MiniOrderBook = ({ className }: { className?: string }) => {
   return (
