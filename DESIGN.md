@@ -1091,6 +1091,7 @@ Locked with `/developers` v5. Applies to all outward-facing marketing pages (dev
 - Display font = **Space Grotesk** (weights 500/700), loaded in `index.html`, mapped to Tailwind `font-display`.
 - Use only on marketing surfaces and only on: hero h1 (`font-bold tracking-[-0.02em]`), section h2 / CTA h3 (`font-medium tracking-[-0.01em]`), tier names.
 - Never use `font-display` for body copy, buttons, notes, stat numbers (mono forever), ghost section numbers (mono forever), or anywhere inside product/trading UI.
+- `font-poster` (Archivo Black) is the retro campaign poster font (see CAMPAIGN_DESIGN.md); it is reserved for campaign surfaces such as `/hedge` and the homepage campaign banner and is **not interchangeable with `font-display`** — do not swap one for the other.
 
 ### 19.3 Copy voice — engineering spec sheet
 

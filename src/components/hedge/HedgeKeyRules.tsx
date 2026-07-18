@@ -2,15 +2,15 @@ import { Check } from "lucide-react";
 import { HedgePosterFrame } from "./HedgePosterFrame";
 
 const ELIGIBILITY = [
-  <>have a position size of at least <span className="font-display">20U</span></>,
-  <>have been held for at least <span className="font-display">1 day</span>.</>,
+  <>have a position size of at least <span className="font-poster">20U</span></>,
+  <>have been held for at least <span className="font-poster">1 day</span>.</>,
 ];
 
 const CAPS = [
-  <>Up to <span className="font-display">3 hedge positions</span> per user during the campaign.</>,
+  <>Up to <span className="font-poster">3 hedge positions</span> per user during the campaign.</>,
   <>
     After all hedge positions settle, up to{" "}
-    <span className="font-display text-[#E11D48]">500U in total rewards</span> per account.{" "}
+    <span className="font-poster text-[#E11D48]">500U in total rewards</span> per account.{" "}
     <span className="italic text-[#0E0E0E]/60">
       *Not guaranteed — depends on hedge performance and the campaign rules.
     </span>
@@ -25,24 +25,24 @@ export const HedgeKeyRules = () => {
           <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#1D4ED8]">
             Eligibility & Campaign Rules
           </p>
-          <h2 className="mt-2 font-display text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
+          <h2 className="mt-2 font-poster text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
             How to qualify.
           </h2>
         </div>
 
         <HedgePosterFrame shadow="blue">
           <div className="p-6 md:p-10">
-            <h3 className="font-display text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
+            <h3 className="font-poster text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
               How you get a hedge position
             </h3>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#0E0E0E]/80 md:text-base">
               Visit the campaign page, connect your Polymarket wallet, and
               complete signature verification to receive your first hedge
-              position — a <span className="font-display">10U Trial Position Voucher</span>.
+              position — a <span className="font-poster">10U Trial Position Voucher</span>.
             </p>
 
             <div className="mt-8 border-t-2 border-dashed border-[#0E0E0E]/20 pt-6">
-              <h3 className="font-display text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
+              <h3 className="font-poster text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
                 To qualify for a hedge position, a Polymarket position must:
               </h3>
               <ul className="mt-3 space-y-2.5">
@@ -60,19 +60,19 @@ export const HedgeKeyRules = () => {
             </div>
 
             <div className="mt-8 border-t-2 border-dashed border-[#0E0E0E]/20 pt-6">
-              <h3 className="font-display text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
+              <h3 className="font-poster text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
                 How we match it
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-[#0E0E0E]/80 md:text-base">
                 If your eligible Polymarket event has a matching event on OmenX
-                with at least <span className="font-display">24 hours</span> remaining,
+                with at least <span className="font-poster">24 hours</span> remaining,
                 we issue a hedge position for that event. If there's no matching
-                event, we issue <span className="font-display">1 default hedge position</span>.
+                event, we issue <span className="font-poster">1 default hedge position</span>.
               </p>
             </div>
 
             <div className="mt-8 border-t-2 border-dashed border-[#0E0E0E]/20 pt-6">
-              <h3 className="font-display text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
+              <h3 className="font-poster text-lg uppercase tracking-tight text-[#0E0E0E] md:text-xl">
                 Campaign caps
               </h3>
               <ul className="mt-3 space-y-2.5">

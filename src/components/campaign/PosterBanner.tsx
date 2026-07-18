@@ -29,7 +29,7 @@ export const PosterBanner = ({ banner, variant = "desktop", onClick }: PosterBan
       onClick={onClick}
       aria-label={banner.title}
       className={cn(
-        "group relative block select-none bg-[#FDFCF0] text-left font-display text-[#0E0E0E] transition-transform",
+        "group relative block select-none bg-[#FDFCF0] text-left font-poster text-[#0E0E0E] transition-transform",
         "border-[#0E0E0E] hover:-translate-x-0.5 hover:-translate-y-0.5",
         isRail
           ? "h-[140px] w-[260px] shrink-0 snap-start border-[3px] p-3 shadow-[5px_5px_0_0_#E11D48] hover:shadow-[7px_7px_0_0_#E11D48]"

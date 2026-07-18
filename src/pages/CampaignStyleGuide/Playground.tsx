@@ -556,10 +556,10 @@ const RetroFrameDemo = () => {
       <div className="rounded-sm bg-[#FDFCF0] p-10">
         <HedgePosterFrame shadow={shadow} size={size} noise={noise}>
           <div className="p-6">
-            <span className="-rotate-2 inline-block border-2 border-[#0E0E0E] bg-[#E11D48] px-3 py-1 font-display text-xs uppercase tracking-wider text-white">
+            <span className="-rotate-2 inline-block border-2 border-[#0E0E0E] bg-[#E11D48] px-3 py-1 font-poster text-xs uppercase tracking-wider text-white">
               Sample sticker
             </span>
-            <div className="mt-3 font-display text-3xl uppercase leading-none text-[#0E0E0E]">
+            <div className="mt-3 font-poster text-3xl uppercase leading-none text-[#0E0E0E]">
               Poster <span className="text-[#1D4ED8]">frame</span>
             </div>
             <p className="mt-3 max-w-md text-sm text-[#0E0E0E]/80">
@@ -644,7 +644,7 @@ const RetroTokensDemo = () => (
             className="flex flex-col gap-2 rounded-sm border border-border/50 p-3"
             style={{ background: c.hex, color: c.fg === "light" ? "#fff" : "#0E0E0E" }}
           >
-            <span className="font-display text-base uppercase tracking-tight">{c.name}</span>
+            <span className="font-poster text-base uppercase tracking-tight">{c.name}</span>
             <span className="font-mono text-[10px] uppercase opacity-80">{c.hex}</span>
             <span className="text-[11px] leading-snug opacity-80">{c.use}</span>
           </div>
@@ -656,8 +656,8 @@ const RetroTokensDemo = () => (
       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Typography</p>
       <div className="mt-2 space-y-3 rounded-sm border border-border/50 bg-[#FDFCF0] p-5 text-[#0E0E0E]">
         <div>
-          <p className="font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">Display · Archivo Black</p>
-          <p className="font-display text-5xl uppercase leading-none">World Cup Chaos?</p>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">Poster · Archivo Black</p>
+          <p className="font-poster text-5xl uppercase leading-none">World Cup Chaos?</p>
         </div>
         <div>
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">Body · Inter</p>

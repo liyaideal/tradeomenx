@@ -97,7 +97,7 @@ export const HedgeFAQ = () => {
           <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#1D4ED8]">
             FAQ
           </p>
-          <h2 className="mt-2 font-display text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
+          <h2 className="mt-2 font-poster text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
             Quick answers.
           </h2>
         </div>
@@ -109,7 +109,7 @@ export const HedgeFAQ = () => {
               value={`faq-${i}`}
               className="overflow-hidden border-2 border-[#0E0E0E] bg-white px-5"
             >
-              <AccordionTrigger className="text-left font-display text-base uppercase tracking-tight text-[#0E0E0E] hover:no-underline md:text-lg">
+              <AccordionTrigger className="text-left font-poster text-base uppercase tracking-tight text-[#0E0E0E] hover:no-underline md:text-lg">
                 {item.q}
               </AccordionTrigger>
               <AccordionContent className="text-sm leading-relaxed text-[#0E0E0E]/80 md:text-base">
@@ -121,14 +121,14 @@ export const HedgeFAQ = () => {
             value="faq-rules"
             className="overflow-hidden border-2 border-[#0E0E0E] bg-white px-5"
           >
-            <AccordionTrigger className="text-left font-display text-base uppercase tracking-tight text-[#0E0E0E] hover:no-underline md:text-lg">
+            <AccordionTrigger className="text-left font-poster text-base uppercase tracking-tight text-[#0E0E0E] hover:no-underline md:text-lg">
               What are the campaign rules?
             </AccordionTrigger>
             <AccordionContent className="text-sm leading-relaxed text-[#0E0E0E]/80 md:text-base">
               <div className="space-y-5 pb-2">
                 {RULE_SECTIONS.map((section, idx) => (
                   <div key={idx}>
-                    <h3 className="font-display text-sm font-bold uppercase tracking-tight text-[#0E0E0E] md:text-base">
+                    <h3 className="font-poster text-sm font-bold uppercase tracking-tight text-[#0E0E0E] md:text-base">
                       {section.title}
                     </h3>
                     <ul className="mt-2 list-disc space-y-1.5 pl-5">

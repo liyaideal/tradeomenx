@@ -28,14 +28,14 @@ export const HedgeHowItWorks = () => {
           <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#1D4ED8]">
             How it works
           </p>
-          <h2 className="mt-2 font-display text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
+          <h2 className="mt-2 font-poster text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
             A hedge for every pick.
           </h2>
           <p className="mt-4 max-w-2xl text-base text-[#0E0E0E]/80 md:text-lg">
             OmenX is running a{" "}
-            <span className="font-display uppercase">World Cup Hedge-to-Earn Campaign</span>.
+            <span className="font-poster uppercase">World Cup Hedge-to-Earn Campaign</span>.
             Connect your Polymarket wallet and we'll give you a{" "}
-            <span className="font-display uppercase">Trial Position Voucher</span> to open
+            <span className="font-poster uppercase">Trial Position Voucher</span> to open
             a hedge position on OmenX — a position that moves the opposite way
             to your Polymarket pick.
           </p>
@@ -58,19 +58,19 @@ export const HedgeHowItWorks = () => {
 
         {/* 3 steps */}
         <div className="mt-12 md:mt-16">
-          <h3 className="font-display text-2xl uppercase tracking-tight text-[#0E0E0E] md:text-3xl">
+          <h3 className="font-poster text-2xl uppercase tracking-tight text-[#0E0E0E] md:text-3xl">
             Hedge in 3 steps.
           </h3>
           <div className="mt-6 grid gap-6 md:mt-8 md:grid-cols-3 md:gap-8">
             {STEPS.map((s) => (
               <div key={s.n} className="relative">
                 <div
-                  className="inline-block -rotate-3 border-4 border-[#0E0E0E] bg-[#FACC15] px-4 py-1 font-display text-3xl text-[#0E0E0E] md:text-4xl"
+                  className="inline-block -rotate-3 border-4 border-[#0E0E0E] bg-[#FACC15] px-4 py-1 font-poster text-3xl text-[#0E0E0E] md:text-4xl"
                   style={{ boxShadow: "4px 4px 0 0 #0E0E0E" }}
                 >
                   {s.n}
                 </div>
-                <h4 className="mt-4 font-display text-xl uppercase tracking-tight text-[#0E0E0E] md:text-2xl">
+                <h4 className="mt-4 font-poster text-xl uppercase tracking-tight text-[#0E0E0E] md:text-2xl">
                   {s.title}
                 </h4>
                 <p className="mt-2 text-sm leading-relaxed text-[#0E0E0E]/75 md:text-base">

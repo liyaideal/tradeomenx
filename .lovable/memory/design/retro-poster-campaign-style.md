@@ -16,7 +16,7 @@ Reserved for **cultural-moment / sports / seasonal** campaigns that need to esca
 
 ## Typography
 
-- Display: `Archivo Black` via `font-display` (Tailwind), `@fontsource/archivo-black`. Always UPPERCASE, tight tracking.
+- Display: `Archivo Black` via `font-poster` (Tailwind), `@fontsource/archivo-black`. Always UPPERCASE, tight tracking.
 - Body: Inter (project default)
 - Mono caps: JetBrains Mono, `text-[10-12px] uppercase tracking-[0.2em]`
 
