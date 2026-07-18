@@ -49,7 +49,7 @@ export const MiniOrderBook = ({ className }: { className?: string }) => {
       {/* Asks */}
       <div>
         {ASKS.map((r, i) => (
-          <Row key={`a${i}`} row={r} side="ask" />
+          <Row key={`a${i}`} row={r} side="ask" flashSlot={r.flash ? i : undefined} />
         ))}
       </div>
 
@@ -62,30 +62,50 @@ export const MiniOrderBook = ({ className }: { className?: string }) => {
       {/* Bids */}
       <div>
         {BIDS.map((r, i) => (
-          <Row key={`b${i}`} row={r} side="bid" />
+          <Row key={`b${i}`} row={r} side="bid" flashSlot={r.flash ? i + ASKS.length : undefined} />
         ))}
       </div>
     </div>
   );
 };
 
-const Row = ({ row, side }: { row: Row; side: "ask" | "bid" }) => {
-  const color = side === "ask" ? "trading-red" : "trading-green";
+const Row = ({
+  row,
+  side,
+  flashSlot,
+}: {
+  row: Row;
+  side: "ask" | "bid";
+  flashSlot?: number;
+}) => {
+  const isAsk = side === "ask";
+  const delay =
+    flashSlot != null ? FLASH_DELAYS_MS[flashSlot % FLASH_DELAYS_MS.length] : 0;
   return (
-    <div
-      className={cn(
-        "relative grid grid-cols-3 px-3 py-1 transition-colors",
-        row.flash && (side === "ask" ? "bg-trading-red/15" : "bg-trading-green/15"),
-      )}
-    >
+    <div className="relative grid grid-cols-3 px-3 py-1">
+      {/* Depth bar */}
       <div
         className={cn(
           "absolute inset-y-0 right-0 transition-all",
-          side === "ask" ? "bg-trading-red/10" : "bg-trading-green/10",
+          isAsk ? "bg-trading-red/10" : "bg-trading-green/10",
         )}
         style={{ width: `${row.depth * 100}%` }}
       />
-      <span className={cn("relative z-10", side === "ask" ? "text-trading-red" : "text-trading-green")}>
+      {/* Flash overlay — static tint fallback + motion-safe infinite pulse */}
+      {row.flash && (
+        <div
+          aria-hidden
+          className={cn(
+            "absolute inset-0 pointer-events-none",
+            isAsk ? "bg-trading-red/10" : "bg-trading-green/10",
+            isAsk
+              ? `motion-safe:[animation:flash-red_${FLASH_PERIOD_MS}ms_ease-out_infinite]`
+              : `motion-safe:[animation:flash-green_${FLASH_PERIOD_MS}ms_ease-out_infinite]`,
+          )}
+          style={{ animationDelay: `${delay}ms` }}
+        />
+      )}
+      <span className={cn("relative z-10", isAsk ? "text-trading-red" : "text-trading-green")}>
         {row.price}
       </span>
       <span className="relative z-10 text-center text-foreground/70">{row.size}</span>
