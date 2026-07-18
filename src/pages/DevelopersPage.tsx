@@ -190,8 +190,8 @@ const DevelopersPage = () => {
         {/* HERO */}
         <section className="relative overflow-hidden border-b border-border/40">
           <div className={cn("absolute inset-0 opacity-40", dotBg)} />
-          <div className="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
-          <div className="absolute -bottom-40 right-0 w-[420px] h-[420px] rounded-full bg-trading-purple/10 blur-[120px] pointer-events-none" />
+          {/* Single, asymmetric ambient glow (top-right, dim) */}
+          <div className="absolute -top-24 -right-24 w-[520px] h-[520px] rounded-full bg-primary/[0.06] blur-[120px] pointer-events-none" />
 
           <div className="relative w-full max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-20 pb-14 md:pb-24">
             <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center">
@@ -211,9 +211,7 @@ const DevelopersPage = () => {
                 <h1 className="text-4xl lg:text-5xl font-bold leading-[1.05] tracking-tight text-foreground">
                   Programmatic access to
                   <br />
-                  <span className="bg-gradient-to-r from-primary via-primary to-trading-purple bg-clip-text text-transparent">
-                    outcome markets.
-                  </span>
+                  outcome markets.
                 </h1>
                 <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed">
                   REST, WebSocket, agent-ready. One typed schema for market data, order lifecycle, and
@@ -228,45 +226,61 @@ const DevelopersPage = () => {
                   </Button>
                 </div>
 
-                {/* Stat bar */}
-                <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 pt-6 border-t border-border/40">
-                  {HERO_STATS.map((s, i) => (
-                    <div key={s.label} className="flex items-center gap-6">
-                      {i > 0 && <span className="hidden md:block h-6 w-px bg-border/60" />}
-                      <div>
-                        <div className="font-mono text-lg font-bold text-foreground leading-none">
-                          {s.value}
-                        </div>
-                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">
-                          {s.label}
+                {/* Stat bar — dirty numbers with tick decoration + brand vertical rule */}
+                <div className="mt-10 relative pl-4 pt-6 border-t border-border/40">
+                  <div className="absolute left-0 top-6 bottom-0 w-px bg-trading-purple/40" />
+                  <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
+                    {HERO_STATS.map((s, i) => (
+                      <div key={s.label} className="flex items-start gap-6">
+                        {i > 0 && <span className="hidden md:block h-8 w-px bg-border/60 mt-1" />}
+                        <div className="flex flex-col">
+                          <div className="font-mono text-lg font-bold text-foreground leading-none">
+                            {s.value}
+                          </div>
+                          {/* tick decoration */}
+                          <div className="mt-1.5 flex gap-[2px] h-[2px]">
+                            <span className="w-3 bg-primary/60" />
+                            <span className="w-1.5 bg-primary/30" />
+                            <span className="w-1 bg-primary/20" />
+                          </div>
+                          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1.5">
+                            {s.label}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Right — terminal hero */}
+              {/* Right — terminal hero + mini order book (layered) */}
               <div className="relative animate-fade-in" style={{ animationDelay: "75ms" }}>
-                <div className="absolute -inset-6 bg-primary/20 blur-3xl rounded-full pointer-events-none" />
                 <div className="relative">
                   <ApiTerminal
                     tabs={heroTabs}
-                    caption="terminal · preview → submit"
+                    caption="POST /v1/orders/preview · 200 OK"
                     className="relative z-10"
+                    showCursor={false}
                   />
-                  {/* Floating badges */}
+                  {/* Floating badges — real WS seq / endpoint chips */}
                   <div className="hidden md:flex absolute -top-3 -right-3 z-20 rotate-2 items-center gap-1.5 rounded-md border border-border bg-card/90 backdrop-blur px-2 py-1 shadow-lg">
-                    <span className="text-trading-purple font-mono text-[10px] font-semibold">POST</span>
-                    <span className="font-mono text-[10px] text-foreground/80">/v1/orders/preview</span>
-                  </div>
-                  <div className="hidden md:flex absolute -bottom-3 -left-3 z-20 -rotate-1 items-center gap-1.5 rounded-md border border-border bg-card/90 backdrop-blur px-2 py-1 shadow-lg">
                     <span className="text-primary font-mono text-[10px] font-semibold">ws</span>
-                    <span className="font-mono text-[10px] text-foreground/80">market.book</span>
+                    <span className="font-mono text-[10px] text-foreground/80">market.book · seq 48,516</span>
+                  </div>
+                  <div className="hidden md:flex absolute -top-3 left-8 z-20 -rotate-1 items-center gap-1.5 rounded-md border border-border bg-card/90 backdrop-blur px-2 py-1 shadow-lg">
+                    <span className="text-trading-green font-mono text-[10px] font-semibold">GET</span>
+                    <span className="font-mono text-[10px] text-foreground/80">/v1/markets/{"{id}"}</span>
+                  </div>
+
+                  {/* Mini order book — desktop overlay, mobile stacked below */}
+                  <MiniOrderBook className="hidden lg:block absolute -bottom-6 -right-6 z-30 rotate-1" />
+                  <div className="lg:hidden mt-6 flex justify-center">
+                    <MiniOrderBook />
                   </div>
                 </div>
               </div>
             </div>
+          </div>
           </div>
 
           {/* Endpoint marquee */}
