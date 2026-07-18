@@ -139,6 +139,103 @@ export const ApiSection = ({ isMobile }: Props) => {
       title="API Management"
       description="Two-layer surface: /developers portal (marketing/entry) → /settings/api configuration (§4 skeleton)."
     ><div className="space-y-8">
+      <SubSection title="Portal — hero terminal (macOS-style, multi-tab, syntax highlight)">
+        <ApiTerminal
+          caption="terminal · preview → submit"
+          tabs={[
+            { label: "cURL", lang: "bash", code: `curl -X POST https://api.omenx.io/v1/orders/preview \\\n  -H "X-OMENX-API-KEY: $KEY" \\\n  -d '{"symbol":"AAPL-DAILY","side":"buy","price":0.42,"size":100}'` },
+            { label: "Python", lang: "python", code: `from omenx import Client\nclient = Client(key=KEY)\npreview = client.orders.preview(symbol="AAPL-DAILY", side="buy", price=0.42, size=100)` },
+          ]}
+        />
+      </SubSection>
+
+      <SubSection title="Portal — endpoint marquee (auto-scroll, hover pauses)">
+        <div className="rounded-xl border border-border/40 bg-muted/10">
+          <EndpointMarquee />
+        </div>
+      </SubSection>
+
+      <SubSection title="Portal — capabilities bento (1 hero + 2 support cards)">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 auto-rows-fr">
+          <div className="web3-card lg:col-span-2 lg:row-span-2 p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-primary" />
+              </div>
+              <Badge variant="outline" className="bg-trading-purple/10 text-trading-purple border-trading-purple/30 font-mono text-[10px]">
+                Agent-safe
+              </Badge>
+            </div>
+            <div>
+              <div className="text-lg font-bold">Agent-Ready</div>
+              <p className="text-xs text-muted-foreground mt-1.5 max-w-md leading-relaxed">
+                Typed schemas, deterministic errors, strict preview → confirm → submit flow.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/50 bg-background/40 p-3 flex items-center gap-2 text-xs font-mono">
+              {["preview", "confirm", "submit"].map((s, i) => (
+                <div key={s} className="flex items-center gap-2 flex-1">
+                  <Check className="w-3 h-3 text-trading-green" />
+                  <span>{s}</span>
+                  {i < 2 && <ChevronRight className="w-3 h-3 text-muted-foreground ml-auto" />}
+                </div>
+              ))}
+            </div>
+          </div>
+          {[
+            { icon: LineChart, title: "Market Data", tag: "REST · WS", body: "Order book, trades, mark, funding." },
+            { icon: Zap, title: "Trading", tag: "Idempotent", body: "Place, cancel, conditional orders." },
+          ].map((c) => (
+            <div key={c.title} className="trading-card p-5 relative overflow-hidden">
+              <c.icon className="absolute -bottom-4 -right-4 w-24 h-24 opacity-[0.06] text-primary" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                <c.icon className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-semibold">{c.title}</div>
+                <span className="text-[10px] font-mono text-muted-foreground">{c.tag}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{c.body}</p>
+            </div>
+          ))}
+        </div>
+      </SubSection>
+
+      <SubSection title="Portal — access tiers as stepped ladder (desktop) / timeline (mobile)">
+        <div className={isMobile ? "hidden" : "flex items-stretch gap-0"}>
+          {[
+            { name: "Read-only", tag: "Free", accent: "muted" as const, offset: 16 },
+            { name: "Trading", tag: "Self-serve", accent: "primary" as const, offset: 8 },
+            { name: "Pro / MM", tag: "Manual approval", accent: "amber" as const, offset: 0 },
+          ].map((t, i, arr) => (
+            <div key={t.name} className="flex-1 flex items-stretch">
+              <div
+                style={{ marginTop: t.offset }}
+                className={cn(
+                  "flex-1 rounded-xl p-4 flex flex-col gap-2",
+                  t.accent === "muted" && "border border-border/40 bg-card/60",
+                  t.accent === "primary" && "border border-primary/40 bg-gradient-to-br from-primary/[0.06] via-card to-card",
+                  t.accent === "amber" && "web3-card border-amber-400/25 bg-gradient-to-br from-amber-400/[0.04] via-card to-card"
+                )}
+              >
+                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Tier {i + 1}</div>
+                <div className={cn("text-base font-bold", t.accent === "primary" && "text-primary", t.accent === "amber" && "text-amber-400")}>
+                  {t.name}
+                </div>
+                <div className="text-[10px] font-mono text-muted-foreground">{t.tag}</div>
+              </div>
+              {i < arr.length - 1 && (
+                <div className="flex items-center px-1 shrink-0">
+                  <div className="w-4 border-t border-dashed border-border" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </SubSection>
+
+
       <SubSection title="Portal hero (/developers) — capabilities row">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {[
