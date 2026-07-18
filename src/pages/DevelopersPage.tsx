@@ -382,7 +382,7 @@ const DevelopersPage = () => {
                       </div>
                       <span className="text-foreground">{s.step}</span>
                       {i < 2 && (
-                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto rotate-90 md:rotate-0" />
                       )}
                     </div>
                     <span className="text-[10px] text-muted-foreground pl-8">{s.field}</span>
@@ -540,44 +540,42 @@ const DevelopersPage = () => {
           {/* Mobile timeline */}
           <div className="md:hidden relative pl-6">
             <div className="absolute left-2 top-2 bottom-2 w-px bg-gradient-to-b from-border via-primary/40 to-primary" />
-            <div className="space-y-4">
+            <div className="border-y border-border/40 divide-y divide-border/40">
               {tiers.map((t) => (
-                <div key={t.name} className="relative">
+                <div key={t.name} className="relative py-4">
                   <div
                     className={cn(
-                      "absolute -left-[18px] top-4 w-3 h-3 rounded-full border-2 bg-background",
+                      "absolute -left-4 top-6 w-3 h-3 rounded-full border-2 bg-background",
                       t.accent === "primary" && "border-primary",
                       t.accent === "amber" && "border-amber-400",
                       t.accent === "muted" && "border-border",
                     )}
                   />
-                  <div className="border-y border-border/40 py-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div
-                        className={cn(
-                          "font-display font-medium tracking-[-0.01em] text-base",
-                          t.accent === "primary"
-                            ? "text-primary"
-                            : t.accent === "amber"
-                            ? "text-amber-400"
-                            : "text-foreground",
-                        )}
+                  <div className="flex items-center justify-between mb-2">
+                    <div
+                      className={cn(
+                        "font-display font-medium tracking-[-0.01em] text-base",
+                        t.accent === "primary"
+                          ? "text-primary"
+                          : t.accent === "amber"
+                          ? "text-amber-400"
+                          : "text-foreground",
+                      )}
+                    >
+                      {t.name}
+                    </div>
+                    <span className="text-[10px] font-mono text-muted-foreground">{t.tag}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t.body}</p>
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {t.chips.map((c) => (
+                      <span
+                        key={c}
+                        className="rounded border border-border/50 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
                       >
-                        {t.name}
-                      </div>
-                      <span className="text-[10px] font-mono text-muted-foreground">{t.tag}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{t.body}</p>
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {t.chips.map((c) => (
-                        <span
-                          key={c}
-                          className="rounded border border-border/50 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
-                        >
-                          {c}
-                        </span>
-                      ))}
-                    </div>
+                        {c}
+                      </span>
+                    ))}
                   </div>
                 </div>
               ))}
