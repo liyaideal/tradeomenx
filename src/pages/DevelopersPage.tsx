@@ -369,7 +369,7 @@ const DevelopersPage = () => {
                   Strict typed schema · No natural-language execution path
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs font-mono self-center">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 text-xs font-mono self-center">
                 {[
                   { step: "preview", field: "pricing_snapshot_id" },
                   { step: "confirm", field: "client_order_id" },
