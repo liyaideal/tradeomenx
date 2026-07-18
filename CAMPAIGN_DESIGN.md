@@ -120,6 +120,7 @@ Description
 - Hero title: large, confident, short. Prefer the campaign name or literal offer.
 - Section title: clear, editorial, not slogan-heavy.
 - Body copy: direct and human. Avoid inflated marketing copy.
+- **Poster font token**: retro poster campaigns (currently `/hedge`, homepage campaign banner) use **Archivo Black** via Tailwind `font-poster` (loaded in `index.html`, stack `["Archivo Black", Impact, sans-serif]`). This is distinct from `font-display` (Space Grotesk, marketing portal headlines) — the two tokens are not interchangeable.
 
 ### Casing
 
