@@ -55,12 +55,42 @@ export const TypographySection = ({ isMobile }: TypographySectionProps) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Sans (Inter) - Primary</p>
+                <p className="text-sm text-muted-foreground mb-1">Sans (Inter) — primary text</p>
                 <p className="text-2xl font-sans">The quick brown fox jumps</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Mono (JetBrains Mono) - Numbers/Prices</p>
+                <p className="text-sm text-muted-foreground mb-1">Mono (JetBrains Mono) — numbers, addresses</p>
                 <p className="text-2xl font-mono">$1,234.56 (+12.34%)</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Display (Space Grotesk) — marketing headlines only
+                </p>
+                <p className="font-display font-bold tracking-[-0.02em] text-3xl">
+                  Trade outcome markets from code.
+                </p>
+                <p className="text-[11px] text-muted-foreground/80 mt-1">
+                  Restricted to marketing surfaces (developer portal, landing). Never in product or
+                  trading UI.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="trading-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Marketing h1 · Inter vs Space Grotesk</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-1">Inter (product default)</p>
+                <p className="text-3xl font-bold tracking-tight">Trade outcome markets from code.</p>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-1">Space Grotesk (marketing)</p>
+                <p className="font-display font-bold tracking-[-0.02em] text-3xl">
+                  Trade outcome markets from code.
+                </p>
               </div>
             </CardContent>
           </Card>

@@ -1072,3 +1072,29 @@ Each event category can display a themed background image on its market card (`M
 ### Configuration
 
 Category-to-background mapping is defined in `src/lib/categoryUtils.ts` via the `cardBg` property in `CATEGORY_STYLES`.
+
+---
+
+## 19. Marketing Surface Architecture
+
+Locked with `/developers` v5. Applies to all outward-facing marketing pages (developer portal, landing, campaign hubs) — never to product pages, portfolio, wallet, or the trading terminal.
+
+### 19.1 Page skeleton
+
+- Full-width bleed bands alternate `bg-background` / `bg-background-elevated`, separated by a top hairline (`border-t border-border/30`).
+- Each band pins its content to `max-w-7xl mx-auto` with `md:border-x border-border/40` vertical tracks (drop `border-x` on mobile).
+- No rounded outer frames on decorative containers. Only real product objects (order book, terminal window, code block) keep a card frame.
+- Every section opens with a `SectionHeader`: ghost mono number (`text-5xl text-muted-foreground/[0.12]`), small `text-xl` h2, subtitle, right-aligned mono meta note.
+
+### 19.2 Display typography
+
+- Display font = **Space Grotesk** (weights 500/700), loaded in `index.html`, mapped to Tailwind `font-display`.
+- Use only on marketing surfaces and only on: hero h1 (`font-bold tracking-[-0.02em]`), section h2 / CTA h3 (`font-medium tracking-[-0.01em]`), tier names.
+- Never use `font-display` for body copy, buttons, notes, stat numbers (mono forever), ghost section numbers (mono forever), or anywhere inside product/trading UI.
+
+### 19.3 Copy voice — engineering spec sheet
+
+- Short sentences. Concrete nouns, concrete numbers. Vary sentence length.
+- No three-item list pileups ("fast, reliable, and scalable"). No adjective stacking.
+- Prefer verbs of the surface itself ("preview", "sign", "commit") over marketing verbs ("empower", "unlock the future of").
+- Every claim should map to a field, endpoint, or measurable behavior — otherwise cut it.

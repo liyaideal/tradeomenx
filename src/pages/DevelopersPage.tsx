@@ -122,21 +122,21 @@ const tiers = [
   {
     name: "Read-only",
     tag: "Free · instant",
-    body: "Public + private read endpoints. Ideal for dashboards, analytics, monitoring.",
+    body: "Query markets, account and history. No deposit required.",
     chips: ["read_public", "read_private", "ws_public"],
     accent: "muted",
   },
   {
     name: "Trading",
     tag: "Self-serve",
-    body: "Full order lifecycle plus private streams. Unlocks after 2FA + first deposit + first fill.",
+    body: "Full order lifecycle plus private streams. Unlocks at one deposit, $100 equity, one filled trade.",
     chips: ["trade_order", "trade_cancel", "trade_conditional", "ws_private"],
     accent: "primary",
   },
   {
     name: "Pro / Market Maker",
     tag: "Manual review",
-    body: "Elevated limits and dedicated stream capacity for MM desks and quant funds.",
+    body: "Raised limits and dedicated capacity. Reviewed case by case.",
     chips: ["elevated_rate_limits", "dedicated_ws", "mm_program"],
     accent: "amber",
   },
@@ -176,7 +176,7 @@ const SectionHeader = ({
         {n}
       </span>
       <div className="min-w-0">
-        <h2 className="text-xl font-semibold text-foreground leading-tight">{title}</h2>
+        <h2 className="font-display font-medium tracking-[-0.01em] text-xl text-foreground leading-tight">{title}</h2>
         <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
       </div>
     </div>
@@ -243,14 +243,12 @@ const DevelopersPage = () => {
                     OMENX OPEN API
                   </span>
                 </div>
-                <h1 className="text-4xl lg:text-5xl font-bold leading-[1.05] tracking-tight text-foreground">
-                  Programmatic access to
-                  <br />
-                  outcome markets.
+                <h1 className="font-display font-bold text-4xl lg:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
+                  Trade outcome markets from code.
                 </h1>
                 <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed">
-                  REST, WebSocket, agent-ready. One typed schema for market data, order lifecycle, and
-                  account state — built for bots, market makers, and autonomous agents.
+                  Every surface of the exchange — order book, orders, positions, settlement — over REST
+                  and WebSocket. One schema. Signed requests. Orders preview before they commit.
                 </p>
                 <div className="mt-7 flex flex-wrap gap-3">
                   <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2">
@@ -342,8 +340,8 @@ const DevelopersPage = () => {
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-                  Typed schemas, deterministic errors, and a strict preview → confirm → submit flow.
-                  Built so autonomous agents cannot fat-finger production capital.
+                  Typed schemas and deterministic errors. An agent can't fat-finger what it must first
+                  preview.
                 </p>
                 <p className="text-[11px] text-muted-foreground/80 mt-1">
                   Strict typed schema · No natural-language execution path
@@ -380,7 +378,8 @@ const DevelopersPage = () => {
                   <span className="text-[10px] font-mono text-muted-foreground">REST · WS</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Real-time order book, trades, mark & funding. REST snapshots plus WebSocket streams.
+                  Depth, tape, mark and funding. Snapshots over REST, sequence-numbered deltas over
+                  WebSocket.
                 </p>
                 <div className="mt-1 rounded-md border border-border/50 bg-background/40 font-mono text-[10px] divide-y divide-border/40">
                   {[
@@ -417,7 +416,8 @@ const DevelopersPage = () => {
                   <span className="text-[10px] font-mono text-muted-foreground">Idempotent</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Full order lifecycle: place, cancel, stage conditional orders. Idempotent by design.
+                  Place, cancel, stage conditionals. Every write is idempotent by client_order_id.
+                  Fees are known before you commit.
                 </p>
                 <pre className="mt-1 rounded-md border border-border/50 bg-background/40 p-2.5 font-mono text-[10px] leading-relaxed overflow-hidden">
 {`{
@@ -488,7 +488,7 @@ const DevelopersPage = () => {
                   <div>
                     <div
                       className={cn(
-                        "text-lg font-bold",
+                        "font-display font-medium tracking-[-0.01em] text-lg",
                         t.accent === "primary"
                           ? "text-primary"
                           : t.accent === "amber"
@@ -533,7 +533,7 @@ const DevelopersPage = () => {
                     <div className="flex items-center justify-between mb-2">
                       <div
                         className={cn(
-                          "text-base font-bold",
+                          "font-display font-medium tracking-[-0.01em] text-base",
                           t.accent === "primary"
                             ? "text-primary"
                             : t.accent === "amber"
@@ -579,15 +579,15 @@ const DevelopersPage = () => {
               {[
                 {
                   t: "Create your key",
-                  b: "In Settings → API Management, verify 2FA and generate a Read-only or Trading key. The secret is shown once.",
+                  b: "Settings → API Management. Verify 2FA, pick your scopes. The secret prints once.",
                 },
                 {
                   t: "Sign the request",
-                  b: "HMAC-SHA256 over timestamp + method + path + body. Attach three headers on every call.",
+                  b: "HMAC-SHA256 over timestamp + method + path + body. Three headers on every call.",
                 },
                 {
                   t: "Preview, then submit",
-                  b: "POST to /orders/preview for a dry run. Same body, same signature — POST to /orders to commit.",
+                  b: "POST the order to /orders/preview. Same body, same signature — /orders to commit.",
                 },
               ].map((s, i) => (
                 <li key={s.t} className="relative flex gap-4 pb-6 last:pb-0">
@@ -606,7 +606,7 @@ const DevelopersPage = () => {
           </div>
 
           <p className="mt-6 text-[11px] text-muted-foreground flex items-center gap-1.5">
-            <ShieldCheck className="w-3 h-3" /> All state-changing endpoints support{" "}
+            <ShieldCheck className="w-3 h-3" /> State-changing endpoints take an{" "}
             <code className="font-mono text-foreground/80">Idempotency-Key</code> and require an IP
             whitelist on the key.
           </p>
@@ -654,7 +654,7 @@ const DevelopersPage = () => {
                 <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary mb-2">
                   Ready to build
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                <h3 className="font-display font-medium tracking-[-0.01em] text-2xl md:text-3xl text-foreground">
                   Start with three requests.
                 </h3>
                 <p className="text-sm text-muted-foreground mt-2 max-w-xl">
