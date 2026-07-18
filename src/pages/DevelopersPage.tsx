@@ -288,9 +288,10 @@ const DevelopersPage = () => {
           </div>
         </section>
 
-        <div className="w-full max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 space-y-20 lg:space-y-24">
+        <div className="w-full max-w-7xl mx-auto px-5 md:px-8 pt-16 md:pt-24 pb-16 md:pb-24">
           {/* CAPABILITIES — Bento */}
           <section className="animate-fade-in" style={{ animationDelay: "0ms" }}>
+            <SectionNumber n="01" />
             <div className="mb-6 flex items-baseline justify-between">
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground">Built for automation</h2>
@@ -326,18 +327,25 @@ const DevelopersPage = () => {
                   </p>
                 </div>
 
-                {/* Stepper */}
+                {/* Stepper with real field names */}
                 <div className="mt-2 rounded-lg border border-border/50 bg-background/40 p-4">
-                  <div className="flex items-center gap-2 md:gap-3 text-xs font-mono">
-                    {["preview", "confirm", "submit"].map((step, i) => (
-                      <div key={step} className="flex items-center gap-2 md:gap-3 flex-1">
-                        <div className="flex items-center gap-2 flex-1">
+                  <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs font-mono">
+                    {[
+                      { step: "preview", field: "pricing_snapshot_id" },
+                      { step: "confirm", field: "client_order_id" },
+                      { step: "submit", field: "idempotent" },
+                    ].map((s, i) => (
+                      <div key={s.step} className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-trading-green/15 border border-trading-green/40 flex items-center justify-center shrink-0">
                             <Check className="w-3 h-3 text-trading-green" />
                           </div>
-                          <span className="text-foreground">{step}</span>
+                          <span className="text-foreground">{s.step}</span>
+                          {i < 2 && (
+                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+                          )}
                         </div>
-                        {i < 2 && <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+                        <span className="text-[10px] text-muted-foreground pl-8">{s.field}</span>
                       </div>
                     ))}
                   </div>
@@ -347,45 +355,71 @@ const DevelopersPage = () => {
                 </div>
               </div>
 
-              {/* Market Data */}
+              {/* Market Data — mini trades tape evidence */}
               <div className="trading-card p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-primary/40 hover:-translate-y-0.5 transition-all">
-                <capabilities.data.icon className="absolute -bottom-4 -right-4 w-24 h-24 opacity-[0.06] text-primary" />
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center relative z-10">
-                  <capabilities.data.icon className="w-5 h-5 text-primary" />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-foreground">
+                    {capabilities.data.title}
+                  </h3>
+                  <span className="text-[10px] font-mono text-muted-foreground">REST · WS</span>
                 </div>
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-semibold text-foreground">
-                      {capabilities.data.title}
-                    </h3>
-                    <span className="text-[10px] font-mono text-muted-foreground">REST · WS</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                    {capabilities.data.body}
-                  </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {capabilities.data.body}
+                </p>
+                {/* mini tape */}
+                <div className="mt-1 rounded-md border border-border/50 bg-background/40 font-mono text-[10px] divide-y divide-border/40">
+                  {[
+                    { t: "14:32:08", p: "0.5142", side: "buy" },
+                    { t: "14:32:05", p: "0.5108", side: "sell" },
+                    { t: "14:32:01", p: "0.5140", side: "buy" },
+                    { t: "14:31:58", p: "0.5133", side: "sell" },
+                  ].map((r, i) => (
+                    <div key={i} className="grid grid-cols-3 px-2.5 py-1">
+                      <span className="text-muted-foreground">{r.t}</span>
+                      <span
+                        className={cn(
+                          "text-center",
+                          r.side === "buy" ? "text-trading-green" : "text-trading-red",
+                        )}
+                      >
+                        {r.p}
+                      </span>
+                      <span className="text-right text-muted-foreground">
+                        {r.side === "buy" ? "↑" : "↓"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-[10px] font-mono text-muted-foreground/80">
+                  GET /v1/markets/{"{id}"}/trades
                 </div>
               </div>
 
-              {/* Trading */}
+              {/* Trading — fill JSON snippet evidence */}
               <div className="trading-card p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-primary/40 hover:-translate-y-0.5 transition-all">
-                <capabilities.trade.icon className="absolute -bottom-4 -right-4 w-24 h-24 opacity-[0.06] text-primary" />
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center relative z-10">
-                  <capabilities.trade.icon className="w-5 h-5 text-primary" />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-foreground">
+                    {capabilities.trade.title}
+                  </h3>
+                  <span className="text-[10px] font-mono text-muted-foreground">Idempotent</span>
                 </div>
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-semibold text-foreground">
-                      {capabilities.trade.title}
-                    </h3>
-                    <span className="text-[10px] font-mono text-muted-foreground">Idempotent</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                    {capabilities.trade.body}
-                  </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {capabilities.trade.body}
+                </p>
+                <pre className="mt-1 rounded-md border border-border/50 bg-background/40 p-2.5 font-mono text-[10px] leading-relaxed overflow-hidden">
+{`{
+  "status": "FILLED",
+  "fill_price": "0.5142",
+  "fee_u": "0.1872"
+}`}
+                </pre>
+                <div className="text-[10px] font-mono text-muted-foreground/80">
+                  POST /v1/orders
                 </div>
               </div>
             </div>
           </section>
+
 
           {/* TIERS — Stepped */}
           <section className="animate-fade-in" style={{ animationDelay: "75ms" }}>
