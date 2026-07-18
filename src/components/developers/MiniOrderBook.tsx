@@ -99,8 +99,8 @@ const Row = ({
             "absolute inset-0 pointer-events-none",
             isAsk ? "bg-trading-red/10" : "bg-trading-green/10",
             isAsk
-              ? `motion-safe:[animation:flash-red_${FLASH_PERIOD_MS}ms_ease-out_infinite]`
-              : `motion-safe:[animation:flash-green_${FLASH_PERIOD_MS}ms_ease-out_infinite]`,
+              ? "motion-safe:[animation:flash-red_3600ms_ease-out_infinite]"
+              : "motion-safe:[animation:flash-green_3600ms_ease-out_infinite]",
           )}
           style={{ animationDelay: `${delay}ms` }}
         />
