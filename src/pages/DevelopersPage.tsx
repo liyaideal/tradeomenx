@@ -488,7 +488,7 @@ const DevelopersPage = () => {
                   <div>
                     <div
                       className={cn(
-                        "text-lg font-bold",
+                        "font-display font-medium tracking-[-0.01em] text-lg",
                         t.accent === "primary"
                           ? "text-primary"
                           : t.accent === "amber"
@@ -533,7 +533,7 @@ const DevelopersPage = () => {
                     <div className="flex items-center justify-between mb-2">
                       <div
                         className={cn(
-                          "text-base font-bold",
+                          "font-display font-medium tracking-[-0.01em] text-base",
                           t.accent === "primary"
                             ? "text-primary"
                             : t.accent === "amber"
