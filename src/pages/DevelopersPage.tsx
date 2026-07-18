@@ -575,7 +575,7 @@ const DevelopersPage = () => {
           </section>
 
           {/* CTA BAND */}
-          <section className="animate-fade-in">
+          <section className="animate-fade-in" style={{ animationDelay: "300ms" }}>
             <div
               className={cn(
                 "relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-card to-card p-6 md:p-10"
