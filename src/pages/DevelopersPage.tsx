@@ -382,7 +382,7 @@ const DevelopersPage = () => {
                       </div>
                       <span className="text-foreground">{s.step}</span>
                       {i < 2 && (
-                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto rotate-90 md:rotate-0" />
                       )}
                     </div>
                     <span className="text-[10px] text-muted-foreground pl-8">{s.field}</span>
