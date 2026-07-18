@@ -656,25 +656,23 @@ const DevelopersPage = () => {
           </section>
 
           {/* CTA BAND */}
-          <section className="animate-fade-in" style={{ animationDelay: "300ms" }}>
+          <section className="mt-20 animate-fade-in" style={{ animationDelay: "300ms" }}>
             <div
               className={cn(
                 "relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-card to-card p-6 md:p-10"
               )}
             >
-              <div className={cn("absolute inset-0 opacity-30", dotBg)} />
-              <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
+              <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
               <div className="relative flex flex-col md:flex-row md:items-center gap-6">
                 <div className="flex-1">
                   <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary mb-2">
                     Ready to build
                   </div>
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                    Generate your first key
+                    Start with three requests.
                   </h3>
                   <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-                    Read-only unlocks with email + 2FA. Trading unlocks after your first deposit and
-                    first fill.
+                    Preview. Confirm. Submit.
                   </p>
                 </div>
                 <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 shrink-0">
