@@ -281,7 +281,6 @@ const DevelopersPage = () => {
               </div>
             </div>
           </div>
-          </div>
 
           {/* Endpoint marquee */}
           <div className="relative border-t border-border/40 bg-muted/10">
