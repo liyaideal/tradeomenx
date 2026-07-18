@@ -168,15 +168,15 @@ const SectionHeader = ({
   meta: string;
 }) => (
   <div className="flex items-end justify-between gap-6 pb-4 border-b border-border/30 mb-8">
-    <div className="flex items-end gap-4 min-w-0">
+    <div className="flex items-end gap-3 md:gap-4 min-w-0">
       <span
         aria-hidden
-        className="font-mono font-bold text-5xl leading-none text-muted-foreground/[0.12] select-none shrink-0"
+        className="font-mono font-bold text-3xl md:text-5xl leading-none text-muted-foreground/[0.12] select-none shrink-0"
       >
         {n}
       </span>
       <div className="min-w-0">
-        <h2 className="font-display font-medium tracking-[-0.01em] text-xl text-foreground leading-tight">{title}</h2>
+        <h2 className="font-display font-medium tracking-[-0.01em] text-lg md:text-xl text-foreground leading-tight">{title}</h2>
         <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
       </div>
     </div>
