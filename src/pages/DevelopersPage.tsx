@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ApiTerminal, type TerminalTab } from "@/components/developers/ApiTerminal";
 import { EndpointMarquee } from "@/components/developers/EndpointMarquee";
+import { MiniOrderBook } from "@/components/developers/MiniOrderBook";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -27,9 +28,9 @@ import { toast } from "sonner";
 
 // DEMO-STATE: 展示性指标，上线前以真实 SLA 口径替换
 const HERO_STATS = [
-  { value: "<50ms", label: "Median latency" },
-  { value: "99.9%", label: "Uptime target" },
-  { value: "30+", label: "REST endpoints" },
+  { value: "47 ms", label: "p50 latency" },
+  { value: "99.95%", label: "Uptime" },
+  { value: "31", label: "REST endpoints" },
   { value: "9", label: "WS topics" },
 ];
 
@@ -37,13 +38,28 @@ const heroTabs: TerminalTab[] = [
   {
     label: "cURL",
     lang: "bash",
-    code: `# Preview an order — dry run, no state change
+    code: `# POST /v1/orders/preview — dry run, no state change
 curl -X POST https://api.omenx.io/v1/orders/preview \\
   -H "X-OMENX-API-KEY: $OMENX_KEY" \\
-  -H "X-OMENX-TS: $(date +%s)" \\
+  -H "X-OMENX-TS: 1721059431" \\
   -H "X-OMENX-SIGN: $SIG" \\
-  -d '{"symbol":"AAPL-DAILY","side":"buy","type":"limit","price":0.42,"size":100}'
-# => { "ok": true, "estFill": 0.42, "fee": 0.03 }`,
+  -d '{
+    "market_id": "US_STOCK_UPDOWN:TSLA:2026-07-17",
+    "outcome_side": "UP",
+    "order_type": "LIMIT",
+    "limit_price": "0.5142",
+    "size": 240,
+    "client_order_id": "a1b2c3d4"
+  }'
+
+# 200 OK
+{
+  "pricing_snapshot_id": "ps_01J2ZKQ4T9",
+  "estimated_fill_price": "0.5142",
+  "estimated_margin_u": "4.2183",
+  "fee_preview_u": "0.1872",
+  "expires_in_ms": 3000
+}`,
   },
   {
     label: "Python",
@@ -53,13 +69,17 @@ curl -X POST https://api.omenx.io/v1/orders/preview \\
 client = Client(key=OMENX_KEY, secret=OMENX_SECRET)
 
 preview = client.orders.preview(
-    symbol="AAPL-DAILY",
-    side="buy",
-    type="limit",
-    price=0.42,
-    size=100,
+    market_id="US_STOCK_UPDOWN:TSLA:2026-07-17",
+    outcome_side="UP",
+    order_type="LIMIT",
+    limit_price="0.5142",
+    size=240,
+    client_order_id="a1b2c3d4",
 )
-print(preview.est_fill, preview.fee)`,
+
+# preview.pricing_snapshot_id -> "ps_01J2ZKQ4T9"
+# preview.estimated_margin_u  -> "4.2183"
+# preview.fee_preview_u       -> "0.1872"`,
   },
   {
     label: "TypeScript",
@@ -69,12 +89,16 @@ print(preview.est_fill, preview.fee)`,
 const client = new OmenX({ key: process.env.OMENX_KEY });
 
 const preview = await client.orders.preview({
-  symbol: "AAPL-DAILY",
-  side: "buy",
-  type: "limit",
-  price: 0.42,
-  size: 100,
-});`,
+  market_id: "US_STOCK_UPDOWN:TSLA:2026-07-17",
+  outcome_side: "UP",
+  order_type: "LIMIT",
+  limit_price: "0.5142",
+  size: 240,
+  client_order_id: "a1b2c3d4",
+});
+
+// preview.pricing_snapshot_id === "ps_01J2ZKQ4T9"
+// preview.estimated_margin_u  === "4.2183"`,
   },
 ];
 
@@ -82,9 +106,9 @@ const signTabs: TerminalTab[] = [
   {
     label: "sign.sh",
     lang: "bash",
-    code: `# HMAC-SHA256 signature over: {timestamp}{method}{path}{body}
+    code: `# HMAC-SHA256 over: {timestamp}{method}{path}{body}
 TS=$(date +%s)
-BODY='{"symbol":"AAPL-DAILY","side":"buy"}'
+BODY='{"market_id":"US_STOCK_UPDOWN:TSLA:2026-07-17","outcome_side":"UP"}'
 SIG=$(printf '%s' "$TS POST /v1/orders/preview $BODY" \\
   | openssl dgst -sha256 -hmac "$OMENX_SECRET" -hex \\
   | awk '{print $2}')
