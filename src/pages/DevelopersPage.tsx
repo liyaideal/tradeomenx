@@ -12,16 +12,13 @@ import {
   ArrowRight,
   ArrowUpRight,
   BookOpen,
-  LineChart,
-  Zap,
-  Bot,
-  ShieldCheck,
   Radio,
   KeyRound,
   FileCode,
   Cpu,
   ChevronRight,
   Check,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -121,25 +118,6 @@ curl -X POST https://api.omenx.io/v1/orders/preview \\
   },
 ];
 
-const capabilities = {
-  agent: {
-    icon: Bot,
-    title: "Agent-Ready",
-    body:
-      "Typed schemas, deterministic errors, and a strict preview → confirm → submit flow. Built so autonomous agents cannot fat-finger production capital.",
-  },
-  data: {
-    icon: LineChart,
-    title: "Market Data",
-    body: "Real-time order book, trades, mark & funding. REST snapshots plus WebSocket streams.",
-  },
-  trade: {
-    icon: Zap,
-    title: "Trading",
-    body: "Full order lifecycle: place, cancel, stage conditional orders. Idempotent by design.",
-  },
-};
-
 const tiers = [
   {
     name: "Read-only",
@@ -173,11 +151,62 @@ const resources = [
 const dotBg =
   "bg-[radial-gradient(circle_at_1px_1px,hsl(var(--muted-foreground)/0.15)_1px,transparent_0)] [background-size:22px_22px]";
 
-const SectionNumber = ({ n }: { n: string }) => (
-  <div className="flex items-center gap-2 mb-3 text-[10px] font-mono tracking-[0.2em] text-muted-foreground/60">
-    <span>{n}</span>
-    <span className="w-2 h-px bg-muted-foreground/40" />
+/**
+ * Section header — engineering-schematic style.
+ * Ghost oversized number + small h2 + subtitle, with a right-aligned mono meta note.
+ * Bottom hairline is rendered by the caller so it spans the intended width (tracks-only).
+ */
+const SectionHeader = ({
+  n,
+  title,
+  subtitle,
+  meta,
+}: {
+  n: string;
+  title: string;
+  subtitle: string;
+  meta: string;
+}) => (
+  <div className="flex items-end justify-between gap-6 pb-4 border-b border-border/30 mb-8">
+    <div className="flex items-end gap-4 min-w-0">
+      <span
+        aria-hidden
+        className="font-mono font-bold text-5xl leading-none text-muted-foreground/[0.12] select-none shrink-0"
+      >
+        {n}
+      </span>
+      <div className="min-w-0">
+        <h2 className="text-xl font-semibold text-foreground leading-tight">{title}</h2>
+        <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+      </div>
+    </div>
+    <span className="hidden md:block text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground/60 shrink-0 pb-0.5">
+      {meta}
+    </span>
   </div>
+);
+
+/** Full-width bleed band with content pinned to the max-w-7xl tracks. */
+const Band = ({
+  children,
+  alt = false,
+  className,
+}: {
+  children: React.ReactNode;
+  alt?: boolean;
+  className?: string;
+}) => (
+  <section
+    className={cn(
+      "relative w-full border-t border-border/30",
+      alt ? "bg-background-elevated" : "bg-background",
+      className,
+    )}
+  >
+    <div className="w-full max-w-7xl mx-auto md:border-x border-border/40 px-5 md:px-8 py-14 md:py-20">
+      {children}
+    </div>
+  </section>
 );
 
 const DevelopersPage = () => {
@@ -197,10 +226,9 @@ const DevelopersPage = () => {
         {/* HERO */}
         <section className="relative overflow-hidden border-b border-border/40">
           <div className={cn("absolute inset-0 opacity-40", dotBg)} />
-          {/* Single, asymmetric ambient glow (top-right, dim) */}
           <div className="absolute -top-24 -right-24 w-[520px] h-[520px] rounded-full bg-primary/[0.06] blur-[120px] pointer-events-none" />
 
-          <div className="relative w-full max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-20 pb-14 md:pb-24">
+          <div className="relative w-full max-w-7xl mx-auto md:border-x border-border/40 px-5 md:px-8 pt-10 md:pt-20 pb-14 md:pb-24">
             <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center">
               {/* Left copy */}
               <div className="animate-fade-in">
@@ -212,7 +240,7 @@ const DevelopersPage = () => {
                     v1
                   </Badge>
                   <span className="text-[11px] font-mono uppercase tracking-[0.24em] text-primary">
-                    OMENX OPEN API · V1
+                    OMENX OPEN API
                   </span>
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-bold leading-[1.05] tracking-tight text-foreground">
@@ -233,7 +261,7 @@ const DevelopersPage = () => {
                   </Button>
                 </div>
 
-                {/* Stat bar — dirty numbers with tick decoration + brand vertical rule */}
+                {/* Stat bar */}
                 <div className="mt-10 relative pl-4 pt-6 border-t border-border/40">
                   <div className="absolute left-0 top-6 bottom-0 w-px bg-trading-purple/40" />
                   <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
@@ -244,7 +272,6 @@ const DevelopersPage = () => {
                           <div className="font-mono text-lg font-bold text-foreground leading-none">
                             {s.value}
                           </div>
-                          {/* tick decoration */}
                           <div className="mt-1.5 flex gap-[2px] h-[2px]">
                             <span className="w-3 bg-primary/60" />
                             <span className="w-1.5 bg-primary/30" />
@@ -260,7 +287,7 @@ const DevelopersPage = () => {
                 </div>
               </div>
 
-              {/* Right — terminal hero + mini order book (layered) */}
+              {/* Right — terminal + mini order book */}
               <div className="relative animate-fade-in" style={{ animationDelay: "75ms" }}>
                 <div className="relative">
                   <ApiTerminal
@@ -269,7 +296,6 @@ const DevelopersPage = () => {
                     className="relative z-10"
                     showCursor={false}
                   />
-                  {/* Floating badges — real WS seq / endpoint chips */}
                   <div className="hidden md:flex absolute -top-3 -right-3 z-20 rotate-2 items-center gap-1.5 rounded-md border border-border bg-card/90 backdrop-blur px-2 py-1 shadow-lg">
                     <span className="text-primary font-mono text-[10px] font-semibold">ws</span>
                     <span className="font-mono text-[10px] text-foreground/80">market.book · seq 48,516</span>
@@ -278,8 +304,6 @@ const DevelopersPage = () => {
                     <span className="text-trading-green font-mono text-[10px] font-semibold">GET</span>
                     <span className="font-mono text-[10px] text-foreground/80">/v1/markets/{"{id}"}</span>
                   </div>
-
-                  {/* Mini order book — desktop overlay, mobile stacked below */}
                   <MiniOrderBook className="hidden lg:block absolute -bottom-6 -right-6 z-30 rotate-1" />
                   <div className="lg:hidden mt-6 flex justify-center">
                     <MiniOrderBook />
@@ -295,29 +319,21 @@ const DevelopersPage = () => {
           </div>
         </section>
 
-        <div className="w-full max-w-7xl mx-auto px-5 md:px-8 pt-16 md:pt-24 pb-16 md:pb-24">
-          {/* CAPABILITIES — Bento */}
-          <section className="animate-fade-in" style={{ animationDelay: "0ms" }}>
-            <SectionNumber n="01" />
-            <div className="mb-6 flex items-baseline justify-between">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">Built for automation</h2>
-                <p className="text-sm text-muted-foreground mt-1.5">
-                  Three surfaces, one typed schema, zero surprise state changes.
-                </p>
-              </div>
-              <span className="hidden md:block text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                Capabilities
-              </span>
-            </div>
+        {/* 01 — CAPABILITIES (Stripe-style shared-border table) */}
+        <Band>
+          <SectionHeader
+            n="01"
+            title="Built for automation"
+            subtitle="Three surfaces, one typed schema, zero surprise state changes."
+            meta="3 surfaces"
+          />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 auto-rows-fr">
-              {/* Agent-Ready — large */}
-              <div className="web3-card lg:col-span-2 lg:row-span-2 p-6 md:p-8 flex flex-col gap-5 relative overflow-hidden">
-                <div className="flex items-start justify-between">
-                  <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center">
-                    <capabilities.agent.icon className="w-6 h-6 text-primary" />
-                  </div>
+          <div className="border-y border-border/40">
+            {/* Top row — Agent-Ready full-width */}
+            <div className="grid md:grid-cols-[0.4fr_0.6fr] gap-6 md:gap-10 px-5 md:px-6 py-6 border-b border-border/40">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-semibold text-foreground">Agent-Ready</h3>
                   <Badge
                     variant="outline"
                     className="bg-trading-purple/10 text-trading-purple border-trading-purple/30 font-mono text-[10px]"
@@ -325,55 +341,47 @@ const DevelopersPage = () => {
                     Agent-safe
                   </Badge>
                 </div>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-bold text-foreground">
-                    {capabilities.agent.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-lg">
-                    {capabilities.agent.body}
-                  </p>
-                </div>
-
-                {/* Stepper with real field names */}
-                <div className="mt-2 rounded-lg border border-border/50 bg-background/40 p-4">
-                  <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs font-mono">
-                    {[
-                      { step: "preview", field: "pricing_snapshot_id" },
-                      { step: "confirm", field: "client_order_id" },
-                      { step: "submit", field: "idempotent" },
-                    ].map((s, i) => (
-                      <div key={s.step} className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-trading-green/15 border border-trading-green/40 flex items-center justify-center shrink-0">
-                            <Check className="w-3 h-3 text-trading-green" />
-                          </div>
-                          <span className="text-foreground">{s.step}</span>
-                          {i < 2 && (
-                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
-                          )}
-                        </div>
-                        <span className="text-[10px] text-muted-foreground pl-8">{s.field}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground mt-3">
-                    Strict typed schema · No natural-language execution path
-                  </p>
-                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
+                  Typed schemas, deterministic errors, and a strict preview → confirm → submit flow.
+                  Built so autonomous agents cannot fat-finger production capital.
+                </p>
+                <p className="text-[11px] text-muted-foreground/80 mt-1">
+                  Strict typed schema · No natural-language execution path
+                </p>
               </div>
+              <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs font-mono self-center">
+                {[
+                  { step: "preview", field: "pricing_snapshot_id" },
+                  { step: "confirm", field: "client_order_id" },
+                  { step: "submit", field: "idempotent" },
+                ].map((s, i) => (
+                  <div key={s.step} className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-trading-green/15 border border-trading-green/40 flex items-center justify-center shrink-0">
+                        <Check className="w-3 h-3 text-trading-green" />
+                      </div>
+                      <span className="text-foreground">{s.step}</span>
+                      {i < 2 && (
+                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+                      )}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground pl-8">{s.field}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              {/* Market Data — mini trades tape evidence */}
-              <div className="trading-card p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-primary/40 hover:-translate-y-0.5 transition-all">
+            {/* Bottom row — Market Data | Trading (shared border) */}
+            <div className="grid md:grid-cols-2 md:divide-x divide-y md:divide-y-0 divide-border/40">
+              {/* Market Data */}
+              <div className="px-5 md:px-6 py-6 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-foreground">
-                    {capabilities.data.title}
-                  </h3>
+                  <h3 className="text-base font-semibold text-foreground">Market Data</h3>
                   <span className="text-[10px] font-mono text-muted-foreground">REST · WS</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  {capabilities.data.body}
+                  Real-time order book, trades, mark & funding. REST snapshots plus WebSocket streams.
                 </p>
-                {/* mini tape */}
                 <div className="mt-1 rounded-md border border-border/50 bg-background/40 font-mono text-[10px] divide-y divide-border/40">
                   {[
                     { t: "14:32:08", p: "0.5142", side: "buy" },
@@ -402,16 +410,14 @@ const DevelopersPage = () => {
                 </div>
               </div>
 
-              {/* Trading — fill JSON snippet evidence */}
-              <div className="trading-card p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-primary/40 hover:-translate-y-0.5 transition-all">
+              {/* Trading */}
+              <div className="px-5 md:px-6 py-6 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-foreground">
-                    {capabilities.trade.title}
-                  </h3>
+                  <h3 className="text-base font-semibold text-foreground">Trading</h3>
                   <span className="text-[10px] font-mono text-muted-foreground">Idempotent</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  {capabilities.trade.body}
+                  Full order lifecycle: place, cancel, stage conditional orders. Idempotent by design.
                 </p>
                 <pre className="mt-1 rounded-md border border-border/50 bg-background/40 p-2.5 font-mono text-[10px] leading-relaxed overflow-hidden">
 {`{
@@ -420,80 +426,127 @@ const DevelopersPage = () => {
   "fee_u": "0.1872"
 }`}
                 </pre>
-                <div className="text-[10px] font-mono text-muted-foreground/80">
-                  POST /v1/orders
-                </div>
+                <div className="text-[10px] font-mono text-muted-foreground/80">POST /v1/orders</div>
               </div>
             </div>
-          </section>
+          </div>
+        </Band>
 
+        {/* 02 — TIERS (single container, divide-x, top progress line) */}
+        <Band alt>
+          <SectionHeader
+            n="02"
+            title="Access tiers"
+            subtitle="Three progressive tiers. Everyone starts read-only."
+            meta="3 tiers · self-serve to manual"
+          />
 
-          {/* TIERS — Stepped */}
-          <section className="mt-16 animate-fade-in" style={{ animationDelay: "75ms" }}>
-            <SectionNumber n="02" />
-            <div className="mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Access tiers</h2>
-              <p className="text-sm text-muted-foreground mt-1.5">
-                Three progressive tiers. Everyone starts read-only.{" "}
-                <button
-                  onClick={() => navigate("/settings/api")}
-                  className="text-primary hover:underline"
-                >
-                  Check your eligibility →
-                </button>
-              </p>
+          {/* Desktop — single container */}
+          <div className="hidden md:block relative border-y border-border/40">
+            {/* Progress line */}
+            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-border via-border to-primary" />
+            <div className="absolute -top-1 inset-x-0 flex justify-between px-[16.66%]">
+              {tiers.map((t, i) => (
+                <span
+                  key={t.name}
+                  className={cn(
+                    "w-2 h-2 rounded-full border bg-background",
+                    i === 0 && "border-border",
+                    i === 1 && "border-primary/60",
+                    i === 2 && "border-primary shadow-[0_0_8px_hsl(var(--primary)/0.5)]",
+                  )}
+                />
+              ))}
             </div>
 
-            {/* Desktop stepped */}
-            <div className="hidden lg:flex items-stretch gap-0">
+            <div className="grid grid-cols-3 divide-x divide-border/40">
               {tiers.map((t, i) => (
-                <div key={t.name} className="flex-1 flex items-stretch">
+                <div
+                  key={t.name}
+                  className={cn(
+                    "px-6 py-6 flex flex-col gap-3",
+                    t.accent === "amber" && "bg-primary/[0.03]",
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                      Tier {i + 1}
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "font-mono text-[10px]",
+                        t.accent === "amber" &&
+                          "bg-amber-400/10 text-amber-400 border-amber-400/25",
+                        t.accent === "primary" && "bg-primary/10 text-primary border-primary/20",
+                        t.accent === "muted" && "bg-muted text-muted-foreground border-border",
+                      )}
+                    >
+                      {t.tag}
+                    </Badge>
+                  </div>
+                  <div>
+                    <div
+                      className={cn(
+                        "text-lg font-bold",
+                        t.accent === "primary"
+                          ? "text-primary"
+                          : t.accent === "amber"
+                          ? "text-amber-400"
+                          : "text-foreground",
+                      )}
+                    >
+                      {t.name}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{t.body}</p>
+                  </div>
+                  <div className="mt-auto flex flex-wrap gap-1 pt-2">
+                    {t.chips.map((c) => (
+                      <span
+                        key={c}
+                        className="rounded border border-border/50 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+                      >
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile timeline */}
+          <div className="md:hidden relative pl-6">
+            <div className="absolute left-2 top-2 bottom-2 w-px bg-border" />
+            <div className="space-y-4">
+              {tiers.map((t) => (
+                <div key={t.name} className="relative">
                   <div
                     className={cn(
-                      "flex-1 rounded-xl p-5 flex flex-col gap-3 transition-all",
-                      t.accent === "muted" && "border border-border/40 bg-card/60",
-                      t.accent === "primary" &&
-                        "border border-primary/40 bg-gradient-to-br from-primary/[0.06] via-card to-card shadow-[0_0_0_1px_hsl(var(--primary)/0.15)]",
-                      t.accent === "amber" &&
-                        "web3-card border-amber-400/25 bg-gradient-to-br from-amber-400/[0.04] via-card to-card"
+                      "absolute -left-[18px] top-4 w-3 h-3 rounded-full border-2 bg-background",
+                      t.accent === "primary" && "border-primary",
+                      t.accent === "amber" && "border-amber-400",
+                      t.accent === "muted" && "border-border",
                     )}
-                    style={{
-                      marginTop: i === 0 ? "16px" : i === 1 ? "8px" : "0px",
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs font-mono text-muted-foreground">
-                        Tier {i + 1}
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "font-mono text-[10px]",
-                          t.accent === "amber" &&
-                            "bg-amber-400/10 text-amber-400 border-amber-400/25",
-                          t.accent === "primary" && "bg-primary/10 text-primary border-primary/20",
-                          t.accent === "muted" && "bg-muted text-muted-foreground border-border"
-                        )}
-                      >
-                        {t.tag}
-                      </Badge>
-                    </div>
-                    <div>
+                  />
+                  <div className="border-y border-border/40 py-4">
+                    <div className="flex items-center justify-between mb-2">
                       <div
                         className={cn(
-                          "text-lg font-bold",
+                          "text-base font-bold",
                           t.accent === "primary"
                             ? "text-primary"
                             : t.accent === "amber"
                             ? "text-amber-400"
-                            : "text-foreground"
+                            : "text-foreground",
                         )}
                       >
                         {t.name}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{t.body}</p>
+                      <span className="text-[10px] font-mono text-muted-foreground">{t.tag}</span>
                     </div>
-                    <div className="mt-auto flex flex-wrap gap-1 pt-2">
+                    <p className="text-xs text-muted-foreground leading-relaxed">{t.body}</p>
+                    <div className="mt-3 flex flex-wrap gap-1">
                       {t.chips.map((c) => (
                         <span
                           key={c}
@@ -504,184 +557,116 @@ const DevelopersPage = () => {
                       ))}
                     </div>
                   </div>
-                  {i < tiers.length - 1 && (
-                    <div className="flex items-center px-2 shrink-0">
-                      <div className="w-6 border-t border-dashed border-border" />
-                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                      <div className="w-6 border-t border-dashed border-border" />
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
+          </div>
+        </Band>
 
-            {/* Mobile timeline */}
-            <div className="lg:hidden relative pl-6">
-              <div className="absolute left-2 top-2 bottom-2 w-px bg-border" />
-              <div className="space-y-4">
-                {tiers.map((t, i) => (
-                  <div key={t.name} className="relative">
-                    <div
-                      className={cn(
-                        "absolute -left-[18px] top-4 w-3 h-3 rounded-full border-2 bg-background",
-                        t.accent === "primary" && "border-primary",
-                        t.accent === "amber" && "border-amber-400",
-                        t.accent === "muted" && "border-border"
-                      )}
-                    />
-                    <div
-                      className={cn(
-                        "rounded-xl p-4",
-                        t.accent === "muted" && "border border-border/40 bg-card/60",
-                        t.accent === "primary" &&
-                          "border border-primary/40 bg-gradient-to-br from-primary/[0.06] via-card to-card",
-                        t.accent === "amber" &&
-                          "border border-amber-400/25 bg-gradient-to-br from-amber-400/[0.04] via-card to-card"
-                      )}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div
-                          className={cn(
-                            "text-base font-bold",
-                            t.accent === "primary"
-                              ? "text-primary"
-                              : t.accent === "amber"
-                              ? "text-amber-400"
-                              : "text-foreground"
-                          )}
-                        >
-                          {t.name}
-                        </div>
-                        <span className="text-[10px] font-mono text-muted-foreground">{t.tag}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{t.body}</p>
-                      <div className="mt-3 flex flex-wrap gap-1">
-                        {t.chips.map((c) => (
-                          <span
-                            key={c}
-                            className="rounded border border-border/50 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
-                          >
-                            {c}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+        {/* 03 — QUICKSTART */}
+        <Band>
+          <SectionHeader
+            n="03"
+            title="Quickstart"
+            subtitle="From zero to first signed request in three steps."
+            meta="3 steps"
+          />
+
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-6 lg:gap-10 items-start">
+            <ol className="relative">
+              {/* Continuous vertical timeline */}
+              <div className="absolute left-[13px] top-2 bottom-2 w-px bg-border/40" />
+              {[
+                {
+                  t: "Create your key",
+                  b: "In Settings → API Management, verify 2FA and generate a Read-only or Trading key. The secret is shown once.",
+                },
+                {
+                  t: "Sign the request",
+                  b: "HMAC-SHA256 over timestamp + method + path + body. Attach three headers on every call.",
+                },
+                {
+                  t: "Preview, then submit",
+                  b: "POST to /orders/preview for a dry run. Same body, same signature — POST to /orders to commit.",
+                },
+              ].map((s, i) => (
+                <li key={s.t} className="relative flex gap-4 pb-6 last:pb-0">
+                  <div className="w-7 h-7 rounded-full bg-primary/15 text-primary font-mono text-sm font-bold flex items-center justify-center shrink-0 z-10 border border-primary/30 bg-background">
+                    {i + 1}
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">{s.t}</div>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{s.b}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
 
-          {/* QUICKSTART */}
-          <section className="mt-28 lg:mt-32 animate-fade-in" style={{ animationDelay: "150ms" }}>
-            <SectionNumber n="03" />
-            <div className="mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Quickstart</h2>
-              <p className="text-sm text-muted-foreground mt-1.5">
-                From zero to first signed request in three steps.
-              </p>
-            </div>
+            <ApiTerminal tabs={signTabs} caption="hmac-sha256 · timestamp + method + path + body" />
+          </div>
 
-            <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-6 lg:gap-10 items-start">
-              <ol className="space-y-5">
-                {[
-                  {
-                    t: "Create your key",
-                    b: "In Settings → API Management, verify 2FA and generate a Read-only or Trading key. The secret is shown once.",
-                  },
-                  {
-                    t: "Sign the request",
-                    b: "HMAC-SHA256 over timestamp + method + path + body. Attach three headers on every call.",
-                  },
-                  {
-                    t: "Preview, then submit",
-                    b: "POST to /orders/preview for a dry run. Same body, same signature — POST to /orders to commit.",
-                  },
-                ].map((s, i) => (
-                  <li key={s.t} className="flex gap-4">
-                    <div className="w-7 h-7 rounded-full bg-primary/15 text-primary font-mono text-sm font-bold flex items-center justify-center shrink-0">
-                      {i + 1}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">{s.t}</div>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{s.b}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+          <p className="mt-6 text-[11px] text-muted-foreground flex items-center gap-1.5">
+            <ShieldCheck className="w-3 h-3" /> All state-changing endpoints support{" "}
+            <code className="font-mono text-foreground/80">Idempotency-Key</code> and require an IP
+            whitelist on the key.
+          </p>
+        </Band>
 
-              <ApiTerminal tabs={signTabs} caption="hmac-sha256 · timestamp + method + path + body" />
-            </div>
-
-            <p className="mt-5 text-[11px] text-muted-foreground flex items-center gap-1.5">
-              <ShieldCheck className="w-3 h-3" /> All state-changing endpoints support{" "}
-              <code className="font-mono text-foreground/80">Idempotency-Key</code> and require an IP
-              whitelist on the key.
-            </p>
-          </section>
-
-          {/* RESOURCES */}
-          <section className="mt-20 animate-fade-in" style={{ animationDelay: "225ms" }}>
-            <SectionNumber n="04" />
-            <div className="mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Reference</h2>
-              <p className="text-sm text-muted-foreground mt-1.5">
-                Full documentation surface rolling out with v1 launch.
-              </p>
-            </div>
-            <div className="rounded-xl border border-border/40 divide-y divide-border/40 overflow-hidden">
-              {resources.map((r) => (
-                <button
-                  key={r.title}
-                  onClick={comingSoon}
-                  className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-muted/20 transition-colors group"
+        {/* 04 — REFERENCE (full-width rows, hairlines) */}
+        <Band alt>
+          <SectionHeader
+            n="04"
+            title="Reference"
+            subtitle="Full documentation surface rolling out with v1 launch."
+            meta="3 guides"
+          />
+          <div className="border-y border-border/40 divide-y divide-border/40">
+            {resources.map((r) => (
+              <button
+                key={r.title}
+                onClick={comingSoon}
+                className="w-full flex items-center gap-4 px-2 md:px-4 py-4 text-left hover:bg-muted/20 transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <r.icon className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-foreground">{r.title}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 truncate">{r.body}</div>
+                </div>
+                <Badge
+                  variant="outline"
+                  className="hidden md:inline-flex bg-muted text-muted-foreground border-border font-mono text-[10px]"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <r.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-foreground">{r.title}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5 truncate">{r.body}</div>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="hidden md:inline-flex bg-muted text-muted-foreground border-border font-mono text-[10px]"
-                  >
-                    Coming soon
-                  </Badge>
-                  <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all shrink-0" />
-                </button>
-              ))}
-            </div>
-          </section>
+                  Coming soon
+                </Badge>
+                <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </button>
+            ))}
+          </div>
+        </Band>
 
-          {/* CTA BAND */}
-          <section className="mt-20 animate-fade-in" style={{ animationDelay: "300ms" }}>
-            <div
-              className={cn(
-                "relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-card to-card p-6 md:p-10"
-              )}
-            >
-              <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-              <div className="relative flex flex-col md:flex-row md:items-center gap-6">
-                <div className="flex-1">
-                  <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary mb-2">
-                    Ready to build
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                    Start with three requests.
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-                    Preview. Confirm. Submit.
-                  </p>
+        {/* CTA — full-width bleed band */}
+        <section className="relative w-full border-y border-border/40 bg-background-elevated">
+          <div className="w-full max-w-7xl mx-auto md:border-x border-border/40 px-5 md:px-8 py-12 md:py-16">
+            <div className="flex flex-col md:flex-row md:items-center gap-6">
+              <div className="flex-1">
+                <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary mb-2">
+                  Ready to build
                 </div>
-                <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 shrink-0">
-                  Manage API Keys <ArrowRight className="w-4 h-4" />
-                </Button>
+                <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                  Start with three requests.
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2 max-w-xl">
+                  Preview. Confirm. Submit.
+                </p>
               </div>
+              <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 shrink-0">
+                Manage API Keys <ArrowRight className="w-4 h-4" />
+              </Button>
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
       </main>
       <SeoFooter />
     </div>
