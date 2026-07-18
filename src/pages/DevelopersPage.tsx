@@ -647,7 +647,7 @@ const DevelopersPage = () => {
               <button
                 key={r.title}
                 onClick={comingSoon}
-                className="w-full flex items-center gap-4 px-2 md:px-4 py-4 text-left hover:bg-muted/20 transition-colors group"
+                className="w-full min-h-14 flex items-center gap-4 px-2 md:px-4 py-4 text-left hover:bg-muted/20 transition-colors group"
               >
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                   <r.icon className="w-5 h-5 text-primary" />
