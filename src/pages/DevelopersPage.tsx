@@ -122,21 +122,21 @@ const tiers = [
   {
     name: "Read-only",
     tag: "Free · instant",
-    body: "Public + private read endpoints. Ideal for dashboards, analytics, monitoring.",
+    body: "Query markets, account and history. No deposit required.",
     chips: ["read_public", "read_private", "ws_public"],
     accent: "muted",
   },
   {
     name: "Trading",
     tag: "Self-serve",
-    body: "Full order lifecycle plus private streams. Unlocks after 2FA + first deposit + first fill.",
+    body: "Full order lifecycle plus private streams. Unlocks at one deposit, $100 equity, one filled trade.",
     chips: ["trade_order", "trade_cancel", "trade_conditional", "ws_private"],
     accent: "primary",
   },
   {
     name: "Pro / Market Maker",
     tag: "Manual review",
-    body: "Elevated limits and dedicated stream capacity for MM desks and quant funds.",
+    body: "Raised limits and dedicated capacity. Reviewed case by case.",
     chips: ["elevated_rate_limits", "dedicated_ws", "mm_program"],
     accent: "amber",
   },
@@ -176,7 +176,7 @@ const SectionHeader = ({
         {n}
       </span>
       <div className="min-w-0">
-        <h2 className="text-xl font-semibold text-foreground leading-tight">{title}</h2>
+        <h2 className="font-display font-medium tracking-[-0.01em] text-xl text-foreground leading-tight">{title}</h2>
         <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
       </div>
     </div>
@@ -243,14 +243,12 @@ const DevelopersPage = () => {
                     OMENX OPEN API
                   </span>
                 </div>
-                <h1 className="text-4xl lg:text-5xl font-bold leading-[1.05] tracking-tight text-foreground">
-                  Programmatic access to
-                  <br />
-                  outcome markets.
+                <h1 className="font-display font-bold text-4xl lg:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
+                  Trade outcome markets from code.
                 </h1>
                 <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed">
-                  REST, WebSocket, agent-ready. One typed schema for market data, order lifecycle, and
-                  account state — built for bots, market makers, and autonomous agents.
+                  Every surface of the exchange — order book, orders, positions, settlement — over REST
+                  and WebSocket. One schema. Signed requests. Orders preview before they commit.
                 </p>
                 <div className="mt-7 flex flex-wrap gap-3">
                   <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2">
