@@ -683,7 +683,7 @@ const DevelopersPage = () => {
                   Preview. Confirm. Submit.
                 </p>
               </div>
-              <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 shrink-0">
+              <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 shrink-0 w-full md:w-auto h-12 md:h-11">
                 Manage API Keys <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
