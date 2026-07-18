@@ -36,7 +36,7 @@ export const EndpointMarquee = () => {
       }}
     >
       <div
-        className="flex gap-2 w-max motion-safe:animate-[marquee_38s_linear_infinite] hover:[animation-play-state:paused]"
+        className="flex gap-2 w-max motion-safe:animate-[marquee_57s_linear_infinite] hover:[animation-play-state:paused]"
         style={{ animationPlayState: undefined }}
       >
         {row.map((e, i) => (
