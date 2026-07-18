@@ -539,7 +539,7 @@ const DevelopersPage = () => {
 
           {/* Mobile timeline */}
           <div className="md:hidden relative pl-6">
-            <div className="absolute left-2 top-2 bottom-2 w-px bg-border" />
+            <div className="absolute left-2 top-2 bottom-2 w-px bg-gradient-to-b from-border via-primary/40 to-primary" />
             <div className="space-y-4">
               {tiers.map((t) => (
                 <div key={t.name} className="relative">
