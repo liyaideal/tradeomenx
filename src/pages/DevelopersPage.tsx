@@ -621,7 +621,8 @@ const DevelopersPage = () => {
           </section>
 
           {/* RESOURCES */}
-          <section className="animate-fade-in" style={{ animationDelay: "225ms" }}>
+          <section className="mt-20 animate-fade-in" style={{ animationDelay: "225ms" }}>
+            <SectionNumber n="04" />
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Reference</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
