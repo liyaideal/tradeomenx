@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ApiTerminal, type TerminalTab } from "@/components/developers/ApiTerminal";
 import { EndpointMarquee } from "@/components/developers/EndpointMarquee";
+import { MiniOrderBook } from "@/components/developers/MiniOrderBook";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -27,9 +28,9 @@ import { toast } from "sonner";
 
 // DEMO-STATE: 展示性指标，上线前以真实 SLA 口径替换
 const HERO_STATS = [
-  { value: "<50ms", label: "Median latency" },
-  { value: "99.9%", label: "Uptime target" },
-  { value: "30+", label: "REST endpoints" },
+  { value: "47 ms", label: "p50 latency" },
+  { value: "99.95%", label: "Uptime" },
+  { value: "31", label: "REST endpoints" },
   { value: "9", label: "WS topics" },
 ];
 
@@ -37,13 +38,28 @@ const heroTabs: TerminalTab[] = [
   {
     label: "cURL",
     lang: "bash",
-    code: `# Preview an order — dry run, no state change
+    code: `# POST /v1/orders/preview — dry run, no state change
 curl -X POST https://api.omenx.io/v1/orders/preview \\
   -H "X-OMENX-API-KEY: $OMENX_KEY" \\
-  -H "X-OMENX-TS: $(date +%s)" \\
+  -H "X-OMENX-TS: 1721059431" \\
   -H "X-OMENX-SIGN: $SIG" \\
-  -d '{"symbol":"AAPL-DAILY","side":"buy","type":"limit","price":0.42,"size":100}'
-# => { "ok": true, "estFill": 0.42, "fee": 0.03 }`,
+  -d '{
+    "market_id": "US_STOCK_UPDOWN:TSLA:2026-07-17",
+    "outcome_side": "UP",
+    "order_type": "LIMIT",
+    "limit_price": "0.5142",
+    "size": 240,
+    "client_order_id": "a1b2c3d4"
+  }'
+
+# 200 OK
+{
+  "pricing_snapshot_id": "ps_01J2ZKQ4T9",
+  "estimated_fill_price": "0.5142",
+  "estimated_margin_u": "4.2183",
+  "fee_preview_u": "0.1872",
+  "expires_in_ms": 3000
+}`,
   },
   {
     label: "Python",
@@ -53,13 +69,17 @@ curl -X POST https://api.omenx.io/v1/orders/preview \\
 client = Client(key=OMENX_KEY, secret=OMENX_SECRET)
 
 preview = client.orders.preview(
-    symbol="AAPL-DAILY",
-    side="buy",
-    type="limit",
-    price=0.42,
-    size=100,
+    market_id="US_STOCK_UPDOWN:TSLA:2026-07-17",
+    outcome_side="UP",
+    order_type="LIMIT",
+    limit_price="0.5142",
+    size=240,
+    client_order_id="a1b2c3d4",
 )
-print(preview.est_fill, preview.fee)`,
+
+# preview.pricing_snapshot_id -> "ps_01J2ZKQ4T9"
+# preview.estimated_margin_u  -> "4.2183"
+# preview.fee_preview_u       -> "0.1872"`,
   },
   {
     label: "TypeScript",
@@ -69,12 +89,16 @@ print(preview.est_fill, preview.fee)`,
 const client = new OmenX({ key: process.env.OMENX_KEY });
 
 const preview = await client.orders.preview({
-  symbol: "AAPL-DAILY",
-  side: "buy",
-  type: "limit",
-  price: 0.42,
-  size: 100,
-});`,
+  market_id: "US_STOCK_UPDOWN:TSLA:2026-07-17",
+  outcome_side: "UP",
+  order_type: "LIMIT",
+  limit_price: "0.5142",
+  size: 240,
+  client_order_id: "a1b2c3d4",
+});
+
+// preview.pricing_snapshot_id === "ps_01J2ZKQ4T9"
+// preview.estimated_margin_u  === "4.2183"`,
   },
 ];
 
@@ -82,9 +106,9 @@ const signTabs: TerminalTab[] = [
   {
     label: "sign.sh",
     lang: "bash",
-    code: `# HMAC-SHA256 signature over: {timestamp}{method}{path}{body}
+    code: `# HMAC-SHA256 over: {timestamp}{method}{path}{body}
 TS=$(date +%s)
-BODY='{"symbol":"AAPL-DAILY","side":"buy"}'
+BODY='{"market_id":"US_STOCK_UPDOWN:TSLA:2026-07-17","outcome_side":"UP"}'
 SIG=$(printf '%s' "$TS POST /v1/orders/preview $BODY" \\
   | openssl dgst -sha256 -hmac "$OMENX_SECRET" -hex \\
   | awk '{print $2}')
@@ -149,6 +173,13 @@ const resources = [
 const dotBg =
   "bg-[radial-gradient(circle_at_1px_1px,hsl(var(--muted-foreground)/0.15)_1px,transparent_0)] [background-size:22px_22px]";
 
+const SectionNumber = ({ n }: { n: string }) => (
+  <div className="flex items-center gap-2 mb-3 text-[10px] font-mono tracking-[0.2em] text-muted-foreground/60">
+    <span>{n}</span>
+    <span className="w-2 h-px bg-muted-foreground/40" />
+  </div>
+);
+
 const DevelopersPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -166,8 +197,8 @@ const DevelopersPage = () => {
         {/* HERO */}
         <section className="relative overflow-hidden border-b border-border/40">
           <div className={cn("absolute inset-0 opacity-40", dotBg)} />
-          <div className="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
-          <div className="absolute -bottom-40 right-0 w-[420px] h-[420px] rounded-full bg-trading-purple/10 blur-[120px] pointer-events-none" />
+          {/* Single, asymmetric ambient glow (top-right, dim) */}
+          <div className="absolute -top-24 -right-24 w-[520px] h-[520px] rounded-full bg-primary/[0.06] blur-[120px] pointer-events-none" />
 
           <div className="relative w-full max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-20 pb-14 md:pb-24">
             <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center">
@@ -187,9 +218,7 @@ const DevelopersPage = () => {
                 <h1 className="text-4xl lg:text-5xl font-bold leading-[1.05] tracking-tight text-foreground">
                   Programmatic access to
                   <br />
-                  <span className="bg-gradient-to-r from-primary via-primary to-trading-purple bg-clip-text text-transparent">
-                    outcome markets.
-                  </span>
+                  outcome markets.
                 </h1>
                 <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed">
                   REST, WebSocket, agent-ready. One typed schema for market data, order lifecycle, and
@@ -204,41 +233,56 @@ const DevelopersPage = () => {
                   </Button>
                 </div>
 
-                {/* Stat bar */}
-                <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 pt-6 border-t border-border/40">
-                  {HERO_STATS.map((s, i) => (
-                    <div key={s.label} className="flex items-center gap-6">
-                      {i > 0 && <span className="hidden md:block h-6 w-px bg-border/60" />}
-                      <div>
-                        <div className="font-mono text-lg font-bold text-foreground leading-none">
-                          {s.value}
-                        </div>
-                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">
-                          {s.label}
+                {/* Stat bar — dirty numbers with tick decoration + brand vertical rule */}
+                <div className="mt-10 relative pl-4 pt-6 border-t border-border/40">
+                  <div className="absolute left-0 top-6 bottom-0 w-px bg-trading-purple/40" />
+                  <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
+                    {HERO_STATS.map((s, i) => (
+                      <div key={s.label} className="flex items-start gap-6">
+                        {i > 0 && <span className="hidden md:block h-8 w-px bg-border/60 mt-1" />}
+                        <div className="flex flex-col">
+                          <div className="font-mono text-lg font-bold text-foreground leading-none">
+                            {s.value}
+                          </div>
+                          {/* tick decoration */}
+                          <div className="mt-1.5 flex gap-[2px] h-[2px]">
+                            <span className="w-3 bg-primary/60" />
+                            <span className="w-1.5 bg-primary/30" />
+                            <span className="w-1 bg-primary/20" />
+                          </div>
+                          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1.5">
+                            {s.label}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Right — terminal hero */}
+              {/* Right — terminal hero + mini order book (layered) */}
               <div className="relative animate-fade-in" style={{ animationDelay: "75ms" }}>
-                <div className="absolute -inset-6 bg-primary/20 blur-3xl rounded-full pointer-events-none" />
                 <div className="relative">
                   <ApiTerminal
                     tabs={heroTabs}
-                    caption="terminal · preview → submit"
+                    caption="POST /v1/orders/preview · 200 OK"
                     className="relative z-10"
+                    showCursor={false}
                   />
-                  {/* Floating badges */}
+                  {/* Floating badges — real WS seq / endpoint chips */}
                   <div className="hidden md:flex absolute -top-3 -right-3 z-20 rotate-2 items-center gap-1.5 rounded-md border border-border bg-card/90 backdrop-blur px-2 py-1 shadow-lg">
-                    <span className="text-trading-purple font-mono text-[10px] font-semibold">POST</span>
-                    <span className="font-mono text-[10px] text-foreground/80">/v1/orders/preview</span>
-                  </div>
-                  <div className="hidden md:flex absolute -bottom-3 -left-3 z-20 -rotate-1 items-center gap-1.5 rounded-md border border-border bg-card/90 backdrop-blur px-2 py-1 shadow-lg">
                     <span className="text-primary font-mono text-[10px] font-semibold">ws</span>
-                    <span className="font-mono text-[10px] text-foreground/80">market.book</span>
+                    <span className="font-mono text-[10px] text-foreground/80">market.book · seq 48,516</span>
+                  </div>
+                  <div className="hidden md:flex absolute -top-3 left-8 z-20 -rotate-1 items-center gap-1.5 rounded-md border border-border bg-card/90 backdrop-blur px-2 py-1 shadow-lg">
+                    <span className="text-trading-green font-mono text-[10px] font-semibold">GET</span>
+                    <span className="font-mono text-[10px] text-foreground/80">/v1/markets/{"{id}"}</span>
+                  </div>
+
+                  {/* Mini order book — desktop overlay, mobile stacked below */}
+                  <MiniOrderBook className="hidden lg:block absolute -bottom-6 -right-6 z-30 rotate-1" />
+                  <div className="lg:hidden mt-6 flex justify-center">
+                    <MiniOrderBook />
                   </div>
                 </div>
               </div>
@@ -251,9 +295,10 @@ const DevelopersPage = () => {
           </div>
         </section>
 
-        <div className="w-full max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 space-y-20 lg:space-y-24">
+        <div className="w-full max-w-7xl mx-auto px-5 md:px-8 pt-16 md:pt-24 pb-16 md:pb-24">
           {/* CAPABILITIES — Bento */}
           <section className="animate-fade-in" style={{ animationDelay: "0ms" }}>
+            <SectionNumber n="01" />
             <div className="mb-6 flex items-baseline justify-between">
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground">Built for automation</h2>
@@ -289,18 +334,25 @@ const DevelopersPage = () => {
                   </p>
                 </div>
 
-                {/* Stepper */}
+                {/* Stepper with real field names */}
                 <div className="mt-2 rounded-lg border border-border/50 bg-background/40 p-4">
-                  <div className="flex items-center gap-2 md:gap-3 text-xs font-mono">
-                    {["preview", "confirm", "submit"].map((step, i) => (
-                      <div key={step} className="flex items-center gap-2 md:gap-3 flex-1">
-                        <div className="flex items-center gap-2 flex-1">
+                  <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs font-mono">
+                    {[
+                      { step: "preview", field: "pricing_snapshot_id" },
+                      { step: "confirm", field: "client_order_id" },
+                      { step: "submit", field: "idempotent" },
+                    ].map((s, i) => (
+                      <div key={s.step} className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-trading-green/15 border border-trading-green/40 flex items-center justify-center shrink-0">
                             <Check className="w-3 h-3 text-trading-green" />
                           </div>
-                          <span className="text-foreground">{step}</span>
+                          <span className="text-foreground">{s.step}</span>
+                          {i < 2 && (
+                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+                          )}
                         </div>
-                        {i < 2 && <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+                        <span className="text-[10px] text-muted-foreground pl-8">{s.field}</span>
                       </div>
                     ))}
                   </div>
@@ -310,48 +362,75 @@ const DevelopersPage = () => {
                 </div>
               </div>
 
-              {/* Market Data */}
+              {/* Market Data — mini trades tape evidence */}
               <div className="trading-card p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-primary/40 hover:-translate-y-0.5 transition-all">
-                <capabilities.data.icon className="absolute -bottom-4 -right-4 w-24 h-24 opacity-[0.06] text-primary" />
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center relative z-10">
-                  <capabilities.data.icon className="w-5 h-5 text-primary" />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-foreground">
+                    {capabilities.data.title}
+                  </h3>
+                  <span className="text-[10px] font-mono text-muted-foreground">REST · WS</span>
                 </div>
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-semibold text-foreground">
-                      {capabilities.data.title}
-                    </h3>
-                    <span className="text-[10px] font-mono text-muted-foreground">REST · WS</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                    {capabilities.data.body}
-                  </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {capabilities.data.body}
+                </p>
+                {/* mini tape */}
+                <div className="mt-1 rounded-md border border-border/50 bg-background/40 font-mono text-[10px] divide-y divide-border/40">
+                  {[
+                    { t: "14:32:08", p: "0.5142", side: "buy" },
+                    { t: "14:32:05", p: "0.5108", side: "sell" },
+                    { t: "14:32:01", p: "0.5140", side: "buy" },
+                    { t: "14:31:58", p: "0.5133", side: "sell" },
+                  ].map((r, i) => (
+                    <div key={i} className="grid grid-cols-3 px-2.5 py-1">
+                      <span className="text-muted-foreground">{r.t}</span>
+                      <span
+                        className={cn(
+                          "text-center",
+                          r.side === "buy" ? "text-trading-green" : "text-trading-red",
+                        )}
+                      >
+                        {r.p}
+                      </span>
+                      <span className="text-right text-muted-foreground">
+                        {r.side === "buy" ? "↑" : "↓"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-[10px] font-mono text-muted-foreground/80">
+                  GET /v1/markets/{"{id}"}/trades
                 </div>
               </div>
 
-              {/* Trading */}
+              {/* Trading — fill JSON snippet evidence */}
               <div className="trading-card p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-primary/40 hover:-translate-y-0.5 transition-all">
-                <capabilities.trade.icon className="absolute -bottom-4 -right-4 w-24 h-24 opacity-[0.06] text-primary" />
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center relative z-10">
-                  <capabilities.trade.icon className="w-5 h-5 text-primary" />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-foreground">
+                    {capabilities.trade.title}
+                  </h3>
+                  <span className="text-[10px] font-mono text-muted-foreground">Idempotent</span>
                 </div>
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-semibold text-foreground">
-                      {capabilities.trade.title}
-                    </h3>
-                    <span className="text-[10px] font-mono text-muted-foreground">Idempotent</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                    {capabilities.trade.body}
-                  </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {capabilities.trade.body}
+                </p>
+                <pre className="mt-1 rounded-md border border-border/50 bg-background/40 p-2.5 font-mono text-[10px] leading-relaxed overflow-hidden">
+{`{
+  "status": "FILLED",
+  "fill_price": "0.5142",
+  "fee_u": "0.1872"
+}`}
+                </pre>
+                <div className="text-[10px] font-mono text-muted-foreground/80">
+                  POST /v1/orders
                 </div>
               </div>
             </div>
           </section>
 
+
           {/* TIERS — Stepped */}
-          <section className="animate-fade-in" style={{ animationDelay: "75ms" }}>
+          <section className="mt-16 animate-fade-in" style={{ animationDelay: "75ms" }}>
+            <SectionNumber n="02" />
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Access tiers</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
@@ -494,7 +573,8 @@ const DevelopersPage = () => {
           </section>
 
           {/* QUICKSTART */}
-          <section className="animate-fade-in" style={{ animationDelay: "150ms" }}>
+          <section className="mt-28 lg:mt-32 animate-fade-in" style={{ animationDelay: "150ms" }}>
+            <SectionNumber n="03" />
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Quickstart</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
@@ -541,7 +621,8 @@ const DevelopersPage = () => {
           </section>
 
           {/* RESOURCES */}
-          <section className="animate-fade-in" style={{ animationDelay: "225ms" }}>
+          <section className="mt-20 animate-fade-in" style={{ animationDelay: "225ms" }}>
+            <SectionNumber n="04" />
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Reference</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
@@ -575,25 +656,23 @@ const DevelopersPage = () => {
           </section>
 
           {/* CTA BAND */}
-          <section className="animate-fade-in" style={{ animationDelay: "300ms" }}>
+          <section className="mt-20 animate-fade-in" style={{ animationDelay: "300ms" }}>
             <div
               className={cn(
                 "relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-card to-card p-6 md:p-10"
               )}
             >
-              <div className={cn("absolute inset-0 opacity-30", dotBg)} />
-              <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
+              <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
               <div className="relative flex flex-col md:flex-row md:items-center gap-6">
                 <div className="flex-1">
                   <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary mb-2">
                     Ready to build
                   </div>
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                    Generate your first key
+                    Start with three requests.
                   </h3>
                   <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-                    Read-only unlocks with email + 2FA. Trading unlocks after your first deposit and
-                    first fill.
+                    Preview. Confirm. Submit.
                   </p>
                 </div>
                 <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 shrink-0">
