@@ -429,7 +429,8 @@ const DevelopersPage = () => {
 
 
           {/* TIERS — Stepped */}
-          <section className="animate-fade-in" style={{ animationDelay: "75ms" }}>
+          <section className="mt-16 animate-fade-in" style={{ animationDelay: "75ms" }}>
+            <SectionNumber n="02" />
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Access tiers</h2>
               <p className="text-sm text-muted-foreground mt-1.5">
