@@ -1,7 +1,10 @@
-import { Check, X, AlertTriangle, Copy, ShieldCheck, Mail, KeyRound, LineChart, Zap, Bot, Plus } from "lucide-react";
+import { Check, X, AlertTriangle, Copy, ShieldCheck, Mail, KeyRound, LineChart, Zap, Bot, Plus, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionWrapper, SubSection } from "../components";
+import { ApiTerminal } from "@/components/developers/ApiTerminal";
+import { EndpointMarquee } from "@/components/developers/EndpointMarquee";
+import { cn } from "@/lib/utils";
 
 interface Props {
   isMobile: boolean;
