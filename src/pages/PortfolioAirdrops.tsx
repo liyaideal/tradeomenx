@@ -8,6 +8,7 @@ import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
