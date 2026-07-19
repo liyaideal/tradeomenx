@@ -10,6 +10,7 @@ import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
