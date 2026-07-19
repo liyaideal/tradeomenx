@@ -631,10 +631,11 @@ export default function Wallet() {
         <EventsDesktopHeader />
         
         <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in.">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold">Wallet</h1>
-            <p className="text-muted-foreground">Manage your funds and saved addresses</p>
+        <main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-6">
+          <div className="relative">
+            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
+            <h1 className="text-3xl font-bold text-foreground">Wallet</h1>
+            <p className="text-muted-foreground text-sm mt-1.5">Manage your funds and saved addresses</p>
           </div>
 
           <MaintenanceNoticeBanner className="mb-6" />
@@ -827,7 +828,7 @@ export default function Wallet() {
               </div>
             </div>
           </div>
-        </div>
+        </main>
         </AuthGateOverlay>
 
         <TopUpDialog 

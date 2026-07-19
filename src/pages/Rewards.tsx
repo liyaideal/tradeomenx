@@ -222,14 +222,17 @@ export default function Rewards() {
       <EventsDesktopHeader />
       
       <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!">
-      <main className="max-w-2xl mx-auto p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-            <Gift className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">Rewards Center</h1>
-            <p className="text-muted-foreground text-sm">Complete tasks, earn points — redemption opening soon</p>
+      <main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-6">
+        <div className="relative">
+          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+              <Gift className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Rewards Center</h1>
+              <p className="text-muted-foreground text-sm mt-1.5">Complete tasks, earn points — redemption opening soon</p>
+            </div>
           </div>
         </div>
 

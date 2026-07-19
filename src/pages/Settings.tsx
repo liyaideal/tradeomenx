@@ -534,12 +534,13 @@ const Settings = () => {
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
       
-      <div className="max-w-3xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold">Account Settings</h1>
-          <p className="text-muted-foreground">Manage your basic account information</p>
+      <main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">
+        <div className="relative">
+          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
+          <h1 className="text-3xl font-bold text-foreground">Account Settings</h1>
+          <p className="text-muted-foreground text-sm mt-1.5">Manage your basic account information</p>
         </div>
-        
+
         <div className="space-y-6">
           <ProfileCard />
           <UsernameCard />
@@ -579,7 +580,7 @@ const Settings = () => {
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
-      </div>
+      </main>
 
       {/* Avatar Picker Dialog */}
       <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
