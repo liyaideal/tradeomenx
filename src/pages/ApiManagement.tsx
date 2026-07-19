@@ -1,18 +1,20 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Key,
   Plus,
   Check,
   X,
   Copy,
   AlertTriangle,
   Mail,
-  ChevronRight,
   ShieldCheck,
   ArrowLeft,
   KeyRound,
+  Eye,
+  Zap,
+  Rocket,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
@@ -22,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +33,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  MobileDrawer,
+  MobileDrawerSection,
+  MobileDrawerActions,
+} from "@/components/ui/mobile-drawer";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginPrompt } from "@/components/LoginPrompt";
 import { toast } from "sonner";
@@ -44,21 +52,56 @@ import {
 } from "@/hooks/useApiKeys";
 import { verifyDemoOtp, DEMO_OTP_HINT } from "@/lib/demoOtp";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
-const TIER_ORDER: ApiTier[] = ["read_only", "trading", "pro_mm"];
-const TIER_BADGE: Record<ApiTier, { label: string; className: string }> = {
-  read_only: { label: "Read-only", className: "bg-muted text-muted-foreground border-border" },
-  trading: { label: "Trading", className: "bg-primary/10 text-primary border-primary/20" },
-  pro_mm: { label: "Pro / MM", className: "bg-amber-400/10 text-amber-400 border-amber-400/20" },
+/* -------------------- Single tier token source -------------------- */
+type TierMeta = {
+  label: string;
+  icon: LucideIcon;
+  /** Text/accent color class */
+  accent: string;
+  /** Tinted bg + border for accent chip */
+  chip: string;
+  /** Dot fill when eligible */
+  dotFill: string;
+  /** Faint surface tint for "current tier" hint */
+  surfaceHint: string;
 };
+const TIER_META: Record<ApiTier, TierMeta> = {
+  read_only: {
+    label: "Read-only",
+    icon: Eye,
+    accent: "text-muted-foreground",
+    chip: "bg-muted text-muted-foreground border-border",
+    dotFill: "bg-muted-foreground",
+    surfaceHint: "bg-muted-foreground/[0.04]",
+  },
+  trading: {
+    label: "Trading",
+    icon: Zap,
+    accent: "text-primary",
+    chip: "bg-primary/10 text-primary border-primary/20",
+    dotFill: "bg-primary",
+    surfaceHint: "bg-primary/[0.04]",
+  },
+  pro_mm: {
+    label: "Pro / Market Maker",
+    icon: Rocket,
+    accent: "text-amber-400",
+    chip: "bg-amber-400/10 text-amber-400 border-amber-400/20",
+    dotFill: "bg-amber-400",
+    surfaceHint: "bg-amber-400/[0.04]",
+  },
+};
+const TIER_ORDER: ApiTier[] = ["read_only", "trading", "pro_mm"];
 
 const isValidIp = (raw: string) => {
   const s = raw.trim();
   if (!s) return false;
-  // Basic IPv4 or IPv4/CIDR
   return /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/.test(s) || /^[0-9a-fA-F:]+(\/\d{1,3})?$/.test(s);
 };
 
+/* -------------------- Page -------------------- */
 const ApiManagement = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -75,62 +118,98 @@ const ApiManagement = () => {
       <div className="min-h-screen bg-background">
         {!isMobile && <EventsDesktopHeader />}
         {isMobile && <MobileHeader title="API Management" showLogo={false} />}
-        <div className="max-w-3xl mx-auto p-6">
-          <LoginPrompt />
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+          <div className="max-w-md mx-auto">
+            <LoginPrompt />
+          </div>
         </div>
         {isMobile && <BottomNav />}
       </div>
     );
   }
 
+  const eligibleTiers = tiers.filter((t) => t.eligible);
+
   const content = (
-    <div className="space-y-8">
-      {/* Breadcrumb */}
+    <div>
+      {/* Breadcrumb — own line, above the title */}
       <button
         onClick={() => navigate("/developers")}
-        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors group"
+        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors group mb-4"
       >
         <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
         API Overview
       </button>
 
-      {/* Page title — §4 pattern */}
-      <div className="relative">
-        <div className="absolute -left-4 top-1 bottom-1 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
+      {/* Title */}
+      <div className="relative pb-8">
+        <div className="absolute -left-4 top-1 bottom-8 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
         <div className="flex items-center gap-2 mb-2">
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-mono text-[10px]">
             v1
           </Badge>
           <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">API Management</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Keys & access</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Keys &amp; access</h1>
         <p className="text-muted-foreground text-xs md:text-sm mt-1.5 max-w-2xl">
-          Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain
-          text.
+          Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain text.
         </p>
       </div>
 
-      {/* Tier cards */}
-      <div>
-        <div className="flex items-baseline justify-between mb-3">
-          <h2 className="text-sm font-semibold text-foreground">Access tiers</h2>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
-            Auto-evaluated from account state
-          </span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
-          {tiers.map((t) => (
-            <TierCard key={t.tier} tier={t} />
-          ))}
-        </div>
+      {/* Hairline divider */}
+      <div className="border-t border-border/30" />
+
+      {/* Quick-answer chip row */}
+      <div className="py-5 flex flex-wrap items-center gap-2">
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground mr-1">You can create</span>
+        {TIER_ORDER.map((tid) => {
+          const t = tiers.find((x) => x.tier === tid)!;
+          const meta = TIER_META[tid];
+          const Icon = meta.icon;
+          const state = t.manualReview ? "manual" : t.eligible ? "ok" : "locked";
+          return (
+            <span
+              key={tid}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-2 py-1 rounded border text-[11px] font-medium",
+                state === "ok" && meta.chip,
+                state === "locked" && "bg-muted/40 text-muted-foreground/70 border-border/40",
+                state === "manual" && "bg-amber-400/10 text-amber-400/90 border-amber-400/20",
+              )}
+            >
+              <Icon className="w-3 h-3" />
+              {meta.label}
+              {state === "ok" && <Check className="w-3 h-3 opacity-80" />}
+              {state === "manual" && <span className="opacity-80">· manual</span>}
+              {state === "locked" && <X className="w-3 h-3 opacity-60" />}
+            </span>
+          );
+        })}
       </div>
 
+      {/* Hairline divider */}
+      <div className="border-t border-border/30" />
+
+      {/* Access tiers — shared-border track */}
+      <section className="py-6 md:py-8">
+        <div className="flex items-baseline justify-between mb-4">
+          <h2 className="text-sm font-semibold text-foreground">Access tiers</h2>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 hidden md:inline">
+            Auto-evaluated · Read-only → Trading → Pro
+          </span>
+        </div>
+        <TierTrack tiers={tiers} highestEligible={eligibleTiers[eligibleTiers.length - 1]?.tier} />
+      </section>
+
+      {/* Hairline divider */}
+      <div className="border-t border-border/30" />
+
       {/* Keys section */}
-      <div className="trading-card p-4 md:p-6">
+      <section className="py-6 md:py-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="font-semibold text-base">Your API keys</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <h2 className="text-sm font-semibold text-foreground">Your API keys</h2>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
               {keys.length} key{keys.length === 1 ? "" : "s"} · secrets shown once at creation
             </p>
           </div>
@@ -142,47 +221,32 @@ const ApiManagement = () => {
         </div>
 
         {isLoading ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">Loading…</div>
+          <div className="py-10 text-center text-sm text-muted-foreground">Loading…</div>
         ) : keys.length === 0 ? (
-          <div className="max-w-sm mx-auto rounded-xl border border-dashed border-border/60 bg-muted/10 p-6 text-center">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 mx-auto flex items-center justify-center mb-3">
-              <KeyRound className="w-5 h-5 text-primary" />
-            </div>
-            <div className="text-sm font-semibold text-foreground">No API keys yet</div>
-            <div className="text-xs text-muted-foreground mt-1 mb-4 leading-relaxed">
-              Create your first key to start streaming data or placing orders programmatically.
-            </div>
-            <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5">
-              <Plus className="w-4 h-4" /> Create key
-            </Button>
-          </div>
+          <EmptyKeysCard onCreate={() => setCreateOpen(true)} />
         ) : (
           <KeysTable keys={keys} onRevoke={setRevokeTarget} />
         )}
-      </div>
+      </section>
     </div>
   );
-
 
   return (
     <div className="min-h-screen bg-background">
       {isMobile ? (
         <>
           <MobileHeader title="API Management" showLogo={false} />
-          <div className="p-4 pb-24">{content}</div>
+          <div className="px-4 py-4 pb-24 max-w-7xl mx-auto">{content}</div>
           <BottomNav />
         </>
       ) : (
         <>
           <EventsDesktopHeader />
-          <main className="max-w-7xl mx-auto w-full px-8 py-10">
-            {content}
-          </main>
+          <main className="max-w-7xl mx-auto w-full px-8 py-10">{content}</main>
         </>
       )}
 
-
-      <CreateKeyDialog
+      <CreateKeyFlow
         open={createOpen}
         onOpenChange={(o) => {
           setCreateOpen(o);
@@ -192,6 +256,7 @@ const ApiManagement = () => {
         newSecret={newSecret}
         tiers={tiers}
         createKey={createKey}
+        isMobile={!!isMobile}
       />
 
       <RevokeDialog
@@ -208,50 +273,92 @@ const ApiManagement = () => {
   );
 };
 
-/* -------------------- Tier card -------------------- */
-const TierCard = ({ tier }: { tier: TierEligibility }) => {
+/* -------------------- Tier track (shared-border) -------------------- */
+const TierTrack = ({
+  tiers,
+  highestEligible,
+}: {
+  tiers: TierEligibility[];
+  highestEligible?: ApiTier;
+}) => {
+  return (
+    <div className="relative border-y border-border/40">
+      {/* Top progress rail (desktop only) */}
+      <div className="hidden md:block absolute inset-x-0 top-0 h-px bg-gradient-to-r from-border via-border to-primary/60" />
+      {/* Progress nodes on the rail */}
+      <div className="hidden md:grid absolute inset-x-0 -top-[5px] grid-cols-3 pointer-events-none">
+        {TIER_ORDER.map((tid) => {
+          const t = tiers.find((x) => x.tier === tid)!;
+          const meta = TIER_META[tid];
+          const active = t.eligible || t.manualReview;
+          return (
+            <div key={tid} className="flex justify-start pl-4">
+              <span
+                className={cn(
+                  "block w-[10px] h-[10px] rounded-full border",
+                  active ? cn(meta.dotFill, "border-transparent") : "bg-background border-border",
+                )}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x divide-y md:divide-y-0 divide-border/40">
+        {TIER_ORDER.map((tid) => {
+          const t = tiers.find((x) => x.tier === tid)!;
+          const isCurrent = highestEligible === tid;
+          return <TierSegment key={tid} tier={t} current={isCurrent} />;
+        })}
+      </div>
+    </div>
+  );
+};
+
+const TierSegment = ({ tier, current }: { tier: TierEligibility; current: boolean }) => {
+  const meta = TIER_META[tier.tier];
+  const Icon = meta.icon;
   const statusBadge = tier.manualReview ? (
-    <Badge variant="outline" className="bg-amber-400/10 text-amber-400 border-amber-400/20">
+    <Badge variant="outline" className="bg-amber-400/10 text-amber-400 border-amber-400/20 text-[10px]">
       Manual approval
     </Badge>
   ) : tier.eligible ? (
-    <Badge variant="outline" className="bg-emerald-400/10 text-emerald-400 border-emerald-400/20">
+    <Badge variant="outline" className="bg-emerald-400/10 text-emerald-400 border-emerald-400/20 text-[10px]">
       Available
     </Badge>
   ) : (
-    <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
+    <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-[10px]">
       Requirements not met
     </Badge>
   );
 
-  const isEligible = tier.eligible && !tier.manualReview;
-  const cardBase =
-    "relative p-4 flex flex-col gap-3 h-full rounded-xl border transition-colors " +
-    (isEligible
-      ? "border-primary/40 bg-gradient-to-br from-primary/[0.06] via-card to-card shadow-[0_0_0_1px_hsl(var(--primary)/0.15),0_20px_40px_-20px_hsl(var(--primary)/0.35)]"
-      : tier.manualReview
-      ? "border-amber-400/25 bg-gradient-to-br from-amber-400/[0.04] via-card to-card"
-      : "border-border/40 bg-card/60");
-
   return (
-    <div className={cardBase}>
-      {isEligible && (
-        <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+    <div
+      className={cn(
+        "p-4 md:p-5 flex flex-col gap-3 transition-colors hover:bg-muted/20",
+        current && meta.surfaceHint,
       )}
+    >
       <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="text-sm font-semibold text-foreground">{tier.label}</div>
-          <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{tier.description}</div>
+        <div className="flex items-center gap-2 min-w-0">
+          <Icon className={cn("w-4 h-4 shrink-0", meta.accent)} />
+          <div className="text-sm font-semibold text-foreground truncate">{meta.label}</div>
+          {current && (
+            <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 border border-border/40 px-1 rounded">
+              you
+            </span>
+          )}
         </div>
         {statusBadge}
       </div>
-      <ul className="space-y-1.5 flex-1">
+      <p className="text-xs text-muted-foreground leading-snug">{tier.description}</p>
+      <ul className="space-y-1.5">
         {tier.requirements.map((r, i) => (
           <li key={i} className="flex items-start gap-2 text-xs">
             {r.met ? (
               <Check className="w-3.5 h-3.5 text-trading-green mt-0.5 shrink-0" />
             ) : (
-              <X className="w-3.5 h-3.5 text-muted-foreground/60 mt-0.5 shrink-0" />
+              <X className="w-3.5 h-3.5 text-muted-foreground/50 mt-0.5 shrink-0" />
             )}
             <span className={r.met ? "text-foreground" : "text-muted-foreground"}>
               {r.label}
@@ -263,10 +370,7 @@ const TierCard = ({ tier }: { tier: TierEligibility }) => {
         ))}
       </ul>
       {tier.manualReview && (
-        <a
-          href="mailto:api@omenx.io?subject=Pro%2FMM%20API%20access%20request"
-          className="mt-auto"
-        >
+        <a href="mailto:api@omenx.io?subject=Pro%2FMM%20API%20access%20request" className="mt-1">
           <Button variant="outline" size="sm" className="w-full gap-1.5">
             <Mail className="w-3.5 h-3.5" /> Contact us
           </Button>
@@ -276,6 +380,23 @@ const TierCard = ({ tier }: { tier: TierEligibility }) => {
   );
 };
 
+/* -------------------- Empty state -------------------- */
+const EmptyKeysCard = ({ onCreate }: { onCreate: () => void }) => (
+  <div className="rounded-lg border border-dashed border-border/50 bg-muted/10 px-6 py-5 flex items-center gap-4">
+    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+      <KeyRound className="w-5 h-5 text-primary" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="text-sm font-semibold text-foreground">No API keys yet</div>
+      <div className="text-xs text-muted-foreground mt-0.5">
+        Create your first key to start streaming data or placing orders programmatically.
+      </div>
+    </div>
+    <Button size="sm" onClick={onCreate} className="gap-1.5 shrink-0">
+      <Plus className="w-4 h-4" /> Create key
+    </Button>
+  </div>
+);
 
 /* -------------------- Keys table -------------------- */
 const KeysTable = ({
@@ -286,9 +407,9 @@ const KeysTable = ({
   onRevoke: (k: ApiKey) => void;
 }) => {
   return (
-    <div className="space-y-2">
+    <div className="border-y border-border/40">
       {/* Header (desktop) */}
-      <div className="hidden md:grid grid-cols-[1.2fr_1.6fr_0.8fr_1.8fr_0.6fr_0.9fr_0.9fr_0.7fr_0.6fr] gap-3 px-3 text-[10px] uppercase tracking-wider text-muted-foreground/70">
+      <div className="hidden md:grid grid-cols-[1.2fr_1.6fr_0.8fr_1.8fr_0.6fr_0.9fr_0.9fr_0.7fr_0.7fr] gap-3 px-3 py-2 text-[10px] uppercase tracking-wider text-muted-foreground/70 border-b border-border/40">
         <div>Label</div>
         <div>Key</div>
         <div>Tier</div>
@@ -299,79 +420,88 @@ const KeysTable = ({
         <div>Status</div>
         <div className="text-right">Action</div>
       </div>
-      {keys.map((k) => {
-        const active = k.status === "active";
-        return (
-          <div
-            key={k.id}
-            className="rounded-lg border border-border/40 bg-muted/20 md:grid md:grid-cols-[1.2fr_1.6fr_0.8fr_1.8fr_0.6fr_0.9fr_0.9fr_0.7fr_0.6fr] gap-3 items-center p-3 text-xs"
-          >
-            <div className="font-medium text-sm md:text-xs mb-1 md:mb-0">{k.label}</div>
-            <div className="font-mono text-[11px] text-muted-foreground truncate">{k.key_prefix}</div>
-            <div className="mb-1 md:mb-0">
-              <Badge variant="outline" className={TIER_BADGE[k.tier].className}>
-                {TIER_BADGE[k.tier].label}
-              </Badge>
-            </div>
-            <div className="flex flex-wrap gap-1 mb-1 md:mb-0">
-              {k.scopes.slice(0, 4).map((s) => (
-                <span key={s} className="px-1.5 py-0.5 rounded bg-background/60 border border-border/40 font-mono text-[10px]">
-                  {s}
-                </span>
-              ))}
-              {k.scopes.length > 4 && (
-                <span className="px-1.5 py-0.5 rounded bg-background/60 border border-border/40 font-mono text-[10px] text-muted-foreground">
-                  +{k.scopes.length - 4}
-                </span>
-              )}
-            </div>
-            <div className="text-muted-foreground">
-              {k.ip_whitelist.length > 0 ? `${k.ip_whitelist.length} IP${k.ip_whitelist.length > 1 ? "s" : ""}` : "—"}
-            </div>
-            <div className="text-muted-foreground">
-              {formatDistanceToNow(new Date(k.created_at), { addSuffix: true })}
-            </div>
-            <div className="text-muted-foreground">
-              {k.last_used_at ? formatDistanceToNow(new Date(k.last_used_at), { addSuffix: true }) : "Never"}
-            </div>
-            <div>
-              {active ? (
-                <Badge variant="outline" className="bg-emerald-400/10 text-emerald-400 border-emerald-400/20">
-                  Active
+      <div className="divide-y divide-border/30">
+        {keys.map((k) => {
+          const active = k.status === "active";
+          const meta = TIER_META[k.tier];
+          return (
+            <div
+              key={k.id}
+              className="md:grid md:grid-cols-[1.2fr_1.6fr_0.8fr_1.8fr_0.6fr_0.9fr_0.9fr_0.7fr_0.7fr] gap-3 items-center px-3 py-3 text-xs hover:bg-muted/20 transition-colors"
+            >
+              <div className="font-medium text-sm md:text-xs mb-1 md:mb-0">{k.label}</div>
+              <div className="font-mono text-[11px] text-muted-foreground truncate">{k.key_prefix}</div>
+              <div className="mb-1 md:mb-0">
+                <Badge variant="outline" className={cn("text-[10px]", meta.chip)}>
+                  {meta.label}
                 </Badge>
-              ) : (
-                <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
-                  Revoked
-                </Badge>
-              )}
+              </div>
+              <div className="flex flex-wrap gap-1 mb-1 md:mb-0">
+                {k.scopes.slice(0, 4).map((s) => (
+                  <span
+                    key={s}
+                    className="px-1.5 py-0.5 rounded bg-background/60 border border-border/40 font-mono text-[10px]"
+                  >
+                    {s}
+                  </span>
+                ))}
+                {k.scopes.length > 4 && (
+                  <span className="px-1.5 py-0.5 rounded bg-background/60 border border-border/40 font-mono text-[10px] text-muted-foreground">
+                    +{k.scopes.length - 4}
+                  </span>
+                )}
+              </div>
+              <div className="font-mono text-muted-foreground">
+                {k.ip_whitelist.length > 0 ? `${k.ip_whitelist.length} IP${k.ip_whitelist.length > 1 ? "s" : ""}` : "—"}
+              </div>
+              <div className="font-mono text-muted-foreground">
+                {formatDistanceToNow(new Date(k.created_at), { addSuffix: true })}
+              </div>
+              <div className="font-mono text-muted-foreground">
+                {k.last_used_at ? formatDistanceToNow(new Date(k.last_used_at), { addSuffix: true }) : "Never"}
+              </div>
+              <div>
+                {active ? (
+                  <Badge variant="outline" className="bg-emerald-400/10 text-emerald-400 border-emerald-400/20 text-[10px]">
+                    Active
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-[10px]">
+                    Revoked
+                  </Badge>
+                )}
+              </div>
+              <div className="md:text-right mt-2 md:mt-0">
+                {active && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => onRevoke(k)}
+                  >
+                    Revoke
+                  </Button>
+                )}
+              </div>
             </div>
-            <div className="md:text-right mt-2 md:mt-0">
-              {active && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => onRevoke(k)}
-                >
-                  Revoke
-                </Button>
-              )}
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };
 
-/* -------------------- Create wizard -------------------- */
-const CreateKeyDialog = ({
+/* -------------------- Create wizard (Dialog / Drawer) -------------------- */
+type WizardStep = 1 | 2 | 3 | 4;
+
+const CreateKeyFlow = ({
   open,
   onOpenChange,
   onCreated,
   newSecret,
   tiers,
   createKey,
+  isMobile,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
@@ -379,8 +509,9 @@ const CreateKeyDialog = ({
   newSecret: string | null;
   tiers: TierEligibility[];
   createKey: ReturnType<typeof useApiKeys>["createKey"];
+  isMobile: boolean;
 }) => {
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<WizardStep>(1);
   const [label, setLabel] = useState("");
   const [tier, setTier] = useState<ApiTier>("read_only");
   const [scopes, setScopes] = useState<ApiScope[]>(["read_public"]);
@@ -406,21 +537,17 @@ const CreateKeyDialog = ({
         .split(/[,\n\s]+/)
         .map((s) => s.trim())
         .filter(Boolean),
-    [ipRaw]
+    [ipRaw],
   );
   const ipInvalid = ipList.filter((ip) => !isValidIp(ip));
   const requiresIp = scopes.some((s) => ALL_SCOPES.find((x) => x.id === s)?.requiresIp);
-  const availableScopes = ALL_SCOPES.filter((s) => {
-    if (tier === "read_only") return !s.requiresIp && s.id.startsWith("read") ? true : !s.requiresIp;
-    return true;
-  });
-
+  const availableScopes = ALL_SCOPES.filter((s) =>
+    tier === "read_only" ? !s.requiresIp : true,
+  );
   const tierEntries = tiers.filter((t) => t.tier !== "pro_mm"); // pro is manual review
 
   const canNext1 = label.trim().length >= 2 && (tiers.find((t) => t.tier === tier)?.eligible ?? false);
-  const canNext2 =
-    scopes.length > 0 &&
-    (!requiresIp || (ipList.length > 0 && ipInvalid.length === 0));
+  const canNext2 = scopes.length > 0 && (!requiresIp || (ipList.length > 0 && ipInvalid.length === 0));
   const canSubmit3 = /^\d{6}$/.test(otp.trim());
 
   const handleClose = (o: boolean) => {
@@ -448,234 +575,414 @@ const CreateKeyDialog = ({
     }
   };
 
+  const stepTitles: Record<WizardStep, string> = {
+    1: "Label & tier",
+    2: "Scopes & IP",
+    3: "Verify 2FA",
+    4: "Save secret",
+  };
+  const title = step === 4 ? "API key created" : "Create API key";
+  const description =
+    step === 1
+      ? "Choose a label and tier for this key."
+      : step === 2
+      ? "Select scopes and configure IP whitelist."
+      : step === 3
+      ? "Verify with your 2FA code to generate the key."
+      : "Copy the secret now — it will not be shown again.";
+
+  const body = (
+    <div className="space-y-4">
+      <StepIndicator current={step} titles={stepTitles} />
+
+      {step === 1 && (
+        <Step1
+          label={label}
+          setLabel={setLabel}
+          tier={tier}
+          setTier={setTier}
+          tierEntries={tierEntries}
+        />
+      )}
+      {step === 2 && (
+        <Step2
+          scopes={scopes}
+          setScopes={setScopes}
+          availableScopes={availableScopes}
+          requiresIp={requiresIp}
+          ipRaw={ipRaw}
+          setIpRaw={setIpRaw}
+          ipInvalid={ipInvalid}
+        />
+      )}
+      {step === 3 && (
+        <Step3
+          otp={otp}
+          setOtp={(v) => {
+            setOtp(v);
+            setOtpError(null);
+          }}
+          otpError={otpError}
+        />
+      )}
+      {step === 4 && newSecret && (
+        <Step4Secret
+          secret={newSecret}
+          copied={copied}
+          onCopy={() => {
+            navigator.clipboard.writeText(newSecret);
+            setCopied(true);
+            toast.success("Secret copied");
+          }}
+        />
+      )}
+    </div>
+  );
+
+  const actions = (
+    <>
+      {step === 1 && (
+        <>
+          <Button variant="outline" onClick={() => handleClose(false)} className="h-11 md:h-10">
+            Cancel
+          </Button>
+          <Button disabled={!canNext1} onClick={() => setStep(2)} className="h-11 md:h-10">
+            Next
+          </Button>
+        </>
+      )}
+      {step === 2 && (
+        <>
+          <Button variant="outline" onClick={() => setStep(1)} className="h-11 md:h-10">
+            Back
+          </Button>
+          <Button disabled={!canNext2} onClick={() => setStep(3)} className="h-11 md:h-10">
+            Next
+          </Button>
+        </>
+      )}
+      {step === 3 && (
+        <>
+          <Button variant="outline" onClick={() => setStep(2)} disabled={createKey.isPending} className="h-11 md:h-10">
+            Back
+          </Button>
+          <Button
+            disabled={!canSubmit3 || createKey.isPending}
+            onClick={handleVerifyAndCreate}
+            className="h-11 md:h-10"
+          >
+            {createKey.isPending ? "Creating…" : "Verify & create"}
+          </Button>
+        </>
+      )}
+      {step === 4 && (
+        <Button className="w-full h-11 md:h-10" onClick={() => handleClose(false)}>
+          Done
+        </Button>
+      )}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <MobileDrawer open={open} onOpenChange={handleClose} title={title} description={description}>
+        <MobileDrawerSection>{body}</MobileDrawerSection>
+        <MobileDrawerActions>{actions}</MobileDrawerActions>
+      </MobileDrawer>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {step === 4 ? "API key created" : `Create API key — Step ${step} of 3`}
-          </DialogTitle>
-          <DialogDescription>
-            {step === 1 && "Choose a label and tier for this key."}
-            {step === 2 && "Select scopes and configure IP whitelist."}
-            {step === 3 && "Verify with your 2FA code to generate the key."}
-            {step === 4 && "Copy the secret now — it will not be shown again."}
-          </DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-
-        {step === 1 && (
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="key-label" className="text-sm">Label</Label>
-              <Input
-                id="key-label"
-                placeholder="e.g. Trading bot – prod"
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                maxLength={64}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm">Tier</Label>
-              <div className="space-y-2">
-                {tierEntries.map((t) => {
-                  const selected = tier === t.tier;
-                  const disabled = !t.eligible;
-                  return (
-                    <button
-                      key={t.tier}
-                      type="button"
-                      disabled={disabled}
-                      onClick={() => setTier(t.tier)}
-                      className={`w-full text-left rounded-lg border p-3 transition ${
-                        selected
-                          ? "border-primary bg-primary/5"
-                          : disabled
-                          ? "border-border/40 opacity-50 cursor-not-allowed"
-                          : "border-border/40 hover:border-primary/50"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm font-medium">{t.label}</div>
-                        {disabled ? (
-                          <span className="text-[10px] text-muted-foreground">Requirements not met</span>
-                        ) : selected ? (
-                          <Check className="w-4 h-4 text-primary" />
-                        ) : null}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{t.description}</div>
-                      {disabled && (
-                        <div className="mt-2 space-y-0.5">
-                          {t.requirements
-                            .filter((r) => !r.met)
-                            .map((r, i) => (
-                              <div key={i} className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                <X className="w-3 h-3" /> {r.label}
-                              </div>
-                            ))}
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm">Scopes</Label>
-              <div className="rounded-lg border border-border/40 divide-y divide-border/40">
-                {availableScopes.map((s) => {
-                  const checked = scopes.includes(s.id);
-                  return (
-                    <label
-                      key={s.id}
-                      className="flex items-start gap-3 p-2.5 cursor-pointer hover:bg-muted/20"
-                    >
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(v) => {
-                          setScopes((prev) =>
-                            v ? [...prev, s.id] : prev.filter((x) => x !== s.id)
-                          );
-                        }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <code className="text-xs font-mono">{s.label}</code>
-                          {s.requiresIp && (
-                            <Badge variant="outline" className="text-[9px] py-0 h-4 bg-amber-400/10 text-amber-400 border-amber-400/20">
-                              IP required
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-muted-foreground mt-0.5">{s.description}</div>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="ip-wl" className="text-sm">
-                IP whitelist {requiresIp && <span className="text-amber-400">(required for trade / private scopes)</span>}
-              </Label>
-              <textarea
-                id="ip-wl"
-                value={ipRaw}
-                onChange={(e) => setIpRaw(e.target.value)}
-                placeholder="203.0.113.10, 198.51.100.0/24"
-                rows={3}
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
-              <div className="text-[11px] text-muted-foreground">
-                Comma or newline separated. IPv4 / IPv6 / CIDR.
-              </div>
-              {ipInvalid.length > 0 && (
-                <div className="text-[11px] text-destructive flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" /> Invalid: {ipInvalid.join(", ")}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="space-y-3">
-            <div className="rounded-lg border border-border/40 bg-muted/30 p-3 flex items-start gap-2">
-              <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-              <div className="text-xs text-muted-foreground">
-                Enter the 6-digit code from your authenticator app to finalize key creation.
-                <span className="block text-[10px] text-muted-foreground/70 mt-1">{DEMO_OTP_HINT}</span>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="otp-input" className="text-sm">2FA code</Label>
-              <Input
-                id="otp-input"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                placeholder="123456"
-                value={otp}
-                onChange={(e) => {
-                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
-                  setOtpError(null);
-                }}
-                className="font-mono tracking-[0.4em] text-center text-lg"
-              />
-              {otpError && (
-                <div className="text-[11px] text-destructive flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" /> {otpError}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {step === 4 && newSecret && (
-          <div className="space-y-3">
-            <div className="rounded-lg border border-amber-400/30 bg-amber-400/5 p-3 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-              <div className="text-xs text-amber-100/90">
-                This is the only time your full secret will be shown. Copy it and store it securely.
-              </div>
-            </div>
-            <div className="rounded-lg border border-border/40 bg-muted/30 p-3 flex items-center gap-2">
-              <code className="flex-1 font-mono text-xs break-all">{newSecret}</code>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 gap-1"
-                onClick={() => {
-                  navigator.clipboard.writeText(newSecret);
-                  setCopied(true);
-                  toast.success("Secret copied");
-                }}
-              >
-                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? "Copied" : "Copy"}
-              </Button>
-            </div>
-            <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-              <ShieldCheck className="w-3 h-3" /> Send this secret in the <code className="font-mono">X-OMENX-API-KEY</code> header.
-            </div>
-          </div>
-        )}
-
-        <DialogFooter className="gap-2">
-          {step === 1 && (
-            <>
-              <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
-              <Button disabled={!canNext1} onClick={() => setStep(2)}>Next</Button>
-            </>
-          )}
-          {step === 2 && (
-            <>
-              <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-              <Button disabled={!canNext2} onClick={() => setStep(3)}>Next</Button>
-            </>
-          )}
-          {step === 3 && (
-            <>
-              <Button variant="outline" onClick={() => setStep(2)} disabled={createKey.isPending}>Back</Button>
-              <Button disabled={!canSubmit3 || createKey.isPending} onClick={handleVerifyAndCreate}>
-                {createKey.isPending ? "Creating…" : "Verify & create"}
-              </Button>
-            </>
-          )}
-          {step === 4 && (
-            <Button className="w-full" onClick={() => handleClose(false)}>Done</Button>
-          )}
-        </DialogFooter>
+        {body}
+        <DialogFooter className="gap-2">{actions}</DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
+
+/* -------------------- Step indicator (4 nodes + connector) -------------------- */
+const StepIndicator = ({
+  current,
+  titles,
+}: {
+  current: WizardStep;
+  titles: Record<WizardStep, string>;
+}) => {
+  const steps: WizardStep[] = [1, 2, 3, 4];
+  return (
+    <div className="flex items-center gap-1.5">
+      {steps.map((s, i) => {
+        const state = s < current ? "done" : s === current ? "current" : "todo";
+        return (
+          <div key={s} className="flex items-center flex-1 min-w-0">
+            <div
+              className={cn(
+                "w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-mono shrink-0 transition-colors",
+                state === "done" && "bg-primary text-primary-foreground border-primary",
+                state === "current" && "bg-primary/15 text-primary border-primary",
+                state === "todo" && "bg-background text-muted-foreground/60 border-border",
+              )}
+            >
+              {state === "done" ? <Check className="w-3 h-3" /> : s}
+            </div>
+            {i < steps.length - 1 && (
+              <div
+                className={cn(
+                  "flex-1 h-px mx-1.5 transition-colors",
+                  s < current ? "bg-primary" : "bg-border",
+                )}
+              />
+            )}
+          </div>
+        );
+      })}
+      {/* Screen-reader label */}
+      <span className="sr-only">Step {current} of 4: {titles[current]}</span>
+    </div>
+  );
+};
+
+/* -------------------- Wizard steps -------------------- */
+const Step1 = ({
+  label,
+  setLabel,
+  tier,
+  setTier,
+  tierEntries,
+}: {
+  label: string;
+  setLabel: (s: string) => void;
+  tier: ApiTier;
+  setTier: (t: ApiTier) => void;
+  tierEntries: TierEligibility[];
+}) => (
+  <div className="space-y-4">
+    <div className="space-y-1.5">
+      <Label htmlFor="key-label" className="text-sm font-medium">
+        Label
+      </Label>
+      <Input
+        id="key-label"
+        placeholder="e.g. Trading bot – prod"
+        value={label}
+        onChange={(e) => setLabel(e.target.value)}
+        maxLength={64}
+      />
+    </div>
+    <div className="space-y-2">
+      <Label className="text-sm font-medium">Tier</Label>
+      <div className="space-y-2">
+        {tierEntries.map((t) => {
+          const meta = TIER_META[t.tier];
+          const Icon = meta.icon;
+          const selected = tier === t.tier;
+          const disabled = !t.eligible;
+          return (
+            <button
+              key={t.tier}
+              type="button"
+              disabled={disabled}
+              onClick={() => setTier(t.tier)}
+              className={cn(
+                "w-full text-left rounded-lg border p-3 transition-colors",
+                selected && "border-primary bg-primary/[0.06]",
+                !selected && !disabled && "border-border/40 hover:border-primary/50 hover:bg-muted/20",
+                disabled && "border-border/40 opacity-50 cursor-not-allowed",
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "w-4 h-4 rounded-full border shrink-0 flex items-center justify-center",
+                    selected ? "border-primary" : "border-border",
+                  )}
+                >
+                  {selected && <span className="w-2 h-2 rounded-full bg-primary" />}
+                </span>
+                <Icon className={cn("w-3.5 h-3.5", meta.accent)} />
+                <span className="text-sm font-medium flex-1">{meta.label}</span>
+                {disabled && (
+                  <span className="text-[10px] text-muted-foreground">Requirements not met</span>
+                )}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 pl-6">{t.description}</div>
+              {disabled && (
+                <div className="mt-2 pl-6 space-y-0.5">
+                  {t.requirements
+                    .filter((r) => !r.met)
+                    .map((r, i) => (
+                      <div key={i} className="text-[10px] text-muted-foreground flex items-center gap-1">
+                        <X className="w-3 h-3" /> {r.label}
+                      </div>
+                    ))}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+);
+
+const Step2 = ({
+  scopes,
+  setScopes,
+  availableScopes,
+  requiresIp,
+  ipRaw,
+  setIpRaw,
+  ipInvalid,
+}: {
+  scopes: ApiScope[];
+  setScopes: (fn: (prev: ApiScope[]) => ApiScope[]) => void;
+  availableScopes: typeof ALL_SCOPES;
+  requiresIp: boolean;
+  ipRaw: string;
+  setIpRaw: (s: string) => void;
+  ipInvalid: string[];
+}) => (
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <Label className="text-sm font-medium">Scopes</Label>
+      <div className="rounded-lg border border-border/40 divide-y divide-border/40 overflow-hidden">
+        {availableScopes.map((s) => {
+          const checked = scopes.includes(s.id);
+          return (
+            <label
+              key={s.id}
+              className="flex items-start gap-3 p-2.5 cursor-pointer hover:bg-muted/30 transition-colors"
+            >
+              <Checkbox
+                checked={checked}
+                onCheckedChange={(v) => {
+                  setScopes((prev) => (v ? [...prev, s.id] : prev.filter((x) => x !== s.id)));
+                }}
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <code className="text-xs font-mono">{s.label}</code>
+                  {s.requiresIp && (
+                    <Badge variant="outline" className="text-[9px] py-0 h-4 bg-amber-400/10 text-amber-400 border-amber-400/20">
+                      IP required
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">{s.description}</div>
+              </div>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+
+    <div className="space-y-1.5">
+      <Label htmlFor="ip-wl" className="text-sm font-medium">
+        IP whitelist{" "}
+        {requiresIp && <span className="text-amber-400 font-normal">(required for trade / private scopes)</span>}
+      </Label>
+      <Textarea
+        id="ip-wl"
+        value={ipRaw}
+        onChange={(e) => setIpRaw(e.target.value)}
+        placeholder="203.0.113.10, 198.51.100.0/24"
+        rows={3}
+        className="font-mono text-sm"
+      />
+      <div className="text-[11px] text-muted-foreground">Comma or newline separated. IPv4 / IPv6 / CIDR.</div>
+      {ipInvalid.length > 0 && (
+        <div className="text-[11px] text-destructive flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3" /> Invalid: {ipInvalid.join(", ")}
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+const Step3 = ({
+  otp,
+  setOtp,
+  otpError,
+}: {
+  otp: string;
+  setOtp: (v: string) => void;
+  otpError: string | null;
+}) => (
+  <div className="space-y-3">
+    <div className="rounded-lg border border-border/40 bg-muted/30 p-3 flex items-start gap-2">
+      <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+      <div className="text-xs text-muted-foreground">
+        Enter the 6-digit code from your authenticator app to finalize key creation.
+        <span className="block text-[10px] text-muted-foreground/70 mt-1">{DEMO_OTP_HINT}</span>
+      </div>
+    </div>
+    <div className="space-y-1.5">
+      <Label htmlFor="otp-input" className="text-sm font-medium">
+        2FA code
+      </Label>
+      <Input
+        id="otp-input"
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        maxLength={6}
+        placeholder="123456"
+        value={otp}
+        onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        className="font-mono tracking-[0.4em] text-center text-lg"
+      />
+      {otpError && (
+        <div className="text-[11px] text-destructive flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3" /> {otpError}
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+const Step4Secret = ({
+  secret,
+  copied,
+  onCopy,
+}: {
+  secret: string;
+  copied: boolean;
+  onCopy: () => void;
+}) => (
+  <div className="space-y-3">
+    <div className="rounded-lg border border-amber-400/40 bg-amber-400/[0.06] p-3 flex items-start gap-2">
+      <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+      <div className="text-xs text-amber-100/90 leading-relaxed">
+        <div className="font-medium text-amber-300 mb-0.5">Save this secret now.</div>
+        It will never be shown again. If you lose it, you'll need to revoke the key and create a new one.
+      </div>
+    </div>
+    <div className="rounded-lg border-2 border-primary/40 bg-gradient-to-br from-primary/[0.06] to-transparent p-4">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Your API secret</div>
+      <code className="block font-mono text-sm md:text-base text-foreground break-all leading-relaxed select-all">
+        {secret}
+      </code>
+      <Button
+        size="sm"
+        variant={copied ? "outline" : "default"}
+        className="w-full mt-3 gap-1.5 h-10"
+        onClick={onCopy}
+      >
+        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+        {copied ? "Copied to clipboard" : "Copy secret"}
+      </Button>
+    </div>
+    <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+      <ShieldCheck className="w-3 h-3" /> Send this secret in the{" "}
+      <code className="font-mono">X-OMENX-API-KEY</code> header.
+    </div>
+  </div>
+);
 
 /* -------------------- Revoke dialog -------------------- */
 const RevokeDialog = ({
@@ -697,19 +1004,17 @@ const RevokeDialog = ({
           <DialogDescription>
             {target && (
               <>
-                Revoking <span className="font-medium text-foreground">{target.label}</span> immediately
-                disables all requests using this key. This action cannot be undone.
+                Revoking <span className="font-medium text-foreground">{target.label}</span> immediately disables all
+                requests using this key. This action cannot be undone.
               </>
             )}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} disabled={pending}>Cancel</Button>
-          <Button
-            variant="destructive"
-            disabled={pending}
-            onClick={() => target && onConfirm(target.id)}
-          >
+          <Button variant="outline" onClick={onClose} disabled={pending}>
+            Cancel
+          </Button>
+          <Button variant="destructive" disabled={pending} onClick={() => target && onConfirm(target.id)}>
             {pending ? "Revoking…" : "Revoke key"}
           </Button>
         </DialogFooter>
