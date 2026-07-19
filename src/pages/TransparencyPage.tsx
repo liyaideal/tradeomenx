@@ -129,7 +129,7 @@ const TransparencyPage = () => {
         style={{ background: `radial-gradient(ellipse 80% 50% at 50% -20%, ${gradient} 0%, hsl(222 47% 6%) 70%)` }}
       >
         <EventsDesktopHeader />
-        <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">{scenarioContent}</main>
+        <main className="flex-1 mx-auto w-full max-w-7xl px-8 py-10 space-y-6">{scenarioContent}</main>
         <SeoFooter />
       </div>
     );
