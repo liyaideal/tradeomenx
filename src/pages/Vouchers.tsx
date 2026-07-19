@@ -3,6 +3,7 @@ import { Ticket, Sparkles } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
