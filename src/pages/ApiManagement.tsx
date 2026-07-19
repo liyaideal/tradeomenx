@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Check,
@@ -8,7 +7,6 @@ import {
   AlertTriangle,
   Mail,
   ShieldCheck,
-  ArrowLeft,
   KeyRound,
   Eye,
   Zap,
