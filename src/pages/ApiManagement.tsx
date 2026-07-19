@@ -102,7 +102,7 @@ const isValidIp = (raw: string) => {
 /* -------------------- Page -------------------- */
 const ApiManagement = () => {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
+  
   const { user } = useAuth();
   const { keys, isLoading, createKey, revokeKey } = useApiKeys();
   const { tiers } = useTierEligibility();
