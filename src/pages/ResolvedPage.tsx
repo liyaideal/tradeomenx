@@ -99,26 +99,25 @@ const ResolvedPage = () => {
           isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"
         } space-y-6`}
       >
-        {/* Page Title */}
-        <PageHeader
-          title="Resolved Events"
-          subtitle="Every prediction has an ending — see who called it right"
-          actions={
-            <>
-              {!isMobile && <MarketStatusTabs active="resolved" />}
-              {isMobile && (
-                <MobileResolvedFilterDrawer
-                  viewMode={viewMode}
-                  onViewModeChange={handleViewChange}
-                  category={category}
-                  onCategoryChange={setCategory}
-                  search={search}
-                  onSearchChange={setSearch}
-                />
-              )}
-            </>
-          }
-        />
+        {/* Page Title (desktop) — mobile title lives in MobileHeader */}
+        {!isMobile ? (
+          <PageHeader
+            title="Resolved Events"
+            subtitle="Every prediction has an ending — see who called it right"
+            actions={<MarketStatusTabs active="resolved" />}
+          />
+        ) : (
+          <div className="flex items-center justify-end">
+            <MobileResolvedFilterDrawer
+              viewMode={viewMode}
+              onViewModeChange={handleViewChange}
+              category={category}
+              onCategoryChange={setCategory}
+              search={search}
+              onSearchChange={setSearch}
+            />
+          </div>
+        )}
 
         {/* Tabs row: All Resolved / My Settled (mirrors /events EventTabs) */}
         <div className="flex items-center justify-between gap-3">
