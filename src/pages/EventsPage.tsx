@@ -299,20 +299,11 @@ const EventsPage = () => {
       <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-8 py-10"} space-y-6`}>
 
         {/* Page Title */}
-        <div className="relative">
-          {!isMobile && (
-            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
-          )}
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
-                Explore Events
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1.5">
-                Real-time markets, real-time edge
-              </p>
-            </div>
-            <div className="flex flex-shrink-0 items-center gap-2">
+        <PageHeader
+          title="Explore Events"
+          subtitle="Real-time markets, real-time edge"
+          actions={
+            <>
               {!isMobile && <MarketStatusTabs active="active" />}
               {isMobile && (
                 <>
@@ -320,9 +311,9 @@ const EventsPage = () => {
                   <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
                 </>
               )}
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        />
 
         {/* Product line switch: Futures | Spot */}
         <div className="space-y-1.5">
