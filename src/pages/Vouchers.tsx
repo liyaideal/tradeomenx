@@ -113,7 +113,7 @@ const Vouchers = () => {
         title="Sign in to view your vouchers"
         description="Position vouchers let you open a free position on any tradeable event."
       >
-        <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-6xl mx-auto"} space-y-6`}>
+        <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-8 py-10"} space-y-6`}>
           <div className="relative">
             {!isMobile && (
               <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
