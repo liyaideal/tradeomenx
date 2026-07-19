@@ -184,9 +184,9 @@ const ApiManagement = () => {
 
       {/* Access tiers — shared-border track */}
       <section className="py-6 md:py-8">
-        <div className="flex items-baseline justify-between mb-4">
-          <h2 className="text-sm font-semibold text-foreground">Access tiers</h2>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 hidden md:inline">
+        <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
+          <h2 className="text-sm font-semibold text-foreground flex-shrink-0">Access tiers</h2>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 hidden md:inline truncate min-w-0">
             Auto-evaluated · Read-only → Trading → Pro
           </span>
         </div>
