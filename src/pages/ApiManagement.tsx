@@ -132,18 +132,11 @@ const ApiManagement = () => {
     <div>
 
       {/* Title */}
-      <div className="relative pb-8">
-        <div className="absolute -left-4 top-1 bottom-8 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
-        <div className="flex items-center gap-2 mb-2">
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-mono text-[10px]">
-            v1
-          </Badge>
-          <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">API Management</span>
-        </div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Keys &amp; access</h1>
-        <p className="text-muted-foreground text-xs md:text-sm mt-1.5 max-w-2xl">
-          Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain text.
-        </p>
+      <div className="pb-8">
+        <PageHeader
+          title="Keys & access"
+          subtitle="Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain text."
+        />
       </div>
 
       {/* Hairline divider */}
