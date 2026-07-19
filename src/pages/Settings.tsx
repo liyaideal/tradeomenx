@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star, Shield, LogOut, Key } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
