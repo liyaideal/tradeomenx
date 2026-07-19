@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star, Shield, LogOut, Key } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -535,11 +536,7 @@ const Settings = () => {
       <EventsDesktopHeader />
       
       <main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">
-        <div className="relative">
-          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
-          <h1 className="text-3xl font-bold text-foreground">Account Settings</h1>
-          <p className="text-muted-foreground text-sm mt-1.5">Manage your basic account information</p>
-        </div>
+        <PageHeader title="Account Settings" subtitle="Manage your basic account information" />
 
         <div className="space-y-6">
           <ProfileCard />

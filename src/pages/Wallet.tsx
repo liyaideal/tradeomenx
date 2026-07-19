@@ -25,6 +25,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { TopUpDialog } from "@/components/TopUpDialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -632,11 +633,7 @@ export default function Wallet() {
         
         <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in.">
         <main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-6">
-          <div className="relative">
-            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
-            <h1 className="text-3xl font-bold text-foreground">Wallet</h1>
-            <p className="text-muted-foreground text-sm mt-1.5">Manage your funds and saved addresses</p>
-          </div>
+          <PageHeader title="Wallet" subtitle="Manage your funds and saved addresses" />
 
           <MaintenanceNoticeBanner className="mb-6" />
 

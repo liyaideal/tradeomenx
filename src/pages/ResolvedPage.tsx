@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileStatusDropdown } from "@/components/EventFilters";
 import { ResolvedGroupedGrid } from "@/components/resolved/ResolvedGroupedGrid";
@@ -99,24 +100,11 @@ const ResolvedPage = () => {
         } space-y-6`}
       >
         {/* Page Title */}
-        <div className="relative">
-          {!isMobile && (
-            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
-          )}
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <h1
-                className={`font-bold text-foreground ${
-                  isMobile ? "text-2xl" : "text-3xl"
-                }`}
-              >
-                Resolved Events
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
-                Every prediction has an ending — see who called it right
-              </p>
-            </div>
-            <div className="flex flex-shrink-0 items-center gap-2">
+        <PageHeader
+          title="Resolved Events"
+          subtitle="Every prediction has an ending — see who called it right"
+          actions={
+            <>
               {!isMobile && <MarketStatusTabs active="resolved" />}
               {isMobile && (
                 <MobileResolvedFilterDrawer
@@ -128,9 +116,9 @@ const ResolvedPage = () => {
                   onSearchChange={setSearch}
                 />
               )}
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        />
 
         {/* Tabs row: All Resolved / My Settled (mirrors /events EventTabs) */}
         <div className="flex items-center justify-between gap-3">

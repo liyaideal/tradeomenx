@@ -4,6 +4,7 @@ import { Shield, FileSearch, Scale, ChevronRight, ExternalLink, Lock, Eye, Zap, 
 import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Button } from "@/components/ui/button";
@@ -135,37 +136,6 @@ const TransparencyPage = () => {
     );
   }
 
-  const HeroSection = () => (
-    <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-br from-emerald-500/5 via-background to-blue-500/5 p-6 md:p-10">
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
-        backgroundSize: "40px 40px",
-      }} />
-      <div className="relative z-10 flex flex-col items-center text-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center">
-          <Shield className="w-8 h-8 text-emerald-400" />
-        </div>
-        <div className="space-y-2 max-w-lg">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">On-Chain Transparency</h1>
-          <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-            Don't trust — verify. Audit your assets, trades, liquidations, fees, and settlements directly against on-chain data using cryptographic proofs.
-          </p>
-        </div>
-        <div className="flex items-center gap-6 mt-2">
-          {[
-            { icon: Lock, label: "Cryptographic" },
-            { icon: Eye, label: "Transparent" },
-            { icon: Zap, label: "Instant" },
-          ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Icon className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   const ScenarioCard = ({ scenario }: { scenario: typeof SCENARIOS[0] }) => {
     const Icon = scenario.icon;
@@ -234,7 +204,6 @@ const TransparencyPage = () => {
 
   const content = (
     <div className="space-y-4 md:space-y-6">
-      {isMobile && <HeroSection />}
       {SCENARIOS.map((scenario) => (
         <ScenarioCard key={scenario.id} scenario={scenario} />
       ))}
@@ -258,11 +227,10 @@ const TransparencyPage = () => {
     >
       <EventsDesktopHeader />
       <main className="flex-1 mx-auto w-full max-w-7xl px-8 py-10 space-y-6">
-        <div className="relative">
-          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
-          <h1 className="text-3xl font-bold text-foreground">On-Chain Transparency</h1>
-          <p className="text-muted-foreground text-sm mt-1.5">Don't trust — verify. Audit your assets, trades, liquidations, fees, and settlements directly against on-chain data using cryptographic proofs.</p>
-        </div>
+        <PageHeader
+          title="On-Chain Transparency"
+          subtitle="Don't trust — verify. Audit your assets, trades, liquidations, fees, and settlements directly against on-chain data using cryptographic proofs."
+        />
         {content}
       </main>
       <SeoFooter />

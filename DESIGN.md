@@ -211,25 +211,56 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 **Layout Wide（默认，仪表盘/数据/多区块页）**
 
 - 容器：`<main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-6">`（移动 `px-4 py-6`）
-- 标题区：§4 紫竖线模板（`text-3xl` 桌面 / `text-2xl` 移动 + 副标 `text-muted-foreground text-sm mt-1.5`）
 - 适用：Events / Resolved / Portfolio(+子页) / Vouchers / Rewards / Wallet / Transparency / API Management
 
 **Layout Narrow（纯单列表单/开关页）**
 
 - 容器：`<main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">`（移动 `px-4 py-6`）
-- 标题区：同 Wide 的紫竖线模板（Narrow 也必须有紫竖线）
 - 适用：**仅** Settings 这类纯设置表单页
+
+### Page Title Block — 强制使用 `<PageHeader>` 组件
+
+标题块**只能**通过 `src/components/PageHeader.tsx` 渲染。任何页面手写紫竖线 + `<h1>` 都算违规。
+
+```tsx
+<PageHeader
+  title="Wallet"
+  subtitle="Manage your funds and saved addresses"
+  actions={<Button>Create key</Button>}  // 可选右侧操作
+/>
+```
+
+**组件内置固化（不暴露为 prop，杜绝漂移）**
+
+- 紫竖线：`absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block`
+- h1 字号：`text-2xl md:text-3xl font-bold text-foreground`（全站唯一响应式类）
+- subtitle：`text-muted-foreground text-sm mt-1.5 max-w-2xl`
+- 布局：`flex items-start justify-between gap-4`，左标题块 / 右 `actions`（可选，`flex-shrink-0`）
+
+**Props**
+
+| Prop       | Type        | Note                                  |
+| ---------- | ----------- | ------------------------------------- |
+| `title`    | `string`    | 必填                                  |
+| `subtitle` | `string?`   | 可选，独立段落                        |
+| `actions`  | `ReactNode?`| 可选，右侧操作槽（按钮、tabs、drawer 触发） |
+
+**❌ 禁止清单**
+
+- 禁止在 PageHeader 之外手写 `<h1>` + 紫竖线组合（Leaderboard 营销 Hero 是唯一豁免）
+- 禁止在 PageHeader 上下添加 eyebrow 小标签（如 `v1 · API MANAGEMENT`）
+- 禁止在标题旁塞图标（Gift、Shield、Wallet 图标等）
+- 禁止自定义字号（`text-3xl` 固定 / JS 三元切换）
+- 禁止自定义 subtitle `max-w`
 
 **✅ Do**
 - 外层容器一律 `mx-auto` 居中 + `px-8 py-10` 节奏
-- 标题区一律紫竖线 + 左对齐
 - 内容区左对齐排布
 
-**❌ Don't**
+**❌ Don't（容器层）**
 - 禁止 `max-w-2xl` / `max-w-6xl` 等非官方宽度
 - 禁止 `px-6` / `py-8` / `p-6` 作为外层容器节奏
-- 禁止缺少紫竖线的裸标题
-- 禁止内容整列 `text-center` 居中（标题、副标、卡片列表都必须左对齐）
+- 禁止内容整列 `text-center` 居中
 
 ---
 
