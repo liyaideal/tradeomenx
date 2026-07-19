@@ -204,6 +204,33 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 **❌ 不允许**：桌面端跳过标题区直接渲染 Tabs/内容；使用非标准 `max-w` 或 `py` 值。
 
+### Canonical Product Page Layouts
+
+全站产品功能页只允许以下两种官方布局，不允许第三种。营销/SEO 页（Insights 走 SeoPageLayout、Leaderboard 自定义 Hero）不受此规范约束。
+
+**Layout Wide（默认，仪表盘/数据/多区块页）**
+
+- 容器：`<main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-6">`（移动 `px-4 py-6`）
+- 标题区：§4 紫竖线模板（`text-3xl` 桌面 / `text-2xl` 移动 + 副标 `text-muted-foreground text-sm mt-1.5`）
+- 适用：Events / Resolved / Portfolio(+子页) / Vouchers / Rewards / Wallet / Transparency / API Management
+
+**Layout Narrow（纯单列表单/开关页）**
+
+- 容器：`<main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">`（移动 `px-4 py-6`）
+- 标题区：同 Wide 的紫竖线模板（Narrow 也必须有紫竖线）
+- 适用：**仅** Settings 这类纯设置表单页
+
+**✅ Do**
+- 外层容器一律 `mx-auto` 居中 + `px-8 py-10` 节奏
+- 标题区一律紫竖线 + 左对齐
+- 内容区左对齐排布
+
+**❌ Don't**
+- 禁止 `max-w-2xl` / `max-w-6xl` 等非官方宽度
+- 禁止 `px-6` / `py-8` / `p-6` 作为外层容器节奏
+- 禁止缺少紫竖线的裸标题
+- 禁止内容整列 `text-center` 居中（标题、副标、卡片列表都必须左对齐）
+
 ---
 
 ## 5. Component Patterns
