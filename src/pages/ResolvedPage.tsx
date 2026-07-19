@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileStatusDropdown } from "@/components/EventFilters";
 import { ResolvedGroupedGrid } from "@/components/resolved/ResolvedGroupedGrid";
