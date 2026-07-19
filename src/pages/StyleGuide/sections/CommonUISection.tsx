@@ -124,7 +124,50 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
 
   return (
     <div className="space-y-12">
-      {/* Buttons */}
+      {/* PageHeader */}
+      <SectionWrapper
+        id="page-header"
+        title="PageHeader"
+        platform="shared"
+        description="Canonical product page title block. Purple bar + h1 + subtitle + optional right-aligned actions. All product pages MUST use this component (Leaderboard's marketing hero is the only exception)."
+      >
+        <div className="space-y-6">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Title only</div>
+            <div className="rounded-xl border border-border/40 bg-muted/10 px-8 py-6">
+              <PageHeader title="Wallet" />
+            </div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Title + subtitle</div>
+            <div className="rounded-xl border border-border/40 bg-muted/10 px-8 py-6">
+              <PageHeader
+                title="Position Vouchers"
+                subtitle="Redeem a voucher to instantly open a free position on any eligible event."
+              />
+            </div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Title + subtitle + actions</div>
+            <div className="rounded-xl border border-border/40 bg-muted/10 px-8 py-6">
+              <PageHeader
+                title="Keys & access"
+                subtitle="Generate signed keys for programmatic access."
+                actions={<Button size="sm">Create key</Button>}
+              />
+            </div>
+          </div>
+          <CodePreview
+            code={`<PageHeader
+  title="Keys & access"
+  subtitle="Generate signed keys for programmatic access."
+  actions={<Button size="sm">Create key</Button>}
+/>`}
+          />
+        </div>
+      </SectionWrapper>
+
+
       <SectionWrapper
         id="buttons"
         title="Buttons"
