@@ -259,11 +259,10 @@ const TransparencyPage = () => {
     >
       <EventsDesktopHeader />
       <main className="flex-1 mx-auto w-full max-w-7xl px-8 py-10 space-y-6">
-        <div className="relative">
-          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block" />
-          <h1 className="text-3xl font-bold text-foreground">On-Chain Transparency</h1>
-          <p className="text-muted-foreground text-sm mt-1.5">Don't trust — verify. Audit your assets, trades, liquidations, fees, and settlements directly against on-chain data using cryptographic proofs.</p>
-        </div>
+        <PageHeader
+          title="On-Chain Transparency"
+          subtitle="Don't trust — verify. Audit your assets, trades, liquidations, fees, and settlements directly against on-chain data using cryptographic proofs."
+        />
         {content}
       </main>
       <SeoFooter />
