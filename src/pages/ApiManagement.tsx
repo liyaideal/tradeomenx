@@ -132,14 +132,6 @@ const ApiManagement = () => {
 
   const content = (
     <div>
-      {/* Breadcrumb — own line, above the title */}
-      <button
-        onClick={() => navigate("/developers")}
-        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors group mb-4"
-      >
-        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-        API Overview
-      </button>
 
       {/* Title */}
       <div className="relative pb-8">
