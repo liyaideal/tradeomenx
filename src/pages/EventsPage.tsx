@@ -298,22 +298,19 @@ const EventsPage = () => {
 
       <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-8 py-10"} space-y-6`}>
 
-        {/* Page Title */}
-        <PageHeader
-          title="Explore Events"
-          subtitle="Real-time markets, real-time edge"
-          actions={
-            <>
-              {!isMobile && <MarketStatusTabs active="active" />}
-              {isMobile && (
-                <>
-                  <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
-                  <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
-                </>
-              )}
-            </>
-          }
-        />
+        {/* Page Title (desktop) — mobile title lives in MobileHeader */}
+        {!isMobile ? (
+          <PageHeader
+            title="Explore Events"
+            subtitle="Real-time markets, real-time edge"
+            actions={<MarketStatusTabs active="active" />}
+          />
+        ) : (
+          <div className="flex items-center justify-end gap-2">
+            <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
+            <MobileActiveFilterDrawer filters={filters} onChange={setFilters} />
+          </div>
+        )}
 
         {/* Product line switch: Futures | Spot */}
         <div className="space-y-1.5">
