@@ -169,19 +169,7 @@ export default function PortfolioAirdrops() {
       <AuthGateOverlay title="Sign in to view your airdrops" description="Track your H2E airdrop positions by signing in to your account.">
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-8`}>
         {/* Page Title */}
-        <div className="relative">
-          {!isMobile && (
-            <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
-          )}
-          <div>
-            <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
-              Portfolio
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1.5 max-w-lg">
-              Hedge-to-Earn airdrop positions from your external accounts
-            </p>
-          </div>
-        </div>
+        <PageHeader title="Portfolio" subtitle="Hedge-to-Earn airdrop positions from your external accounts" />
 
         {/* Desktop Tabs */}
         {!isMobile && (
