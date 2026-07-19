@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { usePoints } from "@/hooks/usePoints";
 import { useTasks, TaskWithProgress } from "@/hooks/useTasks";
 import { useReferral } from "@/hooks/useReferral";
