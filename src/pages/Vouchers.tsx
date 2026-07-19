@@ -115,22 +115,12 @@ const Vouchers = () => {
         description="Position vouchers let you open a free position on any tradeable event."
       >
         <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-8 py-10"} space-y-6`}>
-          <div className="relative">
-            {!isMobile && (
-              <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent" />
-            )}
-            <div>
-              <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-3xl"}`}>
-                Position Vouchers
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1.5 max-w-xl">
-                {isMobile
-                  ? "Open a free position on any eligible event. Profits capped; losses don't touch your balance."
-                  : "Redeem a voucher to instantly open a free position on any eligible event. Profits are capped per voucher; losses don't touch your balance."}
-              </p>
-            </div>
-
-          </div>
+          <PageHeader
+            title="Position Vouchers"
+            subtitle={isMobile
+              ? "Open a free position on any eligible event. Profits capped; losses don't touch your balance."
+              : "Redeem a voucher to instantly open a free position on any eligible event. Profits are capped per voucher; losses don't touch your balance."}
+          />
 
           <VoucherEarningsCard />
 
