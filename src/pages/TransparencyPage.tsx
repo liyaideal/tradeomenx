@@ -234,7 +234,7 @@ const TransparencyPage = () => {
 
   const content = (
     <div className="space-y-4 md:space-y-6">
-      <HeroSection />
+      {isMobile && <HeroSection />}
       {SCENARIOS.map((scenario) => (
         <ScenarioCard key={scenario.id} scenario={scenario} />
       ))}
