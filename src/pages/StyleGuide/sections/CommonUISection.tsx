@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy, Star, CheckCircle2, AlertCircle, XCircle, Gift } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { PageHeader } from "@/components/PageHeader";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import { toast } from "sonner";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
