@@ -228,6 +228,11 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 | `subtitle` | `string?`   | 可选，独立段落                        |
 | `actions`  | `ReactNode?`| 可选，右侧操作槽（按钮、tabs、drawer 触发） |
 
+**渲染口径（桌面-only）**
+
+- `<PageHeader>` **仅在桌面渲染**（`{!isMobile && <PageHeader .../>}`）。移动端标题一律由 `<MobileHeader>` 顶栏承担，正文不再重复出标题块。
+- 移动端专用的筛选/drawer 触发按钮不放进 `actions`（`actions` 只在桌面显示），应在移动分支单独渲染一行 `flex justify-end` 控件。
+
 **❌ 禁止清单**
 
 - 禁止在 PageHeader 之外手写 `<h1>` + 紫竖线组合（Leaderboard 营销 Hero 是唯一豁免）
@@ -235,6 +240,7 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - 禁止在标题旁塞图标（Gift、Shield、Wallet 图标等）
 - 禁止自定义字号（`text-3xl` 固定 / JS 三元切换）
 - 禁止自定义 subtitle `max-w`
+- 禁止在移动端同时渲染 `MobileHeader` 和 `PageHeader`（标题重复）
 
 **✅ Do**
 - 外层容器一律 `mx-auto` 居中 + `px-8 py-10` 节奏
