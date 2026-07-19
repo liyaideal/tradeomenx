@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Check,
@@ -8,7 +7,6 @@ import {
   AlertTriangle,
   Mail,
   ShieldCheck,
-  ArrowLeft,
   KeyRound,
   Eye,
   Zap,
@@ -104,7 +102,7 @@ const isValidIp = (raw: string) => {
 /* -------------------- Page -------------------- */
 const ApiManagement = () => {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
+  
   const { user } = useAuth();
   const { keys, isLoading, createKey, revokeKey } = useApiKeys();
   const { tiers } = useTierEligibility();
@@ -132,14 +130,6 @@ const ApiManagement = () => {
 
   const content = (
     <div>
-      {/* Breadcrumb — own line, above the title */}
-      <button
-        onClick={() => navigate("/developers")}
-        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors group mb-4"
-      >
-        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-        API Overview
-      </button>
 
       {/* Title */}
       <div className="relative pb-8">
@@ -192,9 +182,9 @@ const ApiManagement = () => {
 
       {/* Access tiers — shared-border track */}
       <section className="py-6 md:py-8">
-        <div className="flex items-baseline justify-between mb-4">
-          <h2 className="text-sm font-semibold text-foreground">Access tiers</h2>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 hidden md:inline">
+        <div className="flex items-baseline justify-between gap-3 mb-4 min-w-0">
+          <h2 className="text-sm font-semibold text-foreground flex-shrink-0">Access tiers</h2>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 hidden md:inline truncate min-w-0">
             Auto-evaluated · Read-only → Trading → Pro
           </span>
         </div>
