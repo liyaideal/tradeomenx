@@ -327,11 +327,11 @@ const TierSegment = ({ tier, current }: { tier: TierEligibility; current: boolea
       Manual approval
     </Badge>
   ) : tier.eligible ? (
-    <Badge variant="outline" className="bg-emerald-400/10 text-emerald-400 border-emerald-400/20 text-[10px]">
+    <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.success.badge)}>
       Available
     </Badge>
   ) : (
-    <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-[10px]">
+    <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.neutral.badge)}>
       Requirements not met
     </Badge>
   );
