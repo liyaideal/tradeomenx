@@ -28,7 +28,6 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { PageHeader } from "@/components/PageHeader";
 import { TopUpDialog } from "@/components/TopUpDialog";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
-import { Bookmark } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
