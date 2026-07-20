@@ -94,8 +94,8 @@ export default function Portfolio() {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { positions, isLoading: positionsLoading } = usePositions();
-  const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
+  const { positions, isLoading: positionsLoading, isError: positionsError, refetch: refetchPositions } = usePositions();
+  const { data: settlements = [], isLoading: settlementsLoading, isError: settlementsError, refetch: refetchSettlements } = useSettlements();
   const { airdrops, closePosition } = useAirdropPositions();
   const resolveDisplayOption = useEventDisplayLookup();
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
