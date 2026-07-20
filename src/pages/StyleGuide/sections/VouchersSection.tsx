@@ -81,7 +81,7 @@ export const VouchersSection = ({ isMobile: _isMobile }: Props) => {
 
         <SubSection
           title="8. Redeemed voucher row (Vouchers page)"
-          description="Mirror of RedeemedSection row in src/pages/Vouchers.tsx. Binary events surface the alias chip on its own line; multi-market events show market label + YES/NO inline. Right column reflects redeemedCloseReason for settled rows."
+          description="Mirror of RedeemedSection row in src/pages/Vouchers.tsx. Binary events surface the alias chip on its own line; multi-market events show market label + YES/NO inline. Right column mirrors production exactly: flat `Position open` / `Position closed` — PnL amount varies per settled variant."
           platform="shared"
         >
           <DualDevicePreview previewKey="voucher-redeemed-row" label="6 open / settled variants" minHeight={340} />
