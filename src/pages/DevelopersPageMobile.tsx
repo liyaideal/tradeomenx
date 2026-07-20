@@ -51,7 +51,9 @@ const CAPABILITIES = [
   },
 ];
 
-const TIERS = [
+import { TiersStepperMobile, type TierStep } from "@/components/developers/TiersStepperMobile";
+
+export const DEVELOPERS_MOBILE_TIERS: readonly TierStep[] = [
   {
     name: "Read-only",
     tag: "Free · instant",
@@ -73,7 +75,7 @@ const TIERS = [
     chips: ["elevated_rate_limits", "dedicated_ws", "mm_program"],
     accent: "amber",
   },
-] as const;
+];
 
 const QUICKSTART = [
   {
