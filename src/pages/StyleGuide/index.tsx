@@ -28,7 +28,9 @@ import {
   WorldCupSection,
   SpotSection,
   ApiSection,
+  StatesSection,
 } from "./sections";
+
 
 const StyleGuideIndex = () => {
   const navigate = useNavigate();
@@ -58,7 +60,9 @@ const StyleGuideIndex = () => {
     { id: "worldcup", label: "World Cup", icon: "🏆" },
     { id: "spot", label: "Spot", icon: "📈" },
     { id: "api", label: "API", icon: "🔑" },
+    { id: "states", label: "States", icon: "🧱" },
   ];
+
 
   return (
     <div className={`min-h-screen bg-background ${isMobile ? "pb-20" : ""}`}>
@@ -206,7 +210,12 @@ const StyleGuideIndex = () => {
           <TabsContent value="api" className="mt-0">
             <ApiSection isMobile={isMobile} />
           </TabsContent>
+
+          <TabsContent value="states" className="mt-0">
+            <StatesSection isMobile={isMobile} />
+          </TabsContent>
         </Tabs>
+
       </main>
     </div>
   );

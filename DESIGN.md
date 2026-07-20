@@ -1145,3 +1145,39 @@ Locked with `/developers` v5. Applies to all outward-facing marketing pages (dev
 - No three-item list pileups ("fast, reliable, and scalable"). No adjective stacking.
 - Prefer verbs of the surface itself ("preview", "sign", "commit") over marketing verbs ("empower", "unlock the future of").
 - Every claim should map to a field, endpoint, or measurable behavior — otherwise cut it.
+
+---
+
+## 20. State Patterns
+
+**Rule:** Every product page renders empty / loading / error states through the three shared primitives in `src/components/states/`. Never hand-roll a divless "No data" string, a bare `<Loader2>`, or a silent `return []`. Status and risk colors always come from `src/lib/statusStyles.ts` — never invented per-page.
+
+### Primitives
+
+| Component | Purpose | Key props |
+| --- | --- | --- |
+| `<EmptyState>` | Empty block/list | `icon` (LucideIcon, required), `title`, `description?`, `action?`, `variant?: "card" \| "inline"` |
+| `<LoadingState>` | Loading placeholder | `label?`, `variant?: "spinner" \| "skeleton"`, `skeletonRows?` |
+| `<ErrorState>` | Fetch/network failure | `title?`, `description?`, `onRetry?` (Retry button renders only when supplied) |
+
+Import from `@/components/states`. Rendered demo: `/style-guide` → **States** tab.
+
+### Color source
+
+- `STATUS_STYLES` — `success / active / pending / error / revoked / neutral` with `badge` + `fg` class strings.
+- `RISK_STYLES` — `SAFE / WARNING / RESTRICTION / LIQUIDATION` (matches §7). `LIQUIDATION` uses `motion-safe:animate-pulse`.
+- Helpers: `getStatusStyle(key)`, `getRiskTier(ratio)`, `getRiskStyle(tier)`.
+
+### Do / Don't
+
+**Do**
+- Reach for `<EmptyState variant="card">` inside product regions; `variant="inline"` inside dense tables/lists.
+- Use `<LoadingState variant="skeleton" skeletonRows={n}>` for list/table loads so the layout doesn't jump.
+- Provide `onRetry` on `<ErrorState>` whenever a retry is meaningful — the button hides itself otherwise.
+- Import status/risk badge classes from `STATUS_STYLES` / `RISK_STYLES`.
+
+**Don't**
+- Don't render bare strings like `"No data"` or `"Loading..."` — always use a primitive.
+- Don't inline `bg-trading-green/10 text-trading-green ...` copies of the status palette in a page. Import the token.
+- Don't invent risk colors (`text-orange-500`, `bg-yellow-400`) — use the four risk tiers only.
+- Don't compose empty states from marketing hero heights. States are compact; they never occupy half a viewport.
