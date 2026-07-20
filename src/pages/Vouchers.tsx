@@ -16,7 +16,7 @@ import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 
 const Vouchers = () => {
   const isMobile = useIsMobile();
-  const { vouchers, grantedVouchers, claimedVouchers, isLoading, claim } = usePositionVouchers();
+  const { vouchers, grantedVouchers, claimedVouchers, isLoading, isError, refetch, claim } = usePositionVouchers();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [claimingId, setClaimingId] = useState<string | null>(null);
 
