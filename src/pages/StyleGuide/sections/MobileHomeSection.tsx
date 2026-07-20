@@ -1,11 +1,11 @@
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
-import { DualDevicePreview } from "../components/DeviceFrame";
+import { SingleDevicePreview } from "../components/DeviceFrame";
 
 /**
  * Mobile Home — 真组件 + 全状态 + 375 真态。
  *
  * All previews mount real production components (or hook-locked mirrors clearly
- * labeled "MIRROR") inside a 375px iframe via <DualDevicePreview>. No more
+ * labeled "MIRROR") inside a 375px iframe via <SingleDevicePreview device="mobile">. No more
  * fake `max-w-[360px]` desktop containers.
  *
  * Preview keys live in `../preview/mobileHomePreviews.tsx` and are registered
@@ -20,10 +20,9 @@ export const MobileHomeSection = () => {
         description="Real MobileHeader + HomeEquityHero + PersonalSlot + HomeCampaignRail + HomeTopEvents + BottomNav, rendered in a 375px iframe. Toggle Mobile to see actual mobile layout; Desktop toggle shows the same components at full width so drift is obvious."
         platform="mobile"
       >
-        <DualDevicePreview
+        <SingleDevicePreview device="mobile"
           previewKey="mhome-full-page"
           label="Composed live — session-driven content"
-          defaultDevice="mobile"
           minHeight={780}
         />
       </SectionWrapper>
@@ -34,10 +33,9 @@ export const MobileHomeSection = () => {
         description="Real MobileHeader in Preset A configuration used by / (MobileHome): showLogo + no back + Discord/Globe/Bell action cluster. See DESIGN.md §10 for the preset table."
         platform="mobile"
       >
-        <DualDevicePreview
+        <SingleDevicePreview device="mobile"
           previewKey="mhome-header-preset-a"
           label="Preset A · logo left · action cluster right"
-          defaultDevice="mobile"
           minHeight={110}
         />
       </SectionWrapper>
@@ -48,10 +46,9 @@ export const MobileHomeSection = () => {
         description="Real <HomeEquityHero>. The card automatically renders the guest CTA when useAuth() has no user, or the equity block when signed in. Only real state available in style-guide session shown."
         platform="mobile"
       >
-        <DualDevicePreview
+        <SingleDevicePreview device="mobile"
           previewKey="mhome-equity-hero-live"
           label="Live · auth-driven branch"
-          defaultDevice="mobile"
           minHeight={220}
         />
       </SectionWrapper>
@@ -63,28 +60,24 @@ export const MobileHomeSection = () => {
         platform="mobile"
       >
         <div className="space-y-4">
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-greeting-live"
             label="Live · real component (session-driven branch)"
-            defaultDevice="mobile"
             minHeight={260}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-greeting-guest"
             label="MIRROR · Guest branch"
-            defaultDevice="mobile"
             minHeight={260}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-greeting-authed-active"
             label="MIRROR · Authed · has 7D data"
-            defaultDevice="mobile"
             minHeight={220}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-greeting-authed-empty"
             label="MIRROR · Authed · no 7D activity"
-            defaultDevice="mobile"
             minHeight={220}
           />
         </div>
@@ -97,22 +90,19 @@ export const MobileHomeSection = () => {
         platform="mobile"
       >
         <div className="space-y-4">
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-personal-slot-live"
             label="Live · real PersonalSlot (may be empty)"
-            defaultDevice="mobile"
             minHeight={140}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-personal-slot-onboarding"
             label="MIRROR · Onboarding step 2/3"
-            defaultDevice="mobile"
             minHeight={140}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-personal-slot-position-alert"
             label="MIRROR · PositionAlertCard"
-            defaultDevice="mobile"
             minHeight={140}
           />
         </div>
@@ -124,10 +114,9 @@ export const MobileHomeSection = () => {
         description="Real component pulling from banners registry. Horizontal snap rail; dots follow real banner count."
         platform="mobile"
       >
-        <DualDevicePreview
+        <SingleDevicePreview device="mobile"
           previewKey="mhome-campaign-rail"
           label="Live · all banners from src/components/campaign/banners"
-          defaultDevice="mobile"
           minHeight={220}
         />
       </SectionWrapper>
@@ -138,10 +127,9 @@ export const MobileHomeSection = () => {
         description="Standalone conversion strip. Used both as a standalone module and as HomeTopEvents interlude (rendered after 2 markets)."
         platform="mobile"
       >
-        <DualDevicePreview
+        <SingleDevicePreview device="mobile"
           previewKey="mhome-mainnet-callout"
           label="Live · standalone"
-          defaultDevice="mobile"
           minHeight={140}
         />
       </SectionWrapper>
@@ -153,16 +141,14 @@ export const MobileHomeSection = () => {
         platform="mobile"
       >
         <div className="space-y-4">
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-top-events-live"
             label="Live · default title (no interlude)"
-            defaultDevice="mobile"
             minHeight={480}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mhome-top-events-interlude"
             label='Live · title="Pick your first prediction" + MainnetLaunchCallout interlude'
-            defaultDevice="mobile"
             minHeight={520}
           />
         </div>
@@ -174,10 +160,9 @@ export const MobileHomeSection = () => {
         description="Real <BottomNav> with safe-area padding. Displayed inside a bounded relative container so fixed positioning is visible."
         platform="mobile"
       >
-        <DualDevicePreview
+        <SingleDevicePreview device="mobile"
           previewKey="mhome-bottom-nav"
           label="Live · fixed bottom · safe area"
-          defaultDevice="mobile"
           minHeight={260}
         />
       </SectionWrapper>

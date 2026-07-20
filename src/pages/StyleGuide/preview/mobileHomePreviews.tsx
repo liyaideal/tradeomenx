@@ -148,7 +148,7 @@ export const HomeGreetingGuestMirror = () => (
             </span>
           </div>
           <h1 className="mt-2 text-[15px] font-semibold leading-snug text-foreground">
-            Hey there. Ready to make your next call?
+            Hey Caller. Ready to make your next call?
           </h1>
         </div>
       </div>

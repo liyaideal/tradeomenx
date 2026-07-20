@@ -1,5 +1,5 @@
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
-import { DualDevicePreview } from "../components/DeviceFrame";
+import { SingleDevicePreview } from "../components/DeviceFrame";
 import { Logo } from "@/components/Logo";
 
 /**
@@ -37,28 +37,24 @@ export const MobilePatternsSection = () => {
         platform="mobile"
       >
         <div className="space-y-4">
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-header-preset-a"
             label="Preset A · Home / hub · showLogo + rightContent"
-            defaultDevice="mobile"
             minHeight={110}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-header-preset-b"
             label="Preset B · Functional inner page · back + centered title"
-            defaultDevice="mobile"
             minHeight={90}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-header-preset-c"
             label="Preset C · SEO / marketing sub-page · same chrome as B"
-            defaultDevice="mobile"
             minHeight={90}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-header-preset-d"
             label="Preset D · MobileHome ONLY · Preset A header + HomeEquityHero card"
-            defaultDevice="mobile"
             minHeight={320}
           />
         </div>
@@ -71,22 +67,19 @@ export const MobilePatternsSection = () => {
         platform="mobile"
       >
         <div className="space-y-4">
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-header-actions"
             label="showActions · favorite + share"
-            defaultDevice="mobile"
             minHeight={90}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-header-custom-right"
             label="rightContent · custom Save button"
-            defaultDevice="mobile"
             minHeight={90}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-header-stats-row"
             label="Stats row · endTime + currentPrice + tweetCount"
-            defaultDevice="mobile"
             minHeight={140}
           />
         </div>
@@ -99,22 +92,19 @@ export const MobilePatternsSection = () => {
         platform="mobile"
       >
         <div className="space-y-4">
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-drawer-readonly"
             label="Read-only · no footer (e.g. Position Details)"
-            defaultDevice="mobile"
             minHeight={520}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-drawer-edit"
             label="Edit · Cancel (Outline) + Primary shadcn Button, both h-11"
-            defaultDevice="mobile"
             minHeight={560}
           />
-          <DualDevicePreview
+          <SingleDevicePreview device="mobile"
             previewKey="mpat-drawer-destructive"
             label="Destructive · Cancel + trading-red primary (e.g. Close Position)"
-            defaultDevice="mobile"
             minHeight={520}
           />
         </div>
@@ -126,10 +116,9 @@ export const MobilePatternsSection = () => {
         description="Real <BottomNav> with pb-6 safe-area padding, fixed positioning, and blurred surface."
         platform="mobile"
       >
-        <DualDevicePreview
+        <SingleDevicePreview device="mobile"
           previewKey="mpat-bottom-nav-safe-area"
           label="Live · fixed bottom · safe area padding"
-          defaultDevice="mobile"
           minHeight={280}
         />
       </SectionWrapper>
@@ -140,10 +129,9 @@ export const MobilePatternsSection = () => {
         description="stats-card, trading-card, and generic rounded-xl border-border/40 bg-card surfaces — all shared with desktop; radii unified to rounded-xl on mobile."
         platform="mobile"
       >
-        <DualDevicePreview
+        <SingleDevicePreview device="mobile"
           previewKey="mpat-card-consistency"
           label="Live · three canonical mobile card surfaces"
-          defaultDevice="mobile"
           minHeight={340}
         />
       </SectionWrapper>

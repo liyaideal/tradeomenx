@@ -168,7 +168,7 @@ const StyleGuideIndex = () => {
           </TabsContent>
 
           <TabsContent value="trading" className="mt-0">
-            <TradingSection isMobile={isMobile} />
+            <TradingSection />
           </TabsContent>
 
           <TabsContent value="wallet" className="mt-0">

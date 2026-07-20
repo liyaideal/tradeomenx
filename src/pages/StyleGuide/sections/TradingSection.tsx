@@ -1,213 +1,303 @@
-import { SectionWrapper, SubSection, DualDevicePreview } from "../components";
+import { SectionWrapper, SubSection } from "../components";
+import { SingleDevicePreview } from "../components/DeviceFrame";
 
 /**
- * Trading section — same "real components + all states + true dual-viewport"
- * standard as ApiSection / VouchersSection. Every case mounts through
- * <DualDevicePreview> so `md:` breakpoints resolve against the 375px iframe.
+ * Trading — /trade is TWO independent implementations:
  *
- * Real production components used directly:
- *  - TradeSubmitButton, DesktopOrderBook, OrderBook, DesktopTradeForm,
- *    TradeForm (multi + binary), PositionCard, OrderCard,
- *    AccountRiskIndicator (compact + full), MobileRiskIndicator.
+ *   A. Desktop: `src/pages/DesktopTrading.tsx`. Reuses `DesktopOrderBook`;
+ *      the trade panel & positions/orders tables are INLINE in the page
+ *      (there is no extracted `DesktopTradeForm` / `DesktopPositionsPanel`
+ *      in production — those files exist but are orphan). Inline blocks
+ *      are surfaced here via source-annotated mirrors.
  *
- * Style-guide-internal mirrors (annotated in tradingPreviews.tsx):
- *  - Trading color semantics, order status badge lineup, partial-fill
- *    HoverCard (composed inline in DesktopPositionsPanel / OrderCard drawers,
- *    no exported wrapper), and the 4-tier risk badge grid (real risk
- *    indicators are hook-driven and only render one tier per session).
+ *   B. Mobile: `src/components/MobileTradingLayout.tsx` shell composing
+ *      mobile-specific real components (OrderBook, TradeForm, OptionChips,
+ *      MobileRiskIndicator, PositionCard, OrderCard, AirdropPositionCard).
+ *
+ *   C. Device-agnostic reference: color semantics, order status badges,
+ *      risk tier grid — pure token/spec surfaces used by both platforms.
+ *
+ * Every case renders through <SingleDevicePreview> — this section has no
+ * shared responsive component, so DualDevicePreview is inappropriate here.
  */
 
-interface Props {
-  isMobile: boolean;
-}
-
-export const TradingSection = ({ isMobile: _isMobile }: Props) => {
+export const TradingSection = () => {
   return (
     <SectionWrapper
       id="trading"
       title="Trading"
-      description="Order book, trade forms, positions, orders, and account risk. Every module toggles Desktop / Mobile·375 through an iframe so `md:` breakpoints render honestly."
+      description="Grouped by real implementation: A · Desktop /trade (DesktopTrading.tsx), B · Mobile /trade (MobileTradingLayout.tsx), C · Shared reference surfaces."
     >
-      <div className="space-y-10">
-        <SubSection
-          title="1. Trading color semantics"
-          description="Green (profit / Yes / success), Red (loss / No / error), Yellow (warning / pending), Purple (brand / active). Mirror — no independent production component."
-          platform="shared"
-        >
-          <DualDevicePreview
-            previewKey="trading-colors"
-            label="Semantic palette; stacks 2×2 on mobile."
-            minHeight={220}
-          />
-        </SubSection>
+      <div className="space-y-12">
+        {/* ============ A. Desktop /trade ============ */}
+        <div className="space-y-6">
+          <div className="border-l-2 border-trading-purple pl-3">
+            <div className="text-[11px] font-mono uppercase tracking-widest text-trading-purple">
+              Group A
+            </div>
+            <div className="text-sm font-semibold">
+              Desktop · Source: src/pages/DesktopTrading.tsx
+            </div>
+          </div>
 
-        <SubSection
-          title="2. TradeSubmitButton"
-          description="Unified trade CTA. Buy→trading-green, Sell→trading-red. Two-line layout (label + 'To win $X'). Enumerates idle / disabled / loading / sm / lg."
-          platform="shared"
-        >
-          <DualDevicePreview
-            previewKey="trade-submit-button"
-            label="7 states via preset rail"
-            minHeight={220}
-          />
-        </SubSection>
+          <SubSection
+            title="A1. DesktopOrderBook (real, extracted)"
+            description="Only production component reused by DesktopTrading. Enumerates Futures × 4 quoteModes (NORMAL / CONSERVATIVE / HEDGE_ONLY / CANCEL_ONLY) and Spot."
+            platform="desktop"
+          >
+            <SingleDevicePreview
+              previewKey="desktop-order-book"
+              device="desktop"
+              label="5 quote/variant states"
+              minHeight={620}
+            />
+          </SubSection>
 
-        <SubSection
-          title="3. DesktopOrderBook"
-          description="Real DesktopOrderBook with mock asks/bids. Enumerates Futures × 4 quoteModes (NORMAL / CONSERVATIVE / HEDGE_ONLY / CANCEL_ONLY) and Spot (outcome-share copy)."
-          platform="desktop"
-        >
-          <DualDevicePreview
-            previewKey="desktop-order-book"
-            label="5 quote/variant states"
-            minHeight={620}
-          />
-        </SubSection>
+          <SubSection
+            title="A2. Desktop trade panel — inline mirror"
+            description="Mirror of the inline right-side Trade panel in DesktopTrading.tsx. Keep in sync when the inline block changes; the extracted DesktopTradeForm.tsx file is orphan and must NOT be treated as production."
+            platform="desktop"
+          >
+            <SingleDevicePreview
+              previewKey="desktop-trade-panel-mirror"
+              device="desktop"
+              label="Mirror · source: DesktopTrading.tsx (inline)"
+              minHeight={560}
+            />
+          </SubSection>
 
-        <SubSection
-          title="4. OrderBook — mobile compact"
-          description="Real OrderBook component (mobile compact + in-panel full variants)."
-          platform="mobile"
-        >
-          <DualDevicePreview
-            previewKey="mobile-order-book"
-            label="compact vs full"
-            minHeight={520}
-          />
-        </SubSection>
+          <SubSection
+            title="A3. Desktop positions / orders panel — inline mirror"
+            description="Mirror of the inline bottom Positions / Current Orders tabbed panel in DesktopTrading.tsx."
+            platform="desktop"
+          >
+            <SingleDevicePreview
+              previewKey="desktop-positions-panel-mirror"
+              device="desktop"
+              label="Mirror · source: DesktopTrading.tsx (inline)"
+              minHeight={360}
+            />
+          </SubSection>
 
-        <SubSection
-          title="5. DesktopTradeForm"
-          description="Real DesktopTradeForm driven by mock selectedPrice. Auth/balance/leverage from live hooks — state-forced disabled / loading / close-only variants belong to the TradeSubmitButton case."
-          platform="desktop"
-        >
-          <DualDevicePreview
-            previewKey="trade-form-desktop"
-            label="3 price presets"
-            minHeight={780}
-          />
-        </SubSection>
+          <SubSection
+            title="A4. Partial-fill HoverCard — desktop table"
+            description="Hover the Partial Filled badge to reveal the fill-history popover, matching the inline HoverCard in the desktop orders table."
+            platform="desktop"
+          >
+            <SingleDevicePreview
+              previewKey="partial-fill-desktop"
+              device="desktop"
+              label="Hover the badge"
+              minHeight={280}
+            />
+          </SubSection>
 
-        <SubSection
-          title="6. TradeForm — mobile (incl. binaryMode)"
-          description="Real TradeForm. Multi-outcome renders standard Buy/Sell CTA rail. binaryMode swaps Buy/Sell into a Yes/No option toggle; long labels test truncation."
-          platform="mobile"
-        >
-          <DualDevicePreview
-            previewKey="trade-form-mobile"
-            label="multi · binary Yes/No · binary long labels"
-            minHeight={820}
-          />
-        </SubSection>
+          <SubSection
+            title="A5. AccountRiskIndicator · compact"
+            description="Real component (variant=compact) as used in the desktop trade sidebar."
+            platform="desktop"
+          >
+            <SingleDevicePreview
+              previewKey="account-risk-compact"
+              device="desktop"
+              label="Live session · enumerate tiers in C3"
+              minHeight={360}
+            />
+          </SubSection>
 
-        <SubSection
-          title="7. PositionCard"
-          description="Real PositionCard across long/short profit/loss, near-liquidation, high-leverage (100×), binary alias display, and voucher airdrop badge."
-          platform="mobile"
-        >
-          <DualDevicePreview
-            previewKey="position-card"
-            label="7 position states"
-            minHeight={360}
-          />
-        </SubSection>
+          <SubSection
+            title="A6. AccountRiskIndicator · full"
+            description="Real component (variant=full) as used in the desktop risk drawer."
+            platform="desktop"
+          >
+            <SingleDevicePreview
+              previewKey="account-risk-full"
+              device="desktop"
+              label="Live session · enumerate tiers in C3"
+              minHeight={520}
+            />
+          </SubSection>
+        </div>
 
-        <SubSection
-          title="8. OrderCard"
-          description="Real OrderCard across buy/sell × Pending / Partial Filled / Filled / Cancelled and Market fills. Binary alias variant included."
-          platform="mobile"
-        >
-          <DualDevicePreview
-            previewKey="order-card"
-            label="7 order states"
-            minHeight={280}
-          />
-        </SubSection>
+        {/* ============ B. Mobile /trade ============ */}
+        <div className="space-y-6">
+          <div className="border-l-2 border-trading-green pl-3">
+            <div className="text-[11px] font-mono uppercase tracking-widest text-trading-green">
+              Group B
+            </div>
+            <div className="text-sm font-semibold">
+              Mobile · Source: src/components/MobileTradingLayout.tsx
+            </div>
+          </div>
 
-        <SubSection
-          title="9. Order status badges"
-          description="Palette lifted verbatim from OrderCard statusColors map. Mirror — badges are inlined in OrderCard and positions tables."
-          platform="shared"
-        >
-          <DualDevicePreview
-            previewKey="order-status-badges"
-            label="Pending / Partial Filled / Filled / Cancelled"
-            minHeight={120}
-          />
-        </SubSection>
+          <SubSection
+            title="B1. OrderBook — mobile compact"
+            description="Real mobile OrderBook (compact + in-panel full variants)."
+            platform="mobile"
+          >
+            <SingleDevicePreview
+              previewKey="mobile-order-book"
+              device="mobile"
+              label="compact vs full"
+              minHeight={520}
+            />
+          </SubSection>
 
-        <SubSection
-          title="10. Partial-fill HoverCard — desktop table"
-          description="Hover the Partial Filled badge in the order row to reveal the fill-history popover. Mirror of the inline HoverCard in DesktopPositionsPanel."
-          platform="desktop"
-        >
-          <DualDevicePreview
-            previewKey="partial-fill-desktop"
-            label="Hover the badge to see the popover"
-            minHeight={280}
-          />
-        </SubSection>
+          <SubSection
+            title="B2. OptionChips (real)"
+            description="Horizontal chip rail for outcome selection on mobile /trade."
+            platform="mobile"
+          >
+            <SingleDevicePreview
+              previewKey="option-chips-mobile"
+              device="mobile"
+              label="5 outcomes · scrollable"
+              minHeight={100}
+            />
+          </SubSection>
 
-        <SubSection
-          title="11. Partial-fill HoverCard — mobile card"
-          description="Same popover pattern on the mobile OrderCard badge. Mirror of the inline HoverCard in the order card drawer trigger."
-          platform="mobile"
-        >
-          <DualDevicePreview
-            previewKey="partial-fill-mobile"
-            label="Hover the badge to see the popover"
-            minHeight={340}
-          />
-        </SubSection>
+          <SubSection
+            title="B3. TradeForm — mobile (multi + binaryMode)"
+            description="Real TradeForm. Multi-outcome renders standard Buy/Sell rail; binaryMode swaps into a Yes/No option toggle. Long labels test truncation."
+            platform="mobile"
+          >
+            <SingleDevicePreview
+              previewKey="trade-form-mobile"
+              device="mobile"
+              label="multi · binary Yes/No · binary long labels"
+              minHeight={820}
+            />
+          </SubSection>
 
-        <SubSection
-          title="12. Risk-tier grid — all 4 tiers"
-          description="Enumerates SAFE / WARNING / RESTRICTION / LIQUIDATION using the exact getRiskColor / getRiskBgColor / getRiskMessage helpers exported from useRealtimeRiskMetrics. Complements the real risk indicators below, which only render the current session's live tier."
-          platform="shared"
-        >
-          <DualDevicePreview
-            previewKey="risk-tier-grid"
-            label="Single source of truth for tier semantics"
-            minHeight={320}
-          />
-        </SubSection>
+          <SubSection
+            title="B4. MobileRiskIndicator (real)"
+            description="Compact MM badge sitting in the /trade mobile header. Tap to open the full risk drawer."
+            platform="mobile"
+          >
+            <SingleDevicePreview
+              previewKey="mobile-risk-indicator"
+              device="mobile"
+              label="Tap the badge to open the drawer"
+              minHeight={200}
+            />
+          </SubSection>
 
-        <SubSection
-          title="13. AccountRiskIndicator — compact"
-          description="Real AccountRiskIndicator (variant=compact) used in the desktop trade sidebar. Reflects the current session's tier."
-          platform="desktop"
-        >
-          <DualDevicePreview
-            previewKey="account-risk-compact"
-            label="Live session data · enumerate tiers in case 12"
-            minHeight={360}
-          />
-        </SubSection>
+          <SubSection
+            title="B5. PositionCard (real)"
+            description="Long/short profit/loss, near-liquidation, 100× leverage, binary alias, voucher airdrop badge."
+            platform="mobile"
+          >
+            <SingleDevicePreview
+              previewKey="position-card"
+              device="mobile"
+              label="7 position states"
+              minHeight={360}
+            />
+          </SubSection>
 
-        <SubSection
-          title="14. AccountRiskIndicator — full"
-          description="Real AccountRiskIndicator (variant=full) used in the risk drawer. Reflects the current session's tier."
-          platform="desktop"
-        >
-          <DualDevicePreview
-            previewKey="account-risk-full"
-            label="Live session data · enumerate tiers in case 12"
-            minHeight={520}
-          />
-        </SubSection>
+          <SubSection
+            title="B6. OrderCard (real)"
+            description="Buy/sell × Pending / Partial Filled / Filled / Cancelled, plus Market fills and binary alias variant."
+            platform="mobile"
+          >
+            <SingleDevicePreview
+              previewKey="order-card"
+              device="mobile"
+              label="7 order states"
+              minHeight={280}
+            />
+          </SubSection>
 
-        <SubSection
-          title="15. MobileRiskIndicator"
-          description="Real MobileRiskIndicator — compact MM badge sitting in the /trade mobile header. Tap the badge to open the full risk drawer."
-          platform="mobile"
-        >
-          <DualDevicePreview
-            previewKey="mobile-risk-indicator"
-            label="Tap the badge to open the drawer"
-            minHeight={200}
-          />
-        </SubSection>
+          <SubSection
+            title="B7. Partial-fill HoverCard — mobile card"
+            description="Same popover pattern on the mobile OrderCard badge trigger."
+            platform="mobile"
+          >
+            <SingleDevicePreview
+              previewKey="partial-fill-mobile"
+              device="mobile"
+              label="Hover the badge to see the popover"
+              minHeight={340}
+            />
+          </SubSection>
+
+          <SubSection
+            title="B8. AirdropPositionCard (real)"
+            description="H2E airdrop position card as shown on mobile /trade order screen. Enumerates pending (needs activation) and active states."
+            platform="mobile"
+          >
+            <SingleDevicePreview
+              previewKey="airdrop-position-card"
+              device="mobile"
+              label="pending · active"
+              minHeight={280}
+            />
+          </SubSection>
+        </div>
+
+        {/* ============ C. Shared reference ============ */}
+        <div className="space-y-6">
+          <div className="border-l-2 border-muted-foreground/60 pl-3">
+            <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Group C
+            </div>
+            <div className="text-sm font-semibold">
+              Shared reference surfaces (device-agnostic)
+            </div>
+          </div>
+
+          <SubSection
+            title="C1. Trading color semantics"
+            description="Green (profit / Yes / success), Red (loss / No / error), Yellow (warning / pending), Purple (brand / active)."
+            platform="shared"
+          >
+            <SingleDevicePreview
+              previewKey="trading-colors"
+              device="desktop"
+              label="Semantic palette · one source of truth"
+              minHeight={220}
+            />
+          </SubSection>
+
+          <SubSection
+            title="C2. TradeSubmitButton"
+            description="Unified CTA used across both desktop and mobile trade forms. Buy → trading-green, Sell → trading-red. Enumerates idle / disabled / loading / sm / lg."
+            platform="shared"
+          >
+            <SingleDevicePreview
+              previewKey="trade-submit-button"
+              device="desktop"
+              label="7 states via preset rail"
+              minHeight={220}
+            />
+          </SubSection>
+
+          <SubSection
+            title="C3. Risk tier grid — all 4 tiers"
+            description="SAFE / WARNING / RESTRICTION / LIQUIDATION using the exact getRiskColor / getRiskBgColor / getRiskMessage helpers from useRealtimeRiskMetrics. Complements the real indicators in A5/A6/B4, which only render the current session's live tier."
+            platform="shared"
+          >
+            <SingleDevicePreview
+              previewKey="risk-tier-grid"
+              device="desktop"
+              label="Single source of truth for tier semantics"
+              minHeight={320}
+            />
+          </SubSection>
+
+          <SubSection
+            title="C4. Order status badges"
+            description="Palette lifted verbatim from OrderCard statusColors map. Badges are inlined in OrderCard and the desktop positions table."
+            platform="shared"
+          >
+            <SingleDevicePreview
+              previewKey="order-status-badges"
+              device="desktop"
+              label="Pending / Partial Filled / Filled / Cancelled"
+              minHeight={120}
+            />
+          </SubSection>
+        </div>
       </div>
     </SectionWrapper>
   );
