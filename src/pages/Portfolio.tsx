@@ -411,10 +411,10 @@ export default function Portfolio() {
                       <PopoverContent className="text-xs w-64">
                         <p className="mb-2"><strong>Risk Ratio</strong> = IM / Equity</p>
                         <div className="space-y-1">
-                          <p className="text-trading-green">SAFE: &lt;80%</p>
-                          <p className="text-trading-yellow">WARNING: 80-95%</p>
-                          <p className="text-trading-red">RESTRICTION: 95-100%</p>
-                          <p className="text-trading-red">LIQUIDATION: ≥100%</p>
+                          <p className={RISK_STYLES.SAFE.fg}>{RISK_STYLES.SAFE.label.toUpperCase()}: &lt;80%</p>
+                          <p className={RISK_STYLES.WARNING.fg}>{RISK_STYLES.WARNING.label.toUpperCase()}: 80-95%</p>
+                          <p className={RISK_STYLES.RESTRICTION.fg}>{RISK_STYLES.RESTRICTION.label.toUpperCase()}: 95-100%</p>
+                          <p className={RISK_STYLES.LIQUIDATION.fg}>{RISK_STYLES.LIQUIDATION.label.toUpperCase()}: ≥100%</p>
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -426,20 +426,16 @@ export default function Portfolio() {
                       <TooltipContent className="text-xs max-w-64">
                         <p className="mb-2"><strong>Risk Ratio</strong> = IM / Equity</p>
                         <div className="space-y-1">
-                          <p className="text-trading-green">SAFE: &lt;80%</p>
-                          <p className="text-trading-yellow">WARNING: 80-95%</p>
-                          <p className="text-trading-red">RESTRICTION: 95-100%</p>
-                          <p className="text-trading-red">LIQUIDATION: ≥100%</p>
+                          <p className={RISK_STYLES.SAFE.fg}>{RISK_STYLES.SAFE.label.toUpperCase()}: &lt;80%</p>
+                          <p className={RISK_STYLES.WARNING.fg}>{RISK_STYLES.WARNING.label.toUpperCase()}: 80-95%</p>
+                          <p className={RISK_STYLES.RESTRICTION.fg}>{RISK_STYLES.RESTRICTION.label.toUpperCase()}: 95-100%</p>
+                          <p className={RISK_STYLES.LIQUIDATION.fg}>{RISK_STYLES.LIQUIDATION.label.toUpperCase()}: ≥100%</p>
                         </div>
                       </TooltipContent>
                     </Tooltip>
                   )}
                 </div>
-                <div className={`text-lg font-bold font-mono ${
-                  positionsStats.riskRatio >= 100 ? "text-trading-red" : 
-                  positionsStats.riskRatio >= 95 ? "text-trading-red" : 
-                  positionsStats.riskRatio >= 80 ? "text-trading-yellow" : "text-trading-green"
-                }`}>
+                <div className={`text-lg font-bold font-mono ${RISK_STYLES[getRiskTier(positionsStats.riskRatio)].fg}`}>
                   {positionsStats.riskRatio.toFixed(2)}%
                 </div>
               </div>
