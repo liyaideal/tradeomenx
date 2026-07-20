@@ -17,6 +17,18 @@ import {
 import type { ApiKey, ApiScope, ApiTier, TierEligibility } from "@/hooks/useApiKeys";
 import { ALL_SCOPES, useApiKeys } from "@/hooks/useApiKeys";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  BannerPreview,
+  PageListLevelPreview,
+  VoucherCardPreview,
+  EarningsPreview,
+  PickerPreview,
+  RedeemStickyPreview,
+  ClosePreview,
+  RedeemedRowPreview,
+  PositionChipPreview,
+  ExpiredRowPreview,
+} from "./voucherPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
@@ -237,6 +249,18 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
 
   "wizard-shell": () => <WizardShellDemo />,
   "revoke-dialog": () => <RevokeDemo />,
+
+  /* -------- Vouchers -------- */
+  "voucher-banner": () => <BannerPreview />,
+  "voucher-page-list-level": () => <PageListLevelPreview />,
+  "voucher-card": () => <VoucherCardPreview />,
+  "voucher-earnings": () => <EarningsPreview />,
+  "voucher-picker": () => <PickerPreview />,
+  "voucher-redeem-sticky": () => <RedeemStickyPreview />,
+  "voucher-close": () => <ClosePreview />,
+  "voucher-redeemed-row": () => <RedeemedRowPreview />,
+  "voucher-position-chip": () => <PositionChipPreview />,
+  "voucher-expired-row": () => <ExpiredRowPreview />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;
