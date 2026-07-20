@@ -46,6 +46,37 @@ import {
   AccountRiskFullPreview,
   MobileRiskIndicatorPreview,
 } from "./tradingPreviews";
+import {
+  HomeHeaderPresetAPreview,
+  HomeEquityHeroLivePreview,
+  HomeGreetingLivePreview,
+  PersonalSlotLivePreview,
+  HomeCampaignRailPreview,
+  MainnetLaunchCalloutPreview,
+  HomeTopEventsLivePreview,
+  HomeTopEventsInterludePreview,
+  BottomNavPreview,
+  HomeFullPageComposedPreview,
+  HomeGreetingGuestMirror,
+  HomeGreetingAuthedHasDataMirror,
+  HomeGreetingAuthedNoDataMirror,
+  PersonalSlotOnboardingMirror,
+  PersonalSlotPositionAlertMirror,
+} from "./mobileHomePreviews";
+import {
+  PresetAPreview,
+  PresetBPreview,
+  PresetCPreview,
+  PresetDPreview,
+  HeaderActionsPreview,
+  HeaderCustomRightPreview,
+  HeaderStatsRowPreview,
+  DrawerReadOnlyPreview,
+  DrawerEditPreview,
+  DrawerDestructivePreview,
+  BottomNavSafeAreaPreview,
+  MobileCardConsistencyPreview,
+} from "./mobilePatternsPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
@@ -295,6 +326,37 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "account-risk-compact": () => <AccountRiskCompactPreview />,
   "account-risk-full": () => <AccountRiskFullPreview />,
   "mobile-risk-indicator": () => <MobileRiskIndicatorPreview />,
+
+  /* -------- Mobile Home -------- */
+  "mhome-header-preset-a": () => <HomeHeaderPresetAPreview />,
+  "mhome-equity-hero-live": () => <HomeEquityHeroLivePreview />,
+  "mhome-greeting-live": () => <HomeGreetingLivePreview />,
+  "mhome-greeting-guest": () => <HomeGreetingGuestMirror />,
+  "mhome-greeting-authed-active": () => <HomeGreetingAuthedHasDataMirror />,
+  "mhome-greeting-authed-empty": () => <HomeGreetingAuthedNoDataMirror />,
+  "mhome-personal-slot-live": () => <PersonalSlotLivePreview />,
+  "mhome-personal-slot-onboarding": () => <PersonalSlotOnboardingMirror />,
+  "mhome-personal-slot-position-alert": () => <PersonalSlotPositionAlertMirror />,
+  "mhome-campaign-rail": () => <HomeCampaignRailPreview />,
+  "mhome-mainnet-callout": () => <MainnetLaunchCalloutPreview />,
+  "mhome-top-events-live": () => <HomeTopEventsLivePreview />,
+  "mhome-top-events-interlude": () => <HomeTopEventsInterludePreview />,
+  "mhome-bottom-nav": () => <BottomNavPreview />,
+  "mhome-full-page": () => <HomeFullPageComposedPreview />,
+
+  /* -------- Mobile Patterns -------- */
+  "mpat-header-preset-a": () => <PresetAPreview />,
+  "mpat-header-preset-b": () => <PresetBPreview />,
+  "mpat-header-preset-c": () => <PresetCPreview />,
+  "mpat-header-preset-d": () => <PresetDPreview />,
+  "mpat-header-actions": () => <HeaderActionsPreview />,
+  "mpat-header-custom-right": () => <HeaderCustomRightPreview />,
+  "mpat-header-stats-row": () => <HeaderStatsRowPreview />,
+  "mpat-drawer-readonly": () => <DrawerReadOnlyPreview />,
+  "mpat-drawer-edit": () => <DrawerEditPreview />,
+  "mpat-drawer-destructive": () => <DrawerDestructivePreview />,
+  "mpat-bottom-nav-safe-area": () => <BottomNavSafeAreaPreview />,
+  "mpat-card-consistency": () => <MobileCardConsistencyPreview />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;
