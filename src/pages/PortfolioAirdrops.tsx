@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2, Info } from "lucide-react";
+import { Gift, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2, Info } from "lucide-react";
+import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
