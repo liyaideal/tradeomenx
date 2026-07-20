@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Setup2FADialog } from "./Setup2FADialog";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 /**
  * Account-level credential management.
