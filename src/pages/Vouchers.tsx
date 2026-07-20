@@ -12,6 +12,7 @@ import { getBinaryOutcome } from "@/lib/eventUtils";
 import { VoucherCard } from "@/components/vouchers/VoucherCard";
 import { RedeemVoucherContent } from "@/components/vouchers/RedeemVoucherContent";
 import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
+import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 
 const Vouchers = () => {
   const isMobile = useIsMobile();
