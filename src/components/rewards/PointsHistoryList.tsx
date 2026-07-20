@@ -2,6 +2,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ArrowUpRight, ArrowDownRight, Lock, Clock, AlertCircle, Gift } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { usePoints, PointsLedgerEntry } from "@/hooks/usePoints";
+import { EmptyState, LoadingState } from "@/components/states";
 
 const getTypeIcon = (type: PointsLedgerEntry['type']) => {
   switch (type) {
