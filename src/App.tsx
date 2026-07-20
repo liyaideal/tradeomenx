@@ -100,6 +100,7 @@ const App = () => (
             <Route path="/campaign/world-cup-polymarket-hedge" element={<HedgeLanding />} />
             <Route path="/mainnet-launch" element={<Navigate to="/" replace />} />
             <Route path="/campaign-style-guide" element={<CampaignStyleGuide />} />
+            <Route path="/style-guide/preview" element={<StyleGuidePreview />} />
             <Route
               path="*"
               element={
