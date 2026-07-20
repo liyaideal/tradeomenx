@@ -438,9 +438,7 @@ export default function Wallet() {
       </div>
 
       {walletsLoading ? (
-        <div className="text-center py-6 text-sm text-muted-foreground">
-          <p>Loading...</p>
-        </div>
+        <LoadingState label="Loading addresses…" />
       ) : (
         <div className="space-y-2">
           {wallets.map((wallet) => (
