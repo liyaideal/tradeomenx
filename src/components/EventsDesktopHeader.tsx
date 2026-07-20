@@ -16,7 +16,7 @@ import {
   Check,
   Ticket,
   KeyRound,
-  Code2,
+  
 
 } from "lucide-react";
 import {
@@ -179,10 +179,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   <DropdownMenuItem onClick={() => navigate("/settings/api")}>
                     <KeyRound className="mr-2 h-4 w-4 text-primary" />
                     API
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/developers")}>
-                    <Code2 className="mr-2 h-4 w-4 text-primary" />
-                    Developers
                   </DropdownMenuItem>
 
 
