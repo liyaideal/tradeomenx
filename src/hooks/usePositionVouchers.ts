@@ -233,5 +233,5 @@ export const usePositionVouchers = () => {
     }
   };
 
-  return { vouchers, grantedVouchers, claimedVouchers, issuedVouchers, isLoading, claim, redeem, isRedeeming };
+  return { vouchers, grantedVouchers, claimedVouchers, issuedVouchers, isLoading, isError, refetch, claim, redeem, isRedeeming };
 };
