@@ -20,7 +20,6 @@ import {
 
 const ApiManagement = () => {
   const isMobile = useIsMobile();
-  const { user } = useAuth();
   const { keys, isLoading, isError, refetch, createKey, revokeKey } = useApiKeys();
   const { tiers } = useTierEligibility();
 
@@ -28,20 +27,6 @@ const ApiManagement = () => {
   const [revokeTarget, setRevokeTarget] = useState<ApiKey | null>(null);
   const [newSecret, setNewSecret] = useState<string | null>(null);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        {!isMobile && <EventsDesktopHeader />}
-        {isMobile && <MobileHeader title="Keys & access" showLogo={false} showBack={true} />}
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
-          <div className="max-w-md mx-auto">
-            <LoginPrompt />
-          </div>
-        </div>
-        {isMobile && <BottomNav />}
-      </div>
-    );
-  }
 
   const eligibleTiers = tiers.filter((t) => t.eligible);
   const highestEligible = eligibleTiers[eligibleTiers.length - 1]?.tier;
