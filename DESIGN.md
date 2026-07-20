@@ -268,9 +268,13 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 ### Buttons
 
 - **`.btn-primary`**: Purple gradient, white text, glow shadow
-- **`.btn-trading-green`**: Green gradient, white text — Buy/Long
+- **`.btn-trading-green`**: Green gradient, white text — Buy/Long, also 全站主 CTA（Deposit 等）
 - **`.btn-trading-red`**: Red gradient, white text — Sell/Short
 - All trading buttons: **always white text** (`text-primary-foreground`)
+
+**危险/销毁操作统一 `trading-red`**：所有 destructive 操作（Revoke key、Close position、Delete wallet、Confirm withdraw 等）必须走 `bg-trading-red text-white hover:bg-trading-red/90` 或 `.btn-trading-red` 类。**禁止使用 shadcn `variant="destructive"`**——`--destructive` token 与全站交易语义色 `--trading-red` 分裂，会产生两种红。表格/inline ghost 型 Revoke 用 `text-trading-red hover:text-trading-red hover:bg-trading-red/10`。
+
+**主 CTA 用 `.btn-*` 类，不手搓**：`bg-trading-green ... text-background rounded-xl` 之类的手写组合禁止承担主按钮底色，一律换成 `.btn-trading-green` / `.btn-primary` / `.btn-trading-red`。
 
 #### Ghost Variant Hover Rules
 
