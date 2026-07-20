@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ApiTerminal, type TerminalTab } from "@/components/developers/ApiTerminal";
 import { EndpointMarquee } from "@/components/developers/EndpointMarquee";
 import { MiniOrderBook } from "@/components/developers/MiniOrderBook";
+import { DevelopersPageMobile } from "./DevelopersPageMobile";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -214,13 +215,13 @@ const DevelopersPage = () => {
   const isMobile = useIsMobile();
   const comingSoon = () => toast.info("Full documentation launching soon.");
 
+  if (isMobile) {
+    return <DevelopersPageMobile />;
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col pb-safe">
-      {isMobile ? (
-        <MobileHeader title="Open API" showLogo={false} showBack={true} />
-      ) : (
-        <EventsDesktopHeader />
-      )}
+      <EventsDesktopHeader />
 
       <main className="flex-1 w-full">
         {/* HERO */}
