@@ -339,7 +339,7 @@ export default function Portfolio() {
               </div>
 
               {/* Initial Margin */}
-              <div className="bg-card rounded-xl p-4">
+              <div className="stats-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <Wallet className="w-3.5 h-3.5" />
                   <span>Initial Margin</span>
