@@ -49,7 +49,10 @@ import {
 import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { OrderBook } from "@/components/OrderBook";
-import { DesktopTradeForm } from "@/components/DesktopTradeForm";
+import { OptionChips } from "@/components/OptionChips";
+import { AirdropPositionCard } from "@/components/AirdropPositionCard";
+import type { AirdropPosition } from "@/hooks/useAirdropPositions";
+
 import { TradeForm } from "@/components/TradeForm";
 import { PositionCard } from "@/components/PositionCard";
 import { OrderCard } from "@/components/OrderCard";
