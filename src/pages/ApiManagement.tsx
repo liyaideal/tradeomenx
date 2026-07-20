@@ -132,13 +132,15 @@ const ApiManagement = () => {
   const content = (
     <div>
 
-      {/* Title */}
-      <div className="pb-8">
-        <PageHeader
-          title="Keys & access"
-          subtitle="Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain text."
-        />
-      </div>
+      {!isMobile && (
+        <div className="pb-8">
+          <PageHeader
+            title="Keys & access"
+            subtitle="Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain text."
+          />
+        </div>
+      )}
+
 
       {/* Hairline divider */}
       <div className="border-t border-border/30" />
