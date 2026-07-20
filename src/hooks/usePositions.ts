@@ -188,6 +188,7 @@ export const usePositions = () => {
   const {
     positions: supabasePositions,
     isLoading: supabaseLoading,
+    error: supabaseError,
     closePosition: closeSupabasePosition,
     partialClosePosition: partialCloseSupabasePosition,
     updatePositionTpSl: updateSupabaseTpSl,
