@@ -598,11 +598,6 @@ type RedeemedState =
   | "settledHoldExpiry"
   | "settledFullLoss";
 
-const REDEEMED_REASON_LABEL: Record<string, string> = {
-  manual: "Closed manually",
-  event_settled: "Event settled",
-  expiry: "Hold window expired",
-};
 
 export const RedeemedRowPreview = () => {
   const [state, setState] = useState<RedeemedState>("binaryOpen");
@@ -622,13 +617,6 @@ export const RedeemedRowPreview = () => {
         : pnl < 0
           ? "text-trading-red"
           : "text-muted-foreground";
-
-  const reason =
-    state === "settledManualProfit" ? "manual"
-    : state === "settledEventResolved" ? "event_settled"
-    : state === "settledHoldExpiry" ? "expiry"
-    : state === "settledFullLoss" ? "event_settled"
-    : null;
 
   const isBinary = state === "binaryOpen";
   const code =
@@ -691,7 +679,7 @@ export const RedeemedRowPreview = () => {
             </div>
             <div className="flex flex-col items-end gap-1 shrink-0">
               <span className={`text-[11px] ${isClosed ? "text-muted-foreground" : "text-primary"}`}>
-                {isClosed ? REDEEMED_REASON_LABEL[reason!] ?? "Position closed" : "Position open"}
+                {isClosed ? "Position closed" : "Position open"}
               </span>
               {isClosed && pnl != null && (
                 <span className={`font-mono text-sm ${pnlColor}`}>
@@ -703,8 +691,8 @@ export const RedeemedRowPreview = () => {
         </div>
       </Frame>
       <p className="text-[11px] text-muted-foreground italic">
-        Right-column status text comes from <code className="font-mono">redeemedCloseReason</code> on
-        the linked airdrop position: <code>manual</code> / <code>event_settled</code> / <code>expiry</code>.
+        Right column mirrors production: flat <code className="font-mono">Position open</code> /
+        <code className="font-mono"> Position closed</code>. PnL amount varies per state below.
       </p>
     </div>
   );
