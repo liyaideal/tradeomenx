@@ -239,8 +239,8 @@ const ApiManagement = () => {
     <div className="min-h-screen bg-background">
       {isMobile ? (
         <>
-          <MobileHeader title="Keys & access" showLogo={false} />
-          <div className="px-4 py-4 pb-24 max-w-7xl mx-auto">{content}</div>
+          <MobileHeader title="Keys & access" showLogo={false} showBack={true} />
+          <div className="px-4 py-6 pb-24 max-w-7xl mx-auto">{content}</div>
           <BottomNav />
         </>
       ) : (
