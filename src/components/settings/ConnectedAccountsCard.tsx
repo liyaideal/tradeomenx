@@ -8,6 +8,7 @@ import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { buildSignMessage, EIP712_DOMAIN, EIP712_TYPES } from "@/lib/eip712";
 import { toast } from "sonner";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 import { BrowserProvider } from "ethers";
 import {
   Dialog,
