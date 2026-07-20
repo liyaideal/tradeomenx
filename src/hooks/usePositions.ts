@@ -308,6 +308,7 @@ export const usePositions = () => {
   return {
     positions,
     isLoading: isLoggedIn ? supabaseLoading : false,
+    isError: isLoggedIn ? !!supabaseError : false,
     isLoggedIn,
     closePosition,
     partialClosePosition,
