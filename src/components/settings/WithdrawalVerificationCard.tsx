@@ -111,7 +111,7 @@ export const WithdrawalVerificationCard = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-semibold">Withdrawal verification</h3>
               {!activeMode && (
-                <Badge variant="outline" className="text-xs">
+                <Badge className={`text-xs ${STATUS_STYLES.neutral.badge}`}>
                   Not configured
                 </Badge>
               )}
