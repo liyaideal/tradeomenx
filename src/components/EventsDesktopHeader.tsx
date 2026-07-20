@@ -16,6 +16,7 @@ import {
   Check,
   Ticket,
   KeyRound,
+  Code2,
 
 } from "lucide-react";
 import {
