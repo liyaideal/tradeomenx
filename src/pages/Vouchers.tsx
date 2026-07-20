@@ -125,22 +125,23 @@ const Vouchers = () => {
 
           <VoucherEarningsCard />
 
-          {isLoading && (
-            <div className="rounded-xl border border-border bg-card/40 p-8 text-center text-sm text-muted-foreground">
-              Loading vouchers...
-            </div>
+          {isLoading && <LoadingState label="Loading vouchers…" variant="skeleton" skeletonRows={3} />}
+
+          {!isLoading && isError && (
+            <ErrorState
+              title="Couldn't load vouchers"
+              description="Something went wrong fetching your vouchers."
+              onRetry={() => refetch()}
+            />
           )}
 
-          {!isLoading && vouchers.length === 0 && (
-            <div className="rounded-xl border border-border bg-card/40 p-10 text-center">
-              <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
-                <Ticket className="w-6 h-6 text-muted-foreground" />
-              </div>
-              <div className="text-base font-medium text-foreground mb-1">No vouchers yet</div>
-              <div className="text-sm text-muted-foreground max-w-sm mx-auto">
-                When you receive a position voucher, it'll show up here ready to redeem.
-              </div>
-            </div>
+          {!isLoading && !isError && vouchers.length === 0 && (
+            <EmptyState
+              variant="card"
+              icon={Ticket}
+              title="No vouchers yet"
+              description="When you receive a position voucher, it'll show up here ready to redeem."
+            />
           )}
 
           {!isLoading && vouchers.length > 0 && (
