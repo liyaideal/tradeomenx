@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2, Gift } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2, Gift, Inbox, Trophy } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
-import { EmptyState } from "@/components/states";
+import { EmptyState, LoadingState, ErrorState } from "@/components/states";
+import { RISK_STYLES, getRiskTier, STATUS_STYLES } from "@/lib/statusStyles";
 import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
