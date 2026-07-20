@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { MobileHeader } from "@/components/MobileHeader";
+
 import { SeoFooter } from "@/components/seo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
