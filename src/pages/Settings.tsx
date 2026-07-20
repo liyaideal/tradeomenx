@@ -553,8 +553,8 @@ const Settings = () => {
             onClick={() => navigate("/settings/transparency")}
             className="trading-card p-6 w-full text-left flex items-center gap-4 hover:border-primary/30 transition-colors"
           >
-            <div className="w-12 h-12 rounded-xl bg-emerald-400/10 flex items-center justify-center">
-              <Shield className="w-6 h-6 text-emerald-400" />
+            <div className="w-12 h-12 rounded-xl bg-trading-green/10 flex items-center justify-center">
+              <Shield className="w-6 h-6 text-trading-green" />
             </div>
             <div className="flex-1">
               <h3 className="font-semibold">Transparency Audit</h3>
