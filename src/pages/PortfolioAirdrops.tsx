@@ -100,11 +100,11 @@ const AirdropStatusBadge = ({ status }: { status: string }) => {
       label: "Activated",
     },
     expired: {
-      className: STATUS_STYLES.revoked.badge,
+      className: STATUS_STYLES.neutral.badge,
       label: "Expired",
     },
     settled: {
-      className: STATUS_STYLES.active.badge,
+      className: "border-primary/50 text-primary bg-primary/10",
       label: "Settled",
     },
   };
