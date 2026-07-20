@@ -29,6 +29,23 @@ import {
   PositionChipPreview,
   ExpiredRowPreview,
 } from "./voucherPreviews";
+import {
+  TradingColorsPreview,
+  TradeSubmitPreview,
+  DesktopOrderBookPreview,
+  MobileOrderBookPreview,
+  DesktopTradeFormPreview,
+  MobileTradeFormPreview,
+  PositionCardPreview,
+  OrderCardPreview,
+  OrderStatusBadgesPreview,
+  PartialFillDesktopPreview,
+  PartialFillMobilePreview,
+  RiskTierGridPreview,
+  AccountRiskCompactPreview,
+  AccountRiskFullPreview,
+  MobileRiskIndicatorPreview,
+} from "./tradingPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
@@ -261,6 +278,23 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "voucher-redeemed-row": () => <RedeemedRowPreview />,
   "voucher-position-chip": () => <PositionChipPreview />,
   "voucher-expired-row": () => <ExpiredRowPreview />,
+
+  /* -------- Trading -------- */
+  "trading-colors": () => <TradingColorsPreview />,
+  "trade-submit-button": () => <TradeSubmitPreview />,
+  "desktop-order-book": () => <DesktopOrderBookPreview />,
+  "mobile-order-book": () => <MobileOrderBookPreview />,
+  "trade-form-desktop": () => <DesktopTradeFormPreview />,
+  "trade-form-mobile": () => <MobileTradeFormPreview />,
+  "position-card": () => <PositionCardPreview />,
+  "order-card": () => <OrderCardPreview />,
+  "order-status-badges": () => <OrderStatusBadgesPreview />,
+  "partial-fill-desktop": () => <PartialFillDesktopPreview />,
+  "partial-fill-mobile": () => <PartialFillMobilePreview />,
+  "risk-tier-grid": () => <RiskTierGridPreview />,
+  "account-risk-compact": () => <AccountRiskCompactPreview />,
+  "account-risk-full": () => <AccountRiskFullPreview />,
+  "mobile-risk-indicator": () => <MobileRiskIndicatorPreview />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;
