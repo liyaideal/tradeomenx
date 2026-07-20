@@ -462,9 +462,11 @@ export default function Wallet() {
           </button>
 
           {wallets.length === 0 && !walletsLoading && (
-            <p className="text-center text-xs text-muted-foreground pt-1">
-              Save addresses for quick deposits and withdrawals
-            </p>
+            <EmptyState
+              variant="inline"
+              icon={Star}
+              description="Save addresses for quick deposits and withdrawals."
+            />
           )}
         </div>
       )}
