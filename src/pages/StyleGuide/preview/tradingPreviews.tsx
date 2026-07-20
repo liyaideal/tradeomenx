@@ -322,42 +322,194 @@ export const MobileOrderBookPreview = () => {
   );
 };
 
-/* ---------------- 5. DesktopTradeForm (real) ---------------- */
-/* Real component; internal state (leverage / order type / side / quantity) is
-   driven by its own useState. Auth / balance come from live hooks — the preview
-   reflects the current session's true state and cannot be forced into
-   "insufficient balance" or "submitting". Use TradeSubmitButton case for those. */
+/* ---------------- 5. Desktop trade panel (inline mirror) ---------------- */
+/* Source: src/pages/DesktopTrading.tsx (inline right-side Trade panel).
+   /trade desktop composes this markup inline — there is NO extracted
+   <DesktopTradeForm> in production (that file exists but is orphan). Keep
+   this mirror in sync when the inline block changes. */
 
-type FormPriceState = "midHigh" | "midLow" | "extreme";
+export const DesktopTradePanelMirror = () => (
+  <div className="space-y-2">
+    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+      Mirror · Source: DesktopTrading.tsx (inline)
+    </div>
+    <div className="rounded-xl border border-border/60 bg-background/40 p-4">
+      <div className="max-w-sm space-y-3">
+        <div className="flex gap-1.5">
+          {["Market", "Limit"].map((t, i) => (
+            <button
+              key={t}
+              className={`flex-1 h-8 text-xs rounded-md border ${i === 0 ? "bg-primary/15 border-primary/40 text-primary" : "bg-muted/30 border-border text-muted-foreground"}`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1.5">
+          <button className="flex-1 h-9 text-xs rounded-md bg-trading-green/20 text-trading-green border border-trading-green/40">
+            Buy Yes · $0.6234
+          </button>
+          <button className="flex-1 h-9 text-xs rounded-md bg-trading-red/15 text-trading-red border border-trading-red/30">
+            Buy No · $0.3766
+          </button>
+        </div>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>Amount (USDC)</span>
+            <span className="font-mono">Balance: 1,240.50</span>
+          </div>
+          <div className="h-9 rounded-md border border-border bg-background px-3 flex items-center font-mono text-sm">
+            100.00
+          </div>
+          <div className="flex gap-1 text-[10px]">
+            {["25%", "50%", "75%", "Max"].map((p) => (
+              <button key={p} className="flex-1 h-6 rounded border border-border text-muted-foreground">{p}</button>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <div className="text-[11px] text-muted-foreground">Leverage</div>
+          <div className="flex gap-1 text-[10px]">
+            {["1x", "5x", "10x", "25x", "50x", "100x"].map((l, i) => (
+              <button key={l} className={`flex-1 h-6 rounded border ${i === 2 ? "bg-trading-purple/20 border-trading-purple/40 text-trading-purple" : "border-border text-muted-foreground"}`}>{l}</button>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-md border border-border/60 bg-muted/20 p-2 space-y-1 text-[11px] font-mono">
+          {[
+            ["Type", "Market"],
+            ["Margin", "$10.00"],
+            ["Quantity", "160.4"],
+            ["Est. Liq.", "$0.5610"],
+            ["Fee", "$0.06"],
+          ].map(([k, v]) => (
+            <div key={k} className="flex justify-between">
+              <span className="text-muted-foreground">{k}</span>
+              <span>{v}</span>
+            </div>
+          ))}
+        </div>
+        <button className="w-full h-10 rounded-md bg-trading-green text-trading-green-foreground text-sm font-semibold">
+          Buy Yes · To win $160.40
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
-export const DesktopTradeFormPreview = () => {
-  const [state, setState] = useState<FormPriceState>("midHigh");
-  const selectedPrice =
-    state === "midHigh" ? "0.6234" : state === "midLow" ? "0.3120" : "0.9720";
+/* ---------------- 5b. Desktop positions panel (inline mirror) ---------------- */
+/* Source: src/pages/DesktopTrading.tsx (inline bottom Positions / Current Orders tabs). */
+
+export const DesktopPositionsPanelMirror = () => (
+  <div className="space-y-2">
+    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+      Mirror · Source: DesktopTrading.tsx (inline)
+    </div>
+    <div className="rounded-xl border border-border/60 bg-background/40 p-4">
+      <div className="flex items-center gap-4 border-b border-border/40 pb-2 mb-3 text-xs">
+        <button className="text-foreground font-medium border-b-2 border-primary pb-2 -mb-2">
+          Positions <span className="text-muted-foreground">(3)</span>
+        </button>
+        <button className="text-muted-foreground">Current Orders <span>(1)</span></button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-border/30 text-muted-foreground">
+              {["Contracts", "Side", "Size", "Entry", "Mark", "PnL", "Leverage", ""].map((h) => (
+                <th key={h} className="px-2 py-1.5 text-left font-normal">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { c: "BTC $100k EOY", s: "Yes", side: "long", size: "100", entry: "0.5200", mark: "0.6531", pnl: "+$13.31", lev: "10x", pos: true },
+              { c: "Fed cuts Q1 2026", s: "No", side: "short", size: "250", entry: "0.4800", mark: "0.4210", pnl: "+$14.75", lev: "10x", pos: true },
+              { c: "SPX >6,000 EOY", s: "Yes", side: "long", size: "500", entry: "0.7100", mark: "0.6512", pnl: "-$3.35", lev: "100x", pos: false },
+            ].map((r) => (
+              <tr key={r.c} className="border-b border-border/20 hover:bg-muted/30">
+                <td className="px-2 py-2 font-medium">{r.c}</td>
+                <td className="px-2 py-2">
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${r.side === "long" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>{r.s}</span>
+                </td>
+                <td className="px-2 py-2 font-mono">{r.size}</td>
+                <td className="px-2 py-2 font-mono">${r.entry}</td>
+                <td className="px-2 py-2 font-mono">${r.mark}</td>
+                <td className={`px-2 py-2 font-mono ${r.pos ? "text-trading-green" : "text-trading-red"}`}>{r.pnl}</td>
+                <td className="px-2 py-2 font-mono text-muted-foreground">{r.lev}</td>
+                <td className="px-2 py-2 text-right">
+                  <button className="h-6 px-2 rounded border border-border text-[10px] text-muted-foreground">Close</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+);
+
+/* ---------------- 5c. OptionChips (real, mobile-only) ---------------- */
+export const OptionChipsPreview = () => {
+  const [selected, setSelected] = useState("o2");
+  return (
+    <Frame>
+      <OptionChips
+        selectedId={selected}
+        onSelect={setSelected}
+        options={[
+          { id: "o1", label: "0-99", price: "0.12" },
+          { id: "o2", label: "100-199", price: "0.34" },
+          { id: "o3", label: "200-219", price: "0.28" },
+          { id: "o4", label: "220-249", price: "0.16" },
+          { id: "o5", label: "250+", price: "0.10" },
+        ]}
+      />
+    </Frame>
+  );
+};
+
+/* ---------------- 5d. AirdropPositionCard (real, mobile trading) ---------------- */
+export const AirdropPositionCardPreview = () => {
+  const [state, setState] = useState<"pending" | "active">("pending");
+  const airdrop: AirdropPosition = {
+    id: "demo-airdrop",
+    source: "matched",
+    externalEventName: "Will Bitcoin reach $120k by March 2026?",
+    externalSide: "Yes",
+    externalPrice: 0.62,
+    counterEventName: "BTC End of Q1 2026 Price",
+    counterEventId: "btc-120k-q1-2026",
+    counterOptionLabel: "Below $120,000",
+    counterSide: "Yes",
+    counterPrice: 0.38,
+    airdropValue: 10,
+    status: state,
+    expiresAt: new Date(Date.now() + 5 * 86400000).toISOString(),
+    activatedAt: state === "active" ? new Date().toISOString() : null,
+    createdAt: new Date().toISOString(),
+  };
   return (
     <div className="space-y-3">
       <PresetRail
         value={state}
         onChange={setState}
         options={[
-          { id: "midHigh", label: "selectedPrice=0.6234" },
-          { id: "midLow", label: "selectedPrice=0.3120" },
-          { id: "extreme", label: "selectedPrice=0.9720 (edge)" },
+          { id: "pending", label: "Pending · needs activation" },
+          { id: "active", label: "Active" },
         ]}
       />
       <Frame>
-        <div className="max-w-sm">
-          <DesktopTradeForm selectedPrice={selectedPrice} symbol="BTC" />
-        </div>
+        <AirdropPositionCard
+          airdrop={airdrop}
+          onActivate={() => {}}
+          isActivating={false}
+        />
       </Frame>
-      <p className="text-[11px] text-muted-foreground italic">
-        Auth / balance / risk are read from live hooks. State-forced variants
-        (insufficient balance, submitting, close-only) belong to the
-        TradeSubmitButton case above.
-      </p>
     </div>
   );
 };
+
 
 /* ---------------- 6. TradeForm (mobile — real, incl. binaryMode) ---------------- */
 
