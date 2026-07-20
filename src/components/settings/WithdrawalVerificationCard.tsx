@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Setup2FADialog } from "./Setup2FADialog";
 import { cn } from "@/lib/utils";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 type Mode = "email" | "totp" | "both";
 
