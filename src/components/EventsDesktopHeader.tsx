@@ -180,6 +180,11 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <KeyRound className="mr-2 h-4 w-4 text-primary" />
                     API
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/developers")}>
+                    <Code2 className="mr-2 h-4 w-4 text-primary" />
+                    Developers
+                  </DropdownMenuItem>
+
 
                   <DropdownMenuSeparator />
 
