@@ -193,10 +193,11 @@ export default function Rewards() {
         <MobileHeader 
           title="Rewards Center"
           showLogo={false}
+          showBack={true}
         />
 
         <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!" maxPreviewHeight="400px">
-        <main className="p-4">
+        <main className="px-4 py-6">
           {content}
         </main>
         </AuthGateOverlay>
