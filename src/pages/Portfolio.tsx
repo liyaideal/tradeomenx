@@ -443,7 +443,22 @@ export default function Portfolio() {
 
             {/* Binary Event Hint - show if any position is from binary event */}
 
-            {isMobile ? (
+            {positionsLoading ? (
+              <LoadingState variant="skeleton" label="Loading positions…" skeletonRows={4} />
+            ) : positionsError ? (
+              <ErrorState
+                title="Couldn't load positions"
+                description="Something went wrong fetching your open positions."
+                onRetry={() => refetchPositions()}
+              />
+            ) : sortedPositions.length === 0 ? (
+              <EmptyState
+                variant="card"
+                icon={Wallet}
+                title="No open positions"
+                description="Your open positions will appear here once you enter a trade."
+              />
+            ) : isMobile ? (
               /* Mobile: Card View */
               <div className="space-y-3">
                 {sortedPositions.map((position, index) => {
