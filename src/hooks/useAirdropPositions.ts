@@ -393,6 +393,8 @@ export const useAirdropPositions = () => {
     expiredAirdrops,
     settledAirdrops,
     isLoading,
+    isError,
+    refetch,
     activateAirdrop,
     isActivating,
     closePosition,
