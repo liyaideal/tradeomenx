@@ -999,9 +999,7 @@ export default function Portfolio() {
                           <Badge
                             variant="outline"
                             className={`text-[10px] ${
-                              settlement.result === "win"
-                                ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                                : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                              settlement.result === "win" ? STATUS_STYLES.success.badge : STATUS_STYLES.error.badge
                             }`}
                           >
                             {settlement.result === "win" ? "WIN" : "LOSE"}
