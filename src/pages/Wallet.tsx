@@ -917,7 +917,15 @@ export default function Wallet() {
         <PendingConfirmations className="rounded-2xl border border-border/50 bg-card p-4" />
         <SavedAddressesList />
         <div className="rounded-2xl border border-border/50 bg-card p-4">
-          <TransactionHistory transactions={transactions} />
+          {txError ? (
+            <ErrorState
+              title="Couldn't load transactions"
+              description="Something went wrong fetching your transaction history."
+              onRetry={refetchTx}
+            />
+          ) : (
+            <TransactionHistory transactions={transactions} />
+          )}
         </div>
       </div>
       </AuthGateOverlay>
