@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ApiTerminal, type TerminalTab } from "@/components/developers/ApiTerminal";
 import { EndpointMarquee } from "@/components/developers/EndpointMarquee";
 import { MiniOrderBook } from "@/components/developers/MiniOrderBook";
+import { DevelopersPageMobile } from "./DevelopersPageMobile";
 import {
   ArrowRight,
   ArrowUpRight,
