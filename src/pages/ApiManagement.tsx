@@ -53,6 +53,7 @@ import {
 import { verifyDemoOtp, DEMO_OTP_HINT } from "@/lib/demoOtp";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 /* -------------------- Single tier token source -------------------- */
 type TierMeta = {
