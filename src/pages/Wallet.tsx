@@ -465,7 +465,9 @@ export default function Wallet() {
             <EmptyState
               variant="inline"
               icon={Star}
+              title="No saved addresses"
               description="Save addresses for quick deposits and withdrawals."
+              className="py-4"
             />
           )}
         </div>
