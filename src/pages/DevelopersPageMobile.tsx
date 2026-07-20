@@ -223,8 +223,8 @@ export const DevelopersPageMobile = () => {
               </div>
               <pre className="px-3 py-3 font-mono text-[11px] leading-relaxed text-foreground/85 whitespace-pre-wrap break-words">
 {`{
-  "market_id": "TSLA:2026-07-17",
-  "outcome_side": "UP",
+  "market_id": "BTC_ABOVE:150000:2026-12-31",
+  "outcome_side": "YES",
   "limit_price": "0.5142",
   "size": 240
 }

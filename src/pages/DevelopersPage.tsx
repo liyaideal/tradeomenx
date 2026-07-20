@@ -42,8 +42,8 @@ curl -X POST https://api.omenx.io/v1/orders/preview \\
   -H "X-OMENX-TS: 1721059431" \\
   -H "X-OMENX-SIGN: $SIG" \\
   -d '{
-    "market_id": "US_STOCK_UPDOWN:TSLA:2026-07-17",
-    "outcome_side": "UP",
+    "market_id": "BTC_ABOVE:150000:2026-12-31",
+    "outcome_side": "YES",
     "order_type": "LIMIT",
     "limit_price": "0.5142",
     "size": 240,
@@ -67,8 +67,8 @@ curl -X POST https://api.omenx.io/v1/orders/preview \\
 client = Client(key=OMENX_KEY, secret=OMENX_SECRET)
 
 preview = client.orders.preview(
-    market_id="US_STOCK_UPDOWN:TSLA:2026-07-17",
-    outcome_side="UP",
+    market_id="BTC_ABOVE:150000:2026-12-31",
+    outcome_side="YES",
     order_type="LIMIT",
     limit_price="0.5142",
     size=240,
@@ -87,8 +87,8 @@ preview = client.orders.preview(
 const client = new OmenX({ key: process.env.OMENX_KEY });
 
 const preview = await client.orders.preview({
-  market_id: "US_STOCK_UPDOWN:TSLA:2026-07-17",
-  outcome_side: "UP",
+  market_id: "BTC_ABOVE:150000:2026-12-31",
+  outcome_side: "YES",
   order_type: "LIMIT",
   limit_price: "0.5142",
   size: 240,
@@ -106,7 +106,7 @@ const signTabs: TerminalTab[] = [
     lang: "bash",
     code: `# HMAC-SHA256 over: {timestamp}{method}{path}{body}
 TS=$(date +%s)
-BODY='{"market_id":"US_STOCK_UPDOWN:TSLA:2026-07-17","outcome_side":"UP"}'
+BODY='{"market_id":"BTC_ABOVE:150000:2026-12-31","outcome_side":"YES"}'
 SIG=$(printf '%s' "$TS POST /v1/orders/preview $BODY" \\
   | openssl dgst -sha256 -hmac "$OMENX_SECRET" -hex \\
   | awk '{print $2}')
