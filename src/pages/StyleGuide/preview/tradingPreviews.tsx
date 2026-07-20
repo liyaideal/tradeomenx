@@ -502,7 +502,7 @@ export const AirdropPositionCardPreview = () => {
       <Frame>
         <AirdropPositionCard
           airdrop={airdrop}
-          onActivate={() => {}}
+          onActivate={async () => {}}
           isActivating={false}
         />
       </Frame>
