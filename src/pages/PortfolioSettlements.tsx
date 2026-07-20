@@ -73,7 +73,7 @@ export default function PortfolioSettlements() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { data: settlements = [], isLoading } = useSettlements();
+  const { data: settlements = [], isLoading, isError, refetch } = useSettlements();
   const { airdrops } = useAirdropPositions();
   const { positions } = usePositions();
   const resolveDisplayOption = useEventDisplayLookup();
