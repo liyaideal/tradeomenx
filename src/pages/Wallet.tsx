@@ -914,9 +914,9 @@ export default function Wallet() {
         <MaintenanceNoticeBanner />
         <BalanceCard />
         <H2eRewardsCard />
-        <PendingConfirmations className="rounded-2xl border border-border/50 bg-card p-4" />
+        <PendingConfirmations className="trading-card p-4" />
         <SavedAddressesList />
-        <div className="rounded-2xl border border-border/50 bg-card p-4">
+        <div className="trading-card p-4">
           {txError ? (
             <ErrorState
               title="Couldn't load transactions"
