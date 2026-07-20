@@ -383,23 +383,6 @@ const TierSegment = ({ tier, current }: { tier: TierEligibility; current: boolea
   );
 };
 
-/* -------------------- Empty state -------------------- */
-const EmptyKeysCard = ({ onCreate }: { onCreate: () => void }) => (
-  <div className="rounded-lg border border-dashed border-border/50 bg-muted/10 px-6 py-5 flex items-center gap-4">
-    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-      <KeyRound className="w-5 h-5 text-primary" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="text-sm font-semibold text-foreground">No API keys yet</div>
-      <div className="text-xs text-muted-foreground mt-0.5">
-        Create your first key to start streaming data or placing orders programmatically.
-      </div>
-    </div>
-    <Button size="sm" onClick={onCreate} className="gap-1.5 shrink-0">
-      <Plus className="w-4 h-4" /> Create key
-    </Button>
-  </div>
-);
 
 /* -------------------- Keys table -------------------- */
 const KeysTable = ({
