@@ -203,6 +203,8 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - 容器：`<main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">`（移动 `px-4 py-6`）
 - 适用：**仅** Settings 这类纯设置表单页
 
+**允许的变体**：`/settings/api` (API Management) 用全宽 hairline `border-t border-border/40` 分段替代 `space-y-6`，这是 §4 明确允许的工程图纸变体，别当违规。仍需 `max-w-7xl px-8 py-10`（移动 `px-4 py-6`）。
+
 ### Page Title Block — 强制使用 `<PageHeader>` 组件
 
 标题块**只能**通过 `src/components/PageHeader.tsx` 渲染。任何页面手写紫竖线 + `<h1>` 都算违规。
