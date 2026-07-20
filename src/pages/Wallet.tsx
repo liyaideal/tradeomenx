@@ -713,7 +713,7 @@ export default function Wallet() {
                   
                   <div className="flex gap-3">
                     <Button 
-                      className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-11"
+                      className="btn-trading-green flex-1 h-11"
                       onClick={() => setDepositDialogOpen(true)}
                     >
                       <ArrowDownLeft className="w-4 h-4 mr-2" />
