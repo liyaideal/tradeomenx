@@ -598,11 +598,6 @@ type RedeemedState =
   | "settledHoldExpiry"
   | "settledFullLoss";
 
-const REDEEMED_REASON_LABEL: Record<string, string> = {
-  manual: "Closed manually",
-  event_settled: "Event settled",
-  expiry: "Hold window expired",
-};
 
 export const RedeemedRowPreview = () => {
   const [state, setState] = useState<RedeemedState>("binaryOpen");
