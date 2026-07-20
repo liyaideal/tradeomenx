@@ -930,7 +930,7 @@ export default function Portfolio() {
               </div>
             ) : (
               /* Desktop: Table View */
-              <div className="bg-card rounded-xl overflow-hidden">
+              <div className="trading-card overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
