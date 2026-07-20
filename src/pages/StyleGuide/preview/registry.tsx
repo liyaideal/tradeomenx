@@ -319,7 +319,11 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "trade-submit-button": () => <TradeSubmitPreview />,
   "desktop-order-book": () => <DesktopOrderBookPreview />,
   "mobile-order-book": () => <MobileOrderBookPreview />,
-  "trade-form-desktop": () => <DesktopTradeFormPreview />,
+  "desktop-trade-panel-mirror": () => <DesktopTradePanelMirror />,
+  "desktop-positions-panel-mirror": () => <DesktopPositionsPanelMirror />,
+  "option-chips-mobile": () => <OptionChipsPreview />,
+  "airdrop-position-card": () => <AirdropPositionCardPreview />,
+
   "trade-form-mobile": () => <MobileTradeFormPreview />,
   "position-card": () => <PositionCardPreview />,
   "order-card": () => <OrderCardPreview />,
