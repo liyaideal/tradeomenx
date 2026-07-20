@@ -255,7 +255,7 @@ const Vouchers = () => {
 
                 <section className="col-span-8">
                   {redeemPanel ?? (
-                    <div className="rounded-xl border border-border bg-card/40 p-10 text-center">
+                    <div className="trading-card p-10 text-center">
                       <div className="text-sm text-muted-foreground">
                         No active vouchers to redeem.
                       </div>
