@@ -249,6 +249,15 @@ export const BottomNav = () => {
             }}
           />
           <MobileDrawerListItem
+            icon={Code2}
+            label="Developers"
+            onClick={() => {
+              setProfileSheetOpen(false);
+              navigate("/developers");
+            }}
+          />
+
+          <MobileDrawerListItem
             icon={Settings}
             label="Settings"
             onClick={() => {
