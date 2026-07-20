@@ -732,9 +732,7 @@ export default function Wallet() {
                 </div>
 
                 {walletsLoading ? (
-                  <div className="text-center py-6 text-muted-foreground">
-                    <p>Loading...</p>
-                  </div>
+                  <LoadingState label="Loading addresses…" />
                 ) : (
                   <div className="space-y-3">
                     {wallets.map((wallet) => (
