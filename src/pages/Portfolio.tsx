@@ -296,7 +296,7 @@ export default function Portfolio() {
             {/* Positions Stats Cards - aligned with Account Risk module */}
             <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
               {/* Unrealized P&L + ROI % */}
-              <div className="bg-card rounded-xl p-4">
+              <div className="stats-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>Unrealized P&L</span>
