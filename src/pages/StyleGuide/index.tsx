@@ -168,7 +168,7 @@ const StyleGuideIndex = () => {
           </TabsContent>
 
           <TabsContent value="trading" className="mt-0">
-            <TradingSection />
+            <TradingSection isMobile={isMobile} />
           </TabsContent>
 
           <TabsContent value="wallet" className="mt-0">
@@ -180,11 +180,11 @@ const StyleGuideIndex = () => {
           </TabsContent>
 
           <TabsContent value="home" className="mt-0">
-            <MobileHomeSection />
+            <MobileHomeSection isMobile={isMobile} />
           </TabsContent>
 
           <TabsContent value="mobile" className="mt-0">
-            <MobilePatternsSection />
+            <MobilePatternsSection isMobile={isMobile} />
           </TabsContent>
 
           <TabsContent value="identity" className="mt-0">
