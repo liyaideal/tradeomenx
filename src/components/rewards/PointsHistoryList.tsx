@@ -53,26 +53,17 @@ export const PointsHistoryList = () => {
   const { pointsHistory, isLoadingHistory } = usePoints();
 
   if (isLoadingHistory) {
-    return (
-      <div className="space-y-3">
-        {[1, 2, 3].map(i => (
-          <Card key={i} className="p-4 animate-pulse">
-            <div className="h-12 bg-muted rounded" />
-          </Card>
-        ))}
-      </div>
-    );
+    return <LoadingState label="Loading history…" variant="skeleton" skeletonRows={3} />;
   }
 
   if (!pointsHistory || pointsHistory.length === 0) {
     return (
-      <Card className="p-8 text-center">
-        <Clock className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-        <p className="text-muted-foreground">No points history yet</p>
-        <p className="text-sm text-muted-foreground mt-1">
-          Complete tasks to start earning points
-        </p>
-      </Card>
+      <EmptyState
+        variant="inline"
+        icon={Clock}
+        title="No points history yet"
+        description="Complete tasks to start earning points."
+      />
     );
   }
 
