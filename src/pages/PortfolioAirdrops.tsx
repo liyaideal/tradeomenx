@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gift, Loader2, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2, Info } from "lucide-react";
+import { Gift, Clock, Zap, AlertTriangle, ChevronRight, CheckCircle2, Info } from "lucide-react";
+import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
@@ -119,7 +120,7 @@ export default function PortfolioAirdrops() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, settledAirdrops, isLoading, activateAirdrop, isActivating, closePosition } = useAirdropPositions();
+  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, settledAirdrops, isLoading, isError, refetch, activateAirdrop, isActivating, closePosition } = useAirdropPositions();
   const { positions } = usePositions();
   const { data: settlements = [] } = useSettlements();
   const sideLabelsLookup = useEventSideLabelsLookup();
@@ -230,24 +231,30 @@ export default function PortfolioAirdrops() {
         </div>
 
         {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 text-primary animate-spin" />
-          </div>
+        {isLoading && <LoadingState label="Loading airdrops…" />}
+
+        {/* Error State */}
+        {!isLoading && isError && (
+          <ErrorState
+            title="Couldn't load airdrops"
+            description="Something went wrong fetching your airdrop positions."
+            onRetry={() => refetch()}
+          />
         )}
 
         {/* Empty State */}
-        {!isLoading && airdrops.length === 0 && (
-          <div className="text-center py-12">
-            <Gift className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-            <p className="text-muted-foreground">No airdrops yet</p>
-            <p className="text-muted-foreground/70 text-sm mt-1">
-              Connect an external account to start receiving counter-position airdrops
-            </p>
-            <Button variant="outline" className="mt-4" onClick={() => navigate("/settings")}>
-              Connect Account
-            </Button>
-          </div>
+        {!isLoading && !isError && airdrops.length === 0 && (
+          <EmptyState
+            variant="card"
+            icon={Gift}
+            title="No airdrops yet"
+            description="Connect an external account to start receiving counter-position airdrops."
+            action={
+              <Button variant="outline" size="sm" onClick={() => navigate("/settings")}>
+                Connect Account
+              </Button>
+            }
+          />
         )}
 
         {/* Airdrop List */}

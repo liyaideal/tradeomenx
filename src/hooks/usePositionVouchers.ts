@@ -65,7 +65,7 @@ export const usePositionVouchers = () => {
   const queryClient = useQueryClient();
   const [isRedeeming, setIsRedeeming] = useState(false);
 
-  const { data: rawVouchers = [], isLoading } = useQuery({
+  const { data: rawVouchers = [], isLoading, isError, refetch } = useQuery({
     queryKey: [...QUERY_KEY, user?.id ?? "guest"],
     enabled: !!user,
     queryFn: async () => {
@@ -76,8 +76,10 @@ export const usePositionVouchers = () => {
         .eq("user_id", user.id)
         .order("issued_at", { ascending: false });
       if (error) {
+        // Production surface for <ErrorState>: react-query flips isError so
+        // callers can render the retry UI instead of a silent empty list.
         console.error("Failed to fetch vouchers", error);
-        return [];
+        throw error;
       }
       const mapped = (data as any[]).map(mapRow);
 
@@ -231,5 +233,5 @@ export const usePositionVouchers = () => {
     }
   };
 
-  return { vouchers, grantedVouchers, claimedVouchers, issuedVouchers, isLoading, claim, redeem, isRedeeming };
+  return { vouchers, grantedVouchers, claimedVouchers, issuedVouchers, isLoading, isError, refetch, claim, redeem, isRedeeming };
 };

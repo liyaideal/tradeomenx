@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, TrendingDown, Trophy, ChevronRight, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Trophy, ChevronRight } from "lucide-react";
+import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
@@ -73,7 +74,7 @@ export default function PortfolioSettlements() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { data: settlements = [], isLoading } = useSettlements();
+  const { data: settlements = [], isLoading, isError, refetch } = useSettlements();
   const { airdrops } = useAirdropPositions();
   const { positions } = usePositions();
   const resolveDisplayOption = useEventDisplayLookup();
@@ -199,21 +200,25 @@ export default function PortfolioSettlements() {
         </div>
 
         {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 text-primary animate-spin" />
-          </div>
+        {isLoading && <LoadingState label="Loading settlements…" />}
+
+        {/* Error State */}
+        {!isLoading && isError && (
+          <ErrorState
+            title="Couldn't load settlements"
+            description="Something went wrong fetching your settlements."
+            onRetry={() => refetch()}
+          />
         )}
 
         {/* Empty State */}
-        {!isLoading && settlements.length === 0 && (
-          <div className="text-center py-12">
-            <Trophy className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-            <p className="text-muted-foreground">No settlements yet</p>
-            <p className="text-muted-foreground/70 text-sm mt-1">
-              Your closed trades will appear here
-            </p>
-          </div>
+        {!isLoading && !isError && settlements.length === 0 && (
+          <EmptyState
+            variant="card"
+            icon={Trophy}
+            title="No settlements yet"
+            description="Your closed trades will appear here."
+          />
         )}
 
         {/* Settlements List */}

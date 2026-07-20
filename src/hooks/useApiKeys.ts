@@ -109,7 +109,14 @@ export const useApiKeys = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["api-keys"] }),
   });
 
-  return { keys: query.data ?? [], isLoading: query.isLoading, createKey, revokeKey };
+  return {
+    keys: query.data ?? [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    refetch: query.refetch,
+    createKey,
+    revokeKey,
+  };
 };
 
 /** Derive tier eligibility from profile + transactions + trades. */

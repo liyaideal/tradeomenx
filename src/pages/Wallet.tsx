@@ -27,6 +27,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { PageHeader } from "@/components/PageHeader";
 import { TopUpDialog } from "@/components/TopUpDialog";
+import { LoadingState } from "@/components/states";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -437,9 +438,7 @@ export default function Wallet() {
       </div>
 
       {walletsLoading ? (
-        <div className="text-center py-6 text-sm text-muted-foreground">
-          <p>Loading...</p>
-        </div>
+        <LoadingState label="Loading addresses…" />
       ) : (
         <div className="space-y-2">
           {wallets.map((wallet) => (
@@ -733,9 +732,7 @@ export default function Wallet() {
                 </div>
 
                 {walletsLoading ? (
-                  <div className="text-center py-6 text-muted-foreground">
-                    <p>Loading...</p>
-                  </div>
+                  <LoadingState label="Loading addresses…" />
                 ) : (
                   <div className="space-y-3">
                     {wallets.map((wallet) => (

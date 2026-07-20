@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
+import { EmptyState } from "@/components/states";
 import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
@@ -1030,14 +1031,17 @@ export default function Portfolio() {
         {activeTab === "airdrops" && (
           <div className="space-y-3">
             {airdrops.length === 0 ? (
-              <div className="text-center py-16 space-y-3">
-                <Gift className="w-10 h-10 text-muted-foreground/40 mx-auto" />
-                <p className="text-muted-foreground text-sm">No airdrops yet</p>
-                <p className="text-muted-foreground/60 text-xs">Connect an external account to start receiving counter-position airdrops</p>
-                <Button variant="outline" className="mt-2" onClick={() => navigate("/settings")}>
-                  Connect Account
-                </Button>
-              </div>
+              <EmptyState
+                variant="card"
+                icon={Gift}
+                title="No airdrops yet"
+                description="Connect an external account to start receiving counter-position airdrops."
+                action={
+                  <Button variant="outline" size="sm" onClick={() => navigate("/settings")}>
+                    Connect Account
+                  </Button>
+                }
+              />
             ) : (
               airdrops.map((airdrop) => (
                 <AirdropPositionCard key={airdrop.id} airdrop={airdrop} onClose={closePosition} />

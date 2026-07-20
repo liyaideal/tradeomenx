@@ -14,6 +14,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile, AVATAR_SEEDS, AVATAR_BACKGROUNDS, generateAvatarUrl } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
+import { LoadingState } from "@/components/states";
 import {
   Dialog,
   DialogContent,
@@ -182,8 +183,8 @@ const Settings = () => {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading profile...</div>
+      <div className="min-h-screen bg-background">
+        <LoadingState label="Loading profile…" />
       </div>
     );
   }

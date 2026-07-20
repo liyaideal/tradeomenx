@@ -24,6 +24,7 @@ import { TaskCard } from "@/components/rewards/TaskCard";
 import { XShareConfirmDialog } from "@/components/rewards/XShareConfirmDialog";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
+import { EmptyState } from "@/components/states";
 import { toast } from "sonner";
 
 export default function Rewards() {
@@ -155,10 +156,7 @@ export default function Rewards() {
           </Card>
 
           {tasks.length === 0 ? (
-            <Card className="trading-card p-8 text-center">
-              <Gift className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">No tasks available</p>
-            </Card>
+            <EmptyState variant="inline" icon={Gift} title="No tasks available" />
           ) : (
             tasks.map(task => (
               <TaskCard 
