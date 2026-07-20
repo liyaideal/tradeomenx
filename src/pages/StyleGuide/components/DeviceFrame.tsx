@@ -99,3 +99,35 @@ export const DualDevicePreview = ({
     </div>
   );
 };
+
+/**
+ * Single-device preview — use when a UI is device-specific and has NO
+ * responsive counterpart (mobile-only screens, desktop-only terminals, or
+ * device-agnostic reference tables). No device toggle.
+ */
+export const SingleDevicePreview = ({
+  previewKey,
+  device,
+  label,
+  minHeight,
+}: {
+  previewKey: PreviewKey | string;
+  device: Device;
+  label?: string;
+  minHeight?: number;
+}) => {
+  const caption =
+    device === "mobile"
+      ? "iframe · 375px · mobile-only"
+      : "iframe · desktop";
+  return (
+    <div className="space-y-2">
+      {label && (
+        <div className="text-[11px] text-muted-foreground">{label}</div>
+      )}
+      <DeviceFrame previewKey={previewKey} device={device} minHeight={minHeight} />
+      <div className={cn("text-[10px] font-mono text-muted-foreground/70")}>{caption}</div>
+    </div>
+  );
+};
+
