@@ -183,8 +183,8 @@ const Settings = () => {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading profile...</div>
+      <div className="min-h-screen bg-background">
+        <LoadingState label="Loading profile…" />
       </div>
     );
   }
