@@ -10,6 +10,8 @@ import SpotTrading from "./pages/SpotTrading";
 import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide/index";
+import StyleGuidePreview from "./pages/StyleGuide/preview/StyleGuidePreview";
+
 import EventsPage from "./pages/EventsPage";
 import ResolvedPage from "./pages/ResolvedPage";
 import ResolvedEventDetail from "./pages/ResolvedEventDetail";
@@ -98,6 +100,7 @@ const App = () => (
             <Route path="/campaign/world-cup-polymarket-hedge" element={<HedgeLanding />} />
             <Route path="/mainnet-launch" element={<Navigate to="/" replace />} />
             <Route path="/campaign-style-guide" element={<CampaignStyleGuide />} />
+            <Route path="/style-guide/preview" element={<StyleGuidePreview />} />
             <Route
               path="*"
               element={

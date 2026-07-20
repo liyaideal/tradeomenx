@@ -1098,6 +1098,11 @@ For informational purposes only. Not financial advice. Trading involves risk of 
 
 `/style-guide` is a spec surface, not marketing. Any page module with ≥2 visual states MUST be showcased there by **importing the real production component** and driving it with mock props — never with hand-rolled lookalike cards. Every distinct state (empty / loading / error / loaded, wizard step, validation error, copied toast, active/revoked, tier eligible/manual/locked, etc.) must be present, labeled with `<PlatformBadge>` for desktop vs mobile. If a component can't be extracted for reuse, extract it first (see `src/components/api/` as the reference split) — then land the style-guide coverage in the same PR. Regressions in this rule get pinned in §7 Don'ts.
 
+### 16.1.1 Dual-device previews MUST use `<DeviceFrame>` (LOCKED)
+
+Desktop/mobile side-by-side previews in `/style-guide` MUST render through `<DeviceFrame>` / `<DualDevicePreview>` (`src/pages/StyleGuide/components/DeviceFrame.tsx`), which mounts the case inside a same-origin `<iframe>` sized to 375px for mobile and 100% for desktop. Only an iframe gives the component a **real viewport** so Tailwind `md:` breakpoints and `useIsMobile()` resolve honestly (e.g. `CreateKeyFlow` actually swaps Dialog → MobileDrawer, `TierTrack` actually stacks). **Never** simulate mobile by shrinking a parent `<div>` — container width does not trigger media queries, so the mobile view is a lie. New cases register in `src/pages/StyleGuide/preview/registry.tsx` and are consumed via the `/style-guide/preview?c=<key>` route.
+
+
 
 
 ## 17. Content Rules
