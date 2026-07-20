@@ -36,7 +36,7 @@ export const MiniOrderBook = ({ className }: { className?: string }) => {
       <div className="flex items-center justify-between px-3 py-2 border-b border-border/60 bg-muted/40">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-trading-green animate-pulse" />
-          <span className="text-foreground/90 font-semibold">TSLA · Up</span>
+          <span className="text-foreground/90 font-semibold">BTC ≥ $150k · Yes</span>
         </div>
         <span className="text-muted-foreground">seq 48,516</span>
       </div>
