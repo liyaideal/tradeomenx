@@ -1,40 +1,60 @@
-## Goal
-美股产品还没上线，把 `/developers` 里所有把 TSLA/US_STOCK 当示例的地方换成一个**已上线形态**的二元预测事件，避免误导读者以为可以下美股单。功能/布局零改动，只改示例文案与 mock 数据。
+## 目标
 
-## Chosen example
-统一用一个 crypto 二元事件（已是站内主力形态）：
-- `market_id`: `BTC_ABOVE:150000:2026-12-31`
-- `outcome_side`: `YES`（改自原来的 `UP`）
-- 面板标题：`BTC ≥ $150k · Yes`
-- 定价保留 0.5x 区间，正好贴合二元合约概率语义（不用改数字，视觉更契合）。
+优化 `/developers` mobile 页面 §02 Access tiers 左侧那三颗小空心圆点（现在只是 `w-3 h-3 border-2` 空圆，视觉弱、又不成体系），换成工程蓝图语言的 tier 索引徽章，并在 style-guide 里补上真组件预览。
 
-> 如果更想用政治/体育/AI 事件（例：`ELECTION_2028_WIN:DEM`、`FED_CUT:2026-09` 等），说一声我改成那个 market_id 即可，其他改动一样。
+## 新的圆点设计（替换现有空心圆）
 
-## Changes
+保留左侧竖线（rail），把节点从"3 个一样的空心圆"升级为**分层实心徽章**，一眼看得出 tier 等级差异：
 
-### 1. `src/components/developers/MiniOrderBook.tsx`
-- Header 里 `TSLA · Up` → `BTC ≥ $150k · Yes`。其他（seq、行数据、动画）不动。
+```text
+┌──────────────────────────────┐
+│ ┌──┐                         │
+│ │01│  Read-only              │  ← muted 环 + 数字，无填充
+│ └──┘  Free · instant         │
+│  │                           │
+│ ┌──┐                         │
+│ │02│  Trading                │  ← primary 填充 + 白字 + 微 glow
+│ └──┘  Self-serve             │
+│  │                           │
+│ ┌──┐                         │
+│ │03│  Pro / Market Maker     │  ← amber 描边 + amber 数字，虚线角
+│ └──┘  Manual review          │
+└──────────────────────────────┘
+```
 
-### 2. `src/pages/DevelopersPage.tsx`（desktop 三 tab 终端）
-在 `heroTabs`（cURL / Python / TypeScript）和 `signTabs`（sign.sh）里，把 5 处出现的：
-- `"US_STOCK_UPDOWN:TSLA:2026-07-17"` → `"BTC_ABOVE:150000:2026-12-31"`
-- `"outcome_side": "UP"` / `outcome_side="UP"` / `outcome_side: "UP"` → 对应语法的 `"YES"`
-- 顶部 caption `POST /v1/orders/preview · 200 OK` 保持不变。
-- 右上角浮标 `market.book · seq 48,516` 保持不变（不含 TSLA）。
-- 响应体字段 (`pricing_snapshot_id`, `estimated_margin_u`, `fee_preview_u`) 数值全部保持不变。
+具体规范：
 
-### 3. `src/pages/DevelopersPageMobile.tsx`（移动端 request preview 卡）
-在 hero 下那张 mock 请求卡的 JSON body 里：
-- `"market_id": "TSLA:2026-07-17"` → `"market_id": "BTC_ABOVE:150000:2026-12-31"`
-- `"outcome_side": "UP"` → `"outcome_side": "YES"`
-- 其他字段不动。
+- 尺寸：`w-7 h-7 rounded-md`（不再是圆，改小方章 —— 呼应 §03 quickstart 已有的数字节点、SectionHead 的 `01/02` 语言）。
+- 位置：`absolute -left-[14px] top-4`，rail 从 `left-2` 调到 rail 穿过徽章中心（`left-[10px]`），保证竖线视觉贯穿。
+- 三档差异（由 `TIER_META`-风格 map 驱动，不散写 class）：
+  - `muted`：`border border-border bg-background text-muted-foreground`
+  - `primary`：`border border-primary/60 bg-primary/15 text-primary` + `shadow-[0_0_0_3px_hsl(var(--primary)/0.08)]`
+  - `amber`：`border border-amber-400/60 bg-amber-400/10 text-amber-400`
+- 内容：`font-mono text-[11px] font-semibold` 显示 `01 / 02 / 03`。
+- 徽章外多加一层 1px `ring-background`，避免和 rail 竖线糊在一起。
 
-## Not touched
-- 组件结构、断点、桌面/移动布局、CTA 行为、tier / quickstart / endpoints / accordion 文案。
-- `MiniOrderBook` 的价格、size、depth、动画节奏——直接沿用，只换 header 标题。
-- 路由、样式、图标。
+其它保持不动（tag、body、chips、rail 渐变色都不改）。
 
-## Verification
-- 全仓 `rg "TSLA|US_STOCK|UPDOWN"` 应为空。
-- typecheck。
-- 桌面 + 移动 `/developers` 目视，示例统一显示 BTC 二元事件。
+## 变更清单
+
+**1. 抽出组件** `src/components/developers/TiersStepperMobile.tsx`
+- 输入：`tiers: typeof TIERS`（复用 `DevelopersPageMobile` 里的常量结构）。
+- 内部包含 rail + 徽章 + tier 内容渲染。
+- 徽章样式来自本文件顶部的 `TIER_NODE_STYLES` map（单一 token 源，符合 Core 规则）。
+
+**2. `src/pages/DevelopersPageMobile.tsx`**
+- 删除 §02 内联的 stepper JSX（289–333 行），改为 `<TiersStepperMobile tiers={TIERS} />`。
+- `TIERS` 常量原地保留导出，供 style-guide 复用。
+- 桌面版 `DevelopersPage.tsx` 一行不动。
+
+**3. Style-guide 镜像**
+- `src/pages/StyleGuide/preview/` 新建 `developersPreviews.tsx`，导出一个 `<TiersStepperMobile tiers={TIERS} />` 预览。
+- `registry.tsx` 注册 key `developers-mobile-tiers`。
+- `src/pages/StyleGuide/sections/ApiSection.tsx` 在 "A · Open API Portal (/n)" 分组下追加一个 SubSection "Access tiers (mobile stepper)"，用 `DualDevicePreview previewKey="developers-mobile-tiers"`，`minHeight≈420`，label 说明"移动端专属；桌面走 DevelopersPage 三卡片"。
+
+## 验收
+
+- `/developers` 移动端 §02：左列出现 `01/02/03` 分层徽章，muted / primary / amber 三档一眼可辨；rail 竖线穿徽章中心不断裂。
+- 桌面 `/developers` 完全零变化。
+- `/style-guide` API section 底部（或 A 组内）新增 "Access tiers (mobile stepper)" 预览，DeviceFrame 里 375px 呈现新徽章。
+- `bunx tsgo --noEmit` clean。

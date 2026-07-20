@@ -51,7 +51,9 @@ const CAPABILITIES = [
   },
 ];
 
-const TIERS = [
+import { TiersStepperMobile, type TierStep } from "@/components/developers/TiersStepperMobile";
+
+export const DEVELOPERS_MOBILE_TIERS: readonly TierStep[] = [
   {
     name: "Read-only",
     tag: "Free · instant",
@@ -73,7 +75,7 @@ const TIERS = [
     chips: ["elevated_rate_limits", "dedicated_ws", "mm_program"],
     accent: "amber",
   },
-] as const;
+];
 
 const QUICKSTART = [
   {
@@ -286,51 +288,7 @@ export const DevelopersPageMobile = () => {
         {/* 02 — TIERS (vertical stepper) */}
         <MobileBand alt>
           <SectionHead n="02" title="Access tiers" subtitle="Everyone starts read-only." />
-          <div className="relative pl-6">
-            <div className="absolute left-2 top-2 bottom-2 w-px bg-gradient-to-b from-border via-primary/40 to-primary" />
-            <div className="border-y border-border/40 divide-y divide-border/40">
-              {TIERS.map((t) => (
-                <div key={t.name} className="relative py-4">
-                  <div
-                    className={cn(
-                      "absolute -left-4 top-6 w-3 h-3 rounded-full border-2 bg-background",
-                      t.accent === "primary" && "border-primary",
-                      t.accent === "amber" && "border-amber-400",
-                      t.accent === "muted" && "border-border",
-                    )}
-                  />
-                  <div className="flex items-center justify-between mb-1.5 gap-3">
-                    <div
-                      className={cn(
-                        "font-display font-medium tracking-[-0.01em] text-base",
-                        t.accent === "primary"
-                          ? "text-primary"
-                          : t.accent === "amber"
-                          ? "text-amber-400"
-                          : "text-foreground",
-                      )}
-                    >
-                      {t.name}
-                    </div>
-                    <span className="text-[10px] font-mono text-muted-foreground shrink-0">
-                      {t.tag}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{t.body}</p>
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {t.chips.map((c) => (
-                      <span
-                        key={c}
-                        className="rounded border border-border/50 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <TiersStepperMobile tiers={DEVELOPERS_MOBILE_TIERS} />
         </MobileBand>
 
         {/* 03 — QUICKSTART */}
