@@ -374,7 +374,7 @@ export const ConnectedAccountsCard = () => {
                         </Badge>
                       )}
                       {account && (
-                        <Badge className="bg-trading-green/20 text-trading-green border-trading-green/30 text-[10px] px-1.5 py-0">
+                        <Badge className={`${STATUS_STYLES.success.badge} text-[10px] px-1.5 py-0`}>
                           Connected
                         </Badge>
                       )}
