@@ -65,10 +65,9 @@ export const CloseVoucherContent = ({
       )}
       <Button
         type="button"
-        variant="destructive"
         onClick={() => onConfirm()}
         disabled={isClosing}
-        className={isDrawer ? "flex-1 h-11" : "h-11"}
+        className={`bg-trading-red text-white hover:bg-trading-red/90 ${isDrawer ? "flex-1 h-11" : "h-11"}`}
       >
         {isClosing ? (
           <>
