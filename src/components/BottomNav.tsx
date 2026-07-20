@@ -245,7 +245,7 @@ export const BottomNav = () => {
             label="API"
             onClick={() => {
               setProfileSheetOpen(false);
-              navigate("/settings/api");
+              navigate("/developers");
             }}
           />
 
