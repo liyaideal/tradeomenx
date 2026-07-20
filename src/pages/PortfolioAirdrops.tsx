@@ -15,6 +15,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AirdropPositionCard } from "@/components/AirdropPositionCard";
 import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
