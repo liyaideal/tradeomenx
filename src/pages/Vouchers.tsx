@@ -56,7 +56,7 @@ const Vouchers = () => {
   const redeemPanel = selected ? (() => {
     const cap = selected.faceValue * selected.redeemableCapPct;
     return (
-      <div className="rounded-xl border border-border bg-card/40">
+      <div className="trading-card">
         {/* Header band */}
         <div className="relative border-b border-border bg-gradient-to-br from-primary/10 via-card/40 to-card/40 p-4 md:p-5 rounded-t-xl">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 md:gap-4">
@@ -255,7 +255,7 @@ const Vouchers = () => {
 
                 <section className="col-span-8">
                   {redeemPanel ?? (
-                    <div className="rounded-xl border border-border bg-card/40 p-10 text-center">
+                    <div className="trading-card p-10 text-center">
                       <div className="text-sm text-muted-foreground">
                         No active vouchers to redeem.
                       </div>

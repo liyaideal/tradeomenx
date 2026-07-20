@@ -296,7 +296,7 @@ export default function Portfolio() {
             {/* Positions Stats Cards - aligned with Account Risk module */}
             <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-4"}`}>
               {/* Unrealized P&L + ROI % */}
-              <div className="bg-card rounded-xl p-4">
+              <div className="stats-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>Unrealized P&L</span>
@@ -339,7 +339,7 @@ export default function Portfolio() {
               </div>
 
               {/* Initial Margin */}
-              <div className="bg-card rounded-xl p-4">
+              <div className="stats-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <Wallet className="w-3.5 h-3.5" />
                   <span>Initial Margin</span>
@@ -369,7 +369,7 @@ export default function Portfolio() {
               </div>
 
               {/* Maintenance Margin */}
-              <div className="bg-card rounded-xl p-4">
+              <div className="stats-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <BarChart3 className="w-3.5 h-3.5" />
                   <span>Maint. Margin</span>
@@ -399,7 +399,7 @@ export default function Portfolio() {
               </div>
 
               {/* Risk Ratio */}
-              <div className="bg-card rounded-xl p-4">
+              <div className="stats-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span>Risk Ratio</span>
@@ -583,7 +583,7 @@ export default function Portfolio() {
               </div>
             ) : (
               /* Desktop: Table View */
-              <div className="bg-card rounded-xl overflow-hidden">
+              <div className="trading-card overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
@@ -744,7 +744,7 @@ export default function Portfolio() {
             {/* Settlements Stats Cards */}
             <div className={`grid gap-3 mb-6 ${isMobile ? "grid-cols-2" : "grid-cols-2 max-w-lg"}`}>
               {/* Realized P&L */}
-              <div className="bg-card rounded-xl p-4">
+              <div className="stats-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>Realized P&L</span>
@@ -778,7 +778,7 @@ export default function Portfolio() {
               </div>
 
               {/* Win Rate */}
-              <div className="bg-card rounded-xl p-4">
+              <div className="stats-card p-4">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <BarChart3 className="w-3.5 h-3.5" />
                   <span>Win Rate</span>
@@ -930,7 +930,7 @@ export default function Portfolio() {
               </div>
             ) : (
               /* Desktop: Table View */
-              <div className="bg-card rounded-xl overflow-hidden">
+              <div className="trading-card overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">

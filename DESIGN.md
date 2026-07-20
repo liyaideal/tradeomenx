@@ -261,9 +261,19 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 ### Cards
 
-- **`.trading-card`**: Default card with gradient background + border
-- **`.stats-card`**: Stats display card, lighter border
-- **`.web3-card`**: Premium card with animated gradient border + glow
+**主卡片强制条款（LOCKED）**：产品功能页的主信息卡片**必须**使用下列语义类之一，**禁止**手写 `bg-card rounded-xl … p-x` / `rounded-2xl border … bg-card` 组合承担主卡角色。主卡圆角**只允许 `rounded-xl`**（由类内建）——`rounded-2xl` 或 `rounded-lg` 不得用于主卡；`rounded-lg` 只用于卡内列表行/次级元素。
+
+- **`.trading-card`**: 默认内容/面板卡。`gradient-card` + `border border-border/50` + `rounded-xl`。Vouchers/Wallet/Portfolio 表格容器/Rewards 主面板走这个。
+- **`.stats-card`**: 数据/KPI 卡。`gradient-stats-card` + `border border-border/30` + `rounded-xl`。Portfolio positions/settlements stats grid 是首个正确用例。
+- **`.web3-card`**: Premium 卡（动画渐变边 + glow），仅特殊营销/亮相场景。
+
+**已登记的例外（可保留 bespoke 容器）**：
+1. **Wallet Balance Card / H2eRewardsCard** — primary 品牌渐变的英雄卡，独立视觉强调。
+2. **§15 移动端列表卡**（`MarketCard` / `ResolvedEventCard`）—— 强制 raw `<div>`，见 §15。
+3. **Insights 营销页**（`SeoPageLayout`）—— 营销叙事豁免。
+4. **Leaderboard 营销 hero** —— 榜首视觉强调，豁免。
+
+例外之外任何新增主卡违反此条即为回归；出现 `bg-card rounded-xl p-4` 五连的直接改成 `.trading-card` / `.stats-card`。
 
 ### Buttons
 
@@ -921,7 +931,7 @@ interface HomeEquityHeroProps {
 - Use `camelCase` for all data field labels in transparency/audit pages
 - Use `Title Case` for section headers and page titles
 - Keep all buttons' text white on colored backgrounds
-- Use `trading-card` class for card containers
+- Use `.trading-card` / `.stats-card` for all product-page main cards — see §5 Cards 强制条款 for the full rule and exception list
 - Use official chain/token SVG logos from `/chain-logos/` and `/token-logos/`
 - Use `<Logo>` component — never raw SVG imports
 - Use `CATEGORY_STYLES` for event category badges

@@ -437,7 +437,7 @@ export default function Wallet() {
 
   // Saved Addresses List Component (mobile)
   const SavedAddressesList = () => (
-    <div className="rounded-2xl border border-border/50 bg-card p-4 space-y-3">
+    <div className="trading-card p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold">Saved Addresses</h2>
         <span className="text-xs text-muted-foreground">
@@ -914,9 +914,9 @@ export default function Wallet() {
         <MaintenanceNoticeBanner />
         <BalanceCard />
         <H2eRewardsCard />
-        <PendingConfirmations className="rounded-2xl border border-border/50 bg-card p-4" />
+        <PendingConfirmations className="trading-card p-4" />
         <SavedAddressesList />
-        <div className="rounded-2xl border border-border/50 bg-card p-4">
+        <div className="trading-card p-4">
           {txError ? (
             <ErrorState
               title="Couldn't load transactions"
