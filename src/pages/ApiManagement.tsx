@@ -207,9 +207,25 @@ const ApiManagement = () => {
         </div>
 
         {isLoading ? (
-          <div className="py-10 text-center text-sm text-muted-foreground">Loading…</div>
+          <LoadingState label="Loading keys…" />
+        ) : isError ? (
+          <ErrorState
+            title="Couldn't load API keys"
+            description="Something went wrong fetching your keys."
+            onRetry={() => refetch()}
+          />
         ) : keys.length === 0 ? (
-          <EmptyKeysCard onCreate={() => setCreateOpen(true)} />
+          <EmptyState
+            variant="card"
+            icon={KeyRound}
+            title="No API keys yet"
+            description="Create your first key to start streaming data or placing orders programmatically."
+            action={
+              <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5">
+                <Plus className="w-4 h-4" /> Create key
+              </Button>
+            }
+          />
         ) : (
           <KeysTable keys={keys} onRevoke={setRevokeTarget} />
         )}
