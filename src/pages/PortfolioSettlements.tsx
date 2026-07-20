@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 type TabType = "positions" | "settlements" | "airdrops";
 
