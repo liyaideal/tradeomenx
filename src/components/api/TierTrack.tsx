@@ -33,7 +33,7 @@ export const TierSegment = ({ tier, current }: { tier: TierEligibility; current:
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <Icon className={cn("w-4 h-4 shrink-0", meta.accent)} />
-          <div className="text-sm font-semibold text-foreground truncate">{meta.label}</div>
+          <div className="text-[15px] md:text-sm font-semibold text-foreground truncate">{meta.label}</div>
           {current && (
             <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 border border-border/40 px-1 rounded">
               you
@@ -62,7 +62,7 @@ export const TierSegment = ({ tier, current }: { tier: TierEligibility; current:
       </ul>
       {tier.manualReview && (
         <a href="mailto:api@omenx.io?subject=Pro%2FMM%20API%20access%20request" className="mt-1">
-          <Button variant="outline" size="sm" className="w-full gap-1.5">
+          <Button variant="outline" size="sm" className="w-full h-10 md:h-8 gap-1.5">
             <Mail className="w-3.5 h-3.5" /> Contact us
           </Button>
         </a>
@@ -70,6 +70,7 @@ export const TierSegment = ({ tier, current }: { tier: TierEligibility; current:
     </div>
   );
 };
+
 
 export const TierTrack = ({
   tiers,

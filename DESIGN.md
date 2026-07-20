@@ -325,7 +325,8 @@ Quick decision rule: **brand/navigation → purple tint, opt-out/cancel → mute
 实施约束：
 - 任何"Confirm / Close / Submit / Withdraw / Cancel order"按钮组合都必须包在 `Dialog` 里，不允许用 `Popover` 承载，避免点击外部误关闭丢失上下文。
 - 桌面 `Dialog` 与移动 `MobileDrawer` 应复用同一份表单组件（如 `ClosePositionForm` 同时被 `ClosePositionDialog` + `ClosePositionDrawer` 调用），保证两端视觉/逻辑一致。
-- 禁止在移动端直接复用桌面 `Dialog`；必须走 `MobileDrawer` 分支。
+- **[LOCKED] 移动端零 Dialog 规则**：移动端（`useIsMobile() === true`）**只允许 `MobileDrawer` / `Sheet` / `Popover`**，**禁止**任何 shadcn `Dialog` / `AlertDialog` 直接渲染在移动视口。所有跨端弹层组件（如 `RevokeDialog`、`CreateKeyFlow`）必须以 `useIsMobile()` 分支，桌面走 `Dialog`、移动走 `MobileDrawer`；不允许用同一个 `Dialog` 让 mobile "凑合看"。
+
 
 ### MobileDrawer 内容规范（mobile bottom-sheet content spec）
 
