@@ -109,7 +109,7 @@ const Vouchers = () => {
           : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)",
       }}
     >
-      {isMobile ? <MobileHeader title="Vouchers" showLogo={false} /> : <EventsDesktopHeader />}
+      {isMobile ? <MobileHeader title="Vouchers" showLogo={false} showBack={true} /> : <EventsDesktopHeader />}
 
       <AuthGateOverlay
         title="Sign in to view your vouchers"

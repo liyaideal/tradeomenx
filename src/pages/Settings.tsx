@@ -371,9 +371,9 @@ const Settings = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader title="Settings" showLogo={false} />
+        <MobileHeader title="Settings" showLogo={false} showBack={true} />
 
-        <div className="p-4 space-y-4">
+        <div className="px-4 py-6 space-y-4">
           <ProfileCard />
           <UsernameCard />
           <EmailCard />

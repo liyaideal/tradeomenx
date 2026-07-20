@@ -360,7 +360,7 @@ export default function Wallet() {
 
         <div className="flex gap-2">
           <Button
-            className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-11"
+            className="btn-trading-green flex-1 h-11"
             onClick={() => navigate('/deposit')}
           >
             <ArrowDownLeft className="w-4 h-4 mr-2" />
@@ -713,7 +713,7 @@ export default function Wallet() {
                   
                   <div className="flex gap-3">
                     <Button 
-                      className="flex-1 bg-trading-green hover:bg-trading-green/90 text-background font-semibold rounded-xl h-11"
+                      className="btn-trading-green flex-1 h-11"
                       onClick={() => setDepositDialogOpen(true)}
                     >
                       <ArrowDownLeft className="w-4 h-4 mr-2" />
@@ -907,10 +907,10 @@ export default function Wallet() {
   // Mobile Layout
   return (
     <div className="min-h-screen bg-background pb-24">
-      <MobileHeader title="Wallet" showLogo={false} />
+      <MobileHeader title="Wallet" showLogo={false} showBack={true} />
 
       <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
-      <div className="px-4 py-5 space-y-4">
+      <div className="px-4 py-6 space-y-4">
         <MaintenanceNoticeBanner />
         <BalanceCard />
         <H2eRewardsCard />

@@ -164,9 +164,11 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 | Between | Gap |
 |---------|-----|
-| Major sections | `space-y-8` |
+| Major sections (top-level `<main>`) | `space-y-6` |
 | Sub-sections within a card | `space-y-4` |
 | Related items | `space-y-2` or `gap-2` |
+
+> Single source of truth: **`space-y-6`** for major sections. Matches Canonical Layout below. Never use `space-y-8` on `<main>`.
 
 ### Breakpoints
 
@@ -200,6 +202,8 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 - 容器：`<main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">`（移动 `px-4 py-6`）
 - 适用：**仅** Settings 这类纯设置表单页
+
+**允许的变体**：`/settings/api` (API Management) 用全宽 hairline `border-t border-border/40` 分段替代 `space-y-6`，这是 §4 明确允许的工程图纸变体，别当违规。仍需 `max-w-7xl px-8 py-10`（移动 `px-4 py-6`）。
 
 ### Page Title Block — 强制使用 `<PageHeader>` 组件
 
@@ -264,9 +268,13 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 ### Buttons
 
 - **`.btn-primary`**: Purple gradient, white text, glow shadow
-- **`.btn-trading-green`**: Green gradient, white text — Buy/Long
+- **`.btn-trading-green`**: Green gradient, white text — Buy/Long, also 全站主 CTA（Deposit 等）
 - **`.btn-trading-red`**: Red gradient, white text — Sell/Short
 - All trading buttons: **always white text** (`text-primary-foreground`)
+
+**危险/销毁操作统一 `trading-red`**：所有 destructive 操作（Revoke key、Close position、Delete wallet、Confirm withdraw 等）必须走 `bg-trading-red text-white hover:bg-trading-red/90` 或 `.btn-trading-red` 类。**禁止使用 shadcn `variant="destructive"`**——`--destructive` token 与全站交易语义色 `--trading-red` 分裂，会产生两种红。表格/inline ghost 型 Revoke 用 `text-trading-red hover:text-trading-red hover:bg-trading-red/10`。
+
+**主 CTA 用 `.btn-*` 类，不手搓**：`bg-trading-green ... text-background rounded-xl` 之类的手写组合禁止承担主按钮底色，一律换成 `.btn-trading-green` / `.btn-primary` / `.btn-trading-red`。
 
 #### Ghost Variant Hover Rules
 
@@ -741,6 +749,7 @@ Preset C is identical in chrome to Preset B — the distinction matters because 
 ✅ **Do**
 - Use `<SeoPageLayout>` for any new SEO / marketing sub-page — it locks in Preset C automatically.
 - Always set `showBack={true}` on SEO pages, even when the page is occasionally linked from in-app surfaces. Search-engine entry traffic has no history stack.
+- **功能内页 / SEO 页的 `<MobileHeader>` 必须显式 `showBack={true}`**——不依赖 `navigationType` 或历史栈自动判定。直接 URL/刷新进入时自动判定会让 back 箭头消失。Preset B/C 一律显式声明。
 - Center the title; keep it short (≤ 24 chars) so it renders on a single line at 375 px width.
 - Match the page's `<title>` / `h1` tag with the `MobileHeader` `title` prop for consistency.
 

@@ -118,7 +118,7 @@ const ApiManagement = () => {
     return (
       <div className="min-h-screen bg-background">
         {!isMobile && <EventsDesktopHeader />}
-        {isMobile && <MobileHeader title="Keys & access" showLogo={false} />}
+        {isMobile && <MobileHeader title="Keys & access" showLogo={false} showBack={true} />}
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
           <div className="max-w-md mx-auto">
             <LoginPrompt />
@@ -239,8 +239,8 @@ const ApiManagement = () => {
     <div className="min-h-screen bg-background">
       {isMobile ? (
         <>
-          <MobileHeader title="Keys & access" showLogo={false} />
-          <div className="px-4 py-4 pb-24 max-w-7xl mx-auto">{content}</div>
+          <MobileHeader title="Keys & access" showLogo={false} showBack={true} />
+          <div className="px-4 py-6 pb-24 max-w-7xl mx-auto">{content}</div>
           <BottomNav />
         </>
       ) : (
@@ -463,7 +463,7 @@ const KeysTable = ({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="h-7 text-trading-red hover:text-trading-red hover:bg-trading-red/10"
                     onClick={() => onRevoke(k)}
                   >
                     Revoke
@@ -1001,7 +1001,11 @@ const RevokeDialog = ({
           <Button variant="outline" onClick={onClose} disabled={pending}>
             Cancel
           </Button>
-          <Button variant="destructive" disabled={pending} onClick={() => target && onConfirm(target.id)}>
+          <Button
+            className="bg-trading-red text-white hover:bg-trading-red/90"
+            disabled={pending}
+            onClick={() => target && onConfirm(target.id)}
+          >
             {pending ? "Revoking…" : "Revoke key"}
           </Button>
         </DialogFooter>

@@ -402,7 +402,7 @@ export default function PortfolioAirdrops() {
                           />
                         ) : airdrop.status === "activated" ? (
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             className="h-7 text-xs"
                             onClick={() => navigate(`/trade?event=${airdrop.counterEventId}`)}
@@ -412,7 +412,7 @@ export default function PortfolioAirdrops() {
                           </Button>
                         ) : airdrop.status === "settled" ? (
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             className="h-7 text-xs"
                             onClick={() => navigate(airdrop.source === "voucher" ? "/vouchers" : "/wallet")}
