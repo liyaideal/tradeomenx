@@ -336,7 +336,7 @@ export default function PortfolioSettlements() {
                         {settlement.settledAt}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="outline" size="sm" className="h-7 text-xs">
                           View
                           <ChevronRight className="w-4 h-4 ml-1" />
                         </Button>
