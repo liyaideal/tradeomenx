@@ -29,6 +29,8 @@ import {
   PositionChipPreview,
   ExpiredRowPreview,
 } from "./voucherPreviews";
+import { TiersStepperMobile } from "@/components/developers/TiersStepperMobile";
+import { DEVELOPERS_MOBILE_TIERS } from "@/pages/DevelopersPageMobile";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
@@ -261,6 +263,9 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "voucher-redeemed-row": () => <RedeemedRowPreview />,
   "voucher-position-chip": () => <PositionChipPreview />,
   "voucher-expired-row": () => <ExpiredRowPreview />,
+
+  /* -------- Developers (/developers mobile) -------- */
+  "developers-mobile-tiers": () => <TiersStepperMobile tiers={DEVELOPERS_MOBILE_TIERS} />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;

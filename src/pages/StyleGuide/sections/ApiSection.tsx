@@ -93,6 +93,18 @@ const PortalGroup = ({ isMobile }: { isMobile: boolean }) => (
         ))}
       </div>
     </SubSection>
+
+    <SubSection
+      title="Access tiers · mobile stepper (/developers)"
+      description="移动端专属版本：01/02/03 分层徽章 + rail。桌面走上面的三卡片阶梯。切到 Mobile 看 375px 真态。"
+      platform="mobile"
+    >
+      <DualDevicePreview
+        previewKey="developers-mobile-tiers"
+        label="mobile tier stepper · muted / primary / amber"
+        minHeight={520}
+      />
+    </SubSection>
   </div>
 );
 
