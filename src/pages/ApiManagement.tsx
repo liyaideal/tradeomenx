@@ -105,7 +105,7 @@ const ApiManagement = () => {
   const isMobile = useIsMobile();
   
   const { user } = useAuth();
-  const { keys, isLoading, createKey, revokeKey } = useApiKeys();
+  const { keys, isLoading, isError, refetch, createKey, revokeKey } = useApiKeys();
   const { tiers } = useTierEligibility();
 
   const [createOpen, setCreateOpen] = useState(false);
