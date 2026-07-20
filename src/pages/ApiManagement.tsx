@@ -1001,7 +1001,11 @@ const RevokeDialog = ({
           <Button variant="outline" onClick={onClose} disabled={pending}>
             Cancel
           </Button>
-          <Button variant="destructive" disabled={pending} onClick={() => target && onConfirm(target.id)}>
+          <Button
+            className="bg-trading-red text-white hover:bg-trading-red/90"
+            disabled={pending}
+            onClick={() => target && onConfirm(target.id)}
+          >
             {pending ? "Revoking…" : "Revoke key"}
           </Button>
         </DialogFooter>
