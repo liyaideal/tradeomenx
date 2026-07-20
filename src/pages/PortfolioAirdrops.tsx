@@ -284,7 +284,7 @@ export default function PortfolioAirdrops() {
               ))}
             </div>
           ) : (
-            <div className="bg-card rounded-xl overflow-hidden">
+            <div className="trading-card overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/50 hover:bg-transparent">
