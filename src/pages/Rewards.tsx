@@ -24,6 +24,7 @@ import { TaskCard } from "@/components/rewards/TaskCard";
 import { XShareConfirmDialog } from "@/components/rewards/XShareConfirmDialog";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
+import { EmptyState } from "@/components/states";
 import { toast } from "sonner";
 
 export default function Rewards() {
