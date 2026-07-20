@@ -235,7 +235,7 @@ export const useAirdropPositions = () => {
     }));
   };
 
-  const { data: airdrops = [], isLoading } = useQuery({
+  const { data: airdrops = [], isLoading, isError, refetch } = useQuery({
     queryKey,
     queryFn: async () => {
       if (isDemoMode) {
