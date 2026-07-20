@@ -118,7 +118,7 @@ const ApiManagement = () => {
     return (
       <div className="min-h-screen bg-background">
         {!isMobile && <EventsDesktopHeader />}
-        {isMobile && <MobileHeader title="Keys & access" showLogo={false} />}
+        {isMobile && <MobileHeader title="Keys & access" showLogo={false} showBack={true} />}
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
           <div className="max-w-md mx-auto">
             <LoginPrompt />
