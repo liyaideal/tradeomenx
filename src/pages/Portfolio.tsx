@@ -808,7 +808,22 @@ export default function Portfolio() {
               </div>
             </div>
 
-            {isMobile ? (
+            {settlementsLoading ? (
+              <LoadingState variant="skeleton" label="Loading settlements…" skeletonRows={4} />
+            ) : settlementsError ? (
+              <ErrorState
+                title="Couldn't load settlements"
+                description="Something went wrong fetching your settlement history."
+                onRetry={() => refetchSettlements()}
+              />
+            ) : sortedSettlements.length === 0 ? (
+              <EmptyState
+                variant="card"
+                icon={Trophy}
+                title="No settlements yet"
+                description="Your closed trades will appear here."
+              />
+            ) : isMobile ? (
               /* Mobile: Card View */
               <div className="space-y-3">
                 {sortedSettlements.map((settlement) => (
