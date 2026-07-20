@@ -6,8 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { LoginPrompt } from "@/components/LoginPrompt";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { toast } from "sonner";
 import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 import { useApiKeys, useTierEligibility, type ApiKey } from "@/hooks/useApiKeys";
@@ -21,7 +20,6 @@ import {
 
 const ApiManagement = () => {
   const isMobile = useIsMobile();
-  const { user } = useAuth();
   const { keys, isLoading, isError, refetch, createKey, revokeKey } = useApiKeys();
   const { tiers } = useTierEligibility();
 
@@ -29,20 +27,6 @@ const ApiManagement = () => {
   const [revokeTarget, setRevokeTarget] = useState<ApiKey | null>(null);
   const [newSecret, setNewSecret] = useState<string | null>(null);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        {!isMobile && <EventsDesktopHeader />}
-        {isMobile && <MobileHeader title="Keys & access" showLogo={false} showBack={true} />}
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
-          <div className="max-w-md mx-auto">
-            <LoginPrompt />
-          </div>
-        </div>
-        {isMobile && <BottomNav />}
-      </div>
-    );
-  }
 
   const eligibleTiers = tiers.filter((t) => t.eligible);
   const highestEligible = eligibleTiers[eligibleTiers.length - 1]?.tier;
@@ -123,15 +107,28 @@ const ApiManagement = () => {
       {isMobile ? (
         <>
           <MobileHeader title="Keys & access" showLogo={false} showBack={true} />
-          <div className="px-4 py-6 pb-24 max-w-7xl mx-auto">{content}</div>
+          <AuthGateOverlay
+            title="Sign in to manage API keys"
+            description="Create and revoke signed keys for programmatic access after signing in."
+            maxPreviewHeight="600px"
+          >
+            <div className="px-4 py-6 pb-24 max-w-7xl mx-auto">{content}</div>
+          </AuthGateOverlay>
           <BottomNav />
         </>
       ) : (
         <>
           <EventsDesktopHeader />
-          <main className="max-w-7xl mx-auto w-full px-8 py-10">{content}</main>
+          <AuthGateOverlay
+            title="Sign in to manage API keys"
+            description="Create and revoke signed keys for programmatic access after signing in."
+            maxPreviewHeight="600px"
+          >
+            <main className="max-w-7xl mx-auto w-full px-8 py-10">{content}</main>
+          </AuthGateOverlay>
         </>
       )}
+
 
       <CreateKeyFlow
         open={createOpen}
