@@ -1094,6 +1094,12 @@ For informational purposes only. Not financial advice. Trading involves risk of 
 
 ---
 
+## 16.1 Style-Guide Truth Rule (LOCKED)
+
+`/style-guide` is a spec surface, not marketing. Any page module with ≥2 visual states MUST be showcased there by **importing the real production component** and driving it with mock props — never with hand-rolled lookalike cards. Every distinct state (empty / loading / error / loaded, wizard step, validation error, copied toast, active/revoked, tier eligible/manual/locked, etc.) must be present, labeled with `<PlatformBadge>` for desktop vs mobile. If a component can't be extracted for reuse, extract it first (see `src/components/api/` as the reference split) — then land the style-guide coverage in the same PR. Regressions in this rule get pinned in §7 Don'ts.
+
+
+
 ## 17. Content Rules
 
 - **No icons on events or markets**: Events and markets (options) do not have icons or emoji. Never render `eventIcon` or any icon/emoji next to event or market names in any view (list, grid, card, shelf).
