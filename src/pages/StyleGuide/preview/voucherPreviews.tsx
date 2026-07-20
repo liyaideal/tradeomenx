@@ -110,7 +110,7 @@ type BannerState = "hidden" | "grantedOnly" | "grantedAndClaimed" | "claimedOnly
 export const BannerPreview = () => {
   const [state, setState] = useState<BannerState>("grantedOnly");
 
-  const grantedCount = state === "grantedOnly" ? 2 : state === "grantedAndClaimed" ? 1 : 0;
+  const grantedCount: number = state === "grantedOnly" ? 2 : state === "grantedAndClaimed" ? 1 : 0;
   const claimedCount = state === "claimedOnly" ? 3 : state === "grantedAndClaimed" ? 2 : 0;
   const showGranted = grantedCount > 0;
   const Icon = showGranted ? Gift : Ticket;
