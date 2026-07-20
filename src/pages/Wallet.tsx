@@ -834,7 +834,15 @@ export default function Wallet() {
               <PendingConfirmations className="trading-card p-6" />
               
               <div className="trading-card p-6">
-                <TransactionHistory transactions={transactions} />
+                {txError ? (
+                  <ErrorState
+                    title="Couldn't load transactions"
+                    description="Something went wrong fetching your transaction history."
+                    onRetry={refetchTx}
+                  />
+                ) : (
+                  <TransactionHistory transactions={transactions} />
+                )}
               </div>
             </div>
           </div>
