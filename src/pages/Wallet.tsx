@@ -99,11 +99,15 @@ export default function Wallet() {
   }, [h2e.unlockedPercent]);
 
   // Fetch closed trades for transaction history (only realized P&L)
-  const { data: recentTrades = [] } = useQuery({
+  const {
+    data: recentTrades = [],
+    isError: tradesError,
+    refetch: refetchTrades,
+  } = useQuery({
     queryKey: ["wallet-trades", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from("trades")
         .select("id, event_name, option_label, pnl, created_at, closed_at, status")
@@ -112,10 +116,7 @@ export default function Wallet() {
         .not("pnl", "is", null)
         .order("closed_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching trades:", error);
-        return [];
-      }
+      if (error) throw error;
 
       return data || [];
     },
@@ -123,26 +124,33 @@ export default function Wallet() {
   });
 
   // Fetch deposit/withdraw/platform credit transactions
-  const { data: walletTransactions = [] } = useQuery({
+  const {
+    data: walletTransactions = [],
+    isError: fundError,
+    refetch: refetchFunds,
+  } = useQuery({
     queryKey: ["wallet-fund-transactions", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from("transactions")
         .select("id, type, amount, description, created_at, tx_hash, network, status")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching transactions:", error);
-        return [];
-      }
+      if (error) throw error;
 
       return data || [];
     },
     enabled: !!user,
   });
+
+  const txError = tradesError || fundError;
+  const refetchTx = () => {
+    refetchTrades();
+    refetchFunds();
+  };
 
   // Transform and merge all transactions
   const tradeTransactions: Transaction[] = recentTrades.map((trade) => ({
