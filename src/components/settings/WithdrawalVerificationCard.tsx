@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Setup2FADialog } from "./Setup2FADialog";
 import { cn } from "@/lib/utils";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 type Mode = "email" | "totp" | "both";
 
@@ -110,7 +111,7 @@ export const WithdrawalVerificationCard = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-semibold">Withdrawal verification</h3>
               {!activeMode && (
-                <Badge variant="outline" className="text-xs">
+                <Badge className={`text-xs ${STATUS_STYLES.neutral.badge}`}>
                   Not configured
                 </Badge>
               )}

@@ -8,6 +8,7 @@ import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { buildSignMessage, EIP712_DOMAIN, EIP712_TYPES } from "@/lib/eip712";
 import { toast } from "sonner";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 import { BrowserProvider } from "ethers";
 import {
   Dialog,
@@ -373,7 +374,7 @@ export const ConnectedAccountsCard = () => {
                         </Badge>
                       )}
                       {account && (
-                        <Badge className="bg-trading-green/20 text-trading-green border-trading-green/30 text-[10px] px-1.5 py-0">
+                        <Badge className={`${STATUS_STYLES.success.badge} text-[10px] px-1.5 py-0`}>
                           Connected
                         </Badge>
                       )}

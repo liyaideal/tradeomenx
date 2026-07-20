@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Setup2FADialog } from "./Setup2FADialog";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 /**
  * Account-level credential management.
@@ -68,7 +69,7 @@ export const AccountSecurityCard = () => {
                 {totpEnabled ? (
                   <Badge
                     variant="outline"
-                    className="text-xs border-trading-green/40 text-trading-green"
+                    className={`text-xs ${STATUS_STYLES.success.badge}`}
                   >
                     <CheckCircle2 className="w-3 h-3 mr-1" />
                     Enabled
