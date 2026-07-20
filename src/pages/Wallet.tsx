@@ -27,6 +27,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { PageHeader } from "@/components/PageHeader";
 import { TopUpDialog } from "@/components/TopUpDialog";
+import { LoadingState } from "@/components/states";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
