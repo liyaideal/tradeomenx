@@ -618,13 +618,6 @@ export const RedeemedRowPreview = () => {
           ? "text-trading-red"
           : "text-muted-foreground";
 
-  const reason =
-    state === "settledManualProfit" ? "manual"
-    : state === "settledEventResolved" ? "event_settled"
-    : state === "settledHoldExpiry" ? "expiry"
-    : state === "settledFullLoss" ? "event_settled"
-    : null;
-
   const isBinary = state === "binaryOpen";
   const code =
     state === "binaryOpen" ? "50AAC401"
