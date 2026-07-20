@@ -92,19 +92,19 @@ const PortfolioTabDropdown = ({
 const AirdropStatusBadge = ({ status }: { status: string }) => {
   const config: Record<string, { className: string; label: string }> = {
     pending: {
-      className: "border-trading-yellow/50 text-trading-yellow bg-trading-yellow/10",
+      className: STATUS_STYLES.pending.badge,
       label: "Pending",
     },
     activated: {
-      className: "border-trading-green/50 text-trading-green bg-trading-green/10",
+      className: STATUS_STYLES.success.badge,
       label: "Activated",
     },
     expired: {
-      className: "border-border text-muted-foreground bg-muted/50",
+      className: STATUS_STYLES.revoked.badge,
       label: "Expired",
     },
     settled: {
-      className: "border-primary/50 text-primary bg-primary/10",
+      className: STATUS_STYLES.active.badge,
       label: "Settled",
     },
   };
