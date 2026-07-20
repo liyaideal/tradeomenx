@@ -34,7 +34,11 @@ import {
   TradeSubmitPreview,
   DesktopOrderBookPreview,
   MobileOrderBookPreview,
-  DesktopTradeFormPreview,
+  DesktopTradePanelMirror,
+  DesktopPositionsPanelMirror,
+  OptionChipsPreview,
+  AirdropPositionCardPreview,
+
   MobileTradeFormPreview,
   PositionCardPreview,
   OrderCardPreview,
