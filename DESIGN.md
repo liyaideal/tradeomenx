@@ -164,9 +164,11 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 | Between | Gap |
 |---------|-----|
-| Major sections | `space-y-8` |
+| Major sections (top-level `<main>`) | `space-y-6` |
 | Sub-sections within a card | `space-y-4` |
 | Related items | `space-y-2` or `gap-2` |
+
+> Single source of truth: **`space-y-6`** for major sections. Matches Canonical Layout below. Never use `space-y-8` on `<main>`.
 
 ### Breakpoints
 
