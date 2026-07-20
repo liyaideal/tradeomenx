@@ -27,7 +27,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { PageHeader } from "@/components/PageHeader";
 import { TopUpDialog } from "@/components/TopUpDialog";
-import { LoadingState } from "@/components/states";
+import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -99,11 +99,15 @@ export default function Wallet() {
   }, [h2e.unlockedPercent]);
 
   // Fetch closed trades for transaction history (only realized P&L)
-  const { data: recentTrades = [] } = useQuery({
+  const {
+    data: recentTrades = [],
+    isError: tradesError,
+    refetch: refetchTrades,
+  } = useQuery({
     queryKey: ["wallet-trades", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from("trades")
         .select("id, event_name, option_label, pnl, created_at, closed_at, status")
@@ -112,10 +116,7 @@ export default function Wallet() {
         .not("pnl", "is", null)
         .order("closed_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching trades:", error);
-        return [];
-      }
+      if (error) throw error;
 
       return data || [];
     },
@@ -123,26 +124,33 @@ export default function Wallet() {
   });
 
   // Fetch deposit/withdraw/platform credit transactions
-  const { data: walletTransactions = [] } = useQuery({
+  const {
+    data: walletTransactions = [],
+    isError: fundError,
+    refetch: refetchFunds,
+  } = useQuery({
     queryKey: ["wallet-fund-transactions", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from("transactions")
         .select("id, type, amount, description, created_at, tx_hash, network, status")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching transactions:", error);
-        return [];
-      }
+      if (error) throw error;
 
       return data || [];
     },
     enabled: !!user,
   });
+
+  const txError = tradesError || fundError;
+  const refetchTx = () => {
+    refetchTrades();
+    refetchFunds();
+  };
 
   // Transform and merge all transactions
   const tradeTransactions: Transaction[] = recentTrades.map((trade) => ({
@@ -454,9 +462,13 @@ export default function Wallet() {
           </button>
 
           {wallets.length === 0 && !walletsLoading && (
-            <p className="text-center text-xs text-muted-foreground pt-1">
-              Save addresses for quick deposits and withdrawals
-            </p>
+            <EmptyState
+              variant="inline"
+              icon={Star}
+              title="No saved addresses"
+              description="Save addresses for quick deposits and withdrawals."
+              className="py-4"
+            />
           )}
         </div>
       )}
@@ -804,9 +816,13 @@ export default function Wallet() {
                     </button>
 
                     {wallets.length === 0 && !walletsLoading && (
-                      <p className="text-center text-sm text-muted-foreground py-2">
-                        Save addresses for quick deposits and withdrawals
-                      </p>
+                      <EmptyState
+                        variant="inline"
+                        icon={Star}
+                        title="No saved addresses"
+                        description="Save addresses for quick deposits and withdrawals."
+                        className="py-4"
+                      />
                     )}
                   </div>
                 )}
@@ -818,7 +834,15 @@ export default function Wallet() {
               <PendingConfirmations className="trading-card p-6" />
               
               <div className="trading-card p-6">
-                <TransactionHistory transactions={transactions} />
+                {txError ? (
+                  <ErrorState
+                    title="Couldn't load transactions"
+                    description="Something went wrong fetching your transaction history."
+                    onRetry={refetchTx}
+                  />
+                ) : (
+                  <TransactionHistory transactions={transactions} />
+                )}
               </div>
             </div>
           </div>
@@ -893,7 +917,15 @@ export default function Wallet() {
         <PendingConfirmations className="rounded-2xl border border-border/50 bg-card p-4" />
         <SavedAddressesList />
         <div className="rounded-2xl border border-border/50 bg-card p-4">
-          <TransactionHistory transactions={transactions} />
+          {txError ? (
+            <ErrorState
+              title="Couldn't load transactions"
+              description="Something went wrong fetching your transaction history."
+              onRetry={refetchTx}
+            />
+          ) : (
+            <TransactionHistory transactions={transactions} />
+          )}
         </div>
       </div>
       </AuthGateOverlay>

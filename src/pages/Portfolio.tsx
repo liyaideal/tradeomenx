@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
-import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2, Gift } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2, Gift, Inbox, Trophy } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
-import { EmptyState } from "@/components/states";
+import { EmptyState, LoadingState, ErrorState } from "@/components/states";
+import { RISK_STYLES, getRiskTier, STATUS_STYLES } from "@/lib/statusStyles";
 import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
@@ -93,8 +94,8 @@ export default function Portfolio() {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { positions, isLoading: positionsLoading } = usePositions();
-  const { data: settlements = [], isLoading: settlementsLoading } = useSettlements();
+  const { positions, isLoading: positionsLoading, isError: positionsError, refetch: refetchPositions } = usePositions();
+  const { data: settlements = [], isLoading: settlementsLoading, isError: settlementsError, refetch: refetchSettlements } = useSettlements();
   const { airdrops, closePosition } = useAirdropPositions();
   const resolveDisplayOption = useEventDisplayLookup();
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
@@ -410,10 +411,10 @@ export default function Portfolio() {
                       <PopoverContent className="text-xs w-64">
                         <p className="mb-2"><strong>Risk Ratio</strong> = IM / Equity</p>
                         <div className="space-y-1">
-                          <p className="text-trading-green">SAFE: &lt;80%</p>
-                          <p className="text-trading-yellow">WARNING: 80-95%</p>
-                          <p className="text-trading-red">RESTRICTION: 95-100%</p>
-                          <p className="text-trading-red">LIQUIDATION: ≥100%</p>
+                          <p className={RISK_STYLES.SAFE.fg}>{RISK_STYLES.SAFE.label.toUpperCase()}: &lt;80%</p>
+                          <p className={RISK_STYLES.WARNING.fg}>{RISK_STYLES.WARNING.label.toUpperCase()}: 80-95%</p>
+                          <p className={RISK_STYLES.RESTRICTION.fg}>{RISK_STYLES.RESTRICTION.label.toUpperCase()}: 95-100%</p>
+                          <p className={RISK_STYLES.LIQUIDATION.fg}>{RISK_STYLES.LIQUIDATION.label.toUpperCase()}: ≥100%</p>
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -425,20 +426,16 @@ export default function Portfolio() {
                       <TooltipContent className="text-xs max-w-64">
                         <p className="mb-2"><strong>Risk Ratio</strong> = IM / Equity</p>
                         <div className="space-y-1">
-                          <p className="text-trading-green">SAFE: &lt;80%</p>
-                          <p className="text-trading-yellow">WARNING: 80-95%</p>
-                          <p className="text-trading-red">RESTRICTION: 95-100%</p>
-                          <p className="text-trading-red">LIQUIDATION: ≥100%</p>
+                          <p className={RISK_STYLES.SAFE.fg}>{RISK_STYLES.SAFE.label.toUpperCase()}: &lt;80%</p>
+                          <p className={RISK_STYLES.WARNING.fg}>{RISK_STYLES.WARNING.label.toUpperCase()}: 80-95%</p>
+                          <p className={RISK_STYLES.RESTRICTION.fg}>{RISK_STYLES.RESTRICTION.label.toUpperCase()}: 95-100%</p>
+                          <p className={RISK_STYLES.LIQUIDATION.fg}>{RISK_STYLES.LIQUIDATION.label.toUpperCase()}: ≥100%</p>
                         </div>
                       </TooltipContent>
                     </Tooltip>
                   )}
                 </div>
-                <div className={`text-lg font-bold font-mono ${
-                  positionsStats.riskRatio >= 100 ? "text-trading-red" : 
-                  positionsStats.riskRatio >= 95 ? "text-trading-red" : 
-                  positionsStats.riskRatio >= 80 ? "text-trading-yellow" : "text-trading-green"
-                }`}>
+                <div className={`text-lg font-bold font-mono ${RISK_STYLES[getRiskTier(positionsStats.riskRatio)].fg}`}>
                   {positionsStats.riskRatio.toFixed(2)}%
                 </div>
               </div>
@@ -446,7 +443,22 @@ export default function Portfolio() {
 
             {/* Binary Event Hint - show if any position is from binary event */}
 
-            {isMobile ? (
+            {positionsLoading ? (
+              <LoadingState variant="skeleton" label="Loading positions…" skeletonRows={4} />
+            ) : positionsError ? (
+              <ErrorState
+                title="Couldn't load positions"
+                description="Something went wrong fetching your open positions."
+                onRetry={() => refetchPositions()}
+              />
+            ) : sortedPositions.length === 0 ? (
+              <EmptyState
+                variant="card"
+                icon={Wallet}
+                title="No open positions"
+                description="Your open positions will appear here once you enter a trade."
+              />
+            ) : isMobile ? (
               /* Mobile: Card View */
               <div className="space-y-3">
                 {sortedPositions.map((position, index) => {
@@ -796,7 +808,22 @@ export default function Portfolio() {
               </div>
             </div>
 
-            {isMobile ? (
+            {settlementsLoading ? (
+              <LoadingState variant="skeleton" label="Loading settlements…" skeletonRows={4} />
+            ) : settlementsError ? (
+              <ErrorState
+                title="Couldn't load settlements"
+                description="Something went wrong fetching your settlement history."
+                onRetry={() => refetchSettlements()}
+              />
+            ) : sortedSettlements.length === 0 ? (
+              <EmptyState
+                variant="card"
+                icon={Trophy}
+                title="No settlements yet"
+                description="Your closed trades will appear here."
+              />
+            ) : isMobile ? (
               /* Mobile: Card View */
               <div className="space-y-3">
                 {sortedSettlements.map((settlement) => (
@@ -824,9 +851,7 @@ export default function Portfolio() {
                         <Badge
                           variant="outline"
                           className={`text-[10px] ${
-                            settlement.result === "win"
-                              ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                              : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                            settlement.result === "win" ? STATUS_STYLES.success.badge : STATUS_STYLES.error.badge
                           }`}
                         >
                           {settlement.result === "win" ? "WIN" : "LOSE"}
@@ -974,9 +999,7 @@ export default function Portfolio() {
                           <Badge
                             variant="outline"
                             className={`text-[10px] ${
-                              settlement.result === "win"
-                                ? "border-trading-green/50 text-trading-green bg-trading-green/10"
-                                : "border-trading-red/50 text-trading-red bg-trading-red/10"
+                              settlement.result === "win" ? STATUS_STYLES.success.badge : STATUS_STYLES.error.badge
                             }`}
                           >
                             {settlement.result === "win" ? "WIN" : "LOSE"}

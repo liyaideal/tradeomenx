@@ -53,6 +53,7 @@ import {
 import { verifyDemoOtp, DEMO_OTP_HINT } from "@/lib/demoOtp";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 /* -------------------- Single tier token source -------------------- */
 type TierMeta = {
@@ -326,11 +327,11 @@ const TierSegment = ({ tier, current }: { tier: TierEligibility; current: boolea
       Manual approval
     </Badge>
   ) : tier.eligible ? (
-    <Badge variant="outline" className="bg-emerald-400/10 text-emerald-400 border-emerald-400/20 text-[10px]">
+    <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.success.badge)}>
       Available
     </Badge>
   ) : (
-    <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-[10px]">
+    <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.neutral.badge)}>
       Requirements not met
     </Badge>
   );
@@ -448,11 +449,11 @@ const KeysTable = ({
               </div>
               <div>
                 {active ? (
-                  <Badge variant="outline" className="bg-emerald-400/10 text-emerald-400 border-emerald-400/20 text-[10px]">
+                  <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.active.badge)}>
                     Active
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-[10px]">
+                  <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.neutral.badge)}>
                     Revoked
                   </Badge>
                 )}

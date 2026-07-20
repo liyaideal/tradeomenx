@@ -188,6 +188,7 @@ export const usePositions = () => {
   const {
     positions: supabasePositions,
     isLoading: supabaseLoading,
+    error: supabaseError,
     closePosition: closeSupabasePosition,
     partialClosePosition: partialCloseSupabasePosition,
     updatePositionTpSl: updateSupabaseTpSl,
@@ -307,6 +308,7 @@ export const usePositions = () => {
   return {
     positions,
     isLoading: isLoggedIn ? supabaseLoading : false,
+    isError: isLoggedIn ? !!supabaseError : false,
     isLoggedIn,
     closePosition,
     partialClosePosition,

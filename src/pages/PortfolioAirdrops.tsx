@@ -15,6 +15,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AirdropPositionCard } from "@/components/AirdropPositionCard";
 import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
+import { STATUS_STYLES } from "@/lib/statusStyles";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -91,15 +92,15 @@ const PortfolioTabDropdown = ({
 const AirdropStatusBadge = ({ status }: { status: string }) => {
   const config: Record<string, { className: string; label: string }> = {
     pending: {
-      className: "border-trading-yellow/50 text-trading-yellow bg-trading-yellow/10",
+      className: STATUS_STYLES.pending.badge,
       label: "Pending",
     },
     activated: {
-      className: "border-trading-green/50 text-trading-green bg-trading-green/10",
+      className: STATUS_STYLES.success.badge,
       label: "Activated",
     },
     expired: {
-      className: "border-border text-muted-foreground bg-muted/50",
+      className: STATUS_STYLES.neutral.badge,
       label: "Expired",
     },
     settled: {
