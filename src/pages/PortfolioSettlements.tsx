@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, TrendingDown, Trophy, ChevronRight, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Trophy, ChevronRight } from "lucide-react";
+import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
