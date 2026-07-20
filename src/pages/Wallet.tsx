@@ -816,9 +816,13 @@ export default function Wallet() {
                     </button>
 
                     {wallets.length === 0 && !walletsLoading && (
-                      <p className="text-center text-sm text-muted-foreground py-2">
-                        Save addresses for quick deposits and withdrawals
-                      </p>
+                      <EmptyState
+                        variant="inline"
+                        icon={Star}
+                        title="No saved addresses"
+                        description="Save addresses for quick deposits and withdrawals."
+                        className="py-4"
+                      />
                     )}
                   </div>
                 )}
