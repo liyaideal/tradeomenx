@@ -931,7 +931,7 @@ interface HomeEquityHeroProps {
 - Use `camelCase` for all data field labels in transparency/audit pages
 - Use `Title Case` for section headers and page titles
 - Keep all buttons' text white on colored backgrounds
-- Use `trading-card` class for card containers
+- Use `.trading-card` / `.stats-card` for all product-page main cards — see §5 Cards 强制条款 for the full rule and exception list
 - Use official chain/token SVG logos from `/chain-logos/` and `/token-logos/`
 - Use `<Logo>` component — never raw SVG imports
 - Use `CATEGORY_STYLES` for event category badges
