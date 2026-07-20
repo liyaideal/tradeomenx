@@ -411,7 +411,7 @@ export default function Portfolio() {
                         <div className="space-y-1">
                           <p className="text-trading-green">SAFE: &lt;80%</p>
                           <p className="text-trading-yellow">WARNING: 80-95%</p>
-                          <p className="text-orange-500">RESTRICTION: 95-100%</p>
+                          <p className="text-trading-red">RESTRICTION: 95-100%</p>
                           <p className="text-trading-red">LIQUIDATION: ≥100%</p>
                         </div>
                       </PopoverContent>
@@ -426,7 +426,7 @@ export default function Portfolio() {
                         <div className="space-y-1">
                           <p className="text-trading-green">SAFE: &lt;80%</p>
                           <p className="text-trading-yellow">WARNING: 80-95%</p>
-                          <p className="text-orange-500">RESTRICTION: 95-100%</p>
+                          <p className="text-trading-red">RESTRICTION: 95-100%</p>
                           <p className="text-trading-red">LIQUIDATION: ≥100%</p>
                         </div>
                       </TooltipContent>
@@ -435,7 +435,7 @@ export default function Portfolio() {
                 </div>
                 <div className={`text-lg font-bold font-mono ${
                   positionsStats.riskRatio >= 100 ? "text-trading-red" : 
-                  positionsStats.riskRatio >= 95 ? "text-orange-500" : 
+                  positionsStats.riskRatio >= 95 ? "text-trading-red" : 
                   positionsStats.riskRatio >= 80 ? "text-trading-yellow" : "text-trading-green"
                 }`}>
                   {positionsStats.riskRatio.toFixed(2)}%
