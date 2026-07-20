@@ -76,8 +76,10 @@ export const usePositionVouchers = () => {
         .eq("user_id", user.id)
         .order("issued_at", { ascending: false });
       if (error) {
+        // Production surface for <ErrorState>: react-query flips isError so
+        // callers can render the retry UI instead of a silent empty list.
         console.error("Failed to fetch vouchers", error);
-        return [];
+        throw error;
       }
       const mapped = (data as any[]).map(mapRow);
 
