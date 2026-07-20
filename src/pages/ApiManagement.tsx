@@ -463,7 +463,7 @@ const KeysTable = ({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="h-7 text-trading-red hover:text-trading-red hover:bg-trading-red/10"
                     onClick={() => onRevoke(k)}
                   >
                     Revoke
