@@ -120,7 +120,7 @@ export default function PortfolioAirdrops() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useUserProfile();
-  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, settledAirdrops, isLoading, activateAirdrop, isActivating, closePosition } = useAirdropPositions();
+  const { airdrops, pendingAirdrops, activatedAirdrops, expiredAirdrops, settledAirdrops, isLoading, isError, refetch, activateAirdrop, isActivating, closePosition } = useAirdropPositions();
   const { positions } = usePositions();
   const { data: settlements = [] } = useSettlements();
   const sideLabelsLookup = useEventSideLabelsLookup();
