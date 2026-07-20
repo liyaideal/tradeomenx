@@ -180,11 +180,11 @@ const StyleGuideIndex = () => {
           </TabsContent>
 
           <TabsContent value="home" className="mt-0">
-            <MobileHomeSection isMobile={isMobile} />
+            <MobileHomeSection />
           </TabsContent>
 
           <TabsContent value="mobile" className="mt-0">
-            <MobilePatternsSection isMobile={isMobile} />
+            <MobilePatternsSection />
           </TabsContent>
 
           <TabsContent value="identity" className="mt-0">
