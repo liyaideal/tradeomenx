@@ -749,6 +749,7 @@ Preset C is identical in chrome to Preset B — the distinction matters because 
 ✅ **Do**
 - Use `<SeoPageLayout>` for any new SEO / marketing sub-page — it locks in Preset C automatically.
 - Always set `showBack={true}` on SEO pages, even when the page is occasionally linked from in-app surfaces. Search-engine entry traffic has no history stack.
+- **功能内页 / SEO 页的 `<MobileHeader>` 必须显式 `showBack={true}`**——不依赖 `navigationType` 或历史栈自动判定。直接 URL/刷新进入时自动判定会让 back 箭头消失。Preset B/C 一律显式声明。
 - Center the title; keep it short (≤ 24 chars) so it renders on a single line at 375 px width.
 - Match the page's `<title>` / `h1` tag with the `MobileHeader` `title` prop for consistency.
 
