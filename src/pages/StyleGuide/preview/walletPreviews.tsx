@@ -202,6 +202,8 @@ export const DepositToPickerPreview = () => {
 
 /* ---------- Header Equity HoverCard content ---------- */
 
+// MIRROR: must stay in sync with src/components/EventsDesktopHeader.tsx
+// Equity HoverCardContent block. 改生产必改此处。
 export const EquityHoverCardPreview = () => {
   const total = computeTotalEquity({
     spotBalance: DEMO.spot,
