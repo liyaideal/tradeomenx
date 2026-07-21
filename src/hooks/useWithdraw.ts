@@ -104,10 +104,13 @@ export const useWithdraw = (account: 'spot' | 'futures' = 'futures') => {
       }
 
       // Debit the correct account (DEMO-STATE: client-side balance write).
+      // Futures side MUST use deductAvailableOnly — Trial Bonus is NOT
+      // withdrawable (dual-account 2b lock). Never call deductBalance here:
+      // it consumes trial_balance first and would silently withdraw Trial.
       if (debitAccount === 'spot') {
         await deductSpotBalance(amount);
       } else {
-        await deductBalance(amount);
+        await deductAvailableOnly(amount);
       }
 
       const newWithdrawal: WithdrawRecord = {
