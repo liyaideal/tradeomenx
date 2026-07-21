@@ -250,6 +250,9 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
       case 'cross_chain_out': return <ArrowLeftRight className="w-5 h-5 text-orange-400" />;
       case 'fiat_buy': return <Banknote className="w-5 h-5 text-purple-400" />;
       case 'fiat_sell': return <Banknote className="w-5 h-5 text-pink-400" />;
+      case 'transfer_to_spot':
+      case 'transfer_to_futures':
+        return <ArrowLeftRight className="w-5 h-5 text-primary" />;
       default: return <TrendingDown className="w-5 h-5 text-trading-red" />;
     }
   };
@@ -262,6 +265,9 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
       case 'cross_chain_out': return 'bg-orange-500/20';
       case 'fiat_buy': return 'bg-purple-500/20';
       case 'fiat_sell': return 'bg-pink-500/20';
+      case 'transfer_to_spot':
+      case 'transfer_to_futures':
+        return 'bg-primary/20';
       default: return 'bg-muted/20';
     }
   };
