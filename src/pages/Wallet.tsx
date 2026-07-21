@@ -1030,15 +1030,6 @@ export default function Wallet() {
             <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
           </Button>
         </div>
-            <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
-          </Button>
-          <Button variant="outline" className="h-11" onClick={() => setWithdrawDialogOpen(true)}>
-            <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
-          </Button>
-          <Button variant="outline" className="h-11" onClick={() => openTransfer("to_spot")}>
-            <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
-          </Button>
-        </div>
 
         {/* Band 2 · Spot / Futures 账户卡纵向 */}
         <section className="space-y-3">
