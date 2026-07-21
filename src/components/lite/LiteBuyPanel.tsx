@@ -143,7 +143,7 @@ export const LiteBuyPanel = ({
       });
       toast.success(`Bought ${selectedLabel} @ ~$${fillPrice.toFixed(2)} (cap $${limitPrice.toFixed(2)})`);
       setAmountStr("");
-      await refetch?.();
+      await refetchProfile?.();
       onSuccess?.();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Order failed";
