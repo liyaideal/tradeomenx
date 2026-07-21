@@ -16,6 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
+import { DualDevicePreview } from "../components/DeviceFrame";
 import { CodePreview } from "../components/CodePreview";
 import {
   MaintenanceNoticeBannerView,
