@@ -55,8 +55,20 @@ const EXPLORER_URLS: Record<string, string> = {
   'Tron (TRC20)': 'https://tronscan.org/#/transaction/',
 };
 
-export type TransactionType = 'deposit' | 'withdraw' | 'trade_profit' | 'trade_loss' | 'platform_credit' | 'cross_chain_in' | 'cross_chain_out' | 'fiat_buy' | 'fiat_sell';
+export type TransactionType =
+  | 'deposit'
+  | 'withdraw'
+  | 'trade_profit'
+  | 'trade_loss'
+  | 'platform_credit'
+  | 'cross_chain_in'
+  | 'cross_chain_out'
+  | 'fiat_buy'
+  | 'fiat_sell'
+  | 'transfer_to_spot'
+  | 'transfer_to_futures';
 export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'rejected';
+export type TransactionAccount = 'spot' | 'futures';
 
 export interface Transaction {
   id: string;
@@ -73,6 +85,7 @@ export interface Transaction {
   destChain?: string | null;
   sourceToken?: string | null;
   destToken?: string | null;
+  account?: TransactionAccount | null;
 }
 
 interface TransactionHistoryProps {
@@ -98,6 +111,8 @@ const TYPE_LABELS: Record<TransactionType, string> = {
   cross_chain_out: 'Cross-Chain Out',
   fiat_buy: 'Fiat Buy',
   fiat_sell: 'Fiat Sell',
+  transfer_to_spot: 'Transfer → Spot',
+  transfer_to_futures: 'Transfer → Futures',
 };
 
 const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: string }> = {
@@ -110,6 +125,13 @@ const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: str
   cross_chain_out: { label: 'Cross-Chain Out', className: 'border-orange-500/30 bg-orange-500/10 text-orange-400' },
   fiat_buy: { label: 'Fiat Buy', className: 'border-purple-500/30 bg-purple-500/10 text-purple-400' },
   fiat_sell: { label: 'Fiat Sell', className: 'border-pink-500/30 bg-pink-500/10 text-pink-400' },
+  transfer_to_spot: { label: 'Transfer', className: 'border-primary/30 bg-primary/10 text-primary' },
+  transfer_to_futures: { label: 'Transfer', className: 'border-primary/30 bg-primary/10 text-primary' },
+};
+
+const ACCOUNT_BADGE_CONFIG: Record<TransactionAccount, { label: string; className: string }> = {
+  spot: { label: 'SPOT', className: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
+  futures: { label: 'FUTURES', className: 'border-primary/30 bg-primary/10 text-primary' },
 };
 
 export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
