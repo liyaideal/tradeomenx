@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ interface CommonUISectionProps {
 }
 
 export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
+  const navigate = useNavigate();
   // Button Playground
   const [buttonVariant, setButtonVariant] = useState<"default" | "secondary" | "destructive" | "outline" | "ghost" | "link">("default");
   const [buttonSize, setButtonSize] = useState<"default" | "sm" | "lg" | "icon">("default");
@@ -1198,6 +1200,23 @@ toast("Default message");`}
                 <Button 
                   variant="outline" 
                   size="sm" 
+                  onClick={() => {
+                    toast.warning("Withdrawal restricted", {
+                      description:
+                        "Your account is under review. Only principal can be withdrawn; profits are temporarily locked. See the help center for details.",
+                      duration: 8000,
+                      action: {
+                        label: "Learn more",
+                        onClick: () => navigate("/faq"),
+                      },
+                    });
+                  }}
+                >
+                  With Help Link
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
                   onClick={() => toast.dismiss()}
                 >
                   Dismiss All
@@ -1228,6 +1247,18 @@ toast("Item deleted", {
 toast("Order placed", {
   description: "BTC/USDT • Yes • 0.5 BTC",
   duration: 5000,
+});
+
+
+// Toast with help-center link (account restriction, policy notices, etc.)
+toast.warning("Withdrawal restricted", {
+  description:
+    "Your account is under review. Only principal can be withdrawn; profits are temporarily locked.",
+  duration: 8000,
+  action: {
+    label: "Learn more",
+    onClick: () => navigate("/faq"),
+  },
 });
 
 // Dismiss all toasts
