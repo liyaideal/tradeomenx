@@ -938,6 +938,9 @@ export default function Wallet() {
           onOpenChange={setWithdrawDialogOpen} 
         />
 
+        {/* Transfer Dialog (Dual-Account 2b, desktop) */}
+        <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} initialDirection={transferInitDir} />
+
         {/* Add Address Dialog */}
         <AddAddressDialog open={addAddressOpen} onOpenChange={setAddAddressOpen} />
 
@@ -983,6 +986,17 @@ export default function Wallet() {
       <div className="px-4 py-6 space-y-4">
         <MaintenanceNoticeBanner />
         <BalanceCard />
+        <div className="grid grid-cols-3 gap-2">
+          <Button className="btn-trading-green h-11" onClick={() => setDepositDialogOpen(true)}>
+            <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
+          </Button>
+          <Button variant="outline" className="h-11" onClick={() => setWithdrawDialogOpen(true)}>
+            <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
+          </Button>
+          <Button variant="outline" className="h-11" onClick={() => openTransfer("to_spot")}>
+            <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
+          </Button>
+        </div>
         <H2eRewardsCard />
         <PendingConfirmations className="trading-card p-4" />
         <SavedAddressesList />
@@ -1013,6 +1027,9 @@ export default function Wallet() {
 
       {/* Add Address Dialog (shared component handles mobile/desktop) */}
       <AddAddressDialog open={addAddressOpen} onOpenChange={setAddAddressOpen} />
+
+      {/* Transfer Drawer (Dual-Account 2b, mobile) */}
+      <TransferDrawer open={transferOpen} onOpenChange={setTransferOpen} initialDirection={transferInitDir} />
 
       {/* Delete Confirmation - Mobile */}
       <MobileDrawer
