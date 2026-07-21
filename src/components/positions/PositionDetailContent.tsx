@@ -95,6 +95,70 @@ export const PositionDetailContent = ({
 
   const pnlColor = netPnl >= 0 ? "text-trading-green" : "text-trading-red";
 
+  // ---------------- SPOT branch ----------------
+  // Spot positions are single-leg, 1x, no funding, no liquidation.
+  // Use terminology already established in /spot: Shares / Avg cost /
+  // Current value + "Each winning share pays $1 at settlement".
+  const isSpot = position.productLine === "spot";
+  if (isSpot) {
+    const shares = position.sizeNum;
+    const avgCost = position.entryPriceNum;
+    const currentValue = shares * mark;
+    const costBasis = shares * avgCost;
+    const spotPnl = currentValue - costBasis;
+    const spotPnlPct = costBasis > 0 ? (spotPnl / costBasis) * 100 : 0;
+    const spotPnlColor = spotPnl >= 0 ? "text-trading-green" : "text-trading-red";
+    const outcome = getBinaryOutcome(position.option);
+    const label = position.displayOption ?? position.option;
+    const labelColor =
+      outcome === "yes" ? "text-trading-green"
+      : outcome === "no" ? "text-trading-red"
+      : "text-foreground";
+
+    return (
+      <TooltipProvider delayDuration={150}>
+        <div className="space-y-5">
+          <div className="flex items-center gap-2 text-sm">
+            <span className={cn("font-semibold truncate", labelColor)}>{label}</span>
+            <span className="text-xs text-muted-foreground shrink-0 uppercase tracking-wide">Spot</span>
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+              Unrealized PnL
+            </div>
+            <div className={cn("font-mono text-2xl font-semibold", spotPnlColor)}>
+              {spotPnl >= 0 ? "+" : "−"}${Math.abs(spotPnl).toFixed(2)}
+              <span className="text-base ml-2 opacity-80">
+                ({spotPnlPct >= 0 ? "+" : ""}{spotPnlPct.toFixed(2)}%)
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Position</div>
+            <div className="grid grid-cols-2 gap-y-1.5 text-xs">
+              <span className="text-muted-foreground">Shares</span>
+              <span className="font-mono text-right">{position.sizeDisplay}</span>
+              <span className="text-muted-foreground">Avg cost</span>
+              <span className="font-mono text-right">${avgCost.toFixed(4)}</span>
+              <span className="text-muted-foreground">Mark price</span>
+              <span className="font-mono text-right">${mark.toFixed(4)}</span>
+              <span className="text-muted-foreground">Current value</span>
+              <span className="font-mono text-right">${currentValue.toFixed(2)}</span>
+              <span className="text-muted-foreground">Cost basis</span>
+              <span className="font-mono text-right">${costBasis.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div className="rounded-md bg-muted/20 border border-border/60 p-2.5 text-[11px] text-muted-foreground">
+            Each winning share pays $1 at settlement. No leverage, no funding, no liquidation.
+          </div>
+        </div>
+      </TooltipProvider>
+    );
+  }
+
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-5">

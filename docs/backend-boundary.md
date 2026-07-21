@@ -118,6 +118,17 @@
 |---|---|---|
 | `api_keys`（label / key_prefix / tier / scopes[] / ip_whitelist[] / status / last_used_at / revoked_at） | 🟡 | 三层准入门槛（Read-only / Trading / Pro-MM，参见《创建 api 条件》）与 7 项 scope 语义（FD-API-04：`read_public` / `read_private` / `trade_order` / `trade_cancel` / `trade_conditional` / `ws_public` / `ws_private`）是需求；本表结构可参照。**红线**：本项目前端生成 `omx_live_<48hex>` 假 secret 并只落 `key_prefix`，仅演示；正式版 secret 必须由后端 HMAC/JWT 签发 + 哈希存储 + 永不回读，鉴权中间件负责 IP whitelist / scope 校验 / 2FA 二次验证 |
 
+## 2026-07-21 现货数据链路收敛（append-only 补录）
+
+| 函数 / 前端约束 | 类别 | 说明 |
+|---|---|---|
+| `redeem-position-voucher`（spot 拒绝） | 🟢 | Position vouchers 明确**仅限 futures**。函数在读取 event 时必须一并读 `product_lines`，若数组含 `'spot'` 立即返回 409 `Position vouchers cannot be redeemed on spot markets`。前端 `EventPickerList` 同步过滤 spot 事件（防御性双闸），文案与错误码对齐。 |
+| `useSupabaseOrders.fillOrder` / `cancelOrder`（product_line 分流） | 🟢 | 撮合/撤单必须按 `trades.product_line` 分流：`spot` 走 `fillSpotLimitOrder` / `cancelSpotLimitOrder`（SIGNED_YES_SHARE 净仓、撤单退预扣款）；`futures` 走原插入 positions 的路径。**红线**：任何路径不得给 spot 建 `side='short'` 的持仓（现货不支持做空），fill 路径显式抛错兜底。 |
+| `DesktopPositionsPanel`（futures-only 视图） | 🟢 | `/trade` 主面板的 Positions / Pending Orders / History 三个 Tab 均**只展示 `product_line !== 'spot'`** 的行；spot 行在 `/spot` 页面自己的 spot-scoped 面板中展示，两条产品线互不串。 |
+| `PositionDetailContent`（spot 分支） | 🟢 | Spot 持仓详情面板**必须隐藏** leverage / liquidation price / funding / est. close fee，改用 Shares / Avg cost / Current value / Cost basis + "Each winning share pays $1 at settlement" 提示。桌面 dialog 与移动 drawer 共用同一组件、行为一致。 |
+
+
+
 
 
 

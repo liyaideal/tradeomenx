@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useUserProfile } from "./useUserProfile";
+import { cancelSpotLimitOrder, fillSpotLimitOrder } from "@/services/tradingService";
 import { useEffect } from "react";
 
 export interface SupabaseOrder {
@@ -29,6 +31,7 @@ export interface SupabaseOrder {
 
 export const useSupabaseOrders = () => {
   const { user } = useAuth();
+  const { addBalance } = useUserProfile();
   const queryClient = useQueryClient();
 
   // Fetch pending orders (status = 'Pending' or 'Partial Filled')
@@ -81,15 +84,31 @@ export const useSupabaseOrders = () => {
     };
   }, [user?.id, queryClient]);
 
-  // Cancel order mutation
+  // Cancel order mutation — route SPOT orders through cancelSpotLimitOrder so
+  // reserved cash is refunded. Futures orders keep the plain status flip.
   const cancelOrderMutation = useMutation({
     mutationFn: async (orderId: string) => {
+      if (!user?.id) throw new Error("Not authenticated");
+      const { data: order, error: fetchError } = await supabase
+        .from("trades")
+        .select("id, product_line, status")
+        .eq("id", orderId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (fetchError) throw fetchError;
+      if (!order) throw new Error("Order not found");
+
+      if (order.product_line === "spot") {
+        const res = await cancelSpotLimitOrder(user.id, orderId);
+        if (res.refund > 0) await addBalance(res.refund);
+        return;
+      }
+
       const { error } = await supabase
         .from("trades")
         .update({ status: "Cancelled" })
         .eq("id", orderId)
-        .eq("user_id", user?.id);
-
+        .eq("user_id", user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -97,27 +116,38 @@ export const useSupabaseOrders = () => {
     },
   });
 
-  // Fill order mutation (for manual fill or when price matches)
+  // Fill order mutation — spot orders MUST route to fillSpotLimitOrder so the
+  // SIGNED_YES_SHARE net-position model + opposite-leg refund apply. Futures
+  // orders keep the legacy insert-a-position flow. Defensive: refuse to create
+  // a spot short position via any code path (spot is buy-only, no shorting).
   const fillOrderMutation = useMutation({
     mutationFn: async (orderId: string) => {
-      // First get the order details
+      if (!user?.id) throw new Error("Not authenticated");
       const { data: order, error: fetchError } = await supabase
         .from("trades")
         .select("*")
         .eq("id", orderId)
         .single();
-
       if (fetchError || !order) throw fetchError || new Error("Order not found");
 
-      // Update trade status to Filled
+      if (order.product_line === "spot") {
+        const positionSide = order.side === "buy" ? "long" : "short";
+        if (positionSide === "short") {
+          throw new Error("Spot positions cannot be short — short selling is not supported.");
+        }
+        const res = await fillSpotLimitOrder(user.id, orderId);
+        if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+        return;
+      }
+
+      // Futures fill — legacy path.
       const { error: updateError } = await supabase
         .from("trades")
         .update({ status: "Filled", closed_at: new Date().toISOString() })
         .eq("id", orderId);
-
       if (updateError) throw updateError;
 
-      // Create corresponding position
+      const positionSide = order.side === "buy" ? "long" : "short";
       const { error: positionError } = await supabase
         .from("positions")
         .insert({
@@ -125,19 +155,19 @@ export const useSupabaseOrders = () => {
           trade_id: orderId,
           event_name: order.event_name,
           option_label: order.option_label,
-          side: order.side === "buy" ? "long" : "short",
+          side: positionSide,
           entry_price: order.price,
           mark_price: order.price,
           size: order.quantity,
           margin: order.margin,
           leverage: order.leverage,
           status: "Open",
+          product_line: "futures",
           tp_value: order.tp_value,
           tp_mode: order.tp_mode,
           sl_value: order.sl_value,
           sl_mode: order.sl_mode,
         });
-
       if (positionError) throw positionError;
     },
     onSuccess: () => {

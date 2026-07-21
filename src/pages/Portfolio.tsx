@@ -4,6 +4,7 @@ import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight,
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
+import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useSettlements } from "@/hooks/useSettlements";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { EmptyState, LoadingState, ErrorState } from "@/components/states";
@@ -200,7 +201,27 @@ export default function Portfolio() {
     }
   };
 
+  // Lookup event_id from event_name so spot rows can deep-link into /spot?event=
+  // (positions table stores event_name, not event_id).
+  const { events: activeEventsForLookup } = useActiveEvents();
+  const eventIdByName = useMemo(() => {
+    const m = new Map<string, string>();
+    (activeEventsForLookup ?? []).forEach((e) => m.set(e.name, e.id));
+    return m;
+  }, [activeEventsForLookup]);
+
   const handlePositionAction = (index: number) => {
+    const target = positions[index];
+    // Spot positions live on /spot; deep-link when we can resolve the event id.
+    if (target?.productLine === "spot") {
+      const eid = eventIdByName.get(target.event);
+      if (eid) {
+        navigate(`/spot?event=${eid}`);
+        return;
+      }
+      navigate("/spot");
+      return;
+    }
     if (isMobile) {
       navigate("/trade/order", {
         state: { tab: "Positions", highlightPosition: index },

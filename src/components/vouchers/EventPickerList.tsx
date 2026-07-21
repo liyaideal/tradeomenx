@@ -53,7 +53,14 @@ interface EventPickerListProps {
 }
 
 export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerListProps) => {
-  const { events, isLoading } = useActiveEvents();
+  const { events: allEvents, isLoading } = useActiveEvents();
+  // Position vouchers are FUTURES-only — spot events must not be pickable
+  // (server also enforces this in redeem-position-voucher; see
+  // docs/backend-boundary.md).
+  const events = useMemo(
+    () => allEvents.filter((e: any) => !(e.product_lines?.includes("spot"))),
+    [allEvents],
+  );
   const [query, setQuery] = useState("");
   const [activeCats, setActiveCats] = useState<Set<string>>(new Set());
 

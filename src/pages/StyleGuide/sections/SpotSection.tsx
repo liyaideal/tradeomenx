@@ -7,6 +7,8 @@ import {
 } from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { SectionWrapper } from "../components/SectionWrapper";
+import { PositionDetailContent } from "@/components/positions/PositionDetailContent";
+import type { UnifiedPosition } from "@/hooks/usePositions";
 import { ArrowLeft, Star, Info } from "lucide-react";
 
 
@@ -235,7 +237,25 @@ export const SpotSection = ({ isMobile }: Props) => {
           ))}
         </div>
       </SectionWrapper>
+      {/* Position detail — spot vs futures side-by-side */}
+      <SectionWrapper
+        id="spot-position-detail"
+        title="Position detail — spot vs futures"
+        description="Both dialog (desktop) and drawer (mobile) render PositionDetailContent. Spot branch MUST hide leverage / liquidation / funding / est. close fee and switch to Shares / Avg cost / Current value / Cost basis + settlement footnote. Regression check: a spot row that still shows a Liq. price is a data-line bug — see docs/changelog/2026-07-21-spot-dataline-hardening.md."
+      >
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="rounded-lg border border-border/60 p-4 bg-background">
+            <div className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground mb-2">Spot</div>
+            <PositionDetailContent position={MOCK_SPOT_POSITION} />
+          </div>
+          <div className="rounded-lg border border-border/60 p-4 bg-background">
+            <div className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground mb-2">Futures (reference)</div>
+            <PositionDetailContent position={MOCK_FUTURES_POSITION} />
+          </div>
+        </div>
+      </SectionWrapper>
 
+      
       {/* Removed fields — anti-pattern reference */}
       <SectionWrapper
         id="spot-removed-fields"
@@ -259,6 +279,62 @@ export const SpotSection = ({ isMobile }: Props) => {
     </div>
   );
 };
+
+const MOCK_SPOT_POSITION: UnifiedPosition = {
+  id: "mock-spot",
+  _source: "local",
+  event: "TSLA · Up (Jul 15)",
+  option: "Up",
+  optionId: "mock-opt-spot",
+  displayOption: "Up",
+  side: "Yes",
+  type: "long",
+  size: "500",
+  sizeDisplay: "500",
+  sizeNum: 500,
+  entryPrice: "$0.42",
+  entryPriceNum: 0.42,
+  markPrice: "$0.47",
+  markPriceNum: 0.47,
+  margin: "$210.00",
+  marginNum: 210,
+  leverage: "1x",
+  pnl: "+$25.00",
+  pnlPercent: "+11.9%",
+  pnlNum: 25,
+  fundingAccrued: 0,
+  lastFundingAt: null,
+  createdAt: new Date().toISOString(),
+  productLine: "spot",
+} as unknown as UnifiedPosition;
+
+const MOCK_FUTURES_POSITION: UnifiedPosition = {
+  id: "mock-fut",
+  _source: "local",
+  event: "BTC ≥ $150k · Yes",
+  option: "Yes",
+  optionId: "mock-opt-fut",
+  displayOption: "Yes",
+  side: "Yes",
+  type: "long",
+  size: "1000",
+  sizeDisplay: "1,000",
+  sizeNum: 1000,
+  entryPrice: "$0.50",
+  entryPriceNum: 0.5,
+  markPrice: "$0.58",
+  markPriceNum: 0.58,
+  margin: "$50.00",
+  marginNum: 50,
+  leverage: "10x",
+  pnl: "+$80.00",
+  pnlPercent: "+160%",
+  pnlNum: 80,
+  fundingAccrued: 1.2,
+  lastFundingAt: new Date(Date.now() - 3 * 60_000).toISOString(),
+  createdAt: new Date().toISOString(),
+  productLine: "futures",
+} as unknown as UnifiedPosition;
 
 const SAMPLE_ORDERS = [
   { market: "TSLA · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.42", qty: "500", reserved: "$210.00", status: "Pending" },

@@ -41,14 +41,19 @@ import { PositionDetailDialog } from "@/components/positions/PositionDetailDialo
 
 export const DesktopPositionsPanel = () => {
   // Use unified hooks - Supabase for logged-in users, local for guests
-  const { orders, cancelOrder, fillOrder, isCancelling, isFilling } = useOrders();
-  const { positions, closePosition, partialClosePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
+  const { orders: allOrders, cancelOrder, fillOrder, isCancelling, isFilling } = useOrders();
+  const { positions: allPositions, closePosition, partialClosePosition, updatePositionTpSl, isClosing, isUpdatingTpSl, refetch: refetchPositions } = usePositions();
   const { addPosition } = usePositionsStore(); // For local orders->positions simulation only
   const { calculateRealtimePnL, formatPnL, formatMarkPrice } = useRealtimePositionsPnL();
   const { pendingAirdrops, activatedAirdrops } = useAirdropPositions();
   const sideLabelsLookup = useEventSideLabelsLookup();
 
-  
+  // /trade panel is FUTURES-only. Spot positions/orders render inside /spot
+  // 's own panel (see SpotTrading.tsx). Legacy rows with product_line=null
+  // are treated as futures.
+  const positions = allPositions.filter((p) => p.productLine !== "spot");
+  const orders = allOrders.filter((o) => (o.productLine ?? "futures") !== "spot");
+
   const [activeTab, setActiveTab] = useState("Positions");
   const [tpSlOpen, setTpSlOpen] = useState(false);
   const [editingPositionIndex, setEditingPositionIndex] = useState<number | null>(null);

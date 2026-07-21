@@ -61,11 +61,15 @@ Deno.serve(async (req) => {
     // 2) Fetch event + option, validate eligibility
     const { data: event } = await admin
       .from('events')
-      .select('id, name, is_resolved, end_date')
+      .select('id, name, is_resolved, end_date, product_lines')
       .eq('id', body.eventId)
       .maybeSingle()
     if (!event) return json({ error: 'Event not found' }, 404)
     if (event.is_resolved) return json({ error: 'Event already resolved' }, 409)
+    // Position vouchers are futures-only.
+    if (Array.isArray((event as any).product_lines) && (event as any).product_lines.includes('spot')) {
+      return json({ error: 'Position vouchers cannot be redeemed on spot markets' }, 409)
+    }
 
     const minMsToEnd = Number(voucher.min_hours_to_settlement) * 3600 * 1000
     if (!event.end_date || new Date(event.end_date).getTime() - Date.now() < minMsToEnd) {
