@@ -121,25 +121,3 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
     </Dialog>
   );
 };
-
-/**
- * Inline account rows for the first-run Deposit selection screen (before the AccountPicker
- * overlay becomes the crumb-edit affordance).
- */
-const AccountPickerInline = ({
-  selected,
-  onSelect,
-}: {
-  selected: AccountKind | null;
-  onSelect: (a: AccountKind) => void;
-}) => (
-  <AccountPicker
-    open
-    onOpenChange={() => {}}
-    selected={selected}
-    onSelect={onSelect}
-    title=""
-    // Render inline: reuse AccountPicker's rows body only. Since AccountPicker owns Dialog/Sheet
-    // shell, we instead inline via a lightweight duplication below to avoid nested Dialogs.
-  />
-);
