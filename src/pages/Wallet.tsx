@@ -758,7 +758,7 @@ export default function Wallet() {
               </button>
               <div className="text-sm font-medium text-muted-foreground">Futures Account</div>
               <div className="mt-2 font-mono text-2xl font-semibold">
-                ${formatEquityUsd(balance + trialBalance)}
+                ${formatEquityUsd(balance)}
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-lg bg-muted/20">
