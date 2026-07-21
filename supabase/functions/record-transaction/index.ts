@@ -1,5 +1,11 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+
+// Local CORS headers (npm:@supabase/supabase-js@2/cors does not exist as a subpath export)
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
 
 const ALLOWED_TYPES = new Set([
   "deposit",
@@ -11,6 +17,8 @@ const ALLOWED_TYPES = new Set([
   "fiat_sell",
   "trade_profit",
   "trade_loss",
+  "transfer_to_spot",
+  "transfer_to_futures",
 ]);
 
 const ALLOWED_STATUS = new Set([
@@ -20,6 +28,8 @@ const ALLOWED_STATUS = new Set([
   "failed",
   "rejected",
 ]);
+
+const ALLOWED_ACCOUNTS = new Set(["spot", "futures"]);
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -50,7 +60,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { type, amount, description, status, network, tx_hash } = body ?? {};
+    const { type, amount, description, status, network, tx_hash, account } = body ?? {};
 
     if (typeof type !== "string" || !ALLOWED_TYPES.has(type)) {
       return new Response(JSON.stringify({ error: "Invalid type" }), {
@@ -83,6 +93,7 @@ Deno.serve(async (req) => {
         status: finalStatus,
         network: typeof network === "string" ? network.slice(0, 100) : null,
         tx_hash: typeof tx_hash === "string" ? tx_hash.slice(0, 200) : null,
+        account: typeof account === "string" && ALLOWED_ACCOUNTS.has(account) ? account : null,
       })
       .select("id")
       .single();
