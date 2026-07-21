@@ -960,6 +960,7 @@ export type Database = {
           email: string | null
           id: string
           preferred_surface: string
+          spot_balance: number
           totp_enabled: boolean
           trial_balance: number | null
           updated_at: string
@@ -975,6 +976,7 @@ export type Database = {
           email?: string | null
           id?: string
           preferred_surface?: string
+          spot_balance?: number
           totp_enabled?: boolean
           trial_balance?: number | null
           updated_at?: string
@@ -990,6 +992,7 @@ export type Database = {
           email?: string | null
           id?: string
           preferred_surface?: string
+          spot_balance?: number
           totp_enabled?: boolean
           trial_balance?: number | null
           updated_at?: string
@@ -1310,6 +1313,7 @@ export type Database = {
       }
       transactions: {
         Row: {
+          account: string | null
           amount: number
           confirmations: number | null
           created_at: string
@@ -1324,6 +1328,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account?: string | null
           amount: number
           confirmations?: number | null
           created_at?: string
@@ -1338,6 +1343,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account?: string | null
           amount?: number
           confirmations?: number | null
           created_at?: string

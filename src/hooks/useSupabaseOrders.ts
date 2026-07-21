@@ -31,7 +31,7 @@ export interface SupabaseOrder {
 
 export const useSupabaseOrders = () => {
   const { user } = useAuth();
-  const { addBalance } = useUserProfile();
+  const { addSpotBalance } = useUserProfile();
   const queryClient = useQueryClient();
 
   // Fetch pending orders (status = 'Pending' or 'Partial Filled')
@@ -100,7 +100,7 @@ export const useSupabaseOrders = () => {
 
       if (order.product_line === "spot") {
         const res = await cancelSpotLimitOrder(user.id, orderId);
-        if (res.refund > 0) await addBalance(res.refund);
+        if (res.refund > 0) await addSpotBalance(res.refund);
         return;
       }
 
@@ -134,7 +134,7 @@ export const useSupabaseOrders = () => {
 
       if (order.product_line === "spot") {
         const res = await fillSpotLimitOrder(user.id, orderId);
-        if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+        if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
         return;
       }
 

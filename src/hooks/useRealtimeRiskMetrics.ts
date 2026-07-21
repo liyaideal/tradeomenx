@@ -26,7 +26,14 @@ export interface RiskMetrics {
  * Updates automatically as market prices change
  */
 export function useRealtimeRiskMetrics(): RiskMetrics {
-  const { positions } = useSupabasePositions();
+  const { positions: allPositions } = useSupabasePositions();
+  // Dual-account cutover (2026-07-21): risk model = futures-only. Spot
+  // positions are cash-collateralised out of spot_balance and never contribute
+  // to IM / MM / Risk Ratio / close-only gating.
+  const positions = useMemo(
+    () => allPositions.filter((p: any) => (p.product_line ?? "futures") !== "spot"),
+    [allPositions],
+  );
   const { balance } = useUserProfile();
   const { calculateRealtimePnL, isLoading: pnlLoading } = useRealtimePositionsPnL();
 
