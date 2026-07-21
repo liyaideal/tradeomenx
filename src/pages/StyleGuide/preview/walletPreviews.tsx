@@ -27,6 +27,8 @@ const DEMO = {
   trial: 45,
 };
 
+// MIRROR: must stay in sync with src/pages/Wallet.tsx desktop Band 1 + Band 2
+// (grep "Band 1 · Total Equity" in Wallet.tsx). 改生产必改此处。
 export const WalletEquityBandsPreview = () => {
   const [hidden, setHidden] = useState(false);
   const total = computeTotalEquity({
@@ -37,102 +39,108 @@ export const WalletEquityBandsPreview = () => {
   const mask = (n: number) => (hidden ? "••••••" : `$${formatEquityUsd(n)}`);
 
   return (
-    <div className="space-y-4">
-      {/* Band 1 · Total Equity 总览条 (hero gradient — §5 exception) */}
-      <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="min-w-0">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
-              EST. TOTAL EQUITY
+    <div className="space-y-6">
+      {/* Band 1 · Total Equity 总览条 (hero gradient — §5 exception, Wallet Total Equity Card) */}
+      <section className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-6">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-trading-green/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+              <WalletIcon className="w-6 h-6 text-primary" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono text-3xl font-bold whitespace-nowrap">{mask(total)}</span>
-              <button
-                type="button"
-                onClick={() => setHidden((h) => !h)}
-                className="text-muted-foreground hover:text-foreground"
-                aria-label="Toggle balance visibility"
-              >
-                {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              Spot + Futures + Trial Bonus · does not include unrealized PnL
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Est. Total Equity
+              </div>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="font-mono text-3xl font-bold whitespace-nowrap">{mask(total)}</span>
+                <button
+                  type="button"
+                  onClick={() => setHidden((h) => !h)}
+                  className="text-muted-foreground/70 hover:text-foreground transition-colors"
+                  aria-label="Toggle balance visibility"
+                >
+                  {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-1 font-mono">
+                Spot + Futures + Trial Bonus · does not include unrealized PnL
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button className="btn-trading-green h-9">
+          <div className="flex gap-2 lg:shrink-0">
+            <Button className="btn-trading-green h-11 px-5">
               <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
             </Button>
-            <Button variant="outline" className="h-9">
+            <Button variant="outline" className="h-11 px-5 border-border/50 hover:bg-muted/50 rounded-xl">
               <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
             </Button>
-            <Button variant="outline" className="h-9">
+            <Button variant="outline" className="h-11 px-5 border-border/50 hover:bg-muted/50 rounded-xl">
               <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
             </Button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Band 2 · Dual account cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* Spot */}
-        <div className="stats-card p-4 relative">
+      {/* Band 2 · Dual account cards (stats-card, no hero gradient). Account subtotal
+          only lives on Band 1 — do NOT reintroduce a Futures "Total" cell here. */}
+      <section className="grid grid-cols-2 gap-6">
+        {/* Spot Account — mirrors Wallet.tsx Spot card */}
+        <div className="stats-card p-6 relative">
           <button
-            className="absolute top-2 right-2 h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10"
-            aria-label="Transfer"
+            type="button"
+            className="absolute top-4 right-4 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
+            aria-label="Transfer to Spot"
+            title="Transfer"
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
           </button>
-          <div className="flex items-center gap-2 mb-3">
-            <WalletIcon className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">Spot Account</span>
-          </div>
-          <div className="mb-3">
-            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-              Available
+          <div className="text-sm font-medium text-muted-foreground">Spot Account</div>
+          <div className="mt-2 font-mono text-2xl font-semibold">${formatEquityUsd(DEMO.spot)}</div>
+          <div className="mt-4 grid grid-cols-1 gap-3">
+            <div className="p-3 rounded-lg bg-muted/20">
+              <div className="text-xs text-muted-foreground mb-1">Available (USDC)</div>
+              <div className="font-mono text-sm font-semibold">${formatEquityUsd(DEMO.spot)}</div>
             </div>
-            <div className="font-mono text-2xl font-semibold">${formatEquityUsd(DEMO.spot)}</div>
           </div>
-          <div className="p-3 rounded-lg bg-muted/20">
-            <div className="text-[11px] text-muted-foreground">Funds US-stock spot trading</div>
+          <div className="text-[10px] text-muted-foreground mt-3">
+            Funds US-stock spot trading. Not shared with Futures.
           </div>
         </div>
 
-        {/* Futures */}
-        <div className="stats-card p-4 relative">
+        {/* Futures Account — mirrors Wallet.tsx Futures card. No "Total" cell. */}
+        <div className="stats-card p-6 relative">
           <button
-            className="absolute top-2 right-2 h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10"
-            aria-label="Transfer"
+            type="button"
+            className="absolute top-4 right-4 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
+            aria-label="Transfer to Futures"
+            title="Transfer"
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
           </button>
-          <div className="flex items-center gap-2 mb-3">
-            <Landmark className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">Futures Account</span>
-          </div>
-          <div className="mb-3">
-            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-              Available
+          <div className="text-sm font-medium text-muted-foreground">Futures Account</div>
+          <div className="mt-2 font-mono text-2xl font-semibold">${formatEquityUsd(DEMO.balance)}</div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="p-3 rounded-lg bg-muted/20">
+              <div className="flex items-center gap-1 mb-1">
+                <span className="text-xs text-muted-foreground">Available</span>
+                <Info className="w-3 h-3 text-muted-foreground/60" />
+              </div>
+              <div className="font-mono text-sm font-semibold">${formatEquityUsd(DEMO.balance)}</div>
             </div>
-            <div className="font-mono text-2xl font-semibold">${formatEquityUsd(DEMO.balance)}</div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
             <div className="p-3 rounded-lg bg-trading-green/10 border border-trading-green/20">
-              <div className="text-[11px] text-muted-foreground mb-0.5">Trial Bonus</div>
+              <div className="flex items-center gap-1 mb-1">
+                <span className="text-xs text-muted-foreground">Trial Bonus</span>
+                <Info className="w-3 h-3 text-muted-foreground/60" />
+              </div>
               <div className="font-mono text-sm font-semibold text-trading-green">
                 ${formatEquityUsd(DEMO.trial)}
               </div>
             </div>
-            <div className="p-3 rounded-lg bg-muted/20">
-              <div className="text-[11px] text-muted-foreground mb-0.5">Total</div>
-              <div className="font-mono text-sm font-semibold">
-                ${formatEquityUsd(DEMO.balance + DEMO.trial)}
-              </div>
-            </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
