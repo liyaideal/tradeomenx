@@ -1020,7 +1020,16 @@ export default function Wallet() {
 
         {/* 单一入口三按钮 */}
         <div className="grid grid-cols-3 gap-2">
-          <Button className="btn-trading-green h-11" onClick={() => setDepositDialogOpen(true)}>
+          <Button className="btn-trading-green h-11" onClick={() => navigate("/deposit")}>
+            <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
+          </Button>
+          <Button variant="outline" className="h-11" onClick={() => navigate("/withdraw")}>
+            <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
+          </Button>
+          <Button variant="outline" className="h-11" onClick={() => openTransfer("to_spot")}>
+            <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
+          </Button>
+        </div>
             <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
           </Button>
           <Button variant="outline" className="h-11" onClick={() => setWithdrawDialogOpen(true)}>
