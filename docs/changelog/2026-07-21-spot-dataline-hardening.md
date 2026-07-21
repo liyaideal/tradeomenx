@@ -4,20 +4,22 @@
 
 ## 1. 功能目标
 
-前置事实：`product_line ∈ { 'futures', 'spot' }` 已经落到 `events` / `trades` / `positions` / `airdrop_positions` 四张表，`/spot` 也已上线。但主站主 /trade 面板、Portfolio、Position 详情、撤单/撮合、Position Voucher 领用仍走同一份共享代码 → 现货行会以合约口径渲染、撤单不退款、fill 会给现货建 short 仓、Voucher 能在现货事件上被消费。本轮全部修掉。
+前置事实：`product_line ∈ { 'futures', 'spot' }` 已经落到 `events` / `trades` / `positions` / `airdrop_positions` 四张表，`/spot` 也已上线。但主站 /trade 桌面（`src/pages/DesktopTrading.tsx`）与移动（`src/pages/TradingCharts.tsx` 图表页 + `src/pages/TradeOrder.tsx` 下单页）三处 Positions / Current Orders 面板、Portfolio、Position 详情、撤单/撮合、Position Voucher 领用仍走同一份共享代码 → 现货行会以合约口径渲染、撤单不退款、fill 会给现货建 short 仓、Voucher 能在现货事件上被消费。本轮全部修掉。
+
+> 注：仓库里还挂着一份 `src/components/DesktopPositionsPanel.tsx`，但 App.tsx 路由 `/trade` 桌面走 `DesktopTrading`、移动走 `TradingCharts`+`TradeOrder`，`DesktopPositionsPanel` 无任何挂载点，属死代码。收敛必须落到上述三个真实挂载点。
 
 拍板原则（不可回退）：
 
-- **持仓表按当前产品线展示**：`/trade` 只看 futures，`/spot` 只看 spot。禁止在同一张 Positions Tab 里混列两条产品线。
-- **现货不支持做空**：任何路径试图给 spot 建 `side='short'` 的仓位必须显式抛错。
+- **持仓表按当前产品线展示**：`/trade` 桌面 + 移动两端只看 futures，`/spot` 只看 spot。禁止在同一张 Positions Tab 里混列两条产品线。
+- **现货不允许净 short**：spot BUY 与减仓 SELL 均放行；`fillSpotLimitOrder` SELL 分支在会产生净 short 时拒绝，服务层是唯一净仓校验点。上层 hook 不再 blanket 抛错，避免误杀合法 reduce-only 挂单。
 - **现货不支持仓位券**：Position vouchers 只能在 futures 事件上被消费；前端过滤 + 服务端拒绝双闸。
 
 ## 2. 变更总览
 
 | # | 模块 | 类别 | 变更 |
 |---|---|---|---|
-| 1 | `DesktopPositionsPanel` | 视图过滤 | Positions / Pending Orders / History 三个 Tab 均只展示 `product_line !== 'spot'` 行 |
-| 2 | `useSupabaseOrders.fillOrder` | 分流 | spot 路由到 `fillSpotLimitOrder`；spot short 显式抛错 |
+| 1 | `DesktopTrading` / `TradingCharts` / `TradeOrder` | 视图过滤 | 三处 hook 边界过滤 `positions.filter(p => p.productLine !== 'spot')` 和 `orders.filter(o => (o.productLine ?? 'futures') !== 'spot')`；桌面 Positions / Current Orders 两个 Tab、移动 Positions / Orders 两个 Tab 均只见 futures |
+| 2 | `useSupabaseOrders.fillOrder` | 分流 | spot 路由到 `fillSpotLimitOrder`（BUY / 减仓 SELL 都放行）；净 short 由服务层拒绝 |
 | 3 | `useSupabaseOrders.cancelOrder` | 分流 | spot 路由到 `cancelSpotLimitOrder`，退回预扣款 |
 | 4 | `PositionDetailContent` | 分支渲染 | spot 分支隐藏 leverage / liq / funding / est. close fee，改用 Shares / Avg cost / Current value / Cost basis |
 | 5 | `Portfolio.handlePositionAction` | 路由 | 现货行 View → `/spot?event={event_id}`；futures 行保持原 `/trade` 深链 |
