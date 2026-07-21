@@ -151,7 +151,7 @@ export const LiteBuyPanel = ({
 
   const handleSubmit = async () => {
     if (!canSubmit || !selectedOpt) return;
-    setSubmitting (true);
+    setSubmitting(true);
     try {
       // Marketable-limit slippage guard: compare the quote the user saw
       // against the current best ask. Cap = quoted + $0.02. Anything worse
