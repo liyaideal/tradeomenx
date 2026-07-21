@@ -295,6 +295,21 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         onOpenChange={setVerifyOpen}
         onVerified={doSubmit}
       />
+
+      {/* From-account picker */}
+      <AccountPicker
+        open={accountPickerOpen}
+        onOpenChange={setAccountPickerOpen}
+        selected={effectiveAccount}
+        onSelect={(a) => {
+          setWithdrawAccount(a);
+          setAccountPickerOpen(false);
+          // Clear amount to avoid stale validation against the previous balance.
+          setAmount('');
+          setError(null);
+        }}
+        title="From account"
+      />
     </div>
   );
 };
