@@ -449,7 +449,7 @@ export default function SpotTrading() {
   const { isWatched, toggle: toggleWatch } = useWatchlist();
 
   // ---- Slider ↔ amount ----
-  const available = totalBalance;
+  const available = spotBalance;
   useEffect(() => {
     // Keep slider in sync when user types amount manually
     const pct = available > 0 ? Math.min(100, (amt / available) * 100) : 0;
@@ -485,7 +485,7 @@ export default function SpotTrading() {
     // 技术对接 §7: 净仓方向校验 — sell 只在持有同侧净仓时允许。
     if (side === "sell" && qty > heldQty + 1e-6)
       return toast.error("You don't hold enough of this outcome to sell. Buy the opposite side to reduce instead.");
-    if (side === "buy" && amt > totalBalance) return toast.error("Insufficient balance.");
+    if (side === "buy" && amt > spotBalance) return toast.error("Insufficient balance.");
 
     setSubmitting(true);
     try {
@@ -499,7 +499,7 @@ export default function SpotTrading() {
           price: effectivePrice,
           quantity: qty,
         });
-        if (side === "buy") await deductBalance(effectivePrice * qty);
+        if (side === "buy") await deductSpotBalance(effectivePrice * qty);
         toast.success(
           side === "buy"
             ? `Limit buy placed · $${(effectivePrice * qty).toFixed(2)} reserved`
@@ -514,8 +514,8 @@ export default function SpotTrading() {
           price: effectivePrice,
           quantity: qty,
         });
-        if (res.balanceDelta < 0) await deductBalance(-res.balanceDelta);
-        else if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+        if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
+        else if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
         if (side === "sell") {
           toast.success("Spot sell filled", {
             description:
@@ -542,7 +542,7 @@ export default function SpotTrading() {
     if (!user || !o.id) return;
     try {
       const res = await cancelSpotLimitOrder(user.id, o.id);
-      if (res.refund > 0) await addBalance(res.refund);
+      if (res.refund > 0) await addSpotBalance(res.refund);
       toast.success(res.refund > 0 ? `Order cancelled · $${res.refund.toFixed(2)} refunded` : "Order cancelled");
       refetchOrders();
     } catch (err: any) {
@@ -570,7 +570,7 @@ export default function SpotTrading() {
       (async () => {
         try {
           const res = await fillSpotLimitOrder(user.id, o.id!);
-          if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+          if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
           if (res.intent !== "noop") {
             toast.success(
               o.type === "buy"
@@ -587,7 +587,7 @@ export default function SpotTrading() {
         }
       })();
     }
-  }, [yesLive, noLive, spotOrders, user, yesOpt, addBalance, refetchPositions, refetchOrders]);
+  }, [yesLive, noLive, spotOrders, user, yesOpt, addSpotBalance, refetchPositions, refetchOrders]);
 
   // ---- Closing-soon hint (display only, does NOT block orders). ----
   // Prefer events.freeze_time; fall back to close − 5min via helper.
@@ -615,7 +615,7 @@ export default function SpotTrading() {
       (async () => {
         try {
           const res = await cancelSpotLimitOrder(user.id, o.id!);
-          if (res.refund > 0) await addBalance(res.refund);
+          if (res.refund > 0) await addSpotBalance(res.refund);
           setFrozenCancelledIds((prev) => {
             const next = new Set(prev);
             next.add(o.id!);
@@ -629,7 +629,7 @@ export default function SpotTrading() {
         }
       })();
     }
-  }, [shouldFreeze, spotOrders, user, addBalance, refetchOrders]);
+  }, [shouldFreeze, spotOrders, user, addSpotBalance, refetchOrders]);
 
 
 
@@ -886,7 +886,7 @@ export default function SpotTrading() {
         {trialBalance > 0 && (
           <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
             <Info className="h-3 w-3" />
-            Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${totalBalance.toFixed(2)}
+            Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${spotBalance.toFixed(2)}
           </div>
         )}
         {settleEtOnly && (
@@ -947,7 +947,7 @@ export default function SpotTrading() {
       </div>
       <div className="px-4 py-3 space-y-2 text-xs">
         <Row label="Equity">
-          <span className="font-mono text-foreground">${totalBalance.toFixed(2)}</span>
+          <span className="font-mono text-foreground">${spotBalance.toFixed(2)}</span>
         </Row>
         <Row label="Available (USDC)">
           <span className="font-mono">${balance.toFixed(2)}</span>
