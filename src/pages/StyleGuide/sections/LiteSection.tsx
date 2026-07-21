@@ -229,10 +229,10 @@ export const LiteSection = (_: { isMobile: boolean }) => {
             {panelStates.map((s) => (
               <div key={s}>
                 <div className="mb-2 text-xs font-medium text-muted-foreground">
-                  {STATE_META[s].label}
+                  {PANEL_LABELS[s]}
                 </div>
                 <DualFrame>
-                  {(mobile) => <BuyPanelDemo state={s} isMobile={mobile} />}
+                  {() => <PanelDemo state={s} />}
                 </DualFrame>
               </div>
             ))}
