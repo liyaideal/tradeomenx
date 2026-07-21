@@ -31,7 +31,7 @@ export interface SupabaseOrder {
 
 export const useSupabaseOrders = () => {
   const { user } = useAuth();
-  const { addBalance } = useUserProfile();
+  const { addBalance, addSpotBalance } = useUserProfile();
   const queryClient = useQueryClient();
 
   // Fetch pending orders (status = 'Pending' or 'Partial Filled')
