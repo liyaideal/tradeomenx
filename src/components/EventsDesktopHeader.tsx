@@ -63,7 +63,9 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const location = useLocation();
   const [language, setLanguage] = useState("EN");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const { balance, trialBalance, user, username, avatarUrl } = useUserProfile();
+  const { balance, trialBalance, spotBalance, user, username, avatarUrl } = useUserProfile();
+  const [transferOpen, setTransferOpen] = useState(false);
+  const totalEquity = computeTotalEquity({ spotBalance, balance, trialBalance });
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -129,20 +131,56 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
           {user ? (
             <>
-              <button
-                onClick={() => navigate("/wallet")}
-                className="flex min-w-0 items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5 xl:px-4"
-              >
-                <span className="hidden text-sm text-muted-foreground xl:inline">
-                  Equity:
-                </span>
-                <span className="font-mono text-sm font-bold text-trading-green">
-                  ${(balance + trialBalance).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </button>
+              <HoverCard openDelay={120} closeDelay={100}>
+                <HoverCardTrigger asChild>
+                  <button
+                    onClick={() => navigate("/wallet")}
+                    className="flex min-w-0 items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5 xl:px-4"
+                  >
+                    <span className="hidden text-sm text-muted-foreground xl:inline">
+                      Equity:
+                    </span>
+                    <span className="font-mono text-sm font-bold text-trading-green">
+                      ${formatEquityUsd(totalEquity)}
+                    </span>
+                  </button>
+                </HoverCardTrigger>
+                <HoverCardContent align="end" className="w-[260px] p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
+                    Total Equity
+                  </div>
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Spot Account</span>
+                      <span className="font-mono">${formatEquityUsd(spotBalance)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Futures Account</span>
+                      <span className="font-mono">${formatEquityUsd(balance)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Trial Bonus</span>
+                      <span className="font-mono text-trading-green">${formatEquityUsd(trialBalance)}</span>
+                    </div>
+                  </div>
+                  <div className="my-2 border-t border-border/50" />
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium">Total Equity</span>
+                    <span className="font-mono font-bold">${formatEquityUsd(totalEquity)}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setTransferOpen(true);
+                    }}
+                    className="mt-3 flex w-full items-center justify-center gap-1 rounded-md py-1.5 text-xs text-primary hover:bg-primary/10 transition-colors"
+                  >
+                    <ArrowLeftRight className="w-3 h-3" /> Transfer ›
+                  </button>
+                </HoverCardContent>
+              </HoverCard>
+              <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
