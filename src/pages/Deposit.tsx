@@ -110,13 +110,13 @@ export default function Deposit() {
 
             <main className="flex-1 overflow-auto pb-24">
               <TabsContent value="wallet" className="mt-0">
-                <WalletDeposit />
+                <WalletDeposit account={account} />
               </TabsContent>
               <TabsContent value="crosschain" className="mt-0">
-                <CrossChainDeposit />
+                <CrossChainDeposit account={account} />
               </TabsContent>
               <TabsContent value="fiat" className="mt-0">
-                <BuyWithFiat />
+                <BuyWithFiat account={account} />
               </TabsContent>
             </main>
           </Tabs>

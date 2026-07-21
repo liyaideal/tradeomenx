@@ -97,13 +97,13 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
 
               <div className="flex-1 overflow-y-auto">
                 <TabsContent value="wallet" className="mt-0">
-                  <WalletDeposit onDone={handleClose} />
+                  <WalletDeposit onDone={handleClose} account={account} />
                 </TabsContent>
                 <TabsContent value="crosschain" className="mt-0">
-                  <CrossChainDeposit />
+                  <CrossChainDeposit account={account} />
                 </TabsContent>
                 <TabsContent value="fiat" className="mt-0">
-                  <BuyWithFiat />
+                  <BuyWithFiat account={account} />
                 </TabsContent>
               </div>
             </Tabs>

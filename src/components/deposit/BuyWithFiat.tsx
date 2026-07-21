@@ -37,7 +37,12 @@ const DEFAULT_LIMIT = { min: 10, max: 10000 };
 
 type Step = 'form' | 'checkout' | 'tracking' | 'result';
 
-export const BuyWithFiat = () => {
+interface BuyWithFiatProps {
+  /** Target account — forward to record-transaction if this ever credits balance. */
+  account?: 'spot' | 'futures';
+}
+
+export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<Step>('form');
   const [currency, setCurrency] = useState('USD');

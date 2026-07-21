@@ -48,9 +48,18 @@ const CHECKLIST_ITEMS = [
 
 interface WalletDepositProps {
   onDone?: () => void;
+  /**
+   * Target account for the incoming deposit. Must be forwarded to any
+   * `record-transaction` call so the tx row lands with the correct
+   * `account` field (dual-account 2b). Selection lives in the parent
+   * ("Deposit to" pre-screen); this sub-panel is a demo address display
+   * today and doesn't itself credit balance, but the prop is threaded so
+   * any future real credit path is account-safe by construction.
+   */
+  account?: 'spot' | 'futures';
 }
 
-export const WalletDeposit = ({ onDone }: WalletDepositProps) => {
+export const WalletDeposit = ({ onDone, account: _account }: WalletDepositProps) => {
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
   const [copied, setCopied] = useState(false);

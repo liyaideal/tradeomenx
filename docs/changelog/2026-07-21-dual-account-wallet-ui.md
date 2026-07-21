@@ -113,7 +113,44 @@ desktop + mobile 逐一对应。
 - `.lovable/memory/design/mobile-header-preset-d.md`（Total Equity 口径同步）
 - `docs/changelog/INDEX.md` / `STATUS.md`
 
-## 11. 明确不做（后续轮）
+## 11. Batch 2 验收追加修复（本轮同批交付）
+
+### 11.1 [P0 资金红线] Futures 提现禁止扣 Trial Bonus
+
+`useWithdraw.submitWithdrawal` futures 侧此前调用 `deductBalance(amount)`——该函数遵循"Trial 优先、混合扣"语义，会在 `balance < amount` 时先扣 `trial_balance`，等于**把 Trial Bonus 提走**，直接违反"Trial 不可提现、提现只动 Available"的 2b 拍板口径（余额校验用 `balance` 是对的，扣款路径错了）。
+
+修复：
+- `useUserProfile` 新增 `deductAvailableOnly(amount)`——**仅**动 `profiles.balance`，`balance < amount` 直接 false，绝不触碰 `trial_balance`
+- `useWithdraw` futures 分支切到 `deductAvailableOnly`，注释锁死"Never call deductBalance here"
+
+**QA 用例**：Trial `$10` + Available `$100` → 提现 `$50` 完成后 `trial_balance` 必须仍为 `$10`（此前会被清零到 $0，Available 变 $60）。
+
+### 11.2 充值三 Tab account 贯通
+
+`account` 从 `DepositDialog` / `pages/Deposit.tsx` 的 `useAccountPreference('deposit')` 下发到三个子面板：
+- `WalletDeposit` / `CrossChainDeposit` / `BuyWithFiat` 新增 `account?: 'spot' \| 'futures'` prop
+- 三个 sub-panel 目前均为演示 UI（不真实入账），prop 以 `_account` 接收 + JSDoc 锁死："如接入真实入账路径，必须传给 `record-transaction` 的 `account` 字段"
+- `record-transaction` EF 服务端已支持 `account` 字段（2b 主 batch），前端下水管本轮打通，账户选择不再是纯 UI 状态
+
+### 11.3 `record-transaction` 修复的历史影响
+
+此前 `record-transaction/index.ts` `import` 的 cors 路径不存在，函数 boot 即失败——意味着**在生产/预发布环境提现流水从未真正落库**（客户端 mutation 会收到 500 并抛错，扣款理论上不会发生，但如果曾以 mock 数据绕过或旁路手动补，可能有静默漂移）。本轮修复后首次可用。
+
+**QA 需全链路重验**：
+- Futures 提现 → 校验 `transactions` 有新 row、`account='futures'`、`type='withdraw'`、`status='processing'`
+- Spot 提现 → 同上但 `account='spot'`
+- Withdraw `deductAvailableOnly` 结合 §11.1 用例复验 Trial 保留
+
+## 12. 涉及文件（append 于 §10）
+
+**编辑**
+- `src/hooks/useUserProfile.ts`（新增 `deductAvailableOnly` 导出）
+- `src/hooks/useWithdraw.ts`（futures 侧扣款切 `deductAvailableOnly`）
+- `src/components/deposit/WalletDeposit.tsx` · `BuyWithFiat.tsx` · `CrossChainDeposit.tsx`（新增 `account` prop）
+- `src/components/deposit/DepositDialog.tsx` · `src/pages/Deposit.tsx`（下发 `account`）
+
+## 13. 明确不做（后续轮）
 
 - Sports 子站余额源接入
 - 现货结算入账演示流（轮次 4，目标账户已在 2a 文档写死 = `spot_balance`）
+
