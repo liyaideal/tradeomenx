@@ -103,6 +103,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         amount,
         toAddress: selectedAddress,
         network: selectedWallet?.network,
+        account: effectiveAccount,
       });
       toast.success('Withdrawal request submitted');
     } catch (err: any) {
