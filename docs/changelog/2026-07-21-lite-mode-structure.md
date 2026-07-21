@@ -78,23 +78,26 @@ Round A 覆盖：
 
 ### 下单契约
 
-- **Marketable limit 封装**：limit = best ask + $0.02 滑点上限；调 `executeSpotTrade`（`// DEMO-STATE`：正式版由撮合引擎执行滑点保护）
-- 点击到提交之间若 mid 漂移 > $0.02 → 弹 `Price moved, try again`，不下单
-- **仅买入**：无 Sell / 无限价 / 无订单簿 / 无深度（平仓走共享 Portfolio）
-- 状态照搬 Pro 现货：`isOrderingBlocked` 判断可下单；`FROZEN` / `SETTLED` 等禁用按钮并显示 `getBlockedReason` 文案
-- 落库契约：`product_line='spot'`、`leverage=1`、`side='long'`；Trial 余额优先扣（由 `executeSpotTrade` 内部逻辑保证）
+- **Marketable limit 封装**：报价（用户看到的价格）在切边 / 换事件时快照为 `quotedPrice`；提交时读同一模拟盘口（`useAnimatedOrderBook`，与 Pro `/spot` `book.asks[0]` 同源）的 `bestAsk`。`limitPrice = quotedPrice + $0.02`；`bestAsk > limitPrice` → 报 `Price moved, try again`，不下单；否则以 `bestAsk` 作为成交价调 `executeSpotTrade`（`// DEMO-STATE`：正式版由撮合引擎执行滑点保护）。
+- **余额扣减**：成交后按 `res.balanceDelta` 走 `useUserProfile.deductBalance`（Trial-first 逻辑封装在 hook 内），与 Pro `/spot` L499 / L514-515 同源。
+- **仅买入**：无 Sell / 无限价 / 无订单簿 / 无深度（平仓走共享 Portfolio）。
+- **状态门控**：`isOrderingBlocked(lifecycle) || isPastFreeze(freeze_time, end_date)` —— DB lifecycle 未刷但已过 freeze_time 的事件同样禁用下单，`FROZEN` / `SETTLED` 等文案来自 `getBlockedReason`。
+- 落库契约：`product_line='spot'`、`leverage=1`、`side='long'`；Trial 余额优先扣（由 `executeSpotTrade` + `deductBalance` 内部逻辑保证）。
+- **side_labels fallback**：无 `side_labels` 时 fallback 为 `Yes / No`；`Up / Not Up` 仅在事件自带 `side_labels` 时出现（Stocks 事件）。
 
 ### 状态穷举（Style Guide 已交付双端）
+
+Style Guide 直接渲染真实 `LiteBuyPanel`（`demoLifecycle` / `demoBalance` / `demoError` props），不再手抄静态副本。
 
 | # | 状态 | 触发 |
 |---|---|---|
 | 1 | Tradeable | `TRADING`，金额有效 |
 | 2 | Closing soon | 距 freeze < 5min |
-| 3 | Frozen | `FROZEN` lifecycle |
+| 3 | Frozen | `FROZEN` lifecycle 或 `isPastFreeze` 命中 |
 | 4 | Settled | `SETTLED` lifecycle |
 | 5 | Amount = 0 error | 空输入或 ≤ 0 |
 | 6 | Insufficient balance | 金额 > 可用权益 |
-| 7 | Slippage failed | 点击到提交 mid 漂移 > $0.02 |
+| 7 | Slippage failed | 提交时 `bestAsk > quotedPrice + $0.02` |
 
 ## 8. Style Guide
 
