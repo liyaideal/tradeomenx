@@ -134,7 +134,7 @@ export const useSupabaseOrders = () => {
 
       if (order.product_line === "spot") {
         const res = await fillSpotLimitOrder(user.id, orderId);
-        if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
+        if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
         return;
       }
 
