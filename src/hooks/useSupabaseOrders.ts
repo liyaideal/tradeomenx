@@ -100,7 +100,7 @@ export const useSupabaseOrders = () => {
 
       if (order.product_line === "spot") {
         const res = await cancelSpotLimitOrder(user.id, orderId);
-        if (res.refund > 0) await addBalance(res.refund);
+        if (res.refund > 0) await addSpotBalance(res.refund);
         return;
       }
 
