@@ -66,6 +66,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const [language, setLanguage] = useState("EN");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, trialBalance, user, username, avatarUrl } = useUserProfile();
+  const { surface, toggleSurface } = useSurface();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
