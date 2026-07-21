@@ -32,11 +32,11 @@
 | L5 | `/events` Lite 分支渲染 `LiteEvents` | `App.tsx`, `pages/lite/LiteEvents.tsx` | ⬜ | 无 Futures\|Spot 切换 | |
 | L6 | `/spot` Lite 分支渲染 `LiteSpotTrade` | `App.tsx`, `pages/lite/LiteSpotTrade.tsx` | ⬜ | URL 可分享 | |
 | L7 | 板块 rail：Sports 外链 + 4 sector 动态生成 | `components/lite/SectorRail.tsx` | ⬜ | 无事件的 sector 不出现；Sports 常驻 | |
-| L8 | Lite 事件卡（含 stocks 当日开奖徽标）| `components/lite/LiteEventCard.tsx` | ⬜ | Stocks 徽标读 `freeze_time`，勿硬编码 16:00 | |
-| L9 | Lite 快速买入面板 = marketable limit 封装 | `components/lite/LiteBuyPanel.tsx` | ⬜ | mid 漂移 > $0.02 报 `Price moved, try again` | |
-| L10 | 落库契约：`product_line='spot'`、`leverage=1`、`side='long'`、Trial 优先 | 走 `executeSpotTrade` | ⬜ | 复用现有逻辑，无新写入路径 | |
+| L8 | Lite 事件卡（含 stocks 当日开奖徽标）| `components/lite/LiteEventCard.tsx` | ⬜ | Stocks 徽标读 `freeze_time`，勿硬编码 16:00；无 `side_labels` fallback = `Yes/No` | |
+| L9 | Lite 快速买入 = marketable limit：`quotedPrice` 快照 + 模拟盘口 `bestAsk`（与 Pro `book.asks[0]` 同源）+ $0.02 上限 | `components/lite/LiteBuyPanel.tsx` | ⬜ | `bestAsk > quotedPrice + $0.02` 报 `Price moved, try again`；下单门控并入 `isPastFreeze` | |
+| L10 | 落库契约：`product_line='spot'`、`leverage=1`、`side='long'`、Trial 优先；成交后按 `balanceDelta` 调 `deductBalance` | `executeSpotTrade` + `useUserProfile.deductBalance` | ⬜ | 与 Pro `/spot` L499/L514-515 同源，成交后可用权益按投入金额下降 | |
 | L11 | 全 Lite surface 禁用词校验 | 手工 QA | ⬜ | Margin/Liquidation/Funding/Leverage/Long/Short/Spot/Futures 均不出现 | |
-| L12 | `/style-guide` Lite section 双端 7 态穷举 | `StyleGuide/sections/LiteSection.tsx` | ⬜ | mobile + desktop 均含全部状态 | |
+| L12 | `/style-guide` Lite section 双端 7 态：直接渲染真实 `LiteBuyPanel` | `StyleGuide/sections/LiteSection.tsx` | ⬜ | 7 态通过 `demoLifecycle/demoBalance/demoError` props 驱动，无手抄副本 | |
 
 
 

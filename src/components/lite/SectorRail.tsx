@@ -7,7 +7,11 @@
 // ============================================================
 import { ExternalLink, TrendingUp, LineChart, Coins, Landmark, Film } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SPORTS_LINK } from "@/lib/worldCup";
+import { SPORTS_URL } from "@/lib/worldCup";
+
+// Lite rail uses its own tracking source; SPORTS_LINK from worldCup is
+// scoped to the WC teaser panel (`src=wc-panel`).
+const LITE_SPORTS_LINK = `${SPORTS_URL}?ref=omenx-main&src=lite-rail`;
 import type { EventWithOptions } from "@/hooks/useActiveEvents";
 
 export type SectorKey = "stocks" | "crypto" | "macro" | "entertainment";
@@ -88,7 +92,7 @@ export const SectorRail = ({
         {/* Sports — always visible external launcher */}
         <button
           onClick={() =>
-            window.open(SPORTS_LINK, "_blank", "noopener,noreferrer")
+            window.open(LITE_SPORTS_LINK, "_blank", "noopener,noreferrer")
           }
           className="group flex w-[220px] flex-shrink-0 flex-col justify-between rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/15 to-amber-600/5 p-3 text-left transition-all hover:border-amber-500/60"
         >

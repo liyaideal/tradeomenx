@@ -1,24 +1,28 @@
 // ============================================================
 // LiteBuyPanel — Lite Stocks quick-buy panel.
-// Structure (top→bottom): event name + status badge + dual-tz countdown →
-//   simplified price ("Up 57%") → side buttons (Up / Not Up via side_labels)
+// Structure (top→bottom): event name + status badge → simplified price
+//   ("Up 57%") → side buttons (Up / Not Up via side_labels, fallback Yes/No)
 //   → amount input (USDC, quick $10/$25/$50/$100) → 3-line summary →
 //   big "Buy Up ~$0.57" button.
-// - Product form is spot; wraps executeSpotTrade as a *marketable limit* —
-//   limit = best ask + $0.02 slippage cap. If the mid drifts more than the
-//   cap between click and submit, we abort with "Price moved, try again"
-//   without touching the book.
+// - Product form is spot; wraps executeSpotTrade as a *marketable limit*.
+//   Fill price sourced from the same simulated book as Pro /spot
+//   (useAnimatedOrderBook → book.asks[0]). If the current best ask drifts
+//   more than the $0.02 slippage cap above the *quoted* price the user saw,
+//   we abort with "Price moved, try again" without touching the book.
 //   // DEMO-STATE: quick buy = marketable limit wrapper on the front-end.
 //   // Production撮合 will enforce slippage protection natively.
 // - Only Buy. No Sell / limit / order book / depth. Position close routes
 //   through the shared Portfolio flow (out of scope this round).
-// - Blocked lifecycles disable submit with copy from usStockSessions.
+// - Blocked lifecycles disable submit with copy from usStockSessions; the
+//   panel also honours freeze_time via isPastFreeze so a stale DB lifecycle
+//   never lets a post-freeze order through.
 // - Ledger contract: product_line='spot', leverage=1, side='long'; trial
-//   balance consumed first via existing executeSpotTrade path.
+//   balance is consumed first via useUserProfile.deductBalance (Trial-first
+//   priority lives inside that hook, mirroring Pro /spot L499/L514-515).
 // - Forbidden vocabulary (enforced upstream in Lite surface): Margin /
 //   Liquidation / Funding / Leverage / Long / Short.
 // ============================================================
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -27,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
+import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
 import { executeSpotTrade } from "@/services/tradingService";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
@@ -34,6 +39,7 @@ import {
   getLifecycleBadge,
   isOrderingBlocked,
   getBlockedReason,
+  isPastFreeze,
 } from "@/lib/usStockSessions";
 import type { EventWithOptions } from "@/hooks/useActiveEvents";
 
@@ -61,7 +67,7 @@ export const LiteBuyPanel = ({
   demoError,
 }: LiteBuyPanelProps) => {
   const { user } = useAuth();
-  const { balance, trialBalance, refetchProfile } = useUserProfile();
+  const { balance, trialBalance, deductBalance, refetchProfile } = useUserProfile();
   const pricesCtx = useRealtimePricesOptional();
 
   const [side, setSide] = useState<Side>("yes");
@@ -69,8 +75,10 @@ export const LiteBuyPanel = ({
   const [submitting, setSubmitting] = useState(false);
 
   const sideLabels = parseSideLabels(event.side_labels);
-  const yesLabel = sideLabels?.yes ?? "Up";
-  const noLabel = sideLabels?.no ?? "Not Up";
+  // Fallback is Yes/No — Up/Not Up copy only appears when the event's own
+  // side_labels provide it (Stocks). Crypto/macro must NOT surface Up wording.
+  const yesLabel = sideLabels?.yes ?? "Yes";
+  const noLabel = sideLabels?.no ?? "No";
 
   const yesOpt =
     event.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event.options[0];
@@ -90,17 +98,41 @@ export const LiteBuyPanel = ({
   const selectedLabel = side === "yes" ? yesLabel : noLabel;
   const selectedPrice = side === "yes" ? yesPrice : noPrice;
 
+  // Simulated best ask — same source as Pro /spot's DesktopOrderBook. We
+  // keep depth minimal since Lite never renders the book itself.
+  const book = useAnimatedOrderBook({ basePrice: selectedPrice, depth: 3 });
+  const bestAsk = Math.min(0.99, Math.max(0.01, parseFloat(book.asks[0]?.price ?? String(selectedPrice)) || selectedPrice));
+
+  // Quoted price snapshot — captured whenever the user's *intent* changes
+  // (side flip / option change / event switch). At submit time we diff this
+  // against the current best ask; a drift > SLIPPAGE_CAP aborts the order.
+  const [quotedPrice, setQuotedPrice] = useState<number>(selectedPrice);
+  const quotedForRef = useRef<string | null>(selectedOpt?.id ?? null);
+  useEffect(() => {
+    if (!selectedOpt) return;
+    if (quotedForRef.current !== selectedOpt.id) {
+      quotedForRef.current = selectedOpt.id;
+      setQuotedPrice(selectedPrice);
+    }
+  }, [selectedOpt, selectedPrice]);
+
   const dbLifecycle = demoLifecycle || event.lifecycle_status || "TRADING";
   const lifecycle = getDisplayLifecycle(dbLifecycle);
   const badge = getLifecycleBadge(lifecycle);
-  const blocked = isOrderingBlocked(dbLifecycle);
-  const blockedReason = getBlockedReason(dbLifecycle);
+  const freezeIso = (event as { freeze_time?: string | null }).freeze_time ?? null;
+  const freezeAt = freezeIso ? new Date(freezeIso) : null;
+  const endDate = event.end_date ? new Date(event.end_date) : null;
+  const pastFreeze = isPastFreeze(freezeAt, endDate);
+  const blocked = isOrderingBlocked(dbLifecycle) || pastFreeze;
+  const blockedReason = pastFreeze
+    ? "Trading closed"
+    : getBlockedReason(dbLifecycle);
 
   const amount = Number(amountStr) || 0;
   const totalEquity = (demoBalance ?? balance) + trialBalance;
 
   // Derived summary (payout language contract, verbatim per D8).
-  const shares = selectedPrice > 0 ? amount / selectedPrice : 0;
+  const shares = quotedPrice > 0 ? amount / quotedPrice : 0;
   const maxLoss = amount;
   const winPayout = shares * 1; // each share settles at $1 if right
   const potentialProfit = Math.max(0, winPayout - amount);
@@ -121,19 +153,16 @@ export const LiteBuyPanel = ({
     if (!canSubmit || !selectedOpt) return;
     setSubmitting(true);
     try {
-      // Marketable limit: cap at best ask + slippage. Re-read mid immediately
-      // before submit; abort if it drifted beyond cap.
-      const priceAtClick = selectedPrice;
-      const midNow = pricesCtx?.getPrice(selectedOpt.id) ?? Number(selectedOpt.price);
-      if (Math.abs(midNow - priceAtClick) > SLIPPAGE_CAP) {
+      // Marketable-limit slippage guard: compare the quote the user saw
+      // against the current best ask. Cap = quoted + $0.02. Anything worse
+      // aborts without submitting to the book.
+      const limitPrice = Math.min(0.99, quotedPrice + SLIPPAGE_CAP);
+      if (bestAsk > limitPrice) {
         toast.error("Price moved, try again");
         return;
       }
-      const limitPrice = Math.min(0.99, midNow + SLIPPAGE_CAP);
-      // executeSpotTrade internally clamps to the tick-aligned mark; we pass
-      // the effective fill price so the ledger records slippage-inclusive cost.
-      const fillPrice = Math.min(0.99, Math.max(0.01, midNow));
-      await executeSpotTrade(user!.id, {
+      const fillPrice = bestAsk;
+      const res = await executeSpotTrade(user!.id, {
         eventName: event.name,
         optionLabel: selectedOpt.label,
         optionId: selectedOpt.id,
@@ -141,8 +170,13 @@ export const LiteBuyPanel = ({
         price: fillPrice,
         quantity: amount / fillPrice,
       });
+      // Apply balance delta (Trial-first logic lives inside deductBalance).
+      // Mirrors Pro /spot at src/pages/SpotTrading.tsx L499 / L514-515.
+      if (res.balanceDelta < 0) await deductBalance(-res.balanceDelta);
       toast.success(`Bought ${selectedLabel} @ ~$${fillPrice.toFixed(2)} (cap $${limitPrice.toFixed(2)})`);
       setAmountStr("");
+      // Re-quote for the next order.
+      setQuotedPrice(selectedPrice);
       await refetchProfile?.();
       onSuccess?.();
     } catch (err) {
@@ -158,6 +192,12 @@ export const LiteBuyPanel = ({
     : amount > 0
       ? `Buy ${selectedLabel} ~$${selectedPrice.toFixed(2)}`
       : `Buy ${selectedLabel}`;
+
+  // Static class maps — Tailwind must see full class names at build time,
+  // so we can't template-string them per side.
+  const YES_ACTIVE = "border-trading-green bg-trading-green/15";
+  const NO_ACTIVE = "border-trading-red bg-trading-red/15";
+  const INACTIVE = "border-border/40 bg-muted/20 hover:border-border";
 
   return (
     <div className={cn("space-y-4 rounded-xl border border-border/50 bg-card p-4", className)}>
@@ -194,22 +234,21 @@ export const LiteBuyPanel = ({
           const label = s === "yes" ? yesLabel : noLabel;
           const price = s === "yes" ? yesPrice : noPrice;
           const active = side === s;
-          const tone = s === "yes" ? "trading-green" : "trading-red";
+          const activeCls = s === "yes" ? YES_ACTIVE : NO_ACTIVE;
+          const priceCls = s === "yes" ? "text-trading-green" : "text-trading-red";
           return (
             <button
               key={s}
               onClick={() => setSide(s)}
               className={cn(
                 "flex flex-col items-start rounded-lg border px-3 py-2 text-left transition-all",
-                active
-                  ? `border-${tone} bg-${tone}/15`
-                  : "border-border/40 bg-muted/20 hover:border-border",
+                active ? activeCls : INACTIVE,
               )}
             >
               <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                 {label}
               </span>
-              <span className={cn("font-mono text-base font-bold", `text-${tone}`)}>
+              <span className={cn("font-mono text-base font-bold", priceCls)}>
                 ${price.toFixed(2)}
               </span>
             </button>

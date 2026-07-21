@@ -8,6 +8,8 @@
 import { Repeat, LineChart, Coins, Landmark, Film, ExternalLink, Clock, TrendingUp } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components";
 import { cn } from "@/lib/utils";
+import { LiteBuyPanel } from "@/components/lite/LiteBuyPanel";
+import type { EventWithOptions } from "@/hooks/useActiveEvents";
 
 // -------- Static demo data (no DB coupling) --------
 const DEMO_STOCK_EVENT = {
@@ -121,70 +123,49 @@ const EventCardDemo = ({ isStocks }: { isStocks: boolean }) => (
 
 type PanelState = "tradeable" | "closing" | "frozen" | "settled" | "amount-zero" | "insufficient" | "slippage";
 
-const STATE_META: Record<PanelState, { label: string; badge: { text: string; className: string }; disabled: boolean; errorLine?: string; submitLabel: string }> = {
-  tradeable:   { label: "Tradeable",        badge: { text: "TRADING",   className: "border-trading-green/40 bg-trading-green/10 text-trading-green" }, disabled: false, submitLabel: "Buy Up ~$0.57" },
-  closing:     { label: "Closing soon",     badge: { text: "TRADING",   className: "border-amber-500/40 bg-amber-500/10 text-amber-500" }, disabled: false, submitLabel: "Buy Up ~$0.57" },
-  frozen:      { label: "Frozen (disabled)",badge: { text: "FROZEN",    className: "border-muted-foreground/40 bg-muted/40 text-muted-foreground" }, disabled: true, submitLabel: "Trading frozen" },
-  settled:     { label: "Settled",          badge: { text: "SETTLED",   className: "border-border/40 bg-muted/30 text-muted-foreground" }, disabled: true, submitLabel: "Event settled" },
-  "amount-zero":{ label: "Amount = 0 error",badge: { text: "TRADING",   className: "border-trading-green/40 bg-trading-green/10 text-trading-green" }, disabled: true, errorLine: "Enter an amount above $0", submitLabel: "Buy Up" },
-  insufficient:{ label: "Insufficient balance",badge: { text: "TRADING",className: "border-trading-green/40 bg-trading-green/10 text-trading-green" }, disabled: true, errorLine: "Insufficient balance", submitLabel: "Buy Up ~$0.57" },
-  slippage:    { label: "Slippage failure", badge: { text: "TRADING",   className: "border-trading-green/40 bg-trading-green/10 text-trading-green" }, disabled: false, errorLine: "Price moved, try again", submitLabel: "Buy Up ~$0.57" },
+const PANEL_LABELS: Record<PanelState, string> = {
+  tradeable: "Tradeable",
+  closing: "Closing soon",
+  frozen: "Frozen (disabled)",
+  settled: "Settled",
+  "amount-zero": "Amount = 0 error",
+  insufficient: "Insufficient balance",
+  slippage: "Slippage failure",
 };
 
-const BuyPanelDemo = ({ state, isMobile }: { state: PanelState; isMobile: boolean }) => {
-  const meta = STATE_META[state];
+// Truth-rule (§16.1.1): render the real LiteBuyPanel with the demo* props
+// it exposes for state coverage, not a hand-written visual dupe.
+const PanelDemo = ({ state }: { state: PanelState }) => {
+  const baseEvent: EventWithOptions = {
+    id: `demo-${state}`,
+    name: "Will TSLA close above $250 today?",
+    category: "finance",
+    side_labels: { yes: "Up", no: "Not Up" },
+    product_lines: ["spot"],
+    freeze_time: new Date(new Date().setHours(16, 0, 0, 0)).toISOString(),
+    end_date: new Date(new Date().setHours(16, 0, 0, 0)).toISOString(),
+    options: [
+      { id: `y-${state}`, label: "Yes", price: 0.57 },
+      { id: `n-${state}`, label: "No", price: 0.43 },
+    ],
+    lifecycle_status: state === "frozen" ? "FROZEN" : state === "settled" ? "SETTLED" : "TRADING",
+  } as unknown as EventWithOptions;
+
+  const demoLifecycle =
+    state === "frozen" ? "FROZEN" : state === "settled" ? "SETTLED" : "TRADING";
+  const demoBalance = state === "insufficient" ? 5 : 1250;
+  const demoError =
+    state === "amount-zero" ? "amount-zero" :
+    state === "insufficient" ? "insufficient" :
+    state === "slippage" ? "slippage" : null;
+
   return (
-    <div className={cn("space-y-4 rounded-xl border border-border/50 bg-card p-4", isMobile ? "w-full" : "w-[360px]")}>
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="flex-1 text-sm font-semibold leading-snug">{DEMO_STOCK_EVENT.name}</h2>
-        <span className={cn("flex-shrink-0 rounded-md border px-1.5 py-0.5 text-[10px] font-medium", meta.badge.className)}>
-          {meta.badge.text}
-        </span>
-      </div>
-      <div className="flex items-baseline justify-between rounded-lg bg-muted/30 px-3 py-2">
-        <span className="text-xs text-muted-foreground">Up probability</span>
-        <span className="font-mono text-2xl font-bold">Up 57%</span>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-lg border border-trading-green bg-trading-green/15 px-3 py-2">
-          <div className="text-[11px] uppercase text-muted-foreground">Up</div>
-          <div className="font-mono text-base font-bold text-trading-green">$0.57</div>
-        </div>
-        <div className="rounded-lg border border-border/40 bg-muted/20 px-3 py-2">
-          <div className="text-[11px] uppercase text-muted-foreground">Not Up</div>
-          <div className="font-mono text-base font-bold text-trading-red">$0.43</div>
-        </div>
-      </div>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Amount (USDC)</span>
-          <span className="font-mono">Available: $1,250.00</span>
-        </div>
-        <div className={cn(
-          "h-11 rounded-md border bg-background px-3 flex items-center font-mono text-base",
-          meta.errorLine && "border-trading-red/60",
-        )}>
-          {state === "amount-zero" ? "" : state === "insufficient" ? "9,999.00" : "50.00"}
-        </div>
-        <div className="grid grid-cols-4 gap-2">
-          {[10, 25, 50, 100].map((n) => (
-            <div key={n} className="rounded-md border border-border/50 bg-muted/20 py-1.5 text-center font-mono text-xs">${n}</div>
-          ))}
-        </div>
-        {meta.errorLine && <p className="text-xs text-trading-red">{meta.errorLine}</p>}
-      </div>
-      <div className="space-y-1.5 rounded-lg border border-border/40 bg-muted/20 p-3 text-xs">
-        <div className="flex justify-between"><span className="text-muted-foreground">Max loss <span className="text-muted-foreground/70">(what you pay)</span></span><span className="font-mono">$50.00</span></div>
-        <div className="flex justify-between"><span className="text-muted-foreground">You get if right</span><span className="font-mono">$87.72</span></div>
-        <div className="flex justify-between"><span className="text-muted-foreground">Potential profit</span><span className="font-mono text-trading-green">+$37.72</span></div>
-      </div>
-      <div className={cn(
-        "flex h-12 items-center justify-center rounded-md text-base font-semibold",
-        meta.disabled ? "bg-muted text-muted-foreground" : "bg-trading-green text-white",
-      )}>
-        {meta.submitLabel}
-      </div>
-    </div>
+    <LiteBuyPanel
+      event={baseEvent}
+      demoLifecycle={demoLifecycle}
+      demoBalance={demoBalance}
+      demoError={demoError as "amount-zero" | "insufficient" | "slippage" | null}
+    />
   );
 };
 
@@ -205,10 +186,7 @@ const DualFrame = ({ children }: { children: (isMobile: boolean) => React.ReactN
   </div>
 );
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _isMobileUnused = (b: boolean) => b;
-
-export const LiteSection = ({ isMobile: _isMobile }: { isMobile: boolean }) => {
+export const LiteSection = (_: { isMobile: boolean }) => {
   const panelStates: PanelState[] = ["tradeable", "closing", "frozen", "settled", "amount-zero", "insufficient", "slippage"];
 
   return (
@@ -251,10 +229,10 @@ export const LiteSection = ({ isMobile: _isMobile }: { isMobile: boolean }) => {
             {panelStates.map((s) => (
               <div key={s}>
                 <div className="mb-2 text-xs font-medium text-muted-foreground">
-                  {STATE_META[s].label}
+                  {PANEL_LABELS[s]}
                 </div>
                 <DualFrame>
-                  {(mobile) => <BuyPanelDemo state={s} isMobile={mobile} />}
+                  {() => <PanelDemo state={s} />}
                 </DualFrame>
               </div>
             ))}

@@ -46,8 +46,10 @@ export const LiteEventCard = ({
   className,
 }: LiteEventCardProps) => {
   const sideLabels = parseSideLabels(event.side_labels);
-  const yesLabel = sideLabels?.yes ?? "Up";
-  const noLabel = sideLabels?.no ?? "Not Up";
+  // Fallback is Yes/No — "Up / Not Up" wording only applies when the event's
+  // own side_labels supply it (Stocks). Crypto/macro must not surface Up copy.
+  const yesLabel = sideLabels?.yes ?? "Yes";
+  const noLabel = sideLabels?.no ?? "No";
 
   const yesOpt =
     event.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event.options[0];
