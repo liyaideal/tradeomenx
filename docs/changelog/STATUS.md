@@ -19,6 +19,24 @@
 
 ---
 
+## 2026-07-21 — Pro 现货全站渗透 · 轮次 1（数据链路必修 + 仓位券排除现货）
+
+源文档：[2026-07-21-spot-dataline-hardening.md](./2026-07-21-spot-dataline-hardening.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/pro-spot-us-stocks`
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| SPD1 | /trade 桌面/移动 Positions & Current Orders 在 hook 边界过滤 `productLine !== 'spot'`（orders 用 `?? 'futures'` 兜底），面板只见 futures 行 | `src/pages/DesktopTrading.tsx` L225-258 · `src/pages/TradingCharts.tsx` L32-40 · `src/pages/TradeOrder.tsx` L36-42 | ⬜ | 造一条 spot 持仓 + 一条 futures 持仓，切到 /trade 桌面与移动两处 Positions/Orders Tab 均只见 futures；spot 行不再出现 Liq/杠杆列 | 死代码 `DesktopPositionsPanel` 不再是唯一收敛点 |
+| SPD2 | `useSupabaseOrders.fillOrder` spot 分流走 `fillSpotLimitOrder`；BUY/SELL 均放行，净 short 由服务层拒绝 | `src/hooks/useSupabaseOrders.ts` L119-146 · `src/services/tradingService.ts` `fillSpotLimitOrder` SELL 分支 | ⬜ | 持 +10 Up 时 sell 6 → 成交 & 净 +4；空仓 sell → 服务层报错；BUY 走 SIGNED_YES_SHARE 对冲 | 早期版本 blanket 抛错，会误杀 reduce-only 挂单 |
+| SPD3 | `useSupabaseOrders.cancelOrder` spot 走 `cancelSpotLimitOrder` 回退预扣款；futures 保持 status flip | `src/hooks/useSupabaseOrders.ts` L87-117 | ⬜ | 挂单 $100 → 撤单 → 余额恢复 $100；futures 撤单不动余额 | |
+| SPD4 | `PositionDetailContent` spot 分支：隐藏 leverage/liq/funding，展示 Shares / Avg cost / Mark / Current value / Cost basis | `src/components/positions/PositionDetailContent.tsx` | ⬜ | 打开一条 spot 持仓详情，无 Liq. price / Funding 区块；futures 详情不受影响 | style-guide 双端对照可做回归判定 |
+| SPD5 | Portfolio `handlePositionAction` 从 `sortedPositions[index]` 取 target；futures 目标按 id 在 destination 的 futures-only 数组里重算 `highlightPosition` | `src/pages/Portfolio.tsx` L213-241 | ⬜ | 按 PnL 排序后点 View → 打开正确行；spot 行 → `/spot?event={id}`；futures 行 → /trade 高亮到正确行 | 之前 `positions[index]` 会跨类型误路由 |
+| SPD6 | 仓位券排除现货：前端 `EventPickerList` 过滤 spot 事件；`redeem-position-voucher` 读 `events.product_lines`，含 `'spot'` 返回 409 | `src/components/vouchers/EventPickerList.tsx` · `supabase/functions/redeem-position-voucher/index.ts` | ⬜ | Redeem drawer 事件列表看不到 spot；直接调用 API 传 spot event_id → 409 `Position vouchers cannot be redeemed on spot markets` | 双闸防御，前端 + 服务端 |
+| SPD7 | `docs/backend-boundary.md` 追加 2026-07-21 章节，落 4 条 🟢 硬规则；`/style-guide` Spot 补 Position detail 双端对照 | `docs/backend-boundary.md` · `src/pages/StyleGuide/sections/SpotSection.tsx` | ⬜ | style-guide 打开 Spot section 能看到 spot vs futures 详情并排 | 回归判定：spot 侧出现 Liq/Funding = bug |
+
+---
+
+
+
 ## 2026-07-15 — Open API v1 用户侧 Key 管理页
 
 源文档：[2026-07-15-api-key-management.md](./2026-07-15-api-key-management.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/api-key-management`
