@@ -25,6 +25,16 @@ interface TransferFormProps {
   onCancel?: () => void;
   onSuccess?: () => void;
   initialDirection?: TransferDirection;
+  /**
+   * Style-guide only. Forces balances + initial amount for state coverage
+   * (normal / insufficient / zero / trial-hint). Never pass in production —
+   * production always reads from useUserProfile.
+   */
+  demoOverride?: {
+    balance?: number;
+    spotBalance?: number;
+    initialAmount?: string;
+  };
 }
 
 const fmt = (n: number) =>
@@ -79,10 +89,14 @@ export const TransferForm = ({
   onCancel,
   onSuccess,
   initialDirection = "to_spot",
+  demoOverride,
 }: TransferFormProps) => {
-  const { balance, spotBalance, transferBetweenAccounts } = useUserProfile();
+  const profile = useUserProfile();
+  const balance = demoOverride?.balance ?? profile.balance;
+  const spotBalance = demoOverride?.spotBalance ?? profile.spotBalance;
+  const { transferBetweenAccounts } = profile;
   const [direction, setDirection] = useState<TransferDirection>(initialDirection);
-  const [amountStr, setAmountStr] = useState("");
+  const [amountStr, setAmountStr] = useState(demoOverride?.initialAmount ?? "");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {

@@ -29,6 +29,17 @@ import {
   PositionChipPreview,
   ExpiredRowPreview,
 } from "./voucherPreviews";
+import {
+  WalletEquityBandsPreview,
+  TransferFormNormalPreview,
+  TransferFormInsufficientPreview,
+  TransferFormZeroPreview,
+  TransferFormTrialHintPreview,
+  DepositToPickerPreview,
+  EquityHoverCardPreview,
+  TransactionHistoryPreview,
+  AccountBadgeLegendPreview,
+} from "./walletPreviews";
 import { TiersStepperMobile } from "@/components/developers/TiersStepperMobile";
 import { DEVELOPERS_MOBILE_TIERS } from "@/pages/DevelopersPageMobile";
 
@@ -263,6 +274,17 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "voucher-redeemed-row": () => <RedeemedRowPreview />,
   "voucher-position-chip": () => <PositionChipPreview />,
   "voucher-expired-row": () => <ExpiredRowPreview />,
+
+  /* -------- Wallet · Dual-Account 2b -------- */
+  "wallet-equity-bands": () => <WalletEquityBandsPreview />,
+  "wallet-transfer-normal": () => <TransferFormNormalPreview />,
+  "wallet-transfer-insufficient": () => <TransferFormInsufficientPreview />,
+  "wallet-transfer-zero": () => <TransferFormZeroPreview />,
+  "wallet-transfer-trial-hint": () => <TransferFormTrialHintPreview />,
+  "wallet-deposit-to": () => <DepositToPickerPreview />,
+  "wallet-equity-hovercard": () => <EquityHoverCardPreview />,
+  "wallet-tx-history": () => <TransactionHistoryPreview />,
+  "wallet-account-badge-legend": () => <AccountBadgeLegendPreview />,
 
   /* -------- Developers (/developers mobile) -------- */
   "developers-mobile-tiers": () => <TiersStepperMobile tiers={DEVELOPERS_MOBILE_TIERS} />,

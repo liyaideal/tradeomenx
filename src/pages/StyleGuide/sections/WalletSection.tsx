@@ -16,6 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
+import { DualDevicePreview } from "../components/DeviceFrame";
 import { CodePreview } from "../components/CodePreview";
 import {
   MaintenanceNoticeBannerView,
@@ -159,6 +160,80 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
             </div>
           </CardContent>
         </Card>
+      </SectionWrapper>
+
+      {/* Dual-Account 2b — real components rendered inside DeviceFrame iframes.
+          Truth Rule §16.1.1: every preview key resolves to the same production
+          component tree used at /wallet, EventsDesktopHeader, and TransactionHistory. */}
+      <SectionWrapper
+        id="dual-account-2b"
+        title="Dual-Account · 2b"
+        platform="shared"
+        description="Total Equity band, dual account cards, TransferForm state coverage, Deposit-to picker, header HoverCard, and transaction row account badges. Desktop + mobile via iframe DeviceFrame."
+      >
+        <SubSection title="Band 1 Total Equity + Band 2 dual account cards" platform="shared">
+          <DualDevicePreview
+            previewKey="wallet-equity-bands"
+            label="Total Equity hero band + Spot / Futures cards (Trial green tile visible on Futures)"
+            minHeight={340}
+          />
+        </SubSection>
+
+        <SubSection title="TransferForm — 4 states (real component, props-driven)" platform="shared">
+          <div className="grid grid-cols-1 gap-4">
+            <DualDevicePreview
+              previewKey="wallet-transfer-normal"
+              label="Normal · Futures $8,720 → Spot, amount $250"
+              minHeight={460}
+            />
+            <DualDevicePreview
+              previewKey="wallet-transfer-insufficient"
+              label="Insufficient · Available $10, amount $500 (red ring + error line)"
+              minHeight={460}
+            />
+            <DualDevicePreview
+              previewKey="wallet-transfer-zero"
+              label="Amount 0 · submit disabled"
+              minHeight={440}
+            />
+            <DualDevicePreview
+              previewKey="wallet-transfer-trial-hint"
+              label="Trial ⓘ hint · From = Futures shows the 'Trial not transferable' tooltip trigger"
+              minHeight={460}
+            />
+          </div>
+        </SubSection>
+
+        <SubSection title="Deposit 'Deposit to' pre-screen" platform="shared">
+          <DualDevicePreview
+            previewKey="wallet-deposit-to"
+            label="AccountPickerRows — real component used by DepositDialog / /deposit"
+            minHeight={220}
+          />
+        </SubSection>
+
+        <SubSection title="Header Equity HoverCard content" platform="shared">
+          <DualDevicePreview
+            previewKey="wallet-equity-hovercard"
+            label="Mirrors EventsDesktopHeader HoverCard: 3 account rows + Total + Transfer link"
+            minHeight={220}
+          />
+        </SubSection>
+
+        <SubSection title="Transaction history — account badges + transfer icon" platform="shared">
+          <DualDevicePreview
+            previewKey="wallet-tx-history"
+            label="Real TransactionHistory with SPOT / FUTURES badges and ArrowLeftRight transfer icon"
+            minHeight={520}
+          />
+          <div className="mt-3">
+            <DualDevicePreview
+              previewKey="wallet-account-badge-legend"
+              label="Badge legend"
+              minHeight={120}
+            />
+          </div>
+        </SubSection>
       </SectionWrapper>
 
       {/* H2E Unlock Playground */}
