@@ -366,6 +366,18 @@ export const useUserProfile = () => {
     return updateBalance(newBalance);
   };
 
+  /**
+   * Deduct from Futures Available only. NEVER touches trial_balance.
+   * Use this for withdrawals and any other flow where Trial Bonus must be
+   * excluded (Trial 不可提现 / 不可划转 — dual-account 2b 拍板口径).
+   * Returns false if `balance` alone is insufficient.
+   */
+  const deductAvailableOnly = async (amount: number): Promise<boolean> => {
+    const currentBalance = profile?.balance ?? 0;
+    if (currentBalance < amount) return false;
+    return updateBalance(currentBalance - amount);
+  };
+
   const addTrialBalance = async (amount: number) => {
     const currentTrialBalance = profile?.trial_balance ?? 0;
     const newTrialBalance = currentTrialBalance + amount;
