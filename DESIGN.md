@@ -1212,3 +1212,70 @@ Import from `@/components/states`. Rendered demo: `/style-guide` → **States** 
 - Don't inline `bg-trading-green/10 text-trading-green ...` copies of the status palette in a page. Import the token.
 - Don't invent risk colors (`text-orange-500`, `bg-yellow-400`) — use the four risk tiers only.
 - Don't compose empty states from marketing hero heights. States are compact; they never occupy half a viewport.
+
+---
+
+## §Addendum 2026-07-21 · Dual-Account Wallet UI (Round 2b, LOCKED)
+
+Append-only. Six items promised in the round 2b spec. Do not delete; supersede in a future dated addendum.
+
+### 1. §5 exception clarification — "Wallet Total Equity Card" (singular)
+
+The engineering-blueprint no-decoration rule has **one** exception in /wallet: the top **Total Equity Card** (Band 1). It uses the brand gradient (`rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent`) + blur orbs.
+
+**The two account cards (Spot Account, Futures Account) in Band 2 do NOT inherit this exception.** They use `.stats-card` only. Reusing the gradient on account cards = design regression.
+
+### 2. §8 Dual-Account Card Group + Transfer + tx account badge + Band 1 subnote
+
+**Band 1 subnote (locked copy):**
+> "Spot + Futures + Trial Bonus · does not include unrealized PnL"
+
+`font-mono text-[10px] text-muted-foreground mt-1`. Always visible under the main equity number.
+
+**Band 2 dual account cards:**
+- Layout: desktop `grid-cols-2 gap-6`; mobile stacked `space-y-3`
+- Shell: `.stats-card p-6` (desktop) / `.stats-card p-4` (mobile), **no gradient**
+- Header: account name (`text-sm font-medium text-muted-foreground`)
+- Main number: `font-mono text-2xl font-semibold` — Spot = `spot_balance`, Futures = `balance` **only** (NOT `balance + trialBalance`)
+- Detail grid: `p-3 rounded-lg bg-muted/20` cells with `font-mono text-sm font-semibold` values
+- Top-right Transfer ghost icon: `absolute top-4 right-4 h-8 w-8 rounded-md hover:bg-muted/50` with `ArrowLeftRight w-3.5`
+- Trial Bonus cell (Futures card only): green tint when `>0` (`bg-trading-green/10 border border-trading-green/20`)
+
+**Transfer three-piece (Round 2b LOCKED):** Desktop = `TransferDialog`, mobile = `TransferDrawer`. Shared body = `TransferForm`. **Mobile Dialog = acceptance fail (§5 LOCKED rule sync).**
+
+Form structure: Segmented direction switch → From/To swap cards (From `bg-muted/20`, To `border-primary/30 bg-primary/5`, center `w-9 h-9` ArrowDown disc) → amount input `text-2xl font-mono` + MAX + Available row. From=Futures → Available shows `balance` **only** + ⓘ tooltip: "Bonus funds used first when trading. Cannot be withdrawn or transferred."
+
+**TransactionHistory account badge:**
+- Token: `text-[10px] rounded-full border px-1.5 py-0` — `SPOT` / `FUTURES` / `Transfer`
+- Desktop: inline next to description
+- Mobile: **row 2 only** (never in row 1 — §8 Don't rule sync)
+- Legacy rows with `account = NULL` render no badge
+
+### 3. §9 Deposit / Withdraw account selection
+
+- **Deposit:** Insert an "Deposit to" pre-screen (radio card list, active = `border-primary bg-primary/10`) **before** the three tabs (WalletDeposit / CrossChainDeposit / BuyWithFiat). No default preselection. `useAccountPreference` persists per-flow choice in localStorage. Post-selection: a clickable crumb "To: Spot Account ›" appears above the tabs.
+- **Withdraw:** Add a "From account" selector row at the top of `WalletWithdraw` (below the Base-USDC info strip). Uses same picker pattern as `WithdrawAddressSelect` (desktop Dialog / mobile Sheet). Amount validation + Available row follows the selected account.
+- Both flows must write `account` on the resulting `transactions` row via `record-transaction`.
+
+### 4. §5 Overlay parity table — add Transfer row + Equity HoverCard spec
+
+Add to overlay parity table:
+
+| Intent | Desktop | Mobile |
+|---|---|---|
+| Transfer between accounts | `TransferDialog` | `TransferDrawer` (MobileDrawer) |
+
+**Desktop-only Equity HoverCard** (attached to top-nav Equity capsule): ~260px width. Content: three data rows (Spot Account / Futures Account / Trial Bonus, `font-mono text-sm`) → hairline divider → Total Equity row (`font-semibold`) → "Transfer ›" text link that opens `TransferDialog`. Mobile: no equity in the header.
+
+### 5. Total Equity definition (site-wide single source)
+
+```
+Total Equity = spot_balance + balance + trial_balance
+             (does NOT include unrealized PnL)
+```
+
+Helper: `src/lib/equity.ts` `computeTotalEquity({ spotBalance, balance, trialBalance })`. Every surface that displays "Total Equity" (top-nav capsule, HoverCard total row, HomeEquityHero main number, /wallet Band 1, StyleGuide previews) MUST read this helper. No ad-hoc summing.
+
+### 6. §10 Preset D revision — HomeEquityHero data source
+
+`<HomeEquityHero>` main number data source is now **`computeTotalEquity`**, not `balance + trialBalance`. Everything else in Preset D (40px cap, no meta row, eye toggle, single Deposit CTA, non-sticky) stays. `.lovable/memory/design/mobile-header-preset-d.md` synced.
