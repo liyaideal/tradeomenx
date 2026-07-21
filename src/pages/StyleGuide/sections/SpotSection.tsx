@@ -7,6 +7,8 @@ import {
 } from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
 import { SectionWrapper } from "../components/SectionWrapper";
+import { PositionDetailContent } from "@/components/positions/PositionDetailContent";
+import type { UnifiedPosition } from "@/hooks/usePositions";
 import { ArrowLeft, Star, Info } from "lucide-react";
 
 
@@ -235,7 +237,25 @@ export const SpotSection = ({ isMobile }: Props) => {
           ))}
         </div>
       </SectionWrapper>
+      {/* Position detail — spot vs futures side-by-side */}
+      <SectionWrapper
+        id="spot-position-detail"
+        title="Position detail — spot vs futures"
+        description="Both dialog (desktop) and drawer (mobile) render PositionDetailContent. Spot branch MUST hide leverage / liquidation / funding / est. close fee and switch to Shares / Avg cost / Current value / Cost basis + settlement footnote. Regression check: a spot row that still shows a Liq. price is a data-line bug — see docs/changelog/2026-07-21-spot-dataline-hardening.md."
+      >
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="rounded-lg border border-border/60 p-4 bg-background">
+            <div className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground mb-2">Spot</div>
+            <PositionDetailContent position={MOCK_SPOT_POSITION} />
+          </div>
+          <div className="rounded-lg border border-border/60 p-4 bg-background">
+            <div className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground mb-2">Futures (reference)</div>
+            <PositionDetailContent position={MOCK_FUTURES_POSITION} />
+          </div>
+        </div>
+      </SectionWrapper>
 
+      
       {/* Removed fields — anti-pattern reference */}
       <SectionWrapper
         id="spot-removed-fields"
