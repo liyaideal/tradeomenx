@@ -319,83 +319,8 @@ export default function Wallet() {
     );
   };
 
-  // Balance Card Component (mobile)
-  const BalanceCard = () => (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border border-primary/25 p-4">
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
-
-      <div className="relative">
-        <div className="flex items-center gap-2 mb-2">
-          <WalletIcon className="w-4 h-4 text-primary" />
-          <span className="text-xs text-muted-foreground">Total Equity</span>
-        </div>
-
-        <div className="flex items-baseline gap-2 mb-4 flex-nowrap">
-          <span className="text-3xl font-bold font-mono whitespace-nowrap">${formatCurrency(balance + trialBalance)}</span>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">USDC</span>
-        </div>
-
-        <div className="mb-3 grid grid-cols-2 gap-2">
-          <div className="p-2.5 rounded-lg bg-muted/20">
-            <div className="flex items-center gap-1 mb-0.5">
-              <span className="text-[11px] text-muted-foreground">Available</span>
-              <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
-            </div>
-            <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
-          </div>
-
-          <div className={`p-2.5 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
-            <div className="flex items-center gap-1 mb-0.5">
-              <span className="text-[11px] text-muted-foreground">Trial Bonus</span>
-              <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn." />
-            </div>
-            <span className={`font-mono text-sm font-semibold ${trialBalance > 0 ? 'text-trading-green' : 'text-muted-foreground'}`}>
-              ${formatCurrency(trialBalance)}
-            </span>
-          </div>
-        </div>
-
-        {/* Withdrawable / Frozen row */}
-        {h2e.lockedAmount > 0 && (
-          <div className="mb-3 grid grid-cols-2 gap-2">
-            <div className="p-2.5 rounded-lg bg-muted/20">
-              <div className="flex items-center gap-1 mb-0.5">
-                <span className="text-[11px] text-muted-foreground">Withdrawable</span>
-                <InfoTooltip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
-              </div>
-              <span className="font-mono text-sm font-semibold">${formatCurrency(withdrawableBalance)}</span>
-            </div>
-            <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-center gap-1 mb-0.5">
-                <Lock className="w-3 h-3 text-primary" />
-                <span className="text-[11px] text-muted-foreground">H2E Locked</span>
-                <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
-              </div>
-              <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.lockedAmount)}</span>
-            </div>
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          <Button
-            className="btn-trading-green flex-1 h-11"
-            onClick={() => navigate('/deposit')}
-          >
-            <ArrowDownLeft className="w-4 h-4 mr-2" />
-            Deposit
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1 border-border/50 hover:bg-muted/50 rounded-xl h-11"
-            onClick={() => navigate('/withdraw')}
-          >
-            <ArrowUpRight className="w-4 h-4 mr-2" />
-            Withdraw
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+  // BalanceCard removed (dual-account 2b): mobile now uses the same Band 1 Total Equity
+  // + dual-account cards structure as desktop. See §Addendum 2026-07-21.
 
   // Address Card for individual saved address
   const AddressCard = ({ wallet }: { wallet: typeof wallets[0] }) => (
