@@ -246,8 +246,12 @@ export default function DesktopTrading() {
   const [positionSlMode, setPositionSlMode] = useState<"%" | "$">("$");
   
   
-  // Cancel order dialog state - using unified orders hook
-  const { orders: unifiedOrders, cancelOrder: cancelUnifiedOrder, isCancelling } = useOrders();
+  // Cancel order dialog state - using unified orders hook (futures-only view)
+  const { orders: allUnifiedOrders, cancelOrder: cancelUnifiedOrder, isCancelling } = useOrders();
+  const unifiedOrders = useMemo(
+    () => allUnifiedOrders.filter((o) => (o.productLine ?? "futures") !== "spot"),
+    [allUnifiedOrders]
+  );
   const { addOrder } = useOrdersStore(); // Keep for local guest fallback only
   const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
   const [cancellingOrderIndex, setCancellingOrderIndex] = useState<number | null>(null);
