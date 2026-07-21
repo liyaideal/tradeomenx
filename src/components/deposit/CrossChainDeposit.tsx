@@ -50,7 +50,12 @@ const SOURCE_TOKENS: Record<string, { symbol: string; name: string }[]> = {
 
 type Step = 'swap' | 'review' | 'sign' | 'processing' | 'result';
 
-export const CrossChainDeposit = () => {
+interface CrossChainDepositProps {
+  /** Target account — forward to record-transaction if this ever credits balance. */
+  account?: 'spot' | 'futures';
+}
+
+export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps = {}) => {
   const isMobile = useIsMobile();
   const { getCurrentAddress } = useDeposit('USDC');
   const { wallet, connect, disconnect, getBalance } = useMockWallet();
