@@ -1249,11 +1249,6 @@ toast("Order placed", {
   duration: 5000,
 });
 
-// Toast with description
-toast("Order placed", {
-  description: "BTC/USDT • Yes • 0.5 BTC",
-  duration: 5000,
-});
 
 // Toast with help-center link (account restriction, policy notices, etc.)
 toast.warning("Withdrawal restricted", {
