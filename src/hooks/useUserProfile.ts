@@ -401,8 +401,29 @@ export const useUserProfile = () => {
       const { data, error } = await supabase.functions.invoke("sim-transfer", {
         body: { direction, amount },
       });
-      if (error || (data as any)?.error) {
-        throw new Error(error?.message || (data as any)?.error || "Transfer failed");
+      if (error) {
+        // FunctionsHttpError swallows body → dig it out for the toast
+        let detail: string | undefined;
+        try {
+          const ctx = (error as any)?.context;
+          if (ctx && typeof ctx.json === "function") {
+            const body = await ctx.json();
+            detail = body?.error || body?.message;
+          } else if (ctx && typeof ctx.text === "function") {
+            const txt = await ctx.text();
+            try {
+              detail = JSON.parse(txt)?.error;
+            } catch {
+              detail = txt;
+            }
+          }
+        } catch {
+          /* ignore */
+        }
+        throw new Error(detail || error.message || "Transfer failed");
+      }
+      if ((data as any)?.error) {
+        throw new Error((data as any).error);
       }
       await refetch();
       return { success: true as const };
