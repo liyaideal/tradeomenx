@@ -24,7 +24,7 @@ const MOCK_PENDING_WITHDRAWALS: WithdrawRecord[] = [];
 
 export const useWithdraw = (account: 'spot' | 'futures' = 'futures') => {
   const queryClient = useQueryClient();
-  const { user, balance, spotBalance, deductBalance, deductSpotBalance } = useUserProfile();
+  const { user, balance, spotBalance, deductAvailableOnly, deductSpotBalance } = useUserProfile();
   const sourceBalance = account === 'spot' ? spotBalance : balance;
   const [currentWithdrawal, setCurrentWithdrawal] = useState<WithdrawRecord | null>(null);
 
