@@ -2,19 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  Wallet as WalletIcon, 
-  ArrowUpRight, 
-  ArrowDownLeft, 
-  Plus, 
-  Copy, 
-  Check, 
+import {
+  Wallet as WalletIcon,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Plus,
+  Copy,
+  Check,
   Star,
   AlertTriangle,
   Info,
   Trash2,
   Lock,
   Gift,
+  Eye,
+  EyeOff,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +53,10 @@ import {
 import { AddAddressDialog } from "@/components/wallet/AddAddressDialog";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
+import { TransferDialog } from "@/components/wallet/TransferDialog";
+import { TransferDrawer } from "@/components/wallet/TransferDrawer";
 import { MaintenanceNoticeBanner } from "@/components/wallet/MaintenanceNoticeBanner";
+import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import {
   Tooltip,
   TooltipContent,
@@ -72,7 +78,7 @@ import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 export default function Wallet() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { balance, trialBalance, user } = useUserProfile();
+  const { balance, trialBalance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
   const previousH2eTierRef = useRef(0);
@@ -182,11 +188,20 @@ export default function Wallet() {
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
-  
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [transferInitDir, setTransferInitDir] = useState<"to_spot" | "to_futures">("to_spot");
+  const [equityHidden, setEquityHidden] = useState(false);
+
   const [addAddressOpen, setAddAddressOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [walletToDelete, setWalletToDelete] = useState<{ id: string; label: string } | null>(null);
   const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
+
+  const totalEquity = computeTotalEquity({ spotBalance, balance, trialBalance });
+  const openTransfer = (dir: "to_spot" | "to_futures" = "to_spot") => {
+    setTransferInitDir(dir);
+    setTransferOpen(true);
+  };
   
 
   const formatCurrency = (value: number) => {
