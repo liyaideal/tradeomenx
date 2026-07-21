@@ -29,6 +29,17 @@ import {
   PositionChipPreview,
   ExpiredRowPreview,
 } from "./voucherPreviews";
+import {
+  WalletEquityBandsPreview,
+  TransferFormNormalPreview,
+  TransferFormInsufficientPreview,
+  TransferFormZeroPreview,
+  TransferFormTrialHintPreview,
+  DepositToPickerPreview,
+  EquityHoverCardPreview,
+  TransactionHistoryPreview,
+  AccountBadgeLegendPreview,
+} from "./walletPreviews";
 import { TiersStepperMobile } from "@/components/developers/TiersStepperMobile";
 import { DEVELOPERS_MOBILE_TIERS } from "@/pages/DevelopersPageMobile";
 
