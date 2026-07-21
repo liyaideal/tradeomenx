@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useSurface } from "@/contexts/SurfaceContext";
 
 
 // Main nav (4 items). Resolved is now an Events page tab; Leaderboard is a
