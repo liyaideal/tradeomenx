@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from './WalletDeposit';
 import { CrossChainDeposit } from './CrossChainDeposit';
 import { BuyWithFiat } from './BuyWithFiat';
-import { AccountPicker, type AccountKind } from '@/components/wallet/AccountPicker';
+import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 
 interface DepositDialogProps {
@@ -68,8 +68,9 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
                 Pick which account will receive your funds. You can change this later.
               </p>
             </div>
-            <AccountPickerInline selected={null} onSelect={handleSelect} />
+            <AccountPickerRows selected={null} onSelect={handleSelect} />
           </div>
+
         ) : (
           <>
             {/* Account crumb — click to reopen picker */}
