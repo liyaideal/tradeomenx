@@ -11,7 +11,7 @@ Round A 覆盖：
 - 顶栏 / 移动 drawer 加「Switch to Pro / Lite」入口
 - Home / Events / Stocks 交易页三处 fork（其余共享）
 - Lite 板块 rail（Sports 外链常驻 + Stocks/Crypto/Macro/Entertainment 按活跃事件动态生成）
-- Lite Stocks 快速买入面板（marketable limit 封装 + 滑点上限）
+- Lite Stocks 快速买入面板（marketable limit：报价时快照 + 模拟盘口最优 ask + $0.02 滑点上限）
 
 ## 2. Surface 模型
 
