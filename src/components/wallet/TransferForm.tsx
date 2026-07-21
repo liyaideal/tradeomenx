@@ -89,10 +89,14 @@ export const TransferForm = ({
   onCancel,
   onSuccess,
   initialDirection = "to_spot",
+  demoOverride,
 }: TransferFormProps) => {
-  const { balance, spotBalance, transferBetweenAccounts } = useUserProfile();
+  const profile = useUserProfile();
+  const balance = demoOverride?.balance ?? profile.balance;
+  const spotBalance = demoOverride?.spotBalance ?? profile.spotBalance;
+  const { transferBetweenAccounts } = profile;
   const [direction, setDirection] = useState<TransferDirection>(initialDirection);
-  const [amountStr, setAmountStr] = useState("");
+  const [amountStr, setAmountStr] = useState(demoOverride?.initialAmount ?? "");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
