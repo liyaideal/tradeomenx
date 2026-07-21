@@ -372,6 +372,45 @@ export const useUserProfile = () => {
     return updateTrialBalance(newTrialBalance);
   };
 
+  // ---- Spot account balance (independent of contract/futures balance & trial bonus) ----
+  const updateSpotBalance = async (newSpotBalance: number) => {
+    try {
+      await updateMutation.mutateAsync({ spot_balance: newSpotBalance } as Partial<Profile>);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const deductSpotBalance = async (amount: number): Promise<boolean> => {
+    const current = profile?.spot_balance ?? 0;
+    if (current < amount) return false;
+    return updateSpotBalance(current - amount);
+  };
+
+  const addSpotBalance = async (amount: number) => {
+    const current = profile?.spot_balance ?? 0;
+    return updateSpotBalance(current + amount);
+  };
+
+  const transferBetweenAccounts = async (
+    direction: "to_spot" | "to_futures",
+    amount: number,
+  ) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("sim-transfer", {
+        body: { direction, amount },
+      });
+      if (error || (data as any)?.error) {
+        throw new Error(error?.message || (data as any)?.error || "Transfer failed");
+      }
+      await refetch();
+      return { success: true as const };
+    } catch (error: any) {
+      return { success: false as const, error: error.message };
+    }
+  };
+
   // ---- Security / withdraw verification ----
   const updateWithdraw2faMode = async (mode: "email" | "totp" | "both") => {
     try {
