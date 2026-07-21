@@ -111,59 +111,8 @@ export const AccountPicker = ({
   showBalances = true,
 }: AccountPickerProps) => {
   const isMobile = useIsMobile();
-  const { balance, spotBalance, trialBalance } = useUserProfile();
+  const rows = <AccountPickerRows selected={selected} onSelect={onSelect} showBalances={showBalances} />;
 
-  const balancesByKey = useMemo(
-    () => ({
-      spot: spotBalance,
-      futures: balance + trialBalance,
-    }),
-    [balance, spotBalance, trialBalance],
-  );
-
-  const rows = (
-    <div className="space-y-2">
-      {ROWS.map((row) => {
-        const Icon = row.icon;
-        const active = selected === row.key;
-        return (
-          <button
-            key={row.key}
-            type="button"
-            onClick={() => onSelect(row.key)}
-            className={cn(
-              "w-full flex items-center justify-between rounded-lg border p-3 text-left transition-colors",
-              active
-                ? "border-primary bg-primary/10"
-                : "border-border/50 hover:bg-muted/50",
-            )}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <Icon className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-sm font-medium">{row.label}</div>
-                <div className="text-xs text-muted-foreground truncate">{row.hint}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              {showBalances && (
-                <span className="font-mono text-xs text-muted-foreground">
-                  ${formatEquityUsd(balancesByKey[row.key])}
-                </span>
-              )}
-              {active && (
-                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="w-3 h-3 text-primary-foreground" />
-                </div>
-              )}
-            </div>
-          </button>
-        );
-      })}
-    </div>
-  );
 
   if (isMobile) {
     return (
