@@ -320,7 +320,8 @@ export default function Wallet() {
   };
 
   // BalanceCard removed (dual-account 2b): mobile now uses the same Band 1 Total Equity
-  // + dual-account cards structure as desktop. See §Addendum 2026-07-21.
+  // + dual-account cards structure as desktop. See docs/changelog/2026-07-21-dual-account-wallet-ui.md §2.
+
 
   // Address Card for individual saved address
   const AddressCard = ({ wallet }: { wallet: typeof wallets[0] }) => (

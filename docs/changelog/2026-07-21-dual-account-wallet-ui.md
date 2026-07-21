@@ -81,14 +81,15 @@ STATUS DAC5 注释由"待产品裁决"改为"已追认收编（2b）"。
 
 ## 9. Style Guide（§16.1.1 Truth Rule，缺 mobile 即失败）
 
-`WalletSection` 增量，全部渲染真实组件 + `DeviceFrame` + `preview/registry` 注册：
-- Total Equity 条 + 双账户卡组
-- TransferForm 全状态（正常 / 余额不足 / 金额 0 / Trial ⓘ 提示）
-- 充值选账户步骤
-- 顶栏 HoverCard 明细
-- 流水账户徽标行
+`WalletSection` 增量交付原则：**真组件为主 + WalletEquityBands / EquityHoverCard 两处为镜像预览（带同步义务注释）**，均 `DeviceFrame` + `preview/registry` 注册，desktop + mobile 逐一对应。
 
-desktop + mobile 逐一对应。
+- **真组件**：`TransferForm`（4 态：正常 / 余额不足 / 金额 0 / Trial ⓘ，走 `demoOverride` props）、`AccountPickerRows`、`TransactionHistory`
+- **镜像预览**（`walletPreviews.tsx`，文件顶部与各块内 `// MIRROR:` 注释指向生产源，改生产必改此处）：
+  - `WalletEquityBandsPreview` ← `src/pages/Wallet.tsx` Band 1 Total Equity + Band 2 双账户卡
+  - `EquityHoverCardPreview` ← `src/components/EventsDesktopHeader.tsx` Equity HoverCardContent
+- **辅助**：`DepositToPickerPreview` / `AccountBadgeLegendPreview` 场景演示
+
+
 
 ## 10. 涉及文件
 
