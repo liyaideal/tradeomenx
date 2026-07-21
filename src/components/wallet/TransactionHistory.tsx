@@ -415,7 +415,15 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                     <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
                       <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
                         <span>{tx.date}</span>
-                        {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell'].includes(tx.type) && (
+                        {tx.account && (
+                          <span className={cn(
+                            "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
+                            ACCOUNT_BADGE_CONFIG[tx.account].className
+                          )}>
+                            {ACCOUNT_BADGE_CONFIG[tx.account].label}
+                          </span>
+                        )}
+                        {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell', 'transfer_to_spot', 'transfer_to_futures'].includes(tx.type) && (
                           <span className={cn(
                             "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
                             TYPE_BADGE_CONFIG[tx.type].className
@@ -454,7 +462,15 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                           <span className="text-sm font-medium truncate">
                             {formatDescription(tx)}
                           </span>
-                          {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell'].includes(tx.type) && (
+                          {tx.account && (
+                            <span className={cn(
+                              "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
+                              ACCOUNT_BADGE_CONFIG[tx.account].className
+                            )}>
+                              {ACCOUNT_BADGE_CONFIG[tx.account].label}
+                            </span>
+                          )}
+                          {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell', 'transfer_to_spot', 'transfer_to_futures'].includes(tx.type) && (
                             <span className={cn(
                               "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
                               TYPE_BADGE_CONFIG[tx.type].className
