@@ -42,7 +42,7 @@
 | product_line | side | 走向 |
 |---|---|---|
 | `spot` | `buy` | `fillSpotLimitOrder`；返回的 `balanceDelta > 0` 走 `addBalance` |
-| `spot` | `sell` | **抛错**：`Spot positions cannot be short — short selling is not supported.` |
+| `spot` | `sell` | `fillSpotLimitOrder`；SELL 分支持有同侧净仓时减仓+回款；净 short 由服务层拒绝 |
 | `futures` | `buy` / `sell` | 原逻辑：`UPDATE trades → INSERT positions`，`side = order.side === 'buy' ? 'long' : 'short'`，并显式写入 `product_line: 'futures'` |
 
 ### 3.3 Voucher redeem 拒绝路径
@@ -53,9 +53,17 @@
 
 ## 4. 用户端流程
 
-### 4.1 /trade（合约主面板）
+### 4.1 /trade（合约主面板 — 桌面 + 移动）
 
-`DesktopPositionsPanel` 在 hook 层就完成过滤：`positions = allPositions.filter(p => p.productLine !== 'spot')`，`orders = allOrders.filter(o => (o.productLine ?? 'futures') !== 'spot')`。三个 Tab（Positions / Pending / History）继承同一份 `positions`/`orders`，不再需要在每个 Tab 里各自 filter。
+三个真实挂载点在 hook 边界完成过滤，不再依赖任何下游 Tab 逐个 filter：
+
+| 挂载点 | 位置 | 过滤实现 |
+|---|---|---|
+| 桌面 /trade | `src/pages/DesktopTrading.tsx` | `positions = useMemo(() => allPositions.filter(p => p.productLine !== 'spot'), [allPositions])`；`unifiedOrders = useMemo(() => allUnifiedOrders.filter(o => (o.productLine ?? 'futures') !== 'spot'), [...])`。下方 "Positions" / "Current Orders" 两个 Tab 直接消费过滤后的数组 |
+| 移动 /trade（图表） | `src/pages/TradingCharts.tsx` | 同上，`positions` + `orders` 在 `useMemo` 里过滤，`Order Book / Trades history / Orders / Positions` 四个 Tab 沿用 |
+| 移动 /trade/order（下单） | `src/pages/TradeOrder.tsx` | 同上，Orders / Positions 两个 Tab 沿用 |
+
+死代码 `src/components/DesktopPositionsPanel.tsx` 保留自身 filter（防止后续误挂载），但不作为收敛点。
 
 ### 4.2 /spot（现货主面板）
 
@@ -63,12 +71,12 @@
 
 ### 4.3 Portfolio
 
-Positions Tab 依旧混列两条产品线的持仓（这是 Portfolio 作为"总账户"的语义），但 View 按钮按行分流：
+Positions Tab 依旧混列两条产品线的持仓（这是 Portfolio 作为"总账户"的语义），但 View 按钮按行分流。`handlePositionAction(index)` 现在从 `sortedPositions[index]` 取 target（之前读 `positions[index]`，用户按 PnL/Qty 排序后会拿错行、spot ↔ futures 互相误路由）：
 
 | 行类型 | 目标 |
 |---|---|
 | spot | `/spot?event={event_id}` — 通过 `useActiveEvents` 的 `event_name → id` 索引解析；解析不到则退回 `/spot` |
-| futures | 桌面 `/trade` + `state.highlightPosition`；移动 `/trade/order` + `state.highlightPosition`（原逻辑不变） |
+| futures | 桌面 `/trade` / 移动 `/trade/order`；`state.highlightPosition` 通过 `futuresPositions.findIndex(p => p.id === target.id)` 在 destination 的 futures-only 数组里重算，避免混列索引失配 |
 
 ### 4.4 Position detail 面板
 
