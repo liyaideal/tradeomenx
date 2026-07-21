@@ -25,6 +25,16 @@ interface TransferFormProps {
   onCancel?: () => void;
   onSuccess?: () => void;
   initialDirection?: TransferDirection;
+  /**
+   * Style-guide only. Forces balances + initial amount for state coverage
+   * (normal / insufficient / zero / trial-hint). Never pass in production —
+   * production always reads from useUserProfile.
+   */
+  demoOverride?: {
+    balance?: number;
+    spotBalance?: number;
+    initialAmount?: string;
+  };
 }
 
 const fmt = (n: number) =>
