@@ -940,21 +940,18 @@ export default function SpotTrading() {
   const AccountPanel = (
     <div className="flex flex-col bg-background rounded-lg border border-border/50">
       <div className="flex items-center px-4 py-2 border-b border-border/30">
-        <span className="text-sm font-medium">Account</span>
+        <span className="text-sm font-medium">Spot Account</span>
       </div>
       <div className="px-4 py-3 space-y-2 text-xs">
-        <Row label="Equity">
-          <span className="font-mono text-foreground">${spotBalance.toFixed(2)}</span>
-        </Row>
         <Row label="Available (USDC)">
-          <span className="font-mono">${balance.toFixed(2)}</span>
-        </Row>
-        <Row label="Trial bonus">
-          <span className="font-mono text-primary">${trialBalance.toFixed(2)}</span>
+          <span className="font-mono text-foreground">${spotBalance.toFixed(2)}</span>
         </Row>
         <Row label="Open spot positions">
           <span className="font-mono">{spotPositions.length}</span>
         </Row>
+        <div className="text-[10px] text-muted-foreground pt-1">
+          Contract account &amp; Trial Bonus do not fund spot trades. Transfer from /wallet.
+        </div>
       </div>
     </div>
   );
