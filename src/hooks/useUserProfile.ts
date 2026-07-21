@@ -42,6 +42,7 @@ export interface Profile {
   avatar_url: string | null;
   balance: number | null;
   trial_balance: number | null;
+  spot_balance: number | null;
   created_at: string;
   updated_at: string;
   withdraw_2fa_mode?: string | null;
