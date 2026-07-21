@@ -49,10 +49,6 @@ import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
 import { AirdropNotificationToast } from "./components/AirdropNotificationToast";
 import { SportsLauncher } from "./components/SportsLauncher";
 import { useOrderSimulation } from "./hooks/useOrderSimulation";
-import { SurfaceProvider, useSurface } from "./contexts/SurfaceContext";
-import LiteHome from "./pages/lite/LiteHome";
-import LiteEvents from "./pages/lite/LiteEvents";
-import LiteSpotTrade from "./pages/lite/LiteSpotTrade";
 
 const queryClient = new QueryClient();
 
@@ -65,31 +61,18 @@ const OrderSimulationRunner = () => {
 // Responsive layout wrapper
 const ResponsiveLayout = ({ children }: { children: React.ReactNode }) => {
   const isMobile = useIsMobile();
-
+  
   if (isMobile) {
     return <div className="max-w-md mx-auto min-h-screen bg-background">{children}</div>;
   }
-
+  
   return <div className="min-h-screen bg-background">{children}</div>;
 };
 
-// Surface-aware page pickers. Pro surface keeps the existing pages verbatim
-// (see Round A §2 — only Home / Events / trading pages fork).
+// Route component that shows different pages based on device
 const HomePage = () => {
   const isMobile = useIsMobile();
-  const { surface } = useSurface();
-  if (surface === "lite") return <LiteHome />;
   return isMobile ? <MobileHome /> : <EventsPage />;
-};
-
-const EventsSurfacePage = () => {
-  const { surface } = useSurface();
-  return surface === "lite" ? <LiteEvents /> : <EventsPage />;
-};
-
-const SpotSurfacePage = () => {
-  const { surface } = useSurface();
-  return surface === "lite" ? <LiteSpotTrade /> : <SpotTrading />;
 };
 
 const TradingPage = () => {
@@ -105,7 +88,6 @@ const TradeOrderPage = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <RealtimePricesProvider>
-      <SurfaceProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -128,9 +110,9 @@ const App = () => (
                     <Route path="/" element={<HomePage />} />
               <Route path="/trade" element={<TradingPage />} />
               <Route path="/trade/order" element={<TradeOrderPage />} />
-              <Route path="/spot" element={<SpotSurfacePage />} />
+              <Route path="/spot" element={<SpotTrading />} />
               <Route path="/order-preview" element={<OrderPreview />} />
-              <Route path="/events" element={<EventsSurfacePage />} />
+              <Route path="/events" element={<EventsPage />} />
               <Route path="/resolved" element={<ResolvedPage />} />
               <Route path="/resolved/:eventId" element={<ResolvedEventDetail />} />
               <Route path="/portfolio" element={<Portfolio />} />
@@ -167,7 +149,6 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-      </SurfaceProvider>
     </RealtimePricesProvider>
   </QueryClientProvider>
 );

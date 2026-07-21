@@ -14,5 +14,4 @@ export { WorldCupSection } from "./WorldCupSection";
 export { SpotSection } from "./SpotSection";
 export { ApiSection } from "./ApiSection";
 export { StatesSection } from "./StatesSection";
-export { LiteSection } from "./LiteSection";
 

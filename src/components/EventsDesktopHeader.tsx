@@ -16,7 +16,6 @@ import {
   Check,
   Ticket,
   KeyRound,
-  Repeat,
   
 
 } from "lucide-react";
@@ -38,7 +37,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useSurface } from "@/contexts/SurfaceContext";
 
 
 // Main nav (4 items). Resolved is now an Events page tab; Leaderboard is a
@@ -66,7 +64,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const [language, setLanguage] = useState("EN");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, trialBalance, user, username, avatarUrl } = useUserProfile();
-  const { surface, toggleSurface } = useSurface();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -189,10 +186,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
 
                   {/* Preferences */}
-                  <DropdownMenuItem onClick={toggleSurface}>
-                    <Repeat className="mr-2 h-4 w-4 text-primary" />
-                    {surface === "lite" ? "Switch to Pro" : "Switch to Lite"}
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
                     Settings

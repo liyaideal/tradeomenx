@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Users, Lightbulb, Award, Ticket, KeyRound, Repeat } from "lucide-react";
+import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Users, Lightbulb, Award, Ticket, KeyRound } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -8,7 +8,6 @@ import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/componen
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { SPORTS_LINK } from "@/lib/worldCup";
-import { useSurface } from "@/contexts/SurfaceContext";
 import soccerBallAsset from "@/assets/soccer-ball.png.asset.json";
 
 
@@ -33,7 +32,6 @@ export const BottomNav = () => {
   const { balance, trialBalance, user, username, avatarUrl, profile } = useUserProfile();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
-  const { surface, toggleSurface } = useSurface();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -248,15 +246,6 @@ export const BottomNav = () => {
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/developers");
-            }}
-          />
-
-          <MobileDrawerListItem
-            icon={Repeat}
-            label={surface === "lite" ? "Switch to Pro" : "Switch to Lite"}
-            onClick={() => {
-              toggleSurface();
-              setProfileSheetOpen(false);
             }}
           />
 

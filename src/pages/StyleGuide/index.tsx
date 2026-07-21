@@ -29,7 +29,6 @@ import {
   SpotSection,
   ApiSection,
   StatesSection,
-  LiteSection,
 } from "./sections";
 
 
@@ -62,7 +61,6 @@ const StyleGuideIndex = () => {
     { id: "spot", label: "Spot", icon: "📈" },
     { id: "api", label: "API", icon: "🔑" },
     { id: "states", label: "States", icon: "🧱" },
-    { id: "lite", label: "Lite Mode", icon: "✨" },
   ];
 
 
@@ -215,10 +213,6 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="states" className="mt-0">
             <StatesSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="lite" className="mt-0">
-            <LiteSection isMobile={isMobile} />
           </TabsContent>
         </Tabs>
 
