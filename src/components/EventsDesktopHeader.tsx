@@ -189,6 +189,10 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
 
                   {/* Preferences */}
+                  <DropdownMenuItem onClick={toggleSurface}>
+                    <Repeat className="mr-2 h-4 w-4 text-primary" />
+                    {surface === "lite" ? "Switch to Pro" : "Switch to Lite"}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
                     Settings
