@@ -167,6 +167,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </SurfaceProvider>
     </RealtimePricesProvider>
   </QueryClientProvider>
 );
