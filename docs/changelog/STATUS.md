@@ -51,7 +51,7 @@
 | DAC4 | 现货链路余额源切换：`SpotTrading` 下单校验、买入扣款、限价预扣、撤单退款、卖出回款全部走 `deductSpotBalance` / `addSpotBalance`；不再读 `totalBalance` / `trialBalance` | `src/pages/SpotTrading.tsx` L210 起 · `src/hooks/useSupabaseOrders.ts` spot 分支 | ⬜ | 合约账户 $500、Trial $10、Spot $0 → 打开 /spot 显示 Available $0，Buy $50 直接 Insufficient balance | Trial 不再补贴现货 |
 | DAC5 | 现货 Account 面板改为 "Spot Account" 单余额显示（Available USDC + Open positions + 提示句），移除 Trial/Cash 拆分 | `src/pages/SpotTrading.tsx` `AccountPanel` | ✅ | Account 卡右上角标题 "Spot Account"；不再出现 Trial bonus 行 | 已追认收编（2b） |
 | DAC6 | `useRealtimeRiskMetrics` 输入 positions 过滤 `product_line !== 'spot'` | `src/hooks/useRealtimeRiskMetrics.ts` L28-38 | ⬜ | 造 spot 持仓 $500 + futures 持仓 $500 → Risk Ratio 只反映 futures；纯 spot 持仓时 Risk Ratio = 0 | 修复 spot 虚高 bug |
-| DAC7 | `docs/backend-boundary.md` 追加 2026-07-21 双账户 append-only 章节（4 行：spot_balance 🟡 / transactions.account 🟡 / sim-transfer 🟡 / useRealtimeRiskMetrics 🟢；`profiles.balance` 默认值 13530→0 与 handle_new_user 变更在 2a changelog 内说明，不单列一行） | `docs/backend-boundary.md` 2026-07-21 章节 | ✅ | grep "双账户" 命中；章节含 spot_balance / transactions.account / sim-transfer / useRealtimeRiskMetrics 四行 | |
+| DAC7 | `docs/backend-boundary.md` 追加 2026-07-21 双账户 append-only 章节（5 行：spot_balance 🟡 / `profiles.balance` 默认值 13530→0 与 `handle_new_user` 🟢 / transactions.account 🟡 / sim-transfer 🟡 / useRealtimeRiskMetrics 🟢） | `docs/backend-boundary.md` 2026-07-21 章节 | ✅ | grep "双账户" 命中；章节含 spot_balance / balance 默认值 / transactions.account / sim-transfer / useRealtimeRiskMetrics 五行 | |
 
 **明确不做**（2b/后续轮）：/wallet 分区改版、Transfer 弹窗 UI、充值/提现选账户、顶栏 Total Equity、style-guide 双账户 section、Sports 子站余额源。
 
