@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, AlertTriangle, ChevronDown, Wallet } from 'lucide-react';
+import { Loader2, AlertTriangle, ChevronDown, Wallet, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWithdraw } from '@/hooks/useWithdraw';
@@ -14,6 +14,8 @@ import { WithdrawStatusTracker } from './WithdrawStatusTracker';
 import { WithdrawVerifyDialog } from './WithdrawVerifyDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate } from 'react-router-dom';
+import { AccountPicker } from '@/components/wallet/AccountPicker';
+import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 
 interface WalletWithdrawProps {
   onDone?: () => void;
@@ -24,6 +26,8 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
   const navigate = useNavigate();
   const { wallets } = useWallets();
   const h2e = useH2eRewardsSummary();
+  const { account: withdrawAccount, setAccount: setWithdrawAccount } = useAccountPreference('withdraw');
+  const effectiveAccount = withdrawAccount ?? 'futures';
   const {
     availableBalance: rawAvailableBalance,
     limits,
@@ -34,15 +38,19 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
     calculateNetAmount,
     getWithdrawFee,
     getWithdrawMinimum,
-  } = useWithdraw();
+  } = useWithdraw(effectiveAccount);
 
-  const availableBalance = Math.max(0, rawAvailableBalance - h2e.lockedAmount);
+  // H2E lock only applies to Futures Account (rewards live there).
+  const availableBalance = effectiveAccount === 'futures'
+    ? Math.max(0, rawAvailableBalance - h2e.lockedAmount)
+    : rawAvailableBalance;
 
   const [amount, setAmount] = useState('');
   const [selectedAddress, setSelectedAddress] = useState('');
   const [showAddressSelect, setShowAddressSelect] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [accountPickerOpen, setAccountPickerOpen] = useState(false);
 
   const fee = getWithdrawFee('USDC');
   const minAmount = getWithdrawMinimum('USDC');
@@ -95,6 +103,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         amount,
         toAddress: selectedAddress,
         network: selectedWallet?.network,
+        account: effectiveAccount,
       });
       toast.success('Withdrawal request submitted');
     } catch (err: any) {
@@ -143,6 +152,26 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
           <div className="font-semibold text-sm">USDC</div>
           <div className="text-xs text-muted-foreground">Base Network</div>
         </div>
+      </div>
+
+      {/* From account */}
+      <div className="space-y-2">
+        <LabelText size="sm" muted>From account</LabelText>
+        <button
+          onClick={() => setAccountPickerOpen(true)}
+          className={cn(
+            "w-full flex items-center justify-between bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors",
+            isMobile ? "p-4 rounded-xl" : "p-3 rounded-lg"
+          )}
+        >
+          <div className="text-left">
+            <div className="text-sm font-medium">{ACCOUNT_LABEL[effectiveAccount]}</div>
+            <div className="text-xs text-muted-foreground font-mono">
+              Available: {availableBalance.toFixed(2)} USDC
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </button>
       </div>
 
       {/* Withdrawal Address */}
@@ -265,6 +294,21 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         open={verifyOpen}
         onOpenChange={setVerifyOpen}
         onVerified={doSubmit}
+      />
+
+      {/* From-account picker */}
+      <AccountPicker
+        open={accountPickerOpen}
+        onOpenChange={setAccountPickerOpen}
+        selected={effectiveAccount}
+        onSelect={(a) => {
+          setWithdrawAccount(a);
+          setAccountPickerOpen(false);
+          // Clear amount to avoid stale validation against the previous balance.
+          setAmount('');
+          setError(null);
+        }}
+        title="From account"
       />
     </div>
   );

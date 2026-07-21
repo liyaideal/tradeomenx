@@ -141,7 +141,7 @@ export default function Wallet() {
 
       const { data, error } = await supabase
         .from("transactions")
-        .select("id, type, amount, description, created_at, tx_hash, network, status")
+        .select("id, type, amount, description, created_at, tx_hash, network, status, account")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
@@ -179,6 +179,9 @@ export default function Wallet() {
     txHash: tx.tx_hash,
     network: tx.network,
     status: (tx.status || 'completed') as TransactionStatus,
+    account: ((tx as { account?: string }).account === 'spot' || (tx as { account?: string }).account === 'futures')
+      ? ((tx as { account: 'spot' | 'futures' }).account)
+      : null,
   }));
 
   const transactions: Transaction[] = [...tradeTransactions, ...fundTransactions]
