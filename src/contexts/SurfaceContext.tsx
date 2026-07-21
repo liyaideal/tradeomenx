@@ -62,7 +62,7 @@ export const SurfaceProvider = ({ children }: { children: ReactNode }) => {
     if (isLoading) return;
     if (user && profile) {
       if (seededForUserRef.current === user.id) return;
-      const dbSurface = (profile as any).preferred_surface as string | undefined;
+      const dbSurface = (profile as { preferred_surface?: string }).preferred_surface;
       const next: Surface = dbSurface === "pro" ? "pro" : "lite";
       setSurfaceState(next);
       seededForUserRef.current = user.id;
@@ -79,7 +79,7 @@ export const SurfaceProvider = ({ children }: { children: ReactNode }) => {
         // Fire-and-forget; UI switches immediately.
         supabase
           .from("profiles")
-          .update({ preferred_surface: next } as any)
+          .update({ preferred_surface: next })
           .eq("user_id", user.id)
           .then(({ error }) => {
             if (error) console.warn("preferred_surface update failed:", error);
