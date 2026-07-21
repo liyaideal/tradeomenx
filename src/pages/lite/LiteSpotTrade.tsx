@@ -64,18 +64,10 @@ const LiteSpotTrade = () => {
     };
   }, [eventId]);
 
-  const freezeAt = event && (event as any).freeze_time
-    ? new Date((event as any).freeze_time)
-    : event?.end_date ? new Date(event.end_date) : null;
-  const countdown = useCountdown(freezeAt);
-
-  const countdownLabel = useMemo(() => {
-    if (!countdown) return "--";
-    const { hours, minutes, seconds, isExpired } = countdown;
-    if (isExpired) return "Closed";
-    if (hours >= 1) return `${hours}h ${String(minutes).padStart(2, "0")}m`;
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  }, [countdown]);
+  const freezeIso = (event as any)?.freeze_time || event?.end_date || null;
+  const freezeAt = freezeIso ? new Date(freezeIso) : null;
+  const countdown = useCountdown(freezeIso);
+  const countdownLabel = countdown.isExpired ? "Closed" : countdown.compact || "--";
 
   if (loading) {
     return (
