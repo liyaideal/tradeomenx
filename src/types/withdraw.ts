@@ -41,6 +41,8 @@ export interface WithdrawFormData {
   amount: string;
   toAddress: string;
   network?: string;
+  /** Source account for the debit ('spot' | 'futures'). Defaults to 'futures' when omitted. */
+  account?: 'spot' | 'futures';
 }
 
 // Fee configuration per token

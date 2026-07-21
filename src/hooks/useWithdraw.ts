@@ -22,9 +22,10 @@ const MOCK_WITHDRAW_LIMITS: WithdrawLimits = {
 
 const MOCK_PENDING_WITHDRAWALS: WithdrawRecord[] = [];
 
-export const useWithdraw = () => {
+export const useWithdraw = (account: 'spot' | 'futures' = 'futures') => {
   const queryClient = useQueryClient();
-  const { user, balance } = useUserProfile();
+  const { user, balance, spotBalance, deductBalance, deductSpotBalance } = useUserProfile();
+  const sourceBalance = account === 'spot' ? spotBalance : balance;
   const [currentWithdrawal, setCurrentWithdrawal] = useState<WithdrawRecord | null>(null);
 
   // Fetch withdrawal limits
@@ -64,16 +65,18 @@ export const useWithdraw = () => {
       const amount = parseFloat(data.amount);
       const fee = getWithdrawFee(data.token);
       const minAmount = getWithdrawMinimum(data.token);
-      
+      const debitAccount: 'spot' | 'futures' = data.account ?? account;
+      const activeBalance = debitAccount === 'spot' ? spotBalance : balance;
+
       if (isNaN(amount) || amount <= 0) {
         throw new Error('Invalid amount');
       }
-      
+
       if (amount < minAmount) {
         throw new Error(`Minimum withdrawal is ${minAmount} ${data.token}`);
       }
-      
-      if (amount > balance) {
+
+      if (amount > activeBalance) {
         throw new Error('Insufficient balance');
       }
 
@@ -81,23 +84,30 @@ export const useWithdraw = () => {
         throw new Error('Exceeds daily withdrawal limit');
       }
 
-      // Persist a row in the transactions ledger via privileged edge function
-      // (client-side INSERT is no longer allowed on the transactions table).
+      // Persist a row in the transactions ledger via privileged edge function.
       const { data: inserted, error: insertError } = await supabase.functions.invoke<{ id: string; error?: string }>(
         'record-transaction',
         {
           body: {
             type: 'withdraw',
             amount: -amount,
-            description: 'Withdrawal to wallet',
+            description: `Withdrawal from ${debitAccount === 'spot' ? 'Spot Account' : 'Futures Account'}`,
             status: 'processing',
             network: data.network || null,
+            account: debitAccount,
           },
         }
       );
 
       if (insertError || !inserted?.id) {
         throw new Error(insertError?.message || inserted?.error || 'Failed to submit withdrawal');
+      }
+
+      // Debit the correct account (DEMO-STATE: client-side balance write).
+      if (debitAccount === 'spot') {
+        await deductSpotBalance(amount);
+      } else {
+        await deductBalance(amount);
       }
 
       const newWithdrawal: WithdrawRecord = {
@@ -149,7 +159,7 @@ export const useWithdraw = () => {
       return `Minimum withdrawal is ${minAmount} ${data.token}`;
     }
 
-    if (amount + fee > balance) {
+    if (amount + fee > sourceBalance) {
       return 'Insufficient balance (including fee)';
     }
 
@@ -186,7 +196,7 @@ export const useWithdraw = () => {
     }
 
     return null;
-  }, [balance, limits]);
+  }, [sourceBalance, limits]);
 
   // Calculate net amount after fee
   const calculateNetAmount = useCallback((token: string, amount: string): number => {
@@ -214,7 +224,7 @@ export const useWithdraw = () => {
     pendingWithdrawals,
     withdrawHistory,
     currentWithdrawal,
-    availableBalance: balance,
+    availableBalance: sourceBalance,
     
     // Loading states
     isLoadingLimits,
