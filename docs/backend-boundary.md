@@ -127,9 +127,15 @@
 | `DesktopPositionsPanel`（futures-only 视图） | 🟢 | `/trade` 主面板的 Positions / Pending Orders / History 三个 Tab 均**只展示 `product_line !== 'spot'`** 的行；spot 行在 `/spot` 页面自己的 spot-scoped 面板中展示，两条产品线互不串。 |
 | `PositionDetailContent`（spot 分支） | 🟢 | Spot 持仓详情面板**必须隐藏** leverage / liquidation price / funding / est. close fee，改用 Shares / Avg cost / Current value / Cost basis + "Each winning share pays $1 at settlement" 提示。桌面 dialog 与移动 drawer 共用同一组件、行为一致。 |
 
+## 2026-07-21 双账户改造 · 轮次 2a 资金内核（append-only 补录）
 
-
-
+| 表 / 字段 / 函数 | 类别 | 说明 |
+|---|---|---|
+| `profiles.spot_balance` | 🟡 | 现货账户 Available 余额。双账户模型（现货 / 合约 CEX 范式）是需求；用一列存储属演示简化，正式版应有独立账户账本 / 总账体系（accounts + entries）。合约账户仍读 `profiles.balance` + `profiles.trial_balance`，两账户可通过 `sim-transfer` 划转，`Total Equity = balance + trial_balance + spot_balance`。 |
+| `profiles.balance` 默认值 10000 → 0；`handle_new_user` 不再注入演示金 / 演示 transactions | 🟢 | 产品口径：新注册用户两账户 $0 起步，充值或领取 voucher 后才有资金进入。存量用户余额不动。任何注册 / ensure-demo-user / guest localStorage 路径中的硬编码 10000 初值全部同步归零。 |
+| `transactions.account`（'spot' \| 'futures'，可空） | 🟡 | 账户归属维度是需求；本轮起新流水必须写入 account，历史行留空。放行新类型 `transfer_to_spot` / `transfer_to_futures`。存储在同一张表属演示简化，正式版按账户拆表或走总账。 |
+| `sim-transfer` Edge Function | 🟡 | 双账户划转的原子性 + 一入一出两条流水是需求；技术实现（RPC / 事务 / 消息队列）由正式架构决定。客户端直改 `balance` / `spot_balance` 列被 RLS 拒绝的原则沿用 record-transaction 口径。 |
+| `useRealtimeRiskMetrics` 过滤 `product_line='futures'` | 🟢 | 现货持仓由 spot_balance 全额现金抵押，**不进** IM / MM / Risk Ratio / close-only 判定。修复现货虚高 Risk Ratio bug。合约结算入账目标为 `balance`，现货结算入账目标为 `spot_balance`（结算演示流在轮次 4）。 |
 
 
 ## 治理规则（即日生效）
