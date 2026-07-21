@@ -61,7 +61,7 @@ export const LiteBuyPanel = ({
   demoError,
 }: LiteBuyPanelProps) => {
   const { user } = useAuth();
-  const { balance, trialBalance, refetch } = useUserProfile();
+  const { balance, trialBalance, refetchProfile } = useUserProfile();
   const pricesCtx = useRealtimePricesOptional();
 
   const [side, setSide] = useState<Side>("yes");
