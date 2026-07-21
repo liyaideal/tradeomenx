@@ -25,13 +25,13 @@
 
 | # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
 |---|---|---|---|---|---|
-| DAC1 | `profiles.spot_balance` 列新增（NOT NULL DEFAULT 0）；`profiles.balance` 默认值 10000 → 0；`transactions.account` 列新增（'spot' \| 'futures'）+ `transfer_to_spot` / `transfer_to_futures` 类型放行 | migration | ⬜ | 新注册用户 balance=0、spot_balance=0；老用户余额未动；transactions.account 老行为 NULL | 存量演示行不回填 |
-| DAC2 | `handle_new_user` 触发器 `v_initial_balance` 10000 → 0；不再插入演示历史 transactions；vouchers 与 points_accounts 逻辑保留 | migration `public.handle_new_user` | ⬜ | 新账号注册 → transactions 表零行；vouchers 仍按每日池发放；profiles 两账户均 0 | |
-| DAC3 | `sim-transfer` Edge Function：入参 direction/amount，服务端校验来源余额→原子改两列→写两条 transactions（+/-，account 双侧）；余额不足 400 | `supabase/functions/sim-transfer/index.ts` · `useUserProfile.transferBetweenAccounts` | ⬜ | curl {"direction":"to_spot","amount":100} 余额不足 → 400；充足 → 200 & profiles 两列一增一减；transactions 两行含 account | RLS 仍禁止客户端直改 balance 列 |
+| DAC1 | `profiles.spot_balance` 列新增（NOT NULL DEFAULT 0）；`profiles.balance` 默认值 13530 → 0；`transactions.account` 列新增（'spot' \| 'futures'，约束幂等重建）+ `transfer_to_spot` / `transfer_to_futures` 类型放行 | migration | ⬜ | 新注册用户 balance=0、spot_balance=0；老用户余额未动；transactions.account 老行为 NULL | 存量演示行不回填；**存量现货 Pending 挂单跨账户漂移口子**：切换前预扣走合约账户的现货挂单，2a 后成交/撤单会退进 spot_balance，已查库确认切换时点存量为 0，不做迁移 |
+| DAC2 | `handle_new_user` 触发器 `v_initial_balance` 13530 → 0；不再插入演示历史 transactions；vouchers 与 points_accounts 逻辑保留 | migration `public.handle_new_user` | ⬜ | 新账号注册 → transactions 表零行；vouchers 仍按每日池发放；profiles 两账户均 0 | |
+| DAC3 | `sim-transfer` Edge Function：入参 direction/amount，服务端校验来源余额→原子改两列→写两条 transactions（+/-，account 双侧）；余额不足 400 | `supabase/functions/sim-transfer/index.ts` · `useUserProfile.transferBetweenAccounts` | ⬜ | curl {"direction":"to_spot","amount":100} 余额不足 → 400；充足 → 200 & profiles 两列一增一减；transactions 两行含 account | DEMO-STATE：当前演示下客户端仍可直改 balance 列（RLS 未收敛），正式版目标是收敛到 Edge Function |
 | DAC4 | 现货链路余额源切换：`SpotTrading` 下单校验、买入扣款、限价预扣、撤单退款、卖出回款全部走 `deductSpotBalance` / `addSpotBalance`；不再读 `totalBalance` / `trialBalance` | `src/pages/SpotTrading.tsx` L210 起 · `src/hooks/useSupabaseOrders.ts` spot 分支 | ⬜ | 合约账户 $500、Trial $10、Spot $0 → 打开 /spot 显示 Available $0，Buy $50 直接 Insufficient balance | Trial 不再补贴现货 |
-| DAC5 | 现货 Account 面板改为 "Spot Account" 单余额显示（Available USDC + Open positions + 提示句），移除 Trial/Cash 拆分 | `src/pages/SpotTrading.tsx` `AccountPanel` | ⬜ | Account 卡右上角标题 "Spot Account"；不再出现 Trial bonus 行 | |
+| DAC5 | 现货 Account 面板改为 "Spot Account" 单余额显示（Available USDC + Open positions + 提示句），移除 Trial/Cash 拆分 | `src/pages/SpotTrading.tsx` `AccountPanel` | ⬜ | Account 卡右上角标题 "Spot Account"；不再出现 Trial bonus 行 | 待产品裁决，本轮暂不动 UI |
 | DAC6 | `useRealtimeRiskMetrics` 输入 positions 过滤 `product_line !== 'spot'` | `src/hooks/useRealtimeRiskMetrics.ts` L28-38 | ⬜ | 造 spot 持仓 $500 + futures 持仓 $500 → Risk Ratio 只反映 futures；纯 spot 持仓时 Risk Ratio = 0 | 修复 spot 虚高 bug |
-| DAC7 | `docs/backend-boundary.md` 追加 2026-07-21 双账户三行标注（spot_balance 🟡 / balance 默认值 🟢 / transactions.account 🟡） | `docs/backend-boundary.md` | ⬜ | grep "双账户" 命中 | |
+| DAC7 | `docs/backend-boundary.md` 追加 2026-07-21 双账户 append-only 章节（3 行：spot_balance 🟡 / balance 默认值 13530→0 🟢 / transactions.account 🟡 + sim-transfer 🟡） | `docs/backend-boundary.md` 2026-07-21 章节 | ⬜ | grep "双账户" 命中；章节含 spot_balance / balance / transactions.account / sim-transfer 四行 | |
 
 **明确不做**（2b/后续轮）：/wallet 分区改版、Transfer 弹窗 UI、充值/提现选账户、顶栏 Total Equity、style-guide 双账户 section、Sports 子站余额源。
 

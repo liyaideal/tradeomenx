@@ -28,7 +28,7 @@
 | 字段 / 类型 | 说明 |
 |---|---|
 | `profiles.spot_balance NUMERIC NOT NULL DEFAULT 0` | 现货账户 Available |
-| `profiles.balance` 默认值 `10000 → 0` | 新用户不发演示金 |
+| `profiles.balance` 默认值 `13530 → 0` | 新用户不发演示金（此前默认 13530 与 `handle_new_user` 内 `v_initial_balance := 13530` 一致） |
 | `transactions.account TEXT NULL CHECK (account IN ('spot','futures'))` | 账户归属；历史行留空 |
 | `transactions.type` 允许新增 `transfer_to_spot` / `transfer_to_futures` | 划转两侧流水类型 |
 
@@ -36,9 +36,9 @@
 
 `handle_new_user`：`v_initial_balance` 由 `13530` → `0`；**移除**所有演示 transactions / positions / trades 的批量插入；vouchers（每日池发放）和 `points_accounts` 保留。新账号注册后 profiles 两列均 0、transactions 表 0 行。
 
-### 3.3 RLS
+### 3.3 RLS（DEMO-STATE）
 
-`balance` / `spot_balance` / `trial_balance` 三列客户端直改仍被拒绝（沿用现有 record-transaction 收敛口径），必须走 Edge Function。
+> DEMO-STATE：当前演示实现下，`balance` / `spot_balance` / `trial_balance` 三列仍**可由客户端直改**（RLS 未收敛），这是本仓库作为 Demo Engine 的现状。正式版目标：三列写入全部收敛到服务端 Edge Function，客户端直改被 RLS 拒绝（对齐 `record-transaction` 口径）。`sim-transfer` 走服务端已符合正式版口径。
 
 ## 4. Edge Function：`sim-transfer`
 
@@ -66,6 +66,8 @@
 
 **契约变更（不向后兼容）**：现货明确**不再**使用"Trial 优先扣、Available 兜底"的双余额模型。用户如需在 /spot 交易，必须先从 /wallet Transfer to Spot（UI 在 2b 交付）。
 
+**切换时点口子（存量 Pending 挂单跨账户漂移）**：2a 之前的现货限价单是走合约账户预扣（Trial 优先）落库的；2a 切换后，这些遗留 Pending 单一旦成交或撤单，退款/回款会进 `spot_balance`，产生跨账户资金漂移。**已查库确认切换时点存量现货 Pending = 0**，无实际敞口，因此不做数据迁移；此口子仅存在于假设"切换时点仍有未成交现货挂单"的情形下，不再复现。
+
 ### 5.3 风控口径
 
 `src/hooks/useRealtimeRiskMetrics.ts` 输入 positions 增加 `product_line !== 'spot'` 过滤。现货持仓 / 现货余额 **完全不进** IM / MM / Risk Ratio / close-only 判定。修复此前现货虚高 Risk Ratio 的 bug。
@@ -76,7 +78,7 @@
 
 ### 5.5 Guest
 
-Guest localStorage 演示两账户同样 $0 起步（原 10000 初值清零），DEMO-STATE 注释保留。
+Guest 匿名会话本来就不持久化任何余额（代码库从未在 localStorage 写入 `10000` / `13530` 演示金），本轮无改动，Guest 侧默认 $0。
 
 ## 6. 明确不做（本轮范围外）
 
