@@ -19,6 +19,27 @@
 
 ---
 
+## 批次 2026-07-21 · Pro/Lite 双 surface Round A（骨架 + Stocks 快速买入）
+
+对照文档：[2026-07-21-lite-mode-structure.md](./2026-07-21-lite-mode-structure.md)
+
+| ID | 任务 | 涉及 | Status | 验收 | Notes |
+|---|---|---|---|---|---|
+| L1 | `SurfaceContext` 读写 `profiles.preferred_surface`（guest → localStorage）| `src/contexts/SurfaceContext.tsx` | ⬜ | 登录/刷新恢复上次选择；guest 也能记住 | |
+| L2 | 桌面头像菜单 `Switch to Pro/Lite` | `EventsDesktopHeader.tsx` | ⬜ | 点击立即切换，写库 fire-and-forget | |
+| L3 | 移动 Profile drawer `Switch to Pro/Lite` | `BottomNav.tsx` | ⬜ | 与桌面项文案一致 | |
+| L4 | `/` Lite 分支渲染 `LiteHome` | `App.tsx`, `pages/lite/LiteHome.tsx` | ⬜ | Pro 版 Home 一行未改 | |
+| L5 | `/events` Lite 分支渲染 `LiteEvents` | `App.tsx`, `pages/lite/LiteEvents.tsx` | ⬜ | 无 Futures\|Spot 切换 | |
+| L6 | `/spot` Lite 分支渲染 `LiteSpotTrade` | `App.tsx`, `pages/lite/LiteSpotTrade.tsx` | ⬜ | URL 可分享 | |
+| L7 | 板块 rail：Sports 外链 + 4 sector 动态生成 | `components/lite/SectorRail.tsx` | ⬜ | 无事件的 sector 不出现；Sports 常驻 | |
+| L8 | Lite 事件卡（含 stocks 当日开奖徽标）| `components/lite/LiteEventCard.tsx` | ⬜ | Stocks 徽标读 `freeze_time`，勿硬编码 16:00 | |
+| L9 | Lite 快速买入面板 = marketable limit 封装 | `components/lite/LiteBuyPanel.tsx` | ⬜ | mid 漂移 > $0.02 报 `Price moved, try again` | |
+| L10 | 落库契约：`product_line='spot'`、`leverage=1`、`side='long'`、Trial 优先 | 走 `executeSpotTrade` | ⬜ | 复用现有逻辑，无新写入路径 | |
+| L11 | 全 Lite surface 禁用词校验 | 手工 QA | ⬜ | Margin/Liquidation/Funding/Leverage/Long/Short/Spot/Futures 均不出现 | |
+| L12 | `/style-guide` Lite section 双端 7 态穷举 | `StyleGuide/sections/LiteSection.tsx` | ⬜ | mobile + desktop 均含全部状态 | |
+
+
+
 ## 2026-07-15 — Open API v1 用户侧 Key 管理页
 
 源文档：[2026-07-15-api-key-management.md](./2026-07-15-api-key-management.md) · 长效文档：[backend-boundary.md](../backend-boundary.md) · 记忆：`mem://features/api-key-management`
