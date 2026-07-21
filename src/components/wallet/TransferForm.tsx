@@ -99,9 +99,18 @@ export const TransferForm = ({
   const [amountStr, setAmountStr] = useState(demoOverride?.initialAmount ?? "");
   const [submitting, setSubmitting] = useState(false);
 
+  // Skip the mount pass so demoOverride.initialAmount (used by the style-guide
+  // 4-state preview) survives the first render. Also skip when demoOverride is
+  // present so preview snapshots don't get clobbered.
+  const isFirstDirectionEffect = useRef(true);
   useEffect(() => {
+    if (isFirstDirectionEffect.current) {
+      isFirstDirectionEffect.current = false;
+      return;
+    }
+    if (demoOverride) return;
     setAmountStr("");
-  }, [direction]);
+  }, [direction, demoOverride]);
 
   // From = Futures 时 Available 只显示 balance（Trial 不可划转）
   const fromAvailable = direction === "to_spot" ? balance : spotBalance;
