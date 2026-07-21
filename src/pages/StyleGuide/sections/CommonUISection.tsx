@@ -37,6 +37,7 @@ interface CommonUISectionProps {
 }
 
 export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
+  const navigate = useNavigate();
   // Button Playground
   const [buttonVariant, setButtonVariant] = useState<"default" | "secondary" | "destructive" | "outline" | "ghost" | "link">("default");
   const [buttonSize, setButtonSize] = useState<"default" | "sm" | "lg" | "icon">("default");
