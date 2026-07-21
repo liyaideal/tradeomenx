@@ -207,7 +207,10 @@ export default function SpotTrading() {
   const navigationType = useNavigationType();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { balance, trialBalance, totalBalance, deductBalance, addBalance } = useUserProfile();
+  // Spot terminal draws exclusively from the spot account. Trial Bonus / futures
+  // cash never fund spot fills (dual-account cutover 2026-07-21). Users must
+  // Transfer to Spot from /wallet before trading here.
+  const { spotBalance, deductSpotBalance, addSpotBalance } = useUserProfile();
 
   // ---- Data ----
   const [event, setEvent] = useState<EventRow | null>(null);
