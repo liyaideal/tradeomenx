@@ -336,7 +336,7 @@ const MOCK_FUTURES_POSITION: UnifiedPosition = {
   productLine: "futures",
 } as unknown as UnifiedPosition;
 
-
+const SAMPLE_ORDERS = [
   { market: "TSLA · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.42", qty: "500", reserved: "$210.00", status: "Pending" },
   { market: "NVDA · Not Up (Jul 15)", side: "sell", type: "Limit", limit: "$0.61", qty: "300", reserved: "—", status: "Pending" },
   { market: "AAPL · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.55", qty: "200", reserved: "$110.00", status: "Filled" },
