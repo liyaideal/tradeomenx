@@ -1,6 +1,9 @@
 // sim-transfer — atomic transfer between the futures and spot accounts.
-// DEMO-STATE: real ledgers live in the trading engine; this is a demo helper.
-// Rule: profile balance columns are RLS-locked to server writes only.
+// DEMO-STATE: this Edge Function is authoritative for the two-side ledger write
+// (one debit + one credit + two `transactions` rows), but `profiles.balance` /
+// `profiles.spot_balance` / `profiles.trial_balance` are still client-writable
+// in the current demo (RLS not yet converged). Production target: converge all
+// balance writes to server-side EFs and reject direct client updates.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
 
