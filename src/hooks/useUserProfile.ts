@@ -467,6 +467,7 @@ export const useUserProfile = () => {
     // Computed values for convenience
     balance: profile?.balance ?? 0,
     trialBalance: profile?.trial_balance ?? 0,
+    spotBalance: profile?.spot_balance ?? 0,
     totalBalance,
     username: profile?.username ?? null,
     avatarUrl: profile?.avatar_url ?? null,
@@ -482,6 +483,10 @@ export const useUserProfile = () => {
     deductBalanceWithDetails,
     addBalance,
     addTrialBalance,
+    updateSpotBalance,
+    deductSpotBalance,
+    addSpotBalance,
+    transferBetweenAccounts,
     updateWithdraw2faMode,
     enableTotp,
     disableTotp,
