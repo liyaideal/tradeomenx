@@ -154,6 +154,26 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         </div>
       </div>
 
+      {/* From account */}
+      <div className="space-y-2">
+        <LabelText size="sm" muted>From account</LabelText>
+        <button
+          onClick={() => setAccountPickerOpen(true)}
+          className={cn(
+            "w-full flex items-center justify-between bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors",
+            isMobile ? "p-4 rounded-xl" : "p-3 rounded-lg"
+          )}
+        >
+          <div className="text-left">
+            <div className="text-sm font-medium">{ACCOUNT_LABEL[effectiveAccount]}</div>
+            <div className="text-xs text-muted-foreground font-mono">
+              Available: {availableBalance.toFixed(2)} USDC
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </div>
+
       {/* Withdrawal Address */}
       <div className="space-y-2">
         <LabelText size="sm" muted>Withdrawal Address</LabelText>
