@@ -514,6 +514,7 @@ export const useUserProfile = () => {
     updateTrialBalance,
     deductBalance,
     deductBalanceWithDetails,
+    deductAvailableOnly,
     addBalance,
     addTrialBalance,
     updateSpotBalance,
