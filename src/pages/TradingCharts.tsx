@@ -30,9 +30,12 @@ interface TradingChartsContentProps {
 
 function TradingChartsContent({ selectedEvent, selectedOptionData, options }: TradingChartsContentProps) {
   const navigate = useNavigate();
-  const { positions, isLoading: positionsLoading } = usePositions();
+  // /trade (mobile Charts) is futures-only — filter spot out at the hook boundary.
+  const { positions: allPositions, isLoading: positionsLoading } = usePositions();
+  const positions = useMemo(() => allPositions.filter((p) => p.productLine !== "spot"), [allPositions]);
   const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
-  const { orders, isLoading: ordersLoading } = useOrders();
+  const { orders: allOrders, isLoading: ordersLoading } = useOrders();
+  const orders = useMemo(() => allOrders.filter((o) => (o.productLine ?? "futures") !== "spot"), [allOrders]);
   const { profile } = useUserProfile();
   const totalPositionCount = positions.length + pendingAirdrops.length;
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { ChevronDown, Gift } from "lucide-react";
@@ -32,9 +32,11 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
   const location = useLocation();
   const state = location.state as LocationState | null;
   
-  // Use unified hooks - Supabase for logged-in users, local for guests
-  const { orders, isLoading: ordersLoading } = useOrders();
-  const { positions, isLoading: positionsLoading } = usePositions();
+  // Use unified hooks — /trade is futures-only, filter spot at hook boundary.
+  const { orders: allOrders, isLoading: ordersLoading } = useOrders();
+  const orders = useMemo(() => allOrders.filter((o) => (o.productLine ?? "futures") !== "spot"), [allOrders]);
+  const { positions: allPositions, isLoading: positionsLoading } = usePositions();
+  const positions = useMemo(() => allPositions.filter((p) => p.productLine !== "spot"), [allPositions]);
   const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
   const totalPositionCount = positions.length + pendingAirdrops.length;
   

@@ -211,9 +211,13 @@ export default function Portfolio() {
   }, [activeEventsForLookup]);
 
   const handlePositionAction = (index: number) => {
-    const target = positions[index];
+    // Read from sortedPositions — rows render from that array, so `index` is a
+    // sorted-index. Reading `positions[index]` would route the wrong row after
+    // sorting by PnL/Qty (spot ↔ futures cross-routing).
+    const target = sortedPositions[index];
+    if (!target) return;
     // Spot positions live on /spot; deep-link when we can resolve the event id.
-    if (target?.productLine === "spot") {
+    if (target.productLine === "spot") {
       const eid = eventIdByName.get(target.event);
       if (eid) {
         navigate(`/spot?event=${eid}`);
@@ -222,14 +226,17 @@ export default function Portfolio() {
       navigate("/spot");
       return;
     }
+    // Futures destination filters spot out — recompute the highlight index
+    // against the destination's futures-only ordering by matching position id.
+    const futuresPositions = positions.filter((p) => p.productLine !== "spot");
+    const highlightIdx = futuresPositions.findIndex((p) => p.id === target.id);
+    const state = highlightIdx >= 0
+      ? { tab: "Positions", highlightPosition: highlightIdx }
+      : { tab: "Positions" };
     if (isMobile) {
-      navigate("/trade/order", {
-        state: { tab: "Positions", highlightPosition: index },
-      });
+      navigate("/trade/order", { state });
     } else {
-      navigate("/trade", {
-        state: { tab: "Positions", highlightPosition: index },
-      });
+      navigate("/trade", { state });
     }
   };
 

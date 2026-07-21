@@ -118,8 +118,10 @@ export const useSupabaseOrders = () => {
 
   // Fill order mutation — spot orders MUST route to fillSpotLimitOrder so the
   // SIGNED_YES_SHARE net-position model + opposite-leg refund apply. Futures
-  // orders keep the legacy insert-a-position flow. Defensive: refuse to create
-  // a spot short position via any code path (spot is buy-only, no shorting).
+  // orders keep the legacy insert-a-position flow. Spot BUY and reduce-only
+  // SELL are both legal; the service layer (`fillSpotLimitOrder` SELL branch)
+  // rejects a fill that would produce a net short — no need to blanket-block
+  // sell here, or legitimate reduce-only limit closes would be unfillable.
   const fillOrderMutation = useMutation({
     mutationFn: async (orderId: string) => {
       if (!user?.id) throw new Error("Not authenticated");
@@ -131,10 +133,6 @@ export const useSupabaseOrders = () => {
       if (fetchError || !order) throw fetchError || new Error("Order not found");
 
       if (order.product_line === "spot") {
-        const positionSide = order.side === "buy" ? "long" : "short";
-        if (positionSide === "short") {
-          throw new Error("Spot positions cannot be short — short selling is not supported.");
-        }
         const res = await fillSpotLimitOrder(user.id, orderId);
         if (res.balanceDelta > 0) await addBalance(res.balanceDelta);
         return;
