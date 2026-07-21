@@ -3,12 +3,8 @@ import { ArrowRight, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import { cn } from "@/lib/utils";
-
-const formatBalance = (balance: number | null | undefined) => {
-  if (balance == null) return "$0.00";
-  return `$${balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-};
 
 interface HomeEquityHeroProps {
   onLogin: () => void;
@@ -68,7 +64,7 @@ export const HomeEquityHero = ({ onLogin, todayPnLPercent = "+1.9%" }: HomeEquit
       {/* Number + eye toggle */}
       <div className="mt-2 flex items-end justify-between gap-3">
         <div className="font-mono text-[40px] font-bold tracking-tight leading-none text-foreground">
-          {hidden ? "••••••" : formatBalance(profile?.balance)}
+          {hidden ? "••••••" : `$${formatEquityUsd(computeTotalEquity({ spotBalance: profile?.spot_balance, balance: profile?.balance, trialBalance: profile?.trial_balance }))}`}
         </div>
         <button
           type="button"

@@ -1,0 +1,244 @@
+import { useEffect, useMemo, useState } from "react";
+import { ArrowDown, Info, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MobileDrawerActions } from "@/components/ui/mobile-drawer";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { toast } from "sonner";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+
+export type TransferDirection = "to_spot" | "to_futures";
+
+interface TransferFormProps {
+  onCancel?: () => void;
+  onSuccess?: () => void;
+  initialDirection?: TransferDirection;
+}
+
+const fmt = (n: number) =>
+  n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const TrialHint = () => {
+  const isMobile = useIsMobile();
+  const text = "Trial Bonus is not transferable. Only your Futures Available can move to Spot.";
+  if (isMobile) {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Trial bonus info"
+          >
+            <Info className="w-3 h-3" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent side="top" className="w-56 p-3 text-xs">
+          <p>{text}</p>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Trial bonus info"
+          >
+            <Info className="w-3 h-3" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-[220px] text-xs">
+          {text}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+/**
+ * Shared Transfer form used by both TransferDialog (desktop) and TransferDrawer (mobile).
+ * Follows the ClosePosition 三件套 pattern (§5 Overlay 对等表).
+ */
+export const TransferForm = ({
+  onCancel,
+  onSuccess,
+  initialDirection = "to_spot",
+}: TransferFormProps) => {
+  const { balance, spotBalance, transferBetweenAccounts } = useUserProfile();
+  const [direction, setDirection] = useState<TransferDirection>(initialDirection);
+  const [amountStr, setAmountStr] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setAmountStr("");
+  }, [direction]);
+
+  // From = Futures 时 Available 只显示 balance（Trial 不可划转）
+  const fromAvailable = direction === "to_spot" ? balance : spotBalance;
+  const fromLabel = direction === "to_spot" ? "Futures Account" : "Spot Account";
+  const toLabel = direction === "to_spot" ? "Spot Account" : "Futures Account";
+  const toCurrent = direction === "to_spot" ? spotBalance : balance;
+
+  const amount = useMemo(() => {
+    const n = Number(amountStr);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }, [amountStr]);
+
+  const insufficient = amount > fromAvailable;
+  const canSubmit = amount > 0 && !insufficient && !submitting;
+
+  const handleMax = () => setAmountStr(fromAvailable > 0 ? fromAvailable.toFixed(2) : "");
+
+  const handleSubmit = async () => {
+    if (!canSubmit) return;
+    setSubmitting(true);
+    const res = await transferBetweenAccounts(direction, amount);
+    setSubmitting(false);
+    if (res.success) {
+      toast.success(
+        `Transferred $${fmt(amount)} to ${direction === "to_spot" ? "Spot" : "Futures"}`,
+      );
+      setAmountStr("");
+      onSuccess?.();
+    } else {
+      toast.error(res.error || "Transfer failed");
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Direction segmented */}
+      <div className="grid grid-cols-2 gap-0.5 rounded-lg bg-muted p-0.5">
+        {(
+          [
+            { key: "to_spot", label: "Futures → Spot" },
+            { key: "to_futures", label: "Spot → Futures" },
+          ] as const
+        ).map((opt) => {
+          const active = direction === opt.key;
+          return (
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => setDirection(opt.key)}
+              className={cn(
+                "h-9 rounded-md text-xs font-medium transition-colors",
+                active
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* From / To cards */}
+      <div className="relative space-y-2">
+        <div className="rounded-lg border border-border bg-muted/20 p-3">
+          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            <span>From</span>
+            {direction === "to_spot" && <TrialHint />}
+          </div>
+          <div className="mt-1 flex items-center justify-between">
+            <span className="text-sm font-medium">{fromLabel}</span>
+            <span className="text-xs font-mono text-muted-foreground">
+              ${fmt(fromAvailable)}
+            </span>
+          </div>
+        </div>
+
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm">
+            <ArrowDown className="h-4 w-4 text-muted-foreground" />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            To
+          </div>
+          <div className="mt-1 flex items-center justify-between">
+            <span className="text-sm font-medium">{toLabel}</span>
+            <span className="text-xs font-mono text-muted-foreground">
+              ${fmt(toCurrent)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Amount */}
+      <div className="space-y-1.5">
+        <div className="flex items-baseline justify-between">
+          <span className="text-xs text-muted-foreground">Amount</span>
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <span className="font-mono">Available ${fmt(fromAvailable)}</span>
+            <button
+              type="button"
+              onClick={handleMax}
+              disabled={fromAvailable <= 0}
+              className="rounded px-1.5 py-0.5 text-primary hover:bg-primary/10 disabled:opacity-40"
+            >
+              MAX
+            </button>
+          </div>
+        </div>
+        <Input
+          inputMode="decimal"
+          value={amountStr}
+          onChange={(e) => setAmountStr(e.target.value.replace(/[^0-9.]/g, ""))}
+          placeholder="0.00"
+          className={cn(
+            "h-11 rounded-lg border-0 bg-muted font-mono text-2xl",
+            insufficient && "ring-1 ring-trading-red",
+          )}
+        />
+        {insufficient && (
+          <p className="text-[11px] text-trading-red">Insufficient balance in {fromLabel}.</p>
+        )}
+      </div>
+
+      <MobileDrawerActions>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 h-11"
+              onClick={onCancel}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+          )}
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="flex-1 h-11"
+          >
+            {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
+            {submitting ? "Transferring…" : `Transfer${amount > 0 ? ` $${fmt(amount)}` : ""}`}
+          </Button>
+        </div>
+      </MobileDrawerActions>
+    </div>
+  );
+};

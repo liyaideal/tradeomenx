@@ -2,19 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  Wallet as WalletIcon, 
-  ArrowUpRight, 
-  ArrowDownLeft, 
-  Plus, 
-  Copy, 
-  Check, 
+import {
+  Wallet as WalletIcon,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Plus,
+  Copy,
+  Check,
   Star,
   AlertTriangle,
   Info,
   Trash2,
   Lock,
   Gift,
+  Eye,
+  EyeOff,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +53,10 @@ import {
 import { AddAddressDialog } from "@/components/wallet/AddAddressDialog";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
+import { TransferDialog } from "@/components/wallet/TransferDialog";
+import { TransferDrawer } from "@/components/wallet/TransferDrawer";
 import { MaintenanceNoticeBanner } from "@/components/wallet/MaintenanceNoticeBanner";
+import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import {
   Tooltip,
   TooltipContent,
@@ -72,7 +78,7 @@ import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 export default function Wallet() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { balance, trialBalance, user } = useUserProfile();
+  const { balance, trialBalance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
   const previousH2eTierRef = useRef(0);
@@ -182,11 +188,20 @@ export default function Wallet() {
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
-  
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [transferInitDir, setTransferInitDir] = useState<"to_spot" | "to_futures">("to_spot");
+  const [equityHidden, setEquityHidden] = useState(false);
+
   const [addAddressOpen, setAddAddressOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [walletToDelete, setWalletToDelete] = useState<{ id: string; label: string } | null>(null);
   const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
+
+  const totalEquity = computeTotalEquity({ spotBalance, balance, trialBalance });
+  const openTransfer = (dir: "to_spot" | "to_futures" = "to_spot") => {
+    setTransferInitDir(dir);
+    setTransferOpen(true);
+  };
   
 
   const formatCurrency = (value: number) => {
@@ -648,108 +663,184 @@ export default function Wallet() {
 
           <MaintenanceNoticeBanner className="mb-6" />
 
-          <div className="grid grid-cols-12 gap-6">
-            {/* Left Column */}
-            <div className="col-span-4 space-y-6">
-              {/* Balance Card */}
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 p-6">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-trading-green/10 rounded-full blur-2xl" />
-                
-                <div className="relative">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                      <WalletIcon className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <span className="text-sm text-muted-foreground">Total Equity</span>
-                      <div className="flex items-baseline gap-2 flex-nowrap">
-                        <span className="text-3xl font-bold font-mono whitespace-nowrap">${formatCurrency(balance + trialBalance)}</span>
-                        <span className="text-sm text-muted-foreground whitespace-nowrap">USDC</span>
-                      </div>
-                    </div>
+          {/* Band 1 · Total Equity 全宽总览条（DESIGN.md §5 例外：Wallet Total Equity Card） */}
+          <section className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-6">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-trading-green/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                  <WalletIcon className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Est. Total Equity
                   </div>
-
-                  <div className="mb-4 grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-lg bg-muted/20">
-                      <div className="flex items-center gap-1 mb-1">
-                        <span className="text-xs text-muted-foreground">Available Balance</span>
-                        <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
-                      </div>
-                      <span className="font-mono text-sm font-semibold">${formatCurrency(balance)}</span>
-                    </div>
-                    
-                    <div className={`p-3 rounded-lg ${trialBalance > 0 ? 'bg-trading-green/10 border border-trading-green/20' : 'bg-muted/20'}`}>
-                      <div className="flex items-center gap-1 mb-1">
-                        <span className="text-xs text-muted-foreground">Trial Bonus</span>
-                        <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn." />
-                      </div>
-                      <span className={`font-mono text-sm font-semibold ${trialBalance > 0 ? 'text-trading-green' : 'text-muted-foreground'}`}>
-                        ${formatCurrency(trialBalance)}
-                      </span>
-                    </div>
-                   </div>
-
-                    {/* Withdrawable / Frozen row */}
-                    {h2e.lockedAmount > 0 && (
-                      <div className="mb-4 grid grid-cols-2 gap-3">
-                        <div className="p-3 rounded-lg bg-muted/20">
-                          <div className="flex items-center gap-1 mb-1">
-                            <span className="text-xs text-muted-foreground">Withdrawable</span>
-                <InfoTooltip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
-                          </div>
-                          <span className="font-mono text-sm font-semibold">${formatCurrency(withdrawableBalance)}</span>
-                        </div>
-                        <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                          <div className="flex items-center gap-1 mb-1">
-                            <Lock className="w-3 h-3 text-primary" />
-                            <span className="text-xs text-muted-foreground">H2E Locked</span>
-                            <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
-                          </div>
-                          <span className="font-mono text-sm font-semibold text-primary">${formatCurrency(h2e.lockedAmount)}</span>
-                        </div>
-                      </div>
-                    )}
-                  
-                  <div className="flex gap-3">
-                    <Button 
-                      className="btn-trading-green flex-1 h-11"
-                      onClick={() => setDepositDialogOpen(true)}
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="font-mono text-3xl font-bold whitespace-nowrap">
+                      {equityHidden ? "••••••" : `$${formatEquityUsd(totalEquity)}`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setEquityHidden((v) => !v)}
+                      className="text-muted-foreground/70 hover:text-foreground transition-colors"
+                      aria-label={equityHidden ? "Show balance" : "Hide balance"}
                     >
-                      <ArrowDownLeft className="w-4 h-4 mr-2" />
-                      Deposit
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="flex-1 border-border/50 hover:bg-muted/50 rounded-xl h-11"
-                      onClick={() => setWithdrawDialogOpen(true)}
-                    >
-                      <ArrowUpRight className="w-4 h-4 mr-2" />
-                      Withdraw
-                    </Button>
+                      {equityHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-1 font-mono">
+                    Spot + Futures + Trial Bonus · does not include unrealized PnL
                   </div>
                 </div>
               </div>
+              <div className="flex gap-2 lg:shrink-0">
+                <Button className="btn-trading-green h-11 px-5" onClick={() => setDepositDialogOpen(true)}>
+                  <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-11 px-5 border-border/50 hover:bg-muted/50 rounded-xl"
+                  onClick={() => setWithdrawDialogOpen(true)}
+                >
+                  <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-11 px-5 border-border/50 hover:bg-muted/50 rounded-xl"
+                  onClick={() => openTransfer("to_spot")}
+                >
+                  <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
+                </Button>
+              </div>
+            </div>
+          </section>
 
-              {/* H2E Rewards */}
+          {/* Band 2 · 双账户卡（Spot / Futures），stats-card 规格，不套英雄渐变 */}
+          <section className="grid grid-cols-2 gap-6">
+            {/* Spot Account */}
+            <div className="stats-card p-6 relative">
+              <button
+                type="button"
+                onClick={() => openTransfer("to_spot")}
+                className="absolute top-4 right-4 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
+                aria-label="Transfer to Spot"
+                title="Transfer"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5" />
+              </button>
+              <div className="text-sm font-medium text-muted-foreground">Spot Account</div>
+              <div className="mt-2 font-mono text-2xl font-semibold">${formatEquityUsd(spotBalance)}</div>
+              <div className="mt-4 grid grid-cols-1 gap-3">
+                <div className="p-3 rounded-lg bg-muted/20">
+                  <div className="text-xs text-muted-foreground mb-1">Available (USDC)</div>
+                  <div className="font-mono text-sm font-semibold">${formatEquityUsd(spotBalance)}</div>
+                </div>
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-3">
+                Funds US-stock spot trading. Not shared with Futures.
+              </div>
+            </div>
+
+            {/* Futures Account */}
+            <div className="stats-card p-6 relative">
+              <button
+                type="button"
+                onClick={() => openTransfer("to_futures")}
+                className="absolute top-4 right-4 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
+                aria-label="Transfer to Futures"
+                title="Transfer"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5" />
+              </button>
+              <div className="text-sm font-medium text-muted-foreground">Futures Account</div>
+              <div className="mt-2 font-mono text-2xl font-semibold">
+                ${formatEquityUsd(balance + trialBalance)}
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-muted/20">
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs text-muted-foreground">Available</span>
+                    <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
+                  </div>
+                  <div className="font-mono text-sm font-semibold">${formatEquityUsd(balance)}</div>
+                </div>
+                <div
+                  className={`p-3 rounded-lg ${
+                    trialBalance > 0 ? "bg-trading-green/10 border border-trading-green/20" : "bg-muted/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs text-muted-foreground">Trial Bonus</span>
+                    <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn or transferred." />
+                  </div>
+                  <div
+                    className={`font-mono text-sm font-semibold ${
+                      trialBalance > 0 ? "text-trading-green" : "text-muted-foreground"
+                    }`}
+                  >
+                    ${formatEquityUsd(trialBalance)}
+                  </div>
+                </div>
+                {h2e.lockedAmount > 0 && (
+                  <>
+                    <div className="p-3 rounded-lg bg-muted/20">
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="text-xs text-muted-foreground">Withdrawable</span>
+                        <InfoTooltip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
+                      </div>
+                      <div className="font-mono text-sm font-semibold">
+                        ${formatEquityUsd(withdrawableBalance)}
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Lock className="w-3 h-3 text-primary" />
+                        <span className="text-xs text-muted-foreground">H2E Locked</span>
+                        <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows." />
+                      </div>
+                      <div className="font-mono text-sm font-semibold text-primary">
+                        ${formatEquityUsd(h2e.lockedAmount)}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Band 3 · 12 栅格 */}
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-8 space-y-6">
+              <PendingConfirmations className="trading-card p-6" />
+              <div className="trading-card p-6">
+                {txError ? (
+                  <ErrorState
+                    title="Couldn't load transactions"
+                    description="Something went wrong fetching your transaction history."
+                    onRetry={refetchTx}
+                  />
+                ) : (
+                  <TransactionHistory transactions={transactions} />
+                )}
+              </div>
+            </div>
+            <div className="col-span-4 space-y-6">
               <H2eRewardsCard />
-
-              {/* Saved Addresses */}
               <div className="trading-card p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold">Saved Addresses</h2>
                   <span className="text-sm text-muted-foreground">
-                    {wallets.length} address{wallets.length !== 1 ? 'es' : ''}
+                    {wallets.length} address{wallets.length !== 1 ? "es" : ""}
                   </span>
                 </div>
-
                 {walletsLoading ? (
                   <LoadingState label="Loading addresses…" />
                 ) : (
                   <div className="space-y-3">
                     {wallets.map((wallet) => (
-                      <div 
-                        key={wallet.id} 
+                      <div
+                        key={wallet.id}
                         className="bg-muted/30 rounded-xl p-4 hover:bg-muted/50 transition-colors"
                       >
                         <div className="flex items-start gap-3">
@@ -781,7 +872,6 @@ export default function Wallet() {
                             <span className="text-xs text-muted-foreground">{wallet.network}</span>
                           </div>
                         </div>
-                        
                         <div className="mt-3 pt-3 border-t border-border/30 flex justify-end gap-2">
                           {!wallet.isPrimary && (
                             <Button
@@ -790,8 +880,7 @@ export default function Wallet() {
                               onClick={() => handleSetPrimaryWallet(wallet.id)}
                               className="text-primary hover:text-primary hover:bg-primary/10 h-8 text-xs"
                             >
-                              <Star className="w-3 h-3 mr-1" />
-                              Set Default
+                              <Star className="w-3 h-3 mr-1" /> Set Default
                             </Button>
                           )}
                           <Button
@@ -800,21 +889,18 @@ export default function Wallet() {
                             onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
                             className="text-muted-foreground hover:text-trading-red hover:bg-trading-red/10 h-8 text-xs"
                           >
-                            <Trash2 className="w-3 h-3 mr-1" />
-                            Delete
+                            <Trash2 className="w-3 h-3 mr-1" /> Delete
                           </Button>
                         </div>
                       </div>
                     ))}
-
-                    <button 
+                    <button
                       onClick={() => setAddAddressOpen(true)}
                       className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all text-sm"
                     >
                       <Plus className="w-4 h-4" />
                       <span className="font-medium">Add Address</span>
                     </button>
-
                     {wallets.length === 0 && !walletsLoading && (
                       <EmptyState
                         variant="inline"
@@ -828,24 +914,8 @@ export default function Wallet() {
                 )}
               </div>
             </div>
-
-            {/* Right Column */}
-            <div className="col-span-8 space-y-6">
-              <PendingConfirmations className="trading-card p-6" />
-              
-              <div className="trading-card p-6">
-                {txError ? (
-                  <ErrorState
-                    title="Couldn't load transactions"
-                    description="Something went wrong fetching your transaction history."
-                    onRetry={refetchTx}
-                  />
-                ) : (
-                  <TransactionHistory transactions={transactions} />
-                )}
-              </div>
-            </div>
           </div>
+
         </main>
         </AuthGateOverlay>
 
@@ -867,6 +937,9 @@ export default function Wallet() {
           open={withdrawDialogOpen} 
           onOpenChange={setWithdrawDialogOpen} 
         />
+
+        {/* Transfer Dialog (Dual-Account 2b, desktop) */}
+        <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} initialDirection={transferInitDir} />
 
         {/* Add Address Dialog */}
         <AddAddressDialog open={addAddressOpen} onOpenChange={setAddAddressOpen} />
@@ -913,6 +986,17 @@ export default function Wallet() {
       <div className="px-4 py-6 space-y-4">
         <MaintenanceNoticeBanner />
         <BalanceCard />
+        <div className="grid grid-cols-3 gap-2">
+          <Button className="btn-trading-green h-11" onClick={() => setDepositDialogOpen(true)}>
+            <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
+          </Button>
+          <Button variant="outline" className="h-11" onClick={() => setWithdrawDialogOpen(true)}>
+            <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
+          </Button>
+          <Button variant="outline" className="h-11" onClick={() => openTransfer("to_spot")}>
+            <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
+          </Button>
+        </div>
         <H2eRewardsCard />
         <PendingConfirmations className="trading-card p-4" />
         <SavedAddressesList />
@@ -943,6 +1027,9 @@ export default function Wallet() {
 
       {/* Add Address Dialog (shared component handles mobile/desktop) */}
       <AddAddressDialog open={addAddressOpen} onOpenChange={setAddAddressOpen} />
+
+      {/* Transfer Drawer (Dual-Account 2b, mobile) */}
+      <TransferDrawer open={transferOpen} onOpenChange={setTransferOpen} initialDirection={transferInitDir} />
 
       {/* Delete Confirmation - Mobile */}
       <MobileDrawer
