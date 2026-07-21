@@ -800,7 +800,7 @@ export default function Wallet() {
                       <div className="flex items-center gap-1 mb-1">
                         <Lock className="w-3 h-3 text-primary" />
                         <span className="text-xs text-muted-foreground">H2E Locked</span>
-                        <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows." />
+                        <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
                       </div>
                       <div className="font-mono text-sm font-semibold text-primary">
                         ${formatEquityUsd(h2e.lockedAmount)}
