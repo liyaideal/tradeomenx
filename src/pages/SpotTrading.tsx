@@ -881,14 +881,11 @@ export default function SpotTrading() {
           <Row label="Fee">${fee.toFixed(2)}</Row>
         </div>
 
-        {/* Balance breakdown: only shown when trial bonus is non-zero — otherwise
-            the "Available (USDC)" line above already carries the whole number. */}
-        {trialBalance > 0 && (
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-            <Info className="h-3 w-3" />
-            Trial ${trialBalance.toFixed(2)} + Cash ${balance.toFixed(2)} = ${spotBalance.toFixed(2)}
-          </div>
-        )}
+        {/* Spot account balance hint — spot never touches Trial Bonus. */}
+        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+          <Info className="h-3 w-3" />
+          Spot Account · ${spotBalance.toFixed(2)} available
+        </div>
         {settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">
             Settles &amp; credits by ~{settleEtOnly}
