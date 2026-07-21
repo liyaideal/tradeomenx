@@ -1200,6 +1200,23 @@ toast("Default message");`}
                 <Button 
                   variant="outline" 
                   size="sm" 
+                  onClick={() => {
+                    toast.warning("Withdrawal restricted", {
+                      description:
+                        "Your account is under review. Only principal can be withdrawn; profits are temporarily locked. See the help center for details.",
+                      duration: 8000,
+                      action: {
+                        label: "Learn more",
+                        onClick: () => navigate("/faq"),
+                      },
+                    });
+                  }}
+                >
+                  With Help Link
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
                   onClick={() => toast.dismiss()}
                 >
                   Dismiss All
