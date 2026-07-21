@@ -950,7 +950,7 @@ export default function SpotTrading() {
           <span className="font-mono">{spotPositions.length}</span>
         </Row>
         <div className="text-[10px] text-muted-foreground pt-1">
-          Contract account &amp; Trial Bonus do not fund spot trades. Transfer from /wallet.
+          Contract account &amp; Trial Bonus do not fund spot trades. Transfer funds to your Spot Account to trade.
         </div>
       </div>
     </div>
