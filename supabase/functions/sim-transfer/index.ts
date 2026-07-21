@@ -2,8 +2,14 @@
 // DEMO-STATE: real ledgers live in the trading engine; this is a demo helper.
 // Rule: profile balance columns are RLS-locked to server writes only.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
 
 const BodySchema = z.object({
   direction: z.enum(["to_spot", "to_futures"]),
