@@ -128,9 +128,9 @@ const App = () => (
                     <Route path="/" element={<HomePage />} />
               <Route path="/trade" element={<TradingPage />} />
               <Route path="/trade/order" element={<TradeOrderPage />} />
-              <Route path="/spot" element={<SpotTrading />} />
+              <Route path="/spot" element={<SpotSurfacePage />} />
               <Route path="/order-preview" element={<OrderPreview />} />
-              <Route path="/events" element={<EventsPage />} />
+              <Route path="/events" element={<EventsSurfacePage />} />
               <Route path="/resolved" element={<ResolvedPage />} />
               <Route path="/resolved/:eventId" element={<ResolvedEventDetail />} />
               <Route path="/portfolio" element={<Portfolio />} />
