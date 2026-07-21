@@ -16,8 +16,7 @@ import {
   Check,
   Ticket,
   KeyRound,
-  
-
+  ArrowLeftRight,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -37,6 +36,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
+import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
+import { TransferDialog } from "@/components/wallet/TransferDialog";
 
 
 // Main nav (4 items). Resolved is now an Events page tab; Leaderboard is a
