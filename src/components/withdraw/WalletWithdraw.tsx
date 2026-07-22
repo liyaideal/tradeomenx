@@ -158,21 +158,47 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
       {/* From account */}
       <div className="space-y-2">
         <LabelText size="sm" muted>From account</LabelText>
-        <button
-          onClick={() => setAccountPickerOpen(true)}
-          className={cn(
-            "w-full flex items-center justify-between bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors",
-            isMobile ? "p-4 rounded-xl" : "p-3 rounded-lg"
-          )}
-        >
-          <div className="text-left">
-            <div className="text-sm font-medium">{ACCOUNT_LABEL[effectiveAccount]}</div>
-            <div className="text-xs text-muted-foreground font-mono">
-              Available: {availableBalance.toFixed(2)} USDC
+        {isMobile ? (
+          <button
+            onClick={() => setAccountPickerOpen(true)}
+            className="w-full flex items-center justify-between bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors p-4 rounded-xl"
+          >
+            <div className="text-left">
+              <div className="text-sm font-medium">{ACCOUNT_LABEL[effectiveAccount]}</div>
+              <div className="text-xs text-muted-foreground font-mono">
+                Available: {availableBalance.toFixed(2)} USDC
+              </div>
             </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </button>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+        ) : (
+          <Popover open={accountPickerOpen} onOpenChange={setAccountPickerOpen}>
+            <PopoverTrigger asChild>
+              <button
+                className="w-full flex items-center justify-between bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors p-3 rounded-lg"
+              >
+                <div className="text-left">
+                  <div className="text-sm font-medium">{ACCOUNT_LABEL[effectiveAccount]}</div>
+                  <div className="text-xs text-muted-foreground font-mono">
+                    Available: {availableBalance.toFixed(2)} USDC
+                  </div>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" sideOffset={6} className="w-[--radix-popover-trigger-width] p-2">
+              <AccountPickerRows
+                selected={effectiveAccount}
+                onSelect={(a) => {
+                  setWithdrawAccount(a);
+                  setAccountPickerOpen(false);
+                  setAmount('');
+                  setError(null);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
 
       {/* Withdrawal Address */}
