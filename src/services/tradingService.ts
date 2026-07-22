@@ -868,6 +868,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
           user_id: userId,
           trade_id: trade.id,
           event_name: trade.event_name,
+          option_id: resolvedOptionId,
           option_label: trade.option_label,
           side: "long",
           entry_price: price,
@@ -881,6 +882,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
           product_line: "spot",
         });
       }
+
     }
     await supabase
       .from("trades")
