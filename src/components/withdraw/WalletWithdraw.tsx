@@ -14,7 +14,8 @@ import { WithdrawStatusTracker } from './WithdrawStatusTracker';
 import { WithdrawVerifyDialog } from './WithdrawVerifyDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate } from 'react-router-dom';
-import { AccountPicker } from '@/components/wallet/AccountPicker';
+import { AccountPicker, AccountPickerRows } from '@/components/wallet/AccountPicker';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 
 interface WalletWithdrawProps {
