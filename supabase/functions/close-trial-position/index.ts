@@ -1,3 +1,8 @@
+// NOTE (2026-07-21): 'trial' here = Trial Position (voucher-funded demo
+// position; Position Voucher / voucher_earnings domain). Unrelated to the
+// wallet-level `trial_balance` that was retired in the Trial Bonus sunset.
+// Do NOT rename or delete as part of that sunset — the voucher lifecycle
+// depends on this endpoint.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {

@@ -1227,8 +1227,8 @@ The engineering-blueprint no-decoration rule has **one** exception in /wallet: t
 
 ### 2. §8 Dual-Account Card Group + Transfer + tx account badge + Band 1 subnote
 
-**Band 1 subnote (locked copy):**
-> "Spot + Futures + Trial Bonus · does not include unrealized PnL"
+**Band 1 subnote (locked copy, 2026-07-21 Trial Bonus sunset):**
+> "Spot + Futures · does not include unrealized PnL"
 
 `font-mono text-[10px] text-muted-foreground mt-1`. Always visible under the main equity number.
 
@@ -1236,14 +1236,14 @@ The engineering-blueprint no-decoration rule has **one** exception in /wallet: t
 - Layout: desktop `grid-cols-2 gap-6`; mobile stacked `space-y-3`
 - Shell: `.stats-card p-6` (desktop) / `.stats-card p-4` (mobile), **no gradient**
 - Header: account name (`text-sm font-medium text-muted-foreground`)
-- Main number: `font-mono text-2xl font-semibold` — Spot = `spot_balance`, Futures = `balance` **only** (NOT `balance + trialBalance`)
+- Main number: `font-mono text-2xl font-semibold` — Spot = `spot_balance`, Futures = `balance`
 - Detail grid: `p-3 rounded-lg bg-muted/20` cells with `font-mono text-sm font-semibold` values
 - Top-right Transfer ghost icon: `absolute top-4 right-4 h-8 w-8 rounded-md hover:bg-muted/50` with `ArrowLeftRight w-3.5`
-- Trial Bonus cell (Futures card only): green tint when `>0` (`bg-trading-green/10 border border-trading-green/20`)
+- ~~Trial Bonus cell~~ **RETIRED 2026-07-21.** The Futures card no longer renders a Trial Bonus detail cell; the Trial Bonus wallet feature was never launched and is fully sunset.
 
 **Transfer three-piece (Round 2b LOCKED):** Desktop = `TransferDialog`, mobile = `TransferDrawer`. Shared body = `TransferForm`. **Mobile Dialog = acceptance fail (§5 LOCKED rule sync).**
 
-Form structure: Segmented direction switch → From/To swap cards (From `bg-muted/20`, To `border-primary/30 bg-primary/5`, center `w-9 h-9` ArrowDown disc) → amount input `text-2xl font-mono` + MAX + Available row. From=Futures → Available shows `balance` **only** + ⓘ tooltip: "Bonus funds used first when trading. Cannot be withdrawn or transferred."
+Form structure: Segmented direction switch → From/To swap cards (From `bg-muted/20`, To `border-primary/30 bg-primary/5`, center `w-9 h-9` ArrowDown disc) → amount input `text-2xl font-mono` + MAX + Available row. From=Futures → Available shows `balance`. (Trial ⓘ tooltip retired 2026-07-21 with the Trial Bonus sunset.)
 
 **TransactionHistory account badge:**
 - Token: `text-[10px] rounded-full border px-1.5 py-0` — `SPOT` / `FUTURES` / `Transfer`
@@ -1265,16 +1265,16 @@ Add to overlay parity table:
 |---|---|---|
 | Transfer between accounts | `TransferDialog` | `TransferDrawer` (MobileDrawer) |
 
-**Desktop-only Equity HoverCard** (attached to top-nav Equity capsule): ~260px width. Content: three data rows (Spot Account / Futures Account / Trial Bonus, `font-mono text-sm`) → hairline divider → Total Equity row (`font-semibold`) → "Transfer ›" text link that opens `TransferDialog`. Mobile: no equity in the header.
+**Desktop-only Equity HoverCard** (attached to top-nav Equity capsule): ~260px width. Content: two data rows (Spot Account / Futures Account, `font-mono text-sm`) → hairline divider → Total Equity row (`font-semibold`) → "Transfer ›" text link that opens `TransferDialog`. Mobile: no equity in the header. **2026-07-21:** Trial Bonus row removed with sunset.
 
 ### 5. Total Equity definition (site-wide single source)
 
 ```
-Total Equity = spot_balance + balance + trial_balance
+Total Equity = spot_balance + balance
              (does NOT include unrealized PnL)
 ```
 
-Helper: `src/lib/equity.ts` `computeTotalEquity({ spotBalance, balance, trialBalance })`. Every surface that displays "Total Equity" (top-nav capsule, HoverCard total row, HomeEquityHero main number, /wallet Band 1, StyleGuide previews) MUST read this helper. No ad-hoc summing.
+Helper: `src/lib/equity.ts` `computeTotalEquity({ spotBalance, balance })`. Every surface that displays "Total Equity" (top-nav capsule, HoverCard total row, HomeEquityHero main number, /wallet Band 1, StyleGuide previews) MUST read this helper. No ad-hoc summing. **2026-07-21:** `trialBalance` parameter removed with the Trial Bonus sunset — do not reintroduce.
 
 ### 6. §10 Preset D revision — HomeEquityHero data source
 

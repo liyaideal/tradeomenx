@@ -258,105 +258,21 @@ export const useUserProfile = () => {
     }
   };
 
-  const updateTrialBalance = async (newTrialBalance: number) => {
-    try {
-      await updateMutation.mutateAsync({ trial_balance: newTrialBalance });
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
-
   /**
-   * Deduct balance with trial balance priority
-   * Logic: Use trial_balance first, if insufficient, use mixed payment
-   * @param amount - Total amount to deduct
-   * @returns Object with success status and breakdown of deduction
+   * Deduct from Futures Available (`balance`). Trial Bonus is fully sunset
+   * (2026-07-21) — this now behaves identically to `deductAvailableOnly`.
+   * The `deductBalance` name is retained purely to avoid churning every
+   * futures trading call site; new callers should prefer `deductAvailableOnly`.
    */
   const deductBalance = async (amount: number): Promise<boolean> => {
-    const currentTrialBalance = profile?.trial_balance ?? 0;
     const currentBalance = profile?.balance ?? 0;
-    const totalAvailable = currentTrialBalance + currentBalance;
-
-    // Check if total funds are sufficient
-    if (totalAvailable < amount) {
-      return false;
-    }
-
-    let trialDeduction = 0;
-    let realDeduction = 0;
-
-    if (currentTrialBalance >= amount) {
-      // Trial balance is sufficient, use only trial balance
-      trialDeduction = amount;
-      realDeduction = 0;
-    } else {
-      // Mixed payment: use all trial balance first, then real balance
-      trialDeduction = currentTrialBalance;
-      realDeduction = amount - currentTrialBalance;
-    }
-
+    if (currentBalance < amount) return false;
     try {
-      // Update both balances in a single mutation to ensure atomicity
-      const updates: Partial<Profile> = {};
-      
-      if (trialDeduction > 0) {
-        updates.trial_balance = currentTrialBalance - trialDeduction;
-      }
-      if (realDeduction > 0) {
-        updates.balance = currentBalance - realDeduction;
-      }
-
-      await updateMutation.mutateAsync(updates);
+      await updateMutation.mutateAsync({ balance: currentBalance - amount });
       return true;
     } catch (error) {
       console.error("Failed to deduct balance:", error);
       return false;
-    }
-  };
-
-  /**
-   * Deduct balance with detailed breakdown
-   * Returns the breakdown of how much was deducted from each source
-   */
-  const deductBalanceWithDetails = async (amount: number): Promise<{
-    success: boolean;
-    trialDeducted: number;
-    realDeducted: number;
-  }> => {
-    const currentTrialBalance = profile?.trial_balance ?? 0;
-    const currentBalance = profile?.balance ?? 0;
-    const totalAvailable = currentTrialBalance + currentBalance;
-
-    if (totalAvailable < amount) {
-      return { success: false, trialDeducted: 0, realDeducted: 0 };
-    }
-
-    let trialDeduction = 0;
-    let realDeduction = 0;
-
-    if (currentTrialBalance >= amount) {
-      trialDeduction = amount;
-    } else {
-      trialDeduction = currentTrialBalance;
-      realDeduction = amount - currentTrialBalance;
-    }
-
-    try {
-      const updates: Partial<Profile> = {};
-      
-      if (trialDeduction > 0) {
-        updates.trial_balance = currentTrialBalance - trialDeduction;
-      }
-      if (realDeduction > 0) {
-        updates.balance = currentBalance - realDeduction;
-      }
-
-      await updateMutation.mutateAsync(updates);
-      return { success: true, trialDeducted: trialDeduction, realDeducted: realDeduction };
-    } catch (error) {
-      console.error("Failed to deduct balance:", error);
-      return { success: false, trialDeducted: 0, realDeducted: 0 };
     }
   };
 
@@ -367,21 +283,14 @@ export const useUserProfile = () => {
   };
 
   /**
-   * Deduct from Futures Available only. NEVER touches trial_balance.
-   * Use this for withdrawals and any other flow where Trial Bonus must be
-   * excluded (Trial 不可提现 / 不可划转 — dual-account 2b 拍板口径).
-   * Returns false if `balance` alone is insufficient.
+   * Deduct from Futures Available only. Post Trial-Bonus sunset (2026-07-21)
+   * this is equivalent to `deductBalance`; kept as an explicit alias for
+   * withdraw / no-trial-touch flows so intent stays readable at the call site.
    */
   const deductAvailableOnly = async (amount: number): Promise<boolean> => {
     const currentBalance = profile?.balance ?? 0;
     if (currentBalance < amount) return false;
     return updateBalance(currentBalance - amount);
-  };
-
-  const addTrialBalance = async (amount: number) => {
-    const currentTrialBalance = profile?.trial_balance ?? 0;
-    const newTrialBalance = currentTrialBalance + amount;
-    return updateTrialBalance(newTrialBalance);
   };
 
   // ---- Spot account balance (independent of contract/futures balance & trial bonus) ----
@@ -484,39 +393,31 @@ export const useUserProfile = () => {
     }
   };
 
-  // Calculate total available balance (trial + real)
-  const totalBalance = (profile?.trial_balance ?? 0) + (profile?.balance ?? 0);
-
   return {
     // Profile data
     profile,
     user,
-    
+
     // Loading states
     isLoading: isAuthLoading || isProfileLoading,
     isUpdating: updateMutation.isPending,
     error,
-    
+
     // Computed values for convenience
     balance: profile?.balance ?? 0,
-    trialBalance: profile?.trial_balance ?? 0,
     spotBalance: profile?.spot_balance ?? 0,
-    totalBalance,
     username: profile?.username ?? null,
     avatarUrl: profile?.avatar_url ?? null,
     email: profile?.email ?? null,
-    
+
     // Update functions
     updateUsername,
     updateAvatar,
     updateEmail,
     updateBalance,
-    updateTrialBalance,
     deductBalance,
-    deductBalanceWithDetails,
     deductAvailableOnly,
     addBalance,
-    addTrialBalance,
     updateSpotBalance,
     deductSpotBalance,
     addSpotBalance,

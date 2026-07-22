@@ -1,22 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown, Info, Loader2 } from "lucide-react";
+import { ArrowDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MobileDrawerActions } from "@/components/ui/mobile-drawer";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 export type TransferDirection = "to_spot" | "to_futures";
@@ -39,47 +27,6 @@ interface TransferFormProps {
 
 const fmt = (n: number) =>
   n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-const TrialHint = () => {
-  const isMobile = useIsMobile();
-  const text = "Trial Bonus is not transferable. Only your Futures Available can move to Spot.";
-  if (isMobile) {
-    return (
-      <Popover>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Trial bonus info"
-          >
-            <Info className="w-3 h-3" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent side="top" className="w-56 p-3 text-xs">
-          <p>{text}</p>
-        </PopoverContent>
-      </Popover>
-    );
-  }
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Trial bonus info"
-          >
-            <Info className="w-3 h-3" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-[220px] text-xs">
-          {text}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
 
 /**
  * Shared Transfer form used by both TransferDialog (desktop) and TransferDrawer (mobile).
@@ -176,9 +123,8 @@ export const TransferForm = ({
       {/* From / To cards */}
       <div className="relative space-y-2">
         <div className="rounded-lg border border-border bg-muted/20 p-3">
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-            <span>From</span>
-            {direction === "to_spot" && <TrialHint />}
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            From
           </div>
           <div className="mt-1 flex items-center justify-between">
             <span className="text-sm font-medium">{fromLabel}</span>

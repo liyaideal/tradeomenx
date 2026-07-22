@@ -73,9 +73,8 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Liq. Price** | Estimated liquidation price. Formula: `entry × (1 ∓ 0.9/leverage)`, clamped to `[0, 1]`. Ignores funding drift and MM buffer — account-level threshold lives in `useRealtimeRiskMetrics`. Always rendered as `$0.xxxx` (4 decimals) or `--`. |
 | **PnL** | `(mark − entry) × size × side` (see `mem://technical/pnl-formula-canonical`) |
 | **Side** | `long` / `short`. Binary markets use `Yes` / `No`. Never `Buy` / `Sell` as a position side. |
-| **Available balance** | Free balance excluding trial bonus |
-| **Trial bonus** | Non-withdrawable promotional credit, consumed first |
-| **Total equity** | `Available balance + Trial bonus` |
+| **Available balance** | Free balance in the futures account (`profiles.balance`) |
+| **Total equity** | `Spot + Futures available` (`spot_balance + balance`). **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
 
 ---
 

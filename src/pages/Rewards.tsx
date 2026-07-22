@@ -17,7 +17,7 @@ import { usePoints } from "@/hooks/usePoints";
 import { useTasks, TaskWithProgress } from "@/hooks/useTasks";
 import { useReferral } from "@/hooks/useReferral";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { RedeemDialog } from "@/components/rewards/RedeemDialog";
+
 import { ReferralCard } from "@/components/rewards/ReferralCard";
 import { PointsHistoryList } from "@/components/rewards/PointsHistoryList";
 import { TaskCard } from "@/components/rewards/TaskCard";
@@ -37,7 +37,7 @@ export default function Rewards() {
   const { referralCode, referralLink, stats: referralStats } = useReferral();
   const { activeAccounts } = useConnectedAccounts();
   const hasConnectedAccount = activeAccounts.length > 0;
-  const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
+  
   const [xShareDialogOpen, setXShareDialogOpen] = useState(false);
   
   // Get initial tab from URL params
@@ -203,7 +203,6 @@ export default function Rewards() {
         </AuthGateOverlay>
 
         <BottomNav />
-        <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
         <XShareConfirmDialog
           open={xShareDialogOpen}
           onOpenChange={setXShareDialogOpen}
@@ -232,7 +231,7 @@ export default function Rewards() {
       </main>
       </AuthGateOverlay>
 
-      <RedeemDialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen} />
+      
       <XShareConfirmDialog
         open={xShareDialogOpen}
         onOpenChange={setXShareDialogOpen}

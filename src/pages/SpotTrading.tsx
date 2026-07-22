@@ -207,8 +207,8 @@ export default function SpotTrading() {
   const navigationType = useNavigationType();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  // Spot terminal draws exclusively from the spot account. Trial Bonus / futures
-  // cash never fund spot fills (dual-account cutover 2026-07-21). Users must
+  // Spot terminal draws exclusively from the spot account. Futures cash
+  // never funds spot fills (dual-account cutover 2026-07-21). Users must
   // Transfer to Spot from /wallet before trading here.
   const { spotBalance, deductSpotBalance, addSpotBalance } = useUserProfile();
 
@@ -881,7 +881,7 @@ export default function SpotTrading() {
           <Row label="Fee">${fee.toFixed(2)}</Row>
         </div>
 
-        {/* Spot account balance hint — spot never touches Trial Bonus. */}
+        {/* Spot account balance hint — spot funds only. */}
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
           <Info className="h-3 w-3" />
           Spot Account · ${spotBalance.toFixed(2)} available
@@ -950,7 +950,7 @@ export default function SpotTrading() {
           <span className="font-mono">{spotPositions.length}</span>
         </Row>
         <div className="text-[10px] text-muted-foreground pt-1">
-          Contract account &amp; Trial Bonus do not fund spot trades. Transfer funds to your Spot Account to trade.
+          Spot and Futures accounts are funded separately. Transfer funds to your Spot Account to trade.
         </div>
       </div>
     </div>

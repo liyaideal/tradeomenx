@@ -174,12 +174,12 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
         <SubSection title="Band 1 Total Equity + Band 2 dual account cards" platform="shared">
           <DualDevicePreview
             previewKey="wallet-equity-bands"
-            label="Total Equity hero band + Spot / Futures cards (Trial green tile visible on Futures)"
+            label="Total Equity hero band + Spot / Futures cards (Trial Bonus sunset — Futures = single Available tile)"
             minHeight={340}
           />
         </SubSection>
 
-        <SubSection title="TransferForm — 4 states (real component, props-driven)" platform="shared">
+        <SubSection title="TransferForm — 3 states (real component, props-driven)" platform="shared">
           <div className="grid grid-cols-1 gap-4">
             <DualDevicePreview
               previewKey="wallet-transfer-normal"
@@ -195,11 +195,6 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
               previewKey="wallet-transfer-zero"
               label="Amount 0 · submit disabled"
               minHeight={440}
-            />
-            <DualDevicePreview
-              previewKey="wallet-transfer-trial-hint"
-              label="Trial ⓘ hint · From = Futures shows the 'Trial not transferable' tooltip trigger"
-              minHeight={460}
             />
           </div>
         </SubSection>

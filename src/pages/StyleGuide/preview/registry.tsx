@@ -34,7 +34,7 @@ import {
   TransferFormNormalPreview,
   TransferFormInsufficientPreview,
   TransferFormZeroPreview,
-  TransferFormTrialHintPreview,
+  
   DepositToPickerPreview,
   EquityHoverCardPreview,
   TransactionHistoryPreview,
@@ -280,7 +280,7 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "wallet-transfer-normal": () => <TransferFormNormalPreview />,
   "wallet-transfer-insufficient": () => <TransferFormInsufficientPreview />,
   "wallet-transfer-zero": () => <TransferFormZeroPreview />,
-  "wallet-transfer-trial-hint": () => <TransferFormTrialHintPreview />,
+  
   "wallet-deposit-to": () => <DepositToPickerPreview />,
   "wallet-equity-hovercard": () => <EquityHoverCardPreview />,
   "wallet-tx-history": () => <TransactionHistoryPreview />,

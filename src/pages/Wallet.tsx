@@ -78,7 +78,7 @@ import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 export default function Wallet() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { balance, trialBalance, spotBalance, user } = useUserProfile();
+  const { balance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
   const previousH2eTierRef = useRef(0);
@@ -200,7 +200,7 @@ export default function Wallet() {
   const [walletToDelete, setWalletToDelete] = useState<{ id: string; label: string } | null>(null);
   const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
 
-  const totalEquity = computeTotalEquity({ spotBalance, balance, trialBalance });
+  const totalEquity = computeTotalEquity({ spotBalance, balance });
   const openTransfer = (dir: "to_spot" | "to_futures" = "to_spot") => {
     setTransferInitDir(dir);
     setTransferOpen(true);
@@ -619,7 +619,7 @@ export default function Wallet() {
                     </button>
                   </div>
                   <div className="text-[11px] text-muted-foreground mt-1 font-mono">
-                    Spot + Futures + Trial Bonus · does not include unrealized PnL
+                    Spot + Futures · does not include unrealized PnL
                   </div>
                 </div>
               </div>
@@ -693,23 +693,6 @@ export default function Wallet() {
                     <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
                   </div>
                   <div className="font-mono text-sm font-semibold">${formatEquityUsd(balance)}</div>
-                </div>
-                <div
-                  className={`p-3 rounded-lg ${
-                    trialBalance > 0 ? "bg-trading-green/10 border border-trading-green/20" : "bg-muted/20"
-                  }`}
-                >
-                  <div className="flex items-center gap-1 mb-1">
-                    <span className="text-xs text-muted-foreground">Trial Bonus</span>
-                    <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn or transferred." />
-                  </div>
-                  <div
-                    className={`font-mono text-sm font-semibold ${
-                      trialBalance > 0 ? "text-trading-green" : "text-muted-foreground"
-                    }`}
-                  >
-                    ${formatEquityUsd(trialBalance)}
-                  </div>
                 </div>
                 {h2e.lockedAmount > 0 && (
                   <>
@@ -939,7 +922,7 @@ export default function Wallet() {
               </button>
             </div>
             <div className="text-[10px] text-muted-foreground mt-1 font-mono">
-              Spot + Futures + Trial Bonus · does not include unrealized PnL
+              Spot + Futures · does not include unrealized PnL
             </div>
           </div>
         </section>
@@ -999,23 +982,6 @@ export default function Wallet() {
                   <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
                 </div>
                 <div className="font-mono text-sm font-semibold">${formatEquityUsd(balance)}</div>
-              </div>
-              <div
-                className={`p-3 rounded-lg ${
-                  trialBalance > 0 ? "bg-trading-green/10 border border-trading-green/20" : "bg-muted/20"
-                }`}
-              >
-                <div className="flex items-center gap-1 mb-0.5">
-                  <span className="text-[11px] text-muted-foreground">Trial Bonus</span>
-                  <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn or transferred." />
-                </div>
-                <div
-                  className={`font-mono text-sm font-semibold ${
-                    trialBalance > 0 ? "text-trading-green" : "text-muted-foreground"
-                  }`}
-                >
-                  ${formatEquityUsd(trialBalance)}
-                </div>
               </div>
               {h2e.lockedAmount > 0 && (
                 <>

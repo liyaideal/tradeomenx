@@ -23,7 +23,7 @@ export const TransferDialog = ({ open, onOpenChange, initialDirection }: Transfe
       <DialogHeader>
         <DialogTitle>Transfer funds</DialogTitle>
         <DialogDescription className="text-xs">
-          Move USDC between your Spot and Futures accounts. Trial Bonus stays with Futures.
+          Move USDC between your Spot and Futures accounts.
         </DialogDescription>
       </DialogHeader>
       <TransferForm

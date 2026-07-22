@@ -33,7 +33,7 @@ const ROWS: Array<{ key: AccountKind; label: string; hint: string; icon: React.E
   {
     key: "futures",
     label: "Futures Account",
-    hint: "Funds prediction market futures (incl. Trial Bonus)",
+    hint: "Funds prediction market futures",
     icon: Landmark,
   },
 ];
@@ -48,10 +48,10 @@ export const AccountPickerRows = ({
   onSelect: (a: AccountKind) => void;
   showBalances?: boolean;
 }) => {
-  const { balance, spotBalance, trialBalance } = useUserProfile();
+  const { balance, spotBalance } = useUserProfile();
   const balancesByKey = useMemo(
-    () => ({ spot: spotBalance, futures: balance + trialBalance }),
-    [balance, spotBalance, trialBalance],
+    () => ({ spot: spotBalance, futures: balance }),
+    [balance, spotBalance],
   );
 
   return (
