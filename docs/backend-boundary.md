@@ -152,6 +152,18 @@
 
 
 
+## 2026-07-22 现货结算演示流 + 种子日常化（append-only 补录）
+
+| 表 / 字段 / 函数 | 类别 | 说明 |
+|---|---|---|
+| `sim-settle-spot` Edge Function | 🔴 | 现货结算判定（YES mark ≥ 0.5 胜）为 DEMO；正式版按 databento 官方收盘价 vs `base_price` 判定。手动 POST + `sim-daily-seed` cron 触发。 |
+| `events.lifecycle_status='SETTLED' ↔ is_resolved=true` | 🟢 | 硬契约：置 SETTLED 时**必须**同步 `is_resolved=true`（Resolved 页/搜索/收藏依赖后者）。 |
+| `sim-daily-seed` Edge Function + pg_cron `sim-daily-seed-2105utc` (`5 21 * * *`) | 🔴 | 每日 21:05 UTC 先结算再种下一交易日 10 只 US 股票 up/down 事件；周末跳过；**美国假日忽略**（DEMO 简化）。正式版由行情/清结算服务按交易日历生成。 |
+| `accrue-funding` `product_line='futures'` 硬过滤 | 🟡 | 规则明确（现货无 funding），实现自选：本仓库在查询边界过滤，不再依赖 `funding_rate=0` 的间接效果。 |
+
+
+
+
 
 ## 治理规则（即日生效）
 
