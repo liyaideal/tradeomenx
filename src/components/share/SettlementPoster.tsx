@@ -9,6 +9,8 @@ interface SettlementPosterProps {
   option: string;
   side: 'long' | 'short';
   leverage: number;
+  /** 4B: spot posters swap the leverage chip for a SPOT label. */
+  productLine?: 'futures' | 'spot';
   // Result
   result: 'win' | 'lose';
   pnl: number;
