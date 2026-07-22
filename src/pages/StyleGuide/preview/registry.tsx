@@ -42,6 +42,15 @@ import {
 } from "./walletPreviews";
 import { TiersStepperMobile } from "@/components/developers/TiersStepperMobile";
 import { DEVELOPERS_MOBILE_TIERS } from "@/pages/DevelopersPageMobile";
+import {
+  SettlementFuturesWinDesktopPreview,
+  SettlementSpotSettledDesktopPreview,
+  SettlementSpotClosedDesktopPreview,
+  SettlementFuturesWinMobilePreview,
+  SettlementSpotSettledMobilePreview,
+  SettlementSpotClosedMobilePreview,
+  ProductLineBadgeLegendPreview,
+} from "./settlementPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
