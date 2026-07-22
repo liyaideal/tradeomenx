@@ -24,6 +24,8 @@ export interface ResolvedEvent {
   options: ResolvedEventOption[];
   /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
   sideLabels?: { yes: string; no: string };
+  /** 4B: which product lines the event was live on ("spot" | "futures"). */
+  productLines: string[];
   userParticipated: boolean;
   userPnl: number | null;
 }
