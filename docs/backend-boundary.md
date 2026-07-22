@@ -131,7 +131,7 @@
 
 | 表 / 字段 / 函数 | 类别 | 说明 |
 |---|---|---|
-| `profiles.spot_balance` | 🟡 | 现货账户 Available 余额。双账户模型（现货 / 合约 CEX 范式）是需求；用一列存储属演示简化，正式版应有独立账户账本 / 总账体系（accounts + entries）。合约账户仍读 `profiles.balance` + `profiles.trial_balance`，两账户可通过 `sim-transfer` 划转，`Total Equity = balance + trial_balance + spot_balance`。 |
+| `profiles.spot_balance` | 🟡 | 现货账户 Available 余额。双账户模型（现货 / 合约 CEX 范式）是需求；用一列存储属演示简化，正式版应有独立账户账本 / 总账体系（accounts + entries）。合约账户读 `profiles.balance`（`profiles.trial_balance` 已于 2026-07-21 全站下线，见下方章节），两账户可通过 `sim-transfer` 划转，`Total Equity = balance + spot_balance`。 |
 | `profiles.balance` 默认值 13530 → 0；`handle_new_user` 不再注入演示金 / 演示 transactions | 🟢 | 产品口径：新注册用户两账户 $0 起步，充值或领取 voucher 后才有资金进入。存量用户余额不动。（历史默认与 `v_initial_balance := 13530` 一致；Guest 侧本就无 localStorage 演示金，不涉及。） |
 | `transactions.account`（'spot' \| 'futures'，可空） | 🟡 | 账户归属维度是需求；本轮起新流水必须写入 account，历史行留空。放行新类型 `transfer_to_spot` / `transfer_to_futures`。存储在同一张表属演示简化，正式版按账户拆表或走总账。 |
 | `sim-transfer` Edge Function | 🟡 | 双账户划转的原子性 + 一入一出两条流水是需求；技术实现（RPC / 事务 / 消息队列）由正式架构决定。**DEMO-STATE**：当前演示允许客户端直改 `balance` / `spot_balance` 列（RLS 未收敛）；正式版目标为客户端直改被拒、必须走 Edge Function（对齐 record-transaction 口径）。 |
