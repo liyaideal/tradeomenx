@@ -32,6 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { STATUS_STYLES } from "@/lib/statusStyles";
+import { ProductLineBadge } from "@/lib/productLineBadge";
 
 type TabType = "positions" | "settlements" | "airdrops";
 
