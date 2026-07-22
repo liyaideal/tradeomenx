@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from '@/components/deposit/WalletDeposit';
 import { CrossChainDeposit } from '@/components/deposit/CrossChainDeposit';
 import { BuyWithFiat } from '@/components/deposit/BuyWithFiat';
-import { DepositActivationHint } from '@/components/activation/DepositActivationHint';
+
 import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 
@@ -86,7 +86,6 @@ export default function Deposit() {
         </main>
       ) : (
         <>
-          <DepositActivationHint />
 
           <button
             type="button"
