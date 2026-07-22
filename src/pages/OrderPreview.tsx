@@ -105,7 +105,6 @@ export default function OrderPreview() {
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
     { label: "Available Balance", value: `${balance.toFixed(2)} USDC`, highlight: hasSufficientFunds ? "green" as const : "red" as const },
   ];
-  ];
 
   const potentialWin = parseInt(orderCalculations.potentialWin) || 0;
 
@@ -123,7 +122,7 @@ export default function OrderPreview() {
     }
 
     if (!hasSufficientFunds) {
-      toast.error(`Insufficient balance. You need ${effectiveTotalCost.toFixed(2)} USDC but only have ${totalBalance.toFixed(2)} USDC available.`);
+      toast.error(`Insufficient balance. You need ${effectiveTotalCost.toFixed(2)} USDC but only have ${balance.toFixed(2)} USDC available.`);
       return;
     }
 
