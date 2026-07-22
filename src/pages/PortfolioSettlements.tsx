@@ -228,60 +228,12 @@ export default function PortfolioSettlements() {
           isMobile ? (
             <div className="space-y-3">
               {settlements.map((settlement) => (
-                <div
+                <SettlementRowMobile
                   key={settlement.id}
-                  onClick={() => handleSettlementAction(settlement.id)}
-                  className="bg-card rounded-xl p-3 cursor-pointer hover:bg-card/80 transition-colors"
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className={`text-[10px] ${
-                          settlement.result === "win" ? STATUS_STYLES.success.badge : STATUS_STYLES.error.badge
-                        }`}
-                      >
-                        {settlement.result === "win" ? "Win" : "Loss"}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {settlement.settledAt}
-                      </span>
-                    </div>
-                    <div
-                      className={`flex items-center gap-1 text-xs font-semibold ${
-                        isProfitable(settlement.pnl)
-                          ? "text-trading-green"
-                          : "text-trading-red"
-                      }`}
-                    >
-                      {isProfitable(settlement.pnl) ? (
-                        <TrendingUp className="w-3 h-3" />
-                      ) : (
-                        <TrendingDown className="w-3 h-3" />
-                      )}
-                      {settlement.pnl}
-                    </div>
-                  </div>
-
-                  {/* Event Info */}
-                  <div className="mb-2">
-                    <div className="text-sm font-medium text-foreground line-clamp-1">
-                      {settlement.event}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {resolveDisplayOption(settlement.event, settlement.option)}
-                    </div>
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                    <div className="text-xs text-muted-foreground">
-                      {TRADING_TERMS.QTY}: <span className="font-mono">{settlement.size}</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </div>
+                  settlement={settlement}
+                  optionDisplay={resolveDisplayOption(settlement.event, settlement.option)}
+                  onOpen={() => handleSettlementAction(settlement.id)}
+                />
               ))}
             </div>
           ) : (
@@ -300,49 +252,12 @@ export default function PortfolioSettlements() {
                 </TableHeader>
                 <TableBody>
                   {settlements.map((settlement) => (
-                    <TableRow
+                    <SettlementRowDesktop
                       key={settlement.id}
-                      className="border-border/50 cursor-pointer"
-                      onClick={() => handleSettlementAction(settlement.id)}
-                    >
-                      <TableCell className="font-medium max-w-[200px] truncate">
-                        {settlement.event}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {resolveDisplayOption(settlement.event, settlement.option)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] ${
-                            settlement.result === "win" ? STATUS_STYLES.success.badge : STATUS_STYLES.error.badge
-                          }`}
-                        >
-                          {settlement.result === "win" ? "Win" : "Loss"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right font-mono">
-                        {settlement.size}
-                      </TableCell>
-                      <TableCell
-                        className={`text-right font-mono font-medium ${
-                          isProfitable(settlement.pnl)
-                            ? "text-trading-green"
-                            : "text-trading-red"
-                        }`}
-                      >
-                        {settlement.pnl}
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {settlement.settledAt}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm" className="h-7 text-xs">
-                          View
-                          <ChevronRight className="w-4 h-4 ml-1" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                      settlement={settlement}
+                      optionDisplay={resolveDisplayOption(settlement.event, settlement.option)}
+                      onOpen={() => handleSettlementAction(settlement.id)}
+                    />
                   ))}
                 </TableBody>
               </Table>
