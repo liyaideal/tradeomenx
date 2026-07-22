@@ -160,9 +160,10 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
       description = description.replace(/ incoming$/i, '');
     }
     
-    // Update legacy "trial balance" to "trial bonus" for platform credits
+    // Neutralize legacy Trial Bonus wording on historical platform_credit rows
+    // (Trial Bonus fully sunset 2026-07-21 — history must not render "trial").
     if (tx.type === 'platform_credit') {
-      description = description.replace(/trial balance/gi, 'trial bonus');
+      description = description.replace(/trial (balance|bonus)/gi, 'Platform credit');
     }
     
     return description;
