@@ -109,13 +109,6 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
               </div>
             </Tabs>
 
-            <AccountPicker
-              open={pickerOpen}
-              onOpenChange={setPickerOpen}
-              selected={account}
-              onSelect={handleSelect}
-              title="Deposit to"
-            />
           </>
         )}
       </DialogContent>
