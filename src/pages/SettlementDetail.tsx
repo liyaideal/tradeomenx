@@ -500,6 +500,7 @@ export default function SettlementDetail() {
           entryPrice={pnlBreakdown.avgEntryPrice}
           exitPrice={settlement.exitPrice}
           leverage={settlement.leverage}
+          productLine={settlement.productLine}
           settledAt={settlement.settledAt}
           username={profile?.username || "Trader"}
           avatarUrl={profile?.avatar_url || undefined}
