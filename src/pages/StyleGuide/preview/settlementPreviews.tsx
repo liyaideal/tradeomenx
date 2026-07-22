@@ -6,6 +6,10 @@
 import { SettlementRowDesktop, SettlementRowMobile } from "@/pages/PortfolioSettlements";
 import type { SettlementListItem } from "@/hooks/useSettlements";
 import { ProductLineBadge } from "@/lib/productLineBadge";
+import { ResolvedMarketCard } from "@/components/resolved/ResolvedMarketCard";
+import { MarketCardB } from "@/components/events/MarketCardB";
+import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
+import type { EventRow } from "@/hooks/useMarketListData";
 
 const now = new Date().toISOString().split("T")[0];
 
