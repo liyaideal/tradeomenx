@@ -40,6 +40,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PRODUCT_LINE_BADGE_CLASSES, PRODUCT_LINE_LABELS } from '@/lib/productLineBadge';
 
 
 // Network explorer URLs for txHash links
