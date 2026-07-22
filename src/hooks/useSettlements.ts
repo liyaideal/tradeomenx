@@ -85,34 +85,42 @@ export const useSettlements = () => {
         const totalPnl = groupTrades.reduce((sum, t) => sum + (Number(t.pnl) || 0), 0);
         const totalMargin = groupTrades.reduce((sum, t) => sum + Number(t.margin), 0);
 
-        // Latest close (used to infer settlement pin).
+        // Latest close trade — used as the real intraday exit price when
+        // the group was closed manually. `trades` has no mark_price column,
+        // so we key off the trade `price` on the last close leg.
         const latest = [...groupTrades].sort((a, b) => {
           const at = a.closed_at || a.updated_at;
           const bt = b.closed_at || b.updated_at;
           return bt.localeCompare(at);
         })[0];
-        const closeMark = latest?.mark_price != null ? Number(latest.mark_price) : null;
+        const latestPrice = latest?.price != null ? Number(latest.price) : null;
 
         const productLine: SettlementProductLine =
           (firstTrade as any).product_line === "spot" ? "spot" : "futures";
 
+        // Classifier: an event resolution by sim-settle-spot flips
+        // events.is_resolved=true; that is the only signal available on
+        // the client side without joining positions. If resolved → the
+        // close price is pinned to $1/$0 (spot) or reflects the resolution
+        // (futures). Otherwise the user closed intraday.
         const eventResolved = resolvedByName.get(firstTrade.event_name) ?? false;
-        const pinnedToBinary =
-          closeMark != null &&
-          (Math.abs(closeMark - 1) <= SETTLE_EPS || Math.abs(closeMark) <= SETTLE_EPS);
-        const kind: SettlementKind = eventResolved && pinnedToBinary ? "settled" : "closed";
+        const kind: SettlementKind = eventResolved ? "settled" : "closed";
 
         // Result: win-rate metric MUST stay PnL>0 (locked by 4B spec).
         const isWin = totalPnl > 0;
 
-        // Exit price display:
-        //   settled  → $1.0000 / $0.0000 (pinned)
-        //   closed   → real close mark if available, else placeholder "—"
+        // Exit price display — NO FABRICATION for intraday closes:
+        //   settled  → pin to $1 (win) / $0 (lose) — this is the real
+        //              value written by sim-settle-spot when it credits
+        //              winning shares.
+        //   closed   → real close price from the last trade leg; if that
+        //              field is somehow missing we render "—" rather than
+        //              inventing a value.
         let exitDisplay = "—";
         if (kind === "settled") {
-          exitDisplay = `$${(closeMark! >= 0.5 ? 1 : 0).toFixed(4)}`;
-        } else if (closeMark != null) {
-          exitDisplay = `$${closeMark.toFixed(4)}`;
+          exitDisplay = `$${(isWin ? 1 : 0).toFixed(4)}`;
+        } else if (latestPrice != null) {
+          exitDisplay = `$${latestPrice.toFixed(4)}`;
         }
 
         const pnlPercent = totalMargin > 0 ? (totalPnl / totalMargin) * 100 : 0;
