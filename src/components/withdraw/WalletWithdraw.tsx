@@ -323,20 +323,21 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         onVerified={doSubmit}
       />
 
-      {/* From-account picker */}
-      <AccountPicker
-        open={accountPickerOpen}
-        onOpenChange={setAccountPickerOpen}
-        selected={effectiveAccount}
-        onSelect={(a) => {
-          setWithdrawAccount(a);
-          setAccountPickerOpen(false);
-          // Clear amount to avoid stale validation against the previous balance.
-          setAmount('');
-          setError(null);
-        }}
-        title="From account"
-      />
+      {/* From-account picker (mobile Sheet only; desktop uses inline Popover above) */}
+      {isMobile && (
+        <AccountPicker
+          open={accountPickerOpen}
+          onOpenChange={setAccountPickerOpen}
+          selected={effectiveAccount}
+          onSelect={(a) => {
+            setWithdrawAccount(a);
+            setAccountPickerOpen(false);
+            setAmount('');
+            setError(null);
+          }}
+          title="From account"
+        />
+      )}
     </div>
   );
 };
