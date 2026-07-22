@@ -3,6 +3,7 @@ import { FileSearch, Loader2, CheckCircle2, ExternalLink, Copy, Check, ArrowRigh
 import { Button } from "@/components/ui/button";
 import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useTradeVerification } from "@/hooks/useTradeVerification";
+import { ProductLineBadge } from "@/lib/productLineBadge";
 import { toast } from "sonner";
 
 interface Props {
