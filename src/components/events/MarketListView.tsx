@@ -80,6 +80,7 @@ const EventRowContent = ({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 truncate">
               <span className="text-sm font-medium text-foreground truncate">{row.eventName}</span>
+              {row.productLines?.includes("spot") && <ProductLineBadge line="spot" />}
               {row.isNew && <NewBadge />}
               {row.children.length > 0 && (
                 <span className="text-[10px] text-muted-foreground whitespace-nowrap">{row.childCount} markets</span>
