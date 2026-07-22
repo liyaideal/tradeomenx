@@ -226,11 +226,19 @@ export default function SettlementDetail() {
                   </Badge>
                 )}
 
-                {/* Leverage */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-xs text-muted-foreground">Leverage</span>
-                  <span className="text-sm font-medium text-foreground">{settlement.leverage}x</span>
-                </div>
+                {/* Leverage (futures only) / SPOT badge (spot) */}
+                {settlement.productLine === "spot" ? (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 px-1.5 py-0 font-semibold whitespace-nowrap">
+                      SPOT
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-xs text-muted-foreground">Leverage</span>
+                    <span className="text-sm font-medium text-foreground">{settlement.leverage}x</span>
+                  </div>
+                )}
 
                 {/* Option */}
                 <div className="flex items-center gap-1.5 min-w-0">
