@@ -232,7 +232,10 @@ Deno.serve(async (req) => {
           .eq("product_line", "spot")
           .eq("status", "Pending")
           .eq("event_name", ev.name)
-          .gte("created_at", startFloor);
+          .gte("created_at", startFloor)
+          // 4B follow-up: upper-bounded so a same-name next-day event
+          // doesn't sweep new Pending orders opened *after* settlement time.
+          .lte("created_at", ev.expected_settlement_time);
         if (pendErr) throw pendErr;
 
         for (const t of (pendings as TradeRow[]) ?? []) {
