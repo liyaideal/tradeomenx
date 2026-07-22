@@ -16,6 +16,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useReferral } from "@/hooks/useReferral";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { getBinaryOutcome } from "@/lib/eventUtils";
+import { ProductLineBadge } from "@/lib/productLineBadge";
 import { format, formatDistanceStrict } from "date-fns";
 
 export default function SettlementDetail() {
