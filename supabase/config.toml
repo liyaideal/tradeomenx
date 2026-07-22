@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.ensure-demo-user]
 verify_jwt = false
+
+[functions.sim-settle-spot]
+verify_jwt = false
+
+[functions.sim-daily-seed]
+verify_jwt = false
