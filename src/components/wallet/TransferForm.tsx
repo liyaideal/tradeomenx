@@ -123,9 +123,8 @@ export const TransferForm = ({
       {/* From / To cards */}
       <div className="relative space-y-2">
         <div className="rounded-lg border border-border bg-muted/20 p-3">
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-            <span>From</span>
-            {direction === "to_spot" && <TrialHint />}
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            From
           </div>
           <div className="mt-1 flex items-center justify-between">
             <span className="text-sm font-medium">{fromLabel}</span>
