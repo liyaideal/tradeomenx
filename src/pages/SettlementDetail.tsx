@@ -311,16 +311,18 @@ export default function SettlementDetail() {
               <span className="font-mono text-foreground">${pnlBreakdown.margin.toFixed(2)}</span>
             </div>
             
-            {/* Position Value */}
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="text-muted-foreground text-sm">Position Value</span>
-                <span className="text-xs text-muted-foreground ml-2">
-                  (${pnlBreakdown.margin.toFixed(2)} × {settlement.leverage}x)
-                </span>
+            {/* Position Value — futures only (spot has no leverage multiplier) */}
+            {settlement.productLine !== "spot" && (
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-muted-foreground text-sm">Position Value</span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    (${pnlBreakdown.margin.toFixed(2)} × {settlement.leverage}x)
+                  </span>
+                </div>
+                <span className="font-mono text-foreground">${pnlBreakdown.positionValue.toFixed(2)}</span>
               </div>
-              <span className="font-mono text-foreground">${pnlBreakdown.positionValue.toFixed(2)}</span>
-            </div>
+            )}
             
             {/* Divider */}
             <div className="border-t border-border/50" />
