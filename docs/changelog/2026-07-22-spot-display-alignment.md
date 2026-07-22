@@ -22,11 +22,11 @@
 
 | 场景 | 判定 | Exit Price | 徽标 |
 |---|---|---|---|
-| 到期结算（现货 + 期货） | 关联 `events.is_resolved=true` | 固定 $1.00（win）/ $0.00（lose） | Settled + Win/Loss |
-| 盘中平仓（期货） | events.is_resolved=false | 实际关仓价（trades.price） | Closed + Win/Loss |
-| 盘中平仓（现货） | events.is_resolved=false | 实际关仓价（trades.price） | Closed + **仅 PnL 数字**（正绿负红），无 Win/Loss |
+| 到期结算（现货 + 期货） | 关联事件 `is_resolved=true` **且**最后一腿关仓价 ∈ {0, 1} | 固定 $1.00（win）/ $0.00（lose） | Settled + Win/Loss |
+| 盘中平仓（期货） | 上述条件不成立 | 实际关仓价（trades.price） | Closed + Win/Loss |
+| 盘中平仓（现货） | 上述条件不成立 | 实际关仓价（trades.price） | Closed + **仅 PnL 数字**（正绿负红），无 Win/Loss |
 
-同时 join `events(id, is_resolved)` 一并返回 `productLine`。
+**trade↔event 关联**：`trades` 表没有 `event_id`，且 `sim-daily-seed` 每日复用同名事件，直接 `.in("name", …)` + `Map` last-write-wins 会把昨日已结算事件被今日同名活跃事件覆盖，误标全部前一日行。改法：拉取所有同名事件行，用 `[start_date, expected_settlement_time + 15min]` 时间窗匹配 `trade.closed_at ?? created_at`，多命中优先取 `is_resolved=true`；分组 key 额外拼入 `event.id`（无匹配时退化为 `settledAt` 日期），彻底隔离跨日合并。
 
 **页面重构**：`PortfolioSettlements.tsx` 抽出 `SettlementRowDesktop` / `SettlementRowMobile` 两个内联组件（§16.1 LOCKED 前置要求，为 style-guide 真组件预览铺路）：
 
