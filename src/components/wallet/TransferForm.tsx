@@ -15,7 +15,7 @@ interface TransferFormProps {
   initialDirection?: TransferDirection;
   /**
    * Style-guide only. Forces balances + initial amount for state coverage
-   * (normal / insufficient / zero / trial-hint). Never pass in production —
+   * (normal / insufficient / zero). Never pass in production —
    * production always reads from useUserProfile.
    */
   demoOverride?: {
