@@ -58,20 +58,29 @@ export const TradeVerification = ({ onBack }: Props) => {
             <p className="text-sm text-muted-foreground text-center py-8">No filled trades found.</p>
           ) : (
             <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-              {trades.map((t) => (
-                <button key={t.id} onClick={() => selectTrade(t)} className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium truncate flex-1">{t.event_name}</span>
-                    <span className={`text-xs font-semibold ml-2 ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>{t.side === "buy" ? "YES" : "NO"}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>{t.option_label}</span>
-                    <span>@ {t.price}</span>
-                    <span>×{t.quantity}</span>
-                    <span className="ml-auto">{new Date(t.created_at).toLocaleDateString()}</span>
-                  </div>
-                </button>
-              ))}
+              {trades.map((t) => {
+                const isSpot = t.product_line === "spot";
+                const sideText = isSpot
+                  ? (t.side === "buy" ? "BUY" : "REDUCE")
+                  : (t.side === "buy" ? "YES" : "NO");
+                return (
+                  <button key={t.id} onClick={() => selectTrade(t)} className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group">
+                    <div className="flex items-center justify-between mb-1 gap-2">
+                      <span className="text-sm font-medium truncate flex-1">{t.event_name}</span>
+                      {isSpot && (
+                        <span className="text-[10px] rounded-full border border-primary/40 text-primary px-1.5 py-0.5 uppercase tracking-wider">SPOT</span>
+                      )}
+                      <span className={`text-xs font-semibold ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>{sideText}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span>{t.option_label}</span>
+                      <span>@ {t.price}</span>
+                      <span>×{t.quantity}</span>
+                      <span className="ml-auto">{new Date(t.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -122,10 +131,19 @@ export const TradeVerification = ({ onBack }: Props) => {
 
             {/* Trade info */}
             <div className="bg-muted/20 rounded-xl p-4 space-y-1">
-              <p className="text-sm font-semibold">{comparison.trade.event_name}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold flex-1">{comparison.trade.event_name}</p>
+                {comparison.trade.product_line === "spot" && (
+                  <span className="text-[10px] rounded-full border border-primary/40 text-primary px-1.5 py-0.5 uppercase tracking-wider">SPOT</span>
+                )}
+              </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span>{comparison.trade.option_label}</span>
-                <span className={comparison.trade.side === "buy" ? "text-emerald-400" : "text-red-400"}>{comparison.trade.side === "buy" ? "YES" : "NO"}</span>
+                <span className={comparison.trade.side === "buy" ? "text-emerald-400" : "text-red-400"}>
+                  {comparison.trade.product_line === "spot"
+                    ? (comparison.trade.side === "buy" ? "BUY" : "REDUCE")
+                    : (comparison.trade.side === "buy" ? "YES" : "NO")}
+                </span>
                 <span>@ {comparison.trade.price}</span>
                 <span>×{comparison.trade.quantity}</span>
               </div>

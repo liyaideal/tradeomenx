@@ -24,7 +24,14 @@ export const FREEZE_MINUTES_BEFORE_CLOSE = 5;
 
 // "Closing soon" display-only window (yellow chip beside countdown). Not a
 // lifecycle state. Does NOT block orders.
+// CONFIRMED (product decision 2026-07-22, demo-engine 口径；正式版以结算服务
+// 实际 SLA 为准).
 export const PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15;
+
+// Demo settlement-credit target: proceeds land in spot_balance ≤ 16:30 ET.
+// CONFIRMED (product decision 2026-07-22, demo-engine 口径；正式版以结算服务
+// 实际 SLA 为准). Used only for copy in the /spot terminal ⓘ tooltip.
+export const SETTLEMENT_CREDIT_BY_ET = "16:30";
 
 /** 9-state lifecycle badge map (技术对接 §2). Unknown → gray "Unknown". */
 export const LIFECYCLE_BADGE: Record<

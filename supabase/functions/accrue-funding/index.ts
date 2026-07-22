@@ -46,11 +46,13 @@ Deno.serve(async (req) => {
       } catch (_) { /* empty body ok */ }
     }
 
-    // 1. Fetch open positions
+    // 1. Fetch open positions (futures only — spot has no funding by design;
+    //    filtering here instead of relying on funding_rate=0 heuristic).
     let query = supabase
       .from("positions")
       .select("id, user_id, option_id, event_name, side, size, margin, leverage, mark_price, pnl, funding_accrued, last_funding_at, created_at")
-      .eq("status", "Open");
+      .eq("status", "Open")
+      .eq("product_line", "futures");
     if (targetPositionId) query = query.eq("id", targetPositionId);
 
     const { data: positions, error: posErr } = await query;
