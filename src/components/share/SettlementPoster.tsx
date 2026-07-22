@@ -40,6 +40,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
     option,
     side,
     leverage,
+    productLine = 'futures',
     result,
     pnl,
     pnlPercent,
