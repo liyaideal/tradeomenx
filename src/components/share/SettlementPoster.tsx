@@ -9,6 +9,8 @@ interface SettlementPosterProps {
   option: string;
   side: 'long' | 'short';
   leverage: number;
+  /** 4B: spot posters swap the leverage chip for a SPOT label. */
+  productLine?: 'futures' | 'spot';
   // Result
   result: 'win' | 'lose';
   pnl: number;
@@ -38,6 +40,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
     option,
     side,
     leverage,
+    productLine = 'futures',
     result,
     pnl,
     pnlPercent,
@@ -232,7 +235,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             {isBinaryOption ? (
               <span style={{ fontSize: '12px', fontWeight: 600, color: sideColor }}>
-                {binaryAlias ?? directionText} {leverage}x
+                {binaryAlias ?? directionText} {productLine === 'spot' ? 'SPOT' : `${leverage}x`}
               </span>
             ) : (
               <>
@@ -245,7 +248,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
                   fontSize: '10px',
                   fontWeight: 600,
                 }}>
-                  {directionText} {leverage}x
+                  {directionText} {productLine === 'spot' ? 'SPOT' : `${leverage}x`}
                 </span>
                 <span style={{ fontSize: '11px', color: posterColors.textSecondary }}>
                   {option}

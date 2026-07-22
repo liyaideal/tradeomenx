@@ -42,6 +42,15 @@ import {
 } from "./walletPreviews";
 import { TiersStepperMobile } from "@/components/developers/TiersStepperMobile";
 import { DEVELOPERS_MOBILE_TIERS } from "@/pages/DevelopersPageMobile";
+import {
+  SettlementFuturesWinDesktopPreview,
+  SettlementSpotSettledDesktopPreview,
+  SettlementSpotClosedDesktopPreview,
+  SettlementFuturesWinMobilePreview,
+  SettlementSpotSettledMobilePreview,
+  SettlementSpotClosedMobilePreview,
+  ProductLineBadgeLegendPreview,
+} from "./settlementPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
@@ -288,6 +297,15 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
 
   /* -------- Developers (/developers mobile) -------- */
   "developers-mobile-tiers": () => <TiersStepperMobile tiers={DEVELOPERS_MOBILE_TIERS} />,
+
+  /* -------- Settlements · Round 4B spot display alignment -------- */
+  "settlement-row-futures-win-desktop": () => <SettlementFuturesWinDesktopPreview />,
+  "settlement-row-spot-settled-desktop": () => <SettlementSpotSettledDesktopPreview />,
+  "settlement-row-spot-closed-desktop": () => <SettlementSpotClosedDesktopPreview />,
+  "settlement-row-futures-win-mobile": () => <SettlementFuturesWinMobilePreview />,
+  "settlement-row-spot-settled-mobile": () => <SettlementSpotSettledMobilePreview />,
+  "settlement-row-spot-closed-mobile": () => <SettlementSpotClosedMobilePreview />,
+  "product-line-badge-legend": () => <ProductLineBadgeLegendPreview />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;

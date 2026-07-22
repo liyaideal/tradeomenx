@@ -226,11 +226,19 @@ export default function SettlementDetail() {
                   </Badge>
                 )}
 
-                {/* Leverage */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-xs text-muted-foreground">Leverage</span>
-                  <span className="text-sm font-medium text-foreground">{settlement.leverage}x</span>
-                </div>
+                {/* Leverage (futures only) / SPOT badge (spot) */}
+                {settlement.productLine === "spot" ? (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 px-1.5 py-0 font-semibold whitespace-nowrap">
+                      SPOT
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-xs text-muted-foreground">Leverage</span>
+                    <span className="text-sm font-medium text-foreground">{settlement.leverage}x</span>
+                  </div>
+                )}
 
                 {/* Option */}
                 <div className="flex items-center gap-1.5 min-w-0">
@@ -303,16 +311,18 @@ export default function SettlementDetail() {
               <span className="font-mono text-foreground">${pnlBreakdown.margin.toFixed(2)}</span>
             </div>
             
-            {/* Position Value */}
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="text-muted-foreground text-sm">Position Value</span>
-                <span className="text-xs text-muted-foreground ml-2">
-                  (${pnlBreakdown.margin.toFixed(2)} × {settlement.leverage}x)
-                </span>
+            {/* Position Value — futures only (spot has no leverage multiplier) */}
+            {settlement.productLine !== "spot" && (
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-muted-foreground text-sm">Position Value</span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    (${pnlBreakdown.margin.toFixed(2)} × {settlement.leverage}x)
+                  </span>
+                </div>
+                <span className="font-mono text-foreground">${pnlBreakdown.positionValue.toFixed(2)}</span>
               </div>
-              <span className="font-mono text-foreground">${pnlBreakdown.positionValue.toFixed(2)}</span>
-            </div>
+            )}
             
             {/* Divider */}
             <div className="border-t border-border/50" />
@@ -350,18 +360,20 @@ export default function SettlementDetail() {
               </span>
             </div>
             
-            {/* Funding Fee */}
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="text-muted-foreground text-sm">Funding Fee</span>
-                <span className="text-xs text-muted-foreground ml-2">
-                  (0.01%/8h × {pnlBreakdown.fundingPeriods || 0} periods)
+            {/* Funding Fee — futures only (spot never pays funding) */}
+            {settlement.productLine !== "spot" && (
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-muted-foreground text-sm">Funding Fee</span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    (0.01%/8h × {pnlBreakdown.fundingPeriods || 0} periods)
+                  </span>
+                </div>
+                <span className="font-mono text-trading-red">
+                  {pnlBreakdown.fundingFee > 0 ? `-$${pnlBreakdown.fundingFee.toFixed(2)}` : "$0.00"}
                 </span>
               </div>
-              <span className="font-mono text-trading-red">
-                {pnlBreakdown.fundingFee > 0 ? `-$${pnlBreakdown.fundingFee.toFixed(2)}` : "$0.00"}
-              </span>
-            </div>
+            )}
             
             {/* Trading Fee */}
             <div className="flex justify-between items-center">
@@ -488,6 +500,7 @@ export default function SettlementDetail() {
           entryPrice={pnlBreakdown.avgEntryPrice}
           exitPrice={settlement.exitPrice}
           leverage={settlement.leverage}
+          productLine={settlement.productLine}
           settledAt={settlement.settledAt}
           username={profile?.username || "Trader"}
           avatarUrl={profile?.avatar_url || undefined}

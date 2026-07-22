@@ -1279,3 +1279,50 @@ Helper: `src/lib/equity.ts` `computeTotalEquity({ spotBalance, balance })`. Ever
 ### 6. §10 Preset D revision — HomeEquityHero data source
 
 `<HomeEquityHero>` main number data source is now **`computeTotalEquity`**, not `balance + trialBalance`. Everything else in Preset D (40px cap, no meta row, eye toggle, single Deposit CTA, non-sticky) stays. `.lovable/memory/design/mobile-header-preset-d.md` synced.
+
+## §Addendum 2026-07-22 · Spot Display Alignment (Round 4B, LOCKED)
+
+### 1. Product-Line Badge (single source)
+
+Canonical module: `src/lib/productLineBadge.tsx`. `<ProductLineBadge line="spot" />` or `PRODUCT_LINE_BADGE_CLASSES.spot` — never re-declare.
+
+| Line | Classes | Where it appears |
+|---|---|---|
+| SPOT | `border-blue-500/30 bg-blue-500/10 text-blue-400` filled pill | TransactionHistory row · TradeVerification select/header · PortfolioSettlements row · SettlementDetail header · SettlementPoster direction chip · ResolvedMarketCard top badges · MarketCardB top badges · MarketListView Event cell |
+| FUTURES | `border-primary/30 bg-primary/10 text-primary` filled pill | TransactionHistory (implicit — badge hidden when only futures on that surface) |
+
+**Exempt (LOCKED)**: `/spot` terminal header uses the neutral outline SPOT badge from §14 — it lives *inside* the spot terminal and needs to read as chrome, not accent. Do not swap it for the shared pill.
+
+### 2. §7 addendum — Settlements 3-way status
+
+`useSettlements.kind` drives all rendering:
+
+| kind | Trigger | Exit Price | Row badge |
+|---|---|---|---|
+| `settled` | joined `events.is_resolved=true` | pin `$1.00` (win) / `$0.00` (lose) | Settled + Win/Loss |
+| `closed` (futures) | events.is_resolved=false | real `trades.price` | Closed + Win/Loss |
+| `closed` (spot) | events.is_resolved=false, product_line='spot' | real `trades.price` | Closed + **PnL number only** (green/red), no Win/Loss chip |
+
+**Never fabricate exit price**. The historical `exitPrice = isWin ? 1 : 0` line is banned.
+
+### 3. §15 corrections
+
+- Rename: ResolvedEventCard → **ResolvedMarketCard** (the file name is authoritative).
+- PortfolioSettlements mobile card: `rounded-xl border-border/40 p-4` + 165deg gradient surface. Not `p-3`, not flat.
+
+### 4. §16 — Full-catalog view switch rule
+
+When `search.trim() !== "" || activeTab === "watchlist"`:
+- **Skip** the Futures|Spot productLine filter (show everything).
+- **Hide** the top Futures|Spot switch chip group entirely.
+Exit either condition → both revert.
+
+### 5. §16 page table addendum
+
+| Page | Product-line surface |
+|---|---|
+| PortfolioSettlements | Row-level SPOT badge in leverage slot; spot intraday closes hide Win/Loss chip |
+
+### 6. Future rule (documented, not yet built)
+
+Dual-line events (`product_lines ⊇ {spot, futures}`): render **one row per product line**, each with its own badge and route. Not implemented in 4B — search / watchlist currently shows one row per event.

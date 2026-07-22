@@ -17,7 +17,27 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-07-22 — 现货展示对齐（轮次 4B）
+
+源文档：[2026-07-22-spot-display-alignment.md](./2026-07-22-spot-display-alignment.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| SDA1 | 产品线徽标共享模块：新增 `productLineBadge.tsx`；TransactionHistory 与 TradeVerification 全部引用；/spot 终端 header 中性 outline 徽标豁免 | `src/lib/productLineBadge.tsx` · `src/components/wallet/TransactionHistory.tsx` · `src/components/transparency/TradeVerification.tsx` | ✅ | Transaction row / Transparency select+header / Portfolio row 三处 SPOT 徽标颜色像素一致（blue-400 系）；/spot 顶栏徽标不变 | 修 4A 交付的紫色错版 |
+| SDA2 | `useSettlements` 删伪造 exit 逻辑，join events.is_resolved 三分口径（settled 定价 / 期货 closed / 现货 closed 无 Win-Loss）；返回值加 `kind`、`productLine` | `src/hooks/useSettlements.ts` | ✅ | 现货已 SETTLED 事件行 exit=$1/$0；现货盘中平仓行只见 PnL 数字无 Win/Loss chip；期货维持原状 | Win Rate 统计一行未改 |
+| SDA3 | `PortfolioSettlements` 抽 `SettlementRowDesktop/Mobile` 真组件；现货杠杆位换 SPOT 徽标；移动卡改 `rounded-xl p-4` + 165deg 渐变 | `src/pages/PortfolioSettlements.tsx` | ✅ | 桌面/移动双端现货行 SPOT 徽标；移动卡阴影/内距对齐 §15 | §16.1 style-guide 前置 |
+| SDA4 | `useSettlementDetail` 加 `productLine`；`SettlementDetail` 现货隐藏 Leverage/Position Value/Funding Fee；顶部 chip 换 SPOT 徽标 | `src/hooks/useSettlementDetail.ts` · `src/pages/SettlementDetail.tsx` | ✅ | 现货结算详情页无 Leverage/Funding 字样，Position Value 行消失 | |
+| SDA5 | `SettlementPoster` 新增 `productLine` prop；direction chip 现货写 SPOT | `src/components/share/SettlementPoster.tsx` · `src/pages/SettlementDetail.tsx` | ✅ | 现货分享海报显示 SPOT 替代 5x | |
+| SDA6 | `useResolvedEvents` select 增 `product_lines`；`ResolvedMarketCard` 顶行按 productLines.includes(spot) 追加 SPOT 徽标 | `src/hooks/useResolvedEvents.ts` · `src/components/resolved/ResolvedMarketCard.tsx` | ✅ | /resolved 现货事件卡带 SPOT 徽标；纯期货事件不变 | |
+| SDA7 | `EventsPage` 全量视图 bypass：search∨watchlist 时跳过 productLine 过滤 + 隐藏 Futures\|Spot 切换；`MarketCardB`/`MarketListView` 结果加 SPOT 徽标 | `src/pages/EventsPage.tsx` · `src/components/events/MarketCardB.tsx` · `src/components/events/MarketListView.tsx` | ✅ | 搜索 "NVDA" 无论当前 tab 都返回 SPOT 结果并跳 /spot；Watchlist tab 隐藏切换、显示所有产品线；退出 search/watchlist 恢复原状 | 双线事件规则待建，DESIGN.md §16 已预留 |
+| SDA8 | 4A 遗留：`sim-settle-spot` Pending 撤销加 `.lte(created_at, expected_settlement_time)` 上界；credit→close 双写窗口 DEMO-STATE 注释 | `supabase/functions/sim-settle-spot/index.ts` | ✅ | 手动重跑 settle 不误伤下一日 Pending；重跑 idempotent | |
+| SDA9 | DESIGN.md Addendum 2026-07-22（产品线徽标 / §7 三分口径 / §15 命名与移动卡 / §16 全量视图 & 页面表） | `DESIGN.md` §Addendum 2026-07-22 | ✅ | grep 无 "ResolvedEventCard" 于规则章节 | Append-only |
+
+**明确不做**：Win Rate 统计逻辑、点击路由、券体系、双账户内核、schema 变更、HomeSearchBar 全量搜索、双线事件多行渲染（DESIGN.md §16 预留规则待后续 PR）。
+
 ---
+
+
 
 ## 2026-07-22 — 现货结算演示流 + 种子日常化（轮次 4A）
 

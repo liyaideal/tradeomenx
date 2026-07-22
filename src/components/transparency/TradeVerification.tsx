@@ -3,6 +3,7 @@ import { FileSearch, Loader2, CheckCircle2, ExternalLink, Copy, Check, ArrowRigh
 import { Button } from "@/components/ui/button";
 import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useTradeVerification } from "@/hooks/useTradeVerification";
+import { ProductLineBadge } from "@/lib/productLineBadge";
 import { toast } from "sonner";
 
 interface Props {
@@ -68,7 +69,7 @@ export const TradeVerification = ({ onBack }: Props) => {
                     <div className="flex items-center justify-between mb-1 gap-2">
                       <span className="text-sm font-medium truncate flex-1">{t.event_name}</span>
                       {isSpot && (
-                        <span className="text-[10px] rounded-full border border-primary/40 text-primary px-1.5 py-0.5 uppercase tracking-wider">SPOT</span>
+                        <ProductLineBadge line="spot" />
                       )}
                       <span className={`text-xs font-semibold ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>{sideText}</span>
                     </div>
@@ -134,7 +135,7 @@ export const TradeVerification = ({ onBack }: Props) => {
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold flex-1">{comparison.trade.event_name}</p>
                 {comparison.trade.product_line === "spot" && (
-                  <span className="text-[10px] rounded-full border border-primary/40 text-primary px-1.5 py-0.5 uppercase tracking-wider">SPOT</span>
+                  <ProductLineBadge line="spot" />
                 )}
               </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">

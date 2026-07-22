@@ -118,15 +118,21 @@ const EventsPage = () => {
     if (isMobile && view !== "grid") setView("grid");
   }, [isMobile]);
 
+  // 4B: full-catalog view — search or Watchlist tab bypasses the
+  // Futures|Spot filter so users don't miss cross-product-line results.
+  // Product-line switch is also hidden in these modes (see §16 rule).
+  const isFullCatalog = filters.search.trim().length > 0 || activeTab === "watchlist";
+
   // Filter & sort markets
   const filteredMarkets = useMemo(() => {
-    // Product-line filter first: futures shows anything containing 'futures',
-    // spot shows anything containing 'spot'.
-    let result = markets.filter((m) =>
-      productLine === "spot"
-        ? m.productLines?.includes("spot")
-        : m.productLines?.includes("futures")
-    );
+    // Product-line filter — SKIPPED in full-catalog mode.
+    let result = isFullCatalog
+      ? markets.slice()
+      : markets.filter((m) =>
+          productLine === "spot"
+            ? m.productLines?.includes("spot")
+            : m.productLines?.includes("futures"),
+        );
 
     // Tab-level filtering (category tabs)
     if (activeTab === "watchlist") {
@@ -173,7 +179,7 @@ const EventsPage = () => {
     });
 
     return result;
-  }, [markets, activeTab, filters, isWatched, chgTimeframe, productLine]);
+  }, [markets, activeTab, filters, isWatched, chgTimeframe, productLine, isFullCatalog]);
 
   // Visible markets (cumulative load more)
   const visibleMarkets = useMemo(() => {
@@ -312,29 +318,32 @@ const EventsPage = () => {
           </div>
         )}
 
-        {/* Product line switch: Futures | Spot */}
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-muted/30 p-1">
-            {(["futures", "spot"] as const).map((pl) => (
-              <button
-                key={pl}
-                onClick={() => { setProductLine(pl); setActiveTab("all"); }}
-                className={`px-3.5 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
-                  productLine === pl
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {pl}
-              </button>
-            ))}
+        {/* Product line switch: Futures | Spot — hidden in full-catalog
+            (search / Watchlist) mode per DESIGN.md §16. */}
+        {!isFullCatalog && (
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-muted/30 p-1">
+              {(["futures", "spot"] as const).map((pl) => (
+                <button
+                  key={pl}
+                  onClick={() => { setProductLine(pl); setActiveTab("all"); }}
+                  className={`px-3.5 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
+                    productLine === pl
+                      ? "bg-primary/15 text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {pl}
+                </button>
+              ))}
+            </div>
+            {productLine === "spot" && (
+              <p className="text-xs text-muted-foreground">
+                Spot = buy outcome shares ($0–1). Winning shares pay $1. Max loss is what you pay.
+              </p>
+            )}
           </div>
-          {productLine === "spot" && (
-            <p className="text-xs text-muted-foreground">
-              Spot = buy outcome shares ($0–1). Winning shares pay $1. Max loss is what you pay.
-            </p>
-          )}
-        </div>
+        )}
 
         {/* Tabs + Timeframe picker */}
         <div className="flex items-center justify-between gap-3">

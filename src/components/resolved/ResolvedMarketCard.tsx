@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { ResolvedEvent } from "@/hooks/useResolvedEvents";
 import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { getDisplayOptionLabel } from "@/lib/eventUtils";
+import { ProductLineBadge } from "@/lib/productLineBadge";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +71,7 @@ export const ResolvedMarketCard = ({ event, onClick }: ResolvedMarketCardProps) 
             >
               {categoryInfo.label}
             </Badge>
+            {event.productLines?.includes("spot") && <ProductLineBadge line="spot" />}
             <Badge
               variant="outline"
               className="text-[10px] font-semibold uppercase tracking-wide bg-muted/40 text-muted-foreground border-border/50 px-1.5 py-0"

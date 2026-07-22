@@ -5,6 +5,7 @@ import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
 import { EventRow, ChgTimeframe, getChange, getVolume } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
+import { ProductLineBadge } from "@/lib/productLineBadge";
 import { cn } from "@/lib/utils";
 
 interface MarketCardBProps {
@@ -87,6 +88,7 @@ export const MarketCardB = ({ market, isWatched, onToggleWatch, chgTimeframe = "
           <Badge variant={catStyle.variant || "general"} className="text-[10px] border-0 px-1.5 py-0">
             {market.categoryLabel}
           </Badge>
+          {market.productLines?.includes("spot") && <ProductLineBadge line="spot" />}
           {market.isNew && <NewBadge />}
         </div>
         <div className="text-[10px] font-mono text-muted-foreground">

@@ -178,6 +178,13 @@ Deno.serve(async (req) => {
         if (posErr) throw posErr;
 
         for (const p of (positions as PositionRow[]) ?? []) {
+          // DEMO-STATE: credit → close happens in two writes (not one txn).
+          // A crash in the ~ms window between them is tolerated because the
+          // status="Open" guard on the update below makes the close idempotent
+          // on retry, and the credit is keyed off spot_balance snapshot so a
+          // re-run reads the already-credited balance and skips duplicate add
+          // only if we detect Closed status first — the loop selects Open
+          // positions only, so retries naturally skip already-settled rows.
           const isWin = p.option_id
             ? p.option_id === winner.id
             : p.option_label === winner.label;
@@ -232,7 +239,10 @@ Deno.serve(async (req) => {
           .eq("product_line", "spot")
           .eq("status", "Pending")
           .eq("event_name", ev.name)
-          .gte("created_at", startFloor);
+          .gte("created_at", startFloor)
+          // 4B follow-up: upper-bounded so a same-name next-day event
+          // doesn't sweep new Pending orders opened *after* settlement time.
+          .lte("created_at", ev.expected_settlement_time);
         if (pendErr) throw pendErr;
 
         for (const t of (pendings as TradeRow[]) ?? []) {

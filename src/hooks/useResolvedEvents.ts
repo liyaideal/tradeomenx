@@ -24,6 +24,8 @@ export interface ResolvedEvent {
   options: ResolvedEventOption[];
   /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
   sideLabels?: { yes: string; no: string };
+  /** 4B: which product lines the event was live on ("spot" | "futures"). */
+  productLines: string[];
   userParticipated: boolean;
   userPnl: number | null;
 }
@@ -101,6 +103,9 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
             is_winner: opt.is_winner,
           })),
           sideLabels: parseSideLabels((event as any).side_labels),
+          productLines: Array.isArray((event as any).product_lines)
+            ? ((event as any).product_lines as string[])
+            : ["futures"],
           userParticipated: userEventTrades.length > 0,
           userPnl: userEventTrades.length > 0 ? userPnl : null,
         };

@@ -40,6 +40,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PRODUCT_LINE_BADGE_CLASSES, PRODUCT_LINE_LABELS } from '@/lib/productLineBadge';
 
 
 // Network explorer URLs for txHash links
@@ -129,9 +130,12 @@ const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: str
   transfer_to_futures: { label: 'Transfer', className: 'border-primary/30 bg-primary/10 text-primary' },
 };
 
+// Sourced from src/lib/productLineBadge — DO NOT hand-roll classes here.
+// If SPOT/FUTURES colors need to change, edit PRODUCT_LINE_BADGE_CLASSES,
+// not this map.
 const ACCOUNT_BADGE_CONFIG: Record<TransactionAccount, { label: string; className: string }> = {
-  spot: { label: 'SPOT', className: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
-  futures: { label: 'FUTURES', className: 'border-primary/30 bg-primary/10 text-primary' },
+  spot: { label: PRODUCT_LINE_LABELS.spot, className: PRODUCT_LINE_BADGE_CLASSES.spot },
+  futures: { label: PRODUCT_LINE_LABELS.futures, className: PRODUCT_LINE_BADGE_CLASSES.futures },
 };
 
 export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
