@@ -28,10 +28,15 @@ export const FREEZE_MINUTES_BEFORE_CLOSE = 5;
 // 实际 SLA 为准).
 export const PRE_FREEZE_MINUTES_BEFORE_CLOSE = 15;
 
-// Demo settlement-credit target: proceeds land in spot_balance ≤ 16:30 ET.
-// CONFIRMED (product decision 2026-07-22, demo-engine 口径；正式版以结算服务
-// 实际 SLA 为准). Used only for copy in the /spot terminal ⓘ tooltip.
-export const SETTLEMENT_CREDIT_BY_ET = "16:30";
+// Demo settlement-credit copy anchor: proceeds land in spot_balance shortly
+// after the cash close (demo cron runs at 21:05 UTC ≈ 17:05 ET, so credit
+// happens *after* market close, not by 16:30 ET). The 16:30 ET SLA is the
+// PRODUCT TARGET for the real settlement service. UI copy that references
+// this constant should say "credited after market close" — do not hard-code
+// "≤ 16:30 ET" in tooltips until the production settlement service ships.
+// CONFIRMED (product decision 2026-07-22).
+export const SETTLEMENT_CREDIT_BY_ET = "after market close";
+
 
 /** 9-state lifecycle badge map (技术对接 §2). Unknown → gray "Unknown". */
 export const LIFECYCLE_BADGE: Record<
