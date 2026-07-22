@@ -107,9 +107,7 @@ const ResultBadge = ({ result }: { result: "win" | "lose" }) => (
 const KindChip = ({ kind }: { kind: "settled" | "closed" }) => (
   <Badge
     variant="outline"
-    className={`text-[10px] uppercase tracking-wide ${
-      kind === "settled" ? STATUS_STYLES.neutral.badge : STATUS_STYLES.neutral.badge
-    }`}
+    className={`text-[10px] uppercase tracking-wide ${STATUS_STYLES.neutral.badge}`}
   >
     {kind === "settled" ? "Settled" : "Closed"}
   </Badge>
