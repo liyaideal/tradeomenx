@@ -360,18 +360,20 @@ export default function SettlementDetail() {
               </span>
             </div>
             
-            {/* Funding Fee */}
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="text-muted-foreground text-sm">Funding Fee</span>
-                <span className="text-xs text-muted-foreground ml-2">
-                  (0.01%/8h × {pnlBreakdown.fundingPeriods || 0} periods)
+            {/* Funding Fee — futures only (spot never pays funding) */}
+            {settlement.productLine !== "spot" && (
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-muted-foreground text-sm">Funding Fee</span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    (0.01%/8h × {pnlBreakdown.fundingPeriods || 0} periods)
+                  </span>
+                </div>
+                <span className="font-mono text-trading-red">
+                  {pnlBreakdown.fundingFee > 0 ? `-$${pnlBreakdown.fundingFee.toFixed(2)}` : "$0.00"}
                 </span>
               </div>
-              <span className="font-mono text-trading-red">
-                {pnlBreakdown.fundingFee > 0 ? `-$${pnlBreakdown.fundingFee.toFixed(2)}` : "$0.00"}
-              </span>
-            </div>
+            )}
             
             {/* Trading Fee */}
             <div className="flex justify-between items-center">
