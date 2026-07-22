@@ -21,19 +21,20 @@ interface DepositDialogProps {
 export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
   const [activeTab, setActiveTab] = useState('wallet');
   const { account, setAccount } = useAccountPreference('deposit');
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(false);
 
   const handleClose = () => {
     setActiveTab('wallet');
+    setEditingAccount(false);
     onOpenChange(false);
   };
 
   const handleSelect = (next: AccountKind) => {
     setAccount(next);
-    setPickerOpen(false);
+    setEditingAccount(false);
   };
 
-  const needsSelection = !account;
+  const needsSelection = !account || editingAccount;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
