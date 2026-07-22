@@ -119,10 +119,7 @@ export const SettlementRowMobile = ({ settlement, optionDisplay, onOpen }: Settl
     <div
       onClick={onOpen}
       className="rounded-xl border border-border/40 p-4 cursor-pointer hover:border-primary/40 transition-colors"
-      style={{
-        background:
-          "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
-      }}
+      style={{ background: "var(--gradient-market-card)" }}
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 flex-wrap">
