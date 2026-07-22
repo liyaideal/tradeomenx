@@ -69,12 +69,17 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
 
       if (!events) return [];
 
-      let userTrades: { event_name: string; pnl: number | null }[] = [];
+      // Trades subquery carries product_line so each resolved event's userPnl
+      // sums ONLY trades from the same product line as the event
+      // (`event.productLines`). Without this filter, a user who traded the
+      // futures book on an event that later got a spot leg would leak
+      // cross-line PnL into the resolved spot card, and vice versa.
+      let userTrades: { event_name: string; pnl: number | null; product_line: string | null }[] = [];
       if (user) {
         const eventNames = events.map((e) => e.name);
         const { data: trades } = await supabase
           .from("trades")
-          .select("event_name, pnl")
+          .select("event_name, pnl, product_line")
           .eq("user_id", user.id)
           .in("event_name", eventNames);
 
@@ -82,7 +87,14 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
       }
 
       return events.map((event) => {
-        const userEventTrades = userTrades.filter((t) => t.event_name === event.name);
+        const productLines = Array.isArray((event as any).product_lines)
+          ? ((event as any).product_lines as string[])
+          : ["futures"];
+        const userEventTrades = userTrades.filter(
+          (t) =>
+            t.event_name === event.name &&
+            productLines.includes((t.product_line ?? "futures") as string),
+        );
         const userPnl = userEventTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
 
         return {
@@ -103,9 +115,7 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
             is_winner: opt.is_winner,
           })),
           sideLabels: parseSideLabels((event as any).side_labels),
-          productLines: Array.isArray((event as any).product_lines)
-            ? ((event as any).product_lines as string[])
-            : ["futures"],
+          productLines,
           userParticipated: userEventTrades.length > 0,
           userPnl: userEventTrades.length > 0 ? userPnl : null,
         };

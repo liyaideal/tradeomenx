@@ -6,6 +6,10 @@
 import { SettlementRowDesktop, SettlementRowMobile } from "@/pages/PortfolioSettlements";
 import type { SettlementListItem } from "@/hooks/useSettlements";
 import { ProductLineBadge } from "@/lib/productLineBadge";
+import { ResolvedMarketCard } from "@/components/resolved/ResolvedMarketCard";
+import { MarketCardB } from "@/components/events/MarketCardB";
+import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
+import type { EventRow } from "@/hooks/useMarketListData";
 
 const now = new Date().toISOString().split("T")[0];
 
@@ -127,3 +131,70 @@ export const ProductLineBadgeLegendPreview = () => (
     </p>
   </div>
 );
+
+/** /resolved card with SPOT badge — real ResolvedMarketCard, mock event. */
+const spotResolvedEvent: ResolvedEvent = {
+  id: "demo-spot-resolved",
+  name: "Will NVDA close higher today?",
+  category: "stocks",
+  description: null,
+  volume: "$248000",
+  is_resolved: true,
+  settled_at: new Date().toISOString(),
+  winning_option_id: "opt-up",
+  options: [
+    { id: "opt-up", event_id: "demo-spot-resolved", label: "Up", price: 1, final_price: 1, is_winner: true },
+    { id: "opt-down", event_id: "demo-spot-resolved", label: "Down", price: 0, final_price: 0, is_winner: false },
+  ],
+  sideLabels: undefined,
+  productLines: ["spot"],
+  userParticipated: true,
+  userPnl: 46,
+};
+
+export const ResolvedMarketCardSpotPreview = () => (
+  <div className="max-w-md">
+    <ResolvedMarketCard event={spotResolvedEvent} />
+  </div>
+);
+
+/** Search-results row with SPOT badge — real MarketCardB, mock EventRow. */
+const spotSearchRow: EventRow = {
+  id: "demo-spot-row",
+  eventId: "demo-spot-row",
+  eventName: "Will NVDA close higher today?",
+  eventIcon: "📈",
+  category: "stocks",
+  categoryLabel: "Stocks",
+  productLines: ["spot"],
+  eventSubtype: "us_stock",
+  lifecycleStatus: "ACTIVE",
+  basePrice: 118.42,
+  change1h: 0.4,
+  change4h: 1.1,
+  change24h: 2.6,
+  volume1h: 12000,
+  volume4h: 48000,
+  volume24h: 248000,
+  totalVolume: 248000,
+  openInterest: 74000,
+  expiry: new Date(Date.now() + 6 * 3600 * 1000),
+  createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+  isNew: false,
+  isClosingSoon: true,
+  topMarket: { label: "Up" },
+  childCount: 2,
+  children: [],
+};
+
+export const MarketSearchRowSpotPreview = () => (
+  <div className="max-w-md">
+    <MarketCardB
+      market={spotSearchRow}
+      isWatched={false}
+      onToggleWatch={() => {}}
+      chgTimeframe="24h"
+    />
+  </div>
+);
+

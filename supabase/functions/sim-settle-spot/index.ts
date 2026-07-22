@@ -178,13 +178,14 @@ Deno.serve(async (req) => {
         if (posErr) throw posErr;
 
         for (const p of (positions as PositionRow[]) ?? []) {
-          // DEMO-STATE: credit → close happens in two writes (not one txn).
-          // A crash in the ~ms window between them is tolerated because the
-          // status="Open" guard on the update below makes the close idempotent
-          // on retry, and the credit is keyed off spot_balance snapshot so a
-          // re-run reads the already-credited balance and skips duplicate add
-          // only if we detect Closed status first — the loop selects Open
-          // positions only, so retries naturally skip already-settled rows.
+          // DEMO-STATE (honest): credit → close is TWO independent writes
+          // (Postgres RPC transactions are not used here). If the function
+          // crashes AFTER `spot_balance += proceeds` but BEFORE the position
+          // flips to Closed, the retry re-enters this loop, sees status='Open'
+          // again, and credits proceeds a SECOND time — this window is NOT
+          // idempotent. The status='Open' guard only protects retries that
+          // succeeded in flipping the position. Acceptable in demo/testnet;
+          // production must move the credit + close into a single txn (RPC).
           const isWin = p.option_id
             ? p.option_id === winner.id
             : p.option_label === winner.label;

@@ -22,11 +22,11 @@
 
 | 场景 | 判定 | Exit Price | 徽标 |
 |---|---|---|---|
-| 到期结算（现货 + 期货） | 关联 `events.is_resolved=true` | 固定 $1.00（win）/ $0.00（lose） | Settled + Win/Loss |
-| 盘中平仓（期货） | events.is_resolved=false | 实际关仓价（trades.price） | Closed + Win/Loss |
-| 盘中平仓（现货） | events.is_resolved=false | 实际关仓价（trades.price） | Closed + **仅 PnL 数字**（正绿负红），无 Win/Loss |
+| 到期结算（现货 + 期货） | 关联事件 `is_resolved=true` **且**最后一腿关仓价 ∈ {0, 1} | 固定 $1.00（win）/ $0.00（lose） | Settled + Win/Loss |
+| 盘中平仓（期货） | 上述条件不成立 | 实际关仓价（trades.price） | Closed + Win/Loss |
+| 盘中平仓（现货） | 上述条件不成立 | 实际关仓价（trades.price） | Closed + **仅 PnL 数字**（正绿负红），无 Win/Loss |
 
-同时 join `events(id, is_resolved)` 一并返回 `productLine`。
+**trade↔event 关联**：`trades` 表没有 `event_id`，且 `sim-daily-seed` 每日复用同名事件，直接 `.in("name", …)` + `Map` last-write-wins 会把昨日已结算事件被今日同名活跃事件覆盖，误标全部前一日行。改法：拉取所有同名事件行，用 `[start_date, expected_settlement_time + 15min]` 时间窗匹配 `trade.closed_at ?? created_at`，多命中优先取 `is_resolved=true`；分组 key 额外拼入 `event.id`（无匹配时退化为 `settledAt` 日期），彻底隔离跨日合并。
 
 **页面重构**：`PortfolioSettlements.tsx` 抽出 `SettlementRowDesktop` / `SettlementRowMobile` 两个内联组件（§16.1 LOCKED 前置要求，为 style-guide 真组件预览铺路）：
 
@@ -62,14 +62,16 @@
 
 ## 6. Style Guide（真组件双端）
 
-新增 registry entry：`settlement-row-futures-win` / `settlement-row-spot-settled` / `settlement-row-spot-closed`（引用抽出的 SettlementRow 真组件），双端 DeviceFrame 逐一对应。`ResolvedMarketCard` 现货款、搜索结果行带徽标款也同批入 style-guide。
-
-*本轮 style-guide 增量为最小交付，追加请见后续 PR。*
+在 `WalletSection` 新增 `settlements-4b` 章节，通过 `DualDevicePreview` 挂载全部 9 个真组件预览：
+- 结算行三态双端：`settlement-row-{futures-win,spot-settled,spot-closed}-{desktop,mobile}` — 引用 `PortfolioSettlements.tsx` 抽出的 `SettlementRowDesktop / SettlementRowMobile`；
+- `resolved-market-card-spot` — 真 `ResolvedMarketCard` + mock `ResolvedEvent`；
+- `market-search-row-spot` — 真 `MarketCardB` + mock `EventRow`；
+- `product-line-badge-legend` — 徽标一览。
 
 ## 7. 4A 遗留清理
 
-- `sim-settle-spot`：Pending 撤销 SQL 增 `.lte("created_at", ev.expected_settlement_time)` 上界，防同名次日事件误伤（补齐 4A SS11 未考虑到的对称边界）
-- credit→close 微窗口在函数内加 DEMO-STATE 长注释：现货 settle 的 `spot_balance += proceeds` 与 `positions.status='Closed'` 是**两次写**（非事务）；崩溃窗口靠位置的 `status='Open'` 幂等 guard 兜底（重跑只捞未关的行）
+- `sim-settle-spot`：Pending 撤销 SQL 增 `.gte("created_at", ev.start_date)` 下界（配合已存在的 `.lt(expected_settlement_time)` 上界），防同名次日事件误伤（补齐 4A SS11 未考虑到的对称边界）
+- credit→close 微窗口在函数内加 DEMO-STATE 长注释：现货 settle 的 `spot_balance += proceeds` 与 `positions.status='Closed'` 是**两次写**（非事务）；**如实说明**——如果崩溃发生在 credit 之后、close 之前，重试会再次进入循环并第二次入账（`status='Open'` guard 不覆盖该窗口），仅在 close 已成功时才幂等；demo/testnet 可接受，生产必须迁至单事务 RPC
 
 ## 8. DESIGN.md 同步
 

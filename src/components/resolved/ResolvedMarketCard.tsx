@@ -42,10 +42,7 @@ export const ResolvedMarketCard = ({ event, onClick }: ResolvedMarketCardProps) 
   return (
     <div
       className="group relative rounded-xl p-3 cursor-pointer transition-all overflow-hidden border border-border/40 hover:border-primary/40"
-      style={{
-        background:
-          "linear-gradient(165deg, hsl(222 35% 11%) 0%, hsl(225 40% 7%) 100%)",
-      }}
+      style={{ background: "var(--gradient-market-card)" }}
       onClick={onClick}
     >
       {/* Category background image */}

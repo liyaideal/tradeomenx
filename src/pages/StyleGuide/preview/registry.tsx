@@ -50,6 +50,8 @@ import {
   SettlementSpotSettledMobilePreview,
   SettlementSpotClosedMobilePreview,
   ProductLineBadgeLegendPreview,
+  ResolvedMarketCardSpotPreview,
+  MarketSearchRowSpotPreview,
 } from "./settlementPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
@@ -306,6 +308,8 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "settlement-row-spot-settled-mobile": () => <SettlementSpotSettledMobilePreview />,
   "settlement-row-spot-closed-mobile": () => <SettlementSpotClosedMobilePreview />,
   "product-line-badge-legend": () => <ProductLineBadgeLegendPreview />,
+  "resolved-market-card-spot": () => <ResolvedMarketCardSpotPreview />,
+  "market-search-row-spot": () => <MarketSearchRowSpotPreview />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;
