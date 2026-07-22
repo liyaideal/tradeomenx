@@ -1,34 +1,16 @@
-## Goal
-Add a new "toast with help link" variant in the Style Guide's Toast section, showing an official EN restriction message with an inline action that navigates to the help center. Must render/behave correctly on both desktop and mobile.
+## 移动端 Deposit 顶部 campaign 提示下线
 
-## Scope
-Frontend-only. Single file edit:
-- `src/pages/StyleGuide/sections/CommonUISection.tsx` — Advanced Toast Patterns card (around L1136–1237).
+### 改动
 
-No changes to the sonner `<Toaster />` config, no new routes, no memory updates.
+1. **`src/pages/Deposit.tsx`**：删除 L89 `<DepositActivationHint />` 挂载点及 L11 import。
+2. **`src/components/activation/DepositActivationHint.tsx`**：删除文件（无其他引用）。
 
-## Design
-- Uses `toast.warning(...)` with:
-  - **Title:** `Withdrawal restricted`
-  - **Description:** `Your account is under review. Only principal can be withdrawn; profits are temporarily locked. See the help center for details.`
-  - **Action:** label `Learn more` → `navigate("/faq")` (existing help center route).
-  - `duration: 8000` so the user has time to tap the action on mobile.
-- Uses `useNavigate()` from `react-router-dom` (already available in the app; add import at top of file if missing).
-- Mobile parity: sonner's default `<Toaster />` already renders bottom-center on small screens; the action button is tappable. No mobile-specific branch needed — the same call works on both.
+### 说明
 
-## Deliverables in the section
-1. New trigger button in the "Advanced Toast Patterns" card:
-   `Toast with help link`
-2. Updated `CodePreview` snippet below the buttons showing the new pattern, e.g.:
-   ```ts
-   toast.warning("Withdrawal restricted", {
-     description: "Your account is under review. Only principal can be withdrawn; profits are temporarily locked.",
-     duration: 8000,
-     action: { label: "Learn more", onClick: () => navigate("/faq") },
-   });
-   ```
+- `/deposit` 是移动端专用页（桌面走 `DepositDialog`），删除后仅剩 `To: Spot Account ›` 选账户行，与 mainnet launch 上线后 rebate 活动已收尾的口径一致。
+- `useActivationState` 里的 `"Track launch campaign progress"` 步骤文案与 `ActivationChecklist` 保持不动（那是 checklist 的独立展示，不属于 deposit 顶栏）。
 
-## Verification
-- Click the new button on desktop `/style-guide` → toast appears with "Learn more" action → clicking navigates to `/faq`.
-- Repeat via the mobile viewport switch (or DevTools mobile emulation) → toast readable, action tappable.
-- `bunx tsgo --noEmit` clean.
+### 涉及文件
+
+- `src/pages/Deposit.tsx`（改）
+- `src/components/activation/DepositActivationHint.tsx`（删）
