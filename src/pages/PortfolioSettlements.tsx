@@ -115,7 +115,7 @@ const KindChip = ({ kind }: { kind: "settled" | "closed" }) => (
   </Badge>
 );
 
-const SettlementRowMobile = ({ settlement, optionDisplay, onOpen }: SettlementRowProps) => {
+export const SettlementRowMobile = ({ settlement, optionDisplay, onOpen }: SettlementRowProps) => {
   const positive = settlement.pnlValue >= 0;
   return (
     <div
@@ -162,7 +162,7 @@ const SettlementRowMobile = ({ settlement, optionDisplay, onOpen }: SettlementRo
   );
 };
 
-const SettlementRowDesktop = ({ settlement, optionDisplay, onOpen }: SettlementRowProps) => {
+export const SettlementRowDesktop = ({ settlement, optionDisplay, onOpen }: SettlementRowProps) => {
   const positive = settlement.pnlValue >= 0;
   return (
     <TableRow className="border-border/50 cursor-pointer" onClick={onOpen}>
