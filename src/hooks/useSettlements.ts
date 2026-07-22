@@ -31,7 +31,7 @@ export interface SettlementListItem {
 //   spot event is fully resolved AND the group's last close mark price is
 //   pinned to $1 (win) or $0 (loss) by sim-settle-spot. Anything else — user
 //   sold intraday, or event not yet resolved — is a closed intraday trade.
-const SETTLE_EPS = 0.02; // absorbs tiny drift around 0/1 pins
+
 
 export const useSettlements = () => {
   const { user } = useUserProfile();
