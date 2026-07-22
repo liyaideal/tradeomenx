@@ -6,9 +6,13 @@
  * (Band 1 Total Equity + dual-account cards, header HoverCard content)
  * mirror the exact JSX from Wallet.tsx / EventsDesktopHeader.tsx so the
  * spec cannot drift silently — any change there must be mirrored here.
+ *
+ * NOTE (2026-07-21 Trial Bonus sunset): Trial Bonus has been fully
+ * decommissioned. Demos below intentionally do NOT render a Trial tile
+ * on the Futures card or a Trial row in the HoverCard.
  */
 import { useState } from "react";
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Eye, EyeOff, Info, Landmark, Wallet as WalletIcon } from "lucide-react";
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Eye, EyeOff, Info, Wallet as WalletIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
@@ -24,7 +28,6 @@ import {
 const DEMO = {
   spot: 1284.53,
   balance: 8720.42, // futures available
-  trial: 45,
 };
 
 // MIRROR: must stay in sync with src/pages/Wallet.tsx desktop Band 1 + Band 2
@@ -34,7 +37,6 @@ export const WalletEquityBandsPreview = () => {
   const total = computeTotalEquity({
     spotBalance: DEMO.spot,
     balance: DEMO.balance,
-    trialBalance: DEMO.trial,
   });
   const mask = (n: number) => (hidden ? "••••••" : `$${formatEquityUsd(n)}`);
 
@@ -65,7 +67,7 @@ export const WalletEquityBandsPreview = () => {
                 </button>
               </div>
               <div className="text-[11px] text-muted-foreground mt-1 font-mono">
-                Spot + Futures + Trial Bonus · does not include unrealized PnL
+                Spot + Futures · does not include unrealized PnL
               </div>
             </div>
           </div>
@@ -84,7 +86,8 @@ export const WalletEquityBandsPreview = () => {
       </section>
 
       {/* Band 2 · Dual account cards (stats-card, no hero gradient). Account subtotal
-          only lives on Band 1 — do NOT reintroduce a Futures "Total" cell here. */}
+          only lives on Band 1 — do NOT reintroduce a Futures "Total" cell here.
+          Post Trial-Bonus sunset the Futures card has a single Available tile. */}
       <section className="grid grid-cols-2 gap-6">
         {/* Spot Account — mirrors Wallet.tsx Spot card */}
         <div className="stats-card p-6 relative">
@@ -109,7 +112,7 @@ export const WalletEquityBandsPreview = () => {
           </div>
         </div>
 
-        {/* Futures Account — mirrors Wallet.tsx Futures card. No "Total" cell. */}
+        {/* Futures Account — mirrors Wallet.tsx Futures card. No "Total" cell, no Trial cell. */}
         <div className="stats-card p-6 relative">
           <button
             type="button"
@@ -128,15 +131,6 @@ export const WalletEquityBandsPreview = () => {
                 <Info className="w-3 h-3 text-muted-foreground/60" />
               </div>
               <div className="font-mono text-sm font-semibold">${formatEquityUsd(DEMO.balance)}</div>
-            </div>
-            <div className="p-3 rounded-lg bg-trading-green/10 border border-trading-green/20">
-              <div className="flex items-center gap-1 mb-1">
-                <span className="text-xs text-muted-foreground">Trial Bonus</span>
-                <Info className="w-3 h-3 text-muted-foreground/60" />
-              </div>
-              <div className="font-mono text-sm font-semibold text-trading-green">
-                ${formatEquityUsd(DEMO.trial)}
-              </div>
             </div>
           </div>
         </div>
@@ -173,16 +167,6 @@ export const TransferFormZeroPreview = () => (
   </TransferShell>
 );
 
-export const TransferFormTrialHintPreview = () => (
-  // Direction = to_spot forces the "From = Futures" branch, which renders the ⓘ TrialHint.
-  <TransferShell>
-    <TransferForm
-      initialDirection="to_spot"
-      demoOverride={{ balance: 100, spotBalance: 1284.53, initialAmount: "50" }}
-    />
-  </TransferShell>
-);
-
 /* ---------- Deposit "Deposit to" pre-screen ---------- */
 
 export const DepositToPickerPreview = () => {
@@ -208,7 +192,6 @@ export const EquityHoverCardPreview = () => {
   const total = computeTotalEquity({
     spotBalance: DEMO.spot,
     balance: DEMO.balance,
-    trialBalance: DEMO.trial,
   });
   return (
     <div className="mx-auto w-[260px] rounded-lg border border-border bg-popover p-3 shadow-md">
@@ -223,10 +206,6 @@ export const EquityHoverCardPreview = () => {
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Futures Account</span>
           <span className="font-mono">${formatEquityUsd(DEMO.balance)}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Trial Bonus</span>
-          <span className="font-mono text-trading-green">${formatEquityUsd(DEMO.trial)}</span>
         </div>
       </div>
       <div className="my-2 border-t border-border/50" />
