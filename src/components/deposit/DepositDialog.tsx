@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from './WalletDeposit';
 import { CrossChainDeposit } from './CrossChainDeposit';
 import { BuyWithFiat } from './BuyWithFiat';
-import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
+import { AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 
 interface DepositDialogProps {
@@ -21,19 +21,20 @@ interface DepositDialogProps {
 export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
   const [activeTab, setActiveTab] = useState('wallet');
   const { account, setAccount } = useAccountPreference('deposit');
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(false);
 
   const handleClose = () => {
     setActiveTab('wallet');
+    setEditingAccount(false);
     onOpenChange(false);
   };
 
   const handleSelect = (next: AccountKind) => {
     setAccount(next);
-    setPickerOpen(false);
+    setEditingAccount(false);
   };
 
-  const needsSelection = !account;
+  const needsSelection = !account || editingAccount;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -73,10 +74,10 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
 
         ) : (
           <>
-            {/* Account crumb — click to reopen picker */}
+            {/* Account crumb — click to edit selection inline (no nested Dialog) */}
             <button
               type="button"
-              onClick={() => setPickerOpen(true)}
+              onClick={() => setEditingAccount(true)}
               className="flex items-center justify-between px-6 py-2.5 text-xs border-b border-border/50 bg-muted/20 hover:bg-muted/30 transition-colors"
             >
               <span className="text-muted-foreground">
@@ -108,13 +109,6 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
               </div>
             </Tabs>
 
-            <AccountPicker
-              open={pickerOpen}
-              onOpenChange={setPickerOpen}
-              selected={account}
-              onSelect={handleSelect}
-              title="Deposit to"
-            />
           </>
         )}
       </DialogContent>
