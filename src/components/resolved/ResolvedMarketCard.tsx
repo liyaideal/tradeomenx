@@ -71,6 +71,7 @@ export const ResolvedMarketCard = ({ event, onClick }: ResolvedMarketCardProps) 
             >
               {categoryInfo.label}
             </Badge>
+            {event.productLines?.includes("spot") && <ProductLineBadge line="spot" />}
             <Badge
               variant="outline"
               className="text-[10px] font-semibold uppercase tracking-wide bg-muted/40 text-muted-foreground border-border/50 px-1.5 py-0"
