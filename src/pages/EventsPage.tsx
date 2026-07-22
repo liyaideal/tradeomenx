@@ -118,15 +118,21 @@ const EventsPage = () => {
     if (isMobile && view !== "grid") setView("grid");
   }, [isMobile]);
 
+  // 4B: full-catalog view — search or Watchlist tab bypasses the
+  // Futures|Spot filter so users don't miss cross-product-line results.
+  // Product-line switch is also hidden in these modes (see §16 rule).
+  const isFullCatalog = filters.search.trim().length > 0 || activeTab === "watchlist";
+
   // Filter & sort markets
   const filteredMarkets = useMemo(() => {
-    // Product-line filter first: futures shows anything containing 'futures',
-    // spot shows anything containing 'spot'.
-    let result = markets.filter((m) =>
-      productLine === "spot"
-        ? m.productLines?.includes("spot")
-        : m.productLines?.includes("futures")
-    );
+    // Product-line filter — SKIPPED in full-catalog mode.
+    let result = isFullCatalog
+      ? markets.slice()
+      : markets.filter((m) =>
+          productLine === "spot"
+            ? m.productLines?.includes("spot")
+            : m.productLines?.includes("futures"),
+        );
 
     // Tab-level filtering (category tabs)
     if (activeTab === "watchlist") {
