@@ -19,6 +19,22 @@
 
 ---
 
+## 2026-07-21 — Trial Bonus 全面下线
+
+源文档：[2026-07-21-trial-bonus-sunset.md](./2026-07-21-trial-bonus-sunset.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| TBS1 | 资金内核：`computeTotalEquity` 签名去 trialBalance；`deductBalance` 收敛为纯 `balance` 扣款；`updateTrialBalance`/`addTrialBalance`/`deductBalanceWithDetails`/`totalBalance`/`trialBalance` 全部移除 | `src/lib/equity.ts` · `src/hooks/useUserProfile.ts` | ✅ | 有 `trial_balance > 0` 的用户开合约仓：扣款只走 `balance`，`trial_balance` 数值不变 | 列本身保留，产品侧另行清零/drop |
+| TBS2 | Total Equity 四处显示同步（顶栏 Equity 胶囊 + HoverCard / 首页 Hero / /wallet Band 1 / BottomNav "Me" 抽屉 Equity 卡）全部 = `spot_balance + balance` | `src/components/EventsDesktopHeader.tsx` · `src/components/home/HomeEquityHero.tsx` · `src/pages/Wallet.tsx` · `src/components/BottomNav.tsx` | ✅ | 造 spot 300 / balance 500 / trial 100 → 四处均显示 $800（不含 trial）；数字完全一致 | BottomNav 之前显示 balance+trialBalance，此处语义变化为有意 |
+| TBS3 | UI 触点删格子：Wallet Futures 卡 Trial 明细格 / HoverCard Trial 行 / TransferForm TrialHint / SpotTrading Account 面板文案 / OrderPreview 紫色 breakdown 条件段 | `src/pages/Wallet.tsx` · `src/components/EventsDesktopHeader.tsx` · `src/components/wallet/TransferForm.tsx` · `src/pages/SpotTrading.tsx` · `src/pages/OrderPreview.tsx` | ✅ | 生产 UI 全站不再出现 "Trial Bonus" 文案；Futures 卡布局自然收紧无空行 | 纯删除，无重设计 |
+| TBS4 | 死文件删除：`TrialCallout.tsx` / `RedeemDialog.tsx`（含 rewards index 导出）；`redeem-points` 顶部 403 硬停后 unreachable 的 `trial_balance` 写入段清理；`close-trial-position` 加护栏注释澄清命名（不改名） | `src/components/home/TrialCallout.tsx`（删） · `src/components/rewards/RedeemDialog.tsx`（删） · `supabase/functions/redeem-points/index.ts` · `supabase/functions/close-trial-position/index.ts` | ✅ | 站内 grep 无 `TrialCallout` / `RedeemDialog` 引用；close-trial-position 文件头有"'trial' = Trial Position, unrelated to wallet trial_balance"注释 | 券体系与体验仓全链路零改动 |
+| TBS5 | 流水（TransactionHistory）不再渲染 "trial" 字样：`platform_credit` 描述正则改写 → "Platform credit" 中性文案 | `src/components/wallet/TransactionHistory.tsx` `formatDescription` | ✅ | 存量 `platform_credit` 流水行描述统一显示 "Platform credit"，无 trial balance/bonus 字样 | 券兑换/体验仓/收益解冻全链路回归无变化 |
+| TBS6 | Style Guide WalletSection 双端预览无残留 Trial 元素；TransferForm SubSection 由 4 态改 3 态（normal / insufficient / zero）；镜像 preview 同步 | `src/pages/StyleGuide/preview/walletPreviews.tsx` · `src/pages/StyleGuide/preview/registry.tsx` · `src/pages/StyleGuide/sections/WalletSection.tsx` | ✅ | /style-guide WalletSection 双端 DeviceFrame 全无 Trial 明细格/提示；registry 无 `TransferFormTrialHintPreview` | 镜像同步义务保留 |
+| TBS7 | 文档三件套：backend-boundary Trial 下线一节 + DESIGN.md Addendum Total Equity 口径更新 + copy-dictionary 删 "Trial bonus" 词条 + memory index/mobile-header-preset-d 同步 | `docs/backend-boundary.md` · `DESIGN.md` · `docs/copy-dictionary.md` · `.lovable/memory/index.md` · `.lovable/memory/design/mobile-header-preset-d.md` | ✅ | 上述文件全部无 "Total Equity 含 Trial" 类描述；memory index Core Balances 行更新 | Append-only 规则 |
+
+---
+
 ## 2026-07-21 — 双账户改造 · 轮次 2b（钱包 UI）
 
 源文档：[2026-07-21-dual-account-wallet-ui.md](./2026-07-21-dual-account-wallet-ui.md) · 长效文档：[backend-boundary.md](../backend-boundary.md)

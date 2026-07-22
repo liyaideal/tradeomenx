@@ -15,7 +15,7 @@ interface TransferFormProps {
   initialDirection?: TransferDirection;
   /**
    * Style-guide only. Forces balances + initial amount for state coverage
-   * (normal / insufficient / zero / trial-hint). Never pass in production —
+   * (normal / insufficient / zero). Never pass in production —
    * production always reads from useUserProfile.
    */
   demoOverride?: {
@@ -59,7 +59,7 @@ export const TransferForm = ({
     setAmountStr("");
   }, [direction, demoOverride]);
 
-  // From = Futures 时 Available 只显示 balance（Trial 不可划转）
+  // From = Futures 时 Available 直接读 balance（Trial Bonus 已下线，无需拆分）
   const fromAvailable = direction === "to_spot" ? balance : spotBalance;
   const fromLabel = direction === "to_spot" ? "Futures Account" : "Spot Account";
   const toLabel = direction === "to_spot" ? "Spot Account" : "Futures Account";

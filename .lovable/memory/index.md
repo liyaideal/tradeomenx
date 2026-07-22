@@ -7,7 +7,7 @@
 - **Addresses:** Truncate to First 6 + Last 6 (e.g. 0x1234...345678). Full addresses: digits text-primary, letters text-foreground.
 - **Data Persistence:** Guest users -> localStorage. Authenticated -> Supabase.
 - **Edge Functions:** Always use POST with parameters in request body.
-- **Balances:** Total Equity = Available Balance + Trial Bonus. Trial Bonus consumed first.
+- **Balances:** Total Equity = `spot_balance + balance` (no unrealized PnL). 合约扣款只动 `balance`。Trial Bonus 已于 2026-07-21 全站下线。
 - **Binary Events:** 'Yes-only' model. Convert 'No Long' -> 'Yes Short' & 'No Short' -> 'Yes Long'.
 - **Wallets:** No Web3 connection flow. Use manual 'Saved Addresses' (Address Book) system.
 - **Database:** `option_id` is the primary key for tracking prices.
@@ -54,7 +54,7 @@
 - [Card UI variants](mem://style/card-ui-variants) — CSS variants for cards (default, trading, stats, web3)
 - [Header presets](mem://style/header-presets) — Mobile header logo and back button visibility
 - [Referral system unification](mem://features/referral-system-unification) — 6-character alphanumeric codes
-- [Dual balance model](mem://technical/dual-balance-model) — Available balance vs Trial bonus consumption
+- [Trial Bonus sunset](../../docs/changelog/2026-07-21-trial-bonus-sunset.md) — Trial Bonus 全面下线（取代旧的 dual-balance-model）；Total Equity = spot + balance
 - [Wallet equity display](mem://style/wallet-equity-display) — Primary balance metric UI breakdowns
 - [Auth onboarding flow](mem://features/auth-onboarding-flow) — 3-step mandatory registration
 - [Security access control](mem://technical/security-access-control) — RLS and secure RPC functions
