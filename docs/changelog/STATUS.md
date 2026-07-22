@@ -31,8 +31,17 @@
 | SS4 | `accrue-funding` 硬过滤 `product_line='futures'`（不再依赖 funding_rate=0 侥幸） | `supabase/functions/accrue-funding/index.ts` | ✅ | funding cron 跑完后 `position_funding_ledger` 无现货持仓记录 | |
 | SS5 | 占位常量转正：`PRE_FREEZE_MINUTES_BEFORE_CLOSE=15` + 新增 `SETTLEMENT_CREDIT_BY_ET="16:30"` 常量，注释改 CONFIRMED（product decision 2026-07-22） | `src/lib/usStockSessions.ts` | ✅ | grep 无 `PLACEHOLDER: pending confirmation` 字样 | 正式版以结算服务 SLA 为准 |
 | SS6 | 三件套 + boundary：changelog 2026-07-22 + INDEX 顶部一行 + STATUS 批次节 + `backend-boundary.md` append 现货结算章节 | 本文件 · INDEX · backend-boundary | ✅ | 四文件均含 2026-07-22 章节 | Append-only |
+| SS7 | 限价现货仓 `option_id` 缺失导致 settle 静默跳过（P1 资金正确性）：`fillSpotLimitOrder` 建仓前查 `event_options` 补 `option_id`；settle 端加 `option_label` 兜底匹配 + NULL option_id 幂等回填（存量 0 行，防中间态） | `src/services/tradingService.ts` · `supabase/functions/sim-settle-spot/index.ts` | ✅ | 造一笔限价买入 → 成交后 positions.option_id 非 NULL；到期 settle 后位置正确 Closed，胜方 spot +$1/份 | 双保险 |
+| SS8 | 任务展示分线（§4）：排查 first_trade 等任务 UI，`TaskCard`/`useTasks` 均不展示成交明细，**无展示点，无需改动**（不静默跳过：明确记录） | `src/components/rewards/TaskCard.tsx` · `src/hooks/useTasks.ts` | ✅ | 任务卡不展示 product_line 亦无产品线相关文案 | 需求 §4 结论 |
+| SS9 | pg_cron 落 migration：`sim-daily-seed-2105utc` 幂等（unschedule if exists → schedule） | `supabase/migrations/20260722100000_sim_daily_seed_cron.sql` | ✅ | migration 可重复执行不报错，`cron.job` 表恰有一行 | 之前手工建，代码库不可重建 |
+| SS10 | 文案与机制对齐：种子事件 rules/description 补当日日期与 prior close；rules 撤单表述改为 "cancelled at settlement (~15min after close)"；`SETTLEMENT_CREDIT_BY_ET` 常量值改 `"after market close"`（16:30 ET 保留在注释中作为正式版 SLA 目标） | `supabase/functions/sim-daily-seed/index.ts` · `src/lib/usStockSessions.ts` | ✅ | 新种子事件描述含具体日期；grep 无 "cancelled at freeze"；tooltip 常量与实际演示机制一致 | |
+| SS11 | settle 加固：event 级 `SETTLING` guard 状态 + 每次写操作错误检查 + 位置 close 加 `.eq(status,'Open')` 幂等门；Pending 撤销改按 `event_name + created_at >= events.start_date` 匹配，避免次日同名事件误伤 | `supabase/functions/sim-settle-spot/index.ts` | ✅ | 手动重跑 sim-settle-spot 不重复入账；同名事件次日 Pending 挂单不被上一日 settle 波及 | |
+| SS12 | 结算撤单退款流水改中性 `platform_credit`（不再 `trade_profit`，防污染 PnL 口径） | `supabase/functions/sim-settle-spot/index.ts` | ✅ | 结算后退款流水 type='platform_credit'，PnL 汇总不含退款 | |
+| SS13 | `sim-daily-seed` base_price 真滚动链（读上一 SETTLED 事件 `base_price` + 胜方方向 ±1.2% 漂移）；`price_history` 起点 insert 加幂等（先按 option_id count → 0 才插） | `supabase/functions/sim-daily-seed/index.ts` | ✅ | 连续两次触发 seed，`price_history` 不重复；连日事件 base_price 呈滚动 | Up 胜 → 上漂 1.2%，Not Up 胜 → 下漂 1.2% |
 
 **明确不做**（下轮 4B）：Settlements/Resolved 页面 UI 重排、搜索按 product_line 分线、收藏系统对现货的对齐。7-21 存量三只事件由 sim-settle-spot 首跑自然结算，不特判。
+
+
 
 ---
 
