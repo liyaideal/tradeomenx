@@ -50,6 +50,8 @@ import {
   SettlementSpotSettledMobilePreview,
   SettlementSpotClosedMobilePreview,
   ProductLineBadgeLegendPreview,
+  ResolvedMarketCardSpotPreview,
+  MarketSearchRowSpotPreview,
 } from "./settlementPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
