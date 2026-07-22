@@ -293,7 +293,7 @@ export const useUserProfile = () => {
     return updateBalance(currentBalance - amount);
   };
 
-  // ---- Spot account balance (independent of contract/futures balance & trial bonus) ----
+  // ---- Spot account balance (independent of contract/futures balance) ----
   const updateSpotBalance = async (newSpotBalance: number) => {
     try {
       await updateMutation.mutateAsync({ spot_balance: newSpotBalance } as Partial<Profile>);
