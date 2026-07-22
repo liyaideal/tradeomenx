@@ -5,6 +5,7 @@ import { NewBadge } from "./NewBadge";
 import { ClosingSoonCountdown } from "./ClosingSoonCountdown";
 import { EventRow, ChgTimeframe, getChange, getVolume } from "@/hooks/useMarketListData";
 import { CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
+import { ProductLineBadge } from "@/lib/productLineBadge";
 import { cn } from "@/lib/utils";
 
 interface MarketCardBProps {
