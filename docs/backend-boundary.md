@@ -137,6 +137,21 @@
 | `sim-transfer` Edge Function | 🟡 | 双账户划转的原子性 + 一入一出两条流水是需求；技术实现（RPC / 事务 / 消息队列）由正式架构决定。**DEMO-STATE**：当前演示允许客户端直改 `balance` / `spot_balance` 列（RLS 未收敛）；正式版目标为客户端直改被拒、必须走 Edge Function（对齐 record-transaction 口径）。 |
 | `useRealtimeRiskMetrics` 过滤 `product_line='futures'` | 🟢 | 现货持仓由 spot_balance 全额现金抵押，**不进** IM / MM / Risk Ratio / close-only 判定。修复现货虚高 Risk Ratio bug。合约结算入账目标为 `balance`，现货结算入账目标为 `spot_balance`（结算演示流在轮次 4）。 |
 
+## 2026-07-21 Trial Bonus 全面下线（append-only 补录）
+
+背景：Trial Bonus 从未真正上线（`profiles.trial_balance` 存量 21 户 $3,317 均来自早期 `handle_new_user` 演示注入，已停止发放；`redeem-points` 唯一在途发放源已被 mainnet-launch 403 硬停）；产品拍板全面下线，重做时另行规划。Position Voucher / voucher_earnings / 体验仓（`close-trial-position`）全链路与 `trial_balance` 零依赖，逐函数审计确认后一行未动。
+
+| 表 / 字段 / 函数 | 类别 | 说明 |
+|---|---|---|
+| `profiles.trial_balance` | 🔴 | 列本身**保留**（数据清零与 drop 列由产品侧另行执行），代码路径全部下线：所有读点删除、所有写点删除、Total Equity 口径不再包含。**不得**在新代码中读写该列。 |
+| `redeem-points` Edge Function | 🔴 | 函数顶部 mainnet-launch 403 硬停保留；其后 unreachable 的 `trial_balance` 写入段删除。积分兑换重做时另建 target。 |
+| `close-trial-position` Edge Function | 🟢 | 命名澄清：此处 `trial` 指 Trial Position（券承兑的体验仓，Position Voucher 域），与钱包层 `trial_balance` 无关。文件头已加护栏注释，**不得**作为本次下线目标移除。 |
+| `deductBalance` / `deductBalanceWithDetails` / `deductAvailableOnly`（`src/hooks/useUserProfile.ts`） | 🟢 | 合并为单一"扣 Available"语义；`deductBalance` 别名保留以减少调用方改动。Trial 优先混合扣逻辑已删除。 |
+| `computeTotalEquity`（`src/lib/equity.ts`） | 🟢 | 签名去掉 `trialBalance` 入参，口径 = `spot_balance + balance`。全站 UI（顶栏 Equity 胶囊 / HoverCard / Hero / /wallet Band 1 / style-guide 镜像）已同步。 |
+| `src/components/home/TrialCallout.tsx` / `src/components/rewards/RedeemDialog.tsx` | 🔴 | 死文件删除。前者是从未上线的 "$10 to try" 引导；后者在 mainnet 后不可达。 |
+
+
+
 
 ## 治理规则（即日生效）
 
