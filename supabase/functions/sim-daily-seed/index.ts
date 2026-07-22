@@ -133,24 +133,46 @@ Deno.serve(async (req) => {
   // Trading window starts at T-1 cash close (previous day 20:00Z).
   const openStart = new Date(close.getTime() - 24 * 3600_000);
 
+  const humanDate = target.toLocaleDateString("en-US", {
+    weekday: "long", month: "short", day: "numeric", year: "numeric",
+    timeZone: "UTC",
+  });
+
   for (const s of SYMBOLS) {
     const eventId = `us-${s.symbol.toLowerCase()}-updown-${dateStr}`;
 
-    // base_price: reuse latest SETTLED event's settlement mark if available.
+    // base_price chain: read the mark of the previous event's WINNING option
+    // at settlement (final_price ∈ {0,1} is the discrete outcome; we use the
+    // event's stored base_price + a deterministic ±1.2% drift keyed by the
+    // winning side, so the chain rolls forward instead of freezing).
     let basePrice = s.seed;
     try {
       const { data: prev } = await supabase
         .from("events")
-        .select("base_price")
+        .select("id, base_price, winning_option_id")
         .like("id", `us-${s.symbol.toLowerCase()}-updown-%`)
         .eq("lifecycle_status", "SETTLED")
         .order("expected_settlement_time", { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (prev?.base_price) basePrice = Number(prev.base_price);
+      if (prev?.base_price) {
+        const prevBase = Number(prev.base_price);
+        // If winning option label ends with the yes label ("Up") → drift up.
+        let dir = 0;
+        if (prev.winning_option_id) {
+          const { data: winOpt } = await supabase
+            .from("event_options")
+            .select("label")
+            .eq("id", prev.winning_option_id)
+            .maybeSingle();
+          if (winOpt?.label === "Up") dir = 1;
+          else if (winOpt?.label === "Not Up") dir = -1;
+        }
+        const drift = 0.012 * (dir || (hash01(prev.id ?? "") > 0.5 ? 1 : -1));
+        basePrice = Number((prevBase * (1 + drift)).toFixed(2));
+      }
     } catch (_) { /* fallback keeps seed */ }
 
-    // Yes initial in 0.45–0.58 deterministic band.
     const yes = 0.45 + hash01(eventId) * 0.13;
     const no = 1 - yes;
 
@@ -159,11 +181,13 @@ Deno.serve(async (req) => {
       name: `${s.name} (${s.symbol}) — will close higher today?`,
       icon: s.icon,
       category: "stocks",
-      description: `Daily up/down market for ${s.name} (${s.symbol}). Yes settles $1 if today's official close is above the prior close.`,
+      description: `Daily up/down market for ${s.name} (${s.symbol}) on ${humanDate}. Yes settles $1 if today's official close is above the prior close ($${basePrice.toFixed(2)}).`,
       rules:
+        `Trading date: ${humanDate}.\n` +
+        `Prior close reference: $${basePrice.toFixed(2)}.\n` +
         "Settles YES if the official close is strictly greater than the prior close.\n" +
         "Settles NO otherwise.\n" +
-        "All open orders are automatically cancelled and refunded at freeze (5 min before close).",
+        "All open orders are automatically cancelled and refunded at settlement (~15 minutes after the cash close).",
       start_date: openStart.toISOString(),
       end_date: close.toISOString(),
       volume: "0",
@@ -196,14 +220,23 @@ Deno.serve(async (req) => {
       { onConflict: "id", ignoreDuplicates: true },
     );
 
-    await supabase.from("price_history").insert({
-      option_id: upId,
-      price: yes,
-      volume: 0,
-    }).select().maybeSingle().then(() => undefined, () => undefined);
+    // Idempotent price_history seed: only insert if no row exists yet for
+    // this option (repeat runs must not stack duplicate seed rows).
+    const { count: existingHistory } = await supabase
+      .from("price_history")
+      .select("id", { count: "exact", head: true })
+      .eq("option_id", upId);
+    if ((existingHistory ?? 0) === 0) {
+      await supabase.from("price_history").insert({
+        option_id: upId,
+        price: yes,
+        volume: 0,
+      }).select().maybeSingle().then(() => undefined, () => undefined);
+    }
 
     result.seededEvents.push(eventId);
   }
+
 
   return new Response(JSON.stringify({ success: true, ...result }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
