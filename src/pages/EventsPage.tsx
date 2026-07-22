@@ -179,7 +179,7 @@ const EventsPage = () => {
     });
 
     return result;
-  }, [markets, activeTab, filters, isWatched, chgTimeframe, productLine]);
+  }, [markets, activeTab, filters, isWatched, chgTimeframe, productLine, isFullCatalog]);
 
   // Visible markets (cumulative load more)
   const visibleMarkets = useMemo(() => {
