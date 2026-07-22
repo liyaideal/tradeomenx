@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from './WalletDeposit';
 import { CrossChainDeposit } from './CrossChainDeposit';
 import { BuyWithFiat } from './BuyWithFiat';
-import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
+import { AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 
 interface DepositDialogProps {
