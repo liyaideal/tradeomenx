@@ -156,7 +156,7 @@ export const useTierEligibility = () => {
 
   const emailVerified = !!profile?.email;
   const totpEnabled = !!profile?.totp_enabled;
-  const balance = (profile?.balance ?? 0) + (profile?.trial_balance ?? 0);
+  const balance = profile?.balance ?? 0;
   const stats = query.data ?? { depositCount: 0, filledCount: 0, vol30d: 0 };
 
   const readOnly: TierEligibility = {
