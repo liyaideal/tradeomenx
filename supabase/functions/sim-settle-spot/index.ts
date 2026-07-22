@@ -2,13 +2,23 @@
 //
 // Scope: scans events where product_lines contains 'spot' AND
 // expected_settlement_time < now() AND lifecycle_status != 'SETTLED'.
-// Per event, decides winner and:
+//
+// Per event:
+//   0) Optimistic guard: flip lifecycle_status→'SETTLING' before doing any
+//      cash writes, so a mid-flight crash + retry can't double-credit
+//      (SETTLING is not SETTLED, so a retry re-enters, but the option
+//      updates and position closures are idempotent by state check).
 //   1) event_options: winner final_price=1 is_winner=true; loser final_price=0.
-//   2) All open spot positions on the event: credit spot_balance $1/share for
-//      the winning side, $0 for losing side; close position row.
-//   3) Insert transactions rows (trade_profit / trade_loss, account='spot').
-//   4) Cancel all Pending spot orders for the event and refund notional to
-//      spot_balance (+ transaction row).
+//   2) All open spot positions on the event (matched by option_id OR by
+//      option_label as a fallback for legacy rows with NULL option_id):
+//      credit spot_balance $1/share for the winning side, $0 for losing side;
+//      close the position row (status='Closed', mark_price, pnl, closed_at).
+//   3) Insert `transactions` rows (trade_profit / trade_loss, account='spot').
+//   4) Cancel all Pending spot orders for the event and refund the reserved
+//      notional to spot_balance as a NEUTRAL `platform_credit` transaction
+//      (not `trade_profit`, so PnL analytics stay clean). Matching is
+//      scoped by event_name AND created_at >= event.start_date to avoid
+//      hitting the next day's same-name event.
 //   5) Mark event lifecycle_status='SETTLED', is_resolved=true (hard contract),
 //      settled_at, winning_option_id, settlement_description.
 //
@@ -16,7 +26,8 @@
 // else NO wins. Production: settlement service compares databento official
 // close vs base_price per exchange calendar.
 //
-// Idempotent: SETTLED events are skipped. Per-event failures don't block others.
+// Idempotent: SETTLED events are skipped. Positions already Closed are
+// skipped. Per-event failures don't block others.
 // Callable manually (POST, empty body) or by sim-daily-seed cron.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -33,6 +44,7 @@ interface EventRow {
   side_labels: { yes?: string; no?: string } | null;
   lifecycle_status: string | null;
   expected_settlement_time: string | null;
+  start_date: string | null;
   product_lines: string[];
 }
 
@@ -80,10 +92,9 @@ Deno.serve(async (req) => {
   } = { scanned: 0, settled: 0, skipped: 0, errors: [] };
 
   try {
-    // 1) Find eligible spot events.
     const { data: events, error: evErr } = await supabase
       .from("events")
-      .select("id, name, side_labels, lifecycle_status, expected_settlement_time, product_lines")
+      .select("id, name, side_labels, lifecycle_status, expected_settlement_time, start_date, product_lines")
       .contains("product_lines", ["spot"])
       .lt("expected_settlement_time", now.toISOString())
       .neq("lifecycle_status", "SETTLED");
@@ -93,7 +104,6 @@ Deno.serve(async (req) => {
 
     for (const ev of (events as EventRow[]) ?? []) {
       try {
-        // Options for the event
         const { data: opts, error: optErr } = await supabase
           .from("event_options")
           .select("id, event_id, label, price")
@@ -110,50 +120,87 @@ Deno.serve(async (req) => {
         const noOpt = (opts as OptionRow[]).find((o) => o.label === noLabel) ??
           (opts as OptionRow[]).find((o) => o.id !== yesOpt.id)!;
 
-        // DEMO-STATE winner rule: YES mark ≥ 0.5 → YES wins.
         const yesWins = Number(yesOpt.price) >= 0.5;
         const winner = yesWins ? yesOpt : noOpt;
         const loser = yesWins ? noOpt : yesOpt;
 
-        // 2) Set option final prices / winners.
-        await supabase
+        // 0) Guard: mark SETTLING before any cash writes. Skip event if the
+        // flip fails (another worker likely holds it).
+        const { error: guardErr } = await supabase
+          .from("events")
+          .update({ lifecycle_status: "SETTLING" })
+          .eq("id", ev.id)
+          .neq("lifecycle_status", "SETTLED");
+        if (guardErr) throw guardErr;
+
+        // 1) Backfill NULL option_id on any spot positions for this event
+        // (defensive — legacy limit-fill rows may lack it).
+        const { error: backfillWinErr } = await supabase
+          .from("positions")
+          .update({ option_id: winner.id })
+          .is("option_id", null)
+          .eq("product_line", "spot")
+          .eq("status", "Open")
+          .eq("event_name", ev.name)
+          .eq("option_label", winner.label);
+        if (backfillWinErr) throw backfillWinErr;
+        const { error: backfillLoseErr } = await supabase
+          .from("positions")
+          .update({ option_id: loser.id })
+          .is("option_id", null)
+          .eq("product_line", "spot")
+          .eq("status", "Open")
+          .eq("event_name", ev.name)
+          .eq("option_label", loser.label);
+        if (backfillLoseErr) throw backfillLoseErr;
+
+        // 2) Option final prices / winners.
+        const { error: winOptErr } = await supabase
           .from("event_options")
           .update({ final_price: 1, is_winner: true })
           .eq("id", winner.id);
-        await supabase
+        if (winOptErr) throw winOptErr;
+        const { error: loseOptErr } = await supabase
           .from("event_options")
           .update({ final_price: 0, is_winner: false })
           .eq("id", loser.id);
+        if (loseOptErr) throw loseOptErr;
 
-        // 3) Close spot positions for this event.
+        // 3) Close spot positions. Match by option_id (primary) OR
+        // (event_name+option_label) fallback for any residual NULL rows.
         const { data: positions, error: posErr } = await supabase
           .from("positions")
           .select("id, user_id, event_name, option_id, option_label, size, margin")
           .eq("product_line", "spot")
           .eq("status", "Open")
-          .in("option_id", [winner.id, loser.id]);
+          .eq("event_name", ev.name)
+          .in("option_label", [winner.label, loser.label]);
         if (posErr) throw posErr;
 
         for (const p of (positions as PositionRow[]) ?? []) {
-          const isWin = p.option_id === winner.id;
+          const isWin = p.option_id
+            ? p.option_id === winner.id
+            : p.option_label === winner.label;
           const proceeds = isWin ? Number(p.size) : 0;
           const margin = Number(p.margin);
           const profit = proceeds - margin;
 
           if (proceeds > 0) {
-            const { data: prof } = await supabase
+            const { data: prof, error: profErr } = await supabase
               .from("profiles")
               .select("spot_balance")
               .eq("user_id", p.user_id)
               .maybeSingle();
+            if (profErr) throw profErr;
             const newSpot = Number(prof?.spot_balance ?? 0) + proceeds;
-            await supabase
+            const { error: updBalErr } = await supabase
               .from("profiles")
               .update({ spot_balance: newSpot })
               .eq("user_id", p.user_id);
+            if (updBalErr) throw updBalErr;
           }
 
-          await supabase
+          const { error: closePosErr } = await supabase
             .from("positions")
             .update({
               status: "Closed",
@@ -161,9 +208,11 @@ Deno.serve(async (req) => {
               mark_price: isWin ? 1 : 0,
               pnl: profit,
             })
-            .eq("id", p.id);
+            .eq("id", p.id)
+            .eq("status", "Open"); // idempotency guard: don't re-close
+          if (closePosErr) throw closePosErr;
 
-          await supabase.from("transactions").insert({
+          const { error: txErr } = await supabase.from("transactions").insert({
             user_id: p.user_id,
             type: profit >= 0 ? "trade_profit" : "trade_loss",
             amount: Math.abs(profit),
@@ -171,19 +220,22 @@ Deno.serve(async (req) => {
             description: `Settled: ${p.event_name} · ${p.option_label} · ${isWin ? "Won" : "Lost"}`,
             status: "completed",
           });
+          if (txErr) throw txErr;
         }
 
-        // 4) Cancel & refund Pending spot orders on this event.
+        // 4) Cancel & refund Pending spot orders on this event, scoped by
+        // start_date so we don't hit the next day's same-name event.
+        const startFloor = ev.start_date ?? new Date(now.getTime() - 48 * 3600_000).toISOString();
         const { data: pendings, error: pendErr } = await supabase
           .from("trades")
           .select("id, user_id, event_name, amount, side")
           .eq("product_line", "spot")
           .eq("status", "Pending")
-          .eq("event_name", ev.name);
+          .eq("event_name", ev.name)
+          .gte("created_at", startFloor);
         if (pendErr) throw pendErr;
 
         for (const t of (pendings as TradeRow[]) ?? []) {
-          // Only Buy orders had funds pre-deducted; Sell orders don't hold cash.
           const refund = t.side === "buy" ? Number(t.amount) : 0;
           if (refund > 0) {
             const { data: prof } = await supabase
@@ -192,28 +244,33 @@ Deno.serve(async (req) => {
               .eq("user_id", t.user_id)
               .maybeSingle();
             const newSpot = Number(prof?.spot_balance ?? 0) + refund;
-            await supabase
+            const { error: updBalErr } = await supabase
               .from("profiles")
               .update({ spot_balance: newSpot })
               .eq("user_id", t.user_id);
+            if (updBalErr) throw updBalErr;
 
-            await supabase.from("transactions").insert({
+            // NOTE: platform_credit (neutral) not trade_profit — PnL clean.
+            const { error: txErr } = await supabase.from("transactions").insert({
               user_id: t.user_id,
-              type: "trade_profit",
+              type: "platform_credit",
               amount: refund,
               account: "spot",
               description: `Refund cancelled order · ${t.event_name} (market settled)`,
               status: "completed",
             });
+            if (txErr) throw txErr;
           }
-          await supabase
+          const { error: cancelErr } = await supabase
             .from("trades")
             .update({ status: "Cancelled", closed_at: now.toISOString() })
-            .eq("id", t.id);
+            .eq("id", t.id)
+            .eq("status", "Pending");
+          if (cancelErr) throw cancelErr;
         }
 
         // 5) Mark event SETTLED + is_resolved (hard contract).
-        await supabase
+        const { error: settleErr } = await supabase
           .from("events")
           .update({
             lifecycle_status: "SETTLED",
@@ -223,6 +280,7 @@ Deno.serve(async (req) => {
             settlement_description: `${winner.label} wins (mark price ${Number(yesOpt.price).toFixed(2)} at close)`,
           })
           .eq("id", ev.id);
+        if (settleErr) throw settleErr;
 
         summary.settled++;
       } catch (e) {
