@@ -68,3 +68,7 @@ Total Equity = spot_balance + balance
 - 券兑换、体验仓开平、`voucher_earnings` T1–T4 claim 全链路回归：与下线前完全一致
 - /style-guide WalletSection 双端预览无残留 Trial 元素
 - OrderPreview 页无紫色 Trial breakdown 条
+
+## 9. 语义变化说明（产品侧已确认）
+
+- **BottomNav "Me" 抽屉 Equity 卡**：数字从 `balance + trialBalance` 改为 `spot_balance + balance`（全站 Total Equity 统一口径）。这是**有意的语义变化**——之前该卡片只算合约侧总额（含 Trial），下线后统一为跨账户 Total Equity，与顶栏胶囊 / Hero / /wallet Band 1 完全一致。产品侧已确认此变更可接受。
