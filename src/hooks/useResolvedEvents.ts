@@ -103,6 +103,9 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
             is_winner: opt.is_winner,
           })),
           sideLabels: parseSideLabels((event as any).side_labels),
+          productLines: Array.isArray((event as any).product_lines)
+            ? ((event as any).product_lines as string[])
+            : ["futures"],
           userParticipated: userEventTrades.length > 0,
           userPnl: userEventTrades.length > 0 ? userPnl : null,
         };
