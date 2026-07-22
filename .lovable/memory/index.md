@@ -54,7 +54,7 @@
 - [Card UI variants](mem://style/card-ui-variants) — CSS variants for cards (default, trading, stats, web3)
 - [Header presets](mem://style/header-presets) — Mobile header logo and back button visibility
 - [Referral system unification](mem://features/referral-system-unification) — 6-character alphanumeric codes
-- [Dual balance model](mem://technical/dual-balance-model) — Available balance vs Trial bonus consumption
+- [Trial Bonus sunset](../../docs/changelog/2026-07-21-trial-bonus-sunset.md) — Trial Bonus 全面下线（取代旧的 dual-balance-model）；Total Equity = spot + balance
 - [Wallet equity display](mem://style/wallet-equity-display) — Primary balance metric UI breakdowns
 - [Auth onboarding flow](mem://features/auth-onboarding-flow) — 3-step mandatory registration
 - [Security access control](mem://technical/security-access-control) — RLS and secure RPC functions
