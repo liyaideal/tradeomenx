@@ -801,6 +801,28 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
   const q = Number(trade.quantity);
   const price = Number(trade.price);
 
+  // Resolve option_id via events.name → event_options.label so settlement
+  // (`sim-settle-spot`) can match positions by option_id. Without this the
+  // new position row has option_id=NULL and gets silently skipped at settle.
+  // Fallback matching by option_label is also implemented on the settle side.
+  let resolvedOptionId: string | null = null;
+  try {
+    const { data: ev } = await supabase
+      .from("events")
+      .select("id")
+      .eq("name", trade.event_name)
+      .maybeSingle();
+    if (ev?.id) {
+      const { data: opt } = await supabase
+        .from("event_options")
+        .select("id")
+        .eq("event_id", ev.id)
+        .eq("label", trade.option_label)
+        .maybeSingle();
+      resolvedOptionId = opt?.id ?? null;
+    }
+  } catch (_) { /* fallback keeps NULL, settle-side label match still works */ }
+
   // 技术对接 §7: net position — consider BOTH sides of the event, not just
   // the option being traded.
   const { data: allSides } = await supabase
@@ -813,6 +835,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
     .eq("status", "Open");
   const same = (allSides || []).find((p) => p.option_label === trade.option_label) || null;
   const opposite = (allSides || []).find((p) => p.option_label !== trade.option_label) || null;
+
 
   if (trade.side === "buy") {
     // Buy → first reduce any opposite leg (net position), then open/merge same side.
@@ -845,6 +868,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
           user_id: userId,
           trade_id: trade.id,
           event_name: trade.event_name,
+          option_id: resolvedOptionId,
           option_label: trade.option_label,
           side: "long",
           entry_price: price,
@@ -858,6 +882,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
           product_line: "spot",
         });
       }
+
     }
     await supabase
       .from("trades")
