@@ -29,7 +29,7 @@ const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { balance, trialBalance, user, username, avatarUrl, profile } = useUserProfile();
+  const { balance, spotBalance, user, username, avatarUrl, profile } = useUserProfile();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
 
@@ -191,7 +191,7 @@ export const BottomNav = () => {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold text-trading-green font-mono">
-                ${(balance + trialBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${(spotBalance + balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>

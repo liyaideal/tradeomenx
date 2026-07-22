@@ -983,23 +983,6 @@ export default function Wallet() {
                 </div>
                 <div className="font-mono text-sm font-semibold">${formatEquityUsd(balance)}</div>
               </div>
-              <div
-                className={`p-3 rounded-lg ${
-                  trialBalance > 0 ? "bg-trading-green/10 border border-trading-green/20" : "bg-muted/20"
-                }`}
-              >
-                <div className="flex items-center gap-1 mb-0.5">
-                  <span className="text-[11px] text-muted-foreground">Trial Bonus</span>
-                  <InfoTooltip text="Bonus funds used first when trading. Cannot be withdrawn or transferred." />
-                </div>
-                <div
-                  className={`font-mono text-sm font-semibold ${
-                    trialBalance > 0 ? "text-trading-green" : "text-muted-foreground"
-                  }`}
-                >
-                  ${formatEquityUsd(trialBalance)}
-                </div>
-              </div>
               {h2e.lockedAmount > 0 && (
                 <>
                   <div className="p-3 rounded-lg bg-muted/20">

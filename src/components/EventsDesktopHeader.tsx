@@ -65,9 +65,9 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const location = useLocation();
   const [language, setLanguage] = useState("EN");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const { balance, trialBalance, spotBalance, user, username, avatarUrl } = useUserProfile();
+  const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
-  const totalEquity = computeTotalEquity({ spotBalance, balance, trialBalance });
+  const totalEquity = computeTotalEquity({ spotBalance, balance });
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -159,10 +159,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Futures Account</span>
                       <span className="font-mono">${formatEquityUsd(balance)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Trial Bonus</span>
-                      <span className="font-mono text-trading-green">${formatEquityUsd(trialBalance)}</span>
                     </div>
                   </div>
                   <div className="my-2 border-t border-border/50" />

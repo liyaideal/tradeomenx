@@ -64,7 +64,7 @@ export const HomeEquityHero = ({ onLogin, todayPnLPercent = "+1.9%" }: HomeEquit
       {/* Number + eye toggle */}
       <div className="mt-2 flex items-end justify-between gap-3">
         <div className="font-mono text-[40px] font-bold tracking-tight leading-none text-foreground">
-          {hidden ? "••••••" : `$${formatEquityUsd(computeTotalEquity({ spotBalance: profile?.spot_balance, balance: profile?.balance, trialBalance: profile?.trial_balance }))}`}
+          {hidden ? "••••••" : `$${formatEquityUsd(computeTotalEquity({ spotBalance: profile?.spot_balance, balance: profile?.balance }))}`}
         </div>
         <button
           type="button"
