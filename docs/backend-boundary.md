@@ -40,7 +40,7 @@
 
 | 表 | 类别 | 说明 |
 |---|---|---|
-| wallets | 🟡 | 双余额模型（Available + Trial Bonus 先耗，Total Equity = 两者之和）是需求；账本实现在引擎 |
+| wallets | 🟡 | 单一 Available 余额（`profiles.balance`）为需求；账本实现在引擎。**2026-07-21 更新**：早期"双余额（Available + Trial Bonus 先耗）"口径作废——Trial Bonus 从未真正上线、发放源已死，已全站下线；新口径为合约账户单余额，Total Equity = spot + balance |
 | transactions | 🟡 | 类型/状态生命周期 + "写入必须服务端收敛"是需求（见 SEC1/SEC2）；表结构自选 |
 | deposit_addresses | 🔴 | 正式充值地址由 Cobo 分配 |
 | recovery_requests | 🟢 | v2 规则照抄：3 态状态机（submitted/completed/rejected）+ 固定 10% 费率；`quoted_at/accepted_at` 是 v1 遗留字段，不实现 |
