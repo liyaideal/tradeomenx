@@ -37,6 +37,8 @@ export interface SettlementData {
   priceHistory: PricePoint[];
   /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
   sideLabels?: { yes: string; no: string };
+  /** 4B: drives spot branches (hide leverage / funding / position value). */
+  productLine: "futures" | "spot";
 }
 
 interface UseSettlementDetailOptions {
