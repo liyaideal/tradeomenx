@@ -252,6 +252,7 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         trades,
         priceHistory,
         sideLabels,
+        productLine: (mainTrade as any).product_line === "spot" ? "spot" : "futures",
       };
     },
     enabled: !!settlementId && !!user,
