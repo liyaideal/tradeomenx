@@ -19,6 +19,23 @@
 
 ---
 
+## 2026-07-22 — 现货结算演示流 + 种子日常化（轮次 4A）
+
+源文档：[2026-07-22-spot-settlement-and-daily-seed.md](./2026-07-22-spot-settlement-and-daily-seed.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| SS1 | `sim-settle-spot` EF：扫 `product_lines⊇{'spot'}` AND `expected_settlement_time<now()` AND `lifecycle_status!='SETTLED'` 事件，YES mark≥0.5 判胜；胜方 spot_balance +$1/份、负方清零；持仓 Closed；trade_profit/trade_loss 流水；Pending 挂单撤销+退款；事件 SETTLED + `is_resolved=true` 硬同步 + `winning_option_id` + `settlement_description` | `supabase/functions/sim-settle-spot/index.ts` | ✅ | 手动 POST 后 7-21 三只到期事件全部 SETTLED，胜方 spot_balance 增加、持仓关闭 | 幂等；SETTLED 事件跳过；单事件失败不阻塞 |
+| SS2 | `sim-daily-seed` EF + pg_cron `5 21 * * *`（周末跳过）：先调 `sim-settle-spot`，再 upsert 下一交易日 10 只 US 股票 up/down 事件（AAPL/NVDA/TSLA/MSFT/AMZN/META/GOOGL/AMD/COIN/HOOD） | `supabase/functions/sim-daily-seed/index.ts` · `cron.job` | ✅ | 手动 POST 非周末，下一交易日新增 10 只 `us-{sym}-updown-{yyyymmdd}` 事件；`event_options` 两行 + `price_history` 一条种子 | US 假日忽略（DEMO 简化）；base_price 承接前期结算价，无则 seed；Yes 初值 hash 派生（可复现） |
+| SS3 | Transparency 现货口径：`useTradeVerification` `TradeRecord` 增 `product_line`；现货 sell → `Reduce (raw=1)` 分支；结果 DB Side 显示 BUY/REDUCE；`TradeVerification.tsx` 选择列表 & 结果头对现货渲染 SPOT 徽标（复用流水同款胶囊） | `src/hooks/useTradeVerification.ts` · `src/components/transparency/TradeVerification.tsx` | ✅ | 选一条现货 Filled trade：列表 & 结果头 SPOT 徽标；Side 显示 BUY 或 REDUCE，不再显示 SHORT/Close No | |
+| SS4 | `accrue-funding` 硬过滤 `product_line='futures'`（不再依赖 funding_rate=0 侥幸） | `supabase/functions/accrue-funding/index.ts` | ✅ | funding cron 跑完后 `position_funding_ledger` 无现货持仓记录 | |
+| SS5 | 占位常量转正：`PRE_FREEZE_MINUTES_BEFORE_CLOSE=15` + 新增 `SETTLEMENT_CREDIT_BY_ET="16:30"` 常量，注释改 CONFIRMED（product decision 2026-07-22） | `src/lib/usStockSessions.ts` | ✅ | grep 无 `PLACEHOLDER: pending confirmation` 字样 | 正式版以结算服务 SLA 为准 |
+| SS6 | 三件套 + boundary：changelog 2026-07-22 + INDEX 顶部一行 + STATUS 批次节 + `backend-boundary.md` append 现货结算章节 | 本文件 · INDEX · backend-boundary | ✅ | 四文件均含 2026-07-22 章节 | Append-only |
+
+**明确不做**（下轮 4B）：Settlements/Resolved 页面 UI 重排、搜索按 product_line 分线、收藏系统对现货的对齐。7-21 存量三只事件由 sim-settle-spot 首跑自然结算，不特判。
+
+---
+
 ## 2026-07-21 — Trial Bonus 全面下线
 
 源文档：[2026-07-21-trial-bonus-sunset.md](./2026-07-21-trial-bonus-sunset.md)
