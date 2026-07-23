@@ -4,10 +4,13 @@
 // expected_settlement_time < now() AND lifecycle_status != 'SETTLED'.
 //
 // Per event:
-//   0) Optimistic guard: flip lifecycle_status→'SETTLING' before doing any
-//      cash writes, so a mid-flight crash + retry can't double-credit
-//      (SETTLING is not SETTLED, so a retry re-enters, but the option
-//      updates and position closures are idempotent by state check).
+//   0) Optimistic guard: flip lifecycle_status→'SETTLING' before any cash
+//      writes so concurrent workers don't both enter the settle loop for the
+//      same event. NOTE: this guard does NOT cover the credit→close window —
+//      if the function crashes AFTER `spot_balance += proceeds` but BEFORE
+//      the position flips to Closed, a retry re-enters (SETTLING ≠ SETTLED)
+//      and credits proceeds a second time. See step 2 comment for details.
+//      option updates + position `status='Open'` guard are idempotent.
 //   1) event_options: winner final_price=1 is_winner=true; loser final_price=0.
 //   2) All open spot positions on the event (matched by option_id OR by
 //      option_label as a fallback for legacy rows with NULL option_id):

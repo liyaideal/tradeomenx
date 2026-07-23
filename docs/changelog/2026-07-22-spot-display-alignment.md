@@ -70,8 +70,8 @@
 
 ## 7. 4A 遗留清理
 
-- `sim-settle-spot`：Pending 撤销 SQL 增 `.gte("created_at", ev.start_date)` 下界（配合已存在的 `.lt(expected_settlement_time)` 上界），防同名次日事件误伤（补齐 4A SS11 未考虑到的对称边界）
-- credit→close 微窗口在函数内加 DEMO-STATE 长注释：现货 settle 的 `spot_balance += proceeds` 与 `positions.status='Closed'` 是**两次写**（非事务）；**如实说明**——如果崩溃发生在 credit 之后、close 之前，重试会再次进入循环并第二次入账（`status='Open'` guard 不覆盖该窗口），仅在 close 已成功时才幂等；demo/testnet 可接受，生产必须迁至单事务 RPC
+- `sim-settle-spot`：Pending 撤销 SQL 现拥有对称时间窗 `.gte("created_at", ev.start_date)`（4B 修复轮新增，防同名次日事件误伤）+ `.lte("created_at", ev.expected_settlement_time)`（4B 收尾轮新增，防同名次日事件在结算后开的新单被扫入），配合原 `event_name` 过滤形成三重定位
+- credit→close 微窗口在函数内加 DEMO-STATE 长注释：现货 settle 的 `spot_balance += proceeds` 与 `positions.status='Closed'` 是**两次写**（非事务）；**如实说明**——如果崩溃发生在 credit 之后、close 之前，重试会再次进入循环并第二次入账（step 0 的 SETTLING guard 不覆盖该窗口，`status='Open'` guard 也仅在 close 已成功时才幂等）；demo/testnet 可接受，生产必须迁至单事务 RPC
 
 ## 8. DESIGN.md 同步
 
