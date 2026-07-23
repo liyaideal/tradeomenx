@@ -35,6 +35,8 @@
 
 **明确不做**：Win Rate 统计逻辑、点击路由、券体系、双账户内核、schema 变更、HomeSearchBar 全量搜索、双线事件多行渲染（DESIGN.md §16 预留规则待后续 PR）。
 
+**Backlog（下一轮）**：`useResolvedEvents` trade↔event join 仍走 `.in("event_name", eventNames)`，同名不同日的已结算事件卡会汇总同产品线全部天数 PnL（sim-daily-seed 每日复用同名事件放大该问题）；后续套用 `useSettlements` 同款 `[start_date, expected_settlement_time + 15min]` 时间窗匹配 + 事件 id 维度分组隔离。
+
 ---
 
 
