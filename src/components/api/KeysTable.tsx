@@ -1,11 +1,41 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { STATUS_STYLES } from "@/lib/statusStyles";
 import { formatDistanceToNow } from "date-fns";
 import { Globe, Clock, CalendarPlus, Trash2 } from "lucide-react";
 import type { ApiKey } from "@/hooks/useApiKeys";
 import { TIER_META } from "./tierMeta";
+
+const IpHoverList = ({
+  ips,
+  children,
+}: {
+  ips: string[];
+  children: React.ReactNode;
+}) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <button
+        type="button"
+        className="font-mono underline decoration-dotted decoration-muted-foreground/40 underline-offset-4 cursor-help text-left"
+      >
+        {children}
+      </button>
+    </TooltipTrigger>
+    <TooltipContent side="top" align="start" className="max-w-xs">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+        IP whitelist
+      </div>
+      <ul className="font-mono text-xs space-y-0.5">
+        {ips.map((ip) => (
+          <li key={ip}>{ip}</li>
+        ))}
+      </ul>
+    </TooltipContent>
+  </Tooltip>
+);
 
 export const KeysTable = ({
   keys,
@@ -15,6 +45,8 @@ export const KeysTable = ({
   onRevoke: (k: ApiKey) => void;
 }) => {
   return (
+    <TooltipProvider delayDuration={100}>
+
     <>
       {/* ---------- Desktop table (md+) ---------- */}
       <div className="hidden md:block border-y border-border/40">
@@ -61,8 +93,15 @@ export const KeysTable = ({
                   )}
                 </div>
                 <div className="font-mono text-muted-foreground">
-                  {k.ip_whitelist.length > 0 ? `${k.ip_whitelist.length} IP${k.ip_whitelist.length > 1 ? "s" : ""}` : "—"}
+                  {k.ip_whitelist.length > 0 ? (
+                    <IpHoverList ips={k.ip_whitelist}>
+                      {`${k.ip_whitelist.length} IP${k.ip_whitelist.length > 1 ? "s" : ""}`}
+                    </IpHoverList>
+                  ) : (
+                    "—"
+                  )}
                 </div>
+
                 <div className="font-mono text-muted-foreground">
                   {formatDistanceToNow(new Date(k.created_at), { addSuffix: true })}
                 </div>
@@ -160,7 +199,12 @@ export const KeysTable = ({
                     <Globe className="w-3 h-3" /> IP
                   </div>
                   <div className="font-mono text-foreground/80">
-                    {k.ip_whitelist.length > 0 ? `${k.ip_whitelist.length}` : "—"}
+                    {k.ip_whitelist.length > 0 ? (
+                      <IpHoverList ips={k.ip_whitelist}>{k.ip_whitelist.length}</IpHoverList>
+                    ) : (
+                      "—"
+                    )}
+
                   </div>
                 </div>
                 <div className="min-w-0">
@@ -197,5 +241,7 @@ export const KeysTable = ({
         })}
       </div>
     </>
+    </TooltipProvider>
   );
+
 };
