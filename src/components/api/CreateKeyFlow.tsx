@@ -115,7 +115,7 @@ export const CreateKeyFlow = ({
       ? "Select scopes and configure IP whitelist."
       : step === 3
       ? "Verify with your 2FA code to generate the key."
-      : "Copy the secret now — it will not be shown again.";
+      : "Copy your API key now — it will not be shown again.";
 
   const body = (
     <div className="space-y-4">
