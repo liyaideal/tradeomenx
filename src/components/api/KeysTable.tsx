@@ -206,9 +206,9 @@ export const KeysTable = ({
                   <div className="text-[15px] font-semibold text-foreground leading-tight">
                     {k.label}
                   </div>
-                  <code className="mt-1 block font-mono text-[11px] text-muted-foreground truncate">
-                    {k.key_prefix}
-                  </code>
+                  <div className="mt-1">
+                    <KeyHover apiKey={k} />
+                  </div>
                 </div>
                 {active ? (
                   <Badge variant="outline" className={cn("text-[10px] shrink-0", STATUS_STYLES.active.badge)}>
