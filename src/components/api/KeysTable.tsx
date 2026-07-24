@@ -199,7 +199,12 @@ export const KeysTable = ({
                     <Globe className="w-3 h-3" /> IP
                   </div>
                   <div className="font-mono text-foreground/80">
-                    {k.ip_whitelist.length > 0 ? `${k.ip_whitelist.length}` : "—"}
+                    {k.ip_whitelist.length > 0 ? (
+                      <IpHoverList ips={k.ip_whitelist}>{k.ip_whitelist.length}</IpHoverList>
+                    ) : (
+                      "—"
+                    )}
+
                   </div>
                 </div>
                 <div className="min-w-0">
