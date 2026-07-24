@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { STATUS_STYLES } from "@/lib/statusStyles";
 import { formatDistanceToNow } from "date-fns";
-import { Globe, Clock, CalendarPlus, Trash2 } from "lucide-react";
+import { Globe, Clock, CalendarPlus, Trash2, Copy, Check } from "lucide-react";
 import type { ApiKey } from "@/hooks/useApiKeys";
 import { TIER_META } from "./tierMeta";
 
@@ -36,6 +37,54 @@ const IpHoverList = ({
     </TooltipContent>
   </Tooltip>
 );
+
+const KeyHover = ({ apiKey }: { apiKey: ApiKey }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(apiKey.key_prefix);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // ignore
+    }
+  };
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className="font-mono underline decoration-dotted decoration-muted-foreground/40 underline-offset-4 cursor-help text-left text-[11px] text-muted-foreground truncate w-full block"
+        >
+          {apiKey.key_prefix}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" align="start" className="max-w-xs">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+          Key prefix
+        </div>
+        <div className="flex items-center gap-2">
+          <code className="font-mono text-xs break-all">{apiKey.key_prefix}</code>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="shrink-0 p-1 rounded hover:bg-muted transition-colors"
+            aria-label="Copy key prefix"
+          >
+            {copied ? (
+              <Check className="w-3.5 h-3.5 text-trading-green" />
+            ) : (
+              <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+            )}
+          </button>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+};
 
 export const KeysTable = ({
   keys,
@@ -71,7 +120,7 @@ export const KeysTable = ({
                 className="grid grid-cols-[1.2fr_1.6fr_0.8fr_1.8fr_0.6fr_0.9fr_0.9fr_0.7fr_0.7fr] gap-3 items-center px-3 py-3 text-xs hover:bg-muted/20 transition-colors"
               >
                 <div className="font-medium text-xs">{k.label}</div>
-                <div className="font-mono text-[11px] text-muted-foreground truncate">{k.key_prefix}</div>
+                <KeyHover apiKey={k} />
                 <div>
                   <Badge variant="outline" className={cn("text-[10px]", meta.chip)}>
                     {meta.label}
@@ -157,9 +206,9 @@ export const KeysTable = ({
                   <div className="text-[15px] font-semibold text-foreground leading-tight">
                     {k.label}
                   </div>
-                  <code className="mt-1 block font-mono text-[11px] text-muted-foreground truncate">
-                    {k.key_prefix}
-                  </code>
+                  <div className="mt-1">
+                    <KeyHover apiKey={k} />
+                  </div>
                 </div>
                 {active ? (
                   <Badge variant="outline" className={cn("text-[10px] shrink-0", STATUS_STYLES.active.badge)}>
