@@ -64,7 +64,7 @@ const KeyHover = ({ apiKey }: { apiKey: ApiKey }) => {
       </TooltipTrigger>
       <TooltipContent side="top" align="start" className="max-w-xs">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-          Key prefix
+          API key prefix
         </div>
         <div className="flex items-center gap-2">
           <code className="font-mono text-xs break-all">{apiKey.key_prefix}</code>
@@ -72,7 +72,7 @@ const KeyHover = ({ apiKey }: { apiKey: ApiKey }) => {
             type="button"
             onClick={handleCopy}
             className="shrink-0 p-1 rounded hover:bg-muted transition-colors"
-            aria-label="Copy key prefix"
+            aria-label="Copy API key prefix"
           >
             {copied ? (
               <Check className="w-3.5 h-3.5 text-trading-green" />
