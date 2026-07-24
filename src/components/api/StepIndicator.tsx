@@ -7,7 +7,7 @@ export const STEP_TITLES: Record<WizardStep, string> = {
   1: "Label & tier",
   2: "Scopes & IP",
   3: "Verify 2FA",
-  4: "Save secret",
+  4: "Save key",
 };
 
 export const StepIndicator = ({
