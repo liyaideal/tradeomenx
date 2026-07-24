@@ -229,5 +229,7 @@ export const KeysTable = ({
         })}
       </div>
     </>
+    </TooltipProvider>
   );
+
 };
