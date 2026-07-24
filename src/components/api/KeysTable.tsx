@@ -93,8 +93,15 @@ export const KeysTable = ({
                   )}
                 </div>
                 <div className="font-mono text-muted-foreground">
-                  {k.ip_whitelist.length > 0 ? `${k.ip_whitelist.length} IP${k.ip_whitelist.length > 1 ? "s" : ""}` : "—"}
+                  {k.ip_whitelist.length > 0 ? (
+                    <IpHoverList ips={k.ip_whitelist}>
+                      {`${k.ip_whitelist.length} IP${k.ip_whitelist.length > 1 ? "s" : ""}`}
+                    </IpHoverList>
+                  ) : (
+                    "—"
+                  )}
                 </div>
+
                 <div className="font-mono text-muted-foreground">
                   {formatDistanceToNow(new Date(k.created_at), { addSuffix: true })}
                 </div>
