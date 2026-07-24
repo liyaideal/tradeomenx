@@ -239,7 +239,7 @@ export const Step4Secret = ({
       </Button>
     </div>
     <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-      <ShieldCheck className="w-3 h-3" /> Send this secret in the{" "}
+      <ShieldCheck className="w-3 h-3" /> Send this API key in the{" "}
       <code className="font-mono">X-OMENX-API-KEY</code> header.
     </div>
   </div>
