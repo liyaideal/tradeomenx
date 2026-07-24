@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { STATUS_STYLES } from "@/lib/statusStyles";
 import { formatDistanceToNow } from "date-fns";
-import { Globe, Clock, CalendarPlus, Trash2 } from "lucide-react";
+import { Globe, Clock, CalendarPlus, Trash2, Copy, Check } from "lucide-react";
 import type { ApiKey } from "@/hooks/useApiKeys";
 import { TIER_META } from "./tierMeta";
 
