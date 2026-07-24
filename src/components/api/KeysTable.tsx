@@ -45,6 +45,8 @@ export const KeysTable = ({
   onRevoke: (k: ApiKey) => void;
 }) => {
   return (
+    <TooltipProvider delayDuration={100}>
+
     <>
       {/* ---------- Desktop table (md+) ---------- */}
       <div className="hidden md:block border-y border-border/40">
