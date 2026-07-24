@@ -155,11 +155,11 @@ export const CreateKeyFlow = ({
         <Step4Secret
           secret={newSecret}
           copied={copied}
-          onCopy={() => {
-            navigator.clipboard.writeText(newSecret);
-            setCopied(true);
-            toast.success("Secret copied");
-          }}
+            onCopy={() => {
+              navigator.clipboard.writeText(newSecret);
+              setCopied(true);
+              toast.success("API key copied");
+            }}
         />
       )}
     </div>
