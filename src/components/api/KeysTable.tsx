@@ -120,7 +120,7 @@ export const KeysTable = ({
                 className="grid grid-cols-[1.2fr_1.6fr_0.8fr_1.8fr_0.6fr_0.9fr_0.9fr_0.7fr_0.7fr] gap-3 items-center px-3 py-3 text-xs hover:bg-muted/20 transition-colors"
               >
                 <div className="font-medium text-xs">{k.label}</div>
-                <div className="font-mono text-[11px] text-muted-foreground truncate">{k.key_prefix}</div>
+                <KeyHover apiKey={k} />
                 <div>
                   <Badge variant="outline" className={cn("text-[10px]", meta.chip)}>
                     {meta.label}
