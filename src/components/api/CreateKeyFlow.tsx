@@ -115,7 +115,7 @@ export const CreateKeyFlow = ({
       ? "Select scopes and configure IP whitelist."
       : step === 3
       ? "Verify with your 2FA code to generate the key."
-      : "Copy the secret now — it will not be shown again.";
+      : "Copy your API key now — it will not be shown again.";
 
   const body = (
     <div className="space-y-4">
@@ -155,11 +155,11 @@ export const CreateKeyFlow = ({
         <Step4Secret
           secret={newSecret}
           copied={copied}
-          onCopy={() => {
-            navigator.clipboard.writeText(newSecret);
-            setCopied(true);
-            toast.success("Secret copied");
-          }}
+            onCopy={() => {
+              navigator.clipboard.writeText(newSecret);
+              setCopied(true);
+              toast.success("API key copied");
+            }}
         />
       )}
     </div>

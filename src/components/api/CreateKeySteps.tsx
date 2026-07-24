@@ -219,12 +219,12 @@ export const Step4Secret = ({
     <div className="rounded-lg border border-amber-400/40 bg-amber-400/[0.06] p-3 flex items-start gap-2">
       <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
       <div className="text-xs text-amber-100/90 leading-relaxed">
-        <div className="font-medium text-amber-300 mb-0.5">Save this secret now.</div>
+        <div className="font-medium text-amber-300 mb-0.5">Save this API key now.</div>
         It will never be shown again. If you lose it, you'll need to revoke the key and create a new one.
       </div>
     </div>
     <div className="rounded-lg border-2 border-primary/40 bg-gradient-to-br from-primary/[0.06] to-transparent p-4">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Your API secret</div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Your API key</div>
       <code className="block font-mono text-sm md:text-base text-foreground break-all leading-relaxed select-all">
         {secret}
       </code>
@@ -235,11 +235,11 @@ export const Step4Secret = ({
         onClick={onCopy}
       >
         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-        {copied ? "Copied to clipboard" : "Copy secret"}
+        {copied ? "Copied" : "Copy API key"}
       </Button>
     </div>
     <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-      <ShieldCheck className="w-3 h-3" /> Send this secret in the{" "}
+      <ShieldCheck className="w-3 h-3" /> Send this API key in the{" "}
       <code className="font-mono">X-OMENX-API-KEY</code> header.
     </div>
   </div>
