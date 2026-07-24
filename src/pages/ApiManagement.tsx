@@ -37,7 +37,7 @@ const ApiManagement = () => {
         <div className="pb-8">
           <PageHeader
             title="Keys & access"
-            subtitle="Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain text."
+            subtitle="Generate signed keys for programmatic access. API keys are shown once at creation and never stored in plain text."
           />
         </div>
       )}
