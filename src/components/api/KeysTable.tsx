@@ -38,6 +38,54 @@ const IpHoverList = ({
   </Tooltip>
 );
 
+const KeyHover = ({ apiKey }: { apiKey: ApiKey }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(apiKey.key_prefix);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // ignore
+    }
+  };
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className="font-mono underline decoration-dotted decoration-muted-foreground/40 underline-offset-4 cursor-help text-left text-[11px] text-muted-foreground truncate w-full block"
+        >
+          {apiKey.key_prefix}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" align="start" className="max-w-xs">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+          Key prefix
+        </div>
+        <div className="flex items-center gap-2">
+          <code className="font-mono text-xs break-all">{apiKey.key_prefix}</code>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="shrink-0 p-1 rounded hover:bg-muted transition-colors"
+            aria-label="Copy key prefix"
+          >
+            {copied ? (
+              <Check className="w-3.5 h-3.5 text-trading-green" />
+            ) : (
+              <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+            )}
+          </button>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+};
+
 export const KeysTable = ({
   keys,
   onRevoke,
