@@ -101,7 +101,7 @@ export const KeysTable = ({
       <div className="hidden md:block border-y border-border/40">
         <div className="grid grid-cols-[1.2fr_1.6fr_0.8fr_1.8fr_0.6fr_0.9fr_0.9fr_0.7fr_0.7fr] gap-3 px-3 py-2 text-[10px] uppercase tracking-wider text-muted-foreground/70 border-b border-border/40">
           <div>Label</div>
-          <div>Key</div>
+          <div>API key</div>
           <div>Tier</div>
           <div>Scopes</div>
           <div>IP</div>
