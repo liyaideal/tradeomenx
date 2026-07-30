@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { STATUS_STYLES } from "@/lib/statusStyles";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 import { Globe, Clock, CalendarPlus, Trash2, Copy, Check } from "lucide-react";
 import type { ApiKey } from "@/hooks/useApiKeys";
 import { TIER_META } from "./tierMeta";
@@ -152,10 +152,10 @@ export const KeysTable = ({
                 </div>
 
                 <div className="font-mono text-muted-foreground">
-                  {formatDistanceToNow(new Date(k.created_at), { addSuffix: true })}
+                  {formatDistanceToNowStrict(new Date(k.created_at), { addSuffix: true })}
                 </div>
                 <div className="font-mono text-muted-foreground">
-                  {k.last_used_at ? formatDistanceToNow(new Date(k.last_used_at), { addSuffix: true }) : "Never"}
+                  {k.last_used_at ? formatDistanceToNowStrict(new Date(k.last_used_at), { addSuffix: true }) : "Never"}
                 </div>
                 <div>
                   {active ? (
@@ -261,7 +261,7 @@ export const KeysTable = ({
                     <CalendarPlus className="w-3 h-3" /> Created
                   </div>
                   <div className="font-mono text-foreground/80 truncate">
-                    {formatDistanceToNow(new Date(k.created_at))}
+                    {formatDistanceToNowStrict(new Date(k.created_at))}
                   </div>
                 </div>
                 <div className="min-w-0">
@@ -269,7 +269,7 @@ export const KeysTable = ({
                     <Clock className="w-3 h-3" /> Last used
                   </div>
                   <div className="font-mono text-foreground/80 truncate">
-                    {k.last_used_at ? formatDistanceToNow(new Date(k.last_used_at)) : "Never"}
+                    {k.last_used_at ? formatDistanceToNowStrict(new Date(k.last_used_at)) : "Never"}
                   </div>
                 </div>
               </div>
