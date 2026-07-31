@@ -4,6 +4,8 @@ description: Desktop-only floating bottom-left pill linking to OmenX Sports duri
 type: feature
 ---
 
+> ⚠️ RETIRED 2026-07-31 — Sports/World Cup entries taken offline. Do NOT re-add nav/home/banner entries unless explicitly re-launched.
+
 ## Purpose
 Persistent floating CTA so **desktop** users on the main OmenX site can jump to OmenX Sports
 without changing the header. Header (including the MAINNET chip) is intentionally untouched.
