@@ -94,8 +94,7 @@ const MobileHome = () => {
 
       <BottomNav />
 
-      
-      <BottomNav />
+
 
 
       <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
