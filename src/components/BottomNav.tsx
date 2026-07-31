@@ -92,18 +92,20 @@ export const BottomNav = () => {
               triggerHaptic('light');
               setProfileSheetOpen(true);
             }}
-            className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+            className={`w-full flex flex-col items-center gap-1 transition-all duration-300 ${
               location.pathname === "/portfolio"
                 ? "text-primary scale-110" 
                 : "text-muted-foreground scale-100 hover:scale-105"
             }`}
           >
-            <Avatar className="w-6 h-6 border border-border">
-              <AvatarImage src={avatarUrl || undefined} alt="User" />
-              <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                {username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
-              </AvatarFallback>
-            </Avatar>
+            <span className="h-6 flex items-center justify-center">
+              <Avatar className="w-6 h-6 border border-border">
+                <AvatarImage src={avatarUrl || undefined} alt="User" />
+                <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                  {username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
+                </AvatarFallback>
+              </Avatar>
+            </span>
             <span className={`text-xs transition-all duration-300 ${
               location.pathname === "/portfolio" ? "font-semibold" : "font-medium"
             }`}>Me</span>
@@ -114,9 +116,11 @@ export const BottomNav = () => {
               triggerHaptic('light');
               setAuthSheetOpen(true);
             }}
-            className="flex flex-col items-center gap-1 transition-all duration-300 text-muted-foreground hover:text-foreground hover:scale-105"
+            className="w-full flex flex-col items-center gap-1 transition-all duration-300 text-muted-foreground hover:text-foreground hover:scale-105"
           >
-            <User className="w-5 h-5" />
+            <span className="h-6 flex items-center justify-center">
+              <User className="w-5 h-5" />
+            </span>
             <span className="text-xs font-medium">Me</span>
           </button>
         )}
