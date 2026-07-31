@@ -13,14 +13,9 @@ export interface CampaignBannerConfig {
   backgroundImage?: string;
 }
 
-export const banners: CampaignBannerConfig[] = [
-  {
-    id: "hedge",
-    href: "/hedge",
-    title: "Hedge your World Cup pick.",
-    ctaLabel: "CLAIM YOUR HEDGE",
-    qualifierChip: { text: "World Cup 2026", tone: "accent" },
-    heroMetric: { value: "$500", label: "Redeem up to" },
-    theme: "poster",
-  },
-];
+/**
+ * RETIRED 2026-07-31 — the World Cup hedge (H2E) banner was taken offline.
+ * The landing page and its components remain; only the home entry was removed.
+ * When empty, CampaignBannerCarousel and HomeCampaignRail render nothing.
+ */
+export const banners: CampaignBannerConfig[] = [];
