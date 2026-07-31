@@ -54,7 +54,7 @@ export const BottomNav = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/50 px-4 py-3 pb-6 z-[200]">
-      <div className="flex justify-around items-end max-w-md mx-auto">
+      <div className="grid grid-cols-4 items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const active = isActive(item.path);
 
@@ -67,15 +67,17 @@ export const BottomNav = () => {
                   navigate(item.path, { replace: true });
                 }
               }}
-              className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+              className={`w-full flex flex-col items-center gap-1 transition-all duration-300 ${
                 active 
                   ? "text-primary scale-110" 
                   : "text-muted-foreground scale-100 hover:scale-105"
               }`}
             >
-              <item.icon className={`w-5 h-5 transition-all duration-300 ${
-                active ? "text-primary" : ""
-              }`} />
+              <span className="h-6 flex items-center justify-center">
+                <item.icon className={`w-5 h-5 transition-all duration-300 ${
+                  active ? "text-primary" : ""
+                }`} />
+              </span>
               <span className={`text-xs transition-all duration-300 ${
                 active ? "font-semibold" : "font-medium"
               }`}>{item.label}</span>
@@ -90,18 +92,20 @@ export const BottomNav = () => {
               triggerHaptic('light');
               setProfileSheetOpen(true);
             }}
-            className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+            className={`w-full flex flex-col items-center gap-1 transition-all duration-300 ${
               location.pathname === "/portfolio"
                 ? "text-primary scale-110" 
                 : "text-muted-foreground scale-100 hover:scale-105"
             }`}
           >
-            <Avatar className="w-6 h-6 border border-border">
-              <AvatarImage src={avatarUrl || undefined} alt="User" />
-              <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                {username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
-              </AvatarFallback>
-            </Avatar>
+            <span className="h-6 flex items-center justify-center">
+              <Avatar className="w-6 h-6 border border-border">
+                <AvatarImage src={avatarUrl || undefined} alt="User" />
+                <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                  {username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
+                </AvatarFallback>
+              </Avatar>
+            </span>
             <span className={`text-xs transition-all duration-300 ${
               location.pathname === "/portfolio" ? "font-semibold" : "font-medium"
             }`}>Me</span>
@@ -112,9 +116,11 @@ export const BottomNav = () => {
               triggerHaptic('light');
               setAuthSheetOpen(true);
             }}
-            className="flex flex-col items-center gap-1 transition-all duration-300 text-muted-foreground hover:text-foreground hover:scale-105"
+            className="w-full flex flex-col items-center gap-1 transition-all duration-300 text-muted-foreground hover:text-foreground hover:scale-105"
           >
-            <User className="w-5 h-5" />
+            <span className="h-6 flex items-center justify-center">
+              <User className="w-5 h-5" />
+            </span>
             <span className="text-xs font-medium">Me</span>
           </button>
         )}
