@@ -7,14 +7,11 @@ import { toast } from "sonner";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { SPORTS_LINK } from "@/lib/worldCup";
-import soccerBallAsset from "@/assets/soccer-ball.png.asset.json";
 
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", disabled: false },
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
-  { icon: User, label: "Sports", path: "__sports__", disabled: false, featured: true, external: true },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
 ];
 
@@ -60,37 +57,7 @@ export const BottomNav = () => {
       <div className="flex justify-around items-end max-w-md mx-auto">
         {navItems.map((item) => {
           const active = isActive(item.path);
-          const isFeatured = item.featured;
-          
-          if (isFeatured) {
-            return (
-              <button
-                key={item.path}
-                onClick={() => {
-                  triggerHaptic('medium');
-                  window.open(SPORTS_LINK, "_blank", "noopener,noreferrer");
-                }}
-                className="relative flex flex-col items-center gap-1 w-20 -mt-2"
-                aria-label="Open Sports"
-              >
-                <div className="animate-ball-bounce">
-                  <div className="relative w-10 h-10 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">
-                    <img
-                      src={soccerBallAsset.url}
-                      alt=""
-                      className="animate-ball-spin w-7 h-7 object-contain"
-                      draggable={false}
-                    />
-                    <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
-                  </div>
-                </div>
-                <span className="text-[10px] font-bold tracking-wide uppercase text-amber-500">
-                  {item.label}
-                </span>
-              </button>
-            );
-          }
-          
+
           return (
             <button
               key={item.path}

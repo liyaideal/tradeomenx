@@ -10,7 +10,6 @@ export { UserIdentitySection } from "./UserIdentitySection";
 export { DepositWithdrawSection } from "./DepositWithdrawSection";
 export { TransparencySection } from "./TransparencySection";
 export { VouchersSection } from "./VouchersSection";
-export { WorldCupSection } from "./WorldCupSection";
 export { SpotSection } from "./SpotSection";
 export { ApiSection } from "./ApiSection";
 export { StatesSection } from "./StatesSection";

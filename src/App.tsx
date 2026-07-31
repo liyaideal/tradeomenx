@@ -47,7 +47,6 @@ import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
 import { AirdropNotificationToast } from "./components/AirdropNotificationToast";
-import { SportsLauncher } from "./components/SportsLauncher";
 import { useOrderSimulation } from "./hooks/useOrderSimulation";
 
 const queryClient = new QueryClient();
@@ -105,7 +104,6 @@ const App = () => (
               path="*"
               element={
                 <ResponsiveLayout>
-                  <SportsLauncher />
                   <Routes>
                     <Route path="/" element={<HomePage />} />
               <Route path="/trade" element={<TradingPage />} />

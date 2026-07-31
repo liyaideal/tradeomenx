@@ -25,7 +25,6 @@ import {
   DepositWithdrawSection,
   TransparencySection,
   VouchersSection,
-  WorldCupSection,
   SpotSection,
   ApiSection,
   StatesSection,
@@ -57,7 +56,6 @@ const StyleGuideIndex = () => {
     { id: "identity", label: "Identity", icon: "👤" },
     { id: "transparency", label: "Transparency", icon: "🔗" },
     { id: "vouchers", label: "Vouchers", icon: "🎫" },
-    { id: "worldcup", label: "World Cup", icon: "🏆" },
     { id: "spot", label: "Spot", icon: "📈" },
     { id: "api", label: "API", icon: "🔑" },
     { id: "states", label: "States", icon: "🧱" },
@@ -197,10 +195,6 @@ const StyleGuideIndex = () => {
 
           <TabsContent value="vouchers" className="mt-0">
             <VouchersSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="worldcup" className="mt-0">
-            <WorldCupSection isMobile={isMobile} />
           </TabsContent>
 
           <TabsContent value="spot" className="mt-0">
