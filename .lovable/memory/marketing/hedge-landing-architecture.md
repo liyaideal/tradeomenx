@@ -4,6 +4,8 @@ description: /hedge page section order, retro-poster World Cup theme, page-scope
 type: design
 ---
 
+> ⚠️ RETIRED 2026-07-31 — Sports/World Cup entries taken offline. Do NOT re-add nav/home/banner entries unless explicitly re-launched.
+
 `/hedge` is the **World Cup 2026 Hedge-to-Earn** campaign, Retro Football Poster aesthetic. It is NOT generic dark-app UI — it intentionally breaks out of the product shell visually while keeping `EventsDesktopHeader` / `MobileHeader` / `SeoFooter` intact.
 
 ## Section order (do not reorder, do not re-add deleted sections)

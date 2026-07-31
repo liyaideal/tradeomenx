@@ -157,7 +157,10 @@ export const CampaignBannerCarousel = ({ variant = "desktop", className }: Campa
     navigate(ref ? `${path}?ref=${encodeURIComponent(ref)}` : path);
   };
 
+  if (banners.length === 0) return null;
+
   return (
+
     <div
       className={cn("relative w-full max-w-full overflow-hidden", className)}
       onMouseEnter={() => setIsPaused(true)}

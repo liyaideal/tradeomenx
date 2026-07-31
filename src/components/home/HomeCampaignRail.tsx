@@ -56,7 +56,10 @@ export const HomeCampaignRail = () => {
     navigate(ref ? `${path}?ref=${encodeURIComponent(ref)}` : path);
   };
 
+  if (banners.length === 0) return null;
+
   return (
+
     <section>
       <div className="mb-2 flex items-end justify-between gap-2 px-1">
         <h2 className="text-[18px] font-extrabold uppercase tracking-tight text-foreground">

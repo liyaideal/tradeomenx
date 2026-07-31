@@ -4,6 +4,8 @@ description: Persistent floating panel docked bottom-right during the World Cup 
 type: feature
 ---
 
+> ⚠️ RETIRED 2026-07-31 — Sports/World Cup entries taken offline. Do NOT re-add nav/home/banner entries unless explicitly re-launched.
+
 ## Window
 - **Start:** 2026-06-11 20:00 UTC (Mexico vs South Africa, Estadio Azteca kickoff)
 - **End:** 2026-07-20 04:00 UTC (after the July 19 final)
